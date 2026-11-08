@@ -7,6 +7,7 @@ set(SYNTROPIC_SRCS
     ${SYNTROPIC_DIR}/util/syn_fsm.c
     ${SYNTROPIC_DIR}/util/syn_json_write.c
     ${SYNTROPIC_DIR}/util/syn_json_read.c
+    ${SYNTROPIC_DIR}/util/syn_base64.c
     ${SYNTROPIC_DIR}/cli/syn_cli.c
     ${SYNTROPIC_DIR}/log/syn_log.c
     ${SYNTROPIC_DIR}/net/syn_http.c
@@ -21,6 +22,8 @@ set(SYNTROPIC_SRCS
     ${SYNTROPIC_DIR}/system/syn_errlog.c
     ${SYNTROPIC_DIR}/storage/syn_param.c
     ${SYNTROPIC_DIR}/sched/syn_sched.c
+    ${SYNTROPIC_DIR}/sched/syn_event_flags.c
+    ${SYNTROPIC_DIR}/sched/syn_mutex.c
     ${SYNTROPIC_DIR}/sched/syn_timer.c
     ${SYNTROPIC_DIR}/display/syn_canvas.c
     ${SYNTROPIC_DIR}/ui/syn_imgui.c
@@ -35,5 +38,5 @@ idf_component_register(
         "${CMAKE_CURRENT_SOURCE_DIR}/../../../src"
     REQUIRES
         driver esp_wifi esp_event nvs_flash esp_netif esp_http_client
-        esp_timer console vfs spi_flash app_update
+        esp_timer esp_rom console vfs spi_flash app_update
 )

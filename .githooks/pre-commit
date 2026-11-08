@@ -1,15 +1,14 @@
-#!/bin/sh
-# Pre-commit hook for SyntropicOS (Always Container-based)
+#!/usr/bin/env bash
+set -euo pipefail
 
-echo "=== [Pre-Commit] Running Container Code Formatting (make container-format FIX=1) ==="
+# Pre-commit hook for SyntropicOS (Check-only; never auto-stages unstaged files)
+echo "=== [Pre-Commit] Running Container Code Formatting Check (make container-format FIX=0) ==="
 
 MAKE_BIN="make"
 if command -v mingw32-make >/dev/null 2>&1 && ! command -v make >/dev/null 2>&1; then
     MAKE_BIN="mingw32-make"
 fi
 
-$MAKE_BIN container-format FIX=1
-git add -u
+"${MAKE_BIN}" container-format FIX=0
 
-echo "=== [Pre-Commit] Container Formatting Complete ==="
-exit 0
+echo "=== [Pre-Commit] Container Formatting Check PASS ==="

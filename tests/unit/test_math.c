@@ -192,8 +192,9 @@ static void test_q16_inv_and_rsqrt(void)
     /* 1 / sqrt(1.0) = 1.0 */
     TEST_ASSERT_EQUAL_INT32(Q16_ONE, q16_rsqrt(Q16_ONE));
 
-    /* q16_hypot large value clamping */
-    TEST_ASSERT_EQUAL_INT32(INT32_MAX, q16_hypot(INT32_MAX / 2, INT32_MAX / 2));
+    /* q16_hypot exact non-overflow at INT32_MAX / 2 (~23170.47) and clamping at INT32_MAX */
+    TEST_ASSERT_INT32_WITHIN(4, 1518500249, q16_hypot(INT32_MAX / 2, INT32_MAX / 2));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, q16_hypot(INT32_MAX, INT32_MAX));
 }
 
 static void test_q16_exp_log_fast(void)
@@ -300,6 +301,7 @@ static void test_q16_str_conversion_branches(void)
 
     /* 5. q16_from_str precision limit (> 5 fractional digits) */
     TEST_ASSERT_GREATER_THAN(0, q16_from_str("1.12345678", &val));
+    TEST_ASSERT_EQUAL_UINT(10U, q16_from_str("1.12345678", &val));
 }
 
 static void test_q16_exp_clamping_and_underflow_branches(void)
@@ -382,6 +384,74 @@ static void test_q16_trig_overflow_and_atan2_poles(void)
     TEST_ASSERT_EQUAL_UINT(0, q16_to_str(Q16_FROM_INT(5), str_buf, 0, 2));
 }
 
+static void test_r5_qmath_ubsan_and_asin_accuracy(void)
+{
+    /* 1. Negative signed shift UB fixes in q7_to_q16 / q15_to_q16 */
+    TEST_ASSERT_EQUAL_INT32(-Q16_ONE, q7_to_q16(Q7_MIN));
+    TEST_ASSERT_EQUAL_INT32(-Q16_HALF, q7_to_q16(-64));
+    TEST_ASSERT_EQUAL_INT32(-Q16_ONE, q15_to_q16(Q15_MIN));
+    TEST_ASSERT_EQUAL_INT32(-Q16_HALF, q15_to_q16(-16384));
+
+    /* 2. q16_asin / q16_acos accuracy near +-1.0 (< 0.05 deg == 57 LSB in Q16 rad) */
+    /* asin(65535/65536) = 1.5652707 rad = 102582 in Q16.16 */
+    TEST_ASSERT_INT32_WITHIN(50, 102582, q16_asin(Q16_ONE - 1));
+    TEST_ASSERT_INT32_WITHIN(50, -102582, q16_asin(-(Q16_ONE - 1)));
+    /* asin(0.5) = pi/6 = 34315, asin(0.8660254) = pi/3 = 68629 */
+    TEST_ASSERT_INT32_WITHIN(20, 34315, q16_asin(Q16_HALF));
+    TEST_ASSERT_INT32_WITHIN(30, 68629, q16_asin(56756));
+    TEST_ASSERT_INT32_WITHIN(30, -68629, q16_asin(-56756));
+    /* acos(65535/65536) = 0.0055256 rad = 362 in Q16.16 */
+    TEST_ASSERT_INT32_WITHIN(50, 362, q16_acos(Q16_ONE - 1));
+
+    /* 3. q16_hypot accuracy at 150, 150 and UBSan safety on INT32_MIN */
+    /* sqrt(150^2 + 150^2) * 65536 = 13902284 */
+    TEST_ASSERT_INT32_WITHIN(4, 13902284, q16_hypot(Q16_FROM_INT(150), Q16_FROM_INT(150)));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, q16_hypot(INT32_MIN, 0));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, q16_hypot(0, INT32_MIN));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, q16_hypot(INT32_MIN, INT32_MIN));
+
+    /* 4. q16_abs, q16_lerp, q16_div signed overflow guards */
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, q16_abs(INT32_MIN));
+    TEST_ASSERT_EQUAL_INT32(0, q16_lerp(Q16_FROM_INT(-20000), Q16_FROM_INT(20000), Q16_HALF));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, q16_lerp(0, Q16_FROM_INT(20000), Q16_FROM_INT(2)));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, q16_lerp(0, Q16_FROM_INT(-20000), Q16_FROM_INT(2)));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, q16_div(INT32_MIN, -1));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, q16_div(INT32_MIN, -Q16_ONE));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, q16_div(INT32_MIN, 1));
+
+    /* 5. q16_cos / q16_cos_fast near INT32_MAX and INT32_MIN */
+    q16_t c_max = q16_cos(INT32_MAX);
+    q16_t c_min = q16_cos(INT32_MIN);
+    q16_t cf_max = q16_cos_fast(INT32_MAX);
+    q16_t cf_min = q16_cos_fast(INT32_MIN);
+    TEST_ASSERT_TRUE(c_max >= -Q16_ONE - 10 && c_max <= Q16_ONE + 10);
+    TEST_ASSERT_TRUE(c_min >= -Q16_ONE - 10 && c_min <= Q16_ONE + 10);
+    TEST_ASSERT_TRUE(cf_max >= -Q16_ONE - 100 && cf_max <= Q16_ONE + 100);
+    TEST_ASSERT_TRUE(cf_min >= -Q16_ONE - 100 && cf_min <= Q16_ONE + 100);
+
+    /* 6. q16_ceil, q16_round, Q16_TO_INT_ROUND, Q16_FRAC_1000/10000 near extremes */
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, q16_ceil(INT32_MAX));
+    TEST_ASSERT_EQUAL_INT32((q16_t)0x7FFF0000, q16_ceil((q16_t)0x7FFF0000));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, q16_ceil(INT32_MIN));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, q16_round(INT32_MAX));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, q16_round(INT32_MIN));
+    TEST_ASSERT_EQUAL_INT32(32768, Q16_TO_INT_ROUND(INT32_MAX));
+    TEST_ASSERT_EQUAL_INT32(-32768, Q16_TO_INT_ROUND(INT32_MIN));
+    TEST_ASSERT_EQUAL_INT32(0, Q16_FRAC_1000(INT32_MIN));
+    TEST_ASSERT_EQUAL_INT32(0, Q16_FRAC_10000(INT32_MIN));
+    TEST_ASSERT_EQUAL_INT32(250, Q16_FRAC_1000(-Q16_FROM_FRAC(9, 4)));
+    TEST_ASSERT_EQUAL_INT32(2500, Q16_FRAC_10000(-Q16_FROM_FRAC(9, 4)));
+
+    /* 7. q16_from_str saturation on huge positive/negative integers */
+    q16_t parsed = 0;
+    TEST_ASSERT_EQUAL_size_t(12U, q16_from_str("999999999999", &parsed));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, parsed);
+    TEST_ASSERT_EQUAL_size_t(13U, q16_from_str("-999999999999", &parsed));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, parsed);
+    TEST_ASSERT_EQUAL_size_t(6U, q16_from_str("-32768", &parsed));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, parsed);
+}
+
 void run_math_tests(void)
 {
     RUN_TEST(test_qmath);
@@ -402,4 +472,5 @@ void run_math_tests(void)
     RUN_TEST(test_q16_exp_fast_k_overflow);
     RUN_TEST(test_q16_exp_fast_negative_underflow);
     RUN_TEST(test_q16_trig_overflow_and_atan2_poles);
+    RUN_TEST(test_r5_qmath_ubsan_and_asin_accuracy);
 }

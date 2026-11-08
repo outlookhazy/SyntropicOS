@@ -11,10 +11,6 @@
 #ifndef SYN_AUTOIP_H
 #define SYN_AUTOIP_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/net/syn_eth.h"
 #include "syntropic/pt/syn_pt.h"
@@ -22,6 +18,10 @@ extern "C" {
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SYN_AUTOIP_NETMASK 0xFFFF0000UL /**< Link-local network mask 255.255.0.0 */
 #define SYN_AUTOIP_BASE_IP 0xA9FE0101UL /**< Link-local base IP address 169.254.1.1 */
@@ -101,6 +101,7 @@ SYN_Status syn_autoip_process_arp(SYN_AUTOIP *autoip, SYN_ETH *eth, const uint8_
 
 /**
  * @brief Block task execution (SYN_TASK_BLOCKED) until AutoIP link-local binding completes.
+ * @note Driver/timer caller must invoke syn_task_resume(task) when AutoIP reaches BOUND state.
  *
  * @param pt     Protothread context.
  * @param task   Pointer to SYN_Task.

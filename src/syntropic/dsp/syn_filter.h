@@ -15,6 +15,7 @@
 #ifndef SYN_FILTER_H
 #define SYN_FILTER_H
 
+#include "../common/syn_defs.h"
 #include "../util/syn_qmath.h"
 
 #include <stdbool.h>

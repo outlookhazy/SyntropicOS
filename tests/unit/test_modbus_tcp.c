@@ -228,6 +228,82 @@ void test_modbus_tcp_header_length_mismatch(void)
     TEST_ASSERT_TRUE(resp_len > 14);
 }
 
+void test_r5_a08_tcp_fc08_fc0b_fc0c_fc17_no_uart_tx(void)
+{
+    static uint16_t holding_regs[8] = {0x1111U, 0x2222U, 0x3333U, 0x4444U};
+    static uint8_t mb_buf[256];
+    uint8_t resp_adu[256];
+    uint16_t resp_len = 0U;
+
+    mock_port_reset();
+
+    SYN_Modbus mb;
+    SYN_Modbus_Config cfg = {
+        .slave_addr = 1U,
+        .holding_regs = holding_regs,
+        .holding_count = 8U,
+    };
+    syn_modbus_init(&mb, &cfg, mb_buf, sizeof(mb_buf));
+
+    /* 1. FC 0x08 Diagnostics (Return Query Data 0x0000, data 0xA55A) -> 7 MBAP + 5 PDU = 12B */
+    uint8_t fc08_adu[12] = {0U, 1U, 0U, 0U, 0U, 6U, 0xFFU, 0x08U, 0x00U, 0x00U, 0xA5U, 0x5AU};
+    TEST_ASSERT_TRUE(
+        syn_modbus_tcp_process_slave(&mb, fc08_adu, 12U, resp_adu, sizeof(resp_adu), &resp_len));
+    TEST_ASSERT_EQUAL_UINT16(12U, resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0xFFU, resp_adu[6]);
+    TEST_ASSERT_EQUAL_HEX8(0x08U, resp_adu[7]);
+    TEST_ASSERT_EQUAL_HEX8(0xA5U, resp_adu[10]);
+    TEST_ASSERT_EQUAL_HEX8(0x5AU, resp_adu[11]);
+    TEST_ASSERT_EQUAL_size_t(0U, mock_uart_tx_len);
+
+    /* Short FC 0x08 PDU (< 5B) returns Modbus exception 0x88 / 0x03 without UART TX */
+    uint8_t fc08_short[10] = {0U, 2U, 0U, 0U, 0U, 4U, 1U, 0x08U, 0x00U, 0x00U};
+    TEST_ASSERT_TRUE(
+        syn_modbus_tcp_process_slave(&mb, fc08_short, 10U, resp_adu, sizeof(resp_adu), &resp_len));
+    TEST_ASSERT_EQUAL_UINT16(9U, resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0x88U, resp_adu[7]);
+    TEST_ASSERT_EQUAL_size_t(0U, mock_uart_tx_len);
+
+    /* 2. FC 0x0B Get Comm Event Counter -> 7 MBAP + 5 PDU = 12B */
+    uint8_t fc0b_adu[8] = {0U, 3U, 0U, 0U, 0U, 2U, 1U, 0x0BU};
+    TEST_ASSERT_TRUE(
+        syn_modbus_tcp_process_slave(&mb, fc0b_adu, 8U, resp_adu, sizeof(resp_adu), &resp_len));
+    TEST_ASSERT_EQUAL_UINT16(12U, resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0x0BU, resp_adu[7]);
+    TEST_ASSERT_EQUAL_HEX8(0x01U, resp_adu[11]); /* 1 successful event from FC 0x08 */
+    TEST_ASSERT_EQUAL_size_t(0U, mock_uart_tx_len);
+
+    /* 3. FC 0x0C Get Comm Event Log -> 7 MBAP + 10 PDU = 17B */
+    uint8_t fc0c_adu[8] = {0U, 4U, 0U, 0U, 0U, 2U, 1U, 0x0CU};
+    TEST_ASSERT_TRUE(
+        syn_modbus_tcp_process_slave(&mb, fc0c_adu, 8U, resp_adu, sizeof(resp_adu), &resp_len));
+    TEST_ASSERT_EQUAL_UINT16(17U, resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0x0CU, resp_adu[7]);
+    TEST_ASSERT_EQUAL_HEX8(0x08U, resp_adu[8]);
+    TEST_ASSERT_EQUAL_size_t(0U, mock_uart_tx_len);
+
+    /* 4. FC 0x17 Read/Write Multiple Registers -> 7 MBAP + (2 + 4) PDU = 13B */
+    uint8_t fc17_adu[19] = {0U,    5U,    0U,    0U,    0U,    13U,   1U,    0x17U, 0x00U, 0x00U,
+                            0x00U, 0x02U, 0x00U, 0x00U, 0x00U, 0x01U, 0x02U, 0xBEU, 0xEFU};
+    TEST_ASSERT_TRUE(
+        syn_modbus_tcp_process_slave(&mb, fc17_adu, 19U, resp_adu, sizeof(resp_adu), &resp_len));
+    TEST_ASSERT_EQUAL_UINT16(13U, resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0x17U, resp_adu[7]);
+    TEST_ASSERT_EQUAL_HEX8(0x04U, resp_adu[8]);
+    TEST_ASSERT_EQUAL_HEX8(0xBEU, resp_adu[9]);
+    TEST_ASSERT_EQUAL_HEX8(0xEFU, resp_adu[10]);
+    TEST_ASSERT_EQUAL_size_t(0U, mock_uart_tx_len);
+
+    /* 5. Unsupported FC (0x20) over TCP returns 0xA0 / 0x01 exception ADU without UART TX */
+    uint8_t fc20_adu[8] = {0U, 6U, 0U, 0U, 0U, 2U, 1U, 0x20U};
+    TEST_ASSERT_TRUE(
+        syn_modbus_tcp_process_slave(&mb, fc20_adu, 8U, resp_adu, sizeof(resp_adu), &resp_len));
+    TEST_ASSERT_EQUAL_UINT16(9U, resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0xA0U, resp_adu[7]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_ILLEGAL_FUNC, resp_adu[8]);
+    TEST_ASSERT_EQUAL_size_t(0U, mock_uart_tx_len);
+}
+
 void run_modbus_tcp_tests(void)
 {
     RUN_TEST(test_mbap_encode_decode);
@@ -235,4 +311,5 @@ void run_modbus_tcp_tests(void)
     RUN_TEST(test_modbus_tcp_client_adu);
     RUN_TEST(test_modbus_tcp_edge_cases);
     RUN_TEST(test_modbus_tcp_header_length_mismatch);
+    RUN_TEST(test_r5_a08_tcp_fc08_fc0b_fc0c_fc17_no_uart_tx);
 }

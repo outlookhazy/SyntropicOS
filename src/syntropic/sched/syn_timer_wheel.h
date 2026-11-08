@@ -43,6 +43,7 @@ typedef struct SYN_TimerWheelNode {
  */
 typedef struct {
     SYN_TimerWheelNode *buckets[SYN_TIMER_WHEEL_BUCKETS]; /**< Bucket list array */
+    SYN_TimerWheelNode *expired_head;                     /**< In-flight expired list during step */
     uint32_t current_tick;                                /**< Current wheel tick */
 } SYN_TimerWheel;
 

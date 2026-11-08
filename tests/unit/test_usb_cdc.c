@@ -113,6 +113,10 @@ void test_usb_cdc_read_write(void)
     TEST_ASSERT_FALSE(syn_usb_cdc_tx_ready(&cdc));
 
     uint8_t bigbuf[1000] = {0};
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_usb_cdc_write(&cdc, bigbuf, sizeof(bigbuf)));
+    TEST_ASSERT_EQUAL_STRING(hello, (char *)cdc.tx_buf);
+
+    cdc.tx_len = 0U;
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_cdc_write(&cdc, bigbuf, sizeof(bigbuf)));
     TEST_ASSERT_EQUAL_UINT16(sizeof(cdc.tx_buf), cdc.tx_len);
 
@@ -174,4 +178,59 @@ void test_usb_cdc_null_checks(void)
     size_t out_l;
     TEST_ASSERT_FALSE(syn_transport_recv(&tr, NULL, sizeof(out_b), &out_l));
     TEST_ASSERT_FALSE(syn_transport_recv(&tr, out_b, sizeof(out_b), NULL));
+}
+
+void test_r5_usb_cdc_regressions(void)
+{
+    SYN_USB_Device dev;
+    SYN_USB_CDC cdc;
+    syn_usb_init(&dev, TEST_DEVICE_DESC);
+    syn_usb_cdc_init(&cdc);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_cdc_register(&dev, &cdc));
+    TEST_ASSERT_EQUAL_UINT16(9U + 66U, dev.config_desc_len);
+
+    SYN_USB_ClassDriver *drv = &dev.classes[0];
+    TEST_ASSERT_EQUAL_INT(SYN_OK, drv->configured(NULL, 0U));
+
+    /* Exercise data_out and data_in callbacks */
+    const uint8_t rx_pkt[6] = {'A', 'B', 'C', 'D', 'E', 'F'};
+    drv->data_out(NULL, cdc.ep_out, rx_pkt, 6U);
+    drv->data_out(&cdc, cdc.ep_out, NULL, 6U);
+    drv->data_out(&cdc, cdc.ep_out, rx_pkt, 0U);
+    drv->data_out(&cdc, 0x09U, rx_pkt, 6U);
+    drv->data_out(&cdc, cdc.ep_out, rx_pkt, 6U);
+    TEST_ASSERT_EQUAL_UINT16(6U, cdc.rx_len);
+
+    uint8_t big_rx[140];
+    memset(big_rx, 0x5AU, sizeof(big_rx));
+    drv->data_out(&cdc, cdc.ep_out, big_rx, sizeof(big_rx));
+    TEST_ASSERT_EQUAL_UINT16(sizeof(cdc.rx_buf), cdc.rx_len);
+    cdc.rx_len = 0U;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_cdc_write(&cdc, "PKT1", 4U));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_usb_cdc_write(&cdc, "PKT2", 4U));
+    drv->data_in(NULL, cdc.ep_in);
+    drv->data_in(&cdc, 0x89U);
+    TEST_ASSERT_EQUAL_UINT16(4U, cdc.tx_len);
+    drv->data_in(&cdc, cdc.ep_in);
+    TEST_ASSERT_EQUAL_UINT16(0U, cdc.tx_len);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_cdc_write(&cdc, "PKT2", 4U));
+    drv->data_in(&cdc, cdc.ep_in);
+
+    /* Non-zeroed SYN_Transport must have has_data properly initialized */
+    SYN_Transport tr;
+    memset(&tr, 0xAA, sizeof(tr));
+    syn_transport_from_usb_cdc(&tr, &cdc);
+    TEST_ASSERT_NOT_NULL(tr.has_data);
+    TEST_ASSERT_FALSE(syn_transport_has_data(&tr));
+
+    uint8_t rbuf[16];
+    size_t rlen = 99U;
+    TEST_ASSERT_FALSE(syn_transport_recv(&tr, rbuf, sizeof(rbuf), &rlen));
+
+    drv->data_out(&cdc, cdc.ep_out, rx_pkt, 6U);
+    TEST_ASSERT_TRUE(syn_transport_has_data(&tr));
+    TEST_ASSERT_TRUE(syn_transport_recv(&tr, rbuf, sizeof(rbuf), &rlen));
+    TEST_ASSERT_EQUAL_UINT32(6U, (uint32_t)rlen);
+    TEST_ASSERT_FALSE(syn_transport_has_data(&tr));
 }

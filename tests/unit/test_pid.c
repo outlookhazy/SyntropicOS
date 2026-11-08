@@ -131,6 +131,21 @@ static void test_pid_edge_cases(void)
     out = syn_pid_update(&pid_aw, 10, 0, 0);
     TEST_ASSERT_EQUAL_INT(10, out);
     TEST_ASSERT_EQUAL_INT(10, pid_aw.integral); // accumulated with dt = 1
+
+    /* 5. Extreme negative 64-bit error clamping to INT32_MIN in pid_clamp_i64 */
+    SYN_PID pid_ext;
+    SYN_PID_Config cfg_ext = {
+        .kp = 1000,
+        .ki = 0,
+        .kd = 0,
+        .scale = 1,
+        .out_min = INT32_MIN,
+        .out_max = INT32_MAX,
+        .integral_max = 1000,
+        .d_filter_alpha = 0,
+    };
+    syn_pid_init(&pid_ext, &cfg_ext);
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, syn_pid_update(&pid_ext, INT32_MIN, INT32_MAX, 10));
 }
 
 void run_pid_tests(void)

@@ -61,6 +61,7 @@ static SYN_PT_Status blink_task(SYN_PT *pt, SYN_Task *task)
 /** Task 2: Modbus Polling & Input Register Update Task */
 static SYN_PT_Status modbus_task(SYN_PT *pt, SYN_Task *task)
 {
+    (void)task;
     PT_BEGIN(pt);
     for (;;) {
         /* Update live input registers (simulated sensor value) */
@@ -70,7 +71,7 @@ static SYN_PT_Status modbus_task(SYN_PT *pt, SYN_Task *task)
         /* Poll Modbus RTU slave for incoming frames */
         syn_modbus_poll(&modbus_slave);
 
-        PT_DEFER(pt, task);
+        PT_PASS(pt);
     }
     PT_END(pt);
 }
@@ -105,8 +106,8 @@ void setup()
     syn_led_blink(&status_led, 100, 100);
 
     /* Register Tasks */
-    syn_task_create(&tasks[0], "modbus", modbus_task, 1, NULL);
-    syn_task_create(&tasks[1], "blink",  blink_task,  2, NULL);
+    syn_task_create(&tasks[0], "modbus", modbus_task, SYN_PRIO_HIGH,   NULL);
+    syn_task_create(&tasks[1], "blink",  blink_task,  SYN_PRIO_NORMAL, NULL);
 
     syn_sched_init(&sched, tasks, 2);
 }

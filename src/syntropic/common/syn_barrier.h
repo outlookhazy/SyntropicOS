@@ -48,6 +48,7 @@
 #endif
 
 #include "syn_compiler.h"
+#include "syn_defs.h"
 
 #include <stddef.h>
 
@@ -75,6 +76,16 @@ void syn_port_memory_barrier(void);
 
 #if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
 
+/** @cond INTERNAL */
+#if defined(__SANITIZE_THREAD__)
+#define SYN_BARRIER_TSAN 1
+#elif defined(__has_feature)
+#if __has_feature(thread_sanitizer)
+#define SYN_BARRIER_TSAN 1
+#endif
+#endif
+/** @endcond */
+
 /**
  * @brief Store with release semantics (multicore path).
  *
@@ -87,9 +98,14 @@ void syn_port_memory_barrier(void);
  */
 static inline void syn_store_release(volatile size_t *ptr, size_t val)
 {
+#if defined(SYN_BARRIER_TSAN)
+    syn_port_memory_barrier();
+    __atomic_store_n(ptr, val, __ATOMIC_RELEASE);
+#else
     SYN_COMPILER_BARRIER();
     syn_port_memory_barrier();
     *ptr = val;
+#endif
 }
 
 /**
@@ -103,10 +119,16 @@ static inline void syn_store_release(volatile size_t *ptr, size_t val)
  */
 static inline size_t syn_load_acquire(const volatile size_t *ptr)
 {
+#if defined(SYN_BARRIER_TSAN)
+    size_t val = __atomic_load_n(ptr, __ATOMIC_ACQUIRE);
+    syn_port_memory_barrier();
+    return val;
+#else
     size_t val = *ptr;
     syn_port_memory_barrier();
     SYN_COMPILER_BARRIER();
     return val;
+#endif
 }
 
 #else /* !SYN_USE_MULTICORE — single-core: volatile is sufficient */

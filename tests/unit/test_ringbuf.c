@@ -1,3 +1,7 @@
+#if (defined(__linux__) || defined(__unix__) || defined(__APPLE__)) && !defined(_POSIX_C_SOURCE)
+#define _POSIX_C_SOURCE 200809L
+#endif
+
 /**
  * @file test_ringbuf.c
  * @brief Unity tests for syn_ringbuf — full coverage.
@@ -6,6 +10,11 @@
 #include "mocks/mock_port.h"
 #include "syntropic/util/syn_ringbuf.h"
 #include "unity/unity.h"
+
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+#include <pthread.h>
+#include <sched.h>
+#endif
 
 #include <string.h>
 
@@ -400,6 +409,119 @@ static void test_ringbuf_uninitialized_and_zero_len(void)
     TEST_ASSERT_EQUAL_size_t(8 - 5 + 2, syn_ringbuf_count(&rb));
 }
 
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+#define R5_RINGBUF_STRESS_BYTES 50000U
+
+typedef struct {
+    SYN_RingBuf *rb;
+    size_t written;
+    size_t read_total;
+    bool seq_ok;
+} RingbufStressCtx;
+
+static uint8_t ringbuf_seq_byte(size_t idx)
+{
+    return (uint8_t)(((idx * 131U) + 17U) & 0xFFU);
+}
+
+static void *ringbuf_producer_thread(void *arg)
+{
+    RingbufStressCtx *ctx = (RingbufStressCtx *)arg;
+    uint8_t chunk[13];
+    size_t pos = 0U;
+
+    while (pos < R5_RINGBUF_STRESS_BYTES) {
+        size_t want = (pos % 13U) + 1U;
+        if (pos + want > R5_RINGBUF_STRESS_BYTES) {
+            want = R5_RINGBUF_STRESS_BYTES - pos;
+        }
+        if (want == 1U) {
+            if (syn_ringbuf_put(ctx->rb, ringbuf_seq_byte(pos))) {
+                pos++;
+            } else {
+                (void)sched_yield();
+            }
+        } else {
+            for (size_t k = 0U; k < want; k++) {
+                chunk[k] = ringbuf_seq_byte(pos + k);
+            }
+            size_t n = syn_ringbuf_write(ctx->rb, chunk, want);
+            if (n == 0U) {
+                (void)sched_yield();
+            } else {
+                pos += n;
+            }
+        }
+    }
+    ctx->written = pos;
+    return NULL;
+}
+
+static void *ringbuf_consumer_thread(void *arg)
+{
+    RingbufStressCtx *ctx = (RingbufStressCtx *)arg;
+    uint8_t chunk[11];
+    size_t pos = 0U;
+
+    while (pos < R5_RINGBUF_STRESS_BYTES) {
+        size_t want = (pos % 11U) + 1U;
+        if (pos + want > R5_RINGBUF_STRESS_BYTES) {
+            want = R5_RINGBUF_STRESS_BYTES - pos;
+        }
+        if (want == 1U) {
+            uint8_t b = 0U;
+            if (syn_ringbuf_get(ctx->rb, &b)) {
+                if (b != ringbuf_seq_byte(pos)) {
+                    ctx->seq_ok = false;
+                    return NULL;
+                }
+                pos++;
+            } else {
+                (void)sched_yield();
+            }
+        } else {
+            size_t n = syn_ringbuf_read(ctx->rb, chunk, want);
+            if (n == 0U) {
+                (void)sched_yield();
+            } else {
+                for (size_t k = 0U; k < n; k++) {
+                    if (chunk[k] != ringbuf_seq_byte(pos + k)) {
+                        ctx->seq_ok = false;
+                        return NULL;
+                    }
+                }
+                pos += n;
+            }
+        }
+    }
+    ctx->read_total = pos;
+    return NULL;
+}
+#endif
+
+static void test_r5_ringbuf_pthread_stress(void)
+{
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+    uint8_t backing[64];
+    SYN_RingBuf rb;
+    syn_ringbuf_init(&rb, backing, sizeof(backing));
+
+    RingbufStressCtx ctx = {.rb = &rb, .written = 0U, .read_total = 0U, .seq_ok = true};
+    pthread_t prod;
+    pthread_t cons;
+
+    TEST_ASSERT_EQUAL_INT(0, pthread_create(&prod, NULL, ringbuf_producer_thread, &ctx));
+    TEST_ASSERT_EQUAL_INT(0, pthread_create(&cons, NULL, ringbuf_consumer_thread, &ctx));
+    TEST_ASSERT_EQUAL_INT(0, pthread_join(prod, NULL));
+    TEST_ASSERT_EQUAL_INT(0, pthread_join(cons, NULL));
+
+    TEST_ASSERT_TRUE(ctx.seq_ok);
+    TEST_ASSERT_EQUAL_size_t(R5_RINGBUF_STRESS_BYTES, ctx.written);
+    TEST_ASSERT_EQUAL_size_t(R5_RINGBUF_STRESS_BYTES, ctx.read_total);
+    TEST_ASSERT_TRUE(syn_ringbuf_empty(&rb));
+#endif
+}
+
 void run_ringbuf_tests(void)
 {
     RUN_TEST(test_ringbuf_init_empty);
@@ -422,4 +544,5 @@ void run_ringbuf_tests(void)
     /* Barrier validation */
     RUN_TEST(test_ringbuf_barriers_invoked);
     RUN_TEST(test_ringbuf_uninitialized_and_zero_len);
+    RUN_TEST(test_r5_ringbuf_pthread_stress);
 }

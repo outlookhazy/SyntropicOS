@@ -203,7 +203,7 @@ static void test_canvas_flush_partial_simulated_chunked_loop(void)
     while (pos < c.buf_size) {
         syn_canvas_flush_partial(&c, pos, chunk);
         pos += chunk;
-        /* PT_YIELD(pt) would go here in real code */
+        /* PT_CONTINUE(pt) would go here in real code */
     }
 
     /* Expect exactly 4 flush_fn calls covering the whole buffer */
@@ -374,6 +374,44 @@ static void test_canvas_corner_cases(void)
     syn_canvas_flush_partial(&c, 0, 10);
 }
 
+static void test_r5_canvas_1bpp_page_size_and_clip_clamp(void)
+{
+    /* 128x10 1-bpp display needs 2 pages * 128 = 256 bytes (not 160 row-major bytes) */
+    uint8_t fb_128x10[128 * 2];
+    SYN_Canvas c;
+    syn_canvas_init(&c, fb_128x10, 128, 10, 1, NULL, NULL);
+    TEST_ASSERT_EQUAL_size_t(256U, c.buf_size);
+
+    syn_canvas_clear(&c);
+    syn_canvas_pixel(&c, 127, 9, 1);
+    TEST_ASSERT_EQUAL_HEX8(0x02U, fb_128x10[1U * 128U + 127U]);
+    syn_canvas_pixel(&c, 127, 9, 0);
+    TEST_ASSERT_EQUAL_HEX8(0x00U, fb_128x10[1U * 128U + 127U]);
+
+    /* Negative and oversized clip rectangles must clamp to [0, width) x [0, height) */
+    syn_canvas_set_clip(&c, -10, -4, 20, 30);
+    TEST_ASSERT_EQUAL_INT16(0, c.clip_x);
+    TEST_ASSERT_EQUAL_INT16(0, c.clip_y);
+    TEST_ASSERT_EQUAL_INT16(10, c.clip_w);
+    TEST_ASSERT_EQUAL_INT16(10, c.clip_h);
+
+    /* Negative pixel coordinates rejected even after negative clip request */
+    syn_canvas_pixel(&c, -1, 0, 1);
+    syn_canvas_pixel(&c, 0, -1, 1);
+    syn_canvas_pixel(&c, 9, 9, 1);
+    TEST_ASSERT_EQUAL_HEX8(0x02U, fb_128x10[1U * 128U + 9U]);
+
+    /* Completely off-screen and non-positive clips clamp to empty region */
+    syn_canvas_set_clip(&c, -20, 0, 5, 5);
+    TEST_ASSERT_EQUAL_INT16(0, c.clip_w);
+    syn_canvas_set_clip(&c, 200, 0, 10, 10);
+    TEST_ASSERT_EQUAL_INT16(0, c.clip_w);
+    syn_canvas_set_clip(&c, 0, 0, 0, 10);
+    TEST_ASSERT_EQUAL_INT16(0, c.clip_w);
+    syn_canvas_set_clip(&c, 0, 0, 10, -2);
+    TEST_ASSERT_EQUAL_INT16(0, c.clip_h);
+}
+
 void run_canvas_tests(void)
 {
     RUN_TEST(test_canvas);
@@ -387,4 +425,5 @@ void run_canvas_tests(void)
     RUN_TEST(test_canvas_16bit_clear);
     RUN_TEST(test_canvas_polar_and_arc);
     RUN_TEST(test_canvas_corner_cases);
+    RUN_TEST(test_r5_canvas_1bpp_page_size_and_clip_clamp);
 }

@@ -10,48 +10,77 @@
  */
 
 #include "../port/syn_port_system.h"
+#include "../sched/syn_sched.h"
 #include "../util/syn_assert.h"
 #include "../util/syn_pack.h"
 #include "syn_dns.h"
 
 #include <string.h>
 
+void syn_dns_init(SYN_DnsResolver *resolver)
+{
+    if (resolver == NULL) {
+        return;
+    }
+    memset(resolver, 0, sizeof(*resolver));
+    resolver->sock = SYN_SOCKET_INVALID;
+    resolver->sock_open = false;
+}
+
+/**
+ * @brief Close resolver UDP socket if currently owned by this resolver.
+ * @param r DNS resolver instance.
+ */
+static void dns_close_socket(SYN_DnsResolver *r)
+{
+    if (r->sock_open && r->sock != SYN_SOCKET_INVALID) {
+        syn_port_sock_close(r->sock);
+    }
+    r->sock = SYN_SOCKET_INVALID;
+    r->sock_open = false;
+}
+
 /**
  * @brief Encode a hostname as a DNS QNAME (label-length format).
- * @param dest          [out] Destination buffer.
+ * @param dest          [out] Destination buffer (capacity >= 2 bytes).
  * @param dest_capacity Destination buffer capacity.
  * @param src           Dot-separated hostname.
- * @return Total bytes written.
+ * @return Total bytes written, or 0 on overflow.
  */
 static size_t encode_qname(uint8_t *dest, size_t dest_capacity, const char *src)
 {
-    if (dest_capacity < 2U)
-        return 0U; /* LCOV_EXCL_LINE: Defensive destination buffer capacity check */
     uint8_t *len_ptr = dest;
-    size_t total = 0;
+    size_t total = 1U;
     dest++;
-    total++;
-    uint8_t label_len = 0;
-    while (*src) {
-        if (total + 1 >= dest_capacity)
+    uint8_t label_len = 0U;
+    while (*src != '\0') {
+        if (total + 1U >= dest_capacity) {
             return 0U;
+        }
         if (*src == '.') {
+            if (label_len == 0U) {
+                return 0U;
+            }
             *len_ptr = label_len;
-            len_ptr = dest;
-            label_len = 0;
-            dest++;
+            len_ptr = dest++;
+            label_len = 0U;
             total++;
         } else {
+            if (label_len >= 63U) {
+                return 0U;
+            }
             *dest++ = (uint8_t)*src;
             label_len++;
             total++;
         }
         src++;
     }
+    if (label_len == 0U) {
+        return 0U;
+    }
     *len_ptr = label_len;
-    *dest++ = 0;
-    total++;
-    return total;
+    *dest = 0U;
+    return total + 1U;
 }
 
 /**
@@ -65,84 +94,82 @@ static bool parse_qname(const uint8_t *buf, size_t buf_len, size_t *pos)
 {
     size_t p = *pos;
     for (;;) {
-        if (p >= buf_len)
+        if (p >= buf_len) {
             return false;
+        }
         uint8_t len = buf[p];
-        if ((len & 0xC0) == 0xC0) {
+        if ((len & 0xC0U) == 0xC0U) {
             /* Pointer — 2 bytes total */
-            if (p + 1 >= buf_len)
+            if (p + 1U >= buf_len) {
                 return false;
-            p += 2;
+            }
+            p += 2U;
             break;
-        } else if (len == 0) {
+        }
+        if ((len & 0xC0U) != 0U) {
+            return false;
+        }
+        if (len == 0U) {
             p++;
             break;
-        } else {
-            p += 1 + len;
         }
+        if ((size_t)len > buf_len - p - 1U) {
+            return false;
+        }
+        p += 1U + (size_t)len;
     }
     *pos = p;
     return true;
 }
 
 /**
- * @brief Parse a DNS response packet to extract the resolved IP.
+ * @brief Parse a DNS response packet (validated >= 12 bytes with matching TXID)
+ *        to extract the first IPv4 A record.
  *
- * Checks transaction ID, question count, and pulls the first IPv4 A record.
- *
- * @param buf       Received UDP packet buffer.
- * @param rx_len    Received packet length.
- * @param addr_out       [out] Output structure for resolved IPv4 address.
- * @param expected_txid  Transaction ID to verify.
+ * @param buf      Received UDP packet buffer.
+ * @param rx_len   Received packet length (>= 12).
+ * @param addr_out [out] Output structure for resolved IPv4 address.
  * @return SYN_OK on success, SYN_ERROR on format/parsing error.
  */
-static SYN_Status parse_response(const uint8_t *buf, size_t rx_len, SYN_SockAddr *addr_out,
-                                 uint16_t expected_txid)
+static SYN_Status parse_response(const uint8_t *buf, size_t rx_len, SYN_SockAddr *addr_out)
 {
-    /* LCOV_EXCL_START: Short packet / TxID mismatch rejection */
-    if (rx_len < 12)
-        return SYN_ERROR;
-    uint16_t rx_txid = syn_peek_u16(buf, 0);
-    if (rx_txid != expected_txid)
-        return SYN_ERROR;
-    /* LCOV_EXCL_STOP */
-    if ((buf[3] & 0x0F) != 0)
-        return SYN_ERROR; /* RCODE != 0 (error) */
+    if ((buf[2] & 0x80U) == 0U || (buf[3] & 0x0FU) != 0U) {
+        return SYN_ERROR; /* QR == 0 (query) or RCODE != 0 */
+    }
 
-    uint16_t questions = syn_peek_u16(buf, 4);
-    uint16_t answers = syn_peek_u16(buf, 6);
+    uint16_t questions = syn_peek_u16(buf, 4U);
+    uint16_t answers = syn_peek_u16(buf, 6U);
 
-    if (answers == 0)
+    if (answers == 0U) {
         return SYN_ERROR;
+    }
 
     /* Skip questions */
-    size_t pos = 12;
-    for (uint16_t i = 0; i < questions; i++) {
-        if (!parse_qname(buf, rx_len, &pos))
+    size_t pos = 12U;
+    for (uint16_t i = 0U; i < questions; i++) {
+        if (!parse_qname(buf, rx_len, &pos) || pos + 4U > rx_len) {
             return SYN_ERROR;
-        if (pos + 4 > rx_len)
-            return SYN_ERROR; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback
-                               */
-        pos += 4;             /* skip QTYPE and QCLASS */
+        }
+        pos += 4U; /* skip QTYPE and QCLASS */
     }
 
     /* Parse answers */
-    for (uint16_t i = 0; i < answers; i++) {
-        if (!parse_qname(buf, rx_len, &pos))
+    for (uint16_t i = 0U; i < answers; i++) {
+        if (!parse_qname(buf, rx_len, &pos) || pos + 10U > rx_len) {
             return SYN_ERROR;
-        if (pos + 10 > rx_len)
-            return SYN_ERROR;
+        }
 
         uint16_t type = syn_peek_u16(buf, pos);
-        uint16_t rdlen = syn_peek_u16(buf, pos + 8);
-        pos += 10;
+        uint16_t rdlen = syn_peek_u16(buf, pos + 8U);
+        pos += 10U;
+        if ((size_t)rdlen > rx_len - pos) {
+            return SYN_ERROR;
+        }
 
-        if (type == 1 && rdlen == 4) {
+        if (type == 1U && rdlen == 4U) {
             /* IPv4 A Record */
-            if (pos + 4 > rx_len)
-                return SYN_ERROR;
-            memcpy(addr_out->ip, buf + pos, 4);
-            addr_out->port = 0;
+            memcpy(addr_out->ip, buf + pos, 4U);
+            addr_out->port = 0U;
             return SYN_OK;
         }
         pos += rdlen;
@@ -152,16 +179,12 @@ static SYN_Status parse_response(const uint8_t *buf, size_t rx_len, SYN_SockAddr
 }
 
 /**
- * @brief Cooperative task for resolving a hostname via DNS.
+ * @brief Encode and transmit the UDP DNS A-record query packet.
+ * @param r DNS resolver instance with open socket.
+ * @return true if query was encoded and sent, false on error.
  */
-SYN_PT_Status syn_dns_resolve_task(SYN_PT *pt, SYN_Task *task)
+static bool dns_build_and_send_query(SYN_DnsResolver *r)
 {
-    SYN_DnsResolver *r = (SYN_DnsResolver *)task->user_data;
-    SYN_ASSERT(r != NULL);
-
-    PT_BEGIN(pt);
-
-    r->status = SYN_TIMEOUT;
     if (r->dns_server != NULL) {
         r->server_addr = *(r->dns_server);
     } else {
@@ -172,39 +195,78 @@ SYN_PT_Status syn_dns_resolve_task(SYN_PT *pt, SYN_Task *task)
         r->server_addr.port = 53;
     }
 
-    r->sock = syn_port_udp_open(0);
-    if (r->sock == SYN_SOCKET_INVALID) {
-        r->status = SYN_ERROR;
-        PT_EXIT(pt);
-    }
-
-    /* Build query */
-    r->txid = (uint16_t)(syn_port_get_tick_ms() & 0xFFFF);
+    r->txid = (uint16_t)(syn_port_get_tick_ms() & 0xFFFFU);
     memset(r->buf, 0, 12);
     syn_poke_u16(r->txid, r->buf, 0); /* Transaction ID */
     syn_poke_u16(0x0100, r->buf, 2);  /* Flags: Standard query, recursion desired */
     syn_poke_u16(0x0001, r->buf, 4);  /* Questions = 1 */
 
-    {
-        size_t pos = 12;
-        size_t qname_len = encode_qname(r->buf + pos, sizeof(r->buf) - pos - 4U, r->hostname);
-        if (qname_len == 0U) {
-            syn_port_sock_close(r->sock);
-            r->sock = SYN_SOCKET_INVALID;
-            r->status = SYN_ERROR;
-            PT_EXIT(pt);
-        }
-        pos += qname_len;
-        syn_poke_u16(0x0001, r->buf, pos);
-        pos += 2; /* QTYPE = A */
-        syn_poke_u16(0x0001, r->buf, pos);
-        pos += 2; /* QCLASS = IN */
-        r->query_len = pos;
+    size_t pos = 12;
+    size_t qname_len = encode_qname(r->buf + pos, sizeof(r->buf) - pos - 4U, r->hostname);
+    if (qname_len == 0U) {
+        return false;
+    }
+    pos += qname_len;
+    syn_poke_u16(0x0001, r->buf, pos);
+    pos += 2; /* QTYPE = A */
+    syn_poke_u16(0x0001, r->buf, pos);
+    pos += 2; /* QCLASS = IN */
+    r->query_len = pos;
+
+    return syn_port_udp_sendto(r->sock, r->buf, r->query_len, &r->server_addr) == (int)r->query_len;
+}
+
+/**
+ * @brief Check whether received UDP datagram matches expected DNS header and TXID.
+ * @param r DNS resolver instance.
+ * @param n Received byte count (> 0).
+ * @return true if length >= 12 and TXID matches.
+ */
+static bool dns_packet_matches_txid(const SYN_DnsResolver *r, int n)
+{
+    return (n >= 12) && (syn_peek_u16(r->buf, 0) == r->txid);
+}
+
+/**
+ * @brief Check whether DNS resolver socket is readable or timeout has elapsed.
+ * @param r DNS resolver instance.
+ * @return true if ready to wake from wait.
+ */
+static bool dns_wait_ready(const SYN_DnsResolver *r)
+{
+    return syn_port_udp_readable(r->sock) ||
+           ((syn_port_get_tick_ms() - r->start_ms) >= r->timeout_ms);
+}
+
+/**
+ * @brief Cooperative task for resolving a hostname via DNS.
+ */
+SYN_PT_Status syn_dns_resolve_task(SYN_PT *pt, SYN_Task *task)
+{
+    if (pt == NULL || task == NULL || task->user_data == NULL) {
+        return PT_EXITED;
+    }
+    SYN_DnsResolver *r = (SYN_DnsResolver *)task->user_data;
+
+    PT_BEGIN(pt);
+
+    dns_close_socket(r);
+
+    if (r->hostname == NULL || r->addr_out == NULL) {
+        r->status = SYN_ERROR;
+        PT_EXIT(pt);
     }
 
-    if (syn_port_udp_sendto(r->sock, r->buf, r->query_len, &r->server_addr) != (int)r->query_len) {
-        syn_port_sock_close(r->sock);
-        r->sock = SYN_SOCKET_INVALID;
+    r->status = SYN_TIMEOUT;
+    r->sock = syn_port_udp_open(0);
+    if (r->sock == SYN_SOCKET_INVALID) {
+        r->status = SYN_ERROR;
+        PT_EXIT(pt);
+    }
+    r->sock_open = true;
+
+    if (!dns_build_and_send_query(r)) {
+        dns_close_socket(r);
         r->status = SYN_ERROR;
         PT_EXIT(pt);
     }
@@ -212,28 +274,32 @@ SYN_PT_Status syn_dns_resolve_task(SYN_PT *pt, SYN_Task *task)
     r->start_ms = syn_port_get_tick_ms();
 
     for (;;) {
-        SYN_SockAddr from;
-        int n = syn_port_udp_recvfrom(r->sock, r->buf, sizeof(r->buf), &from, 0);
-        if (n > 0) {
-            if (n < 12 || syn_peek_u16(r->buf, 0) != r->txid) {
-                /* Runt or TXID mismatch — ignore and keep waiting */
-                continue;
-            }
-            r->status = parse_response(r->buf, (size_t)n, r->addr_out, r->txid);
-            break;
-        }
-
         if ((syn_port_get_tick_ms() - r->start_ms) >= r->timeout_ms) {
             r->status = SYN_TIMEOUT;
             break;
         }
 
-        PT_WAIT_UNTIL(pt, syn_port_udp_readable(r->sock) ||
-                              (syn_port_get_tick_ms() - r->start_ms) >= r->timeout_ms);
+        SYN_SockAddr from;
+        int n = syn_port_udp_recvfrom(r->sock, r->buf, sizeof(r->buf), &from, 0);
+        if (n > 0) {
+            if (!dns_packet_matches_txid(r, n)) {
+                /* Runt or TXID mismatch — ignore and keep waiting */
+                PT_CONTINUE_IF_NEEDED(pt, task);
+                continue;
+            }
+            r->status = parse_response(r->buf, (size_t)n, r->addr_out);
+            break;
+        }
+
+        if (syn_port_udp_readable(r->sock)) {
+            PT_PASS(pt);
+            continue;
+        }
+
+        PT_WAIT_UNTIL(pt, dns_wait_ready(r));
     }
 
-    syn_port_sock_close(r->sock);
-    r->sock = SYN_SOCKET_INVALID;
+    dns_close_socket(r);
 
     PT_END(pt);
 }
@@ -251,6 +317,7 @@ SYN_Status syn_mdns_init(SYN_Mdns *mdns, const char *hostname, const uint8_t ip[
     memset(mdns, 0, sizeof(*mdns));
     mdns->hostname = hostname;
     memcpy(mdns->ip, ip, 4);
+    mdns->sock = SYN_SOCKET_INVALID;
 
     mdns->sock = syn_port_udp_open(5353);
     if (mdns->sock == SYN_SOCKET_INVALID) {
@@ -268,18 +335,40 @@ SYN_Status syn_mdns_init(SYN_Mdns *mdns, const char *hostname, const uint8_t ip[
 
 /**
  * @brief Get length of base hostname (excluding trailing ".local" if present).
- * @param hostname Input hostname string.
+ * @param hostname Non-NULL input hostname string.
  * @return Length of base label in bytes.
  */
 static size_t get_base_hostname_len(const char *hostname)
 {
-    if (hostname == NULL)
-        return 0; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
     size_t len = strlen(hostname);
     if (len > 6 && strcmp(hostname + len - 6, ".local") == 0) {
         return len - 6;
     }
     return len;
+}
+
+/**
+ * @brief Match a single DNS label against expected ASCII bytes.
+ * @param buf       Packet buffer.
+ * @param buf_len   Buffer length.
+ * @param pos       [in/out] Parse offset.
+ * @param label     Expected label string.
+ * @param label_len Expected label byte length.
+ * @return true if label matches and fits within buffer.
+ */
+static bool match_dns_label(const uint8_t *buf, size_t buf_len, size_t *pos, const char *label,
+                            size_t label_len)
+{
+    size_t p = *pos;
+    if (p >= buf_len || (size_t)buf[p] != label_len) {
+        return false;
+    }
+    p++;
+    if (p + label_len > buf_len || memcmp(buf + p, label, label_len) != 0) {
+        return false;
+    }
+    *pos = p + label_len;
+    return true;
 }
 
 /**
@@ -292,131 +381,140 @@ static size_t get_base_hostname_len(const char *hostname)
  */
 static bool match_qname_local(const uint8_t *buf, size_t buf_len, size_t *pos, const char *hostname)
 {
-    if (hostname == NULL)
+    if (hostname == NULL) {
         return false;
+    }
 
     size_t p = *pos;
-    if (p >= buf_len)
-        return false; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
-
-    /* First label: hostname length + string */
-    uint8_t h_len = buf[p++];
     size_t host_len = get_base_hostname_len(hostname);
-    if (h_len != host_len)
+    if (!match_dns_label(buf, buf_len, &p, hostname, host_len)) {
         return false;
-    if (p + host_len > buf_len)
-        return false; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
-    if (memcmp(buf + p, hostname, host_len) != 0)
-        return false; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
-    p += host_len;
-
-    /* Second label: "local" length + string */
-    if (p >= buf_len)
-        return false; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
-    uint8_t l_len = buf[p++];
-    if (l_len != 5)
+    }
+    if (!match_dns_label(buf, buf_len, &p, "local", 5U)) {
         return false;
-    if (p + 5 > buf_len)
-        return false; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
-    if (memcmp(buf + p, "local", 5) != 0)
+    }
+    if (p >= buf_len || buf[p] != 0U) {
         return false;
-    p += 5;
-
-    /* Terminator */
-    if (p >= buf_len || buf[p] != 0)
-        return false; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
-    p++;
-
-    *pos = p;
+    }
+    *pos = p + 1U;
     return true;
+}
+
+/**
+ * @brief Build and multicast an mDNS IPv4 A-record response for mdns->hostname.
+ * @param mdns mDNS responder instance.
+ */
+static void mdns_send_response(const SYN_Mdns *mdns)
+{
+    uint8_t resp[256];
+    size_t base_len = get_base_hostname_len(mdns->hostname);
+    if (base_len == 0U || base_len > 63U) {
+        return;
+    }
+
+    memset(resp, 0, 12);
+    syn_poke_u16(0x8400, resp, 2); /* Authoritative Answer, Response */
+    syn_poke_u16(0x0001, resp, 6); /* Answers = 1 */
+
+    size_t rpos = 12;
+    resp[rpos++] = (uint8_t)base_len;
+    memcpy(resp + rpos, mdns->hostname, base_len);
+    rpos += base_len;
+    resp[rpos++] = 5;
+    memcpy(resp + rpos, "local", 5);
+    rpos += 5;
+    resp[rpos++] = 0;
+
+    syn_poke_u16(0x0001, resp, rpos);
+    rpos += 2; /* TYPE = A */
+    syn_poke_u16(0x8001, resp, rpos);
+    rpos += 2; /* CLASS = IN + cache flush */
+    syn_poke_u32(120, resp, rpos);
+    rpos += 4; /* TTL = 120 */
+    syn_poke_u16(4, resp, rpos);
+    rpos += 2;                        /* RDLEN = 4 */
+    memcpy(resp + rpos, mdns->ip, 4); /* Address */
+    rpos += 4;
+
+    SYN_SockAddr mcast_dest;
+    mcast_dest.ip[0] = 224;
+    mcast_dest.ip[1] = 0;
+    mcast_dest.ip[2] = 0;
+    mcast_dest.ip[3] = 251;
+    mcast_dest.port = 5353;
+
+    syn_port_udp_sendto(mdns->sock, resp, rpos, &mcast_dest);
+}
+
+/**
+ * @brief Inspect an incoming mDNS UDP packet and reply if a question matches.
+ * @param mdns   mDNS responder instance.
+ * @param buf    Received packet buffer.
+ * @param rx_len Received packet length (> 12).
+ */
+static void mdns_handle_packet(const SYN_Mdns *mdns, const uint8_t *buf, size_t rx_len)
+{
+    uint16_t flags = syn_peek_u16(buf, 2U);
+    uint16_t questions = syn_peek_u16(buf, 4U);
+    if ((flags & 0x8000U) != 0U || questions == 0U) {
+        return;
+    }
+
+    size_t pos = 12U;
+    for (uint16_t i = 0U; i < questions; i++) {
+        size_t qpos = pos;
+        bool matched = match_qname_local(buf, rx_len, &pos, mdns->hostname);
+        if (!matched && !parse_qname(buf, rx_len, &qpos)) {
+            return;
+        }
+        if (!matched) {
+            pos = qpos;
+        }
+        if (pos + 4U > rx_len) {
+            return;
+        }
+        uint16_t qtype = syn_peek_u16(buf, pos);
+        pos += 4U; /* QTYPE + QCLASS */
+        if (matched && (qtype == 1U || qtype == 255U)) {
+            mdns_send_response(mdns);
+            return;
+        }
+    }
 }
 
 SYN_PT_Status syn_mdns_task(SYN_PT *pt, SYN_Task *task)
 {
+    if (pt == NULL || task == NULL || task->user_data == NULL) {
+        return PT_EXITED;
+    }
+
     const SYN_Mdns *mdns = (const SYN_Mdns *)task->user_data;
-    SYN_ASSERT(mdns != NULL);
 
     PT_BEGIN(pt);
 
     for (;;) {
-        if (mdns->sock != SYN_SOCKET_INVALID) {
-            uint8_t buf[256];
-            SYN_SockAddr from;
-            /* Non-blocking read (0 ms timeout) */
-            int n = syn_port_udp_recvfrom(mdns->sock, buf, sizeof(buf), &from, 0);
-            if (n > 12) {
-                size_t rx_len = (size_t)n;
-                uint16_t flags = syn_peek_u16(buf, 2);
-                uint16_t questions = syn_peek_u16(buf, 4);
+        if (mdns->sock == SYN_SOCKET_INVALID) {
+            PT_EXIT(pt);
+        }
 
-                /* Parse if it's a query (Flags QR bit = 0) */
-                if ((flags & 0x8000) == 0 && questions > 0) {
-                    size_t pos = 12;
-                    bool matched = false;
-                    for (uint16_t i = 0; i < questions; i++) {
-                        if (match_qname_local(buf, rx_len, &pos, mdns->hostname)) {
-                            matched = true;
-                            break;
-                        }
-                        /* if didn't match, parse to skip */
-                        if (!parse_qname(buf, rx_len, &pos))
-                            break;
-                        if (pos + 4 > rx_len)
-                            break; /* LCOV_EXCL_LINE: Defensive default branch for enum state
-                                      machine */
-                        pos += 4;  /* QTYPE + QCLASS */
-                    }
-
-                    if (matched) {
-                        /* Build mDNS response packet */
-                        uint8_t resp[256];
-                        memset(resp, 0, 12);
-                        /* Flags: 0x8400 (Authoritative Answer, Response) */
-                        syn_poke_u16(0x8400, resp, 2);
-                        syn_poke_u16(0x0001, resp, 6); /* Answers = 1 */
-
-                        size_t rpos = 12;
-                        size_t base_len = get_base_hostname_len(mdns->hostname);
-                        /* Response needs: 12 + 1 + base_len + 1 + 5 + 1 + 10 + 4 = 34 + base_len */
-                        if (34U + base_len > sizeof(resp))
-                            break; /* LCOV_EXCL_LINE: Defensive mDNS response buffer capacity guard
-                                    */
-                        resp[rpos++] = (uint8_t)base_len;
-                        memcpy(resp + rpos, mdns->hostname, base_len);
-                        rpos += base_len;
-                        resp[rpos++] = 5;
-                        memcpy(resp + rpos, "local", 5);
-                        rpos += 5;
-                        resp[rpos++] = 0;
-
-                        syn_poke_u16(0x0001, resp, rpos);
-                        rpos += 2; /* TYPE = A */
-                        syn_poke_u16(0x8001, resp, rpos);
-                        rpos += 2; /* CLASS = IN + cache flush */
-                        syn_poke_u32(120, resp, rpos);
-                        rpos += 4; /* TTL = 120 */
-                        syn_poke_u16(4, resp, rpos);
-                        rpos += 2;                        /* RDLEN = 4 */
-                        memcpy(resp + rpos, mdns->ip, 4); /* Address */
-                        rpos += 4;
-
-                        /* Send mDNS reply back to multicast group 224.0.0.251:5353 */
-                        SYN_SockAddr mcast_dest;
-                        mcast_dest.ip[0] = 224;
-                        mcast_dest.ip[1] = 0;
-                        mcast_dest.ip[2] = 0;
-                        mcast_dest.ip[3] = 251;
-                        mcast_dest.port = 5353;
-
-                        syn_port_udp_sendto(mdns->sock, resp, rpos, &mcast_dest);
-                    }
-                }
-            }
+        uint8_t buf[256];
+        SYN_SockAddr from;
+        int n = syn_port_udp_recvfrom(mdns->sock, buf, sizeof(buf), &from, 0);
+        if (n > 12) {
+            mdns_handle_packet(mdns, buf, (size_t)n);
+        }
+        if (n > 0 && syn_port_udp_readable(mdns->sock)) {
+            PT_CONTINUE_IF_NEEDED(pt, task);
+            continue;
+        }
+        if (n <= 0 && syn_port_udp_readable(mdns->sock)) {
+            PT_PASS(pt);
+            continue;
         }
         PT_WAIT_UNTIL(pt, mdns->sock == SYN_SOCKET_INVALID || syn_port_udp_readable(mdns->sock));
     }
 
-    PT_END(pt); /* LCOV_EXCL_LINE: Defensive bounds check / hardware port fallback */
+    PT_END(pt);
 }
 
 #endif /* SYN_USE_DNS */

@@ -283,6 +283,62 @@ static void test_n2k_fastpacket_single_frame_short(void)
     TEST_ASSERT_EQUAL_MEMORY("PING", payload, 4);
 }
 
+static void test_r5_a12_dc_detailed_fastpacket_750ah_roundtrip(void)
+{
+    SYN_N2K_DcDetailedStatus dc_tx = {
+        .sid = 7U,
+        .instance = 2U,
+        .dc_type = 0U,
+        .state_of_charge = 92U,
+        .state_of_health = 99U,
+        .time_to_go_min = 1440U,
+        .ripple_voltage = 18U,   /* 0.18 V */
+        .capacity_ah_1e1 = 7500U /* 750.0 Ah (16-bit, exceeds uint8_t!) */
+    };
+    SYN_CAN_Frame frames[2];
+
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_n2k_encode_dc_detailed_fastpacket(0x21U, 3U, NULL, frames));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_n2k_encode_dc_detailed_fastpacket(0x21U, 3U, &dc_tx, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_n2k_encode_dc_detailed_fastpacket(0x21U, 3U, &dc_tx, frames));
+
+    /* Verify single-frame 8B helper saturates >254 to 0xFF rather than wrapping 7500 & 0xFF */
+    SYN_CAN_Frame single_f;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_n2k_encode_dc_detailed(0x21U, &dc_tx, &single_f));
+    TEST_ASSERT_EQUAL_HEX8(0xFFU, single_f.data[7]);
+
+    /* Reassemble 2-frame Fast-Packet and decode 11-byte PGN 127506 payload */
+    SYN_N2K_FastPacketRx rx;
+    memset(&rx, 0, sizeof(rx));
+    const uint8_t *payload = NULL;
+    size_t len = 0U;
+
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_n2k_fastpacket_process(&rx, &frames[0],
+                                                               SYN_N2K_PGN_DC_DETAILED_STATUS,
+                                                               &payload, &len));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_n2k_fastpacket_process(&rx, &frames[1],
+                                                             SYN_N2K_PGN_DC_DETAILED_STATUS,
+                                                             &payload, &len));
+    TEST_ASSERT_EQUAL_UINT32(11U, (uint32_t)len);
+
+    SYN_N2K_DcDetailedStatus dc_rx;
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_n2k_decode_dc_detailed_payload(NULL, 11U, &dc_rx));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_n2k_decode_dc_detailed_payload(payload, 11U, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_n2k_decode_dc_detailed_payload(payload, 10U, &dc_rx));
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_n2k_decode_dc_detailed_payload(payload, len, &dc_rx));
+    TEST_ASSERT_EQUAL_UINT8(7U, dc_rx.sid);
+    TEST_ASSERT_EQUAL_UINT8(2U, dc_rx.instance);
+    TEST_ASSERT_EQUAL_UINT8(92U, dc_rx.state_of_charge);
+    TEST_ASSERT_EQUAL_UINT8(99U, dc_rx.state_of_health);
+    TEST_ASSERT_EQUAL_UINT16(1440U, dc_rx.time_to_go_min);
+    TEST_ASSERT_EQUAL_UINT16(18U, dc_rx.ripple_voltage);
+    TEST_ASSERT_EQUAL_UINT16(7500U, dc_rx.capacity_ah_1e1);
+}
+
 void run_n2k_tests(void)
 {
     RUN_TEST(test_n2k_position_rapid_encode_decode);
@@ -294,4 +350,5 @@ void run_n2k_tests(void)
     RUN_TEST(test_n2k_fastpacket_invalid_id_pgn_and_overflow);
     RUN_TEST(test_n2k_encode_decode_null_checks);
     RUN_TEST(test_n2k_fastpacket_single_frame_short);
+    RUN_TEST(test_r5_a12_dc_detailed_fastpacket_750ah_roundtrip);
 }

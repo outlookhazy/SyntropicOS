@@ -8,10 +8,6 @@
 #ifndef SYN_NETCFG_H
 #define SYN_NETCFG_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/net/syn_autoip.h"
 #include "syntropic/net/syn_dhcp.h"
@@ -21,6 +17,10 @@ extern "C" {
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** IP Manager Modes. */
 typedef enum {
@@ -124,6 +124,7 @@ SYN_Status syn_netcfg_trigger_autoip_fallback(SYN_NETCFG *netcfg, SYN_ETH *eth,
 
 /**
  * @brief Block task execution (SYN_TASK_BLOCKED) until IP configuration binding completes.
+ * @note Network event handler must call syn_task_resume(task) when netcfg->is_bound becomes true.
  */
 #define PT_NETCFG_BLOCK_BOUND(pt, task, netcfg) \
     PT_BLOCK_CONDITION(pt, task, (netcfg)->is_bound == true)
@@ -139,6 +140,7 @@ SYN_Status syn_netcfg_trigger_autoip_fallback(SYN_NETCFG *netcfg, SYN_ETH *eth,
 
 /**
  * @brief Block task execution (SYN_TASK_BLOCKED) until physical link is UP.
+ * @note Link state handler must call syn_task_resume(task) on SYN_NETCFG_LINK_UP transition.
  */
 #define PT_NETCFG_BLOCK_LINK_UP(pt, task, netcfg) \
     PT_BLOCK_CONDITION(pt, task, (netcfg)->link_state == SYN_NETCFG_LINK_UP)

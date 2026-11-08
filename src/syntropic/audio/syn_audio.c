@@ -71,20 +71,19 @@ size_t syn_audio_feed(SYN_Audio *audio, const int16_t *samples, size_t count)
 
     size_t written = 0U;
     size_t half_len = audio->cfg.half_size;
-    int16_t *half_buf = &audio->cfg.buf[audio->active_half * half_len];
 
     while (written < count) {
-        if (audio->fill_pos < half_len) {
-            half_buf[audio->fill_pos++] = samples[written++];
-        } else {
-            /* Current half buffer full — switch to alternate half */
-            audio->active_half = (uint8_t)(1U - audio->active_half);
-            half_buf = &audio->cfg.buf[audio->active_half * half_len];
-            audio->fill_pos = 0U;
+        int16_t *half_buf = &audio->cfg.buf[(size_t)audio->active_half * half_len];
+        half_buf[audio->fill_pos] = samples[written];
+        audio->fill_pos++;
+        written++;
 
+        if (audio->fill_pos >= half_len) {
             if (audio->running && audio->cfg.out_fn != NULL) {
                 audio->cfg.out_fn(half_buf, half_len, audio->cfg.ctx);
             }
+            audio->active_half ^= 1U;
+            audio->fill_pos = 0U;
         }
     }
 

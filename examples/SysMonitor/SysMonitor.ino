@@ -38,7 +38,7 @@
 
 static SYN_CLI       cli;
 static SYN_Sched     sched;
-static SYN_Task      tasks[3];
+static SYN_Task      tasks[4];
 static SYN_LED       led;
 
 /* Watchdog & Error Log Instances */
@@ -171,6 +171,20 @@ static SYN_PT_Status worker_task(SYN_PT *pt, SYN_Task *task)
     PT_END(pt);
 }
 
+static SYN_PT_Status cli_task(SYN_PT *pt, SYN_Task *task)
+{
+    uint8_t ch;
+    PT_BEGIN(pt);
+    for (;;) {
+        while (syn_port_serial_read(&ch, 1) > 0) {
+            syn_cli_process_char(&cli, (char)ch);
+            PT_CONTINUE_IF_NEEDED(pt, task);
+        }
+        PT_TASK_DELAY_MS(pt, task, 20);
+    }
+    PT_END(pt);
+}
+
 /* ── Entry Point ──────────────────────────────────────────────────────── */
 
 void setup()
@@ -195,10 +209,11 @@ void setup()
     syn_cli_init(&cli, commands, sizeof(commands) / sizeof(commands[0]), "> ");
     syn_cli_printf(&cli, "\r\n--- SyntropicOS SysMonitor Demo ---\r\n");
 
-    syn_task_create(&tasks[0], "blink",   blink_task,   2, NULL);
-    syn_task_create(&tasks[1], "monitor", monitor_task, 1, NULL);
-    syn_task_create(&tasks[2], "worker",  worker_task,  0, NULL);
-    syn_sched_init(&sched, tasks, 3);
+    syn_task_create(&tasks[0], "blink",   blink_task,   SYN_PRIO_LOW,      NULL);
+    syn_task_create(&tasks[1], "monitor", monitor_task, SYN_PRIO_HIGH,     NULL);
+    syn_task_create(&tasks[2], "worker",  worker_task,  SYN_PRIO_CRITICAL, NULL);
+    syn_task_create(&tasks[3], "cli",     cli_task,     SYN_PRIO_HIGH,     NULL);
+    syn_sched_init(&sched, tasks, 4);
 }
 
 void loop()

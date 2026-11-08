@@ -15,11 +15,18 @@
 #ifndef SYN_DTLS_H
 #define SYN_DTLS_H
 
-#if __has_include("syn_config.h")
-#include "syn_config.h"
+#include "syntropic/common/syn_defs.h"
+#include "syntropic/net/syn_tls.h"
+
+#if (!defined(SYN_USE_DTLS) || SYN_USE_DTLS) && SYN_TLS_ENABLED
+/** @brief Non-zero when DTLS 1.3 and required TLS/crypto dependencies are enabled. */
+#define SYN_DTLS_ENABLED 1
+#else
+/** @brief Non-zero when DTLS 1.3 and required TLS/crypto dependencies are enabled. */
+#define SYN_DTLS_ENABLED 0
 #endif
 
-#if !defined(SYN_USE_DTLS) || SYN_USE_DTLS
+#if SYN_DTLS_ENABLED
 
 #include "syntropic/crypto/syn_aes.h"
 #include "syntropic/crypto/syn_chacha20poly1305.h"
@@ -28,7 +35,6 @@
 #include "syntropic/crypto/syn_sha512.h"
 #include "syntropic/crypto/syn_x25519.h"
 #include "syntropic/crypto/syn_x509.h"
-#include "syntropic/net/syn_tls.h"
 #include "syntropic/net/syn_transport.h"
 #include "syntropic/pt/syn_pt.h"
 #include "syntropic/sched/syn_task.h"
@@ -106,6 +112,7 @@ typedef struct {
 typedef struct {
     SYN_DTLS_AuthMode mode;            /**< PSK, RPK, X.509, or mTLS */
     SYN_DTLS_CipherSuite cipher_suite; /**< Selected cipher suite */
+    bool is_server;                    /**< true for server endpoint, false for client (default) */
     const char *server_name;           /**< SNI hostname (optional) */
 
     /* PSK configuration */
@@ -120,9 +127,11 @@ typedef struct {
 
     /* X.509 & mTLS configuration */
     const SYN_X509_Cert *root_ca;   /**< Trusted Root CA cert */
-    const uint8_t *client_cert_der; /**< Client certificate DER */
-    size_t client_cert_len;         /**< Client certificate length */
-    const uint8_t *client_privkey;  /**< Client private key (32 bytes) */
+    const uint8_t *peer_cert_der;   /**< Peer certificate DER */
+    size_t peer_cert_len;           /**< Peer certificate length */
+    const uint8_t *client_cert_der; /**< Local certificate DER (mTLS client or X.509 server) */
+    size_t client_cert_len;         /**< Local certificate length */
+    const uint8_t *client_privkey;  /**< Local private key (32 bytes) */
 } SYN_DTLS_Config;
 
 /** DTLS 1.3 Engine Context (Caller-owned, zero-heap). */
@@ -141,9 +150,12 @@ typedef struct {
     SYN_PT pt; /**< Non-blocking task state */
 
     /* Cryptographic secrets & keys */
-    uint8_t master_secret[SYN_DTLS_SECRET_LEN];     /**< Derived DTLS 1.3 master secret */
-    uint8_t client_app_secret[SYN_DTLS_SECRET_LEN]; /**< Client application traffic secret */
-    uint8_t server_app_secret[SYN_DTLS_SECRET_LEN]; /**< Server application traffic secret */
+    uint8_t client_handshake_secret[SYN_DTLS_SECRET_LEN]; /**< Client handshake secret */
+    uint8_t server_handshake_secret[SYN_DTLS_SECRET_LEN]; /**< Server handshake secret */
+    uint8_t master_secret[SYN_DTLS_SECRET_LEN];           /**< Derived DTLS 1.3 master secret */
+    uint8_t client_app_secret[SYN_DTLS_SECRET_LEN];       /**< Client application traffic secret */
+    uint8_t server_app_secret[SYN_DTLS_SECRET_LEN];       /**< Server application traffic secret */
+    uint8_t transcript_digest[SYN_DTLS_SECRET_LEN];       /**< Chained handshake transcript hash */
 
     /* Cached record traffic keys & IVs */
     uint8_t client_app_key[SYN_DTLS_SECRET_LEN]; /**< Client record encryption key */
@@ -163,10 +175,17 @@ typedef struct {
     uint8_t ecdhe_priv[32];     /**< Local ephemeral ECDHE private key */
     uint8_t ecdhe_pub[32];      /**< Local ephemeral ECDHE public key */
     uint8_t peer_ecdhe_pub[32]; /**< Peer ephemeral ECDHE public key */
+    uint8_t client_random[32];  /**< ClientHello 32-byte random */
+    uint8_t server_random[32];  /**< ServerHello 32-byte random */
 
-    /* Single-record RX buffer */
-    uint8_t app_rx_buf[SYN_DTLS_RECORD_MAX_PAYLOAD]; /**< Decrypted payload cache */
-    size_t app_rx_len;                               /**< Decrypted payload length */
+    /** @brief Transient cryptographic scratchpad keeping stack frames within 256B. */
+    union {
+        SYN_AES_GCM_Context gcm; /**< AES-GCM scratch context */
+        SYN_AES_Context aes;     /**< AES-CCM scratch context */
+        SYN_SHA512 sha512;       /**< SHA-384 transcript scratch */
+        SYN_SHA256 sha256;       /**< SHA-256 transcript scratch */
+        SYN_X509_Cert cert;      /**< Parsed peer X.509 certificate scratch */
+    } crypto_scratch;            /**< Shared cipher/hash/X.509 scratch storage */
 } SYN_DTLS_Context;
 
 /* ── API ────────────────────────────────────────────────────────────────── */
@@ -246,6 +265,6 @@ void syn_dtls_bind_transport(SYN_DTLS_Context *dtls_ctx, SYN_Transport *tr_out);
 }
 #endif
 
-#endif /* SYN_USE_DTLS */
+#endif /* SYN_DTLS_ENABLED */
 
 #endif /* SYN_DTLS_H */

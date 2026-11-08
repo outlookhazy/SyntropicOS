@@ -12,6 +12,14 @@
 
 #include "../common/syn_defs.h"
 
+#ifndef SYN_USE_METRICS
+#define SYN_USE_METRICS 0 /**< Enable telemetry metrics (0 = disabled by default) */
+#endif
+
+#ifndef SYN_USE_ROUTER
+#define SYN_USE_ROUTER 0 /**< Enable router telemetry integration */
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -47,7 +55,7 @@ typedef struct SYN_Metric {
     struct SYN_Metric *next; /**< Next in global registry list */
 } SYN_Metric;
 
-#if SYN_USE_METRICS
+#if defined(SYN_USE_METRICS) && SYN_USE_METRICS
 
 /**
  * @brief Declare a metric statically.
@@ -145,8 +153,8 @@ void syn_metrics_foreach(void (*cb)(const SYN_Metric *m, void *ctx), void *ctx);
 
 #else /* !SYN_USE_METRICS */
 
-/** @brief Declare a metric statically (disabled). */
-#define SYN_METRIC_DECLARE(var, name, help, type)
+/** @brief Declare a metric statically (disabled — valid ISO C99 declaration without extra ';'). */
+#define SYN_METRIC_DECLARE(var, name, help, type) struct syn_metric_disabled_##var
 /** @brief Register a metric (disabled). */
 #define SYN_METRIC_REGISTER(m) ((void)0)
 /** @brief Increment a metric (disabled). */

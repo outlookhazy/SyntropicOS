@@ -317,19 +317,112 @@ void test_stream_delimiter_overflow_resync(void)
 
 static void test_stream_null_and_wrapped_delim(void)
 {
-    /* Null & zero length checks (lines 71 & 85) */
-    TEST_ASSERT_EQUAL(0, syn_stream_write(NULL, NULL, 0));
-    TEST_ASSERT_FALSE(syn_stream_put(NULL, 'A'));
+    uint8_t tmp[8];
+    SYN_Stream bad_stream;
 
-    /* Wrapped ringbuf delimiter scan (line 31) */
+    /* NULL / invalid parameter guards across all public APIs */
+    syn_stream_init(NULL, s_buf, sizeof(s_buf));
+    syn_stream_init(&bad_stream, NULL, sizeof(s_buf));
+    TEST_ASSERT_EQUAL(0U, syn_stream_count(&bad_stream));
+    syn_stream_init(&bad_stream, s_buf, 1U);
+    TEST_ASSERT_EQUAL(0U, syn_stream_count(&bad_stream));
+    syn_stream_set_delimiter(&bad_stream, '\n');
+    TEST_ASSERT_FALSE(syn_stream_put(&bad_stream, 'A'));
+
+    syn_stream_set_threshold(NULL, 4U);
+    syn_stream_set_delimiter(NULL, '\n');
+    syn_stream_clear_delimiter(NULL);
+    TEST_ASSERT_EQUAL(0U, syn_stream_write(NULL, tmp, 4U));
+    TEST_ASSERT_EQUAL(0U, syn_stream_write(&s_stream, NULL, 4U));
+    TEST_ASSERT_EQUAL(0U, syn_stream_write(&s_stream, tmp, 0U));
+    TEST_ASSERT_FALSE(syn_stream_put(NULL, 'A'));
+    TEST_ASSERT_FALSE(syn_stream_readable(NULL));
+    TEST_ASSERT_EQUAL(0U, syn_stream_read(NULL, tmp, sizeof(tmp)));
+    TEST_ASSERT_EQUAL(0U, syn_stream_read(&s_stream, NULL, sizeof(tmp)));
+    TEST_ASSERT_EQUAL(0U, syn_stream_read(&s_stream, tmp, 0U));
+    TEST_ASSERT_EQUAL(0U, syn_stream_read_line(NULL, tmp, sizeof(tmp)));
+    TEST_ASSERT_EQUAL(0U, syn_stream_read_line(&s_stream, NULL, sizeof(tmp)));
+    TEST_ASSERT_EQUAL(0U, syn_stream_read_line(&s_stream, tmp, 0U));
+    TEST_ASSERT_EQUAL(0U, syn_stream_count(NULL));
+    TEST_ASSERT_EQUAL(0U, syn_stream_free(NULL));
+    syn_stream_flush(NULL);
+
+    /* Wrapped ringbuf delimiter scan */
     stream_setup();
-    /* Move tail & head near end of 32B buffer */
-    s_stream.rb.tail = 30;
-    s_stream.rb.head = 30;
+    s_stream.rb.tail = 30U;
+    s_stream.rb.head = 30U;
     syn_stream_set_delimiter(&s_stream, '\n');
-    syn_stream_write(&s_stream, (const uint8_t *)"abc\n",
-                     4); /* Tail at 30, idx wraps 30 -> 31 -> 0 -> 1 */
+    syn_stream_write(&s_stream, (const uint8_t *)"abc\n", 4U);
     TEST_ASSERT_TRUE(syn_stream_readable(&s_stream));
+}
+
+/** R4-K06: Preserve unread complete lines on frame overflow without mutating tail; flush resets. */
+static void test_r4_stream_overflow_preserves_lines_and_flush_resets(void)
+{
+    uint8_t line[32];
+    uint8_t garbage[32];
+    memset(garbage, 'Z', sizeof(garbage));
+
+    /* 1. Post-overflow syn_stream_flush clears s->overflowing and frame_head */
+    stream_setup();
+    syn_stream_set_delimiter(&s_stream, '\n');
+    TEST_ASSERT_EQUAL(31U, syn_stream_write(&s_stream, garbage, 32U));
+    TEST_ASSERT_TRUE(s_stream.overflowing);
+    syn_stream_flush(&s_stream);
+    TEST_ASSERT_FALSE(s_stream.overflowing);
+    TEST_ASSERT_EQUAL(0U, s_stream.frame_head);
+    TEST_ASSERT_EQUAL(3U, syn_stream_write(&s_stream, (const uint8_t *)"OK\n", 3U));
+    TEST_ASSERT_TRUE(syn_stream_readable(&s_stream));
+    TEST_ASSERT_EQUAL(3U, syn_stream_read_line(&s_stream, line, sizeof(line)));
+    TEST_ASSERT_EQUAL_MEMORY("OK\n", line, 3U);
+
+    /* 2. Two unread complete lines ("L1\n" + "L2\n" = 6B) survive subsequent frame overflow */
+    stream_setup();
+    syn_stream_set_delimiter(&s_stream, '\n');
+    /* Advance tail/head to 26 so "L2\n" ends at slot 31 -> frame_head wraps to 0 (prev = 31) */
+    s_stream.rb.tail = 26U;
+    s_stream.rb.head = 26U;
+    s_stream.frame_head = 26U;
+    TEST_ASSERT_EQUAL(6U, syn_stream_write(&s_stream, (const uint8_t *)"L1\nL2\n", 6U));
+    TEST_ASSERT_EQUAL(0U, s_stream.frame_head);
+    size_t saved_tail = s_stream.rb.tail;
+
+    /* Remaining capacity is 31 - 6 = 25B; writing 26 'Z's overflows partial 3rd frame */
+    TEST_ASSERT_EQUAL(25U, syn_stream_write(&s_stream, garbage, 26U));
+    TEST_ASSERT_TRUE(s_stream.overflowing);
+    TEST_ASSERT_EQUAL(1U, s_stream.overflow_count);
+    /* Consumer-owned tail untouched; head rewound to frame_head (0), keeping 6B of L1+L2 */
+    TEST_ASSERT_EQUAL(saved_tail, s_stream.rb.tail);
+    TEST_ASSERT_EQUAL(6U, syn_stream_count(&s_stream));
+    TEST_ASSERT_TRUE(syn_stream_readable(&s_stream));
+
+    /* Trailing bytes + '\n' resync without disturbing unread complete lines */
+    TEST_ASSERT_FALSE(syn_stream_put(&s_stream, 'Q'));
+    TEST_ASSERT_FALSE(syn_stream_put(&s_stream, '\n'));
+    TEST_ASSERT_FALSE(s_stream.overflowing);
+    TEST_ASSERT_EQUAL(3U, syn_stream_write(&s_stream, (const uint8_t *)"L3\n", 3U));
+
+    TEST_ASSERT_EQUAL(3U, syn_stream_read_line(&s_stream, line, sizeof(line)));
+    TEST_ASSERT_EQUAL_MEMORY("L1\n", line, 3U);
+    TEST_ASSERT_EQUAL(3U, syn_stream_read_line(&s_stream, line, sizeof(line)));
+    TEST_ASSERT_EQUAL_MEMORY("L2\n", line, 3U);
+    TEST_ASSERT_EQUAL(3U, syn_stream_read_line(&s_stream, line, sizeof(line)));
+    TEST_ASSERT_EQUAL_MEMORY("L3\n", line, 3U);
+    TEST_ASSERT_EQUAL(0U, syn_stream_count(&s_stream));
+
+    /* 3. Overflow where overflowing byte itself is '\n' & raw read past frame_head */
+    stream_setup();
+    syn_stream_set_delimiter(&s_stream, '\n');
+    TEST_ASSERT_EQUAL(4U, syn_stream_write(&s_stream, (const uint8_t *)"A\nBC", 4U));
+    /* Consumer drains all 4 bytes via raw syn_stream_read (tail = 4 > frame_head = 2) */
+    TEST_ASSERT_EQUAL(4U, syn_stream_read(&s_stream, line, 4U));
+    TEST_ASSERT_EQUAL(31U, syn_stream_write(&s_stream, garbage, 31U));
+    /* 32nd byte is '\n': rewinds to tail (4), clears overflowing immediately */
+    TEST_ASSERT_FALSE(syn_stream_put(&s_stream, '\n'));
+    TEST_ASSERT_FALSE(s_stream.overflowing);
+    TEST_ASSERT_EQUAL(4U, s_stream.frame_head);
+    TEST_ASSERT_EQUAL(4U, s_stream.rb.tail);
+    TEST_ASSERT_EQUAL(0U, syn_stream_count(&s_stream));
 }
 
 void run_stream_tests(void)
@@ -353,4 +446,5 @@ void run_stream_tests(void)
     RUN_TEST(test_stream_clear_delimiter);
     RUN_TEST(test_stream_delimiter_overflow_resync);
     RUN_TEST(test_stream_null_and_wrapped_delim);
+    RUN_TEST(test_r4_stream_overflow_preserves_lines_and_flush_resets);
 }

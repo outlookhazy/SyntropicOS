@@ -158,11 +158,13 @@ void test_cannm_edge_branches(void)
     /* Test repeat_msg_req Tx packing */
     session.state = SYN_CANNM_STATE_REPEAT_MSG;
     session.repeat_msg_req = true;
+    session.repeat_msg_timer = 1600U;
     session.msg_cycle_timer = 0U;
     SYN_CAN_Frame tx_frame;
     TEST_ASSERT_TRUE(syn_cannm_step(&session, 1, &tx_frame));
     TEST_ASSERT_EQUAL_UINT8(SYN_CANNM_CBV_REPEAT_MSG_REQ,
                             tx_frame.data[1] & SYN_CANNM_CBV_REPEAT_MSG_REQ);
+    session.repeat_msg_req = false;
 
     /* Test NORMAL_OP cycle Tx */
     session.state = SYN_CANNM_STATE_NORMAL_OP;
@@ -208,6 +210,7 @@ void test_cannm_edge_branches(void)
 
     /* READY_SLEEP + node_comm_req */
     session.state = SYN_CANNM_STATE_READY_SLEEP;
+    session.repeat_msg_req = false;
     session.node_comm_req = true;
     syn_cannm_step(&session, 1, NULL);
     TEST_ASSERT_EQUAL(SYN_CANNM_STATE_NORMAL_OP, session.state);
@@ -226,6 +229,103 @@ void test_cannm_edge_branches(void)
     TEST_ASSERT_EQUAL(SYN_CANNM_STATE_REPEAT_MSG, session.state);
 }
 
+void test_r5_a13_repeat_msg_cbv_and_active_wakeup_latch(void)
+{
+    SYN_CanNM_Session session;
+    SYN_CAN_Frame tx_frame;
+    syn_cannm_init(&session, NULL);
+
+    /* 1. Passive wakeup from BUS_SLEEP must NOT set ACTIVE_WAKEUP_REQ even if network requested
+     * later */
+    SYN_CAN_Frame remote_nm = {.id = 0x402U, .dlc = 8U, .data = {0x02U, 0x00U}};
+    TEST_ASSERT_TRUE(syn_cannm_process_rx_frame(&session, &remote_nm));
+    TEST_ASSERT_EQUAL(SYN_CANNM_STATE_REPEAT_MSG, session.state);
+    TEST_ASSERT_FALSE(session.active_wakeup);
+
+    syn_cannm_request_network(&session);
+    TEST_ASSERT_FALSE(session.active_wakeup);
+    TEST_ASSERT_TRUE(syn_cannm_step(&session, 1U, &tx_frame));
+    TEST_ASSERT_EQUAL_UINT8(0U, tx_frame.data[1] & SYN_CANNM_CBV_ACTIVE_WAKEUP_REQ);
+
+    /* Advance to NORMAL_OP and request Repeat Message: must emit CBV 0x01 BEFORE clearing flag */
+    TEST_ASSERT_TRUE(syn_cannm_step(&session, 1600U, &tx_frame));
+    TEST_ASSERT_EQUAL(SYN_CANNM_STATE_NORMAL_OP, session.state);
+
+    syn_cannm_request_repeat_msg(&session);
+    TEST_ASSERT_TRUE(syn_cannm_step(&session, 1U, &tx_frame));
+    TEST_ASSERT_EQUAL(SYN_CANNM_STATE_REPEAT_MSG, session.state);
+    TEST_ASSERT_EQUAL_UINT8(SYN_CANNM_CBV_REPEAT_MSG_REQ,
+                            tx_frame.data[1] & SYN_CANNM_CBV_REPEAT_MSG_REQ);
+    TEST_ASSERT_TRUE(session.repeat_msg_req);
+
+    /* Subsequent cycle in REPEAT_MSG keeps CBV_REPEAT_MSG_REQ set until state exit
+     * (SWS_CanNm_00107) */
+    TEST_ASSERT_TRUE(syn_cannm_step(&session, 100U, &tx_frame));
+    TEST_ASSERT_EQUAL_UINT8(SYN_CANNM_CBV_REPEAT_MSG_REQ,
+                            tx_frame.data[1] & SYN_CANNM_CBV_REPEAT_MSG_REQ);
+
+    /* Exiting REPEAT_MSG clears repeat_msg_req */
+    TEST_ASSERT_TRUE(syn_cannm_step(&session, 1500U, &tx_frame));
+    TEST_ASSERT_EQUAL(SYN_CANNM_STATE_NORMAL_OP, session.state);
+    TEST_ASSERT_FALSE(session.repeat_msg_req);
+    TEST_ASSERT_EQUAL_UINT8(0U, tx_frame.data[1] & SYN_CANNM_CBV_REPEAT_MSG_REQ);
+
+    /* Also verify READY_SLEEP -> REPEAT_MSG emits CBV 0x01 */
+    syn_cannm_release_network(&session);
+    (void)syn_cannm_step(&session, 10U, &tx_frame);
+    TEST_ASSERT_EQUAL(SYN_CANNM_STATE_READY_SLEEP, session.state);
+    syn_cannm_request_repeat_msg(&session);
+    TEST_ASSERT_TRUE(syn_cannm_step(&session, 1U, &tx_frame));
+    TEST_ASSERT_EQUAL(SYN_CANNM_STATE_REPEAT_MSG, session.state);
+    TEST_ASSERT_EQUAL_UINT8(SYN_CANNM_CBV_REPEAT_MSG_REQ,
+                            tx_frame.data[1] & SYN_CANNM_CBV_REPEAT_MSG_REQ);
+
+    /* Let session go all the way to BUS_SLEEP */
+    (void)syn_cannm_step(&session, 1600U, &tx_frame);
+    (void)syn_cannm_step(&session, 1000U, &tx_frame);
+    TEST_ASSERT_EQUAL(SYN_CANNM_STATE_PRE_BUS_SLEEP, session.state);
+    (void)syn_cannm_step(&session, 1500U, &tx_frame);
+    TEST_ASSERT_EQUAL(SYN_CANNM_STATE_BUS_SLEEP, session.state);
+
+    /* 2. Active wakeup from BUS_SLEEP latches ACTIVE_WAKEUP_REQ until BUS_SLEEP */
+    syn_cannm_request_network(&session);
+    TEST_ASSERT_TRUE(session.active_wakeup);
+    /* Even if an Rx frame arrives before step(), active_wakeup stays latched */
+    TEST_ASSERT_TRUE(syn_cannm_process_rx_frame(&session, &remote_nm));
+    TEST_ASSERT_TRUE(session.active_wakeup);
+    /* Release network while still in REPEAT_MSG: active_wakeup remains latched until BUS_SLEEP */
+    syn_cannm_release_network(&session);
+    TEST_ASSERT_TRUE(syn_cannm_step(&session, 1U, &tx_frame));
+    TEST_ASSERT_EQUAL_UINT8(SYN_CANNM_CBV_ACTIVE_WAKEUP_REQ,
+                            tx_frame.data[1] & SYN_CANNM_CBV_ACTIVE_WAKEUP_REQ);
+
+    (void)syn_cannm_step(&session, 1600U, &tx_frame);
+    (void)syn_cannm_step(&session, 1000U, &tx_frame);
+    TEST_ASSERT_TRUE(session.active_wakeup);
+    (void)syn_cannm_step(&session, 1500U, &tx_frame);
+    TEST_ASSERT_EQUAL(SYN_CANNM_STATE_BUS_SLEEP, session.state);
+    TEST_ASSERT_FALSE(session.active_wakeup);
+
+    /* 3. Repeat Message timer expiring while msg_cycle_timer still has remaining time */
+    SYN_CanNM_Config short_rep_cfg = {
+        .node_id = 0x12U,
+        .can_id_base = 0x500U,
+        .can_id_mask = 0x7F0U,
+        .msg_cycle_ms = 200U,
+        .nm_timeout_ms = 1000U,
+        .wait_bus_sleep_ms = 500U,
+        .repeat_msg_time_ms = 50U,
+    };
+    SYN_CanNM_Session short_sess;
+    syn_cannm_init(&short_sess, &short_rep_cfg);
+    syn_cannm_request_network(&short_sess);
+    TEST_ASSERT_TRUE(syn_cannm_step(&short_sess, 10U, &tx_frame));
+    syn_cannm_request_repeat_msg(&short_sess);
+    TEST_ASSERT_FALSE(syn_cannm_step(&short_sess, 50U, &tx_frame));
+    TEST_ASSERT_EQUAL(SYN_CANNM_STATE_NORMAL_OP, short_sess.state);
+    TEST_ASSERT_FALSE(short_sess.repeat_msg_req);
+}
+
 void run_cannm_tests(void)
 {
     RUN_TEST(test_cannm_init);
@@ -234,4 +334,5 @@ void run_cannm_tests(void)
     RUN_TEST(test_cannm_full_state_cycle);
     RUN_TEST(test_cannm_rx_filtering_and_passive_wakeup);
     RUN_TEST(test_cannm_edge_branches);
+    RUN_TEST(test_r5_a13_repeat_msg_cbv_and_active_wakeup_latch);
 }

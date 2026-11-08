@@ -95,20 +95,26 @@ Provides fixed-point Radix-2 FFT spectral analysis, Hanning/Hamming windowing, p
 
 static q16_t real_buf[FFT_SIZE];
 static q16_t imag_buf[FFT_SIZE];
-static q16_t mag_buf[FFT_SIZE / 2];
+static q16_t win_buf[FFT_SIZE];
+static q16_t mag_buf[FFT_SIZE / 2 + 1];
 
 void analyze_spectrum(void) {
-    // Apply Hanning window
-    syn_fft_apply_window(real_buf, FFT_SIZE, SYN_FFT_WINDOW_HANNING);
+    // Generate and apply Hanning window
+    syn_fft_window_hanning(win_buf, FFT_SIZE);
+    for (uint16_t i = 0; i < FFT_SIZE; i++) {
+        real_buf[i] = q16_mul(real_buf[i], win_buf[i]);
+    }
 
-    // Perform Radix-2 FFT
-    syn_fft_perform(real_buf, imag_buf, FFT_SIZE);
+    // Perform in-place Radix-2 FFT
+    syn_dsp_fft(real_buf, imag_buf, FFT_SIZE);
 
-    // Compute magnitude spectrum
-    syn_fft_magnitude_spectrum(real_buf, imag_buf, mag_buf, FFT_SIZE / 2);
+    // Compute magnitude spectrum (FFT_SIZE / 2 + 1 bins)
+    syn_fft_magnitude_spectrum(real_buf, imag_buf, mag_buf, FFT_SIZE);
 
-    // Find dominant frequency peak index
-    uint16_t peak_bin = syn_fft_find_peak(mag_buf, FFT_SIZE / 2);
+    // Find dominant frequency peak (at 1000 Hz sample rate)
+    SYN_FFTPeak peak;
+    uint8_t found = 0;
+    syn_fft_find_peaks(mag_buf, FFT_SIZE / 2 + 1, Q16_FROM_INT(1000), &peak, 1, &found);
 }
 ```
 

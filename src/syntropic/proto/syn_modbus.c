@@ -90,7 +90,9 @@ static void send_response(SYN_Modbus *mb, uint16_t len)
         return; /* Do not respond to broadcast */
     }
     append_crc(mb->buf, len);
-    syn_port_uart_transmit(mb->cfg.uart, mb->buf, len + 2, 0);
+    if (!mb->suppress_uart_tx) {
+        syn_port_uart_transmit(mb->cfg.uart, mb->buf, len + 2U, 0);
+    }
     mb->frames_tx++;
 }
 
@@ -703,8 +705,8 @@ static void handle_write_multiple_coils(SYN_Modbus *mb, uint16_t frame_len)
  */
 static void handle_diagnostics(SYN_Modbus *mb, uint16_t frame_len)
 {
-    /* Minimum: addr(1) func(1) subfunc(2) data(2) CRC(2) = 8; subfunc at [2..3] needs >= 6 */
-    if (frame_len < 6) {
+    /* Minimum: addr(1) func(1) subfunc(2) data(2) CRC(2) = 8 bytes */
+    if (frame_len < 8U) {
         send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_VALUE);
         return;
     }

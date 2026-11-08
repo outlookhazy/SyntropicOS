@@ -112,8 +112,8 @@ void setup()
     syn_led_init(&status_led, STATUS_LED_PIN, SYN_LED_ACTIVE_HIGH);
     syn_led_blink(&status_led, 200, 200);
 
-    syn_task_create(&tasks[0], "filter", filter_task, 1, NULL);
-    syn_task_create(&tasks[1], "blink",  blink_task,  2, NULL);
+    syn_task_create(&tasks[0], "filter", filter_task, SYN_PRIO_HIGH,   NULL);
+    syn_task_create(&tasks[1], "blink",  blink_task,  SYN_PRIO_NORMAL, NULL);
 
     syn_sched_init(&sched, tasks, 2);
 
@@ -122,6 +122,7 @@ void setup()
 
 void loop()
 {
-    syn_sched_run(&sched);
-    delay(1);
+    if (!syn_sched_run(&sched)) {
+        syn_port_delay_ms(1);
+    }
 }

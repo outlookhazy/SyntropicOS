@@ -6,6 +6,7 @@
 #include "syntropic/net/syn_eth.h"
 
 #include "syntropic/net/syn_icmp.h"
+#include "syntropic/net/syn_igmp.h"
 #include "syntropic/net/syn_tcp.h"
 #include "syntropic/net/syn_transport_udp.h"
 #include "syntropic/net/syn_udp.h"
@@ -13,6 +14,19 @@
 #include "syntropic/util/syn_crc.h"
 
 #include <string.h>
+
+/** Registered IGMP engine instance pointer */
+static void *g_eth_igmp_instance = NULL;
+
+void syn_eth_set_igmp_instance(void *igmp)
+{
+    g_eth_igmp_instance = igmp;
+}
+
+SYN_WEAK void *syn_eth_get_igmp_instance(void)
+{
+    return g_eth_igmp_instance;
+}
 
 /**
  * @brief Weak hook to obtain UDP transport instance.
@@ -165,6 +179,119 @@ SYN_Status syn_eth_build_frame(SYN_ETH *eth, const uint8_t dst_mac[6], uint16_t 
     return SYN_OK;
 }
 
+/**
+ * @brief Check whether destination MAC is unicast to eth, broadcast, or IPv4 multicast.
+ * @param eth     Ethernet interface instance.
+ * @param dst_mac 6-byte destination MAC address.
+ * @return true if frame should be accepted, false to filter out.
+ */
+static bool eth_accept_dst_mac(const SYN_ETH *eth, const uint8_t dst_mac[6])
+{
+    if (memcmp(dst_mac, eth->mac_addr, 6U) == 0 || memcmp(dst_mac, MAC_BROADCAST, 6U) == 0) {
+        return true;
+    }
+    return (dst_mac[0] == 0x01U && dst_mac[1] == 0x00U && dst_mac[2] == 0x5EU &&
+            (dst_mac[3] & 0x80U) == 0U);
+}
+
+/**
+ * @brief Process an inbound ARP frame (>= 42 bytes) and optionally emit ARP reply.
+ * @param eth    Ethernet interface instance.
+ * @param frame  Raw Ethernet II frame.
+ * @param tx_buf Output buffer for ARP reply.
+ * @param tx_len Output byte length pointer.
+ */
+static void eth_process_arp(SYN_ETH *eth, const uint8_t *frame, uint8_t *tx_buf, size_t *tx_len)
+{
+    uint16_t htype = ((uint16_t)frame[14] << 8U) | frame[15];
+    uint16_t ptype = ((uint16_t)frame[16] << 8U) | frame[17];
+    uint16_t oper = ((uint16_t)frame[20] << 8U) | frame[21];
+
+    if (htype != 1U || ptype != SYN_ETHTYPE_IPV4) {
+        return;
+    }
+
+    const uint8_t *sender_mac = &frame[22];
+    uint32_t sender_ip = ((uint32_t)frame[28] << 24U) | ((uint32_t)frame[29] << 16U) |
+                         ((uint32_t)frame[30] << 8U) | frame[31];
+    uint32_t target_ip = ((uint32_t)frame[38] << 24U) | ((uint32_t)frame[39] << 16U) |
+                         ((uint32_t)frame[40] << 8U) | frame[41];
+
+    syn_eth_arp_update(eth, sender_ip, sender_mac);
+
+    if (oper == SYN_ARP_OP_REQUEST) {
+        eth->arp_requests++;
+        if (target_ip == eth->ip_addr && tx_buf && tx_len) {
+            uint8_t arp_reply_payload[28];
+            arp_reply_payload[0] = 0U;
+            arp_reply_payload[1] = 1U;
+            arp_reply_payload[2] = 0x08U;
+            arp_reply_payload[3] = 0x00U;
+            arp_reply_payload[4] = 6U;
+            arp_reply_payload[5] = 4U;
+            arp_reply_payload[6] = 0U;
+            arp_reply_payload[7] = 2U;
+
+            memcpy(&arp_reply_payload[8], eth->mac_addr, 6U);
+            arp_reply_payload[14] = (uint8_t)(eth->ip_addr >> 24U);
+            arp_reply_payload[15] = (uint8_t)(eth->ip_addr >> 16U);
+            arp_reply_payload[16] = (uint8_t)(eth->ip_addr >> 8U);
+            arp_reply_payload[17] = (uint8_t)(eth->ip_addr);
+
+            memcpy(&arp_reply_payload[18], sender_mac, 6U);
+            arp_reply_payload[24] = (uint8_t)(sender_ip >> 24U);
+            arp_reply_payload[25] = (uint8_t)(sender_ip >> 16U);
+            arp_reply_payload[26] = (uint8_t)(sender_ip >> 8U);
+            arp_reply_payload[27] = (uint8_t)(sender_ip);
+
+            syn_eth_build_frame(eth, sender_mac, SYN_ETHTYPE_ARP, arp_reply_payload, 28U, tx_buf,
+                                tx_len);
+        }
+    } else if (oper == SYN_ARP_OP_REPLY) {
+        eth->arp_replies++;
+    }
+}
+
+/**
+ * @brief Dispatch an inbound IPv4 frame to UDP, ICMP, IGMP, or TCP protocol engine.
+ * @param eth    Ethernet interface instance.
+ * @param frame  Raw Ethernet II frame.
+ * @param len    Frame byte length (>= 34).
+ * @param tx_buf Output buffer for immediate reply frame.
+ * @param tx_len Output byte length pointer.
+ */
+static void eth_process_ipv4(SYN_ETH *eth, const uint8_t *frame, size_t len, uint8_t *tx_buf,
+                             size_t *tx_len)
+{
+    size_t ip_ihl = (size_t)(frame[14] & 0x0FU) * 4U;
+    if (ip_ihl < 20U || (14U + ip_ihl) > len) {
+        return;
+    }
+
+    uint8_t ip_proto = frame[23];
+    if (ip_proto == 17U) { /* UDP */
+        SYN_UDP *udp_inst = syn_transport_udp_get_instance();
+        if (udp_inst) {
+            syn_udp_process_packet(udp_inst, frame, len);
+        }
+    } else if (ip_proto == 1U && tx_buf && tx_len) { /* ICMP */
+        SYN_ICMP *icmp_inst = (SYN_ICMP *)syn_eth_get_icmp_instance();
+        if (icmp_inst) {
+            syn_icmp_process_packet(icmp_inst, frame, len, tx_buf, tx_len);
+        }
+    } else if (ip_proto == 2U) { /* IGMP */
+        SYN_IGMP *igmp_inst = (SYN_IGMP *)syn_eth_get_igmp_instance();
+        if (igmp_inst) {
+            syn_igmp_process_packet(igmp_inst, eth, frame, len, tx_buf, tx_len);
+        }
+    } else if (ip_proto == 6U && tx_buf && tx_len) { /* TCP */
+        SYN_TCP *tcp_inst = (SYN_TCP *)syn_eth_get_tcp_instance();
+        if (tcp_inst) {
+            syn_tcp_process_packet(tcp_inst, frame, len, tx_buf, tx_len);
+        }
+    }
+}
+
 SYN_Status syn_eth_process_frame(SYN_ETH *eth, const uint8_t *frame, size_t len, uint8_t *tx_buf,
                                  size_t *tx_len)
 {
@@ -173,88 +300,20 @@ SYN_Status syn_eth_process_frame(SYN_ETH *eth, const uint8_t *frame, size_t len,
     }
 
     if (tx_len) {
-        *tx_len = 0;
+        *tx_len = 0U;
     }
 
     eth->frames_rx++;
 
-    const uint8_t *dst_mac = &frame[0];
-    uint16_t ethertype = ((uint16_t)frame[12] << 8) | frame[13];
-
-    /* MAC Filter: drop frames not addressed to us or broadcast */
-    bool is_unicast = (memcmp(dst_mac, eth->mac_addr, 6) == 0);
-    bool is_bcast = (memcmp(dst_mac, MAC_BROADCAST, 6) == 0);
-    if (!is_unicast && !is_bcast) {
+    if (!eth_accept_dst_mac(eth, &frame[0])) {
         return SYN_OK;
     }
 
-    /* Process ARP */
-    if (ethertype == SYN_ETHTYPE_ARP && len >= 42) {
-        uint16_t htype = ((uint16_t)frame[14] << 8) | frame[15];
-        uint16_t ptype = ((uint16_t)frame[16] << 8) | frame[17];
-        uint16_t oper = ((uint16_t)frame[20] << 8) | frame[21];
-
-        if (htype == 1 && ptype == SYN_ETHTYPE_IPV4) {
-            const uint8_t *sender_mac = &frame[22];
-            uint32_t sender_ip = ((uint32_t)frame[28] << 24) | ((uint32_t)frame[29] << 16) |
-                                 ((uint32_t)frame[30] << 8) | frame[31];
-            uint32_t target_ip = ((uint32_t)frame[38] << 24) | ((uint32_t)frame[39] << 16) |
-                                 ((uint32_t)frame[40] << 8) | frame[41];
-
-            syn_eth_arp_update(eth, sender_ip, sender_mac);
-
-            if (oper == SYN_ARP_OP_REQUEST) {
-                eth->arp_requests++;
-                if (target_ip == eth->ip_addr && tx_buf && tx_len) {
-                    /* Build ARP Reply Payload (28 bytes) */
-                    uint8_t arp_reply_payload[28];
-                    arp_reply_payload[0] = 0;
-                    arp_reply_payload[1] = 1; /* HW = Ethernet */
-                    arp_reply_payload[2] = 0x08;
-                    arp_reply_payload[3] = 0x00; /* Proto = IPv4 */
-                    arp_reply_payload[4] = 6;
-                    arp_reply_payload[5] = 4; /* HW len, Proto len */
-                    arp_reply_payload[6] = 0;
-                    arp_reply_payload[7] = 2; /* Oper = Reply */
-
-                    memcpy(&arp_reply_payload[8], eth->mac_addr, 6);
-                    arp_reply_payload[14] = (uint8_t)(eth->ip_addr >> 24);
-                    arp_reply_payload[15] = (uint8_t)(eth->ip_addr >> 16);
-                    arp_reply_payload[16] = (uint8_t)(eth->ip_addr >> 8);
-                    arp_reply_payload[17] = (uint8_t)(eth->ip_addr);
-
-                    memcpy(&arp_reply_payload[18], sender_mac, 6);
-                    arp_reply_payload[24] = (uint8_t)(sender_ip >> 24);
-                    arp_reply_payload[25] = (uint8_t)(sender_ip >> 16);
-                    arp_reply_payload[26] = (uint8_t)(sender_ip >> 8);
-                    arp_reply_payload[27] = (uint8_t)(sender_ip);
-
-                    syn_eth_build_frame(eth, sender_mac, SYN_ETHTYPE_ARP, arp_reply_payload, 28,
-                                        tx_buf, tx_len);
-                }
-            } else if (oper == SYN_ARP_OP_REPLY) {
-                eth->arp_replies++;
-            }
-        }
-    } else if (ethertype == SYN_ETHTYPE_IPV4 && len >= 34) {
-        uint8_t ip_proto = frame[23];
-
-        if (ip_proto == 17) { /* UDP */
-            SYN_UDP *udp_inst = syn_transport_udp_get_instance();
-            if (udp_inst) {
-                syn_udp_process_packet(udp_inst, frame, len);
-            }
-        } else if (ip_proto == 1 && tx_buf && tx_len) { /* ICMP */
-            SYN_ICMP *icmp_inst = (SYN_ICMP *)syn_eth_get_icmp_instance();
-            if (icmp_inst) {
-                syn_icmp_process_packet(icmp_inst, frame, len, tx_buf, tx_len);
-            }
-        } else if (ip_proto == 6 && tx_buf && tx_len) { /* TCP */
-            SYN_TCP *tcp_inst = (SYN_TCP *)syn_eth_get_tcp_instance();
-            if (tcp_inst) {
-                syn_tcp_process_packet(tcp_inst, frame, len, tx_buf, tx_len);
-            }
-        }
+    uint16_t ethertype = ((uint16_t)frame[12] << 8U) | frame[13];
+    if (ethertype == SYN_ETHTYPE_ARP && len >= 42U) {
+        eth_process_arp(eth, frame, tx_buf, tx_len);
+    } else if (ethertype == SYN_ETHTYPE_IPV4 && len >= 34U) {
+        eth_process_ipv4(eth, frame, len, tx_buf, tx_len);
     }
 
     return SYN_OK;

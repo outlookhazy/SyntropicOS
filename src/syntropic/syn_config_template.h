@@ -37,21 +37,27 @@
 
 /* ── Multitasking ───────────────────────────────────────────────────────── */
 
-#define SYN_USE_PT 1        /**< Protothreads (cooperative coroutines) */
-#define SYN_USE_SCHED 1     /**< Cooperative task scheduler          */
-#define SYN_USE_TIMER 1     /**< Software timers (one-shot + periodic) */
-#define SYN_USE_EVENT 1     /**< Event flag groups (32-bit bitmask)  */
-#define SYN_USE_MUTEX 1     /**< Priority-inheriting mutex           */
-#define SYN_USE_WATCHDOG 1  /**< Task-level watchdog monitor         */
-#define SYN_USE_SEQUENCER 1 /**< Timed action sequencer              */
-#define SYN_USE_WORKQUEUE 1 /**< Deferred work queue (ISR→main)      */
-#define SYN_USE_TICKLESS 0  /**< Tickless idle scheduler (requires: SCHED, port sleep_until) */
+#define SYN_USE_PT 1                      /**< Protothreads (cooperative coroutines) */
+#define SYN_USE_SCHED 1                   /**< Cooperative task scheduler          */
+#define SYN_SCHED_PRIO_LEVELS 4           /**< Priority levels (0..N-1)          */
+#define SYN_SCHED_MAX_WAIT_CRITICAL_MS 1U /**< Starvation window for CRITICAL    */
+#define SYN_SCHED_MAX_WAIT_HIGH_MS 5U     /**< Starvation window for HIGH        */
+#define SYN_SCHED_MAX_WAIT_NORMAL_MS 15U  /**< Starvation window for NORMAL      */
+#define SYN_SCHED_MAX_WAIT_LOW_MS 50U     /**< Starvation window for LOW         */
+#define SYN_USE_TIMER 1                   /**< Software timers (one-shot + periodic) */
+#define SYN_USE_EVENT 1                   /**< Event flag groups (32-bit bitmask)  */
+#define SYN_USE_MUTEX 1                   /**< Priority-inheriting mutex           */
+#define SYN_MUTEX_MAX_WAITERS 4U          /**< Tracked contended waiters per mutex */
+#define SYN_USE_WATCHDOG 1                /**< Task-level watchdog monitor         */
+#define SYN_USE_SEQUENCER 1               /**< Timed action sequencer              */
+#define SYN_USE_WORKQUEUE 1               /**< Deferred work queue (ISR→main)      */
+#define SYN_USE_TICKLESS 0 /**< Tickless idle scheduler (requires: SCHED, port sleep_until) */
 /* Mailbox is header-only — always available.                                */
 
 /* ── Services ───────────────────────────────────────────────────────────── */
 
 #define SYN_USE_LOG 1        /**< Logging system (requires: FMT)      */
-#define SYN_USE_CLI 1        /**< Command-line interface              */
+#define SYN_USE_CLI 1        /**< Command-line interface (requires: FMT) */
 #define SYN_USE_WASM 1       /**< [EXPERIMENTAL] WebAssembly MVP interpreter */
 #define SYN_WASM_USE_FIXED 0 /**< f32 opcodes use Q16.16 fixed-point */
 
@@ -98,7 +104,7 @@
 /* ── State Machines / Concurrency ───────────────────────────────────────── */
 
 #define SYN_USE_FSM 1 /**< Table-driven finite state machine   */
-#define SYN_USE_AO 1  /**< Active Object (requires: FSM)       */
+#define SYN_USE_AO 1  /**< Active Object (requires: FSM, SCHED) */
 
 /* ── Cryptography ───────────────────────────────────────────────────────── */
 
@@ -226,21 +232,17 @@
 
 /* ── Cryptography ───────────────────────────────────────────────────────── */
 
-#define SYN_USE_AES 1              /**< Unified AES block cipher & AEAD     */
-#define SYN_USE_PORT_AES 0         /**< Hardware AES/crypto port offload    */
-#define SYN_AES_MAX_KEY_BITS 256   /**< Max AES key bits: 128, 192, or 256  */
-#define SYN_USE_AES_DECRYPT 1      /**< AES ECB/CBC decryption (+256B Flash)*/
-#define SYN_USE_AES_CBC 1          /**< AES-CBC mode with PKCS#7            */
-#define SYN_USE_AES_CTR 1          /**< AES-CTR stream cipher mode          */
-#define SYN_USE_AES_GCM 1          /**< AES-GCM AEAD authenticated cipher   */
-#define SYN_USE_AES_CCM 1          /**< AES-CCM AEAD (NIST SP 800-38C / BLE)*/
-#define SYN_AES_GCM_TABLE 0        /**< GCM GHASH table: 0=none, 4=256B, 8=4KB*/
-#define SYN_USE_AES_CMAC 1         /**< AES-CMAC message authentication     */
-#define SYN_USE_SHA256 1           /**< SHA-256 hash + HMAC-SHA256          */
-#define SYN_USE_BLAKE2S 1          /**< BLAKE2s cryptographic hash          */
-#define SYN_USE_CHACHA20POLY1305 1 /**< ChaCha20-Poly1305 AEAD cipher       */
-#define SYN_USE_X25519 1           /**< X25519 Elliptic Curve Diffie-Hellman*/
-#define SYN_USE_HMAC_DRBG 1        /**< NIST SP 800-90A HMAC-DRBG           */
+#define SYN_USE_AES 1            /**< Unified AES block cipher & AEAD     */
+#define SYN_USE_PORT_AES 0       /**< Hardware AES/crypto port offload    */
+#define SYN_AES_MAX_KEY_BITS 256 /**< Max AES key bits: 128, 192, or 256  */
+#define SYN_USE_AES_DECRYPT 1    /**< AES ECB/CBC decryption (+256B Flash)*/
+#define SYN_USE_AES_CBC 1        /**< AES-CBC mode with PKCS#7            */
+#define SYN_USE_AES_CTR 1        /**< AES-CTR stream cipher mode          */
+#define SYN_USE_AES_GCM 1        /**< AES-GCM AEAD authenticated cipher   */
+#define SYN_USE_AES_CCM 1        /**< AES-CCM AEAD (NIST SP 800-38C / BLE)*/
+#define SYN_AES_GCM_TABLE 0      /**< GCM GHASH table: 0=none, 4=256B, 8=4KB*/
+#define SYN_USE_AES_CMAC 1       /**< AES-CMAC message authentication     */
+#define SYN_USE_SHA256 1         /**< SHA-256 hash + HMAC-SHA256          */
 
 /* ── Utilities ──────────────────────────────────────────────────────────── */
 

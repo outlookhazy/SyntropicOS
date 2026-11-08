@@ -15,8 +15,22 @@
 #define SYN_ETHERCAT_H
 
 #include "../common/syn_defs.h"
+
+#if !defined(SYN_USE_ETHERCAT) || SYN_USE_ETHERCAT
+
 #include "../pt/syn_pt.h"
+#include "../sched/syn_task.h"
+
+#if !defined(SYN_USE_CANOPEN) || SYN_USE_CANOPEN
+/** @brief Non-zero when CANopen Object Dictionary support for CoE is enabled. */
+#define SYN_ECAT_COE_OD_ENABLED 1
 #include "syn_canopen.h"
+#else
+/** @brief Non-zero when CANopen Object Dictionary support for CoE is enabled. */
+#define SYN_ECAT_COE_OD_ENABLED 0
+/** @brief Opaque CANopen node placeholder when SYN_USE_CANOPEN is disabled. */
+typedef struct SYN_CANOpenNode_Opaque SYN_CANOpenNode;
+#endif
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -31,6 +45,12 @@ extern "C" {
 
 /** @brief EtherCAT Header Type (1 = EtherCAT Datagrams) */
 #define SYN_ETHERCAT_TYPE_DATAGRAM 1
+
+/** @brief Maximum EtherCAT datagram payload/frame length (11-bit length field) */
+#define SYN_ECAT_MAX_DGRAM_BYTES 0x07FFU
+
+/** @brief Default SyncManager 0/1 CoE mailbox buffer length in bytes */
+#define SYN_ECAT_MBOX_SIZE 128U
 
 /* ── EtherCAT Commands ─────────────────────────────────────────────────── */
 
@@ -106,17 +126,63 @@ typedef struct {
     uint16_t service_type : 4; /**< CoE service type enum */
 } SYN_EcatCoEHeader;
 
-/** @brief EtherCAT Node Descriptor */
+/* ── EtherCAT Master & Configuration Structs ────────────────────────────── */
+
+#ifndef SYN_ECAT_MAX_SLAVES
+#define SYN_ECAT_MAX_SLAVES 16U /**< Maximum connected EtherCAT slaves supported */
+#endif
+
+/** @brief Slave process data RAM buffer capacity per direction in bytes */
+#define SYN_ECAT_PDO_BUF_SIZE 64U
+
+/** @brief Emulated slave SII EEPROM 32-bit word table size */
+#define SYN_ECAT_SII_WORDS 16U
+
+/**
+ * @brief EtherCAT SyncManager Configuration.
+ */
 typedef struct {
-    SYN_EcatState state;        /**< Current ESM state */
-    SYN_EcatState target_state; /**< Requested ESM state */
-    uint16_t station_addr;      /**< Configured station address (FPRD/FPWR) */
-    uint16_t al_status;         /**< Application Layer Status Code */
-    uint16_t wkc_expected;      /**< Expected Working Counter for cyclic exchange */
-    uint16_t wkc_last;          /**< Last received Working Counter */
-    uint32_t rx_pdos;           /**< Processed RxPDO count */
-    uint32_t tx_pdos;           /**< Processed TxPDO count */
-    SYN_CANOpenNode *od;        /**< Optional binding to CANopen Object Dictionary node */
+    uint16_t start_addr; /**< Physical start address in slave DPRAM */
+    uint16_t length;     /**< Buffer length in bytes */
+    uint8_t control;     /**< Direction, mode, interrupt control byte */
+    uint8_t enable;      /**< SM enable byte (0x01 = enable) */
+} SYN_EcatSMConfig;
+
+/**
+ * @brief EtherCAT FMMU Configuration.
+ */
+typedef struct {
+    uint32_t logical_start;    /**< Logical start address */
+    uint16_t length;           /**< Mapping byte length */
+    uint8_t logical_start_bit; /**< Logical start bit offset (0..7) */
+    uint8_t logical_end_bit;   /**< Logical end bit (0..7) */
+    uint16_t phys_start_addr;  /**< Physical start address in slave DPRAM */
+    uint8_t phys_start_bit;    /**< Physical start bit offset (0..7) */
+    uint8_t type;              /**< Read (0x01), Write (0x02), or ReadWrite (0x03) */
+    bool enable;               /**< FMMU active flag */
+} SYN_EcatFMMUConfig;
+
+/** @brief EtherCAT Node (Slave ESC) Descriptor */
+typedef struct {
+    SYN_EcatState state;                    /**< Current ESM state */
+    SYN_EcatState target_state;             /**< Requested ESM state */
+    uint16_t station_addr;                  /**< Configured station address (FPRD/FPWR) */
+    uint16_t al_status;                     /**< Application Layer Status Code */
+    uint16_t wkc_expected;                  /**< Expected Working Counter threshold */
+    uint16_t wkc_last;                      /**< Last processed Working Counter */
+    uint32_t rx_pdos;                       /**< Processed RxPDO count */
+    uint32_t tx_pdos;                       /**< Processed TxPDO count */
+    SYN_CANOpenNode *od;                    /**< Optional CANopen Object Dictionary for CoE */
+    SYN_EcatSMConfig sm[4];                 /**< Slave SyncManager 0..3 registers */
+    SYN_EcatFMMUConfig fmmu[4];             /**< Slave FMMU 0..3 registers */
+    uint8_t mbox_out[SYN_ECAT_MBOX_SIZE];   /**< SM0 Master->Slave mailbox DPRAM */
+    uint8_t mbox_in[SYN_ECAT_MBOX_SIZE];    /**< SM1 Slave->Master mailbox DPRAM */
+    bool mbox_in_full;                      /**< SM1 mailbox response queued flag */
+    uint8_t pdo_out[SYN_ECAT_PDO_BUF_SIZE]; /**< RxPDO DPRAM (0x1100..0x113F) */
+    uint8_t pdo_in[SYN_ECAT_PDO_BUF_SIZE];  /**< TxPDO DPRAM (0x1140..0x117F) */
+    uint32_t sii_addr;                      /**< SII EEPROM word offset register */
+    uint16_t sii_ctrl;                      /**< SII EEPROM control/status register */
+    uint32_t sii_words[SYN_ECAT_SII_WORDS]; /**< Emulated SII EEPROM 32-bit word table */
 } SYN_EcatNode;
 
 /* ── API Functions ──────────────────────────────────────────────────────── */
@@ -142,15 +208,26 @@ size_t syn_ecat_build_datagram_frame(uint8_t *buf, size_t buf_len, const SYN_Eca
                                      const uint8_t *data, uint16_t data_len);
 
 /**
- * @brief Parse and process a received raw EtherCAT frame.
+ * @brief Parse and validate Working Counter (WKC) from a received raw EtherCAT frame.
  * @param node  EtherCAT node instance.
- * @param frame Raw received frame bytes (after Ethernet header).
+ * @param frame Raw received frame bytes (after Ethernet header); read-only.
  * @param len   Frame length in bytes.
- * @param wkc   [out] Extracted Working Counter sum.
+ * @param wkc   [out] Extracted Working Counter sum across frame datagrams.
  * @return SYN_OK on successful parsing and WKC validation.
  */
 SYN_Status syn_ecat_parse_frame(SYN_EcatNode *node, const uint8_t *frame, size_t len,
                                 uint16_t *wkc);
+
+/**
+ * @brief Process a received raw EtherCAT frame in-place on a slave ESC node.
+ * @param node  EtherCAT slave node instance.
+ * @param frame Raw received frame bytes (after Ethernet header); updated in-place on reads/WKC.
+ * @param len   Frame length in bytes.
+ * @param wkc   [out] Resulting Working Counter sum across processed datagrams.
+ * @return SYN_OK on successful processing and WKC validation.
+ */
+SYN_Status syn_ecat_slave_process_frame(SYN_EcatNode *node, uint8_t *frame, size_t len,
+                                        uint16_t *wkc);
 
 /**
  * @brief Request an EtherCAT State Machine (ESM) state transition.
@@ -165,36 +242,6 @@ SYN_Status syn_ecat_set_state(SYN_EcatNode *node, SYN_EcatState new_state);
  * @param node EtherCAT node instance.
  */
 void syn_ecat_update(SYN_EcatNode *node);
-
-/* ── EtherCAT Master & Configuration Structs ────────────────────────────── */
-
-#ifndef SYN_ECAT_MAX_SLAVES
-#define SYN_ECAT_MAX_SLAVES 16U /**< Maximum connected EtherCAT slaves supported */
-#endif
-
-/**
- * @brief EtherCAT SyncManager Configuration.
- */
-typedef struct {
-    uint16_t start_addr; /**< Physical start address in slave DPRAM */
-    uint16_t length;     /**< Buffer length in bytes */
-    uint8_t control;     /**< Direction, mode, interrupt control byte */
-    uint8_t enable;      /**< SM enable byte (0x01 = enable) */
-} SYN_EcatSMConfig;
-
-/**
- * @brief EtherCAT FMMU Configuration.
- */
-typedef struct {
-    uint32_t logical_start;    /**< Logical start address */
-    uint16_t length;           /**< Mapping byte length */
-    uint8_t logical_start_bit; /**< Logical start bit offset (0..7) */
-    uint8_t logical_end_bit;   /**< Logical end bit (0..7) */
-    uint16_t phys_start_addr;  /**< Physical start address in slave DPRAM */
-    uint8_t phys_start_bit;    /**< Physical start bit offset (0..7) */
-    uint8_t type;              /**< Read (0x01), Write (0x02), or ReadWrite (0x03) */
-    bool enable;               /**< FMMU active flag */
-} SYN_EcatFMMUConfig;
 
 /**
  * @brief EtherCAT Slave Information Entry.
@@ -245,18 +292,18 @@ typedef struct {
     /* Scratch state for non-blocking task drivers & hardware polling */
     SYN_PT sub_pt;          /**< Sub-protothread handle for nested tasks */
     uint8_t pdo_count;      /**< Scratch PDO count for discovery */
-    uint8_t pdo_entry_idx;  /**< Scratch PDO entry loop index */
+    uint16_t pdo_entry_idx; /**< Scratch PDO entry loop index (uint16_t prevents 255 wrap) */
     uint16_t pdo_map_idx;   /**< Scratch PDO mapping index */
     uint32_t pdo_sdo_val;   /**< Scratch SDO read value */
     size_t pdo_read_len;    /**< Scratch SDO read length */
     uint32_t total_rx_bits; /**< Accumulated RxPDO bits */
     uint32_t total_tx_bits; /**< Accumulated TxPDO bits */
     uint16_t poll_retries;  /**< Retry counter for hardware status polling loops */
+    SYN_PT dir_pt;          /**< Child protothread state for PDO direction discovery */
+    bool sdo_ok;            /**< Completion status of last nested SDO read task */
 } SYN_EcatMaster;
 
 /* ── EtherCAT Master Transport & Protothread Tasks ─────────────────────── */
-
-#include "../sched/syn_task.h"
 
 /**
  * @brief Feed received Ethernet frame into Master context.
@@ -283,7 +330,7 @@ bool syn_ecat_master_pop_tx_frame(SYN_EcatMaster *m, const uint8_t **out_frame, 
  *
  * @param pt Protothread state handle.
  * @param m Pointer to master handle.
- * @return PT_WAITING if waiting for frames, PT_ENDED when scan complete.
+ * @return PT_IDLE if waiting for frames, PT_ENDED when scan complete, or PT_EXITED on abort.
  */
 SYN_PT_Status syn_ecat_master_scan_task(SYN_PT *pt, SYN_EcatMaster *m);
 
@@ -293,7 +340,7 @@ SYN_PT_Status syn_ecat_master_scan_task(SYN_PT *pt, SYN_EcatMaster *m);
  * @param pt Protothread state handle.
  * @param m Pointer to master handle.
  * @param target_state Target ESM state (INIT, PREOP, SAFEOP, OP).
- * @return PT_WAITING if waiting for frames, PT_ENDED when transition complete.
+ * @return PT_IDLE if waiting for frames, PT_ENDED when transition complete, or PT_EXITED on abort.
  */
 SYN_PT_Status syn_ecat_master_transition_task(SYN_PT *pt, SYN_EcatMaster *m,
                                               SYN_EcatState target_state);
@@ -303,7 +350,7 @@ SYN_PT_Status syn_ecat_master_transition_task(SYN_PT *pt, SYN_EcatMaster *m,
  *
  * @param pt Protothread state handle.
  * @param m Pointer to master handle.
- * @return PT_WAITING if waiting for frames, PT_ENDED when cycle complete.
+ * @return PT_IDLE if waiting for frames, PT_ENDED when cycle complete, or PT_EXITED on abort.
  */
 SYN_PT_Status syn_ecat_master_cyclic_task(SYN_PT *pt, SYN_EcatMaster *m);
 
@@ -347,7 +394,7 @@ SYN_Status syn_ecat_decode_read_reg(SYN_EcatMaster *m, size_t rx_len, void *out_
  * @param station_addr Configured station address of slave.
  * @param word_offset 16-bit word offset in SII EEPROM.
  * @param out_data Destination pointer for 32-bit word.
- * @return PT_WAITING if waiting, PT_ENDED when complete.
+ * @return PT_IDLE if waiting, PT_ENDED when complete, or PT_EXITED on abort.
  */
 SYN_PT_Status syn_ecat_master_read_sii_task(SYN_PT *pt, SYN_EcatMaster *m, uint16_t station_addr,
                                             uint16_t word_offset, uint32_t *out_data);
@@ -362,7 +409,7 @@ SYN_PT_Status syn_ecat_master_read_sii_task(SYN_PT *pt, SYN_EcatMaster *m, uint1
  * @param out_data Destination buffer for SDO payload.
  * @param max_len Capacity of destination buffer.
  * @param out_len Destination pointer for actual payload length.
- * @return PT_WAITING if waiting, PT_ENDED when complete.
+ * @return PT_IDLE if waiting, PT_ENDED when complete, or PT_EXITED on abort.
  */
 SYN_PT_Status syn_ecat_master_sdo_read_task(SYN_PT *pt, SYN_EcatMaster *m, uint16_t station_addr,
                                             uint16_t index, uint8_t subindex, void *out_data,
@@ -376,7 +423,7 @@ SYN_PT_Status syn_ecat_master_sdo_read_task(SYN_PT *pt, SYN_EcatMaster *m, uint1
  * @param station_addr Configured station address of slave.
  * @param out_rx_bytes Destination pointer for Rx PDO byte size.
  * @param out_tx_bytes Destination pointer for Tx PDO byte size.
- * @return PT_WAITING if waiting, PT_ENDED when complete.
+ * @return PT_IDLE if waiting, PT_ENDED when complete, or PT_EXITED on abort.
  */
 SYN_PT_Status syn_ecat_master_discover_pdo_mapping_task(SYN_PT *pt, SYN_EcatMaster *m,
                                                         uint16_t station_addr,
@@ -692,5 +739,7 @@ size_t syn_ecat_encode_dc_configure(SYN_EcatMaster *m, uint16_t station_addr,
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* SYN_USE_ETHERCAT */
 
 #endif /* SYN_ETHERCAT_H */

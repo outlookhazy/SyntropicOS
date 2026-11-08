@@ -18,15 +18,15 @@
 #ifndef SYN_CRSF_H
 #define SYN_CRSF_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SYN_CRSF_MAX_PACKET_LEN 64U /**< Maximum CRSF frame byte length */
 #define SYN_CRSF_NUM_CHANNELS 16U   /**< Number of RC channels in CRSF frame (16) */

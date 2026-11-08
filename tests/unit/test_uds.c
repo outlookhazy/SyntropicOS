@@ -542,10 +542,11 @@ static void test_uds_did_read_write(void)
                                              SYN_UDS_ADDR_PHYSICAL));
     TEST_ASSERT_EQUAL_HEX8(0x6E, resp[0]);
 
-    /* Write DID with extra trailing bytes (truncated write) */
+    /* Write DID with extra trailing bytes -> NRC 0x13 IncorrectMessageLength */
     TEST_ASSERT_TRUE(syn_uds_process_request(&g_uds, req, 10, resp, sizeof(resp), &resp_len,
                                              SYN_UDS_ADDR_PHYSICAL));
-    TEST_ASSERT_EQUAL_HEX8(0x6E, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_RESPONSE_NEGATIVE, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
 
     /* Write non-existent DID -> Request out of range */
     req[1] = 0x99;
@@ -881,6 +882,11 @@ static void test_uds_access_timing_parameter(void)
 
     /* 8. Subfunction 0x02: setTimingParametersToDefaultValues */
     req[1] = SYN_UDS_TIMING_SET_TO_DEFAULT;
+    TEST_ASSERT_TRUE(syn_uds_process_request(&g_uds, req, 3, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_RESPONSE_NEGATIVE, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
+
     TEST_ASSERT_TRUE(syn_uds_process_request(&g_uds, req, 2, resp, sizeof(resp), &resp_len,
                                              SYN_UDS_ADDR_PHYSICAL));
     TEST_ASSERT_EQUAL_HEX8(0xC3, resp[0]);
@@ -1181,6 +1187,64 @@ static void test_uds_complete_27_sids(void)
                                              SYN_UDS_ADDR_PHYSICAL));
     TEST_ASSERT_EQUAL_HEX8(0x7D, resp[0]);
     TEST_ASSERT_EQUAL_HEX8(0x11, resp[1]);
+
+    /* 9b. 64-bit ALFID (>4B): zero-extended valid vs non-zero upper byte overflow (NRC 0x31) */
+    uint8_t dl64_ok[12] = {SYN_UDS_SID_REQUEST_DOWNLOAD,
+                           0x00,
+                           0x18, /* 1-byte size, 8-byte addr */
+                           0x00,
+                           0x00,
+                           0x00,
+                           0x00,
+                           0x20,
+                           0x00,
+                           0x10,
+                           0x00,
+                           0x10};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&g_uds, dl64_ok, sizeof(dl64_ok), resp, sizeof(resp),
+                                             &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(0x74, resp[0]);
+    TEST_ASSERT_EQUAL_HEX32(0x20001000U, g_uds.transfer_address);
+    TEST_ASSERT_EQUAL_HEX32(0x10U, g_uds.transfer_size);
+
+    dl64_ok[6] = 0x01U; /* 0x0000000120001000 overflows uint32_t */
+    TEST_ASSERT_TRUE(syn_uds_process_request(&g_uds, dl64_ok, sizeof(dl64_ok), resp, sizeof(resp),
+                                             &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_RESPONSE_NEGATIVE, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_REQUEST_OUT_OF_RANGE, resp[2]);
+
+    uint8_t rm64_ovf[11] = {SYN_UDS_SID_READ_MEMORY_BY_ADDRESS,
+                            0x18,
+                            0x00,
+                            0x00,
+                            0x00,
+                            0x01,
+                            0x20,
+                            0x00,
+                            0x10,
+                            0x00,
+                            0x01};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&g_uds, rm64_ovf, sizeof(rm64_ovf), resp, sizeof(resp),
+                                             &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_RESPONSE_NEGATIVE, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_REQUEST_OUT_OF_RANGE, resp[2]);
+
+    uint8_t wm64_ovf[12] = {SYN_UDS_SID_WRITE_MEMORY_BY_ADDRESS,
+                            0x18,
+                            0x00,
+                            0x00,
+                            0x00,
+                            0x01,
+                            0x20,
+                            0x00,
+                            0x10,
+                            0x00,
+                            0x01,
+                            0xAA};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&g_uds, wm64_ovf, sizeof(wm64_ovf), resp, sizeof(resp),
+                                             &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_RESPONSE_NEGATIVE, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_REQUEST_OUT_OF_RANGE, resp[2]);
 
     /* 10. LinkControl (0x87) */
     req[0] = SYN_UDS_SID_LINK_CONTROL;
@@ -2476,7 +2540,9 @@ static void test_uds_clear_dtc_group_filtering(void)
     TEST_ASSERT_TRUE(syn_uds_process_request(&server, req, 4, resp, sizeof(resp), &resp_len,
                                              SYN_UDS_ADDR_PHYSICAL));
     TEST_ASSERT_EQUAL_HEX8(0x54, resp[0]);
-    TEST_ASSERT_EQUAL_UINT8(4, server.dtc_count);
+    TEST_ASSERT_EQUAL_UINT8(5, server.dtc_count);
+    TEST_ASSERT_EQUAL_HEX8(0x50U, server.dtc_table[0].status);
+    TEST_ASSERT_NOT_EQUAL(0x50U, server.dtc_table[1].status);
 
     /* 4. Clear Powertrain group (0x100000) */
     req[1] = 0x10;
@@ -2485,7 +2551,9 @@ static void test_uds_clear_dtc_group_filtering(void)
     TEST_ASSERT_TRUE(syn_uds_process_request(&server, req, 4, resp, sizeof(resp), &resp_len,
                                              SYN_UDS_ADDR_PHYSICAL));
     TEST_ASSERT_EQUAL_HEX8(0x54, resp[0]);
-    TEST_ASSERT_EQUAL_UINT8(3, server.dtc_count);
+    TEST_ASSERT_EQUAL_UINT8(5, server.dtc_count);
+    TEST_ASSERT_EQUAL_HEX8(0x50U, server.dtc_table[1].status);
+    TEST_ASSERT_NOT_EQUAL(0x50U, server.dtc_table[2].status);
 
     /* 4. Clear Chassis group (0x400000) */
     req[1] = 0x40;
@@ -2494,7 +2562,9 @@ static void test_uds_clear_dtc_group_filtering(void)
     TEST_ASSERT_TRUE(syn_uds_process_request(&server, req, 4, resp, sizeof(resp), &resp_len,
                                              SYN_UDS_ADDR_PHYSICAL));
     TEST_ASSERT_EQUAL_HEX8(0x54, resp[0]);
-    TEST_ASSERT_EQUAL_UINT8(2, server.dtc_count);
+    TEST_ASSERT_EQUAL_UINT8(5, server.dtc_count);
+    TEST_ASSERT_EQUAL_HEX8(0x50U, server.dtc_table[2].status);
+    TEST_ASSERT_NOT_EQUAL(0x50U, server.dtc_table[3].status);
 
     /* 5. Clear Body group (0x800000) */
     req[1] = 0x80;
@@ -2503,7 +2573,9 @@ static void test_uds_clear_dtc_group_filtering(void)
     TEST_ASSERT_TRUE(syn_uds_process_request(&server, req, 4, resp, sizeof(resp), &resp_len,
                                              SYN_UDS_ADDR_PHYSICAL));
     TEST_ASSERT_EQUAL_HEX8(0x54, resp[0]);
-    TEST_ASSERT_EQUAL_UINT8(1, server.dtc_count);
+    TEST_ASSERT_EQUAL_UINT8(5, server.dtc_count);
+    TEST_ASSERT_EQUAL_HEX8(0x50U, server.dtc_table[3].status);
+    TEST_ASSERT_NOT_EQUAL(0x50U, server.dtc_table[4].status);
 
     /* 6. Clear Network group (0xC00000) */
     req[1] = 0xC0;
@@ -2512,7 +2584,8 @@ static void test_uds_clear_dtc_group_filtering(void)
     TEST_ASSERT_TRUE(syn_uds_process_request(&server, req, 4, resp, sizeof(resp), &resp_len,
                                              SYN_UDS_ADDR_PHYSICAL));
     TEST_ASSERT_EQUAL_HEX8(0x54, resp[0]);
-    TEST_ASSERT_EQUAL_UINT8(0, server.dtc_count);
+    TEST_ASSERT_EQUAL_UINT8(5, server.dtc_count);
+    TEST_ASSERT_EQUAL_HEX8(0x50U, server.dtc_table[4].status);
 
     /* 7. Clear All DTCs (0xFFFFFF) */
     req[1] = 0xFF;
@@ -2521,7 +2594,7 @@ static void test_uds_clear_dtc_group_filtering(void)
     TEST_ASSERT_TRUE(syn_uds_process_request(&server, req, 4, resp, sizeof(resp), &resp_len,
                                              SYN_UDS_ADDR_PHYSICAL));
     TEST_ASSERT_EQUAL_HEX8(0x54, resp[0]);
-    TEST_ASSERT_EQUAL_UINT8(0, server.dtc_count);
+    TEST_ASSERT_EQUAL_UINT8(5, server.dtc_count);
 
     /* 6. Clear All DTCs when no DTCs stored -> Positive response 0x54 */
     TEST_ASSERT_TRUE(syn_uds_process_request(&server, req, 4, resp, sizeof(resp), &resp_len,
@@ -2784,13 +2857,13 @@ static void test_uds_dtc_and_transfer_boundary_conditions(void)
 {
     SYN_UDS_Server server;
     syn_uds_init(&server);
-    server.security_state = SYN_UDS_SECURITY_UNLOCKED;
     uint8_t resp[256];
     uint16_t resp_len = 0;
 
     /* Extended session */
     uint8_t sess[2] = {SYN_UDS_SID_DIAGNOSTIC_SESSION_CONTROL, SYN_UDS_SESSION_EXTENDED};
     syn_uds_process_request(&server, sess, 2, resp, sizeof(resp), &resp_len, SYN_UDS_ADDR_PHYSICAL);
+    server.security_state = SYN_UDS_SECURITY_UNLOCKED;
 
     /* 1. SecuredDataTransmission callback returning false (L600) */
     server.secured_data_cb = dummy_sec_cb_fail;
@@ -3740,6 +3813,263 @@ void test_uds_memory_by_address_integer_overflow(void)
     TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
 }
 
+void test_r5_a05_security_session_dtc_and_transfer_fixes(void)
+{
+    SYN_UDS_Server srv;
+    TEST_ASSERT_TRUE(syn_uds_init(&srv));
+    TEST_ASSERT_TRUE(srv.dtc_setting_enabled);
+
+    uint8_t did_buf[4] = {0x10U, 0x20U, 0x30U, 0x40U};
+    TEST_ASSERT_TRUE(syn_uds_register_did_ext(
+        &srv, 0x0100U, did_buf, 4U, true, SYN_UDS_SESSION_MASK_ALL, SYN_UDS_SECURITY_MASK_LEVEL_1));
+    TEST_ASSERT_TRUE(syn_uds_register_dtc(&srv, 0x012345U, 0x00U, 0x80U));
+    TEST_ASSERT_TRUE(syn_uds_register_dtc(&srv, 0x412345U, 0x00U, 0x40U));
+
+    uint8_t req[32];
+    uint8_t resp[64];
+    uint16_t resp_len = 0U;
+
+    /* 1. Brute-force lockout (3 bad keys) persists across 0x10 session changes */
+    for (uint8_t attempt = 0U; attempt < 3U; attempt++) {
+        req[0] = SYN_UDS_SID_SECURITY_ACCESS;
+        req[1] = 0x01U;
+        TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req, 2U, resp, sizeof(resp), &resp_len,
+                                                 SYN_UDS_ADDR_PHYSICAL));
+        TEST_ASSERT_EQUAL_HEX8(0x67U, resp[0]);
+
+        req[1] = 0x02U;
+        syn_poke_u32(0xDEADBEEFU, req, 2);
+        TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req, 6U, resp, sizeof(resp), &resp_len,
+                                                 SYN_UDS_ADDR_PHYSICAL));
+        TEST_ASSERT_EQUAL_HEX8(0x7FU, resp[0]);
+    }
+    TEST_ASSERT_EQUAL_UINT32(SYN_UDS_SECURITY_DELAY_MS, srv.security_delay_timer_ms);
+
+    const uint8_t sessions[3] = {SYN_UDS_SESSION_EXTENDED, SYN_UDS_SESSION_PROGRAMMING,
+                                 SYN_UDS_SESSION_DEFAULT};
+    for (size_t i = 0U; i < 3U; i++) {
+        uint8_t sess_req[2] = {SYN_UDS_SID_DIAGNOSTIC_SESSION_CONTROL, sessions[i]};
+        TEST_ASSERT_TRUE(syn_uds_process_request(&srv, sess_req, 2U, resp, sizeof(resp), &resp_len,
+                                                 SYN_UDS_ADDR_PHYSICAL));
+        TEST_ASSERT_EQUAL_HEX8(0x50U, resp[0]);
+        TEST_ASSERT_EQUAL_UINT32(SYN_UDS_SECURITY_DELAY_MS, srv.security_delay_timer_ms);
+        TEST_ASSERT_EQUAL_UINT8(SYN_UDS_SECURITY_MAX_ATTEMPTS, srv.security_error_count);
+
+        req[0] = SYN_UDS_SID_SECURITY_ACCESS;
+        req[1] = 0x01U;
+        TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req, 2U, resp, sizeof(resp), &resp_len,
+                                                 SYN_UDS_ADDR_PHYSICAL));
+        TEST_ASSERT_EQUAL_HEX8(0x7FU, resp[0]);
+        TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_REQUIRED_TIME_DELAY_NOT_EXPIRED, resp[2]);
+    }
+
+    /* Expire delay timer */
+    syn_uds_tick(&srv, SYN_UDS_SECURITY_DELAY_MS);
+    TEST_ASSERT_EQUAL_UINT32(0U, srv.security_delay_timer_ms);
+
+    /* 2. Unlocking Level 1 relocks on same-session re-entry, cross-session, and S3 timeout */
+    uint8_t sess_ext[2] = {SYN_UDS_SID_DIAGNOSTIC_SESSION_CONTROL, SYN_UDS_SESSION_EXTENDED};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, sess_ext, 2U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    req[0] = SYN_UDS_SID_SECURITY_ACCESS;
+    req[1] = 0x01U;
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req, 2U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    req[1] = 0x02U;
+    syn_poke_u32(srv.active_seed ^ 0xA5A5A5A5U, req, 2);
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req, 6U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL(SYN_UDS_SECURITY_UNLOCKED, srv.security_state);
+    TEST_ASSERT_EQUAL_UINT8(1U, srv.security_level);
+
+    /* Same-session re-entry (EXTENDED -> EXTENDED) relocks per ISO 14229-1 9.2.2 */
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, sess_ext, 2U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL(SYN_UDS_SECURITY_LOCKED, srv.security_state);
+    TEST_ASSERT_EQUAL_UINT8(0U, srv.security_level);
+
+    /* Unlock again, then cross-session EXTENDED -> PROGRAMMING relocks */
+    req[1] = 0x01U;
+    (void)syn_uds_process_request(&srv, req, 2U, resp, sizeof(resp), &resp_len,
+                                  SYN_UDS_ADDR_PHYSICAL);
+    req[1] = 0x02U;
+    syn_poke_u32(srv.active_seed ^ 0xA5A5A5A5U, req, 2);
+    (void)syn_uds_process_request(&srv, req, 6U, resp, sizeof(resp), &resp_len,
+                                  SYN_UDS_ADDR_PHYSICAL);
+    TEST_ASSERT_EQUAL(SYN_UDS_SECURITY_UNLOCKED, srv.security_state);
+
+    uint8_t sess_prog[2] = {SYN_UDS_SID_DIAGNOSTIC_SESSION_CONTROL, SYN_UDS_SESSION_PROGRAMMING};
+    (void)syn_uds_process_request(&srv, sess_prog, 2U, resp, sizeof(resp), &resp_len,
+                                  SYN_UDS_ADDR_PHYSICAL);
+    TEST_ASSERT_EQUAL(SYN_UDS_SECURITY_LOCKED, srv.security_state);
+    TEST_ASSERT_EQUAL_UINT8(0U, srv.security_level);
+
+    /* 3. High security level (> 15) must not trigger shift UB and denies Level-1 DID */
+    req[1] = 0x41U;
+    (void)syn_uds_process_request(&srv, req, 2U, resp, sizeof(resp), &resp_len,
+                                  SYN_UDS_ADDR_PHYSICAL);
+    req[1] = 0x42U;
+    syn_poke_u32(srv.active_seed ^ 0xA5A5A5A5U, req, 2);
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req, 6U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_UINT8(33U, srv.security_level);
+
+    uint8_t rdbi[3] = {SYN_UDS_SID_READ_DATA_BY_IDENTIFIER, 0x01U, 0x00U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, rdbi, 3U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(0x7FU, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_SECURITY_ACCESS_DENIED, resp[2]);
+
+    /* 4. 0x85 ControlDTCSetting gates syn_uds_dtc_report_test_result & resets on S3 timeout */
+    uint8_t dtc_off[2] = {SYN_UDS_SID_CONTROL_DTC_SETTING, 0x02U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, dtc_off, 2U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(0xC5U, resp[0]);
+    TEST_ASSERT_FALSE(srv.dtc_setting_enabled);
+    TEST_ASSERT_FALSE(syn_uds_dtc_report_test_result(&srv, 0x012345U, true));
+    TEST_ASSERT_EQUAL_HEX8(0x00U, srv.dtc_table[0].status);
+
+    uint8_t dtc_on[2] = {SYN_UDS_SID_CONTROL_DTC_SETTING, 0x01U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, dtc_on, 2U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_TRUE(srv.dtc_setting_enabled);
+    TEST_ASSERT_TRUE(syn_uds_dtc_report_test_result(&srv, 0x012345U, true));
+    TEST_ASSERT_TRUE(syn_uds_dtc_report_test_result(&srv, 0x412345U, true));
+    TEST_ASSERT_NOT_EQUAL(0x00U, srv.dtc_table[0].status);
+
+    /* Disable again, then S3 timeout restores DEFAULT session, locks security & re-enables DTCs */
+    (void)syn_uds_process_request(&srv, dtc_off, 2U, resp, sizeof(resp), &resp_len,
+                                  SYN_UDS_ADDR_PHYSICAL);
+    TEST_ASSERT_FALSE(srv.dtc_setting_enabled);
+    syn_uds_tick(&srv, SYN_UDS_S3_TIMEOUT_MS);
+    TEST_ASSERT_EQUAL(SYN_UDS_SESSION_DEFAULT, srv.session);
+    TEST_ASSERT_EQUAL(SYN_UDS_SECURITY_LOCKED, srv.security_state);
+    TEST_ASSERT_EQUAL_UINT8(0U, srv.security_level);
+    TEST_ASSERT_TRUE(srv.dtc_setting_enabled);
+
+    /* 5. 0x14 ClearDiagnosticInformation clears status/fault_cnt without deleting dtc_table */
+    uint8_t clr_one[4] = {SYN_UDS_SID_CLEAR_DIAGNOSTIC_INFORMATION, 0x01U, 0x23U, 0x45U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, clr_one, 4U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(0x54U, resp[0]);
+    TEST_ASSERT_EQUAL_UINT8(2U, srv.dtc_count);
+    TEST_ASSERT_EQUAL_HEX8(0x50U, srv.dtc_table[0].status);
+    TEST_ASSERT_EQUAL_INT8(0, srv.dtc_table[0].fault_cnt);
+    TEST_ASSERT_NOT_EQUAL(0x50U, srv.dtc_table[1].status);
+
+    /* 0x19 0x0A ReportSupportedDTC still returns both registered DTCs */
+    uint8_t rep_sup[2] = {SYN_UDS_SID_READ_DTC_INFORMATION, SYN_UDS_DTC_REPORT_SUPPORTED};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, rep_sup, 2U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(0x59U, resp[0]);
+    TEST_ASSERT_EQUAL_UINT16(11U, resp_len);
+
+    /* 6. 0x2E exact length check (short & overlong both return NRC 0x13) */
+    req[0] = SYN_UDS_SID_SECURITY_ACCESS;
+    req[1] = 0x01U;
+    (void)syn_uds_process_request(&srv, req, 2U, resp, sizeof(resp), &resp_len,
+                                  SYN_UDS_ADDR_PHYSICAL);
+    req[1] = 0x02U;
+    syn_poke_u32(srv.active_seed ^ 0xA5A5A5A5U, req, 2);
+    (void)syn_uds_process_request(&srv, req, 6U, resp, sizeof(resp), &resp_len,
+                                  SYN_UDS_ADDR_PHYSICAL);
+
+    uint8_t wdbi[10] = {SYN_UDS_SID_WRITE_DATA_BY_IDENTIFIER, 0x01U, 0x00U, 1U, 2U, 3U, 4U, 5U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, wdbi, 5U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(0x7FU, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
+
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, wdbi, 8U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(0x7FU, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
+
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, wdbi, 7U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(0x6EU, resp[0]);
+
+    /* 7. 0x36 block_seq 0x00 rejected when transfer_bytes_processed == 0; retransmit works > 0 */
+    uint8_t req_dl[5] = {SYN_UDS_SID_REQUEST_DOWNLOAD, 0x00U, 0x11U, 0x10U, 0x08U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_dl, 5U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req_dl, 5U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(0x74U, resp[0]);
+
+    uint8_t td_zero[4] = {SYN_UDS_SID_TRANSFER_DATA, 0x00U, 0xAAU, 0xBBU};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, td_zero, 4U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(0x7FU, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_WRONG_BLOCK_SEQUENCE_COUNTER, resp[2]);
+
+    td_zero[1] = 0x01U;
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, td_zero, 4U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(0x76U, resp[0]);
+    /* Retransmit block 0x01 now that transfer_bytes_processed > 0 */
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, td_zero, 4U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(0x76U, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x01U, resp[1]);
+
+    /* Response-too-long branches on upload, secured data, ROE, and timing read + session mask upd
+     */
+    uint8_t req_ul[5] = {SYN_UDS_SID_REQUEST_UPLOAD, 0x00U, 0x11U, 0x10U, 0x08U};
+    (void)syn_uds_process_request(&srv, req_ul, 5U, resp, sizeof(resp), &resp_len,
+                                  SYN_UDS_ADDR_PHYSICAL);
+    uint8_t td_ul[2] = {SYN_UDS_SID_TRANSFER_DATA, 0x01U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, td_ul, 2U, resp, 4U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    uint8_t sec_tx[4] = {SYN_UDS_SID_SECURED_DATA_TRANSMISSION, 1U, 2U, 3U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, sec_tx, 4U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    uint8_t roe_req[2] = {SYN_UDS_SID_RESPONSE_ON_EVENT, 0x01U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, roe_req, 2U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    uint8_t tim_req[2] = {SYN_UDS_SID_ACCESS_TIMING_PARAMETER, SYN_UDS_TIMING_READ_ACTIVE};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, tim_req, 2U, resp, 5U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    uint8_t tim_bad_given[3] = {SYN_UDS_SID_ACCESS_TIMING_PARAMETER, SYN_UDS_TIMING_SET_TO_GIVEN,
+                                0x00U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, tim_bad_given, 3U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
+
+    TEST_ASSERT_TRUE(syn_uds_set_service_session_mask(&srv, 0x28U, SYN_UDS_SESSION_MASK_EXTENDED));
+    /* Functional request hitting NRC 0x7E (suppressed) & NRC 0x12 (suppressed) + short 0x38 */
+    SYN_UDS_Server func_srv;
+    TEST_ASSERT_TRUE(syn_uds_init(&func_srv));
+    TEST_ASSERT_TRUE(
+        syn_uds_set_service_session_mask(&func_srv, 0x28U, SYN_UDS_SESSION_MASK_EXTENDED));
+    uint8_t func_cc[3] = {SYN_UDS_SID_COMMUNICATION_CONTROL, 0x00U, 0x01U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&func_srv, func_cc, 3U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_FUNCTIONAL));
+    TEST_ASSERT_EQUAL_UINT16(0U, resp_len);
+
+    uint8_t func_bad_sub[2] = {SYN_UDS_SID_DIAGNOSTIC_SESSION_CONTROL, 0x7FU};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&func_srv, func_bad_sub, 2U, resp, sizeof(resp),
+                                             &resp_len, SYN_UDS_ADDR_FUNCTIONAL));
+    TEST_ASSERT_EQUAL_UINT16(0U, resp_len);
+
+    uint8_t short_ft[2] = {SYN_UDS_SID_REQUEST_FILE_TRANSFER, 0x01U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, short_ft, 2U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
+
+    TEST_ASSERT_TRUE(syn_uds_set_service_session_mask(&srv, 0x28U, SYN_UDS_SESSION_MASK_ALL));
+}
+
 void run_uds_tests(void)
 {
     RUN_TEST(test_uds_init_and_sessions);
@@ -3778,4 +4108,5 @@ void run_uds_tests(void)
     RUN_TEST(test_uds_iso14229_service_callbacks);
     RUN_TEST(test_uds_multi_did_read);
     RUN_TEST(test_uds_memory_by_address_integer_overflow);
+    RUN_TEST(test_r5_a05_security_session_dtc_and_transfer_fixes);
 }

@@ -3,21 +3,18 @@
  * @brief Autonomous OMA LwM2M Client Supervisor Task & Engine Implementation.
  */
 
-#if __has_include("syn_config.h")
-#include "syn_config.h"
-#endif
+#include "syn_lwm2m_task.h"
 
-#if !defined(SYN_USE_LWM2M_TASK) || SYN_USE_LWM2M_TASK
+#if SYN_LWM2M_TASK_ENABLED
 
 #include "../port/syn_port_system.h"
+#include "../sched/syn_sched.h"
 #include "../util/syn_assert.h"
-#include "syn_lwm2m_task.h"
 
 #include <stdio.h>
 #include <string.h>
 
 #define SYN_LWM2M_DEFAULT_RETRY_BACKOFF_MS 5000U /**< Default network retry backoff (ms) */
-#define SYN_LWM2M_COAP_SERIALIZE_BUF_SZ 512U     /**< Scratch buffer size for serialization */
 #define SYN_LWM2M_RESP_PAYLOAD_BUF_SZ 256U       /**< Response payload scratch size */
 
 /* ── Internal State Helper ───────────────────────────────────────────────── */
@@ -89,6 +86,34 @@ static void syn_lwm2m_task_check_object_hooks(SYN_LwM2M_Task *task)
 /* ── Observation Evaluator ───────────────────────────────────────────────── */
 
 /**
+ * @brief Convert an observation period from seconds to milliseconds with saturation.
+ * @param sec Period in seconds.
+ * @return Period in milliseconds, clamped to UINT32_MAX.
+ */
+static uint32_t lwm2m_sec_to_ms_clamped(uint32_t sec)
+{
+    return (sec > (UINT32_MAX / 1000U)) ? UINT32_MAX : (sec * 1000U);
+}
+
+/**
+ * @brief Check whether a pending resource change matches an observation slot.
+ * @param task LwM2M supervisor task instance.
+ * @param obs  Active observation slot.
+ * @return true if the resource change triggers this observation.
+ */
+static bool lwm2m_obs_matches_change(const SYN_LwM2M_Task *task, const SYN_LwM2M_Observation *obs)
+{
+    for (size_t i = 0U; i < task->dirty_count; i++) {
+        const SYN_LwM2M_DirtyEntry *d = &task->dirty_queue[i];
+        if (d->obj_id == obs->obj_id && d->inst_id == obs->inst_id &&
+            (obs->res_id == -1 || d->res_id == -1 || obs->res_id == d->res_id)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * @brief Evaluate active observations against resource changes and pmax intervals.
  * @param task   LwM2M supervisor task instance.
  * @param now_ms Current system timestamp in milliseconds.
@@ -103,25 +128,14 @@ static void syn_lwm2m_task_eval_observations(SYN_LwM2M_Task *task, uint32_t now_
             continue;
         }
 
-        bool match_change = false;
-        if (task->resource_changed) {
-            if (task->changed_obj_id == obs->obj_id && task->changed_inst_id == obs->inst_id) {
-                if (obs->res_id == -1 || obs->res_id == task->changed_res_id) {
-                    match_change = true;
-                }
-            }
-        }
-
-        bool pmax_expired = false;
-        if (obs->pmax > 0U && (now_ms - obs->last_notify_ms >= obs->pmax * 1000U)) {
-            pmax_expired = true;
-        }
-
-        bool pmin_satisfied =
-            (obs->pmin == 0U) || (now_ms - obs->last_notify_ms >= obs->pmin * 1000U);
+        bool match_change = lwm2m_obs_matches_change(task, obs);
+        uint32_t pmax_ms = lwm2m_sec_to_ms_clamped(obs->pmax);
+        bool pmax_expired = (obs->pmax > 0U) && ((now_ms - obs->last_notify_ms) >= pmax_ms);
+        uint32_t pmin_ms = lwm2m_sec_to_ms_clamped(obs->pmin);
+        bool pmin_satisfied = (obs->pmin == 0U) || ((now_ms - obs->last_notify_ms) >= pmin_ms);
 
         if ((match_change || pmax_expired) && pmin_satisfied) {
-            SYN_CoapMsg notify_msg;
+            SYN_CoapMsg notify_msg = {0};
             SYN_CoapOption notify_opts[8];
             size_t notify_opt_cnt = 0U;
             uint8_t notify_pld[SYN_LWM2M_RESP_PAYLOAD_BUF_SZ];
@@ -132,19 +146,17 @@ static void syn_lwm2m_task_eval_observations(SYN_LwM2M_Task *task, uint32_t now_
                 &notify_opt_cnt, notify_pld, sizeof(notify_pld));
 
             if (pld_len > 0U || notify_msg.code == COAP_RESP_CONTENT) {
-                uint8_t tx_frame[SYN_LWM2M_COAP_SERIALIZE_BUF_SZ];
                 size_t frame_len = syn_coap_serialize(&notify_msg, notify_opts, notify_opt_cnt,
-                                                      tx_frame, sizeof(tx_frame));
+                                                      task->cfg.tx_buf, task->cfg.tx_buf_size);
                 if (frame_len > 0U) {
-                    (void)syn_transport_send(task->cfg.transport, tx_frame, frame_len);
+                    (void)syn_transport_send(task->cfg.transport, task->cfg.tx_buf, frame_len);
                     obs->last_notify_ms = now_ms;
-                    obs->seq++;
                 }
             }
         }
     }
 
-    task->resource_changed = false;
+    task->dirty_count = 0U;
 }
 
 /* ── Public API ─────────────────────────────────────────────────────────── */
@@ -201,66 +213,97 @@ SYN_Status syn_lwm2m_task_notify_changed(SYN_LwM2M_Task *task, uint16_t obj_id, 
     if (task == NULL) {
         return SYN_INVALID_PARAM;
     }
-    task->resource_changed = true;
-    task->changed_obj_id = obj_id;
-    task->changed_inst_id = inst_id;
-    task->changed_res_id = res_id;
-    return SYN_OK;
-}
-
-SYN_Status syn_lwm2m_task_step(SYN_LwM2M_Task *task, uint32_t now_ms)
-{
-    if (task == NULL) {
-        return SYN_INVALID_PARAM;
-    }
-
-    SYN_LwM2M_Client *client = task->cfg.client;
-    if (client == NULL || task->cfg.transport == NULL) {
-        return SYN_INVALID_PARAM;
-    }
-
-    /* 1. If DTLS 1.3 CoAPS transport is configured, drive handshake */
-    if (task->cfg.coaps_client != NULL) {
-        if (!syn_coaps_client_handshake(task->cfg.coaps_client)) {
-            /* Still in handshake phase or handshake failed */
+    for (size_t i = 0U; i < task->dirty_count; i++) {
+        if (task->dirty_queue[i].obj_id == obj_id && task->dirty_queue[i].inst_id == inst_id &&
+            task->dirty_queue[i].res_id == res_id) {
             return SYN_OK;
         }
     }
+    if (task->dirty_count >= SYN_LWM2M_MAX_DIRTY_QUEUE) {
+        return SYN_BUSY;
+    }
+    task->dirty_queue[task->dirty_count].obj_id = obj_id;
+    task->dirty_queue[task->dirty_count].inst_id = inst_id;
+    task->dirty_queue[task->dirty_count].res_id = res_id;
+    task->dirty_count++;
+    return SYN_OK;
+}
 
-    /* 2. Handle Graceful Deregistration Trigger */
-    if (task->force_deregister) {
-        task->force_deregister = false;
-        if (client->state == SYN_LWM2M_STATE_REGISTERED ||
-            client->state == SYN_LWM2M_STATE_UPDATING) {
-            SYN_CoapMsg dereg_msg;
-            SYN_CoapOption dereg_opts[8];
-            size_t dereg_opt_cnt = 0U;
-            uint16_t mid = task->next_msg_id++;
+/**
+ * @brief Send graceful deregistration request if currently registered and reset client state.
+ * @param task LwM2M supervisor task instance.
+ */
+static void lwm2m_task_handle_deregister(SYN_LwM2M_Task *task)
+{
+    SYN_LwM2M_Client *client = task->cfg.client;
+    task->force_deregister = false;
+    if (client->state == SYN_LWM2M_STATE_REGISTERED || client->state == SYN_LWM2M_STATE_UPDATING) {
+        SYN_CoapMsg dereg_msg = {0};
+        SYN_CoapOption dereg_opts[8];
+        size_t dereg_opt_cnt = 0U;
+        uint16_t mid = task->next_msg_id++;
 
-            size_t res =
-                syn_lwm2m_build_deregister_request(client, mid, (const uint8_t *)&mid, sizeof(mid),
-                                                   &dereg_msg, dereg_opts, 8U, &dereg_opt_cnt);
-            if (res > 0U) {
-                uint8_t tx_frame[SYN_LWM2M_COAP_SERIALIZE_BUF_SZ];
-                size_t frame_len = syn_coap_serialize(&dereg_msg, dereg_opts, dereg_opt_cnt,
-                                                      tx_frame, sizeof(tx_frame));
-                if (frame_len > 0U) {
-                    (void)syn_transport_send(task->cfg.transport, tx_frame, frame_len);
-                }
+        size_t res =
+            syn_lwm2m_build_deregister_request(client, mid, (const uint8_t *)&mid, sizeof(mid),
+                                               &dereg_msg, dereg_opts, 8U, &dereg_opt_cnt);
+        if (res > 0U) {
+            size_t frame_len = syn_coap_serialize(&dereg_msg, dereg_opts, dereg_opt_cnt,
+                                                  task->cfg.tx_buf, task->cfg.tx_buf_size);
+            if (frame_len > 0U) {
+                (void)syn_transport_send(task->cfg.transport, task->cfg.tx_buf, frame_len);
             }
         }
-        syn_lwm2m_task_set_state(task, SYN_LWM2M_STATE_DEREGISTERED);
-        client->location_path[0] = '\0';
-        return SYN_OK;
     }
+    syn_lwm2m_task_set_state(task, SYN_LWM2M_STATE_DEREGISTERED);
+    client->location_path[0] = '\0';
+}
 
-    /* 3. Handle Autonomous Registration / Lifetime Renewal */
+/**
+ * @brief Build and transmit a Registration Update request.
+ * @param task   LwM2M supervisor task instance.
+ * @param now_ms Current system timestamp in milliseconds.
+ */
+static void lwm2m_task_send_update(SYN_LwM2M_Task *task, uint32_t now_ms)
+{
+    SYN_LwM2M_Client *client = task->cfg.client;
+    SYN_CoapMsg upd_msg = {0};
+    SYN_CoapOption upd_opts[8];
+    size_t upd_opt_cnt = 0U;
+    uint8_t upd_pld[SYN_LWM2M_RESP_PAYLOAD_BUF_SZ];
+    uint16_t mid = task->next_msg_id++;
+
+    size_t upd_len = syn_lwm2m_build_update_request(client, mid, (const uint8_t *)&mid, sizeof(mid),
+                                                    client->lifetime_s, &upd_msg, upd_opts, 8U,
+                                                    &upd_opt_cnt, upd_pld, sizeof(upd_pld));
+    if (upd_msg.code == COAP_CODE_POST) {
+        upd_msg.payload = (upd_len > 0U) ? upd_pld : NULL;
+        upd_msg.payload_len = upd_len;
+
+        size_t frame_len = syn_coap_serialize(&upd_msg, upd_opts, upd_opt_cnt, task->cfg.tx_buf,
+                                              task->cfg.tx_buf_size);
+        if (frame_len > 0U) {
+            (void)syn_transport_send(task->cfg.transport, task->cfg.tx_buf, frame_len);
+            task->pending_msg_id = mid;
+            syn_lwm2m_task_set_state(task, SYN_LWM2M_STATE_UPDATING);
+            task->last_action_ms = now_ms;
+        }
+    }
+}
+
+/**
+ * @brief Drive autonomous server registration and 80% lifetime renewal timers.
+ * @param task   LwM2M supervisor task instance.
+ * @param now_ms Current system timestamp in milliseconds.
+ */
+static void lwm2m_task_step_registration(SYN_LwM2M_Task *task, uint32_t now_ms)
+{
+    SYN_LwM2M_Client *client = task->cfg.client;
+
     switch (client->state) {
     case SYN_LWM2M_STATE_DEREGISTERED: {
-        /* Check retry backoff */
         if (now_ms - task->last_action_ms >= task->cfg.retry_backoff_ms ||
             task->last_action_ms == 0U) {
-            SYN_CoapMsg reg_msg;
+            SYN_CoapMsg reg_msg = {0};
             SYN_CoapOption reg_opts[8];
             size_t reg_opt_cnt = 0U;
             uint8_t reg_pld[SYN_LWM2M_RESP_PAYLOAD_BUF_SZ];
@@ -277,6 +320,7 @@ SYN_Status syn_lwm2m_task_step(SYN_LwM2M_Task *task, uint32_t now_ms)
                                                       task->cfg.tx_buf, task->cfg.tx_buf_size);
                 if (frame_len > 0U) {
                     (void)syn_transport_send(task->cfg.transport, task->cfg.tx_buf, frame_len);
+                    task->pending_msg_id = mid;
                     syn_lwm2m_task_set_state(task, SYN_LWM2M_STATE_REGISTERING);
                     task->last_action_ms = now_ms;
                 }
@@ -286,12 +330,19 @@ SYN_Status syn_lwm2m_task_step(SYN_LwM2M_Task *task, uint32_t now_ms)
     }
 
     case SYN_LWM2M_STATE_REGISTERING:
-        /* Waiting for 2.01 Created response from server (handled in RX step) */
+    case SYN_LWM2M_STATE_UPDATING:
+        if ((now_ms - task->last_action_ms) >= task->cfg.retry_backoff_ms) {
+            syn_lwm2m_task_set_state(task, SYN_LWM2M_STATE_DEREGISTERED);
+            task->retry_count++;
+            task->last_action_ms = now_ms;
+        }
         break;
 
     case SYN_LWM2M_STATE_REGISTERED: {
         /* Check if lifetime renewal is due (renew at 80% of lifetime) or forced */
-        uint32_t renew_interval_ms = (client->lifetime_s * 800U); /* 80% of lifetime in ms */
+        uint64_t renew_ms64 = (uint64_t)client->lifetime_s * 800ULL;
+        uint32_t renew_interval_ms =
+            (renew_ms64 > (uint64_t)UINT32_MAX) ? UINT32_MAX : (uint32_t)renew_ms64;
         if (renew_interval_ms == 0U) {
             renew_interval_ms = 60000U;
         }
@@ -303,110 +354,164 @@ SYN_Status syn_lwm2m_task_step(SYN_LwM2M_Task *task, uint32_t now_ms)
 
         if (need_update) {
             task->force_update = false;
-            SYN_CoapMsg upd_msg;
-            SYN_CoapOption upd_opts[8];
-            size_t upd_opt_cnt = 0U;
-            uint8_t upd_pld[SYN_LWM2M_RESP_PAYLOAD_BUF_SZ];
-            uint16_t mid = task->next_msg_id++;
-
-            size_t pld_len = syn_lwm2m_build_update_request(
-                client, mid, (const uint8_t *)&mid, sizeof(mid), client->lifetime_s, &upd_msg,
-                upd_opts, 8U, &upd_opt_cnt, upd_pld, sizeof(upd_pld));
-            if (pld_len > 0U) {
-                upd_msg.payload = upd_pld;
-                upd_msg.payload_len = pld_len;
-            }
-
-            size_t frame_len = syn_coap_serialize(&upd_msg, upd_opts, upd_opt_cnt, task->cfg.tx_buf,
-                                                  task->cfg.tx_buf_size);
-            if (frame_len > 0U) {
-                (void)syn_transport_send(task->cfg.transport, task->cfg.tx_buf, frame_len);
-                syn_lwm2m_task_set_state(task, SYN_LWM2M_STATE_UPDATING);
-                task->last_action_ms = now_ms;
-            }
+            lwm2m_task_send_update(task, now_ms);
         }
         break;
     }
-
-    case SYN_LWM2M_STATE_UPDATING:
-        /* Waiting for 2.04 Changed response from server (handled in RX step) */
-        break;
 
     default:
         break;
     }
+}
 
-    /* 4. Process Inbound CoAP Packets from Server */
+/**
+ * @brief Handle inbound CoAP response packets for registration and lifetime update.
+ * @param task       LwM2M supervisor task instance.
+ * @param in_msg     Parsed inbound CoAP message.
+ * @param in_opts    Parsed CoAP options array.
+ * @param in_opt_cnt Number of parsed CoAP options.
+ * @param now_ms     Current system timestamp in milliseconds.
+ */
+static void lwm2m_task_handle_response(SYN_LwM2M_Task *task, const SYN_CoapMsg *in_msg,
+                                       const SYN_CoapOption *in_opts, size_t in_opt_cnt,
+                                       uint32_t now_ms)
+{
+    SYN_LwM2M_Client *client = task->cfg.client;
+
+    if (client->state != SYN_LWM2M_STATE_REGISTERING && client->state != SYN_LWM2M_STATE_UPDATING) {
+        return;
+    }
+    if (in_msg->msg_id != task->pending_msg_id) {
+        return;
+    }
+
+    if (client->state == SYN_LWM2M_STATE_REGISTERING) {
+        SYN_LwM2M_ClientState prev_st = client->state;
+        if (syn_lwm2m_handle_register_response(client, in_msg, in_opts, in_opt_cnt)) {
+            client->last_update_ms = now_ms;
+            task->retry_count = 0U;
+            if (task->cfg.on_state != NULL && prev_st != SYN_LWM2M_STATE_REGISTERED) {
+                task->cfg.on_state(prev_st, SYN_LWM2M_STATE_REGISTERED, task->cfg.user_data);
+            }
+        } else {
+            syn_lwm2m_task_set_state(task, SYN_LWM2M_STATE_DEREGISTERED);
+            task->retry_count++;
+        }
+    } else {
+        if (in_msg->code == COAP_RESP_CHANGED) {
+            syn_lwm2m_task_set_state(task, SYN_LWM2M_STATE_REGISTERED);
+            client->last_update_ms = now_ms;
+            task->retry_count = 0U;
+        } else {
+            syn_lwm2m_task_set_state(task, SYN_LWM2M_STATE_DEREGISTERED);
+            task->retry_count++;
+        }
+    }
+}
+
+/**
+ * @brief Receive and process at most one inbound CoAP datagram from the server.
+ * @param task   LwM2M supervisor task instance.
+ * @param now_ms Current system timestamp in milliseconds.
+ * @return true if a non-empty datagram was consumed from the transport.
+ */
+static bool lwm2m_task_process_inbound(SYN_LwM2M_Task *task, uint32_t now_ms)
+{
+    SYN_LwM2M_Client *client = task->cfg.client;
     size_t rx_len = 0U;
-    if (syn_transport_recv(task->cfg.transport, task->cfg.rx_buf, task->cfg.rx_buf_size, &rx_len) &&
-        rx_len > 0U) {
-        SYN_CoapMsg in_msg;
-        SYN_CoapOption in_opts[8];
-        size_t in_opt_cnt = 0U;
 
-        SYN_Status parse_st =
-            syn_coap_parse(&in_msg, in_opts, 8U, &in_opt_cnt, task->cfg.rx_buf, rx_len);
-        if (parse_st == SYN_OK) {
-            /* Check if Response message (Class 2, 4, 5) */
-            if (in_msg.code >= COAP_RESP_CREATED) {
-                if (client->state == SYN_LWM2M_STATE_REGISTERING) {
-                    SYN_LwM2M_ClientState prev_st = client->state;
-                    if (syn_lwm2m_handle_register_response(client, &in_msg, in_opts, in_opt_cnt)) {
-                        client->last_update_ms = now_ms;
-                        task->retry_count = 0U;
-                        if (task->cfg.on_state != NULL && prev_st != SYN_LWM2M_STATE_REGISTERED) {
-                            task->cfg.on_state(prev_st, SYN_LWM2M_STATE_REGISTERED,
-                                               task->cfg.user_data);
-                        }
-                    } else {
-                        syn_lwm2m_task_set_state(task, SYN_LWM2M_STATE_DEREGISTERED);
-                        task->retry_count++;
+    if (!syn_transport_recv(task->cfg.transport, task->cfg.rx_buf, task->cfg.rx_buf_size,
+                            &rx_len) ||
+        rx_len == 0U) {
+        return false;
+    }
+
+    SYN_CoapMsg in_msg = {0};
+    SYN_CoapOption in_opts[8];
+    size_t in_opt_cnt = 0U;
+
+    if (syn_coap_parse(&in_msg, in_opts, 8U, &in_opt_cnt, task->cfg.rx_buf, rx_len) == SYN_OK) {
+        if (in_msg.code >= COAP_RESP_CREATED) {
+            lwm2m_task_handle_response(task, &in_msg, in_opts, in_opt_cnt, now_ms);
+        } else if (in_msg.code >= COAP_CODE_GET && in_msg.code <= COAP_CODE_DELETE) {
+            if (client->state == SYN_LWM2M_STATE_REGISTERED ||
+                client->state == SYN_LWM2M_STATE_UPDATING) {
+                SYN_CoapMsg resp_msg = {0};
+                SYN_CoapOption resp_opts[8];
+                size_t resp_opt_cnt = 0U;
+                uint8_t resp_pld[SYN_LWM2M_RESP_PAYLOAD_BUF_SZ];
+
+                SYN_Status proc_st = syn_lwm2m_process_request(
+                    client, &in_msg, in_opts, in_opt_cnt, &resp_msg, resp_opts, 8U, &resp_opt_cnt,
+                    resp_pld, sizeof(resp_pld));
+
+                if (proc_st == SYN_OK) {
+                    size_t frame_len = syn_coap_serialize(&resp_msg, resp_opts, resp_opt_cnt,
+                                                          task->cfg.tx_buf, task->cfg.tx_buf_size);
+                    if (frame_len > 0U) {
+                        (void)syn_transport_send(task->cfg.transport, task->cfg.tx_buf, frame_len);
                     }
-                } else if (client->state == SYN_LWM2M_STATE_UPDATING) {
-                    if (in_msg.code == COAP_RESP_CHANGED) {
-                        syn_lwm2m_task_set_state(task, SYN_LWM2M_STATE_REGISTERED);
-                        client->last_update_ms = now_ms;
-                        task->retry_count = 0U;
-                    } else {
-                        syn_lwm2m_task_set_state(task, SYN_LWM2M_STATE_DEREGISTERED);
-                        task->retry_count++;
-                    }
-                } else {
-                    /* Unsolicited or late response */
                 }
+
+                syn_lwm2m_task_check_object_hooks(task);
             }
-            /* Downlink Request message (GET, POST, PUT, DELETE) */
-            else if (in_msg.code >= COAP_CODE_GET && in_msg.code <= COAP_CODE_DELETE) {
-                if (client->state == SYN_LWM2M_STATE_REGISTERED ||
-                    client->state == SYN_LWM2M_STATE_UPDATING) {
-                    SYN_CoapMsg resp_msg;
-                    SYN_CoapOption resp_opts[8];
-                    size_t resp_opt_cnt = 0U;
-                    uint8_t resp_pld[SYN_LWM2M_RESP_PAYLOAD_BUF_SZ];
-
-                    SYN_Status proc_st = syn_lwm2m_process_request(
-                        client, &in_msg, in_opts, in_opt_cnt, &resp_msg, resp_opts, 8U,
-                        &resp_opt_cnt, resp_pld, sizeof(resp_pld));
-
-                    if (proc_st == SYN_OK) {
-                        uint8_t tx_frame[SYN_LWM2M_COAP_SERIALIZE_BUF_SZ];
-                        size_t frame_len = syn_coap_serialize(&resp_msg, resp_opts, resp_opt_cnt,
-                                                              tx_frame, sizeof(tx_frame));
-                        if (frame_len > 0U) {
-                            (void)syn_transport_send(task->cfg.transport, tx_frame, frame_len);
-                        }
-                    }
-
-                    /* Dispatch any triggered object execute callbacks */
-                    syn_lwm2m_task_check_object_hooks(task);
-                }
-            } else {
-                /* Empty or Ping message */
-            }
+        } else {
+            /* Empty or Ping message */
         }
     }
 
-    /* 5. Evaluate Active Observations & Notifications */
+    return true;
+}
+
+/**
+ * @brief Advance the LwM2M supervisor state machine and report inbound packet progress.
+ * @param task            LwM2M supervisor task instance.
+ * @param now_ms          Current system timestamp in milliseconds.
+ * @param out_rx_consumed [out] Optional flag set true if an inbound datagram was consumed.
+ * @return SYN_OK on normal operation, error status on invalid args or DTLS handshake failure.
+ */
+static SYN_Status lwm2m_task_step_ex(SYN_LwM2M_Task *task, uint32_t now_ms, bool *out_rx_consumed)
+{
+    if (out_rx_consumed != NULL) {
+        *out_rx_consumed = false;
+    }
+    if (task == NULL) {
+        return SYN_INVALID_PARAM;
+    }
+
+    SYN_LwM2M_Client *client = task->cfg.client;
+    if (client == NULL || task->cfg.transport == NULL) {
+        return SYN_INVALID_PARAM;
+    }
+
+#if SYN_DTLS_ENABLED
+    if (task->cfg.coaps_client != NULL &&
+        task->cfg.coaps_client->dtls.state != SYN_DTLS_STATE_ESTABLISHED) {
+        if (!syn_coaps_client_handshake(task->cfg.coaps_client)) {
+            return SYN_ERROR;
+        }
+        if (task->cfg.coaps_client->dtls.state != SYN_DTLS_STATE_ESTABLISHED) {
+            return SYN_OK;
+        }
+    }
+#else
+    if (task->cfg.coaps_client != NULL) {
+        return SYN_ERROR;
+    }
+#endif
+
+    if (task->force_deregister) {
+        lwm2m_task_handle_deregister(task);
+        return SYN_OK;
+    }
+
+    lwm2m_task_step_registration(task, now_ms);
+
+    bool rx_consumed = lwm2m_task_process_inbound(task, now_ms);
+    if (out_rx_consumed != NULL) {
+        *out_rx_consumed = rx_consumed;
+    }
+
     if (client->state == SYN_LWM2M_STATE_REGISTERED) {
         syn_lwm2m_task_eval_observations(task, now_ms);
     }
@@ -414,10 +519,15 @@ SYN_Status syn_lwm2m_task_step(SYN_LwM2M_Task *task, uint32_t now_ms)
     return SYN_OK;
 }
 
+SYN_Status syn_lwm2m_task_step(SYN_LwM2M_Task *task, uint32_t now_ms)
+{
+    return lwm2m_task_step_ex(task, now_ms, NULL);
+}
+
 SYN_PT_Status syn_lwm2m_task_pt(SYN_PT *pt, SYN_Task *task)
 {
     if (pt == NULL || task == NULL || task->user_data == NULL) {
-        return PT_ENDED;
+        return PT_EXITED;
     }
 
     SYN_LwM2M_Task *lwm2m_task = (SYN_LwM2M_Task *)task->user_data;
@@ -425,14 +535,21 @@ SYN_PT_Status syn_lwm2m_task_pt(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     for (;;) {
+        bool rx_consumed = false;
         uint32_t now = syn_port_get_tick_ms();
-        if (syn_lwm2m_task_step(lwm2m_task, now) != SYN_OK) {
+        if (lwm2m_task_step_ex(lwm2m_task, now, &rx_consumed) != SYN_OK) {
             break;
         }
-        PT_YIELD(pt);
+        if (rx_consumed && lwm2m_task->cfg.transport != NULL &&
+            lwm2m_task->cfg.transport->has_data != NULL &&
+            syn_transport_has_data(lwm2m_task->cfg.transport)) {
+            PT_CONTINUE_IF_NEEDED(pt, task);
+        } else {
+            PT_PASS(pt);
+        }
     }
 
     PT_END(pt);
 }
 
-#endif /* SYN_USE_LWM2M_TASK */
+#endif /* SYN_LWM2M_TASK_ENABLED */

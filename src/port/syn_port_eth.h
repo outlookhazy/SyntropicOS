@@ -6,15 +6,15 @@
 #ifndef SYN_PORT_ETH_H
 #define SYN_PORT_ETH_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Initialize low-level Ethernet MAC hardware (RMII/MII/SPI PHY).

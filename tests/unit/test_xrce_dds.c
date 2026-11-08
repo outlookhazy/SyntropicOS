@@ -7,6 +7,7 @@
 
 #include <string.h>
 #include <syntropic/proto/syn_xrce_dds.h>
+#include <syntropic/sched/syn_sched.h>
 
 /* ── Loopback / Mock Transport ───────────────────────────────────────────── */
 
@@ -17,6 +18,7 @@ typedef struct {
     size_t rx_len;
     bool fail_send;
     bool fail_recv;
+    bool has_data_ready;
 } MockXRCETransport;
 
 static bool mock_send(const uint8_t *data, size_t len, void *user_ctx)
@@ -359,8 +361,8 @@ void test_xrce_client_session_and_entity_lifecycle(void)
     /* 2. Simulate Agent STATUS OK reply */
     SYN_CDR_Writer agent_w;
     syn_cdr_writer_init(&agent_w, mock.rx_buf, sizeof(mock.rx_buf));
-    /* Header */
-    syn_cdr_write_u8(&agent_w, 0x81U); /* session_id */
+    /* Header (session_id < 0x80 carries 4-byte client_key) */
+    syn_cdr_write_u8(&agent_w, 0x01U); /* session_id */
     syn_cdr_write_u8(&agent_w, 0x01U); /* stream_id */
     syn_cdr_write_u16(&agent_w, 1U);   /* seq_num */
     syn_cdr_write_u32(&agent_w, 0xAABBCCDD);
@@ -396,7 +398,7 @@ void test_xrce_client_session_and_entity_lifecycle(void)
 
     /* 6. Simulate incoming DATA submessage */
     syn_cdr_writer_init(&agent_w, mock.rx_buf, sizeof(mock.rx_buf));
-    syn_cdr_write_u8(&agent_w, 0x81U);
+    syn_cdr_write_u8(&agent_w, 0x01U);
     syn_cdr_write_u8(&agent_w, 0x01U);
     syn_cdr_write_u16(&agent_w, 2U);
     syn_cdr_write_u32(&agent_w, 0xAABBCCDD);
@@ -515,18 +517,376 @@ void test_xrce_client_protothread(void)
     SYN_Task task = {.user_data = &client};
 
     SYN_PT_Status st = syn_xrce_client_pt(&pt, &task);
-    TEST_ASSERT_EQUAL_INT(PT_YIELDED, st);
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, st);
 
     /* Null checks */
-    TEST_ASSERT_EQUAL_INT(PT_ENDED, syn_xrce_client_pt(NULL, &task));
-    TEST_ASSERT_EQUAL_INT(PT_ENDED, syn_xrce_client_pt(&pt, NULL));
+    TEST_ASSERT_EQUAL_INT(PT_EXITED, syn_xrce_client_pt(NULL, &task));
+    TEST_ASSERT_EQUAL_INT(PT_EXITED, syn_xrce_client_pt(&pt, NULL));
     SYN_Task null_task = {.user_data = NULL};
-    TEST_ASSERT_EQUAL_INT(PT_ENDED, syn_xrce_client_pt(&pt, &null_task));
+    TEST_ASSERT_EQUAL_INT(PT_EXITED, syn_xrce_client_pt(&pt, &null_task));
 
     /* Break on step error */
     client.cfg.transport = NULL;
     st = syn_xrce_client_pt(&pt, &task);
-    TEST_ASSERT_EQUAL_INT(PT_EXITED, st);
+    TEST_ASSERT_EQUAL_INT(PT_ENDED, st);
+}
+
+static bool mock_xrce_has_data(const void *user_ctx)
+{
+    const MockXRCETransport *mock = (const MockXRCETransport *)user_ctx;
+    return (mock != NULL) && mock->has_data_ready;
+}
+
+void test_xrce_client_pt_has_data_yielding_and_unknown_submsg(void)
+{
+    MockXRCETransport mock;
+    (void)memset(&mock, 0, sizeof(mock));
+    SYN_Transport transport = {
+        .send = mock_send,
+        .recv = mock_recv,
+        .has_data = mock_xrce_has_data,
+        .ctx = &mock,
+    };
+
+    uint8_t rx[256], tx[256];
+    SYN_XRCE_Config cfg = {
+        .session_id = 0x81U,
+        .transport = &transport,
+        .rx_buf = rx,
+        .rx_buf_size = sizeof(rx),
+        .tx_buf = tx,
+        .tx_buf_size = sizeof(tx),
+    };
+
+    SYN_XRCE_Client client;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_init(&client, &cfg));
+
+    /* Feed XRCE frame with keyless session_id 0x81 and unknown submessage ID 0x99 */
+    uint8_t unk_frame[] = {
+        0x81U, 0x00U, 0x00U, 0x00U, /* session_id=0x81 (>=0x80 keyless), stream=0, seq=0 */
+        0x99U, 0x01U, 0x02U, 0x00U, /* submsg_id=0x99, flags=LE, submsg_len=2 */
+        0xAAU, 0xBBU,
+    };
+    (void)memcpy(mock.rx_buf, unk_frame, sizeof(unk_frame));
+    mock.rx_len = sizeof(unk_frame);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_step(&client, 50U));
+
+    SYN_Sched sched = {0};
+    SYN_Task task = {0};
+    task.user_data = &client;
+    task.sched = &sched;
+    sched.running = &task;
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+
+    /* Idle has_data == true with empty RX must yield PT_IDLE without spinning */
+    sched.share_contended = false;
+    mock.rx_len = 0U;
+    mock.has_data_ready = true;
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, syn_xrce_client_pt(&pt, &task));
+
+    /* Consumed runt packet + contended scheduler + has_data == true -> returns PT_MORE */
+    uint8_t runt_frame[2] = {0x01U, 0x00U};
+    (void)memcpy(mock.rx_buf, runt_frame, sizeof(runt_frame));
+    mock.rx_len = sizeof(runt_frame);
+    sched.share_contended = true;
+    mock.has_data_ready = true;
+    TEST_ASSERT_EQUAL_INT(PT_MORE, syn_xrce_client_pt(&pt, &task));
+
+    mock.has_data_ready = false;
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, syn_xrce_client_pt(&pt, &task));
+}
+
+typedef struct {
+    uint32_t data_count;
+    uint16_t reader_ids[4];
+    size_t lengths[4];
+    uint8_t payloads[4][16];
+    uint32_t status_count;
+} MultiSubmsgRecord;
+
+static void on_multi_status(uint16_t req_id, uint8_t status, void *user_data)
+{
+    (void)req_id;
+    (void)status;
+    MultiSubmsgRecord *rec = (MultiSubmsgRecord *)user_data;
+    rec->status_count++;
+}
+
+static void on_multi_data(uint16_t reader_id, const uint8_t *payload, size_t len, void *user_data)
+{
+    MultiSubmsgRecord *rec = (MultiSubmsgRecord *)user_data;
+    if (rec->data_count < 4U) {
+        size_t idx = rec->data_count;
+        rec->reader_ids[idx] = reader_id;
+        rec->lengths[idx] = len;
+        size_t copy_len = (len < sizeof(rec->payloads[idx])) ? len : sizeof(rec->payloads[idx]);
+        (void)memcpy(rec->payloads[idx], payload, copy_len);
+    }
+    rec->data_count++;
+}
+
+void test_xrce_submessage_bounds_and_multi_submsg(void)
+{
+    MockXRCETransport mock;
+    (void)memset(&mock, 0, sizeof(mock));
+    SYN_Transport transport = {.send = mock_send, .recv = mock_recv, .ctx = &mock};
+
+    MultiSubmsgRecord rec;
+    (void)memset(&rec, 0, sizeof(rec));
+
+    uint8_t rx[256], tx[256];
+    SYN_XRCE_Config cfg = {
+        .session_id = 0x81U,
+        .transport = &transport,
+        .on_status = on_multi_status,
+        .on_data = on_multi_data,
+        .user_data = &rec,
+        .rx_buf = rx,
+        .rx_buf_size = sizeof(rx),
+        .tx_buf = tx,
+        .tx_buf_size = sizeof(tx),
+    };
+
+    SYN_XRCE_Client client;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_init(&client, &cfg));
+    client.state = SYN_XRCE_STATE_CONNECTING;
+
+    /* 1. Oversized submsg_len (0xFFFF) must break cleanly without callback or overrun */
+    SYN_CDR_Writer w;
+    syn_cdr_writer_init(&w, mock.rx_buf, sizeof(mock.rx_buf));
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u16(&w, 1U);
+    syn_cdr_write_u32(&w, 0xAABBCCDDU);
+    syn_cdr_write_u8(&w, SYN_XRCE_SUBMSG_DATA);
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u16(&w, 0xFFFFU);
+    syn_cdr_write_u16(&w, 1U);
+    syn_cdr_write_u16(&w, 6U);
+    syn_cdr_write_u8(&w, 0U);
+    syn_cdr_write_u8(&w, 0xAAU);
+    mock.rx_len = w.pos;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_step(&client, 10U));
+    TEST_ASSERT_EQUAL_UINT32(0U, rec.data_count);
+
+    /* 2. Truncated STATUS (submsg_len=2) and truncated DATA (submsg_len=2) are ignored */
+    syn_cdr_writer_init(&w, mock.rx_buf, sizeof(mock.rx_buf));
+    syn_cdr_write_u8(&w, 0x81U); /* keyless 4-byte header */
+    syn_cdr_write_u8(&w, 0x00U);
+    syn_cdr_write_u16(&w, 2U);
+    /* Truncated STATUS: submsg_len=2 (< 6 bytes), padded to 4-byte submessage alignment */
+    syn_cdr_write_u8(&w, SYN_XRCE_SUBMSG_STATUS);
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u16(&w, 2U);
+    syn_cdr_write_u16(&w, 0x1111U);
+    syn_cdr_write_u16(&w, 0U);
+    /* Truncated DATA: submsg_len=2 (< 5 bytes) */
+    syn_cdr_write_u8(&w, SYN_XRCE_SUBMSG_DATA);
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u16(&w, 2U);
+    syn_cdr_write_u16(&w, 0x2222U);
+    mock.rx_len = w.pos;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_step(&client, 20U));
+    TEST_ASSERT_EQUAL_UINT32(0U, rec.status_count);
+    TEST_ASSERT_EQUAL_UINT32(0U, rec.data_count);
+    TEST_ASSERT_EQUAL_INT(SYN_XRCE_STATE_CONNECTING, client.state);
+
+    /* 3. Multi-submessage datagram: STATUS + DATA(3B) + DATA(4B) with 4B submsg alignment */
+    const uint8_t pld1[3] = {0x11U, 0x22U, 0x33U};
+    const uint8_t pld2[4] = {0x44U, 0x55U, 0x66U, 0x77U};
+    syn_cdr_writer_init(&w, mock.rx_buf, sizeof(mock.rx_buf));
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u16(&w, 3U);
+    syn_cdr_write_u32(&w, 0xAABBCCDDU);
+
+    /* Submsg 1: STATUS OK (6 bytes -> ends at offset 18, pad 2 bytes to offset 20) */
+    syn_cdr_write_u8(&w, SYN_XRCE_SUBMSG_STATUS);
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u16(&w, 6U);
+    syn_cdr_write_u16(&w, 1U);
+    syn_cdr_write_u16(&w, 0U);
+    syn_cdr_write_u8(&w, SYN_XRCE_STATUS_OK);
+    syn_cdr_write_u8(&w, 0U);
+    syn_cdr_write_u16(&w, 0U);
+
+    /* Submsg 2: DATA reader 6, 3-byte payload (5 + 3 = 8 bytes -> ends at offset 32) */
+    syn_cdr_write_u8(&w, SYN_XRCE_SUBMSG_DATA);
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u16(&w, (uint16_t)(5U + sizeof(pld1)));
+    syn_cdr_write_u16(&w, 10U);
+    syn_cdr_write_u16(&w, 6U);
+    syn_cdr_write_u8(&w, 0U);
+    syn_cdr_write_bytes(&w, pld1, sizeof(pld1));
+
+    /* Submsg 3: DATA reader 7, 4-byte payload (5 + 4 = 9 bytes) */
+    syn_cdr_write_u8(&w, SYN_XRCE_SUBMSG_DATA);
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u16(&w, (uint16_t)(5U + sizeof(pld2)));
+    syn_cdr_write_u16(&w, 11U);
+    syn_cdr_write_u16(&w, 7U);
+    syn_cdr_write_u8(&w, 0U);
+    syn_cdr_write_bytes(&w, pld2, sizeof(pld2));
+
+    mock.rx_len = w.pos;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_step(&client, 30U));
+    TEST_ASSERT_EQUAL_INT(SYN_XRCE_STATE_CONNECTED, client.state);
+    TEST_ASSERT_EQUAL_UINT32(1U, rec.status_count);
+    TEST_ASSERT_EQUAL_UINT32(2U, rec.data_count);
+    TEST_ASSERT_EQUAL_UINT16(6U, rec.reader_ids[0]);
+    TEST_ASSERT_EQUAL_UINT(sizeof(pld1), rec.lengths[0]);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(pld1, rec.payloads[0], sizeof(pld1));
+    TEST_ASSERT_EQUAL_UINT16(7U, rec.reader_ids[1]);
+    TEST_ASSERT_EQUAL_UINT(sizeof(pld2), rec.lengths[1]);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(pld2, rec.payloads[1], sizeof(pld2));
+}
+
+void test_xrce_r4_p10_regressions(void)
+{
+    MockXRCETransport mock;
+    (void)memset(&mock, 0, sizeof(mock));
+    SYN_Transport transport = {.send = mock_send, .recv = mock_recv, .ctx = &mock};
+
+    MultiSubmsgRecord rec;
+    (void)memset(&rec, 0, sizeof(rec));
+
+    uint8_t rx[256], tx[256];
+    SYN_XRCE_Config cfg = {
+        .session_id = 0x81U,
+        .transport = &transport,
+        .on_status = on_multi_status,
+        .on_data = on_multi_data,
+        .user_data = &rec,
+        .rx_buf = rx,
+        .rx_buf_size = sizeof(rx),
+        .tx_buf = tx,
+        .tx_buf_size = sizeof(tx),
+    };
+
+    SYN_XRCE_Client client;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_init(&client, &cfg));
+
+    /*
+     * 1. Truncated STATUS (sets r.error inside dispatch) must not poison subsequent
+     *    4-byte aligned odd-length DATA submessages, and trailing 1B pad clamps to r.size.
+     */
+    const uint8_t odd_pld1[1] = {0xA5U};
+    const uint8_t odd_pld2[2] = {0x5AU, 0xC3U};
+    const uint8_t pad3[3] = {0U, 0U, 0U};
+
+    SYN_CDR_Writer w;
+    syn_cdr_writer_init(&w, mock.rx_buf, sizeof(mock.rx_buf));
+    syn_cdr_write_u8(&w, 0x81U); /* 4-byte keyless header */
+    syn_cdr_write_u8(&w, 0x00U);
+    syn_cdr_write_u16(&w, 9U);
+
+    /* Submsg 1 at offset 4: truncated STATUS (len=1 -> submsg_end=9, pad 3B to offset 12) */
+    syn_cdr_write_u8(&w, SYN_XRCE_SUBMSG_STATUS);
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u16(&w, 1U);
+    syn_cdr_write_u8(&w, 0xFFU);
+    syn_cdr_write_bytes(&w, pad3, 3U);
+
+    /* Submsg 2 at offset 12: DATA reader 8, 1B payload (len=6 -> submsg_end=22, pad 2B -> 24) */
+    syn_cdr_write_u8(&w, SYN_XRCE_SUBMSG_DATA);
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u16(&w, 6U);
+    syn_cdr_write_u16(&w, 20U);
+    syn_cdr_write_u16(&w, 8U);
+    syn_cdr_write_u8(&w, 0U);
+    syn_cdr_write_bytes(&w, odd_pld1, sizeof(odd_pld1));
+    syn_cdr_write_bytes(&w, pad3, 2U);
+
+    /* Submsg 3 at offset 24: DATA reader 9, 2B payload (len=7 -> submsg_end=35) + 1B tail */
+    syn_cdr_write_u8(&w, SYN_XRCE_SUBMSG_DATA);
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u16(&w, 7U);
+    syn_cdr_write_u16(&w, 21U);
+    syn_cdr_write_u16(&w, 9U);
+    syn_cdr_write_u8(&w, 0U);
+    syn_cdr_write_bytes(&w, odd_pld2, sizeof(odd_pld2));
+    syn_cdr_write_u8(&w, 0U); /* 1 trailing byte: submsg_end(35) < size(36), aligned(36) <= 36 */
+    /* Add one more check where aligned_end > r.size: size = 36 when submsg_end = 35 -> 36 <= 36;
+       if submsg_len = 6 (submsg_end = 34) and 1 trailing byte (size = 35), aligned_end = 36 > 35 */
+    mock.rx_len = w.pos;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_step(&client, 40U));
+    TEST_ASSERT_EQUAL_UINT32(0U, rec.status_count);
+    TEST_ASSERT_EQUAL_UINT32(2U, rec.data_count);
+    TEST_ASSERT_EQUAL_UINT16(8U, rec.reader_ids[0]);
+    TEST_ASSERT_EQUAL_UINT(1U, rec.lengths[0]);
+    TEST_ASSERT_EQUAL_HEX8(0xA5U, rec.payloads[0][0]);
+    TEST_ASSERT_EQUAL_UINT16(9U, rec.reader_ids[1]);
+    TEST_ASSERT_EQUAL_UINT(2U, rec.lengths[1]);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(odd_pld2, rec.payloads[1], sizeof(odd_pld2));
+
+    /* Exercise aligned_end > r.size clamp: submsg_end = 14, r.size = 15 -> aligned_end = 16 > 15 */
+    syn_cdr_writer_init(&w, mock.rx_buf, sizeof(mock.rx_buf));
+    syn_cdr_write_u8(&w, 0x81U);
+    syn_cdr_write_u8(&w, 0x00U);
+    syn_cdr_write_u16(&w, 10U);
+    syn_cdr_write_u8(&w, SYN_XRCE_SUBMSG_STATUS);
+    syn_cdr_write_u8(&w, 0x01U);
+    syn_cdr_write_u16(&w, 6U);
+    syn_cdr_write_u16(&w, 2U);
+    syn_cdr_write_u16(&w, 0U);
+    syn_cdr_write_u8(&w, SYN_XRCE_STATUS_OK);
+    syn_cdr_write_u8(&w, 0U);
+    syn_cdr_write_u8(&w, 0U); /* r.size = 15, submsg_end = 14, aligned_end = 16 -> clamps to 15 */
+    mock.rx_len = w.pos;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_step(&client, 50U));
+    TEST_ASSERT_EQUAL_UINT32(1U, rec.status_count);
+
+    /* 2. Submessage payload > UINT16_MAX sets w.error and fails syn_xrce_client_write_data */
+    static uint8_t huge_tx[70000];
+    static uint8_t huge_pld[66000];
+    client.cfg.tx_buf = huge_tx;
+    client.cfg.tx_buf_size = sizeof(huge_tx);
+    mock.tx_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_xrce_client_write_data(&client, 5U, huge_pld, sizeof(huge_pld)));
+    TEST_ASSERT_EQUAL_UINT(0U, mock.tx_len);
+}
+
+void test_r5_a17_xrce_session_id_client_key_flag(void)
+{
+    MockXRCETransport mock;
+    (void)memset(&mock, 0, sizeof(mock));
+    SYN_Transport transport = {.send = mock_send, .recv = mock_recv, .ctx = &mock};
+    uint8_t rx[256], tx[256];
+
+    /* 1. Keyed session (session_id = 0x01 < 0x80) emits 8-byte header containing client_key */
+    SYN_XRCE_Config keyed_cfg = {
+        .client_key = 0xDEADBEEFU,
+        .session_id = 0x01U,
+        .transport = &transport,
+        .rx_buf = rx,
+        .rx_buf_size = sizeof(rx),
+        .tx_buf = tx,
+        .tx_buf_size = sizeof(tx),
+    };
+    SYN_XRCE_Client keyed_client;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_init(&keyed_client, &keyed_cfg));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_read_data(&keyed_client, 6U));
+    TEST_ASSERT_EQUAL_HEX8(0x01U, mock.tx_buf[0]);
+    TEST_ASSERT_EQUAL_HEX8(0xEFU, mock.tx_buf[4]);
+    TEST_ASSERT_EQUAL_HEX8(0xBEU, mock.tx_buf[5]);
+    TEST_ASSERT_EQUAL_HEX8(0xADU, mock.tx_buf[6]);
+    TEST_ASSERT_EQUAL_HEX8(0xDEU, mock.tx_buf[7]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XRCE_SUBMSG_READ_DATA, mock.tx_buf[8]);
+
+    /* 2. Keyless session (session_id = 0x81 >= 0x80) emits 4-byte header without client_key */
+    SYN_XRCE_Config keyless_cfg = keyed_cfg;
+    keyless_cfg.session_id = 0x81U;
+    SYN_XRCE_Client keyless_client;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_init(&keyless_client, &keyless_cfg));
+    mock.tx_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_read_data(&keyless_client, 6U));
+    TEST_ASSERT_EQUAL_HEX8(0x81U, mock.tx_buf[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XRCE_SUBMSG_READ_DATA, mock.tx_buf[4]);
 }
 
 void run_xrce_dds_tests(void)
@@ -537,4 +897,8 @@ void run_xrce_dds_tests(void)
     RUN_TEST(test_xrce_client_session_and_entity_lifecycle);
     RUN_TEST(test_xrce_client_errors_and_edge_cases);
     RUN_TEST(test_xrce_client_protothread);
+    RUN_TEST(test_xrce_client_pt_has_data_yielding_and_unknown_submsg);
+    RUN_TEST(test_xrce_submessage_bounds_and_multi_submsg);
+    RUN_TEST(test_xrce_r4_p10_regressions);
+    RUN_TEST(test_r5_a17_xrce_session_id_client_key_flag);
 }

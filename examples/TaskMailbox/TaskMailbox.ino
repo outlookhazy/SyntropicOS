@@ -99,6 +99,8 @@ static SYN_PT_Status consumer_task(SYN_PT *pt, SYN_Task *task)
             Serial.print(F(" | Total Rx: "));
             Serial.println(rx_count);
             Serial.flush();
+
+            PT_CONTINUE_IF_NEEDED(pt, task);
         }
 
         /* Check for pending items every 100ms */
@@ -131,9 +133,9 @@ void setup()
     syn_led_init(&status_led, STATUS_LED_PIN, SYN_LED_ACTIVE_HIGH);
     syn_led_blink(&status_led, 200, 200);
 
-    syn_task_create(&tasks[0], "prod",  producer_task, 1, NULL);
-    syn_task_create(&tasks[1], "cons",  consumer_task, 2, NULL);
-    syn_task_create(&tasks[2], "blink", blink_task,    3, NULL);
+    syn_task_create(&tasks[0], "prod",  producer_task, SYN_PRIO_HIGH,   NULL);
+    syn_task_create(&tasks[1], "cons",  consumer_task, SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks[2], "blink", blink_task,    SYN_PRIO_LOW,    NULL);
 
     syn_sched_init(&sched, tasks, 3);
 
@@ -142,6 +144,7 @@ void setup()
 
 void loop()
 {
-    syn_sched_run(&sched);
-    delay(1);
+    if (!syn_sched_run(&sched)) {
+        syn_port_delay_ms(1);
+    }
 }

@@ -151,9 +151,9 @@ void setup()
     mqtt_client.on_message = on_mqtt_message;
 
     /* 4. Register Tasks (Distinct priorities: Prio 1 > Prio 2 > Prio 3) */
-    syn_task_create(&tasks[0], "mqtt",  syn_mqtt_task, 1, &mqtt_client);
-    syn_task_create(&tasks[1], "blink", blink_task,    2, NULL);
-    syn_task_create(&tasks[2], "pub",   pub_task,      3, NULL);
+    syn_task_create(&tasks[0], "mqtt",  syn_mqtt_task, SYN_PRIO_HIGH,   &mqtt_client);
+    syn_task_create(&tasks[1], "blink", blink_task,    SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks[2], "pub",   pub_task,      SYN_PRIO_LOW,    NULL);
 
     syn_sched_init(&sched, tasks, 3);
 

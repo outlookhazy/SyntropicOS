@@ -94,6 +94,25 @@ static void test_bacnet_poll_for_master(void)
     TEST_ASSERT_EQUAL_UINT8(10, tx_frame.source_mac);
 }
 
+static float decode_be_float(const uint8_t b[4])
+{
+    uint32_t bits =
+        ((uint32_t)b[0] << 24U) | ((uint32_t)b[1] << 16U) | ((uint32_t)b[2] << 8U) | (uint32_t)b[3];
+    float v = 0.0f;
+    memcpy(&v, &bits, sizeof(v));
+    return v;
+}
+
+static void encode_be_float(uint8_t b[4], float v)
+{
+    uint32_t bits = 0U;
+    memcpy(&bits, &v, sizeof(bits));
+    b[0] = (uint8_t)((bits >> 24U) & 0xFFU);
+    b[1] = (uint8_t)((bits >> 16U) & 0xFFU);
+    b[2] = (uint8_t)((bits >> 8U) & 0xFFU);
+    b[3] = (uint8_t)(bits & 0xFFU);
+}
+
 static void test_bacnet_read_property(void)
 {
     SYN_BACnet_Node node;
@@ -116,9 +135,12 @@ static void test_bacnet_read_property(void)
     TEST_ASSERT_TRUE(has_tx);
     TEST_ASSERT_EQUAL_UINT8(3, tx_frame.destination_mac);
     TEST_ASSERT_EQUAL_UINT8(SYN_BACNET_SERVICE_CONFIRMED_READ_PROPERTY, tx_frame.payload[2]);
+    TEST_ASSERT_EQUAL_UINT8(0x42U, tx_frame.payload[4]);
+    TEST_ASSERT_EQUAL_UINT8(0x28U, tx_frame.payload[5]);
+    TEST_ASSERT_EQUAL_UINT8(0x00U, tx_frame.payload[6]);
+    TEST_ASSERT_EQUAL_UINT8(0x00U, tx_frame.payload[7]);
 
-    float val = 0.0f;
-    memcpy(&val, &tx_frame.payload[4], sizeof(float));
+    float val = decode_be_float(&tx_frame.payload[4]);
     TEST_ASSERT_EQUAL_FLOAT(42.0f, val);
 
     /* Test reading object with instance_id == 0 */
@@ -133,8 +155,7 @@ static void test_bacnet_read_property(void)
     has_tx = false;
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bacnet_node_process(&node, &req_inst0, &tx_frame, &has_tx));
     TEST_ASSERT_TRUE(has_tx);
-    val = 0.0f;
-    memcpy(&val, &tx_frame.payload[4], sizeof(float));
+    val = decode_be_float(&tx_frame.payload[4]);
     TEST_ASSERT_EQUAL_FLOAT(99.0f, val);
 }
 
@@ -145,11 +166,12 @@ static void test_bacnet_write_property(void)
     syn_bacnet_add_object(&node, SYN_BACNET_OBJ_ANALOG_OUTPUT, 1, 10.0f, "SetPoint");
 
     float new_val = 88.5f;
+    /* Object ID: Analog Output (type 1 << 22) | instance 1 = 0x00400001 */
     uint8_t payload[16] = {0x00, 0x05, 0x02, SYN_BACNET_SERVICE_CONFIRMED_WRITE_PROPERTY,
-                           0x0C, 0x00, 0x00, 0x00,
+                           0x0C, 0x00, 0x40, 0x00,
                            0x01, 0x44, 0,    0,
                            0,    0};
-    memcpy(&payload[10], &new_val, sizeof(float));
+    encode_be_float(&payload[10], new_val);
 
     SYN_BACnet_MSTP_Frame req = {.frame_type = SYN_BACNET_MSTP_FRAME_DATA_EXPECTING_REPLY,
                                  .destination_mac = 7,
@@ -295,6 +317,62 @@ static void test_bacnet_mstp_frame_header_checksum_errors(void)
     TEST_ASSERT_FALSE(has_tx);
 }
 
+static void test_r5_bacnet_be_real_and_object_type_isolation(void)
+{
+    SYN_BACnet_Node node;
+    syn_bacnet_node_init(&node, 9U, 900U);
+    syn_bacnet_add_object(&node, SYN_BACNET_OBJ_ANALOG_INPUT, 1U, 12.5f, "AI_1");
+    syn_bacnet_add_object(&node, SYN_BACNET_OBJ_ANALOG_OUTPUT, 1U, 34.5f, "AO_1");
+    syn_bacnet_add_object(&node, SYN_BACNET_OBJ_BINARY_INPUT, 1U, 1.0f, "BI_1");
+
+    SYN_BACnet_MSTP_Frame tx_frame;
+    bool has_tx = false;
+
+    /* Read AO:1 -> (1 << 22) | 1 = 0x00400001 -> must return 34.5f, not AI:1 (12.5f) */
+    SYN_BACnet_MSTP_Frame req_ao = {.frame_type = SYN_BACNET_MSTP_FRAME_DATA_EXPECTING_REPLY,
+                                    .destination_mac = 9U,
+                                    .source_mac = 2U,
+                                    .data_len = 9U,
+                                    .payload = {0x00U, 0x05U, 0x03U,
+                                                SYN_BACNET_SERVICE_CONFIRMED_READ_PROPERTY, 0x0CU,
+                                                0x00U, 0x40U, 0x00U, 0x01U}};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bacnet_node_process(&node, &req_ao, &tx_frame, &has_tx));
+    TEST_ASSERT_TRUE(has_tx);
+    TEST_ASSERT_EQUAL_FLOAT(34.5f, decode_be_float(&tx_frame.payload[4]));
+
+    /* Read BI:1 -> (3 << 22) | 1 = 0x00C00001 -> must return 1.0f */
+    req_ao.payload[6] = 0xC0U;
+    has_tx = false;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bacnet_node_process(&node, &req_ao, &tx_frame, &has_tx));
+    TEST_ASSERT_TRUE(has_tx);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, decode_be_float(&tx_frame.payload[4]));
+
+    /* Write BI:1 -> must update BI:1 without clobbering AI:1 or AO:1 */
+    SYN_BACnet_MSTP_Frame wr_bi = {.frame_type = SYN_BACNET_MSTP_FRAME_DATA_EXPECTING_REPLY,
+                                   .destination_mac = 9U,
+                                   .source_mac = 2U,
+                                   .data_len = 14U,
+                                   .payload = {0x00U, 0x05U, 0x04U,
+                                               SYN_BACNET_SERVICE_CONFIRMED_WRITE_PROPERTY, 0x0CU,
+                                               0x00U, 0xC0U, 0x00U, 0x01U, 0x44U, 0U, 0U, 0U, 0U}};
+    encode_be_float(&wr_bi.payload[10], 0.0f);
+    has_tx = false;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bacnet_node_process(&node, &wr_bi, &tx_frame, &has_tx));
+    TEST_ASSERT_TRUE(has_tx);
+    TEST_ASSERT_EQUAL_FLOAT(12.5f, node.objects[1].present_value);
+    TEST_ASSERT_EQUAL_FLOAT(34.5f, node.objects[2].present_value);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, node.objects[3].present_value);
+
+    /* Write to nonexistent BO:99 & short WriteProperty (< 14 bytes) -> Simple-ACK, no clobber */
+    wr_bi.payload[6] = 0x00U;
+    wr_bi.payload[8] = 99U;
+    wr_bi.data_len = 9U;
+    has_tx = false;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bacnet_node_process(&node, &wr_bi, &tx_frame, &has_tx));
+    TEST_ASSERT_TRUE(has_tx);
+    TEST_ASSERT_EQUAL_FLOAT(12.5f, node.objects[1].present_value);
+}
+
 void run_bacnet_tests(void)
 {
     RUN_TEST(test_bacnet_crc8);
@@ -309,4 +387,5 @@ void run_bacnet_tests(void)
     RUN_TEST(test_bacnet_add_object_max_capacity);
     RUN_TEST(test_bacnet_mstp_decode_error_cases);
     RUN_TEST(test_bacnet_mstp_frame_header_checksum_errors);
+    RUN_TEST(test_r5_bacnet_be_real_and_object_type_isolation);
 }

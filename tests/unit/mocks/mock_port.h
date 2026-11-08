@@ -60,6 +60,8 @@ extern uint8_t mock_flash[MOCK_FLASH_SIZE];
  * returns SYN_ERROR (one-shot: reset to -1 after triggering).
  */
 extern int32_t mock_flash_fail_at;
+/** If set >= 0, decrements on each syn_port_flash_read and returns SYN_ERROR at 0 (one-shot). */
+extern int32_t mock_flash_read_fail_after;
 /** Set true to make the next flash write (only) fail. One-shot. */
 extern bool mock_flash_write_fail_next;
 
@@ -69,6 +71,8 @@ extern bool mock_flash_write_fail_next;
 extern int mock_critical_depth;
 /** Total syn_port_enter_critical calls since reset. */
 extern int mock_critical_enter_count;
+/** Optional deterministic hook invoked on syn_port_enter_critical (reset to NULL). */
+extern void (*mock_critical_enter_cb)(void);
 
 /* ── Sleep ──────────────────────────────────────────────────────────────── */
 
@@ -127,6 +131,11 @@ extern uint8_t mock_spi_infinite_byte; /**< If true, returns 0x00 when buffer em
 /** Load canned response bytes into the mock SPI receive buffer. */
 void mock_spi_set_response(const void *data, size_t len);
 
+/** Optional SPI transfer hook — overrides default canned buffer when non-NULL. */
+typedef SYN_Status (*MockSpiTransferCallback)(uint8_t bus, const uint8_t *tx_buf, uint8_t *rx_buf,
+                                              size_t len);
+void mock_spi_set_transfer_callback(MockSpiTransferCallback cb);
+
 /* ── Socket ─────────────────────────────────────────────────────────────── */
 
 #define MOCK_SOCK_BUF_SIZE 4096
@@ -141,7 +150,10 @@ extern void (*mock_sock_connect_cb)(const char *host, uint16_t port);
 extern bool mock_sock_eof_on_empty;
 extern bool mock_sock_connect_fail;
 extern bool mock_sock_send_fail;
+extern bool mock_sock_recv_fail;
 extern int mock_sock_send_fail_after_bytes;
+extern int mock_sock_close_count;
+extern SYN_Socket mock_sock_last_closed;
 
 bool syn_port_sock_readable(SYN_Socket sock);
 bool syn_port_udp_readable(SYN_Socket sock);
@@ -158,6 +170,7 @@ extern SYN_SockAddr mock_udp_tx_to;
 extern bool mock_udp_open_ok;
 extern bool mock_udp_multicast_join_ok;
 extern bool mock_udp_sendto_fail;
+extern bool mock_udp_recv_fail;
 
 void mock_udp_set_response(const void *data, size_t len, const SYN_SockAddr *from);
 
@@ -204,6 +217,7 @@ typedef struct {
 extern MockDmaChannel mock_dma[MOCK_DMA_MAX_CHANNELS];
 extern int mock_dma_start_count;
 extern int mock_dma_stop_count;
+extern uint32_t mock_cache_invalidate_count;
 
 /** Fire the DMA completion callback for a channel (simulates ISR). */
 void mock_dma_complete(uint8_t channel, SYN_Status result);
@@ -297,7 +311,10 @@ void mock_udp_set_response(const void *data, size_t len, const SYN_SockAddr *fro
 /** Add a packet to the mock RX queue for the next recvfrom() call. */
 void mock_udp_inject_packet(const void *data, size_t len, const SYN_SockAddr *from);
 
-/* ── USB Host mock ───────────────────────────────────────────────────────── */
+/* ── USB Device & Host mocks ─────────────────────────────────────────────── */
+
+extern uint32_t mock_usb_ep_stall_count;
+extern uint8_t mock_usb_last_stalled_ep;
 
 #include "port/syn_port_usb_host.h"
 
@@ -310,6 +327,10 @@ extern SYN_Status mock_usb_host_xfer_status;
 
 /* Reset USB Host mock state */
 void mock_usb_host_reset(void);
+
+/* ── Analog Comparator mock ──────────────────────────────────────────────── */
+
+extern bool mock_comp_output_state;
 
 /* ── AES / Crypto Accelerator mock ───────────────────────────────────────── */
 

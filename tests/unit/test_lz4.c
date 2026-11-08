@@ -139,10 +139,13 @@ void test_lz4_buffer_overflow_and_corrupt_rejection(void)
     TEST_ASSERT_EQUAL(0, syn_lz4_decompress(corrupt_offset_out, sizeof(corrupt_offset_out),
                                             decompressed, sizeof(decompressed)));
 
-    /* Match length exceeds destination capacity during decompression */
-    uint8_t match_overflow[16] = {0x0F, 'A', 0x01, 0x00, 0x0A};
+    /* Match length exceeds destination capacity during decompression (both extended & short) */
+    uint8_t match_overflow[16] = {0x1F, 'A', 0x01, 0x00, 0xFF, 0xFF, 0x0A};
     TEST_ASSERT_EQUAL(0,
                       syn_lz4_decompress(match_overflow, sizeof(match_overflow), decompressed, 5));
+    uint8_t short_match_overflow[10] = {0x12, 'A', 0x01, 0x00, 0x50, 'B', 'B', 'B', 'B', 'B'};
+    TEST_ASSERT_EQUAL(
+        0, syn_lz4_decompress(short_match_overflow, sizeof(short_match_overflow), decompressed, 4));
 }
 
 void test_lz4_short_input_long_literal(void)
@@ -172,6 +175,79 @@ void test_lz4_short_input_long_literal(void)
     TEST_ASSERT_EQUAL_MEMORY(input_18, decompressed, 18);
 }
 
+static void test_r5_lz4_mflimit_and_lastliterals(void)
+{
+    uint8_t comp[1200];
+    uint8_t decomp[1200];
+
+    /* 1. R5-S15: All inputs < 13 bytes (1..12) must emit pure literal sequence */
+    for (size_t len = 1U; len <= 12U; len++) {
+        uint8_t repeated[12];
+        memset(repeated, 'A', sizeof(repeated));
+        size_t csz = syn_lz4_compress(&g_lz4, repeated, len, comp, sizeof(comp));
+        TEST_ASSERT_EQUAL_UINT32((uint32_t)(1U + len), (uint32_t)csz);
+        TEST_ASSERT_EQUAL_HEX8((uint8_t)(len << 4), comp[0]);
+        size_t dsz = syn_lz4_decompress(comp, csz, decomp, sizeof(decomp));
+        TEST_ASSERT_EQUAL_UINT32((uint32_t)len, (uint32_t)dsz);
+        TEST_ASSERT_EQUAL_UINT8_ARRAY(repeated, decomp, len);
+    }
+
+    /* 2. R5-S15: >= 13B all-identical input caps match so final sequence has >= 5 literals */
+    for (size_t len = 13U; len <= 32U; len++) {
+        uint8_t rep[32];
+        memset(rep, 'Q', sizeof(rep));
+        size_t csz = syn_lz4_compress(&g_lz4, rep, len, comp, sizeof(comp));
+        TEST_ASSERT_TRUE(csz >= 6U);
+        /* Final sequence in rep compression must end with >= 5 literal 'Q' bytes (token >= 0x50,
+         * match nibble == 0) */
+        uint8_t last_tok = comp[csz - 6U];
+        TEST_ASSERT_EQUAL_HEX8(0x50U, last_tok);
+        size_t dsz = syn_lz4_decompress(comp, csz, decomp, sizeof(decomp));
+        TEST_ASSERT_EQUAL_UINT32((uint32_t)len, (uint32_t)dsz);
+        TEST_ASSERT_EQUAL_UINT8_ARRAY(rep, decomp, len);
+    }
+
+    /* 3. Exhaustive capacity & truncation sweep over long literals + long match + long tail */
+    uint8_t mixed[900];
+    uint32_t lfsr = 0xACE1U;
+    for (size_t i = 0U; i < 300U; i++) {
+        lfsr = (lfsr >> 1) ^ (-(lfsr & 1U) & 0xB400U);
+        mixed[i] = (uint8_t)(lfsr & 0xFFU);
+    }
+    memset(mixed + 300U, 0x5AU, 300U);
+    for (size_t i = 600U; i < 900U; i++) {
+        lfsr = (lfsr >> 1) ^ (-(lfsr & 1U) & 0xB400U);
+        mixed[i] = (uint8_t)(lfsr & 0xFFU);
+    }
+
+    size_t full_csz = syn_lz4_compress(&g_lz4, mixed, sizeof(mixed), comp, sizeof(comp));
+    TEST_ASSERT_TRUE(full_csz > 0U);
+    TEST_ASSERT_EQUAL_UINT32((uint32_t)sizeof(mixed),
+                             (uint32_t)syn_lz4_decompress(comp, full_csz, decomp, sizeof(decomp)));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(mixed, decomp, sizeof(mixed));
+
+    for (size_t cap = 0U; cap < full_csz; cap++) {
+        uint8_t small_out[1200];
+        TEST_ASSERT_EQUAL_UINT32(
+            0U, (uint32_t)syn_lz4_compress(&g_lz4, mixed, sizeof(mixed), small_out, cap));
+    }
+    for (size_t trunc = 1U; trunc < full_csz; trunc++) {
+        (void)syn_lz4_decompress(comp, trunc, decomp, sizeof(decomp));
+    }
+    for (size_t dcap = 1U; dcap < sizeof(mixed); dcap++) {
+        TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)syn_lz4_decompress(comp, full_csz, decomp, dcap));
+    }
+
+    /* 4. Final literal >= 15 bytes overflowing extended length byte at dst_capacity == 1 */
+    uint8_t incomp20[20];
+    for (size_t i = 0U; i < sizeof(incomp20); i++) {
+        incomp20[i] = (uint8_t)(i * 7U + 1U);
+    }
+    uint8_t tiny_dst[2];
+    TEST_ASSERT_EQUAL_UINT32(
+        0U, (uint32_t)syn_lz4_compress(&g_lz4, incomp20, sizeof(incomp20), tiny_dst, 1U));
+}
+
 void run_lz4_tests(void)
 {
     RUN_TEST(test_lz4_init_and_null_checks);
@@ -181,4 +257,5 @@ void run_lz4_tests(void)
     RUN_TEST(test_lz4_ultra_long_literal_and_match_roundtrip);
     RUN_TEST(test_lz4_short_input_long_literal);
     RUN_TEST(test_lz4_buffer_overflow_and_corrupt_rejection);
+    RUN_TEST(test_r5_lz4_mflimit_and_lastliterals);
 }

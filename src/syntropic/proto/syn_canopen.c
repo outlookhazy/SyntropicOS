@@ -21,26 +21,29 @@
  * @param cob_id 11-bit CAN COB-ID.
  * @param data Payload data pointer.
  * @param len Payload length.
+ * @return true if frame was queued, false if TX FIFO is full.
  */
-static void canopen_queue_tx(SYN_CANOpenNode *node, uint32_t cob_id, const uint8_t *data,
+static bool canopen_queue_tx(SYN_CANOpenNode *node, uint32_t cob_id, const uint8_t *data,
                              uint8_t len)
 {
-    if (node == NULL) {
-        return; /* LCOV_EXCL_LINE: Static helper NULL guard */
+    if (node->tx_count >= SYN_CANOPEN_TX_QUEUE_DEPTH) {
+        return false;
     }
 
-    /* LCOV_EXCL_START: Static helper tx buffer capacity clamp */
-    if (len > sizeof(node->tx_data)) {
-        len = (uint8_t)sizeof(node->tx_data);
-    }
-    /* LCOV_EXCL_STOP */
+    SYN_CANOpenTxSlot *slot = &node->tx_queue[node->tx_tail];
+    slot->cob_id = cob_id;
+    slot->len = len;
+    (void)memcpy(slot->data, data, len);
 
-    node->tx_cob_id = cob_id;
-    if (data != NULL && len > 0) {
+    node->tx_tail = (uint8_t)((node->tx_tail + 1U) % SYN_CANOPEN_TX_QUEUE_DEPTH);
+    node->tx_count++;
+    if (node->tx_count == 1U) {
+        node->tx_cob_id = cob_id;
         (void)memcpy(node->tx_data, data, len);
+        node->tx_len = len;
     }
-    node->tx_len = len;
     node->tx_pending = true;
+    return true;
 }
 
 /**
@@ -164,235 +167,287 @@ SYN_Status syn_canopen_od_write(SYN_CANOpenNode *node, uint16_t index, uint8_t s
     return SYN_OK;
 }
 
+/**
+ * @brief Send SDO abort for a missing Object Dictionary index or subindex.
+ * @param node     Pointer to node handle.
+ * @param index    16-bit OD index.
+ * @param subindex 8-bit OD subindex.
+ */
+static void canopen_abort_missing_od(SYN_CANOpenNode *node, uint16_t index, uint8_t subindex)
+{
+    for (size_t i = 0; i < node->od_count; i++) {
+        if (node->od_table[i].index == index) {
+            canopen_send_sdo_abort(node, index, subindex, SYN_CANOPEN_SDO_ABORT_SUBINDEX_NOT_EXIST);
+            return;
+        }
+    }
+    canopen_send_sdo_abort(node, index, subindex, SYN_CANOPEN_SDO_ABORT_NOT_EXIST);
+}
+
+/**
+ * @brief Process an incoming NMT slave control frame (COB-ID 0x000).
+ * @param node Pointer to node handle.
+ * @param data 2-byte NMT command payload.
+ */
+static void canopen_handle_nmt(SYN_CANOpenNode *node, const uint8_t *data)
+{
+    uint8_t target_node = data[1];
+    if (target_node != 0U && target_node != node->node_id) {
+        return;
+    }
+
+    switch (data[0]) {
+    case SYN_CANOPEN_NMT_CMD_START:
+        node->nmt_state = SYN_CANOPEN_NMT_STATE_OPERATIONAL;
+        break;
+    case SYN_CANOPEN_NMT_CMD_STOP:
+        node->nmt_state = SYN_CANOPEN_NMT_STATE_STOPPED;
+        break;
+    case SYN_CANOPEN_NMT_CMD_PREOP:
+        node->nmt_state = SYN_CANOPEN_NMT_STATE_PREOP;
+        break;
+    case SYN_CANOPEN_NMT_CMD_RESET_NODE:
+    case SYN_CANOPEN_NMT_CMD_RESET_COMM: {
+        uint8_t boot_payload[1] = {0x00U};
+        node->nmt_state = SYN_CANOPEN_NMT_STATE_PREOP;
+        canopen_queue_tx(node, 0x700U + node->node_id, boot_payload, 1U);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+/**
+ * @brief Handle SDO Initiate Download (expedited or segmented) request.
+ * @param node     Pointer to node handle.
+ * @param cmd      SDO command specifier byte.
+ * @param index    16-bit OD index.
+ * @param subindex 8-bit OD subindex.
+ * @param data     8-byte SDO request frame payload.
+ */
+static void canopen_sdo_download(SYN_CANOpenNode *node, uint8_t cmd, uint16_t index,
+                                 uint8_t subindex, const uint8_t *data)
+{
+    const SYN_CANOpenODEntry *entry = canopen_find_od(node, index, subindex);
+    if (entry == NULL) {
+        canopen_abort_missing_od(node, index, subindex);
+        return;
+    }
+    if (entry->access == SYN_CANOPEN_ACCESS_RO) {
+        canopen_send_sdo_abort(node, index, subindex, SYN_CANOPEN_SDO_ABORT_READ_ONLY);
+        return;
+    }
+    if ((cmd & 0x02U) != 0U) {
+        uint8_t n = (cmd >> 2U) & 0x03U;
+        size_t write_len = (size_t)(4U - n);
+        if (write_len != entry->size) {
+            canopen_send_sdo_abort(node, index, subindex, SYN_CANOPEN_SDO_ABORT_TYPE_MISMATCH);
+            return;
+        }
+        (void)syn_canopen_od_write(node, index, subindex, &data[4], write_len);
+        uint8_t resp[8] = {0x60U, data[1], data[2], data[3], 0U, 0U, 0U, 0U};
+        canopen_queue_tx(node, 0x580U + node->node_id, resp, 8U);
+        return;
+    }
+
+    node->sdo_session.state = SYN_CANOPEN_SDO_SEG_DOWNLOAD;
+    node->sdo_session.index = index;
+    node->sdo_session.subindex = subindex;
+    node->sdo_session.toggle = 0U;
+    node->sdo_session.transferred_bytes = 0U;
+    node->sdo_session.total_bytes =
+        (size_t)((uint32_t)data[4] | ((uint32_t)data[5] << 8U) | ((uint32_t)data[6] << 16U) |
+                 ((uint32_t)data[7] << 24U));
+    uint8_t resp[8] = {0x60U, data[1], data[2], data[3], 0U, 0U, 0U, 0U};
+    canopen_queue_tx(node, 0x580U + node->node_id, resp, 8U);
+}
+
+/**
+ * @brief Handle SDO Download Segment request.
+ * @param node Pointer to node handle.
+ * @param cmd  SDO segment command byte.
+ * @param data 8-byte SDO segment frame payload.
+ */
+static void canopen_sdo_seg_download(SYN_CANOpenNode *node, uint8_t cmd, const uint8_t *data)
+{
+    uint8_t t = (cmd >> 4U) & 0x01U;
+    if (t != node->sdo_session.toggle) {
+        canopen_send_sdo_abort(node, node->sdo_session.index, node->sdo_session.subindex,
+                               SYN_CANOPEN_SDO_ABORT_TOGGLE_BIT);
+        node->sdo_session.state = SYN_CANOPEN_SDO_IDLE;
+        return;
+    }
+
+    const SYN_CANOpenODEntry *entry =
+        canopen_find_od(node, node->sdo_session.index, node->sdo_session.subindex);
+    uint8_t n = (cmd >> 1U) & 0x07U;
+    size_t seg_len = 7U - n;
+
+    if (entry != NULL && (node->sdo_session.transferred_bytes + seg_len) <= entry->size) {
+        (void)memcpy((uint8_t *)entry->data_ptr + node->sdo_session.transferred_bytes, &data[1],
+                     seg_len);
+        node->sdo_session.transferred_bytes += seg_len;
+
+        uint8_t resp[8] = {(uint8_t)((t << 4U) | 0x20U), 0U, 0U, 0U, 0U, 0U, 0U, 0U};
+        canopen_queue_tx(node, 0x580U + node->node_id, resp, 8U);
+        node->sdo_session.toggle ^= 1U;
+
+        if ((cmd & 0x01U) != 0U) {
+            node->sdo_session.state = SYN_CANOPEN_SDO_IDLE;
+        }
+        return;
+    }
+
+    canopen_send_sdo_abort(node, node->sdo_session.index, node->sdo_session.subindex,
+                           SYN_CANOPEN_SDO_ABORT_TYPE_MISMATCH);
+    node->sdo_session.state = SYN_CANOPEN_SDO_IDLE;
+}
+
+/**
+ * @brief Handle SDO Initiate Upload (expedited or segmented) request.
+ * @param node     Pointer to node handle.
+ * @param index    16-bit OD index.
+ * @param subindex 8-bit OD subindex.
+ * @param data     8-byte SDO request frame payload.
+ */
+static void canopen_sdo_upload(SYN_CANOpenNode *node, uint16_t index, uint8_t subindex,
+                               const uint8_t *data)
+{
+    const SYN_CANOpenODEntry *entry = canopen_find_od(node, index, subindex);
+    if (entry == NULL) {
+        canopen_abort_missing_od(node, index, subindex);
+        return;
+    }
+    if (entry->access == SYN_CANOPEN_ACCESS_WO) {
+        canopen_send_sdo_abort(node, index, subindex, SYN_CANOPEN_SDO_ABORT_WRITE_ONLY);
+        return;
+    }
+    if (entry->size <= 4U) {
+        uint8_t read_buf[4] = {0};
+        size_t read_len = 0U;
+        if (syn_canopen_od_read(node, index, subindex, read_buf, sizeof(read_buf), &read_len) ==
+                SYN_OK &&
+            read_len <= 4U) {
+            uint8_t n = (uint8_t)(4U - read_len);
+            uint8_t resp[8] = {
+                (uint8_t)(0x43U | (n << 2U)), data[1], data[2], data[3], 0U, 0U, 0U, 0U};
+            (void)memcpy(&resp[4], read_buf, read_len);
+            canopen_queue_tx(node, 0x580U + node->node_id, resp, 8U);
+            return;
+        }
+        canopen_send_sdo_abort(node, index, subindex, SYN_CANOPEN_SDO_ABORT_TYPE_MISMATCH);
+        return;
+    }
+
+    node->sdo_session.state = SYN_CANOPEN_SDO_SEG_UPLOAD;
+    node->sdo_session.index = index;
+    node->sdo_session.subindex = subindex;
+    node->sdo_session.toggle = 0U;
+    node->sdo_session.total_bytes = entry->size;
+    node->sdo_session.transferred_bytes = 0U;
+
+    uint8_t resp[8] = {0x41U,
+                       data[1],
+                       data[2],
+                       data[3],
+                       (uint8_t)(entry->size & 0xFFU),
+                       (uint8_t)((entry->size >> 8U) & 0xFFU),
+                       (uint8_t)((entry->size >> 16U) & 0xFFU),
+                       (uint8_t)((entry->size >> 24U) & 0xFFU)};
+    canopen_queue_tx(node, 0x580U + node->node_id, resp, 8U);
+}
+
+/**
+ * @brief Handle SDO Upload Segment request.
+ * @param node Pointer to node handle.
+ * @param cmd  SDO segment command byte.
+ */
+static void canopen_sdo_seg_upload(SYN_CANOpenNode *node, uint8_t cmd)
+{
+    uint8_t t = (cmd >> 4U) & 0x01U;
+    if (t != node->sdo_session.toggle) {
+        canopen_send_sdo_abort(node, node->sdo_session.index, node->sdo_session.subindex,
+                               SYN_CANOPEN_SDO_ABORT_TOGGLE_BIT);
+        node->sdo_session.state = SYN_CANOPEN_SDO_IDLE;
+        return;
+    }
+
+    const SYN_CANOpenODEntry *entry =
+        canopen_find_od(node, node->sdo_session.index, node->sdo_session.subindex);
+    if (entry == NULL) {
+        canopen_send_sdo_abort(node, node->sdo_session.index, node->sdo_session.subindex,
+                               SYN_CANOPEN_SDO_ABORT_NOT_EXIST);
+        node->sdo_session.state = SYN_CANOPEN_SDO_IDLE;
+        return;
+    }
+
+    size_t rem = entry->size - node->sdo_session.transferred_bytes;
+    size_t seg_len = (rem > 7U) ? 7U : rem;
+    uint8_t n = (uint8_t)(7U - seg_len);
+    uint8_t c = (rem <= 7U) ? 1U : 0U;
+
+    uint8_t resp[8] = {0};
+    resp[0] = (uint8_t)((t << 4U) | (n << 1U) | c);
+    (void)memcpy(&resp[1], (const uint8_t *)entry->data_ptr + node->sdo_session.transferred_bytes,
+                 seg_len);
+
+    canopen_queue_tx(node, 0x580U + node->node_id, resp, 8U);
+    node->sdo_session.transferred_bytes += seg_len;
+    node->sdo_session.toggle ^= 1U;
+
+    if (c != 0U) {
+        node->sdo_session.state = SYN_CANOPEN_SDO_IDLE;
+    }
+}
+
+/**
+ * @brief Dispatch incoming SDO client request frame (COB-ID 0x600 + NodeID).
+ * @param node Pointer to node handle.
+ * @param data 8-byte SDO request frame payload.
+ */
+static void canopen_handle_sdo(SYN_CANOpenNode *node, const uint8_t *data)
+{
+    size_t sdo_pos = 0U;
+    uint8_t cmd = syn_unpack_u8(data, &sdo_pos);
+    uint16_t index = syn_unpack_u16_le(data, &sdo_pos);
+    uint8_t subindex = syn_unpack_u8(data, &sdo_pos);
+    uint8_t ccs = cmd & 0xE0U;
+
+    if (ccs == 0x20U) {
+        canopen_sdo_download(node, cmd, index, subindex, data);
+    } else if (ccs == 0x00U && node->sdo_session.state == SYN_CANOPEN_SDO_SEG_DOWNLOAD) {
+        canopen_sdo_seg_download(node, cmd, data);
+    } else if (ccs == 0x40U) {
+        canopen_sdo_upload(node, index, subindex, data);
+    } else if (ccs == 0x60U && node->sdo_session.state == SYN_CANOPEN_SDO_SEG_UPLOAD) {
+        canopen_sdo_seg_upload(node, cmd);
+    }
+}
+
 SYN_Status syn_canopen_process_rx(SYN_CANOpenNode *node, uint32_t cob_id, const uint8_t *data,
                                   uint8_t len)
 {
-    if (node == NULL || data == NULL || len == 0) {
+    if (node == NULL || data == NULL || len == 0U) {
         return SYN_INVALID_PARAM;
     }
 
-    /* 1. NMT Control Message: COB-ID = 0x000 */
-    if (cob_id == 0x000U && len >= 2) {
-        uint8_t target_node = data[1];
-        if (target_node == 0U || target_node == node->node_id) {
-            uint8_t cmd = data[0];
-            switch (cmd) {
-            case SYN_CANOPEN_NMT_CMD_START:
-                node->nmt_state = SYN_CANOPEN_NMT_STATE_OPERATIONAL;
-                break;
-            case SYN_CANOPEN_NMT_CMD_STOP:
-                node->nmt_state = SYN_CANOPEN_NMT_STATE_STOPPED;
-                break;
-            case SYN_CANOPEN_NMT_CMD_PREOP:
-                node->nmt_state = SYN_CANOPEN_NMT_STATE_PREOP;
-                break;
-            case SYN_CANOPEN_NMT_CMD_RESET_NODE:
-            case SYN_CANOPEN_NMT_CMD_RESET_COMM:
-                node->nmt_state = SYN_CANOPEN_NMT_STATE_PREOP;
-                {
-                    uint8_t boot_payload[1] = {0x00U};
-                    canopen_queue_tx(node, 0x700U + node->node_id, boot_payload, 1);
-                }
-                break;
-            default:
-                break;
-            }
-        }
+    if (cob_id == 0x000U && len >= 2U) {
+        canopen_handle_nmt(node, data);
         return SYN_OK;
     }
 
-    /* 2. SDO Request Server: COB-ID = 0x600 + NodeID */
-    if (cob_id == (0x600U + node->node_id) && len == 8) {
-        size_t sdo_pos = 0;
-        uint8_t cmd = syn_unpack_u8(data, &sdo_pos);
-        uint16_t index = syn_unpack_u16_le(data, &sdo_pos);
-        uint8_t subindex = syn_unpack_u8(data, &sdo_pos);
-
-        /* SDO Download (Write Request) */
-        if ((cmd & 0xE0U) == 0x20U) {
-            const SYN_CANOpenODEntry *entry = canopen_find_od(node, index, subindex);
-            if (entry == NULL) {
-                const SYN_CANOpenODEntry *entry_idx = NULL;
-                for (size_t i = 0; i < node->od_count; i++) {
-                    if (node->od_table[i].index == index) {
-                        entry_idx = &node->od_table[i];
-                        break;
-                    }
-                }
-                if (entry_idx == NULL) {
-                    canopen_send_sdo_abort(node, index, subindex, SYN_CANOPEN_SDO_ABORT_NOT_EXIST);
-                } else {
-                    canopen_send_sdo_abort(node, index, subindex,
-                                           SYN_CANOPEN_SDO_ABORT_SUBINDEX_NOT_EXIST);
-                }
-            } else if (entry->access == SYN_CANOPEN_ACCESS_RO) {
-                canopen_send_sdo_abort(node, index, subindex, SYN_CANOPEN_SDO_ABORT_READ_ONLY);
-            } else if ((cmd & 0x02U) != 0) { /* Expedited download */
-                uint8_t n = (cmd >> 2) & 0x03U;
-                size_t write_len = (size_t)(4 - n);
-                if (write_len != entry->size) {
-                    canopen_send_sdo_abort(node, index, subindex,
-                                           SYN_CANOPEN_SDO_ABORT_TYPE_MISMATCH);
-                } else {
-                    (void)syn_canopen_od_write(node, index, subindex, &data[4], write_len);
-                    uint8_t resp[8] = {0x60U, data[1], data[2], data[3], 0, 0, 0, 0};
-                    canopen_queue_tx(node, 0x580U + node->node_id, resp, 8);
-                }
-            } else { /* Segmented download initiate */
-                node->sdo_session.state = SYN_CANOPEN_SDO_SEG_DOWNLOAD;
-                node->sdo_session.index = index;
-                node->sdo_session.subindex = subindex;
-                node->sdo_session.toggle = 0;
-                node->sdo_session.transferred_bytes = 0;
-                node->sdo_session.total_bytes =
-                    (size_t)(data[4] | (data[5] << 8) | (data[6] << 16) | (data[7] << 24));
-                uint8_t resp[8] = {0x60U, data[1], data[2], data[3], 0, 0, 0, 0};
-                canopen_queue_tx(node, 0x580U + node->node_id, resp, 8);
-            }
-            return SYN_OK;
+    if (cob_id == (0x600U + node->node_id) && len == 8U) {
+        if (node->tx_count >= SYN_CANOPEN_TX_QUEUE_DEPTH) {
+            return SYN_BUSY;
         }
-
-        /* SDO Download Segment Request */
-        if ((cmd & 0xE0U) == 0x00U && node->sdo_session.state == SYN_CANOPEN_SDO_SEG_DOWNLOAD) {
-            uint8_t t = (cmd >> 4) & 0x01U;
-            if (t != node->sdo_session.toggle) {
-                canopen_send_sdo_abort(node, node->sdo_session.index, node->sdo_session.subindex,
-                                       SYN_CANOPEN_SDO_ABORT_TOGGLE_BIT);
-                node->sdo_session.state = SYN_CANOPEN_SDO_IDLE;
-                return SYN_OK;
-            }
-
-            const SYN_CANOpenODEntry *entry =
-                canopen_find_od(node, node->sdo_session.index, node->sdo_session.subindex);
-            uint8_t n = (cmd >> 1) & 0x07U;
-            size_t seg_len = 7U - n;
-
-            if (entry != NULL && (node->sdo_session.transferred_bytes + seg_len) <= entry->size) {
-                (void)memcpy((uint8_t *)entry->data_ptr + node->sdo_session.transferred_bytes,
-                             &data[1], seg_len);
-                node->sdo_session.transferred_bytes += seg_len;
-
-                uint8_t resp[8] = {(uint8_t)((t << 4) | 0x20U), 0, 0, 0, 0, 0, 0, 0};
-                canopen_queue_tx(node, 0x580U + node->node_id, resp, 8);
-                node->sdo_session.toggle ^= 1U;
-
-                if ((cmd & 0x01U) != 0) { /* Last segment */
-                    node->sdo_session.state = SYN_CANOPEN_SDO_IDLE;
-                }
-            } else {
-                canopen_send_sdo_abort(node, node->sdo_session.index, node->sdo_session.subindex,
-                                       SYN_CANOPEN_SDO_ABORT_TYPE_MISMATCH);
-                node->sdo_session.state = SYN_CANOPEN_SDO_IDLE;
-            }
-            return SYN_OK;
-        }
-
-        /* SDO Upload (Read Request) */
-        if ((cmd & 0xE0U) == 0x40U) {
-            const SYN_CANOpenODEntry *entry = canopen_find_od(node, index, subindex);
-            if (entry == NULL) {
-                const SYN_CANOpenODEntry *entry_idx = NULL;
-                for (size_t i = 0; i < node->od_count; i++) {
-                    if (node->od_table[i].index == index) {
-                        entry_idx = &node->od_table[i];
-                        break;
-                    }
-                }
-                if (entry_idx == NULL) {
-                    canopen_send_sdo_abort(node, index, subindex, SYN_CANOPEN_SDO_ABORT_NOT_EXIST);
-                } else {
-                    canopen_send_sdo_abort(node, index, subindex,
-                                           SYN_CANOPEN_SDO_ABORT_SUBINDEX_NOT_EXIST);
-                }
-            } else if (entry->access == SYN_CANOPEN_ACCESS_WO) {
-                canopen_send_sdo_abort(node, index, subindex, SYN_CANOPEN_SDO_ABORT_WRITE_ONLY);
-            } else if (entry->size <= 4) {
-                uint8_t read_buf[4] = {0};
-                size_t read_len = 0;
-                if (syn_canopen_od_read(node, index, subindex, read_buf, sizeof(read_buf),
-                                        &read_len) == SYN_OK &&
-                    read_len <= 4) {
-                    uint8_t n = (uint8_t)(4 - read_len);
-                    uint8_t resp[8];
-                    resp[0] = 0x43U | (uint8_t)(n << 2);
-                    resp[1] = data[1];
-                    resp[2] = data[2];
-                    resp[3] = data[3];
-                    (void)memcpy(&resp[4], read_buf, read_len);
-                    if (read_len < 4) {
-                        (void)memset(&resp[4 + read_len], 0, 4 - read_len);
-                    }
-                    canopen_queue_tx(node, 0x580U + node->node_id, resp, 8);
-                } else {
-                    /* clang-format off */
-                    canopen_send_sdo_abort(node, index, subindex, SYN_CANOPEN_SDO_ABORT_TYPE_MISMATCH);
-                    /* clang-format on */
-                }
-            } else { /* Segmented upload initiate */
-                node->sdo_session.state = SYN_CANOPEN_SDO_SEG_UPLOAD;
-                node->sdo_session.index = index;
-                node->sdo_session.subindex = subindex;
-                node->sdo_session.toggle = 0;
-                node->sdo_session.total_bytes = entry->size;
-                node->sdo_session.transferred_bytes = 0;
-
-                uint8_t resp[8] = {0x41U,
-                                   data[1],
-                                   data[2],
-                                   data[3],
-                                   (uint8_t)(entry->size & 0xFFU),
-                                   (uint8_t)((entry->size >> 8) & 0xFFU),
-                                   (uint8_t)((entry->size >> 16) & 0xFFU),
-                                   (uint8_t)((entry->size >> 24) & 0xFFU)};
-                canopen_queue_tx(node, 0x580U + node->node_id, resp, 8);
-            }
-            return SYN_OK;
-        }
-
-        /* SDO Upload Segment Request */
-        if ((cmd & 0xE0U) == 0x60U && node->sdo_session.state == SYN_CANOPEN_SDO_SEG_UPLOAD) {
-            uint8_t t = (cmd >> 4) & 0x01U;
-            if (t != node->sdo_session.toggle) {
-                canopen_send_sdo_abort(node, node->sdo_session.index, node->sdo_session.subindex,
-                                       SYN_CANOPEN_SDO_ABORT_TOGGLE_BIT);
-                node->sdo_session.state = SYN_CANOPEN_SDO_IDLE;
-                return SYN_OK;
-            }
-
-            const SYN_CANOpenODEntry *entry =
-                canopen_find_od(node, node->sdo_session.index, node->sdo_session.subindex);
-            if (entry != NULL) {
-                size_t rem = entry->size - node->sdo_session.transferred_bytes;
-                size_t seg_len = (rem > 7U) ? 7U : rem;
-                uint8_t n = (uint8_t)(7U - seg_len);
-                uint8_t c = (rem <= 7U) ? 1U : 0U;
-
-                uint8_t resp[8] = {0};
-                resp[0] = (uint8_t)((t << 4) | (n << 1) | c);
-                (void)memcpy(&resp[1],
-                             (const uint8_t *)entry->data_ptr + node->sdo_session.transferred_bytes,
-                             seg_len);
-
-                canopen_queue_tx(node, 0x580U + node->node_id, resp, 8);
-                node->sdo_session.transferred_bytes += seg_len;
-                node->sdo_session.toggle ^= 1U;
-
-                if (c != 0) {
-                    node->sdo_session.state = SYN_CANOPEN_SDO_IDLE;
-                }
-            } else {
-                canopen_send_sdo_abort(node, node->sdo_session.index, node->sdo_session.subindex,
-                                       SYN_CANOPEN_SDO_ABORT_NOT_EXIST);
-                node->sdo_session.state = SYN_CANOPEN_SDO_IDLE;
-            }
-            return SYN_OK;
-        }
+        canopen_handle_sdo(node, data);
+        return SYN_OK;
     }
 
-    /* 3. RPDO Processing (Operational State Only) */
     if (node->nmt_state == SYN_CANOPEN_NMT_STATE_OPERATIONAL) {
         for (int i = 0; i < 4; i++) {
-            if (node->cfg.rpdo[i].enabled && node->cfg.rpdo[i].cob_id == cob_id) {
+            if (node->cfg.rpdo[i].enabled != 0U && node->cfg.rpdo[i].cob_id == cob_id) {
                 (void)syn_canopen_od_write(node, node->cfg.rpdo[i].od_index,
                                            node->cfg.rpdo[i].od_subindex, data, len);
                 return SYN_OK;
@@ -410,27 +465,28 @@ SYN_Status syn_canopen_update(SYN_CANOpenNode *node, uint32_t dt_ms)
     }
 
     /* Periodic Heartbeat Producer */
-    if (node->cfg.heartbeat_ms > 0) {
+    if (node->cfg.heartbeat_ms > 0U) {
         node->heartbeat_timer_ms += (uint16_t)dt_ms;
         if (node->heartbeat_timer_ms >= node->cfg.heartbeat_ms) {
-            node->heartbeat_timer_ms = 0;
+            node->heartbeat_timer_ms = 0U;
 
-            uint8_t hb_payload[1];
-            hb_payload[0] = node->nmt_state;
-            canopen_queue_tx(node, 0x700U + node->node_id, hb_payload, 1);
+            uint8_t hb_payload[1] = {node->nmt_state};
+            canopen_queue_tx(node, 0x700U + node->node_id, hb_payload, 1U);
         }
     }
 
-    /* Periodic TPDO Transmission (Operational State Only) */
+    /* Periodic TPDO Transmission (Operational State Only; reserve 2 urgent slots for EMCY/SDO) */
     if (node->nmt_state == SYN_CANOPEN_NMT_STATE_OPERATIONAL) {
         for (int i = 0; i < 4; i++) {
-            if (node->cfg.tpdo[i].enabled && !node->tx_pending) {
+            if (node->cfg.tpdo[i].enabled != 0U &&
+                node->tx_count < (SYN_CANOPEN_TX_QUEUE_DEPTH - 2U)) {
                 uint8_t tpdo_buf[8] = {0};
-                size_t tpdo_len = 0;
+                size_t tpdo_len = 0U;
                 if (syn_canopen_od_read(node, node->cfg.tpdo[i].od_index,
                                         node->cfg.tpdo[i].od_subindex, tpdo_buf, sizeof(tpdo_buf),
                                         &tpdo_len) == SYN_OK) {
-                    canopen_queue_tx(node, node->cfg.tpdo[i].cob_id, tpdo_buf, (uint8_t)tpdo_len);
+                    (void)canopen_queue_tx(node, node->cfg.tpdo[i].cob_id, tpdo_buf,
+                                           (uint8_t)tpdo_len);
                 }
             }
         }
@@ -447,32 +503,41 @@ SYN_Status syn_canopen_send_emcy(SYN_CANOpenNode *node, uint16_t err_code, uint8
 
     uint8_t payload[8] = {0};
     payload[0] = (uint8_t)(err_code & 0xFFU);
-    payload[1] = (uint8_t)((err_code >> 8) & 0xFFU);
+    payload[1] = (uint8_t)((err_code >> 8U) & 0xFFU);
     payload[2] = err_reg;
 
-    canopen_queue_tx(node, 0x080U + node->node_id, payload, 8);
-
-    return SYN_OK;
+    return canopen_queue_tx(node, 0x080U + node->node_id, payload, 8U) ? SYN_OK : SYN_BUSY;
 }
 
 bool syn_canopen_get_tx(SYN_CANOpenNode *node, uint32_t *out_cob_id, uint8_t *out_data,
                         uint8_t *out_len)
 {
-    if (node == NULL || !node->tx_pending) {
+    if (node == NULL || node->tx_count == 0U) {
         return false;
     }
 
+    const SYN_CANOpenTxSlot *slot = &node->tx_queue[node->tx_head];
     if (out_cob_id != NULL) {
-        *out_cob_id = node->tx_cob_id;
+        *out_cob_id = slot->cob_id;
     }
     if (out_data != NULL) {
-        (void)memcpy(out_data, node->tx_data, node->tx_len);
+        (void)memcpy(out_data, slot->data, slot->len);
     }
     if (out_len != NULL) {
-        *out_len = node->tx_len;
+        *out_len = slot->len;
     }
 
-    node->tx_pending = false;
+    node->tx_head = (uint8_t)((node->tx_head + 1U) % SYN_CANOPEN_TX_QUEUE_DEPTH);
+    node->tx_count--;
+    if (node->tx_count > 0U) {
+        const SYN_CANOpenTxSlot *next = &node->tx_queue[node->tx_head];
+        node->tx_cob_id = next->cob_id;
+        (void)memcpy(node->tx_data, next->data, next->len);
+        node->tx_len = next->len;
+        node->tx_pending = true;
+    } else {
+        node->tx_pending = false;
+    }
 
     return true;
 }
@@ -497,8 +562,7 @@ SYN_Status syn_canopen_tpdo_trigger(SYN_CANOpenNode *node, uint8_t pdo_num)
     SYN_Status st =
         syn_canopen_od_read(node, map->od_index, map->od_subindex, payload, sizeof(payload), &len);
     if (st == SYN_OK && len > 0) {
-        canopen_queue_tx(node, map->cob_id, payload, (uint8_t)len);
-        return SYN_OK;
+        return canopen_queue_tx(node, map->cob_id, payload, (uint8_t)len) ? SYN_OK : SYN_BUSY;
     }
 
     return SYN_ERROR;

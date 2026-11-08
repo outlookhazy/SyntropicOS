@@ -9,9 +9,9 @@ import sys
 def run_modbus_server():
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_sock.bind(("127.0.0.1", 5020))
+    server_sock.bind(("0.0.0.0", 5020))
     server_sock.listen(5)
-    print("[Modbus Server] Listening on 127.0.0.1:5020...", flush=True)
+    print("[Modbus Server] Listening on 0.0.0.0:5020...", flush=True)
 
     # Pre-populated registers: Reg 0 = 0x1234, Reg 1 = 0x5678
     registers = [0x1234, 0x5678, 0x9ABC, 0xDEF0]

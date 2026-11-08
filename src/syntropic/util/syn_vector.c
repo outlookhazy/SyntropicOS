@@ -7,6 +7,8 @@
 
 #include "syn_assert.h"
 
+#include <stddef.h>
+
 void syn_vec_add(const q16_t *a, const q16_t *b, q16_t *out, uint16_t n)
 {
     SYN_ASSERT(a != NULL && b != NULL && out != NULL);
@@ -46,55 +48,68 @@ void syn_vec_clamp(const q16_t *v, q16_t min_val, q16_t max_val, q16_t *out, uin
 
 q16_t syn_vec_min(const q16_t *v, uint16_t n)
 {
-    SYN_ASSERT(v != NULL && n > 0);
+    if ((v == NULL) || (n == 0U)) {
+        return 0;
+    }
     q16_t min_v = v[0];
-    for (uint16_t i = 1; i < n; i++) {
-        if (v[i] < min_v)
+    for (uint16_t i = 1U; i < n; i++) {
+        if (v[i] < min_v) {
             min_v = v[i];
+        }
     }
     return min_v;
 }
 
 q16_t syn_vec_max(const q16_t *v, uint16_t n)
 {
-    SYN_ASSERT(v != NULL && n > 0);
+    if ((v == NULL) || (n == 0U)) {
+        return 0;
+    }
     q16_t max_v = v[0];
-    for (uint16_t i = 1; i < n; i++) {
-        if (v[i] > max_v)
+    for (uint16_t i = 1U; i < n; i++) {
+        if (v[i] > max_v) {
             max_v = v[i];
+        }
     }
     return max_v;
 }
 
 q16_t syn_vec_mean(const q16_t *v, uint16_t n)
 {
-    SYN_ASSERT(v != NULL && n > 0);
+    if ((v == NULL) || (n == 0U)) {
+        return 0;
+    }
     int64_t sum = 0;
-    for (uint16_t i = 0; i < n; i++) {
+    for (uint16_t i = 0U; i < n; i++) {
         sum += v[i];
     }
-    return (q16_t)(sum / n);
+    return (q16_t)(sum / (int64_t)n);
 }
 
 q16_t syn_vec_variance(const q16_t *v, uint16_t n)
 {
-    SYN_ASSERT(v != NULL && n > 0);
+    if ((v == NULL) || (n == 0U)) {
+        return 0;
+    }
     q16_t mean = syn_vec_mean(v, n);
     int64_t sum_sq = 0;
-    for (uint16_t i = 0; i < n; i++) {
-        int64_t diff = v[i] - mean;
-        sum_sq += (diff * diff) >> Q16_SHIFT;
+    for (uint16_t i = 0U; i < n; i++) {
+        int64_t diff = (int64_t)v[i] - (int64_t)mean;
+        sum_sq += (int64_t)((uint64_t)(diff * diff) >> Q16_SHIFT);
     }
-    return (q16_t)(sum_sq / n);
+    return (q16_t)(sum_sq / (int64_t)n);
 }
 
 q16_t syn_vec_rms(const q16_t *v, uint16_t n)
 {
-    SYN_ASSERT(v != NULL && n > 0);
-    int64_t sum_sq = 0;
-    for (uint16_t i = 0; i < n; i++) {
-        sum_sq += ((int64_t)v[i] * v[i]) >> Q16_SHIFT;
+    if ((v == NULL) || (n == 0U)) {
+        return 0;
     }
-    q16_t mean_sq = (q16_t)(sum_sq / n);
+    int64_t sum_sq = 0;
+    for (uint16_t i = 0U; i < n; i++) {
+        int64_t sq = (int64_t)v[i] * (int64_t)v[i];
+        sum_sq += (int64_t)((uint64_t)sq >> Q16_SHIFT);
+    }
+    q16_t mean_sq = (q16_t)(sum_sq / (int64_t)n);
     return q16_sqrt(mean_sq);
 }

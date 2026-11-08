@@ -10,10 +10,6 @@
 #ifndef SYN_PORT_USB_HOST_H
 #define SYN_PORT_USB_HOST_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syn_port_usb.h"
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/drivers/syn_usb.h"
@@ -21,6 +17,10 @@ extern "C" {
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Initialize USB Host controller hardware.

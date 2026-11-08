@@ -12,6 +12,7 @@
 #define SYN_SPSC_QUEUE_H
 
 #include "../common/syn_defs.h"
+#include "../pt/syn_pt.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -27,7 +28,7 @@ extern "C" {
 typedef struct {
     uint8_t *buffer;      /**< Pointer to caller-provided element buffer */
     size_t elem_size;     /**< Size of each element in bytes */
-    size_t capacity;      /**< Maximum element capacity */
+    size_t capacity;      /**< Backing slot count (>= 2; usable capacity is capacity - 1) */
     volatile size_t head; /**< Write index (Producer modifies) */
     volatile size_t tail; /**< Read index (Consumer modifies) */
 } SYN_SPSC_Queue;
@@ -37,8 +38,8 @@ typedef struct {
  * @param q Pointer to queue control structure.
  * @param elem_buf Pointer to caller-provided backing memory buffer.
  * @param elem_size Size of each element in bytes (must be > 0).
- * @param capacity Number of elements buffer can hold (must be > 0).
- * @return SYN_OK on success.
+ * @param capacity Number of backing element slots (must be >= 2; usable capacity is capacity - 1).
+ * @return SYN_OK on success, or SYN_INVALID_PARAM on invalid arguments.
  */
 SYN_Status syn_spsc_queue_init(SYN_SPSC_Queue *q, void *elem_buf, size_t elem_size,
                                size_t capacity);
@@ -82,8 +83,6 @@ size_t syn_spsc_queue_count(const SYN_SPSC_Queue *q);
 
 /* ── Protothread & Task Integration ─────────────────────────────────────── */
 
-#include "../pt/syn_pt.h"
-
 /**
  * @brief Wait until SPSC queue is not empty (polling).
  */
@@ -91,6 +90,7 @@ size_t syn_spsc_queue_count(const SYN_SPSC_Queue *q);
 
 /**
  * @brief Block task execution (SYN_TASK_BLOCKED) until SPSC queue is not empty.
+ * @note Producer calling syn_spsc_queue_push() must call syn_task_resume(task) to wake @p task.
  */
 #define PT_BLOCK_QUEUE_POP(pt, task, q) PT_BLOCK_CONDITION(pt, task, !syn_spsc_queue_is_empty(q))
 

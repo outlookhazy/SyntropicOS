@@ -12,15 +12,15 @@
 #ifndef SYN_UDS_UTIL_H
 #define SYN_UDS_UTIL_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Parse a 5, 6, or 7-character SAE J2012 DTC string into a 24-bit UDS integer.

@@ -29,13 +29,19 @@ extern "C" {
 
 /* ── Mutex Control Structure ────────────────────────────────────────────── */
 
+/** @brief Maximum concurrent priority-tracked waiters per mutex. */
+#ifndef SYN_MUTEX_MAX_WAITERS
+#define SYN_MUTEX_MAX_WAITERS 4U
+#endif
+
 /**
  * @brief Priority-inheriting recursive mutex structure.
  */
 typedef struct SYN_Mutex {
-    SYN_Task *owner;       /**< Pointer to current owner task (NULL if unlocked) */
-    uint16_t lock_count;   /**< Recursive lock acquisition depth                 */
-    uint8_t original_prio; /**< Base priority of owner before mutex boost       */
+    SYN_Task *owner;                          /**< Current owner task (NULL if unlocked) */
+    SYN_Task *waiters[SYN_MUTEX_MAX_WAITERS]; /**< Active contended waiter tasks         */
+    struct SYN_Mutex *next_held;              /**< Next mutex held by owner              */
+    uint16_t lock_count;                      /**< Recursive lock acquisition depth      */
 } SYN_Mutex;
 
 /* ── Public API ─────────────────────────────────────────────────────────── */
@@ -59,6 +65,19 @@ SYN_Status syn_mutex_init(SYN_Mutex *mutex);
  * @return SYN_OK if acquired, SYN_BUSY if held by another task, or SYN_INVALID_PARAM.
  */
 SYN_Status syn_mutex_try_lock(SYN_Mutex *mutex, SYN_Task *task);
+
+/**
+ * @brief Probe and acquire the mutex without registering as a contended waiter.
+ *
+ * Acquires an unlocked or recursively-held mutex like syn_mutex_try_lock(),
+ * but on contention returns SYN_BUSY without adding @p task to the waiter list
+ * or boosting the current owner.
+ *
+ * @param mutex Pointer to mutex structure.
+ * @param task  Pointer to acquiring task (optional, NULL for standalone lock).
+ * @return SYN_OK if acquired, SYN_BUSY if held by another task, or SYN_INVALID_PARAM.
+ */
+SYN_Status syn_mutex_probe(SYN_Mutex *mutex, SYN_Task *task);
 
 /**
  * @brief Release a previously acquired mutex.
@@ -96,8 +115,9 @@ SYN_Task *syn_mutex_get_owner(const SYN_Mutex *mutex);
 /**
  * @brief Block the protothread until the mutex is acquired.
  *
- * Cooperatively waits via PT_WAIT_UNTIL. On contention, automatically boosts
- * the holding task's priority to prevent unbounded priority inversion.
+ * Cooperatively waits via PT_WAIT_UNTIL (polled; keeps task READY and prevents
+ * tickless sleep while contended). On contention, automatically boosts the
+ * holding task's priority to prevent unbounded priority inversion.
  *
  * @param pt    Protothread control block.
  * @param task  Pointer to calling SYN_Task.
@@ -121,7 +141,7 @@ SYN_Task *syn_mutex_get_owner(const SYN_Mutex *mutex);
  * @param task  Pointer to calling SYN_Task.
  * @return true if acquired, false if busy.
  */
-#define PT_MUTEX_TRYLOCK(mutex, task) (syn_mutex_try_lock((mutex), (task)) == SYN_OK)
+#define PT_MUTEX_TRYLOCK(mutex, task) (syn_mutex_probe((mutex), (task)) == SYN_OK)
 
 #ifdef __cplusplus
 }

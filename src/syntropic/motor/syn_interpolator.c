@@ -21,6 +21,57 @@
 #endif
 /** @endcond */
 
+/**
+ * @brief Evaluate 3D cubic Bezier position B(u) at parameter u in [0, 1].
+ * @param p0 Start control point.
+ * @param p1 First interior control point.
+ * @param p2 Second interior control point.
+ * @param p3 End control point.
+ * @param u  Curve parameter in [0, 1].
+ * @return Evaluated 3D position on the curve.
+ */
+static SYN_Vector3F interp_eval_bezier_pos(SYN_Vector3F p0, SYN_Vector3F p1, SYN_Vector3F p2,
+                                           SYN_Vector3F p3, float u)
+{
+    float u_inv = 1.0f - u;
+    float b0 = u_inv * u_inv * u_inv;
+    float b1 = 3.0f * u_inv * u_inv * u;
+    float b2 = 3.0f * u_inv * u * u;
+    float b3 = u * u * u;
+
+    SYN_Vector3F pt = {
+        .x = (b0 * p0.x) + (b1 * p1.x) + (b2 * p2.x) + (b3 * p3.x),
+        .y = (b0 * p0.y) + (b1 * p1.y) + (b2 * p2.y) + (b3 * p3.y),
+        .z = (b0 * p0.z) + (b1 * p1.z) + (b2 * p2.z) + (b3 * p3.z),
+    };
+    return pt;
+}
+
+/**
+ * @brief Evaluate 3D cubic Bezier tangent derivative B'(u).
+ * @param p0 Start control point.
+ * @param p1 First interior control point.
+ * @param p2 Second interior control point.
+ * @param p3 End control point.
+ * @param u  Curve parameter in [0, 1].
+ * @return First derivative vector dB/du at u.
+ */
+static SYN_Vector3F interp_eval_bezier_deriv(SYN_Vector3F p0, SYN_Vector3F p1, SYN_Vector3F p2,
+                                             SYN_Vector3F p3, float u)
+{
+    float u_inv = 1.0f - u;
+    float c0 = 3.0f * u_inv * u_inv;
+    float c1 = 6.0f * u_inv * u;
+    float c2 = 3.0f * u * u;
+
+    SYN_Vector3F d = {
+        .x = (c0 * (p1.x - p0.x)) + (c1 * (p2.x - p1.x)) + (c2 * (p3.x - p2.x)),
+        .y = (c0 * (p1.y - p0.y)) + (c1 * (p2.y - p1.y)) + (c2 * (p3.y - p2.y)),
+        .z = (c0 * (p1.z - p0.z)) + (c1 * (p2.z - p1.z)) + (c2 * (p3.z - p2.z)),
+    };
+    return d;
+}
+
 void syn_interpolator_init(SYN_Interpolator *interp)
 {
     SYN_ASSERT(interp != NULL);
@@ -33,8 +84,9 @@ SYN_Status syn_interpolator_plan_linear(SYN_Interpolator *interp, SYN_Vector3F s
                                         float max_jerk, float step_res)
 {
     SYN_ASSERT(interp != NULL);
-    if (feedrate <= 0.0f || step_res <= 0.0f)
+    if (feedrate <= 0.0f || step_res <= 0.0f) {
         return SYN_INVALID_PARAM;
+    }
 
     memset(interp, 0, sizeof(SYN_Interpolator));
     interp->mode = SYN_INTERP_MODE_LINEAR;
@@ -46,16 +98,16 @@ SYN_Status syn_interpolator_plan_linear(SYN_Interpolator *interp, SYN_Vector3F s
     float dy = target.y - start.y;
     float dz = target.z - start.z;
 
-    interp->total_length = sqrtf(dx * dx + dy * dy + dz * dz);
+    interp->total_length = sqrtf((dx * dx) + (dy * dy) + (dz * dz));
     if (interp->total_length < 1e-6f) {
         interp->mode = SYN_INTERP_MODE_IDLE;
         return SYN_OK;
     }
 
     interp->total_steps = (uint32_t)(interp->total_length / step_res);
-    if (interp->total_steps == 0)
-        interp->total_steps =
-            1; /* LCOV_EXCL_LINE: Defensive bounds check / hardware port fallback */
+    if (interp->total_steps == 0U) {
+        interp->total_steps = 1U;
+    }
 
     interp->target_feedrate = feedrate;
 
@@ -156,11 +208,14 @@ bool syn_interpolator_step(SYN_Interpolator *interp, SYN_Vector3F *out_pos)
 
     if (interp->mode == SYN_INTERP_MODE_LINEAR) {
         interp->current_pos.x =
-            interp->start_pos.x + ratio * (interp->target_pos.x - interp->start_pos.x);
+            interp->start_pos.x + (ratio * (interp->target_pos.x - interp->start_pos.x));
         interp->current_pos.y =
-            interp->start_pos.y + ratio * (interp->target_pos.y - interp->start_pos.y);
+            interp->start_pos.y + (ratio * (interp->target_pos.y - interp->start_pos.y));
         interp->current_pos.z =
-            interp->start_pos.z + ratio * (interp->target_pos.z - interp->start_pos.z);
+            interp->start_pos.z + (ratio * (interp->target_pos.z - interp->start_pos.z));
+    } else if (interp->mode == SYN_INTERP_MODE_BEZIER) {
+        interp->current_pos = interp_eval_bezier_pos(interp->start_pos, interp->bezier_p1,
+                                                     interp->bezier_p2, interp->target_pos, ratio);
     } else {
         float cx = interp->start_pos.x + interp->center_offset.x;
         float cy = interp->start_pos.y + interp->center_offset.y;
@@ -181,6 +236,91 @@ bool syn_interpolator_step(SYN_Interpolator *interp, SYN_Vector3F *out_pos)
     return true;
 }
 
+/**
+ * @brief Evaluate linear segment position and optional velocity at normalized ratio.
+ * @param interp     Interpolator instance.
+ * @param ratio      Normalized path ratio in [0, 1].
+ * @param scurve_vel Instantaneous S-curve scalar speed.
+ * @param out_pos    Output 3D position.
+ * @param out_vel    Optional output 3D velocity.
+ */
+static void interp_eval_linear_at(const SYN_Interpolator *interp, float ratio, int32_t scurve_vel,
+                                  SYN_Vector3F *out_pos, SYN_Vector3F *out_vel)
+{
+    float dx = interp->target_pos.x - interp->start_pos.x;
+    float dy = interp->target_pos.y - interp->start_pos.y;
+    float dz = interp->target_pos.z - interp->start_pos.z;
+    out_pos->x = interp->start_pos.x + (ratio * dx);
+    out_pos->y = interp->start_pos.y + (ratio * dy);
+    out_pos->z = interp->start_pos.z + (ratio * dz);
+
+    if (out_vel != NULL) {
+        float scale =
+            (interp->total_length > 1e-6f) ? ((float)scurve_vel / interp->total_length) : 0.0f;
+        out_vel->x = dx * scale;
+        out_vel->y = dy * scale;
+        out_vel->z = dz * scale;
+    }
+}
+
+/**
+ * @brief Evaluate cubic Bezier curve position and optional velocity at normalized ratio.
+ * @param interp     Interpolator instance.
+ * @param ratio      Normalized curve parameter u in [0, 1].
+ * @param scurve_vel Instantaneous S-curve scalar speed.
+ * @param out_pos    Output 3D position.
+ * @param out_vel    Optional output 3D velocity.
+ */
+static void interp_eval_bezier_at(const SYN_Interpolator *interp, float ratio, int32_t scurve_vel,
+                                  SYN_Vector3F *out_pos, SYN_Vector3F *out_vel)
+{
+    *out_pos = interp_eval_bezier_pos(interp->start_pos, interp->bezier_p1, interp->bezier_p2,
+                                      interp->target_pos, ratio);
+
+    if (out_vel != NULL) {
+        SYN_Vector3F tang = interp_eval_bezier_deriv(interp->start_pos, interp->bezier_p1,
+                                                     interp->bezier_p2, interp->target_pos, ratio);
+        float tang_norm = sqrtf((tang.x * tang.x) + (tang.y * tang.y) + (tang.z * tang.z));
+        if (tang_norm > 1e-6f) {
+            float scale = (float)scurve_vel / tang_norm;
+            out_vel->x = tang.x * scale;
+            out_vel->y = tang.y * scale;
+            out_vel->z = tang.z * scale;
+        } else {
+            memset(out_vel, 0, sizeof(SYN_Vector3F));
+        }
+    }
+}
+
+/**
+ * @brief Evaluate circular arc position and optional velocity at normalized ratio.
+ * @param interp     Interpolator instance.
+ * @param ratio      Normalized path ratio in [0, 1].
+ * @param scurve_vel Instantaneous S-curve scalar speed.
+ * @param out_pos    Output 3D position.
+ * @param out_vel    Optional output 3D velocity.
+ */
+static void interp_eval_circular_at(const SYN_Interpolator *interp, float ratio, int32_t scurve_vel,
+                                    SYN_Vector3F *out_pos, SYN_Vector3F *out_vel)
+{
+    float cx = interp->start_pos.x + interp->center_offset.x;
+    float cy = interp->start_pos.y + interp->center_offset.y;
+
+    float angle = interp->start_angle + ratio * interp->sweep_angle;
+    out_pos->x = cx + interp->radius * cosf(angle);
+    out_pos->y = cy + interp->radius * sinf(angle);
+    out_pos->z = interp->start_pos.z + ratio * (interp->target_pos.z - interp->start_pos.z);
+
+    if (out_vel != NULL) {
+        float vel_mag = (float)scurve_vel;
+        float tangent_angle =
+            angle + (interp->sweep_angle >= 0.0f ? (float)(M_PI / 2.0) : -(float)(M_PI / 2.0));
+        out_vel->x = vel_mag * cosf(tangent_angle);
+        out_vel->y = vel_mag * sinf(tangent_angle);
+        out_vel->z = 0.0f;
+    }
+}
+
 bool syn_interpolator_eval_at_time(SYN_Interpolator *interp, float t_sec, SYN_Vector3F *out_pos,
                                    SYN_Vector3F *out_vel)
 {
@@ -189,8 +329,9 @@ bool syn_interpolator_eval_at_time(SYN_Interpolator *interp, float t_sec, SYN_Ve
 
     if (interp->mode == SYN_INTERP_MODE_IDLE) {
         *out_pos = interp->current_pos;
-        if (out_vel)
+        if (out_vel) {
             memset(out_vel, 0, sizeof(SYN_Vector3F));
+        }
         return false;
     }
 
@@ -199,43 +340,20 @@ bool syn_interpolator_eval_at_time(SYN_Interpolator *interp, float t_sec, SYN_Ve
     int32_t scurve_vel = syn_scurve_velocity(&interp->scurve);
 
     float ratio =
-        (interp->total_steps > 0) ? ((float)scurve_pos / (float)interp->total_steps) : 1.0f;
-    if (ratio > 1.0f)
+        (interp->total_steps > 0U) ? ((float)scurve_pos / (float)interp->total_steps) : 1.0f;
+    if (ratio > 1.0f) {
         ratio = 1.0f;
-    if (ratio < 0.0f)
+    }
+    if (ratio < 0.0f) {
         ratio = 0.0f; /* LCOV_EXCL_LINE: Defensive bounds check / hardware port fallback */
+    }
 
     if (interp->mode == SYN_INTERP_MODE_LINEAR) {
-        out_pos->x = interp->start_pos.x + ratio * (interp->target_pos.x - interp->start_pos.x);
-        out_pos->y = interp->start_pos.y + ratio * (interp->target_pos.y - interp->start_pos.y);
-        out_pos->z = interp->start_pos.z + ratio * (interp->target_pos.z - interp->start_pos.z);
-
-        if (out_vel && interp->total_length > 0.0f) {
-            float vel_mag = (float)scurve_vel;
-            out_vel->x =
-                vel_mag * (interp->target_pos.x - interp->start_pos.x) / interp->total_length;
-            out_vel->y =
-                vel_mag * (interp->target_pos.y - interp->start_pos.y) / interp->total_length;
-            out_vel->z =
-                vel_mag * (interp->target_pos.z - interp->start_pos.z) / interp->total_length;
-        }
+        interp_eval_linear_at(interp, ratio, scurve_vel, out_pos, out_vel);
+    } else if (interp->mode == SYN_INTERP_MODE_BEZIER) {
+        interp_eval_bezier_at(interp, ratio, scurve_vel, out_pos, out_vel);
     } else {
-        float cx = interp->start_pos.x + interp->center_offset.x;
-        float cy = interp->start_pos.y + interp->center_offset.y;
-
-        float angle = interp->start_angle + ratio * interp->sweep_angle;
-        out_pos->x = cx + interp->radius * cosf(angle);
-        out_pos->y = cy + interp->radius * sinf(angle);
-        out_pos->z = interp->start_pos.z + ratio * (interp->target_pos.z - interp->start_pos.z);
-
-        if (out_vel) {
-            float vel_mag = (float)scurve_vel;
-            float tangent_angle =
-                angle + (interp->sweep_angle >= 0.0f ? (float)(M_PI / 2.0) : -(float)(M_PI / 2.0));
-            out_vel->x = vel_mag * cosf(tangent_angle);
-            out_vel->y = vel_mag * sinf(tangent_angle);
-            out_vel->z = 0.0f;
-        }
+        interp_eval_circular_at(interp, ratio, scurve_vel, out_pos, out_vel);
     }
 
     (void)t_sec;
@@ -246,35 +364,50 @@ SYN_Status syn_interpolator_plan_bezier(SYN_Interpolator *interp, SYN_Vector3F p
                                         SYN_Vector3F p2, SYN_Vector3F p3, float feedrate,
                                         float max_accel, float max_jerk, float step_res)
 {
-    if (!interp || feedrate <= 0.0f || max_accel <= 0.0f || max_jerk <= 0.0f || step_res <= 0.0f)
-        return SYN_INVALID_PARAM; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter
-                                     fallback */
+    if (interp == NULL || feedrate <= 0.0f || max_accel <= 0.0f || max_jerk <= 0.0f ||
+        step_res <= 0.0f) {
+        return SYN_INVALID_PARAM;
+    }
 
-    /* Approximate curve chord length using 10 segments */
+    /* Approximate cubic Bezier arc length across 32 chord subdivisions */
     float approx_len = 0.0f;
     SYN_Vector3F prev = p0;
 
-    for (int i = 1; i <= 10; i++) {
-        float u = (float)i / 10.0f;
-        float u_inv = 1.0f - u;
-        float b0 = u_inv * u_inv * u_inv;
-        float b1 = 3.0f * u_inv * u_inv * u;
-        float b2 = 3.0f * u_inv * u * u;
-        float b3 = u * u * u;
-
-        SYN_Vector3F pt = {.x = b0 * p0.x + b1 * p1.x + b2 * p2.x + b3 * p3.x,
-                           .y = b0 * p0.y + b1 * p1.y + b2 * p2.y + b3 * p3.y,
-                           .z = b0 * p0.z + b1 * p1.z + b2 * p2.z + b3 * p3.z};
-
+    for (uint32_t i = 1U; i <= 32U; i++) {
+        float u = (float)i * (1.0f / 32.0f);
+        SYN_Vector3F pt = interp_eval_bezier_pos(p0, p1, p2, p3, u);
         float dx = pt.x - prev.x;
         float dy = pt.y - prev.y;
         float dz = pt.z - prev.z;
-        approx_len += sqrtf(dx * dx + dy * dy + dz * dz);
+        approx_len += sqrtf((dx * dx) + (dy * dy) + (dz * dz));
         prev = pt;
     }
 
-    (void)approx_len;
-    return syn_interpolator_plan_linear(interp, p0, p3, feedrate, max_accel, max_jerk, step_res);
+    memset(interp, 0, sizeof(SYN_Interpolator));
+    interp->mode = SYN_INTERP_MODE_BEZIER;
+    interp->start_pos = p0;
+    interp->bezier_p1 = p1;
+    interp->bezier_p2 = p2;
+    interp->target_pos = p3;
+    interp->current_pos = p0;
+    interp->total_length = approx_len;
+
+    if (approx_len < 1e-6f) {
+        interp->mode = SYN_INTERP_MODE_IDLE;
+        return SYN_OK;
+    }
+
+    interp->total_steps = (uint32_t)(approx_len / step_res);
+    if (interp->total_steps == 0U) {
+        interp->total_steps = 1U;
+    }
+    interp->target_feedrate = feedrate;
+
+    syn_scurve_init(&interp->scurve, 0);
+    syn_scurve_set_constraints(&interp->scurve, (int32_t)(feedrate / step_res),
+                               (int32_t)(max_accel / step_res), (int32_t)(max_jerk / step_res));
+    syn_scurve_set_target(&interp->scurve, (int32_t)interp->total_steps);
+    return SYN_OK;
 }
 
 #endif /* SYN_USE_INTERPOLATOR */

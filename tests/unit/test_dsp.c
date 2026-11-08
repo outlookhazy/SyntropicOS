@@ -6,8 +6,6 @@
 #include "syntropic/dsp/syn_dsp.h"
 #include "unity/unity.h"
 
-#include <math.h>
-
 void test_dsp_dct2_null_params(void)
 {
     q7_t in[8] = {0};
@@ -46,7 +44,9 @@ static void test_dsp_dct2_q7_n_16(void)
         in[i] = Q7_FROM_FLOAT(0.2f);
     }
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dsp_dct2_q7(in, 16, out, 8));
-    TEST_ASSERT_INT8_WITHIN(10, Q7_FROM_FLOAT(0.7f), out[0]);
+    /* X_0 = sqrt(1/16) * 16 * (25/128) = 4 * (25/128) = 100/128 (Q7 = 100) */
+    TEST_ASSERT_INT8_WITHIN(2, 100, out[0]);
+    TEST_ASSERT_INT8_WITHIN(2, 0, out[1]);
 }
 
 static void test_dsp_dct2_q7_zero(void)
@@ -59,10 +59,31 @@ static void test_dsp_dct2_q7_zero(void)
     }
 }
 
+static void test_r5_dsp_dct2_fixed_point_saturation(void)
+{
+    q7_t pos_in[16];
+    q7_t neg_in[16];
+    q7_t out[4];
+
+    for (size_t i = 0U; i < 16U; i++) {
+        pos_in[i] = (q7_t)127;
+        neg_in[i] = (q7_t)-128;
+    }
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dsp_dct2_q7(pos_in, 16U, out, 4U));
+    TEST_ASSERT_EQUAL_INT8(127, out[0]);
+    TEST_ASSERT_INT8_WITHIN(2, 0, out[1]);
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dsp_dct2_q7(neg_in, 16U, out, 4U));
+    TEST_ASSERT_EQUAL_INT8(-128, out[0]);
+    TEST_ASSERT_INT8_WITHIN(2, 0, out[1]);
+}
+
 void run_dsp_tests(void)
 {
     RUN_TEST(test_dsp_dct2_null_params);
     RUN_TEST(test_dsp_dct2_dc_constant);
     RUN_TEST(test_dsp_dct2_q7_n_16);
     RUN_TEST(test_dsp_dct2_q7_zero);
+    RUN_TEST(test_r5_dsp_dct2_fixed_point_saturation);
 }

@@ -81,11 +81,12 @@ static void test_dali_slave_commands(void)
     TEST_ASSERT_EQUAL(0, slave.actual_level);
     TEST_ASSERT_FALSE(slave.lamp_on);
 
-    /* Step Up */
+    /* Step Up while lamp OFF does NOT turn on per IEC 62386-102 */
     raw_cmd = syn_dali_encode_forward((5 << 1) | 1, SYN_DALI_CMD_STEP_UP);
     syn_dali_decode_forward(raw_cmd, &req);
     TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp_data, &has_resp));
-    TEST_ASSERT_EQUAL(1, slave.actual_level);
+    TEST_ASSERT_EQUAL(0, slave.actual_level);
+    TEST_ASSERT_FALSE(slave.lamp_on);
 
     /* Recall Max */
     raw_cmd = syn_dali_encode_forward((5 << 1) | 1, SYN_DALI_CMD_RECALL_MAX);
@@ -208,14 +209,15 @@ static void test_dali_forward_frame_settling_and_timing(void)
 
     syn_dali_decode_forward(syn_dali_encode_forward((10 << 1) | 1, SYN_DALI_CMD_RESET), &req);
     syn_dali_slave_process(&slave, &req, &resp_data, &has_resp);
-    TEST_ASSERT_EQUAL(200, slave.actual_level);
+    TEST_ASSERT_EQUAL(254, slave.actual_level);
+    slave.cfg.group_mask = 0x0505U;
 
     /* Store DTR registers */
     slave.dtr0 = 120;
     syn_dali_decode_forward(
         syn_dali_encode_forward((10 << 1) | 1, SYN_DALI_CMD_STORE_ACTUAL_LEVEL_IN_DTR), &req);
     syn_dali_slave_process(&slave, &req, &resp_data, &has_resp);
-    TEST_ASSERT_EQUAL(200, slave.dtr0);
+    TEST_ASSERT_EQUAL(254, slave.dtr0);
 
     slave.dtr0 = 15;
     syn_dali_decode_forward(
@@ -470,10 +472,85 @@ static void test_dali_forward_frame_settling_and_timing(void)
     TEST_ASSERT_EQUAL_HEX8((1U << 0) | (1U << 1) | (1U << 2) | (1U << 6), resp_data);
 }
 
+static void test_r5_dali_iec62386_reset_and_up_commands(void)
+{
+    SYN_DALI_SlaveConfig cfg = {
+        .short_address = 3U,
+        .power_on_level = 120U,
+        .system_failure_level = 80U,
+        .min_level = 10U,
+        .max_level = 200U,
+        .fade_time = 4U,
+        .fade_rate = 3U,
+        .group_mask = 0x1234U,
+    };
+    SYN_DALI_SlaveState slave;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_init(&slave, &cfg));
+    slave.scenes[0] = 99U;
+    slave.dapc_sequence_active = true;
+    slave.write_mem_enabled = true;
+
+    SYN_DALI_ForwardFrame req;
+    uint8_t resp = 0U;
+    bool has_resp = false;
+
+    /* 1. Turn lamp OFF: UP and STEP_UP must NOT turn lamp on */
+    syn_dali_decode_forward(syn_dali_encode_forward((3U << 1) | 1U, SYN_DALI_CMD_OFF), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_FALSE(slave.lamp_on);
+    TEST_ASSERT_EQUAL_UINT8(0U, slave.actual_level);
+
+    syn_dali_decode_forward(syn_dali_encode_forward((3U << 1) | 1U, SYN_DALI_CMD_UP), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_FALSE(slave.lamp_on);
+    TEST_ASSERT_EQUAL_UINT8(0U, slave.actual_level);
+
+    syn_dali_decode_forward(syn_dali_encode_forward((3U << 1) | 1U, SYN_DALI_CMD_STEP_UP), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_FALSE(slave.lamp_on);
+    TEST_ASSERT_EQUAL_UINT8(0U, slave.actual_level);
+
+    /* ON_AND_STEP_UP turns lamp ON at min_level (10), then UP/STEP_UP increment */
+    syn_dali_decode_forward(syn_dali_encode_forward((3U << 1) | 1U, SYN_DALI_CMD_ON_AND_STEP_UP),
+                            &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_TRUE(slave.lamp_on);
+    TEST_ASSERT_EQUAL_UINT8(10U, slave.actual_level);
+
+    syn_dali_decode_forward(syn_dali_encode_forward((3U << 1) | 1U, SYN_DALI_CMD_STEP_UP), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_EQUAL_UINT8(11U, slave.actual_level);
+
+    /* 2. IEC 62386-102 Table 11 RESET restores factory operating parameters (preserving short_addr)
+     */
+    syn_dali_decode_forward(syn_dali_encode_forward((3U << 1) | 1U, SYN_DALI_CMD_RESET), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_EQUAL_UINT8(254U, slave.actual_level);
+    TEST_ASSERT_TRUE(slave.lamp_on);
+    TEST_ASSERT_EQUAL_UINT8(254U, slave.cfg.power_on_level);
+    TEST_ASSERT_EQUAL_UINT8(254U, slave.cfg.system_failure_level);
+    TEST_ASSERT_EQUAL_UINT8(1U, slave.cfg.min_level);
+    TEST_ASSERT_EQUAL_UINT8(254U, slave.cfg.max_level);
+    TEST_ASSERT_EQUAL_UINT8(0U, slave.cfg.fade_time);
+    TEST_ASSERT_EQUAL_UINT8(7U, slave.cfg.fade_rate);
+    TEST_ASSERT_EQUAL_UINT16(0U, slave.cfg.group_mask);
+    TEST_ASSERT_EQUAL_UINT8(SYN_DALI_MASK_LEVEL, slave.scenes[0]);
+    TEST_ASSERT_EQUAL_UINT8(3U, slave.cfg.short_address);
+    TEST_ASSERT_FALSE(slave.dapc_sequence_active);
+    TEST_ASSERT_FALSE(slave.write_mem_enabled);
+
+    /* Direct Arc Power with MASK_LEVEL (0xFF) leaves actual_level and lamp_on unchanged */
+    syn_dali_decode_forward(syn_dali_encode_forward(3U << 1, SYN_DALI_MASK_LEVEL), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_EQUAL_UINT8(254U, slave.actual_level);
+    TEST_ASSERT_TRUE(slave.lamp_on);
+}
+
 void run_dali_tests(void)
 {
     RUN_TEST(test_dali_frame_codec);
     RUN_TEST(test_dali_slave_commands);
     RUN_TEST(test_dali_manchester_codec);
     RUN_TEST(test_dali_forward_frame_settling_and_timing);
+    RUN_TEST(test_r5_dali_iec62386_reset_and_up_commands);
 }

@@ -35,7 +35,7 @@ static int8_t         wdt_healthy_id = -1;
 static int8_t         wdt_faulty_id  = -1;
 
 static SYN_Sched sched;
-static SYN_Task  tasks[3];
+static SYN_Task  tasks[4];
 static SYN_LED   status_led;
 
 #define STATUS_LED_PIN 7  /* Pin 7 status LED */
@@ -130,11 +130,12 @@ void setup()
     syn_led_blink(&status_led, 200, 200);
 
     /* 4. Register Scheduler Tasks */
-    syn_task_create(&tasks[0], "wdt_mon",  watchdog_task, 1, NULL);
-    syn_task_create(&tasks[1], "healthy",  healthy_task,  2, NULL);
-    syn_task_create(&tasks[2], "faulty",   faulty_task,   3, NULL);
+    syn_task_create(&tasks[0], "wdt_mon",  watchdog_task, SYN_PRIO_HIGH,   NULL);
+    syn_task_create(&tasks[1], "healthy",  healthy_task,  SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks[2], "faulty",   faulty_task,   SYN_PRIO_LOW,    NULL);
+    syn_task_create(&tasks[3], "blink",    blink_task,    SYN_PRIO_LOW,    NULL);
 
-    syn_sched_init(&sched, tasks, 3);
+    syn_sched_init(&sched, tasks, 4);
 
     Serial.println(F("SyntropicOS Scheduler Running. Watchdog active."));
 }

@@ -34,7 +34,7 @@ static SYN_PT_Status task_gcr_rx_func(SYN_PT *pt, SYN_Task *task)
     while (1) {
         uint32_t raw_gcr = 0xAA555;
         (void)syn_dshot_parse_telemetry(raw_gcr, MOTOR_POLE_PAIRS, &s_latest_telemetry);
-        PT_YIELD(pt);
+        PT_PASS(pt);
     }
 
     PT_END(pt);
@@ -60,8 +60,9 @@ static SYN_PT_Status task_telem_log_func(SYN_PT *pt, SYN_Task *task)
 
 int main_sched(void)
 {
-    syn_task_create(&s_tasks[TASK_GCR_RX],    "GcrRx",    task_gcr_rx_func,    1, NULL);
-    syn_task_create(&s_tasks[TASK_TELEM_LOG], "TelemLog", task_telem_log_func, 2, NULL);
+    syn_task_create(&s_tasks[TASK_GCR_RX], "GcrRx", task_gcr_rx_func, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&s_tasks[TASK_TELEM_LOG], "TelemLog", task_telem_log_func, SYN_PRIO_NORMAL,
+                    NULL);
 
     syn_sched_init(&s_sched, s_tasks, TASK_COUNT);
 

@@ -17,6 +17,7 @@
 #define IPPROTO_UDP 17
 #define INADDR_ANY 0UL
 #define IP_ADD_MEMBERSHIP 35
+#define MSG_DONTWAIT 0x40
 
 typedef int socklen_t;
 

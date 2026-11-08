@@ -239,7 +239,7 @@ static void test_canopen_rpdo_tpdo_emcy(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x205U, rpdo1, 2));
     TEST_ASSERT_EQUAL_UINT16(800, od_target_speed);
 
-    /* Periodic Update for TPDO & Heartbeat */
+    /* Periodic Update for TPDO & Heartbeat (both queued in TX FIFO on same tick) */
     TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_update(&node, 500));
 
     uint32_t tx_id = 0;
@@ -248,7 +248,6 @@ static void test_canopen_rpdo_tpdo_emcy(void)
     TEST_ASSERT_EQUAL(0x705U, tx_id);    /* Heartbeat */
     TEST_ASSERT_EQUAL(0x05U, tx_buf[0]); /* Operational state */
 
-    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_update(&node, 0));
     TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
     TEST_ASSERT_EQUAL(0x185U, tx_id); /* TPDO1 */
     TEST_ASSERT_EQUAL(2, tx_len);
@@ -494,7 +493,7 @@ static void test_canopen_sdo_segmented_toggle_bit_mismatch(void)
 
     uint32_t tx_id;
     uint8_t tx_buf[8], tx_len;
-    syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len);
+    (void)syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len); /* Drain bootup frame */
 
     /* Initiate segmented upload of 0x2003:0x00 */
     uint8_t up_init[8] = {0x40U, 0x03U, 0x20U, 0x00U, 0, 0, 0, 0};
@@ -527,6 +526,7 @@ static void test_canopen_sdo_segmented_download_invalid_data(void)
 
     uint32_t tx_id;
     uint8_t tx_buf[8], tx_len;
+    (void)syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len); /* Drain bootup frame */
 
     /* Initiate segmented download of 0x2003:0x00 */
     uint8_t dn_init[8] = {0x20U, 0x03U, 0x20U, 0x00U, 8, 0, 0, 0};
@@ -548,7 +548,7 @@ static void test_canopen_sdo_expedited_transfer_aborts(void)
 
     uint32_t tx_id;
     uint8_t tx_buf[8], tx_len;
-    syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len);
+    (void)syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len); /* Drain bootup frame */
 
     /* 1. OD read on Write-Only object -> SYN_ERROR */
     uint8_t buf[4];
@@ -608,6 +608,7 @@ static void test_canopen_sdo_expedited_transfer_aborts(void)
     cfg_large.node_id = 5;
     SYN_CANOpenNode node_large;
     syn_canopen_init(&node_large, &cfg_large, &od_large, 1);
+    (void)syn_canopen_get_tx(&node_large, &tx_id, tx_buf, &tx_len);
     syn_canopen_process_rx(&node_large, 0x000U, NULL, 0); /* Enter OPERATIONAL */
 
     uint8_t sdo_up_large[8] = {0x40U, 0x00U, 0x30U, 0x01U, 0, 0, 0, 0};
@@ -634,6 +635,7 @@ static void test_canopen_sdo_expedited_transfer_aborts(void)
     SYN_CANOpenNode node_sdo;
     SYN_CANOpenNodeConfig cfg_sdo = {.node_id = 5};
     syn_canopen_init(&node_sdo, &cfg_sdo, test_od, sizeof(test_od) / sizeof(test_od[0]));
+    (void)syn_canopen_get_tx(&node_sdo, &tx_id, tx_buf, &tx_len);
     uint8_t sdo_up_invalid[8] = {0x40U, 0x99U, 0x99U, 0x00U, 0, 0, 0, 0};
     syn_canopen_process_rx(&node_sdo, 0x605U, sdo_up_invalid, 8);
     TEST_ASSERT_TRUE(syn_canopen_get_tx(&node_sdo, &tx_id, tx_buf, &tx_len));
@@ -658,6 +660,7 @@ static void test_canopen_sdo_expedited_transfer_aborts(void)
     SYN_CANOpenNode node_sub_err;
     SYN_CANOpenNodeConfig cfg_sub_err = {.node_id = 5};
     syn_canopen_init(&node_sub_err, &cfg_sub_err, test_od, sizeof(test_od) / sizeof(test_od[0]));
+    (void)syn_canopen_get_tx(&node_sub_err, &tx_id, tx_buf, &tx_len);
     uint8_t sdo_down_sub_err[8] = {0x2BU, 0x01U, 0x20U, 0x99U, 0x00U, 0x00U, 0x00U, 0x00U};
     syn_canopen_process_rx(&node_sub_err, 0x605U, sdo_down_sub_err, 8);
     TEST_ASSERT_TRUE(syn_canopen_get_tx(&node_sub_err, &tx_id, tx_buf, &tx_len));
@@ -709,6 +712,86 @@ static void test_canopen_pdo_mapping_overflow_protection(void)
     TEST_ASSERT_EQUAL(0x80U, tx_buf[0]); /* Abort response */
 }
 
+static void test_r5_a17_canopen_tx_fifo_and_sdo_u32_shift(void)
+{
+    SYN_CANOpenNode node;
+    SYN_CANOpenNodeConfig cfg = {.node_id = 5U,
+                                 .heartbeat_ms = 100U,
+                                 .tpdo = {{0x185U, 0x2001U, 0x01U, 1U},
+                                          {0x285U, 0x2001U, 0x02U, 1U},
+                                          {0x385U, 0x9999U, 0x00U, 1U}}};
+
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_canopen_init(&node, &cfg, test_od, sizeof(test_od) / sizeof(test_od[0])));
+    uint32_t tx_id = 0U;
+    uint8_t tx_buf[8] = {0};
+    uint8_t tx_len = 0U;
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL_HEX32(0x705U, tx_id);
+
+    /* NMT targeting a different node (node 9) must be ignored */
+    uint8_t nmt_other[2] = {SYN_CANOPEN_NMT_CMD_START, 0x09U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x000U, nmt_other, 2U));
+    TEST_ASSERT_EQUAL(SYN_CANOPEN_NMT_STATE_PREOP, node.nmt_state);
+
+    /* Broadcast NMT Start (target 0x00) enters Operational */
+    uint8_t nmt_bcast[2] = {SYN_CANOPEN_NMT_CMD_START, 0x00U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x000U, nmt_bcast, 2U));
+    TEST_ASSERT_EQUAL(SYN_CANOPEN_NMT_STATE_OPERATIONAL, node.nmt_state);
+
+    /* Unknown SDO CCS (0xE0) when idle is ignored cleanly */
+    uint8_t sdo_unk[8] = {0xE0U, 0x00U, 0x10U, 0x00U, 0U, 0U, 0U, 0U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x605U, sdo_unk, 8U));
+    TEST_ASSERT_FALSE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+
+    /* Segmented SDO download init with MSB data[7] = 0x80 (no signed shift UB) */
+    uint8_t sdo_seg_msb[8] = {0x20U, 0x03U, 0x20U, 0x00U, 0x78U, 0x56U, 0x34U, 0x80U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x605U, sdo_seg_msb, 8U));
+    TEST_ASSERT_EQUAL_UINT32(0x80345678UL, (uint32_t)node.sdo_session.total_bytes);
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL_HEX8(0x60U, tx_buf[0]);
+
+    /* Single update tick queues Heartbeat (0x705) + TPDO1 (0x185) + TPDO2 (0x285) */
+    od_target_speed = 0x4321U;
+    od_node_status = 0x7AU;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_update(&node, 100U));
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL_HEX32(0x705U, tx_id);
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL_HEX32(0x185U, tx_id);
+    TEST_ASSERT_EQUAL_HEX8(0x21U, tx_buf[0]);
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL_HEX32(0x285U, tx_id);
+    TEST_ASSERT_EQUAL_HEX8(0x7AU, tx_buf[0]);
+    TEST_ASSERT_FALSE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+
+    /* Repeated update ticks reserve urgent headroom (2 slots) so EMCY/SDO are never starved */
+    for (uint8_t k = 0U; k < 5U; k++) {
+        TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_update(&node, 10U));
+    }
+    TEST_ASSERT_EQUAL_UINT8(SYN_CANOPEN_TX_QUEUE_DEPTH - 2U, node.tx_count);
+    while (syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len)) {
+    }
+
+    /* Fill TX FIFO to capacity (8) -> 9th EMCY, SDO, and TPDO trigger return SYN_BUSY */
+    for (uint16_t i = 0U; i < SYN_CANOPEN_TX_QUEUE_DEPTH; i++) {
+        TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_send_emcy(&node, (uint16_t)(0x1000U + i), 0x01U));
+    }
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_canopen_send_emcy(&node, 0x1009U, 0x01U));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_canopen_tpdo_trigger(&node, 1U));
+    uint8_t sdo_read_req[8] = {0x40U, 0x00U, 0x10U, 0x00U, 0U, 0U, 0U, 0U};
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_canopen_process_rx(&node, 0x605U, sdo_read_req, 8U));
+    uint8_t nmt_rst[2] = {SYN_CANOPEN_NMT_CMD_RESET_COMM, 0x05U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x000U, nmt_rst, 2U));
+    TEST_ASSERT_EQUAL_UINT8(SYN_CANOPEN_TX_QUEUE_DEPTH, node.tx_count);
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, NULL, NULL, NULL));
+    for (uint8_t i = 1U; i < SYN_CANOPEN_TX_QUEUE_DEPTH; i++) {
+        TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+        TEST_ASSERT_EQUAL_HEX32(0x085U, tx_id);
+    }
+    TEST_ASSERT_FALSE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+}
+
 void run_canopen_tests(void)
 {
     RUN_TEST(test_canopen_init_and_bootup);
@@ -724,4 +807,5 @@ void run_canopen_tests(void)
     RUN_TEST(test_canopen_sdo_segmented_download_invalid_data);
     RUN_TEST(test_canopen_sdo_expedited_transfer_aborts);
     RUN_TEST(test_canopen_pdo_mapping_overflow_protection);
+    RUN_TEST(test_r5_a17_canopen_tx_fifo_and_sdo_u32_shift);
 }

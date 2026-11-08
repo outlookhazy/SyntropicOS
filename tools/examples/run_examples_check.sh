@@ -44,4 +44,37 @@ else:
     for f, err in failed:
         print(f'=== {f} ===\n{err}\n')
     sys.exit(1)
+
+src_files = [
+    s for s in sorted(glob.glob('${ROOT_DIR}/src/syntropic/**/*.c', recursive=True))
+    if '/port_stubs/' not in s
+]
+lean_configs = [
+    ('PicoBlink', '${ROOT_DIR}/examples/PicoBlink'),
+    ('pico_dual_core', '${ROOT_DIR}/examples/pico_dual_core'),
+]
+print(f'Checking {len(src_files)} core sources against {len(lean_configs)} lean syn_config.h profiles...')
+
+def check_lean(item):
+    cfg_name, cfg_dir, src = item
+    cmd = f'arm-none-eabi-gcc -std=c99 -Wall -Wextra -Werror -I{cfg_dir} -I${ROOT_DIR} -I${ROOT_DIR}/src -mcpu=cortex-m4 -mthumb -c {src} -o /dev/null'
+    res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    if res.returncode != 0:
+        return (f'{cfg_name}: {src}', res.stderr.strip())
+    return None
+
+lean_jobs = [(name, d, s) for name, d in lean_configs for s in src_files]
+lean_failed = []
+with concurrent.futures.ProcessPoolExecutor(max_workers=int('${JOBS}')) as executor:
+    for res in executor.map(check_lean, lean_jobs):
+        if res is not None:
+            lean_failed.append(res)
+
+if not lean_failed:
+    print(f'=== ALL {len(lean_jobs)} LEAN SYN_CONFIG UNITS COMPILE 100% CLEAN ===')
+else:
+    print(f'FAILURE: {len(lean_failed)} lean syn_config compilations failed:')
+    for f, err in lean_failed:
+        print(f'=== {f} ===\n{err}\n')
+    sys.exit(1)
 "

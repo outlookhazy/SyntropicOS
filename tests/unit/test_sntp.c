@@ -370,8 +370,8 @@ static void test_sntp_task_timeout_and_retry(void)
     TEST_ASSERT_FALSE(sntp.synced);
     TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, sntp.udp_sock);
 
-    /* 2. Advance time to clear backoff delay */
-    mock_tick_ms += 1100;
+    /* 2. Advance time to clear RFC 7252 backoff delay ([1000, 1500] ms on attempt 1) */
+    mock_tick_ms += 1500;
 
     /* 3. Provide valid response now */
     uint8_t resp[SYN_SNTP_PACKET_SIZE];
@@ -469,6 +469,268 @@ static void test_sntp_kiss_of_death_and_stratum_validation(void)
 
     /* syn_sntp_is_synced(NULL) check for syn_sntp.h inline branch */
     TEST_ASSERT_FALSE(syn_sntp_is_synced(NULL));
+    TEST_ASSERT_EQUAL_INT32(0, syn_sntp_get_drift_ppm(NULL));
+}
+
+static void test_sntp_task_null_guards_runt_rx_and_n04_second_cycle_retry(void)
+{
+    mock_port_reset();
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task empty_task = {0};
+
+    /* 1. NULL parameter guards (syn_sntp.c:204-206) */
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_sntp_task(NULL, &empty_task));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_sntp_task(&pt, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_sntp_task(&pt, &empty_task));
+
+    /* 2. R5-N13: Runt UDP packet (0 < n < 48) from server fails fast into backoff */
+    SYN_SNTP sntp;
+    SYN_SockAddr server = {.ip = {1, 2, 3, 4}, .port = 123};
+    syn_sntp_init(&sntp, &server, 10);
+    SYN_Task task = {0};
+    task.user_data = &sntp;
+    PT_INIT(&pt);
+
+    uint8_t runt_pkt[12] = {0x24, 2};
+    mock_udp_set_response(runt_pkt, sizeof(runt_pkt), &server);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_FALSE(sntp.synced);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, sntp.udp_sock);
+    TEST_ASSERT_EQUAL_UINT8(1U, sntp.backoff.attempts);
+
+    /* 3. Regression N-04: after 1st sync succeeds (sntp.synced == true), advance past
+     *    sync_interval_s into 2nd sync cycle, drop 1st UDP query so it times out, and verify
+     *    syn_sntp_task retries on attempt #2 instead of breaking out early due to sntp.synced */
+    mock_port_reset();
+    syn_sntp_init(&sntp, &server, 10);
+    memset(&task, 0, sizeof(task));
+    task.user_data = &sntp;
+    PT_INIT(&pt);
+
+    uint8_t resp1[SYN_SNTP_PACKET_SIZE];
+    build_ntp_response(resp1, 1700000000UL, 0);
+    mock_udp_set_response(resp1, sizeof(resp1), &server);
+
+    /* Cycle 1: succeeds on attempt #1 and parks on 10s sync interval delay */
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_TRUE(sntp.synced);
+    TEST_ASSERT_TRUE(sntp.cycle_ok);
+    TEST_ASSERT_EQUAL_UINT32(1700000000UL, sntp.epoch_s);
+
+    /* Advance 10,000 ms to enter Cycle 2 with NO UDP response (simulating dropped packet) */
+    mock_udp_rx_count = 0;
+    mock_udp_rx_pos = 0;
+    mock_udp_tx_len = 0;
+    mock_tick_advance(10000U);
+
+    /* Cycle 2, Attempt #1: sends NTP request and waits up to SYN_SNTP_TIMEOUT_MS */
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_SNTP_PACKET_SIZE, mock_udp_tx_len);
+    TEST_ASSERT_FALSE(sntp.cycle_ok);
+    TEST_ASSERT_TRUE(sntp.synced); /* Still true from Cycle 1 */
+
+    /* Expire Attempt #1 timeout -> must NOT exit retry loop; must enter retry backoff
+     * (1000..1500ms) */
+    mock_tick_advance(SYN_SNTP_TIMEOUT_MS + 100U);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_EQUAL_UINT8(1, sntp.backoff.attempts);
+    TEST_ASSERT_FALSE(sntp.cycle_ok);
+
+    /* Advance 1,600 ms (past retry #1 backoff, well below 10,000 ms poll_interval_s!)
+     * and inject valid response for Attempt #2 */
+    uint8_t resp2[SYN_SNTP_PACKET_SIZE];
+    build_ntp_response(resp2, 1700000014UL, 0);
+    mock_udp_set_response(resp2, sizeof(resp2), &server);
+    mock_udp_tx_len = 0;
+    mock_tick_advance(1600U);
+
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_SNTP_PACKET_SIZE, mock_udp_tx_len); /* Attempt #2 transmitted */
+    TEST_ASSERT_TRUE(sntp.cycle_ok);
+    TEST_ASSERT_EQUAL_UINT32(1700000014UL, sntp.epoch_s);
+}
+
+static void test_sntp_round3_regressions(void)
+{
+    mock_port_reset();
+
+    SYN_SNTP sntp;
+    SYN_SockAddr server = {.ip = {10, 0, 0, 1}, .port = 123};
+
+    /* 1. R3-N08: syn_sntp_init clamps 0 -> 1 and > 2147483 -> 2147483 */
+    syn_sntp_init(&sntp, &server, 0U);
+    TEST_ASSERT_EQUAL_UINT32(1U, sntp.sync_interval_s);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, sntp.udp_sock);
+
+    syn_sntp_init(&sntp, &server, 0xFFFFFFFFU);
+    TEST_ASSERT_EQUAL_UINT32(2147483U, sntp.sync_interval_s);
+
+    /* 2. R3-N08: runtime sync_interval_s == 0U guards against zero-delay flood */
+    mock_port_reset();
+    syn_sntp_init(&sntp, &server, 10U);
+    sntp.sync_interval_s = 0U;
+
+    uint8_t resp[SYN_SNTP_PACKET_SIZE];
+    build_ntp_response(resp, 1700000100UL, 0);
+    mock_udp_set_response(resp, sizeof(resp), &server);
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = {0};
+    task.user_data = &sntp;
+
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_TRUE(sntp.synced);
+
+    /* At +500 ms (< 1000 ms floor), task must remain sleeping and not send another request */
+    mock_udp_tx_len = 0;
+    mock_tick_advance(500U);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
+
+    /* At +1000 ms total, floor expires and cycle 2 sends a request */
+    mock_tick_advance(500U);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_EQUAL_size_t(SYN_SNTP_PACKET_SIZE, mock_udp_tx_len);
+
+    /* 3. R3-N12 & R4-T11: mid-flight PT_INIT restart while udp_sock is open closes exact socket */
+    TEST_ASSERT_NOT_EQUAL(SYN_SOCKET_INVALID, sntp.udp_sock);
+    SYN_Socket leaked_candidate = sntp.udp_sock;
+    int closes_before = mock_sock_close_count;
+    mock_udp_open_ok = false;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(closes_before + 1, mock_sock_close_count);
+    TEST_ASSERT_EQUAL(leaked_candidate, mock_sock_last_closed);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, sntp.udp_sock);
+    mock_udp_open_ok = true;
+
+    sntp.sync_interval_s = 3000000U; /* R3-N08: > 2147483U clamps to 2147483000 ms */
+    build_ntp_response(resp, 1700000200UL, 0);
+    mock_udp_set_response(resp, sizeof(resp), &server);
+    PT_INIT(&pt);
+    uint32_t base_tick = mock_tick_ms;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_EQUAL_UINT32(base_tick + 2147483000U, task.delay_until);
+
+    /* 4. Send failure backoff resume (covers continue after send failure) */
+    mock_port_reset();
+    syn_sntp_init(&sntp, &server, 5U);
+    PT_INIT(&pt);
+    memset(&task, 0, sizeof(task));
+    task.user_data = &sntp;
+    mock_udp_sendto_fail = true;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_EQUAL_UINT8(1U, sntp.backoff.attempts);
+    mock_udp_sendto_fail = false;
+    mock_tick_advance(2000U);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_NOT_EQUAL(SYN_SOCKET_INVALID, sntp.udp_sock);
+
+    /* 5. R3-N06: mock_udp_recv_fail during poll yields PT_IDLE cleanly without spinning */
+    mock_udp_recv_fail = true;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    mock_udp_recv_fail = false;
+    syn_port_sock_close(sntp.udp_sock);
+    sntp.udp_sock = SYN_SOCKET_INVALID;
+
+    /* 6. Unmatched protothread line falls through to PT_END */
+    pt.lc = 0xFFFFU;
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_sntp_task(&pt, &task));
+}
+
+static void test_sntp_round4_li_stratum_sender_and_poll_window(void)
+{
+    mock_port_reset();
+
+    SYN_SNTP sntp;
+    SYN_SockAddr server = {.ip = {10, 20, 30, 40}, .port = 123};
+    SYN_SockAddr spoofer = {.ip = {9, 9, 9, 9}, .port = 123};
+    uint8_t pkt[SYN_SNTP_PACKET_SIZE];
+
+    syn_sntp_init(&sntp, &server, 60U);
+
+    /* 1. R4-N13: LI == 3 (alarm unsynchronized) rejected */
+    build_ntp_response(pkt, 1700001000UL, 0U);
+    pkt[0] = 0xE4U; /* LI=3, VN=4, Mode=4 */
+    mock_udp_set_response(pkt, sizeof(pkt), &server);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_sntp_query(&sntp));
+
+    /* 2. R4-N13: stratum == 16 (> 15) rejected; stratum == 15 + Mode=5 accepted */
+    build_ntp_response(pkt, 1700001000UL, 0U);
+    pkt[1] = 16U;
+    mock_udp_set_response(pkt, sizeof(pkt), &server);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_sntp_query(&sntp));
+
+    build_ntp_response(pkt, 1700001000UL, 0U);
+    pkt[0] = 0x25U; /* LI=0, VN=4, Mode=5 (broadcast) */
+    pkt[1] = 15U;
+    mock_udp_set_response(pkt, sizeof(pkt), &server);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_sntp_query(&sntp));
+
+    /* 3. R4-N13: off-path sender IP rejected when server IP is non-zero; wildcard IP accepts */
+    build_ntp_response(pkt, 1700001100UL, 0U);
+    mock_udp_set_response(pkt, sizeof(pkt), &spoofer);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_sntp_query(&sntp));
+
+    SYN_SockAddr wildcard = {.ip = {0, 0, 0, 0}, .port = 123};
+    SYN_SNTP any_sntp;
+    syn_sntp_init(&any_sntp, &wildcard, 60U);
+    mock_udp_set_response(pkt, sizeof(pkt), &spoofer);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_sntp_query(&any_sntp));
+
+    /* 4. R4-N13 + R5-N13: spoofed off-path IP stays in poll window; valid server succeeds */
+    mock_port_reset();
+    syn_sntp_init(&sntp, &server, 60U);
+
+    uint8_t good_pkt[SYN_SNTP_PACKET_SIZE];
+    build_ntp_response(good_pkt, 1700001234UL, 0U);
+
+    mock_udp_rx_count = 0;
+    mock_udp_rx_pos = 0;
+    mock_udp_inject_packet(good_pkt, sizeof(good_pkt), &spoofer);
+    mock_udp_inject_packet(good_pkt, sizeof(good_pkt), &server);
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = {.user_data = &sntp};
+
+    /* Tick 1: consumes spoofed packet -> stays in poll window */
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_FALSE(sntp.synced);
+    TEST_ASSERT_NOT_EQUAL(SYN_SOCKET_INVALID, sntp.udp_sock);
+
+    /* Tick 2: consumes genuine server packet -> sync succeeds without retry! */
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_TRUE(sntp.synced);
+    TEST_ASSERT_EQUAL_UINT8(0U, sntp.backoff.attempts);
+    TEST_ASSERT_EQUAL_UINT32(1700001234UL, sntp.epoch_s);
+}
+
+static void test_r5_n13_sntp_kod_fast_fail(void)
+{
+    mock_port_reset();
+
+    SYN_SNTP sntp;
+    SYN_SockAddr server = {.ip = {10, 20, 30, 40}, .port = 123};
+    syn_sntp_init(&sntp, &server, 60U);
+
+    /* Stratum 0 Kiss-o'-Death from server must fail fast at t=0 without waiting 5s timeout */
+    uint8_t kod_pkt[SYN_SNTP_PACKET_SIZE];
+    build_ntp_response(kod_pkt, 1700002000UL, 0U);
+    kod_pkt[1] = 0U; /* Stratum 0 KoD */
+    memcpy(&kod_pkt[12], "RATE", 4U);
+    mock_udp_set_response(kod_pkt, sizeof(kod_pkt), &server);
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = {.user_data = &sntp};
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_sntp_task(&pt, &task));
+    TEST_ASSERT_FALSE(sntp.synced);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, sntp.udp_sock);
+    TEST_ASSERT_EQUAL_UINT8(1U, sntp.backoff.attempts);
 }
 
 void run_sntp_tests(void)
@@ -490,4 +752,8 @@ void run_sntp_tests(void)
     RUN_TEST(test_sntp_task_timeout_and_retry);
     RUN_TEST(test_sntp_task_send_fail);
     RUN_TEST(test_sntp_kiss_of_death_and_stratum_validation);
+    RUN_TEST(test_sntp_task_null_guards_runt_rx_and_n04_second_cycle_retry);
+    RUN_TEST(test_sntp_round3_regressions);
+    RUN_TEST(test_sntp_round4_li_stratum_sender_and_poll_window);
+    RUN_TEST(test_r5_n13_sntp_kod_fast_fail);
 }

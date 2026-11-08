@@ -44,6 +44,19 @@ static const uint8_t sigma[10][16] = {
 
 /** @} */
 
+/**
+ * @brief Zeroize sensitive stack buffers without compiler dead-store elimination.
+ * @param v Buffer pointer.
+ * @param n Number of bytes to zeroize.
+ */
+static void syn_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
+
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 
 /**
@@ -149,6 +162,9 @@ static void blake2s_compress(SYN_BLAKE2s *ctx, const uint8_t block[64], int is_l
     for (i = 0; i < 8; i++) {
         ctx->h[i] ^= v[i] ^ v[i + 8];
     }
+
+    syn_secure_zero(v, sizeof(v));
+    syn_secure_zero(m, sizeof(m));
 }
 
 /* ── Increment byte counter ─────────────────────────────────────────────── */
@@ -173,7 +189,14 @@ void syn_blake2s_init(SYN_BLAKE2s *ctx, size_t outlen)
 {
     unsigned i;
 
+    if (ctx == NULL) {
+        return;
+    }
+
     memset(ctx, 0, sizeof(*ctx));
+    if (outlen == 0U || outlen > SYN_BLAKE2S_MAX_DIGEST) {
+        return;
+    }
 
     for (i = 0; i < 8; i++) {
         ctx->h[i] = blake2s_iv[i];
@@ -189,7 +212,15 @@ void syn_blake2s_init_keyed(SYN_BLAKE2s *ctx, const void *key, size_t keylen, si
     uint8_t block[SYN_BLAKE2S_BLOCK_SIZE];
     unsigned i;
 
+    if (ctx == NULL) {
+        return;
+    }
+
     memset(ctx, 0, sizeof(*ctx));
+    if (key == NULL || keylen == 0U || keylen > SYN_BLAKE2S_MAX_KEY || outlen == 0U ||
+        outlen > SYN_BLAKE2S_MAX_DIGEST) {
+        return;
+    }
 
     for (i = 0; i < 8; i++) {
         ctx->h[i] = blake2s_iv[i];
@@ -203,10 +234,15 @@ void syn_blake2s_init_keyed(SYN_BLAKE2s *ctx, const void *key, size_t keylen, si
     memset(block, 0, sizeof(block));
     memcpy(block, key, keylen);
     syn_blake2s_update(ctx, block, SYN_BLAKE2S_BLOCK_SIZE);
+    syn_secure_zero(block, sizeof(block));
 }
 
 void syn_blake2s_update(SYN_BLAKE2s *ctx, const void *data, size_t len)
 {
+    if (ctx == NULL || ctx->outlen == 0U || (data == NULL && len > 0U)) {
+        return;
+    }
+
     const uint8_t *in = (const uint8_t *)data;
 
     while (len > 0) {
@@ -233,6 +269,12 @@ void syn_blake2s_final(SYN_BLAKE2s *ctx, uint8_t *out)
 {
     unsigned i;
 
+    if (ctx == NULL || out == NULL || ctx->outlen == 0U || ctx->outlen > SYN_BLAKE2S_MAX_DIGEST) {
+        return;
+    }
+
+    size_t outlen = ctx->outlen;
+
     blake2s_increment_counter(ctx, (uint32_t)ctx->buflen);
 
     /* Zero-pad remaining buffer */
@@ -242,16 +284,19 @@ void syn_blake2s_final(SYN_BLAKE2s *ctx, uint8_t *out)
     blake2s_compress(ctx, ctx->buf, 1);
 
     /* Extract output */
-    for (i = 0; i < ctx->outlen / 4; i++) {
-        store32_le(out + i * 4, ctx->h[i]);
+    for (i = 0; i < outlen / 4U; i++) {
+        store32_le(out + i * 4U, ctx->h[i]);
     }
 
     /* Handle non-word-aligned output length */
-    if (ctx->outlen & 3) {
+    if (outlen & 3U) {
         uint8_t tmp[4];
-        store32_le(tmp, ctx->h[ctx->outlen / 4]);
-        memcpy(out + (ctx->outlen & ~3u), tmp, ctx->outlen & 3);
+        store32_le(tmp, ctx->h[outlen / 4U]);
+        memcpy(out + (outlen & ~3U), tmp, outlen & 3U);
+        syn_secure_zero(tmp, sizeof(tmp));
     }
+
+    syn_secure_zero(ctx, sizeof(*ctx));
 }
 
 #endif /* SYN_USE_BLAKE2S */

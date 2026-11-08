@@ -137,10 +137,188 @@ static void test_watchdog_timeout_without_callback_or_errlog(void)
     TEST_ASSERT_EQUAL_UINT32(100, entries[id].last_checkin);
 }
 
+static void test_watchdog_capacity_clamp_null_entries_and_isr_forward_checkin(void)
+{
+    static SYN_WDT_Entry big_entries[200];
+    SYN_Watchdog wdt;
+    mock_tick_ms = 100U;
+    wdt_timeout_count = 0;
+
+    /* 1. Capacity > SYN_WATCHDOG_MAX_CAPACITY (127) clamps cleanly */
+    syn_watchdog_init(&wdt, big_entries, 200U, wdt_on_timeout, NULL);
+    TEST_ASSERT_EQUAL_UINT8(SYN_WATCHDOG_MAX_CAPACITY, wdt.capacity);
+
+    /* 2. Check-in after unregister returns early cleanly without reactivating or updating */
+    int8_t id = syn_watchdog_register(&wdt, "temp", 50U);
+    TEST_ASSERT_TRUE(id >= 0);
+    syn_watchdog_unregister(&wdt, id);
+    mock_tick_ms = 120U;
+    syn_watchdog_checkin(&wdt, id);
+    TEST_ASSERT_FALSE(wdt.entries[id].active);
+    TEST_ASSERT_EQUAL_UINT32(100U, wdt.entries[id].last_checkin);
+
+    /* 3. Uninitialized watchdog (entries == NULL) early returns */
+    SYN_Watchdog zero_wdt = {0};
+    syn_watchdog_update(&zero_wdt);
+    TEST_ASSERT_EQUAL_INT8(-1, syn_watchdog_register(&zero_wdt, "none", 50U));
+
+    /* 4. ISR forward check-in (K-07): last_checkin slightly ahead of captured now must NOT fire */
+    mock_tick_ms = 200U;
+    int8_t isr_id = syn_watchdog_register(&wdt, "isr_task", 50U);
+    TEST_ASSERT_TRUE(isr_id >= 0);
+    wdt.entries[isr_id].last_checkin = mock_tick_ms + 5U;
+
+    syn_watchdog_update(&wdt);
+    TEST_ASSERT_EQUAL_INT(0, wdt_timeout_count);
+    TEST_ASSERT_EQUAL_UINT32(205U, wdt.entries[isr_id].last_checkin);
+
+    /* Once time genuinely advances past 205 + 50 = 255, timeout fires normally */
+    mock_tick_ms = 256U;
+    syn_watchdog_update(&wdt);
+    TEST_ASSERT_EQUAL_INT(1, wdt_timeout_count);
+}
+
+typedef struct {
+    int8_t id;
+    uint32_t advance_ms;
+    int fires;
+} WdtCbCheckinCtx;
+
+static void wdt_checkin_inside_cb(SYN_Watchdog *wdt, const SYN_WDT_Entry *entry, void *ctx)
+{
+    (void)entry;
+    WdtCbCheckinCtx *c = (WdtCbCheckinCtx *)ctx;
+    c->fires++;
+    mock_tick_advance(c->advance_ms);
+    syn_watchdog_checkin(wdt, c->id);
+}
+
+/** R3-T04 & R3-K09: Callback check-in timestamp preservation + INT32_MAX timeout clamp. */
+static void test_watchdog_callback_checkin_preserved_and_timeout_clamp(void)
+{
+    SYN_Watchdog wdt;
+    SYN_WDT_Entry entries[3];
+    WdtCbCheckinCtx ctx = {-1, 15U, 0};
+
+    mock_tick_ms = 100U;
+    syn_watchdog_init(&wdt, entries, 3U, wdt_checkin_inside_cb, &ctx);
+
+    ctx.id = syn_watchdog_register(&wdt, "cb_kick", 50U);
+    TEST_ASSERT_TRUE(ctx.id >= 0);
+
+    /* Timeout fires at t=160; callback advances tick to 175 and calls syn_watchdog_checkin() */
+    mock_tick_ms = 160U;
+    syn_watchdog_update(&wdt);
+    TEST_ASSERT_EQUAL_INT(1, ctx.fires);
+    TEST_ASSERT_EQUAL_UINT32(175U, entries[ctx.id].last_checkin);
+
+    /* At t=220 (60 ms after 160, but only 45 ms after callback's 175 check-in): must NOT fire */
+    mock_tick_ms = 220U;
+    syn_watchdog_update(&wdt);
+    TEST_ASSERT_EQUAL_INT(1, ctx.fires);
+
+    /* At t=225 (50 ms after 175): fires cleanly */
+    mock_tick_ms = 225U;
+    syn_watchdog_update(&wdt);
+    TEST_ASSERT_EQUAL_INT(2, ctx.fires);
+
+    /* R3-K09: timeout_ms > 0x7FFFFFFFU clamps to 0x7FFFFFFFU so signed diff can expire */
+    wdt_timeout_count = 0;
+    mock_tick_ms = 500U;
+    syn_watchdog_init(&wdt, entries, 3U, wdt_on_timeout, NULL);
+    int8_t big0 = syn_watchdog_register(&wdt, "big0", 0x80000000U);
+    int8_t big1 = syn_watchdog_register(&wdt, "big1", UINT32_MAX);
+    TEST_ASSERT_TRUE(big0 >= 0);
+    TEST_ASSERT_TRUE(big1 >= 0);
+    TEST_ASSERT_EQUAL_UINT32(0x7FFFFFFFU, entries[big0].timeout_ms);
+    TEST_ASSERT_EQUAL_UINT32(0x7FFFFFFFU, entries[big1].timeout_ms);
+
+    mock_tick_ms = 500U + 0x7FFFFFFEU;
+    syn_watchdog_update(&wdt);
+    TEST_ASSERT_EQUAL_INT(0, wdt_timeout_count);
+
+    mock_tick_ms = 500U + 0x7FFFFFFFU;
+    syn_watchdog_update(&wdt);
+    TEST_ASSERT_EQUAL_INT(2, wdt_timeout_count);
+}
+
+static SYN_Watchdog *s_r4_isr_wdt = NULL;
+static int8_t s_r4_isr_id = -1;
+static int s_r4_cb_critical_depth = -1;
+
+static void r4_wdt_isr_checkin_hook(void)
+{
+    mock_critical_enter_cb = NULL;
+    syn_watchdog_checkin(s_r4_isr_wdt, s_r4_isr_id);
+}
+
+static void r4_wdt_timeout_verify_outside_critical(SYN_Watchdog *wdt, const SYN_WDT_Entry *entry,
+                                                   void *ctx)
+{
+    (void)wdt;
+    (void)entry;
+    (void)ctx;
+    s_r4_cb_critical_depth = mock_critical_depth;
+    wdt_timeout_count++;
+}
+
+/** R4-K09: Critical-section TOCTOU protection, callback outside critical, and 0ms clamp. */
+static void test_r4_watchdog_isr_toctou_and_zero_timeout_clamp(void)
+{
+    SYN_Watchdog wdt;
+    SYN_WDT_Entry entries[2];
+
+    /* 1. NULL / invalid ID guards */
+    TEST_ASSERT_EQUAL_INT8(-1, syn_watchdog_register(NULL, "x", 10U));
+    syn_watchdog_checkin(NULL, 0);
+    syn_watchdog_unregister(NULL, 0);
+    syn_watchdog_update(NULL);
+
+    mock_tick_ms = 100U;
+    wdt_timeout_count = 0;
+    s_r4_cb_critical_depth = -1;
+    syn_watchdog_init(&wdt, entries, 2U, r4_wdt_timeout_verify_outside_critical, NULL);
+    syn_watchdog_checkin(&wdt, -1);
+    syn_watchdog_unregister(&wdt, -1);
+
+    /* 2. timeout_ms == 0U clamps to 1U: does not fire on same tick, fires after 1ms */
+    int8_t zero_id = syn_watchdog_register(&wdt, "zero_clamp", 0U);
+    TEST_ASSERT_TRUE(zero_id >= 0);
+    TEST_ASSERT_EQUAL_UINT32(1U, entries[zero_id].timeout_ms);
+    syn_watchdog_update(&wdt);
+    TEST_ASSERT_EQUAL_INT(0, wdt_timeout_count);
+
+    mock_tick_ms = 101U;
+    syn_watchdog_update(&wdt);
+    TEST_ASSERT_EQUAL_INT(1, wdt_timeout_count);
+    TEST_ASSERT_EQUAL_INT(0, s_r4_cb_critical_depth); /* Callback ran outside critical section */
+    syn_watchdog_unregister(&wdt, zero_id);
+
+    /* 3. Interleaved ISR check-in right as syn_watchdog_update enters critical section */
+    mock_tick_ms = 200U;
+    wdt_timeout_count = 0;
+    int8_t isr_id = syn_watchdog_register(&wdt, "isr_race", 50U);
+    TEST_ASSERT_TRUE(isr_id >= 0);
+
+    mock_tick_ms = 260U; /* Past 250ms deadline unless ISR just checked in */
+    s_r4_isr_wdt = &wdt;
+    s_r4_isr_id = isr_id;
+    mock_critical_enter_cb = r4_wdt_isr_checkin_hook;
+
+    syn_watchdog_update(&wdt);
+    mock_critical_enter_cb = NULL;
+    TEST_ASSERT_EQUAL_INT(0, wdt_timeout_count);
+    TEST_ASSERT_EQUAL_UINT32(260U, entries[isr_id].last_checkin);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+}
+
 void run_watchdog_tests(void)
 {
     RUN_TEST(test_watchdog);
     RUN_TEST(test_watchdog_table_full_and_errlog);
     RUN_TEST(test_watchdog_double_unregister);
     RUN_TEST(test_watchdog_timeout_without_callback_or_errlog);
+    RUN_TEST(test_watchdog_capacity_clamp_null_entries_and_isr_forward_checkin);
+    RUN_TEST(test_watchdog_callback_checkin_preserved_and_timeout_clamp);
+    RUN_TEST(test_r4_watchdog_isr_toctou_and_zero_timeout_clamp);
 }

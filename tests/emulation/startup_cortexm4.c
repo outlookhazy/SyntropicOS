@@ -185,7 +185,8 @@ __attribute__((noreturn)) static void run_app(void)
     hex_to_str((uint32_t)ret, hexbuf);
     semihosting_write0(hexbuf);
     qemu_flush_buf();
-    semihosting_exit(ret);
+    int rc = (ret == 0) ? 0 : 1;
+    semihosting_exit(rc);
     while (1)
         ;
 }
@@ -222,6 +223,11 @@ void Reset_Handler(void)
     _impure_ptr = &_impure_data;
     __malloc_sbrk_base = (char *)&end;
 
+    /* Enable CMSDK APB UART0 TX (0x40004000: BAUDDIV=16 at +0x10, CTRL.TX_EN=1 at +0x08) */
+    *(volatile uint32_t *)0x40004010 = 16UL;
+    *(volatile uint32_t *)0x40004008 = 1UL;
+
     /* Enable FPU coprocessor CP10 and CP11 full access */
+    *(volatile uint32_t *)0xE000ED88 |= (0xFUL << 20);
     run_app();
 }

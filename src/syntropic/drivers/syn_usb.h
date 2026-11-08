@@ -6,15 +6,16 @@
 #ifndef SYN_USB_H
 #define SYN_USB_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
+#include "syntropic/pt/syn_pt.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifndef SYN_USB_MAX_CLASSES
 #define SYN_USB_MAX_CLASSES 4U /**< Maximum registered class drivers */
@@ -82,6 +83,9 @@ typedef struct {
     uint8_t dev_address;  /**< Assigned device bus address */
     uint8_t config_value; /**< Active configuration value */
     uint8_t class_count;  /**< Number of registered class drivers */
+    uint8_t iface_count;  /**< Total allocated USB interface count */
+    uint16_t ep_in_mask;  /**< Bitmask of allocated IN endpoints (bits 1..15) */
+    uint16_t ep_out_mask; /**< Bitmask of allocated OUT endpoints (bits 1..15) */
 
     uint8_t ep0_buf[SYN_USB_EP0_BUF_SIZE]; /**< Internal EP0 control buffer */
 
@@ -107,6 +111,19 @@ typedef struct {
  * @return SYN_OK on success.
  */
 SYN_Status syn_usb_init(SYN_USB_Device *dev, const uint8_t *device_desc);
+
+/**
+ * @brief Allocate a non-colliding endpoint address on a USB device.
+ *
+ * Uses @p preferred_ep when free, or assigns the lowest available endpoint
+ * number (1..15) in the same direction.
+ *
+ * @param dev          Pointer to USB device context.
+ * @param preferred_ep Preferred endpoint address (bit 7 = direction, bits 3..0 = number).
+ * @param assigned_ep  Output pointer receiving assigned endpoint address.
+ * @return SYN_OK on success, SYN_INVALID_PARAM if NULL, SYN_ERROR if endpoints exhausted.
+ */
+SYN_Status syn_usb_alloc_ep(SYN_USB_Device *dev, uint8_t preferred_ep, uint8_t *assigned_ep);
 
 /**
  * @brief Register a class driver and append its interface descriptors.
@@ -161,7 +178,6 @@ SYN_Status syn_usb_process_setup(SYN_USB_Device *dev, const SYN_USB_SetupPacket 
 bool syn_usb_is_configured(const SYN_USB_Device *dev);
 
 /* ── Protothread Coroutine Integration ──────────────────────────────────── */
-#include "syntropic/pt/syn_pt.h"
 
 /**
  * @brief Block a protothread coroutine until USB device reaches CONFIGURED state.

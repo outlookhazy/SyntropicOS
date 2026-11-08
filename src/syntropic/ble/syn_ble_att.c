@@ -73,3 +73,60 @@ SYN_Status syn_ble_att_encode_notification(uint16_t handle, const uint8_t *val, 
     *len = (uint16_t)(3U + val_len);
     return SYN_OK;
 }
+
+SYN_Status syn_ble_att_encode_find_info_rsp(uint8_t format, const uint8_t *info_data,
+                                            uint16_t info_len, uint8_t *buf, uint16_t *len)
+{
+    if (buf == NULL || len == NULL || info_data == NULL || info_len == 0U || info_len > 248U) {
+        return SYN_INVALID_PARAM;
+    }
+
+    uint16_t stride = 0U;
+    if (format == SYN_BLE_ATT_FIND_INFO_FMT_UUID16) {
+        stride = 4U;
+    } else if (format == SYN_BLE_ATT_FIND_INFO_FMT_UUID128) {
+        stride = 18U;
+    } else {
+        return SYN_INVALID_PARAM;
+    }
+
+    if ((info_len % stride) != 0U) {
+        return SYN_INVALID_PARAM;
+    }
+
+    buf[0] = SYN_BLE_ATT_OP_FIND_INFO_RSP;
+    buf[1] = format;
+    memcpy(&buf[2], info_data, info_len);
+    *len = (uint16_t)(2U + info_len);
+    return SYN_OK;
+}
+
+SYN_Status syn_ble_att_encode_read_by_type_rsp(uint8_t pair_len, const uint8_t *data_list,
+                                               uint16_t list_len, uint8_t *buf, uint16_t *len)
+{
+    if (buf == NULL || len == NULL || data_list == NULL || pair_len < 3U ||
+        list_len < (uint16_t)pair_len || list_len > 248U || (list_len % (uint16_t)pair_len) != 0U) {
+        return SYN_INVALID_PARAM;
+    }
+
+    buf[0] = SYN_BLE_ATT_OP_READ_BY_TYPE_RSP;
+    buf[1] = pair_len;
+    memcpy(&buf[2], data_list, list_len);
+    *len = (uint16_t)(2U + list_len);
+    return SYN_OK;
+}
+
+SYN_Status syn_ble_att_encode_read_by_group_rsp(uint8_t data_len, const uint8_t *data_list,
+                                                uint16_t list_len, uint8_t *buf, uint16_t *len)
+{
+    if (buf == NULL || len == NULL || data_list == NULL || data_len < 5U ||
+        list_len < (uint16_t)data_len || list_len > 248U || (list_len % (uint16_t)data_len) != 0U) {
+        return SYN_INVALID_PARAM;
+    }
+
+    buf[0] = SYN_BLE_ATT_OP_READ_BY_GROUP_TYPE_RSP;
+    buf[1] = data_len;
+    memcpy(&buf[2], data_list, list_len);
+    *len = (uint16_t)(2U + list_len);
+    return SYN_OK;
+}

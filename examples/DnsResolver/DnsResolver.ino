@@ -48,7 +48,7 @@ static const SYN_SockAddr dns_server_addr = {
 /* ── Global Instance Declarations ───────────────────────────────────────── */
 
 static SYN_Sched       sched;
-static SYN_Task        tasks[3];
+static SYN_Task        tasks[4];
 static SYN_LED         status_led;
 static SYN_DnsResolver dns_resolver;
 static SYN_Mdns        mdns_responder;
@@ -87,7 +87,7 @@ static SYN_PT_Status dns_control_task(SYN_PT *pt, SYN_Task *task)
             dns_resolver.timeout_ms = 5000;
             dns_resolver.status     = SYN_BUSY;
 
-            syn_task_create(&tasks[0], "dns", syn_dns_resolve_task, 1, &dns_resolver);
+            syn_task_restart(&tasks[3]);
             query_started = true;
         } else {
             if (dns_resolver.status == SYN_OK) {
@@ -141,11 +141,13 @@ void setup()
     syn_mdns_init(&mdns_responder, "syntropic-mega", local_ip_bytes);
 
     /* 4. Register Tasks */
-    syn_task_create(&tasks[0], "mdns",   syn_mdns_task,        1, &mdns_responder);
-    syn_task_create(&tasks[1], "blink",  blink_task,           2, NULL);
-    syn_task_create(&tasks[2], "ctrl",   dns_control_task,     3, NULL);
+    syn_task_create(&tasks[0], "mdns",   syn_mdns_task,        SYN_PRIO_HIGH,   &mdns_responder);
+    syn_task_create(&tasks[1], "blink",  blink_task,           SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks[2], "ctrl",   dns_control_task,     SYN_PRIO_LOW,    NULL);
+    syn_task_create(&tasks[3], "dns",    syn_dns_resolve_task, SYN_PRIO_HIGH,   &dns_resolver);
+    syn_task_suspend(&tasks[3]);
 
-    syn_sched_init(&sched, tasks, 3);
+    syn_sched_init(&sched, tasks, 4);
 
     Serial.println(F("SyntropicOS Scheduler Running. mDNS Responder active."));
 }

@@ -31,24 +31,35 @@ static char *skip_ws(char *p, const char *end)
 }
 
 /**
- * @brief Parse a signed integer from a string.
- * @param s  Input string.
- * @return Parsed value.
+ * @brief Parse a signed 32-bit integer from a bounded span with saturation.
+ * @param s      Start of numeric token.
+ * @param s_end  One-past-end of numeric token.
+ * @return Parsed int32_t value (saturated to [INT32_MIN, INT32_MAX]).
  */
-static int32_t parse_int(const char *s)
+static int32_t parse_int_span(const char *s, const char *s_end)
 {
     bool neg = false;
-    if (*s == '-') {
+    if (s < s_end && *s == '-') {
         neg = true;
         s++;
     }
 
-    int32_t val = 0;
-    while (*s >= '0' && *s <= '9') {
-        val = val * 10 + (*s - '0');
+    uint32_t limit = neg ? ((uint32_t)INT32_MAX + 1U) : (uint32_t)INT32_MAX;
+    uint32_t acc = 0U;
+    while (s < s_end && *s >= '0' && *s <= '9') {
+        uint32_t digit = (uint32_t)(*s - '0');
+        if (acc > (limit - digit) / 10U) {
+            acc = limit;
+        } else {
+            acc = (acc * 10U) + digit;
+        }
         s++;
     }
-    return neg ? -val : val;
+
+    if (neg) {
+        return (acc == ((uint32_t)INT32_MAX + 1U)) ? INT32_MIN : -(int32_t)acc;
+    }
+    return (int32_t)acc;
 }
 
 /**
@@ -155,6 +166,39 @@ static char *skip_value(char *p, const char *end)
 }
 
 /**
+ * @brief Classify and parse a JSON scalar span (true, false, null, or integer).
+ * @param tok       [out] Destination token.
+ * @param val_start Start of scalar characters.
+ * @param vlen      Exact length of scalar span.
+ * @return true if valid JSON scalar token, false otherwise.
+ */
+static bool json_parse_scalar_token(SYN_JsonToken *tok, const char *val_start, size_t vlen)
+{
+    if (vlen == 4U && memcmp(val_start, "true", 4U) == 0) {
+        tok->type = SYN_JSON_BOOL;
+        tok->int_val = 1;
+        return true;
+    }
+    if (vlen == 5U && memcmp(val_start, "false", 5U) == 0) {
+        tok->type = SYN_JSON_BOOL;
+        tok->int_val = 0;
+        return true;
+    }
+    if (vlen == 4U && memcmp(val_start, "null", 4U) == 0) {
+        tok->type = SYN_JSON_NULL;
+        tok->int_val = 0;
+        return true;
+    }
+    if ((val_start[0] >= '0' && val_start[0] <= '9') ||
+        (val_start[0] == '-' && vlen > 1U && val_start[1] >= '0' && val_start[1] <= '9')) {
+        tok->type = SYN_JSON_NUMBER;
+        tok->int_val = parse_int_span(val_start, val_start + vlen);
+        return true;
+    }
+    return false;
+}
+
+/**
  * @brief Recursive JSON object parser.
  *
  * Tokenizes key-value pairs at the given depth.
@@ -242,34 +286,28 @@ static char *parse_object(SYN_JsonReader *r, char *p, const char *end, uint8_t d
             /* Number, bool, or null */
             const char *val_start = p;
             p = skip_value(p, end);
-            if (p == NULL)
-                return NULL; /* LCOV_EXCL_LINE: Skip value failure during scalar parsing */
+            if (p == NULL || p >= end)
+                return NULL;
 
-            /* Null-terminate the value by inserting \0 */
+            size_t vlen = (size_t)(p - val_start);
             char saved = *p;
             *p = '\0';
 
-            SYN_JsonToken *tok = &r->tokens[r->token_count++];
+            SYN_JsonToken *tok = &r->tokens[r->token_count];
             tok->key = key;
             tok->value = val_start;
             tok->depth = depth;
-
-            if (val_start[0] == 't' || val_start[0] == 'f') {
-                tok->type = SYN_JSON_BOOL;
-                tok->int_val = (val_start[0] == 't') ? 1 : 0;
-            } else if ((p - val_start) == 4 && memcmp(val_start, "null", 4) == 0) {
-                tok->type = SYN_JSON_NULL;
-                tok->int_val = 0;
-            } else {
-                tok->type = SYN_JSON_NUMBER;
-                tok->int_val = parse_int(val_start);
-            }
-
-            /* Restore delimiter if needed for further parsing */
-            if (saved != ',' && saved != '}' && saved != ']') {
-                /* Was whitespace — no need to restore */
-            } else {
+            if (!json_parse_scalar_token(tok, val_start, vlen)) {
                 *p = saved;
+                return NULL;
+            }
+            r->token_count++;
+
+            /* Restore delimiter if needed for further parsing, or advance past NUL-ed whitespace */
+            if (saved == ',' || saved == '}' || saved == ']') {
+                *p = saved;
+            } else {
+                p++;
             }
         }
 

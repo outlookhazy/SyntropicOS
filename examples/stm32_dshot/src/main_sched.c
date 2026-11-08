@@ -66,8 +66,9 @@ static SYN_PT_Status task_telemetry_func(SYN_PT *pt, SYN_Task *task)
 
 int main_sched(void)
 {
-    syn_task_create(&s_tasks[TASK_DSHOT_TX],   "DShotTx", task_dshot_tx_func,   1, NULL);
-    syn_task_create(&s_tasks[TASK_TELEMETRY], "Telem",   task_telemetry_func, 2, NULL);
+    syn_task_create(&s_tasks[TASK_DSHOT_TX], "DShotTx", task_dshot_tx_func, SYN_PRIO_CRITICAL,
+                    NULL);
+    syn_task_create(&s_tasks[TASK_TELEMETRY], "Telem", task_telemetry_func, SYN_PRIO_NORMAL, NULL);
 
     syn_sched_init(&s_sched, s_tasks, TASK_COUNT);
 

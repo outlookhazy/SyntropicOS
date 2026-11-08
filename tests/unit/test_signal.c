@@ -176,6 +176,49 @@ static void test_signal_crest_factor_and_power(void)
     TEST_ASSERT_INT_WITHIN(100, 65536, syn_signal_crest_factor_q16(&sig));
 }
 
+static void test_r5_signal_extreme_int32_overflows(void)
+{
+    int32_t samples[6];
+    SYN_Signal sig;
+    syn_signal_init(&sig, samples, 6U);
+
+    syn_signal_push(&sig, INT32_MIN);
+    syn_signal_push(&sig, INT32_MAX);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_signal_peak_to_peak(&sig));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_signal_delta(&sig));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_signal_variance_q16(&sig));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_signal_rms_q16(&sig));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_signal_power_q16(&sig));
+    TEST_ASSERT_TRUE(syn_signal_std_dev_q16(&sig) > 0);
+    TEST_ASSERT_INT_WITHIN(200, 65536, syn_signal_crest_factor_q16(&sig));
+
+    /* Negative delta saturation */
+    syn_signal_push(&sig, INT32_MIN);
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, syn_signal_delta(&sig));
+
+    /* Fill all 6 slots with INT32_MIN: exact crest factor of DC constant must be 1.0 (65536) */
+    for (int i = 0; i < 6; i++) {
+        syn_signal_push(&sig, INT32_MIN);
+    }
+    TEST_ASSERT_EQUAL_INT32(0, syn_signal_peak_to_peak(&sig));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_signal_rms_q16(&sig));
+    TEST_ASSERT_EQUAL_INT32(Q16_ONE, syn_signal_crest_factor_q16(&sig));
+
+    /* 3-sample remainder carry check: 5^2 = 25, 25 % 3 = 1 accumulated 3 times carries into q */
+    syn_signal_clear(&sig);
+    syn_signal_push(&sig, 5);
+    syn_signal_push(&sig, 5);
+    syn_signal_push(&sig, 5);
+    TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(25), syn_signal_power_q16(&sig));
+    TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(5), syn_signal_rms_q16(&sig));
+
+    /* RMS of 1000 (mean_sq = 1e6 > 32767) must still return exact 1000.0 in Q16 */
+    syn_signal_clear(&sig);
+    syn_signal_push(&sig, 1000);
+    syn_signal_push(&sig, -1000);
+    TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(1000), syn_signal_rms_q16(&sig));
+}
+
 void run_signal_tests(void)
 {
     RUN_TEST(test_signal);
@@ -183,4 +226,5 @@ void run_signal_tests(void)
     RUN_TEST(test_signal_rms_std_dev);
     RUN_TEST(test_signal_edge_cases);
     RUN_TEST(test_signal_crest_factor_and_power);
+    RUN_TEST(test_r5_signal_extreme_int32_overflows);
 }

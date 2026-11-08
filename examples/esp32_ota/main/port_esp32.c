@@ -9,6 +9,7 @@
 #include "syntropic/port/syn_port_system.h"
 #include "syntropic/port/syn_port_gpio.h"
 #include "syntropic/port/syn_port_flash.h"
+#include "syntropic/port/syn_port_serial.h"
 #include "syntropic/port/syn_port_socket.h"
 
 #include "freertos/FreeRTOS.h"
@@ -17,9 +18,12 @@
 #include "esp_timer.h"
 #include "esp_flash.h"
 #include "esp_system.h"
+#include "esp_rom_sys.h"
 
 #include <string.h>
 #include <stdio.h>
+#include <fcntl.h>
+#include <sys/select.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
@@ -43,9 +47,26 @@ SYN_NORETURN void syn_assert_failed(const char *file, int line)
 
 /* ── System ─────────────────────────────────────────────────────────────── */
 
+static portMUX_TYPE s_syn_crit_mux = portMUX_INITIALIZER_UNLOCKED;
+
+void syn_port_enter_critical(void)
+{
+    portENTER_CRITICAL_SAFE(&s_syn_crit_mux);
+}
+
+void syn_port_exit_critical(void)
+{
+    portEXIT_CRITICAL_SAFE(&s_syn_crit_mux);
+}
+
 uint32_t syn_port_get_tick_ms(void)
 {
     return (uint32_t)(esp_timer_get_time() / 1000ULL);
+}
+
+uint32_t syn_port_get_tick_us(void)
+{
+    return (uint32_t)esp_timer_get_time();
 }
 
 void syn_port_delay_ms(uint32_t ms)
@@ -56,6 +77,13 @@ void syn_port_delay_ms(uint32_t ms)
 void syn_port_delay_us(uint32_t us)
 {
     esp_rom_delay_us(us);
+}
+
+SYN_NORETURN void syn_port_system_reset(void)
+{
+    esp_restart();
+    for (;;) {
+    }
 }
 
 void syn_port_reset(void)
@@ -89,6 +117,11 @@ SYN_Status syn_port_gpio_init(SYN_GPIO_Pin pin, SYN_GPIO_Mode mode)
     return (gpio_config(&cfg) == ESP_OK) ? SYN_OK : SYN_ERROR;
 }
 
+SYN_Status syn_port_gpio_deinit(SYN_GPIO_Pin pin)
+{
+    return (gpio_reset_pin(pin) == ESP_OK) ? SYN_OK : SYN_ERROR;
+}
+
 SYN_Status syn_port_gpio_write(SYN_GPIO_Pin pin, SYN_GPIO_State state)
 {
     return (gpio_set_level(pin, state) == ESP_OK) ? SYN_OK : SYN_ERROR;
@@ -97,6 +130,12 @@ SYN_Status syn_port_gpio_write(SYN_GPIO_Pin pin, SYN_GPIO_State state)
 SYN_GPIO_State syn_port_gpio_read(SYN_GPIO_Pin pin)
 {
     return gpio_get_level(pin) ? SYN_GPIO_HIGH : SYN_GPIO_LOW;
+}
+
+SYN_Status syn_port_gpio_toggle(SYN_GPIO_Pin pin)
+{
+    int level = gpio_get_level(pin) ? 0 : 1;
+    return (gpio_set_level(pin, (uint32_t)level) == ESP_OK) ? SYN_OK : SYN_ERROR;
 }
 
 /* ── Flash ──────────────────────────────────────────────────────────────── */
@@ -200,22 +239,44 @@ int syn_port_sock_send_all(SYN_Socket sock, const void *data, size_t len)
 int syn_port_sock_recv(SYN_Socket sock, void *buf, size_t max_len,
                        uint32_t timeout_ms)
 {
-    struct timeval tv;
-    tv.tv_sec  = (long)(timeout_ms / 1000);
-    tv.tv_usec = (long)((timeout_ms % 1000) * 1000);
-    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+    if (sock < 0) {
+        return -1;
+    }
 
-    int n = (int)recv(sock, buf, max_len, 0);
+    int flags = 0;
+    if (timeout_ms == 0) {
+        flags = MSG_DONTWAIT;
+    } else {
+        struct timeval tv;
+        tv.tv_sec  = (long)(timeout_ms / 1000);
+        tv.tv_usec = (long)((timeout_ms % 1000) * 1000);
+        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+    }
+
+    int n = (int)recv(sock, buf, max_len, flags);
     if (n < 0) {
-        if (errno == EAGAIN || errno == EWOULDBLOCK) return -1; /* timeout */
         return -1;
     }
     return n;
 }
 
+bool syn_port_sock_readable(SYN_Socket sock)
+{
+    if (sock < 0) {
+        return false;
+    }
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(sock, &readfds);
+    struct timeval tv = { 0, 0 };
+    return (select(sock + 1, &readfds, NULL, NULL, &tv) > 0);
+}
+
 void syn_port_sock_close(SYN_Socket sock)
 {
-    close(sock);
+    if (sock >= 0) {
+        close(sock);
+    }
 }
 
 SYN_Socket syn_port_udp_open(uint16_t port)
@@ -255,15 +316,27 @@ int syn_port_udp_sendto(SYN_Socket sock, const void *data, size_t len,
 int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len,
                           SYN_SockAddr *from, uint32_t timeout_ms)
 {
-    struct timeval tv;
-    tv.tv_sec  = (long)(timeout_ms / 1000);
-    tv.tv_usec = (long)((timeout_ms % 1000) * 1000);
-    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+    if (sock < 0) {
+        return -1;
+    }
+
+    int flags = 0;
+    if (timeout_ms == 0) {
+        flags = MSG_DONTWAIT;
+    } else {
+        struct timeval tv;
+        tv.tv_sec  = (long)(timeout_ms / 1000);
+        tv.tv_usec = (long)((timeout_ms % 1000) * 1000);
+        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+    }
 
     struct sockaddr_in src;
     socklen_t src_len = sizeof(src);
-    int n = (int)recvfrom(sock, buf, max_len, 0, (struct sockaddr *)&src, &src_len);
+    int n = (int)recvfrom(sock, buf, max_len, flags, (struct sockaddr *)&src, &src_len);
     if (n < 0) {
+        if (timeout_ms == 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+            return 0;
+        }
         return -1;
     }
 
@@ -272,6 +345,18 @@ int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len,
         memcpy(from->ip, &src.sin_addr.s_addr, 4);
     }
     return n;
+}
+
+bool syn_port_udp_readable(SYN_Socket sock)
+{
+    if (sock < 0) {
+        return false;
+    }
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(sock, &readfds);
+    struct timeval tv = { 0, 0 };
+    return (select(sock + 1, &readfds, NULL, NULL, &tv) > 0);
 }
 
 SYN_Status syn_port_udp_join_multicast(SYN_Socket sock, const char *multicast_ip)
@@ -315,6 +400,10 @@ SYN_Socket syn_port_sock_listen(uint16_t port, int backlog)
 
 SYN_Socket syn_port_sock_accept(SYN_Socket listener, uint32_t timeout_ms)
 {
+    if (listener < 0) {
+        return SYN_SOCKET_INVALID;
+    }
+
     /*
      * Use select() for portable accept timeout — lwIP's SO_RCVTIMEO
      * on ESP-IDF takes milliseconds as an int, not struct timeval,
@@ -341,7 +430,48 @@ SYN_Socket syn_port_sock_accept(SYN_Socket listener, uint32_t timeout_ms)
 }
 
 
-/* ── UART (for CLI) — ESP-IDF uses stdout by default ───────────────────── */
+/* ── Console Serial & UART (for CLI / Log) ──────────────────────────────── */
+
+SYN_Status syn_port_serial_init(uint32_t baudrate)
+{
+    (void)baudrate;
+    int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+    if (flags >= 0) {
+        (void)fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+    }
+    return SYN_OK;
+}
+
+int syn_port_serial_write(const uint8_t *data, size_t len)
+{
+    if (data == NULL && len > 0) {
+        return -1;
+    }
+    if (len == 0) {
+        return 0;
+    }
+    ssize_t n = write(STDOUT_FILENO, data, len);
+    return (n >= 0) ? (int)n : -1;
+}
+
+int syn_port_serial_read(uint8_t *buf, size_t max_len)
+{
+    if (buf == NULL || max_len == 0) {
+        return 0;
+    }
+    int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+    if (flags >= 0 && (flags & O_NONBLOCK) == 0) {
+        (void)fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+    }
+    ssize_t n = read(STDIN_FILENO, buf, max_len);
+    if (n < 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            return 0;
+        }
+        return -1;
+    }
+    return (int)n;
+}
 
 SYN_Status syn_port_uart_init(uint8_t port, uint32_t baud)
 {

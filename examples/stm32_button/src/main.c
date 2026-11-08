@@ -27,7 +27,7 @@
 static SYN_Button btn1;
 static SYN_Button btn2;
 static SYN_ButtonCombo combo;
-static const SYN_Button *combo_btns[2];
+static SYN_Button *combo_btns[2];
 static SYN_LED status_led;
 
 /* Button Callbacks */

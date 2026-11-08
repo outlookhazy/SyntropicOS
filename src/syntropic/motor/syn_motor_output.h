@@ -28,6 +28,8 @@
 #ifndef SYN_MOTOR_OUTPUT_H
 #define SYN_MOTOR_OUTPUT_H
 
+#include "../common/syn_defs.h"
+
 #include <stdint.h>
 
 #ifdef __cplusplus

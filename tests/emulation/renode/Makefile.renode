@@ -19,6 +19,7 @@ CPU_FLAGS = -mcpu=cortex-m4 -mthumb -mfloat-abi=soft
 CFLAGS    = $(CPU_FLAGS) \
             -std=c99 -Wall -Wextra -Werror \
             -Os -g3 \
+            -DSTM32F407xx \
             -DSYN_USE_LOG=0 \
             -ffunction-sections -fdata-sections \
             -fno-common -fno-builtin \
@@ -30,7 +31,7 @@ LDFLAGS   = $(CPU_FLAGS) \
             -Wl,--gc-sections \
             -Wl,-Map=test_firmware.map \
             --specs=nosys.specs --specs=nano.specs \
-            -lc -lnosys -lm
+            -Wl,--start-group -lc -lnosys -lm -Wl,--end-group
 
 # ── Source files ──────────────────────────────────────────────────────────
 
@@ -50,6 +51,8 @@ SYN_SRC  = $(SYN_DIR)/util/syn_ringbuf.c \
             $(SYN_DIR)/util/syn_crc.c \
             $(SYN_DIR)/util/syn_fsm.c \
             $(SYN_DIR)/sched/syn_sched.c \
+            $(SYN_DIR)/sched/syn_event_flags.c \
+            $(SYN_DIR)/sched/syn_mutex.c \
             $(SYN_DIR)/sched/syn_timer.c \
             $(SYN_DIR)/drivers/syn_usb.c \
             $(SYN_DIR)/drivers/syn_usb_cdc.c \

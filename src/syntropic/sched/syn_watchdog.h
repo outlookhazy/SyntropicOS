@@ -44,10 +44,10 @@ extern "C" {
 
 /** @brief Single watchdog entry for task monitoring. */
 typedef struct {
-    const char *name;      /**< Task name (for debug)                */
-    uint32_t timeout_ms;   /**< Deadline in milliseconds             */
-    uint32_t last_checkin; /**< Tick of last check-in                */
-    bool active;           /**< Is this entry in use?                */
+    const char *name;               /**< Task name (for debug)                */
+    uint32_t timeout_ms;            /**< Deadline in milliseconds             */
+    volatile uint32_t last_checkin; /**< Tick of last check-in                */
+    volatile bool active;           /**< Is this entry in use?                */
 } SYN_WDT_Entry;
 
 /* ── Callback ───────────────────────────────────────────────────────────── */
@@ -76,6 +76,9 @@ typedef struct SYN_Watchdog {
     SYN_ErrLog *errlog;               /**< If set, timeouts are logged */
 } SYN_Watchdog;
 
+/** @brief Maximum number of watchdog slots (bounded by int8_t ID return type). */
+#define SYN_WATCHDOG_MAX_CAPACITY 127U
+
 /* ── API ────────────────────────────────────────────────────────────────── */
 
 /**
@@ -83,7 +86,7 @@ typedef struct SYN_Watchdog {
  *
  * @param wdt       Watchdog instance.
  * @param entries   Array of entries (caller-owned).
- * @param capacity  Maximum number of monitored tasks.
+ * @param capacity  Maximum number of monitored tasks (1..127).
  * @param callback  Timeout handler.
  * @param ctx       Context for callback.
  */

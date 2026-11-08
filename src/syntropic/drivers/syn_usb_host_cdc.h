@@ -10,17 +10,18 @@
 #ifndef SYN_USB_HOST_CDC_H
 #define SYN_USB_HOST_CDC_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/drivers/syn_usb_cdc.h"
 #include "syntropic/drivers/syn_usb_host.h"
+#include "syntropic/pt/syn_pt.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifndef SYN_USB_HOST_CDC_BUF_SIZE
 #define SYN_USB_HOST_CDC_BUF_SIZE 128U /**< RX/TX buffer size */
@@ -28,12 +29,13 @@ extern "C" {
 
 /** USB Host CDC Instance Context */
 typedef struct {
-    uint8_t dev_addr;      /**< Connected device bus address */
-    uint8_t pipe_bulk_in;  /**< Pipe index for Bulk IN */
-    uint8_t pipe_bulk_out; /**< Pipe index for Bulk OUT */
-    uint8_t ep_bulk_in;    /**< Endpoint address for Bulk IN */
-    uint8_t ep_bulk_out;   /**< Endpoint address for Bulk OUT */
-    bool connected;        /**< True if probe succeeded and device active */
+    const SYN_USB_Host *host; /**< Bound USB Host Core context */
+    uint8_t dev_addr;         /**< Connected device bus address */
+    uint8_t pipe_bulk_in;     /**< Pipe index for Bulk IN */
+    uint8_t pipe_bulk_out;    /**< Pipe index for Bulk OUT */
+    uint8_t ep_bulk_in;       /**< Endpoint address for Bulk IN */
+    uint8_t ep_bulk_out;      /**< Endpoint address for Bulk OUT */
+    bool connected;           /**< True if probe succeeded and device active */
 
     SYN_USB_CDC_LineCoding line_coding; /**< Active line coding config */
 
@@ -98,7 +100,6 @@ bool syn_usb_host_cdc_rx_available(const SYN_USB_HostCDC *hcdc);
 bool syn_usb_host_cdc_tx_ready(const SYN_USB_HostCDC *hcdc);
 
 /* ── Protothread Coroutine Integration ──────────────────────────────────── */
-#include "syntropic/pt/syn_pt.h"
 
 /**
  * @brief Block a protothread coroutine until Host CDC RX data is available.

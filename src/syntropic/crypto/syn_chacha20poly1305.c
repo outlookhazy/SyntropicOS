@@ -21,6 +21,19 @@
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 
 /**
+ * @brief Zeroize sensitive stack buffers without compiler dead-store elimination.
+ * @param v Buffer pointer.
+ * @param n Number of bytes to zeroize.
+ */
+static void syn_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
+
+/**
  * @brief Load 32-bit little-endian word from buffer.
  * @param p Pointer to source byte buffer.
  * @return Decoded 32-bit word.
@@ -157,6 +170,8 @@ void syn_chacha20_block(const uint8_t key[32], const uint8_t nonce[12], uint32_t
     for (i = 0; i < 16; i++) {
         store32_le(out + i * 4, block[i]);
     }
+    syn_secure_zero(state, sizeof(state));
+    syn_secure_zero(block, sizeof(block));
 }
 
 void syn_chacha20_xor(const uint8_t key[32], const uint8_t nonce[12], uint32_t counter,
@@ -188,6 +203,9 @@ void syn_chacha20_xor(const uint8_t key[32], const uint8_t nonce[12], uint32_t c
 
         state[12]++; /* Increment counter */
     }
+    syn_secure_zero(state, sizeof(state));
+    syn_secure_zero(block, sizeof(block));
+    syn_secure_zero(keystream, sizeof(keystream));
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -435,6 +453,7 @@ static void aead_mac(const uint8_t poly_key[32], const uint8_t *aad, size_t aad_
     }
 
     poly1305_finish(&poly, tag);
+    syn_secure_zero(&poly, sizeof(poly));
 }
 
 void syn_aead_encrypt(const uint8_t key[32], const uint8_t nonce[12], const uint8_t *aad,
@@ -456,6 +475,7 @@ void syn_aead_encrypt(const uint8_t key[32], const uint8_t nonce[12], const uint
 
     /* Step 3: Compute MAC over (AAD || ciphertext) */
     aead_mac(poly_key, aad, aad_len, ciphertext, pt_len, tag);
+    syn_secure_zero(poly_key, sizeof(poly_key));
 }
 
 bool syn_aead_decrypt(const uint8_t key[32], const uint8_t nonce[12], const uint8_t *aad,
@@ -474,6 +494,7 @@ bool syn_aead_decrypt(const uint8_t key[32], const uint8_t nonce[12], const uint
     /* Step 2: Verify MAC */
     uint8_t computed_tag[16];
     aead_mac(poly_key, aad, aad_len, ciphertext, ct_len, computed_tag);
+    syn_secure_zero(poly_key, sizeof(poly_key));
 
     /* Constant-time compare */
     uint8_t diff = 0;
@@ -481,6 +502,7 @@ bool syn_aead_decrypt(const uint8_t key[32], const uint8_t nonce[12], const uint
     for (i = 0; i < 16; i++) {
         diff |= computed_tag[i] ^ tag[i];
     }
+    syn_secure_zero(computed_tag, sizeof(computed_tag));
     if (diff != 0) {
         return false;
     }

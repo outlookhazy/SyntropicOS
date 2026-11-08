@@ -1047,6 +1047,73 @@ static void test_motor_ctrl_output_and_soft_limit_clamps(void)
     cfg.pid_scale = 0;
 }
 
+static void test_r5_motor_ctrl_overflows_and_mode_switches(void)
+{
+    SYN_DCMotor dc;
+    syn_dc_motor_init(&dc, 6, 7, SYN_DC_MODE_PWM_DIR);
+
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config cfg;
+    memset(&cfg, 0, sizeof(cfg));
+    cfg.read_pos = mock_encoder_feedback;
+    cfg.motor = syn_dc_motor_output(&dc);
+    cfg.update_hz = 10000; /* hz^3 = 10^12 > INT32_MAX */
+    cfg.output_min = -1000;
+    cfg.output_max = 1000;
+    cfg.position_min = -500;
+    cfg.position_max = 500;
+    cfg.ff_kv = 100000;
+    cfg.ff_ka = 100000;
+    cfg.ff_scale = 35; /* >= 31 guard */
+    cfg.pid_kp = 1;
+    cfg.pid_scale = 0;
+
+    mock_tick_ms = 0;
+    mock_ctrl_position = 0;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_motor_ctrl_init(&ctrl, &cfg));
+
+    /* 1. High update_hz move_to_scurve without hz^3 overflow + mode switches clear scurve_active */
+    syn_motor_ctrl_move_to_scurve(&ctrl, 200, 100000, 1000000000, 1000000000);
+    TEST_ASSERT_TRUE(ctrl.scurve_active);
+    mock_tick_advance(1);
+    syn_motor_ctrl_update(&ctrl);
+
+    syn_motor_ctrl_move_to(&ctrl, 150, 50000, 500000);
+    TEST_ASSERT_FALSE(ctrl.scurve_active);
+    TEST_ASSERT_TRUE(ctrl.profile_active);
+
+    syn_motor_ctrl_move_to_scurve(&ctrl, 200, 50000, 500000, 5000000);
+    TEST_ASSERT_TRUE(ctrl.scurve_active);
+    SYN_MotorCtrl_Trajectory traj = {.position = 100, .velocity = 50000, .acceleration = 50000};
+    syn_motor_ctrl_set_trajectory(&ctrl, &traj);
+    TEST_ASSERT_FALSE(ctrl.scurve_active);
+    TEST_ASSERT_FALSE(ctrl.profile_active);
+    mock_tick_advance(1);
+    syn_motor_ctrl_update(&ctrl);
+
+    /* 2. Soft-limit stop clears scurve_active, and large +/- delta clamps safely */
+    mock_ctrl_position = 0;
+    syn_motor_ctrl_move_to_scurve(&ctrl, 500, 50000, 500000, 5000000);
+    TEST_ASSERT_TRUE(ctrl.scurve_active);
+    mock_ctrl_position = 500; /* == position_max while ff (+900) + pid (-499) > 0 */
+    mock_tick_advance(1);
+    TEST_ASSERT_EQUAL(SYN_MCTRL_LIMIT, syn_motor_ctrl_update(&ctrl));
+    TEST_ASSERT_FALSE(ctrl.scurve_active);
+    TEST_ASSERT_FALSE(ctrl.trajectory_active);
+
+    mock_ctrl_position = 0;
+    syn_motor_ctrl_set_velocity(&ctrl, 0);
+    mock_ctrl_position = 300000; /* delta = +300000, delta * 10000 = 3e9 > INT32_MAX */
+    mock_tick_advance(1);
+    syn_motor_ctrl_update(&ctrl);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, ctrl.measured_velocity);
+
+    mock_ctrl_position = -300000; /* delta = -600000, delta * 10000 = -6e9 < INT32_MIN */
+    mock_tick_advance(1);
+    syn_motor_ctrl_update(&ctrl);
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, ctrl.measured_velocity);
+}
+
 void run_motor_ctrl_tests(void)
 {
     RUN_TEST(test_motor_ctrl);
@@ -1068,4 +1135,5 @@ void run_motor_ctrl_tests(void)
     RUN_TEST(test_motor_ctrl_feedforward_negative_saturation_swap);
     RUN_TEST(test_motor_ctrl_integrator_anti_windup_clamping);
     RUN_TEST(test_motor_ctrl_output_and_soft_limit_clamps);
+    RUN_TEST(test_r5_motor_ctrl_overflows_and_mode_switches);
 }

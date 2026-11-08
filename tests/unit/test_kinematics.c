@@ -337,6 +337,120 @@ void test_kinematics_6dof_and_delta(void)
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_kinematics_delta_fk(&bad_dcfg, 0, 0, 0, &pos));
 }
 
+void test_r5_kinematics_industrial_and_6dof_roundtrip(void)
+{
+    /* 1. Industrial 3-DOF Planar Arm (300/250/80 mm links — previously overflowed int32_t) */
+    SYN_Kinematics_Planar3Config p3_cfg = {
+        .l1 = Q16_FROM_INT(300), .l2 = Q16_FROM_INT(250), .l3 = Q16_FROM_INT(80)};
+    q16_t pq1 = 0, pq2 = 0, pq3 = 0;
+    q16_t px = 0, py = 0, pphi = 0;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kinematics_planar3_ik(&p3_cfg, Q16_FROM_INT(350),
+                                                        Q16_FROM_INT(200), Q16_FROM_FRAC(1, 2),
+                                                        SYN_ARM_ELBOW_UP, &pq1, &pq2, &pq3));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kinematics_planar3_fk(&p3_cfg, pq1, pq2, pq3, &px, &py, &pphi));
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(1), Q16_FROM_INT(350), px);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(1), Q16_FROM_INT(200), py);
+    TEST_ASSERT_INT_WITHIN(2000, Q16_FROM_FRAC(1, 2), pphi);
+
+    /* Large-scale 20 m links exercising scale_den >> 2 loop */
+    SYN_Kinematics_Planar3Config huge_cfg = {
+        .l1 = Q16_FROM_INT(20000), .l2 = Q16_FROM_INT(20000), .l3 = 0};
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_kinematics_planar3_ik(&huge_cfg, Q16_FROM_INT(20000), Q16_FROM_INT(20000),
+                                                0, SYN_ARM_ELBOW_UP, &pq1, &pq2, &pq3));
+
+    /* 2. Industrial 4-DOF SCARA (325/275 mm links) */
+    SYN_Kinematics_SCARAConfig scara_cfg = {.l1 = Q16_FROM_INT(325),
+                                            .l2 = Q16_FROM_INT(275),
+                                            .d_max = Q16_FROM_INT(200),
+                                            .z_home = Q16_FROM_INT(250)};
+    SYN_Pose6D scara_target = {
+        .position = {.x = Q16_FROM_INT(380), .y = Q16_FROM_INT(190), .z = Q16_FROM_INT(120)},
+        .orientation = {.roll = 0, .pitch = 0, .yaw = Q16_FROM_FRAC(7, 10)}};
+    q16_t sq1 = 0, sq2 = 0, sd3 = 0, sq4 = 0;
+    SYN_Pose6D scara_fk_pose;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kinematics_scara_ik(&scara_cfg, &scara_target, SYN_ARM_ELBOW_DOWN,
+                                                      &sq1, &sq2, &sd3, &sq4));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_kinematics_scara_fk(&scara_cfg, sq1, sq2, sd3, sq4, &scara_fk_pose));
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(1), scara_target.position.x, scara_fk_pose.position.x);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(1), scara_target.position.y, scara_fk_pose.position.y);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(1), scara_target.position.z, scara_fk_pose.position.z);
+    TEST_ASSERT_INT_WITHIN(2000, scara_target.orientation.yaw, scara_fk_pose.orientation.yaw);
+
+    /* 3. Industrial 6-DOF Arm (250 mm links) general 3D target (250, 120, 300) mm + RPY */
+    SYN_Kinematics_6DOFConfig arm6 = {.d1 = Q16_FROM_INT(150),
+                                      .a1 = Q16_FROM_INT(50),
+                                      .a2 = Q16_FROM_INT(250),
+                                      .d4 = Q16_FROM_INT(250),
+                                      .d6 = Q16_FROM_INT(80)};
+    SYN_Pose6D target6 = {
+        .position = {.x = Q16_FROM_INT(250), .y = Q16_FROM_INT(120), .z = Q16_FROM_INT(300)},
+        .orientation = {.roll = Q16_FROM_FRAC(3, 10),
+                        .pitch = -Q16_FROM_FRAC(4, 10),
+                        .yaw = Q16_FROM_FRAC(5, 10)}};
+
+    const SYN_ArmElbow elbows[2] = {SYN_ARM_ELBOW_UP, SYN_ARM_ELBOW_DOWN};
+    for (size_t e = 0U; e < 2U; e++) {
+        for (int wf = 0; wf < 2; wf++) {
+            q16_t ik_q[6];
+            SYN_Pose6D fk_pose;
+            TEST_ASSERT_EQUAL(SYN_OK,
+                              syn_kinematics_6dof_ik(&arm6, &target6, elbows[e], wf != 0, ik_q));
+            TEST_ASSERT_EQUAL(SYN_OK, syn_kinematics_6dof_fk(&arm6, ik_q, &fk_pose));
+            TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(2), target6.position.x, fk_pose.position.x);
+            TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(2), target6.position.y, fk_pose.position.y);
+            TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(2), target6.position.z, fk_pose.position.z);
+            TEST_ASSERT_INT_WITHIN(3000, target6.orientation.roll, fk_pose.orientation.roll);
+            TEST_ASSERT_INT_WITHIN(3000, target6.orientation.pitch, fk_pose.orientation.pitch);
+            TEST_ASSERT_INT_WITHIN(3000, target6.orientation.yaw, fk_pose.orientation.yaw);
+        }
+    }
+
+    /* Singular wrist at q5 = pi (r36_22 < 0) + hypot2d clamp */
+    q16_t q_sing_pi[6] = {0, -Q16_PI_2 / 3, Q16_PI_2 / 3, 0, Q16_PI, Q16_FROM_FRAC(2, 10)};
+    SYN_Pose6D pose_sing_pi;
+    q16_t out_q[6];
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kinematics_6dof_fk(&arm6, q_sing_pi, &pose_sing_pi));
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_kinematics_6dof_ik(&arm6, &pose_sing_pi, SYN_ARM_ELBOW_DOWN, false, out_q));
+
+    SYN_Pose6D far_pose = {
+        .position = {.x = Q16_FROM_INT(25000), .y = Q16_FROM_INT(25000), .z = 0}};
+    TEST_ASSERT_EQUAL(SYN_ERROR,
+                      syn_kinematics_6dof_ik(&arm6, &far_pose, SYN_ARM_ELBOW_UP, false, out_q));
+
+    /* 4. Industrial Delta Robot (200/50/220/480 mm) roundtrip + A==0, B<0 edge case */
+    SYN_Kinematics_DeltaConfig delta_ind = {.base_radius = Q16_FROM_INT(200),
+                                            .effector_radius = Q16_FROM_INT(50),
+                                            .upper_arm_len = Q16_FROM_INT(220),
+                                            .lower_arm_len = Q16_FROM_INT(480)};
+    SYN_Position3D d_target = {
+        .x = Q16_FROM_INT(80), .y = -Q16_FROM_INT(60), .z = -Q16_FROM_INT(380)};
+    q16_t dt1 = 0, dt2 = 0, dt3 = 0;
+    SYN_Position3D d_fk;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kinematics_delta_ik(&delta_ind, &d_target, &dt1, &dt2, &dt3));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kinematics_delta_fk(&delta_ind, dt1, dt2, dt3, &d_fk));
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(2), d_target.x, d_fk.x);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(2), d_target.y, d_fk.y);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(2), d_target.z, d_fk.z);
+
+    SYN_Kinematics_DeltaConfig dcfg_a0 = {.base_radius = 0,
+                                          .effector_radius = 0,
+                                          .upper_arm_len = Q16_FROM_INT(1),
+                                          .lower_arm_len = Q16_FROM_INT(2)};
+    SYN_Position3D pos_a0_neg = {.x = 0, .y = Q16_FROM_INT(1), .z = -Q16_FROM_INT(2)};
+    (void)syn_kinematics_delta_ik(&dcfg_a0, &pos_a0_neg, &dt1, &dt2, &dt3);
+
+    /* Exercise max_c > max_abc (y0 > 0, E > 0, z0 = 0) */
+    SYN_Kinematics_DeltaConfig dcfg_maxc = {.base_radius = Q16_FROM_INT(10),
+                                            .effector_radius = 0,
+                                            .upper_arm_len = Q16_FROM_INT(10),
+                                            .lower_arm_len = Q16_FROM_INT(5)};
+    SYN_Position3D pos_maxc = {.x = 0, .y = Q16_FROM_INT(5), .z = 0};
+    (void)syn_kinematics_delta_ik(&dcfg_maxc, &pos_maxc, &dt1, &dt2, &dt3);
+}
+
 void run_kinematics_tests(void)
 {
     RUN_TEST(test_kinematics_dh_matrix_and_forward);
@@ -344,4 +458,5 @@ void run_kinematics_tests(void)
     RUN_TEST(test_kinematics_planar3);
     RUN_TEST(test_kinematics_scara);
     RUN_TEST(test_kinematics_6dof_and_delta);
+    RUN_TEST(test_r5_kinematics_industrial_and_6dof_roundtrip);
 }

@@ -74,8 +74,8 @@ SYN_Status syn_lin_master_init(SYN_LIN_Master *master, const SYN_LIN_ScheduleSlo
 
     master->slots = slots;
     master->slot_count = count;
-    master->current_slot = 0;
-    master->slot_timer = 0;
+    master->current_slot = 0U;
+    master->slot_timer = UINT32_MAX;
     master->running = true;
 
     return SYN_OK;
@@ -84,11 +84,19 @@ SYN_Status syn_lin_master_init(SYN_LIN_Master *master, const SYN_LIN_ScheduleSlo
 bool syn_lin_master_step(SYN_LIN_Master *master, uint32_t dt_ms,
                          const SYN_LIN_ScheduleSlot **active_slot)
 {
-    if (master == NULL || !master->running || master->slots == NULL || master->slot_count == 0) {
+    if (master == NULL || !master->running || master->slots == NULL || master->slot_count == 0U) {
         if (active_slot != NULL) {
             *active_slot = NULL;
         }
         return false;
+    }
+
+    if (master->slot_timer == UINT32_MAX) {
+        master->slot_timer = 0U;
+        if (active_slot != NULL) {
+            *active_slot = &master->slots[master->current_slot];
+        }
+        return true;
     }
 
     master->slot_timer += dt_ms;
@@ -96,8 +104,8 @@ bool syn_lin_master_step(SYN_LIN_Master *master, uint32_t dt_ms,
     const SYN_LIN_ScheduleSlot *current = &master->slots[master->current_slot];
 
     if (master->slot_timer >= current->delay_ms) {
-        master->slot_timer = 0;
-        master->current_slot = (master->current_slot + 1) % master->slot_count;
+        master->slot_timer = 0U;
+        master->current_slot = (master->current_slot + 1U) % master->slot_count;
         if (active_slot != NULL) {
             *active_slot = &master->slots[master->current_slot];
         }

@@ -155,9 +155,13 @@ void test_p256_ecdsa_verify_rfc6979_test_vectors(void)
     TEST_ASSERT_FALSE(syn_p256_sign_ecdsa(PRIV, NONCE_K, HASH, NULL, sig_s));
     TEST_ASSERT_FALSE(syn_p256_sign_ecdsa(PRIV, NONCE_K, HASH, sig_r, NULL));
 
-    /* Zero/invalid nonce on sign -> must fail */
+    /* Zero/invalid nonce and zero/overflow private key on sign -> must fail */
     uint8_t zero_nonce[32] = {0};
+    uint8_t max_priv[32];
+    memset(max_priv, 0xFFU, sizeof(max_priv));
     TEST_ASSERT_FALSE(syn_p256_sign_ecdsa(PRIV, zero_nonce, HASH, sig_r, sig_s));
+    TEST_ASSERT_FALSE(syn_p256_sign_ecdsa(zero_nonce, NONCE_K, HASH, sig_r, sig_s));
+    TEST_ASSERT_FALSE(syn_p256_sign_ecdsa(max_priv, NONCE_K, HASH, sig_r, sig_s));
 
     /* Large hash (e >= N) reduction test */
     uint8_t large_hash[32], lr_r[32], lr_s[32];

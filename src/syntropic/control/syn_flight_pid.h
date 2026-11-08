@@ -18,10 +18,6 @@
 #ifndef SYN_FLIGHT_PID_H
 #define SYN_FLIGHT_PID_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/control/syn_pid.h"
 #include "syntropic/util/syn_qmath.h"
@@ -29,6 +25,10 @@ extern "C" {
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** IMU Sensor Measurement Inputs in Q16.16. */
 typedef struct {

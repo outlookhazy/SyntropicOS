@@ -72,9 +72,9 @@ static SYN_PT_Status usb_host_cdc_task(SYN_PT *pt)
     PT_USB_HOST_WAIT_READY(pt, &usb_host);
 
     /* Send AT command / greeting to downstream serial device */
-    const char *hello_cmd = "AT\r\n";
+    static const char hello_cmd[] = "AT\r\n";
     PT_USB_HOST_CDC_WAIT_TX_READY(pt, &usb_host_cdc);
-    syn_transport_send(&host_transport, (const uint8_t *)hello_cmd, strlen(hello_cmd));
+    syn_transport_send(&host_transport, (const uint8_t *)hello_cmd, sizeof(hello_cmd) - 1U);
 
     while (1) {
         /* Wait for response bytes from attached downstream device */

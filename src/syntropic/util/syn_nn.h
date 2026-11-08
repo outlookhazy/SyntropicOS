@@ -9,9 +9,9 @@
 #ifndef SYN_NN_H
 #define SYN_NN_H
 
+#include "../common/syn_defs.h"
+#include "../pt/syn_pt.h"
 #include "syn_qmath.h"
-#include "syntropic/common/syn_defs.h"
-#include "syntropic/pt/syn_pt.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,7 +99,7 @@ SYN_Status syn_nn_dense_q7(const q7_t *inputs, size_t num_inputs, const q7_t *we
  * @param out_shift      Right bit-shift scaling factor.
  * @param current_neuron State variable tracking progress across yields.
  * @param chunk_size     Number of neurons to evaluate per protothread tick.
- * @return SYN_PT_YIELDING while evaluating, SYN_PT_ENDED on completion.
+ * @return PT_MORE while evaluating chunks, PT_ENDED on completion, or PT_EXITED on invalid input.
  */
 SYN_PT_Status syn_nn_dense_pt(SYN_PT *pt, const q7_t *inputs, size_t num_inputs,
                               const q7_t *weights, const q16_t *biases, q7_t *outputs,
@@ -177,7 +177,7 @@ SYN_Status syn_nn_conv1d_q7(const q7_t *inputs, size_t seq_len, size_t num_chann
  * @param out_shift    Right bit-shift scaling factor.
  * @param current_step State variable tracking step progress across yields.
  * @param chunk_size   Number of output steps to evaluate per tick.
- * @return SYN_PT_YIELDING while evaluating, SYN_PT_ENDED on completion.
+ * @return PT_MORE while evaluating chunks, PT_ENDED on completion, or PT_EXITED on invalid input.
  */
 SYN_PT_Status syn_nn_conv1d_pt(SYN_PT *pt, const q7_t *inputs, size_t seq_len, size_t num_channels,
                                const q7_t *weights, const q16_t *biases, q7_t *outputs,

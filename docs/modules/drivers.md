@@ -53,13 +53,11 @@ Buffered UART driver using lock-free SPSC ring buffers for high-speed RX/TX with
 ```c
 #include <syntropic/drivers/syn_uart.h>
 
-static uint8_t rx_buf[128];
-static uint8_t tx_buf[128];
 static SYN_UART uart;
 
 void uart_setup(void) {
-    // Initialize UART 1 at 115200 8N1
-    syn_uart_init(&uart, 1, 115200, rx_buf, sizeof(rx_buf), tx_buf, sizeof(tx_buf));
+    // Initialize UART 1 at 115200 8N1 (TX/RX ring buffers embedded in SYN_UART)
+    syn_uart_init(&uart, 1, 115200);
 }
 
 void USART1_IRQHandler(void) {
@@ -84,26 +82,27 @@ void uart_send_nonblocking(const uint8_t *data, size_t len) {
 
 ## 3. Analog-to-Digital Converter (`drivers/syn_adc.h`)
 
-Provides ADC sampling with oversampling, EMA filtering, voltage conversion (`mV`), and signal statistics integration.
+Provides single-shot 12-bit raw conversion, calibrated millivolt reading (`mV`), and multi-channel SRAM background scanning via DMA.
 
 ```c
 #include <syntropic/drivers/syn_adc.h>
 
-static SYN_ADC adc_ch0;
+static SYN_ADC adc0;
 
 void adc_setup(void) {
     SYN_ADC_Config cfg = {
-        .channel = 0,
-        .oversample = 4, // 4x oversampling for noise reduction
-        .filter = NULL
+        .adc_id = 0,
+        .channel_mask = (1U << 0),
+        .vref_mv = 3300,
+        .use_dma = false,
     };
-    syn_adc_init(&adc_ch0, &cfg);
+    syn_adc_init(&adc0, &cfg);
 }
 
 void read_voltage(void) {
-    syn_adc_read(&adc_ch0);
-    uint32_t millivolts = syn_adc_millivolts(&adc_ch0);
-    printf("Channel 0: %lu mV\n", (unsigned long)millivolts);
+    uint16_t raw = syn_adc_read_raw(&adc0, 0);
+    uint32_t millivolts = syn_adc_read_mv(&adc0, 0);
+    printf("Channel 0: raw=%u, %lu mV\n", (unsigned int)raw, (unsigned long)millivolts);
 }
 ```
 
@@ -118,13 +117,26 @@ Bare-metal safe DMA transaction engine featuring address alignment verification,
 
 static SYN_DMA dma;
 
-void on_dma_complete(SYN_DMA *dma_inst, void *ctx) {
-    printf("DMA Transfer Complete!\n");
+void on_dma_complete(SYN_DMA *dma_inst, SYN_DMA_Event event, void *ctx) {
+    (void)dma_inst;
+    (void)ctx;
+    if ((event & SYN_DMA_EVENT_COMPLETE) != 0) {
+        printf("DMA Transfer Complete!\n");
+    }
 }
 
 void start_dma_transfer(const uint32_t *src, uint32_t *dst, size_t count) {
-    syn_dma_init(&dma, 0, on_dma_complete, NULL);
-    syn_dma_start(&dma, (const void*)src, (void*)dst, count * sizeof(uint32_t));
+    SYN_DMA_Config cfg = {
+        .channel_id = 0,
+        .dir = SYN_DMA_DIR_MEM_TO_MEM,
+        .data_size = SYN_DMA_SIZE_32BIT,
+        .src_inc = true,
+        .dst_inc = true,
+        .callback = on_dma_complete,
+        .user_ctx = NULL,
+    };
+    syn_dma_init(&dma, &cfg);
+    syn_dma_start(&dma, (const void *)src, (void *)dst, count);
 }
 ```
 
@@ -137,14 +149,18 @@ Provides CAN 2.0A/B frame transmission, reception filtering, and mailbox queuing
 ```c
 #include <syntropic/drivers/syn_can.h>
 
+static SYN_CAN can;
+
 void can_demo(void) {
+    syn_can_init(&can, 0, 500000);
+
     SYN_CAN_Frame frame = {
         .id = 0x123,
         .extended = false,
         .dlc = 4,
         .data = {0x01, 0x02, 0x03, 0x04}
     };
-    syn_can_send(0, &frame);
+    syn_can_send(&can, &frame);
 }
 ```
 
@@ -158,11 +174,15 @@ Configures pin edge-triggered interrupts (rising, falling, both) with ISR callba
 #include <syntropic/drivers/syn_exti.h>
 
 void on_pin_interrupt(SYN_GPIO_Pin pin, void *ctx) {
+    (void)pin;
+    (void)ctx;
     // Process ISR trigger
 }
 
 void exti_setup(void) {
-    syn_exti_attach(5, SYN_EXTI_RISING, on_pin_interrupt, NULL);
+    syn_exti_init();
+    syn_exti_register(5, SYN_EXTI_RISING, on_pin_interrupt, NULL);
+    syn_exti_enable(5);
 }
 ```
 
@@ -170,18 +190,25 @@ void exti_setup(void) {
 
 ## 7. Shift Register & I/O Expander (`drivers/syn_shiftreg.h` & `drivers/syn_ioexp.h`)
 
-Supports 74HC595 output expansion, 74HC165 input reading, and MCP23017 / PCF8574 I2C/SPI GPIO expanders.
+Supports 74HC595 output expansion, 74HC165 input reading, and MCP23017 / PCF8574 I2C GPIO expanders.
 
 ```c
 #include <syntropic/drivers/syn_shiftreg.h>
 #include <syntropic/drivers/syn_ioexp.h>
 
-void expander_demo(void) {
-    // 74HC595 Shift register write
-    syn_shiftreg_out_write(0xAA);
+static SYN_ShiftRegOut sr;
+static SYN_IOExp ioexp;
 
-    // MCP23017 I2C GPIO Expander write
-    syn_ioexp_mcp23017_write_pin(0, 4, SYN_GPIO_HIGH);
+void expander_demo(void) {
+    // 74HC595 Shift register write (1 cascaded chip on pins 2=DS, 3=SHCP, 4=STCP)
+    syn_shiftreg_out_init(&sr, 2, 3, 4, 1);
+    syn_shiftreg_out_write_byte(&sr, 0, 0xAA);
+    syn_shiftreg_out_flush(&sr);
+
+    // MCP23017 I2C GPIO Expander write (SCL=6, SDA=7, addr=0x20, pin 4 HIGH)
+    syn_ioexp_init(&ioexp, 6, 7, 0x20, SYN_IOEXP_MCP23017);
+    syn_ioexp_set_pin_mode(&ioexp, 4, SYN_GPIO_OUTPUT);
+    syn_ioexp_write_pin(&ioexp, 4, SYN_GPIO_HIGH);
 }
 ```
 
@@ -200,7 +227,8 @@ SyntropicOS provides zero-allocation drivers for common industrial and embedded 
 | `sensor/syn_lux.h` | BH1750 / TSL2561 | Ambient light lux intensity reading |
 | `sensor/syn_biometric.h` | MAX30102 | PPG optical pulse oximeter and heart rate monitoring |
 
-### Sensor Usage Example
+---
+
 ## 9. USB 2.0 Device Core & Class Drivers (`drivers/syn_usb.h`, `syn_usb_cdc.h`, `syn_usb_hid.h`)
 
 Provides a zero-heap USB 2.0 device core supporting pluggable class driver registration (CDC ACM, HID), automatic configuration descriptor table assembly, and protothread coroutine integration.

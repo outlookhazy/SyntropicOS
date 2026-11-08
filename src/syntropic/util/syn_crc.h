@@ -24,6 +24,8 @@
 #ifndef SYN_CRC_H
 #define SYN_CRC_H
 
+#include "../common/syn_defs.h"
+
 #include <stddef.h>
 #include <stdint.h>
 

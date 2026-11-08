@@ -27,6 +27,8 @@
 #ifndef SYN_CHANGE_FILTER_H
 #define SYN_CHANGE_FILTER_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 

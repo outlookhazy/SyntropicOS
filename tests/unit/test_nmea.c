@@ -463,6 +463,36 @@ void test_nmea_branch_coverage(void)
 #endif
 }
 
+static void test_r5_nmea_strict_hex_and_empty_talker(void)
+{
+    /* R5-S15: Zero-XOR payloads with non-hex '*ZZ' / '*0Z' / '*Z0' must return false! */
+    TEST_ASSERT_FALSE(syn_nmea_validate("$*ZZ"));
+    TEST_ASSERT_FALSE(syn_nmea_validate("$AA*ZZ"));
+    TEST_ASSERT_FALSE(syn_nmea_validate("$AA*0Z"));
+    TEST_ASSERT_FALSE(syn_nmea_validate("$AA*G0"));
+    TEST_ASSERT_FALSE(syn_nmea_validate("$AA*0g"));
+    TEST_ASSERT_TRUE(syn_nmea_validate("$*00"));
+    TEST_ASSERT_TRUE(syn_nmea_validate("$AA*00"));
+
+    /* Empty talker field "$*00" returns UNKNOWN cleanly */
+    TEST_ASSERT_EQUAL(SYN_NMEA_SENTENCE_UNKNOWN, syn_nmea_get_type("$*00"));
+
+    /* Inline static conversion helpers in syn_nmea.h */
+    TEST_ASSERT_DOUBLE_WITHIN(0.000001, 48.1173, syn_udeg_to_deg(481173000));
+    TEST_ASSERT_EQUAL_INT32(481173000, syn_deg_to_udeg(48.1173));
+    TEST_ASSERT_EQUAL_INT32(-481173000, syn_deg_to_udeg(-48.1173));
+
+    /* Truncated GGA with fewer commas than expected fields */
+    SYN_NMEA_GGA gga;
+    TEST_ASSERT_TRUE(syn_nmea_parse_gga("$GPGGA*56", &gga));
+    TEST_ASSERT_TRUE(gga.valid);
+
+    /* Non-sentence byte ignored when parser is idle */
+    SYN_NMEA_Parser parser;
+    syn_nmea_parser_init(&parser);
+    TEST_ASSERT_FALSE(syn_nmea_parser_feed(&parser, 'X', NULL));
+}
+
 void run_nmea_tests(void)
 {
     RUN_TEST(test_nmea_checksum_and_validate);
@@ -477,4 +507,5 @@ void run_nmea_tests(void)
     RUN_TEST(test_nmea_sentence_checksum_and_field_truncation);
     RUN_TEST(test_nmea_date_time_parsing_and_null_coordinates);
     RUN_TEST(test_nmea_branch_coverage);
+    RUN_TEST(test_r5_nmea_strict_hex_and_empty_talker);
 }

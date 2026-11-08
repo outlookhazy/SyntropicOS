@@ -31,6 +31,7 @@ extern "C" {
 typedef struct {
     int status_code;         /**< HTTP status (200, 404, etc.)        */
     uint32_t content_length; /**< Content-Length value, 0 if absent   */
+    bool has_content_length; /**< True if Content-Length header seen  */
     bool chunked;            /**< Transfer-Encoding: chunked?         */
     bool connection_close;   /**< Connection: close?                 */
     char location[128];      /**< Location header for redirects       */
@@ -160,7 +161,7 @@ SYN_Status syn_http_client_init(SYN_HttpClient *client, const char *method, cons
  *
  * @param pt             Pointer to the cooperative protothread structure.
  * @param task           Pointer to the corresponding task control block.
- * @return PT_WAITING, PT_EXITED, or another protothread status code.
+ * @return PT_IDLE while waiting, PT_ENDED when complete, or PT_EXITED on abort.
  */
 SYN_PT_Status syn_http_client_task(SYN_PT *pt, SYN_Task *task);
 

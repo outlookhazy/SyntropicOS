@@ -66,12 +66,13 @@ extern "C" {
  * All fields are considered private. Use the API functions below.
  */
 typedef struct {
-    SYN_RingBuf rb;          /**< Underlying ring buffer (composition)   */
-    size_t threshold;        /**< Readable when count >= this (0 = any)  */
-    uint8_t delimiter;       /**< Delimiter byte for line mode           */
-    bool delim_en;           /**< true if delimiter mode is active       */
-    bool overflowing;        /**< true if discarding tail after overflow */
-    uint32_t overflow_count; /**< Total stream overflow events           */
+    SYN_RingBuf rb;          /**< Underlying ring buffer (composition)        */
+    size_t threshold;        /**< Readable when count >= this (0 = any)       */
+    size_t frame_head;       /**< Producer-owned ring index of frame start    */
+    uint8_t delimiter;       /**< Delimiter byte for line mode                */
+    bool delim_en;           /**< true if delimiter mode is active            */
+    bool overflowing;        /**< true if discarding tail after overflow      */
+    uint32_t overflow_count; /**< Total stream overflow events                */
 } SYN_Stream;
 
 /* ── Init / config ──────────────────────────────────────────────────────── */
@@ -233,7 +234,8 @@ void syn_stream_flush(SYN_Stream *s);
 /**
  * @brief Block task execution (SYN_TASK_BLOCKED) until the stream is readable.
  *
- * Suspends the SYN_Task so the scheduler skips it until readable.
+ * Suspends the SYN_Task so the scheduler skips it until explicitly woken via
+ * syn_task_resume(task) after pushing data with syn_stream_put() or syn_stream_write().
  *
  * @param pt      Protothread context.
  * @param task    Pointer to SYN_Task.

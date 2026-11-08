@@ -11,8 +11,22 @@
 #ifndef SYN_DEFS_H
 #define SYN_DEFS_H
 
+#ifdef SYN_CONFIG_FILE
+#include SYN_CONFIG_FILE
+#elif defined(__has_include)
+#if __has_include("syn_config.h")
+#include "syn_config.h"
+#endif
+#endif
+
 #include <stddef.h>
 #include <stdint.h>
+
+#ifndef __cplusplus
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+#include <stdbool.h>
+#endif
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,9 +35,7 @@ extern "C" {
 /* ── Boolean ────────────────────────────────────────────────────────────── */
 
 #ifndef __cplusplus
-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
-#include <stdbool.h>
-#else
+#if !defined(__STDC_VERSION__) || (__STDC_VERSION__ < 199901L)
 /** @brief C99 bool fallback for pre-C99 compilers. */
 typedef enum { false = 0, true = 1 } bool;
 #endif

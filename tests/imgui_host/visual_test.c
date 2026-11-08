@@ -778,6 +778,7 @@ int main(void)
     tc_button_disabled();
     tc_checkbox();
     tc_checkbox_flags();
+    tc_slider_idle();
     tc_slider_low();
     tc_slider_full();
     tc_slider_active();

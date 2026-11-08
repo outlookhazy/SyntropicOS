@@ -227,6 +227,48 @@ void test_protobuf_decode_bytes_large_length(void)
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_encode_bytes(&g_enc, 1, payload, sizeof(payload)));
 }
 
+void test_r5_protobuf_varint_10th_byte_and_u64_len(void)
+{
+    uint64_t v64 = 0U;
+    const uint8_t *ptr = NULL;
+    size_t len = 0U;
+
+    /* Valid 10-byte UINT64_MAX: 9x 0xFF + 0x01 (bit 63 = 1, bits 64..69 = 0) */
+    const uint8_t u64_max_buf[10] = {0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU,
+                                     0xFFU, 0xFFU, 0xFFU, 0xFFU, 0x01U};
+    syn_pb_decoder_init(&g_dec, u64_max_buf, sizeof(u64_max_buf));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_pb_decode_varint(&g_dec, &v64));
+    TEST_ASSERT_EQUAL_HEX32(0xFFFFFFFFU, (uint32_t)(v64 & 0xFFFFFFFFULL));
+    TEST_ASSERT_EQUAL_HEX32(0xFFFFFFFFU, (uint32_t)(v64 >> 32U));
+
+    /* Valid 10-byte non-canonical zero top bit: 9x 0xFF + 0x00 -> INT64_MAX */
+    const uint8_t i64_max_buf[10] = {0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU,
+                                     0xFFU, 0xFFU, 0xFFU, 0xFFU, 0x00U};
+    syn_pb_decoder_init(&g_dec, i64_max_buf, sizeof(i64_max_buf));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_pb_decode_varint(&g_dec, &v64));
+    TEST_ASSERT_EQUAL_HEX32(0xFFFFFFFFU, (uint32_t)(v64 & 0xFFFFFFFFULL));
+    TEST_ASSERT_EQUAL_HEX32(0x7FFFFFFFU, (uint32_t)(v64 >> 32U));
+
+    /* Invalid 10th byte with bit 1 set (0x02 => 2^64 overflow, even without 0x80) */
+    const uint8_t overflow_b10[10] = {0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU,
+                                      0xFFU, 0xFFU, 0xFFU, 0xFFU, 0x02U};
+    syn_pb_decoder_init(&g_dec, overflow_b10, sizeof(overflow_b10));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_decode_varint(&g_dec, &v64));
+
+    /* Truncated mid-varint (EOF with continuation bit set) */
+    const uint8_t trunc_varint[2] = {0x81U, 0x82U};
+    syn_pb_decoder_init(&g_dec, trunc_varint, sizeof(trunc_varint));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_decode_varint(&g_dec, &v64));
+
+    /* 64-bit length 0x100000001ULL (truncates to 1 on 32-bit size_t if unchecked!) */
+    const uint8_t len_u64_wrap[8] = {0x81U, 0x80U, 0x80U, 0x80U, 0x10U, 0xAAU, 0xBBU, 0xCCU};
+    syn_pb_decoder_init(&g_dec, len_u64_wrap, sizeof(len_u64_wrap));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_decode_bytes(&g_dec, &ptr, &len));
+
+    syn_pb_decoder_init(&g_dec, len_u64_wrap, sizeof(len_u64_wrap));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_skip_field(&g_dec, SYN_PB_WIRE_LENGTH_DELIMITED));
+}
+
 void run_protobuf_tests(void)
 {
     RUN_TEST(test_protobuf_init_and_null_checks);
@@ -234,4 +276,5 @@ void run_protobuf_tests(void)
     RUN_TEST(test_protobuf_skip_field);
     RUN_TEST(test_protobuf_overflow_and_errors);
     RUN_TEST(test_protobuf_decode_bytes_large_length);
+    RUN_TEST(test_r5_protobuf_varint_10th_byte_and_u64_len);
 }

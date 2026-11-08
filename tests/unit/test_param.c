@@ -86,8 +86,8 @@ static void test_param_data_too_large(void)
     SYN_ParamStore store;
     /* MOCK_FLASH_SECTOR=1024; set data_size >> sector so slot doesn't fit */
     SYN_Status st = syn_param_init(&store, 0, 1, 1024u);
-    /* Should return SYN_ERROR (data too large for sector) */
-    TEST_ASSERT_EQUAL(SYN_ERROR, st);
+    /* Should return SYN_INVALID_PARAM (slot exceeds sector capacity) */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
 }
 
 static void test_param_sector_wrap(void)
@@ -307,6 +307,59 @@ static void test_param_sequence_number_wrap(void)
     TEST_ASSERT_EQUAL_INT(4, loaded.brightness);
 }
 
+static void test_r5_param_regressions(void)
+{
+    mock_port_reset();
+    SYN_ParamStore store;
+    SYN_ParamStore uninit;
+    memset(&uninit, 0, sizeof(uninit));
+    TestParams p = {.brightness = 42, .offset = -3, .mode = 2};
+
+    /* NULL / zero parameter checks */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_param_init(NULL, 0, 2, sizeof(p)));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_param_init(&store, 0, 0, sizeof(p)));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_param_init(&store, 0, 2, 0));
+
+    /* R5-S11: 16-bit wraparound & divide-by-zero rejection */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_param_init(&store, 0, 2, 65530U));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_param_init(&store, 0, 2, 65520U));
+
+    /* NULL & uninitialized guards on load / save / erase_all */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_param_load(NULL, &p));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_param_load(&uninit, &p));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_param_save(NULL, &p));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_param_save(&uninit, &p));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_param_erase_all(NULL));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_param_erase_all(&uninit));
+
+    /* Multi-chunk (> 32B) CRC verification + header read error path */
+    uint8_t big_in[48];
+    uint8_t big_out[48];
+    for (size_t i = 0; i < sizeof(big_in); i++) {
+        big_in[i] = (uint8_t)(i + 1U);
+    }
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_param_init(&store, 0, 2, (uint16_t)sizeof(big_in)));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_param_load(&store, NULL));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_param_save(&store, NULL));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_param_save(&store, big_in));
+
+    SYN_ParamStore store_reinit;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_param_init(&store_reinit, 0, 2, (uint16_t)sizeof(big_in)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_param_load(&store_reinit, big_out));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(big_in, big_out, sizeof(big_in));
+
+    /* Fail slot header read on load, payload read on load (line 94), and payload read on init scan
+     * (line 61) */
+    mock_flash_fail_at = 0;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_param_load(&store_reinit, big_out));
+    mock_flash_fail_at = (int)sizeof(SYN_ParamSlotHeader);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_param_load(&store_reinit, big_out));
+    mock_flash_fail_at = (int)sizeof(SYN_ParamSlotHeader);
+    SYN_ParamStore store_scan_fail;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_param_init(&store_scan_fail, 0, 2, (uint16_t)sizeof(big_in)));
+    mock_port_reset();
+}
+
 void run_param_tests(void)
 {
     RUN_TEST(test_param_store);
@@ -319,4 +372,5 @@ void run_param_tests(void)
     RUN_TEST(test_param_save_write_errors);
     RUN_TEST(test_param_power_loss_recovery);
     RUN_TEST(test_param_sequence_number_wrap);
+    RUN_TEST(test_r5_param_regressions);
 }

@@ -588,35 +588,19 @@ SYN_WEAK void syn_port_memory_barrier(void)
 
 #include "../port/syn_port_socket.h"
 
-SYN_WEAK SYN_Socket syn_port_udp_open(uint16_t port)
-{
-    (void)port;
-    syn_assert_failed(__FILE__, __LINE__);
-    return SYN_SOCKET_INVALID;
-}
+/* Note: syn_port_udp_open, syn_port_udp_sendto, syn_port_udp_recvfrom,
+ * syn_port_udp_readable, and syn_port_sock_close weak fallbacks are provided
+ * by src/syntropic/net/syn_transport_udp.c when SYN_USE_TRANSPORT_UDP is enabled. */
 
-SYN_WEAK int syn_port_udp_sendto(SYN_Socket sock, const void *data, size_t len,
-                                 const SYN_SockAddr *to)
+#if defined(SYN_USE_TRANSPORT_UDP) && !SYN_USE_TRANSPORT_UDP
+SYN_WEAK void syn_port_sock_close(SYN_Socket sock)
 {
     (void)sock;
-    (void)data;
-    (void)len;
-    (void)to;
-    syn_assert_failed(__FILE__, __LINE__);
-    return -1;
+    if (sock >= 0) {
+        syn_assert_failed(__FILE__, __LINE__);
+    }
 }
-
-SYN_WEAK int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len, SYN_SockAddr *from,
-                                   uint32_t timeout_ms)
-{
-    (void)sock;
-    (void)buf;
-    (void)max_len;
-    (void)from;
-    (void)timeout_ms;
-    syn_assert_failed(__FILE__, __LINE__);
-    return -1;
-}
+#endif
 
 SYN_WEAK SYN_Status syn_port_udp_join_multicast(SYN_Socket sock, const char *multicast_ip)
 {
@@ -626,10 +610,10 @@ SYN_WEAK SYN_Status syn_port_udp_join_multicast(SYN_Socket sock, const char *mul
     return SYN_NOT_IMPLEMENTED;
 }
 
-SYN_WEAK void syn_port_sock_close(SYN_Socket sock)
+SYN_WEAK bool syn_port_sock_readable(SYN_Socket sock)
 {
     (void)sock;
-    syn_assert_failed(__FILE__, __LINE__);
+    return false;
 }
 
 SYN_WEAK SYN_Socket syn_port_sock_connect(const SYN_SockAddr *addr)
@@ -780,5 +764,77 @@ SYN_WEAK SYN_Status syn_port_ghash_mult(const uint8_t x[16], const uint8_t h[16]
     (void)x;
     (void)h;
     (void)out;
+    return SYN_NOT_IMPLEMENTED;
+}
+
+/* ── USB Device Controller stubs ────────────────────────────────────────── */
+
+#include "port/syn_port_usb.h"
+
+SYN_WEAK SYN_Status syn_port_usb_init(void)
+{
+    syn_assert_failed(__FILE__, __LINE__);
+    return SYN_NOT_IMPLEMENTED;
+}
+
+SYN_WEAK SYN_Status syn_port_usb_connect(void)
+{
+    syn_assert_failed(__FILE__, __LINE__);
+    return SYN_NOT_IMPLEMENTED;
+}
+
+SYN_WEAK SYN_Status syn_port_usb_disconnect(void)
+{
+    syn_assert_failed(__FILE__, __LINE__);
+    return SYN_NOT_IMPLEMENTED;
+}
+
+SYN_WEAK SYN_Status syn_port_usb_set_address(uint8_t addr)
+{
+    (void)addr;
+    syn_assert_failed(__FILE__, __LINE__);
+    return SYN_NOT_IMPLEMENTED;
+}
+
+SYN_WEAK SYN_Status syn_port_usb_ep_open(uint8_t ep_addr, uint8_t ep_type, uint16_t max_pkt)
+{
+    (void)ep_addr;
+    (void)ep_type;
+    (void)max_pkt;
+    syn_assert_failed(__FILE__, __LINE__);
+    return SYN_NOT_IMPLEMENTED;
+}
+
+SYN_WEAK SYN_Status syn_port_usb_ep_close(uint8_t ep_addr)
+{
+    (void)ep_addr;
+    syn_assert_failed(__FILE__, __LINE__);
+    return SYN_NOT_IMPLEMENTED;
+}
+
+SYN_WEAK SYN_Status syn_port_usb_ep_write(uint8_t ep_addr, const void *data, uint16_t len)
+{
+    (void)ep_addr;
+    (void)data;
+    (void)len;
+    syn_assert_failed(__FILE__, __LINE__);
+    return SYN_NOT_IMPLEMENTED;
+}
+
+SYN_WEAK SYN_Status syn_port_usb_ep_read(uint8_t ep_addr, void *buf, uint16_t max_len,
+                                         uint16_t *out_len)
+{
+    (void)ep_addr;
+    (void)buf;
+    (void)max_len;
+    (void)out_len;
+    syn_assert_failed(__FILE__, __LINE__);
+    return SYN_NOT_IMPLEMENTED;
+}
+
+SYN_WEAK SYN_Status syn_port_usb_ep_stall(uint8_t ep_addr)
+{
+    (void)ep_addr;
+    syn_assert_failed(__FILE__, __LINE__);
     return SYN_NOT_IMPLEMENTED;
 }

@@ -30,6 +30,8 @@
 #ifndef SYN_SIGNAL_H
 #define SYN_SIGNAL_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -121,9 +123,14 @@ int32_t syn_signal_max(SYN_Signal *sig);
  */
 static inline int32_t syn_signal_peak_to_peak(SYN_Signal *sig)
 {
-    if (sig->count == 0)
+    if (sig->count == 0U) {
         return 0;
-    return syn_signal_max(sig) - syn_signal_min(sig);
+    }
+    int64_t diff = (int64_t)syn_signal_max(sig) - (int64_t)syn_signal_min(sig);
+    if (diff > (int64_t)INT32_MAX) {
+        return INT32_MAX;
+    }
+    return (int32_t)diff;
 }
 
 /**

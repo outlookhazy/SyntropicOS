@@ -20,6 +20,7 @@ flowchart LR
 ### Complete Code Example (SSD1306 Mono OLED)
 
 ```c
+#include <stdio.h>
 #include <syntropic/display/syn_canvas.h>
 
 // Monochrome OLED (128×64 pixels, 1bpp = 1024 bytes)
@@ -28,6 +29,7 @@ static SYN_Canvas canvas;
 
 // Flush callback: sends raw framebuffer bytes to display driver over I2C/SPI
 static void oled_flush_callback(const uint8_t *buf, size_t len, void *ctx) {
+    (void)ctx;
     // Send 1024-byte framebuffer via I2C/SPI DMA
     SSD1306_Transmit_Buffer(buf, len);
 }
@@ -39,26 +41,26 @@ void display_setup(void) {
 
 void render_dashboard(int temperature, int battery_pct) {
     char str[32];
-    
+
     // Clear previous frame
     syn_canvas_clear(&canvas);
 
-    // Draw header text using built-in 5x7 font
-    syn_canvas_text(&canvas, 0, 0, "SyntropicOS Dashboard");
-    
+    // Draw header text using built-in 5x7 font (color 1 = white on 1bpp)
+    syn_canvas_text(&canvas, 0, 0, "SyntropicOS Dashboard", 1);
+
     // Draw horizontal dividing line
-    syn_canvas_line(&canvas, 0, 10, 127, 10);
+    syn_canvas_line(&canvas, 0, 10, 127, 10, 1);
 
     // Draw metric labels
     snprintf(str, sizeof(str), "Temp: %d C", temperature);
-    syn_canvas_text(&canvas, 0, 20, str);
+    syn_canvas_text(&canvas, 0, 20, str, 1);
 
     snprintf(str, sizeof(str), "Batt: %d%%", battery_pct);
-    syn_canvas_text(&canvas, 0, 32, str);
+    syn_canvas_text(&canvas, 0, 32, str, 1);
 
     // Draw battery level progress bar outline & fill
-    syn_canvas_rect(&canvas, 70, 32, 50, 8); // Outline
-    syn_canvas_fill_rect(&canvas, 71, 33, (battery_pct * 48) / 100, 6); // Fill
+    syn_canvas_rect(&canvas, 70, 32, 50, 8, 1); // Outline
+    syn_canvas_rect_fill(&canvas, 71, 33, (int16_t)((battery_pct * 48) / 100), 6, 1); // Fill
 
     // Push framebuffer to hardware
     syn_canvas_flush(&canvas);
@@ -78,28 +80,35 @@ The `syn_imgui` module provides a zero-allocation Immediate-Mode GUI framework. 
 ### Complete IMGUI Menu Example
 
 ```c
+#include <syntropic/display/syn_canvas.h>
 #include <syntropic/ui/syn_imgui.h>
 
-static SYN_IMGUI ui;
+static SYN_IMGUI_Context ui;
 static bool heater_enabled = false;
-static int target_temp = 25;
+static int32_t target_temp = 25;
 
-void render_gui(void) {
-    syn_imgui_begin_frame(&ui);
+void gui_setup(void) {
+    syn_imgui_init(&ui);
+}
 
-    syn_imgui_label(&ui, 10, 5, "Temperature Control");
+void render_gui(SYN_Canvas *canvas, bool btn_select, bool btn_back, int32_t enc_delta) {
+    syn_canvas_clear(canvas);
+    syn_imgui_begin(&ui, canvas, btn_select, btn_back, enc_delta, false, 0, 0);
+
+    syn_imgui_label(&ui, "Temperature Control", 10, 5);
 
     // Interactive Checkbox widget
-    if (syn_imgui_checkbox(&ui, 10, 20, "Enable Heater", &heater_enabled)) {
+    if (syn_imgui_checkbox(&ui, "Enable Heater", &heater_enabled, 10, 18, 108, 12)) {
         // Toggle callback logic
     }
 
     // Interactive Slider widget
     if (heater_enabled) {
-        syn_imgui_slider(&ui, 10, 40, 100, 10, "Set Temp", &target_temp, 15, 40);
+        syn_imgui_slider(&ui, "Set Temp", &target_temp, 15, 40, 10, 36, 108, 12);
     }
 
-    syn_imgui_end_frame(&ui);
+    syn_imgui_end(&ui);
+    syn_canvas_flush(canvas);
 }
 ```
 
@@ -148,12 +157,13 @@ Supports HD44780 16x2 / 20x4 Character LCD displays (GPIO 4-bit / I2C backpack) 
 
 ```c
 #include <syntropic/display/syn_charlcd.h>
-#include <syntropic/display/syn_oled.h>
 
-void charlcd_demo(void) {
-    syn_charlcd_init(16, 2);
-    syn_charlcd_set_cursor(0, 0);
-    syn_charlcd_print("SyntropicOS v2.0");
+static SYN_CharLCD lcd;
+
+void charlcd_demo(SYN_GPIO_Pin scl_pin, SYN_GPIO_Pin sda_pin) {
+    syn_charlcd_init_i2c(&lcd, scl_pin, sda_pin, 0x27, 16, 2);
+    syn_charlcd_set_cursor(&lcd, 0, 0);
+    syn_charlcd_print(&lcd, "SyntropicOS");
 }
 ```
 
@@ -166,9 +176,13 @@ Multiplexed 7-segment digital display driver supporting decimal integers, floati
 ```c
 #include <syntropic/display/syn_seg7.h>
 
-void seg7_demo(void) {
+static SYN_Seg7 seg;
+
+void seg7_demo(const SYN_GPIO_Pin seg_pins[8], const SYN_GPIO_Pin digit_pins[4]) {
+    syn_seg7_init(&seg, seg_pins, digit_pins, 4, SYN_SEG7_COMMON_CATHODE);
     // Render float number 12.34 across 4 digits
-    syn_seg7_display_float(12.34f, 2);
+    syn_seg7_print_float(&seg, 12.34f, 2);
+    syn_seg7_scan(&seg); // Call periodically to multiplex digits
 }
 ```
 

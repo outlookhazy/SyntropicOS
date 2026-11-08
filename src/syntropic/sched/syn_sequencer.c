@@ -79,11 +79,17 @@ void syn_seq_stop(SYN_Sequencer *seq)
  */
 static void execute_step(SYN_Sequencer *seq)
 {
-    const SYN_SeqStep *step = &seq->steps[seq->current];
+    uint16_t step_idx = seq->current;
+    const SYN_SeqStep *step = &seq->steps[step_idx];
 
     /* Execute action if present */
     if (step->action != NULL) {
         step->action(step->ctx);
+    }
+
+    /* Respect state/step changes requested inside action callback (e.g. stop/restart) */
+    if (seq->state != SYN_SEQ_RUNNING || seq->current != step_idx) {
+        return;
     }
 
     /* Start delay if present */
@@ -125,17 +131,21 @@ bool syn_seq_update(SYN_Sequencer *seq)
         if (seq->current >= seq->step_count) {
             /* Sequence complete */
             seq->loop_count++;
+            if (!seq->loop) {
+                seq->state = SYN_SEQ_DONE;
+            } else {
+                seq->current = 0;
+            }
 
             if (seq->on_complete != NULL) {
                 seq->on_complete(seq, seq->on_complete_ctx);
             }
 
-            if (seq->loop) {
-                seq->current = 0;
-                /* Continue running */
-            } else {
-                seq->state = SYN_SEQ_DONE;
+            if (seq->state == SYN_SEQ_DONE) {
                 return true;
+            }
+            if (seq->state != SYN_SEQ_RUNNING) {
+                return false;
             }
         }
 

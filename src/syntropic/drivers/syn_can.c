@@ -33,7 +33,10 @@ bool syn_can_send(SYN_CAN *can, const SYN_CAN_Frame *frame)
 {
     SYN_ASSERT(can != NULL);
     SYN_ASSERT(frame != NULL);
-    SYN_ASSERT(frame->dlc <= 8);
+    SYN_ASSERT(frame->dlc <= SYN_CAN_MAX_DATA_LEN);
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+    SYN_ASSERT(frame->is_fd || frame->dlc <= 8U);
+#endif
 
     bool ok = syn_port_can_send(can->port, frame->id, frame->extended, frame->data, frame->dlc);
     if (ok) {

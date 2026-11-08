@@ -59,6 +59,10 @@
 
 #include "syn_canvas.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Opaque graphics context — resolves to a canvas pointer. */
 typedef SYN_Canvas *SYN_GfxContext;
 
@@ -125,6 +129,10 @@ typedef SYN_Canvas *SYN_GfxContext;
 #define syn_gfx_flush(ctx) syn_canvas_flush(ctx)
 /** @brief Flush a partial region of the framebuffer. */
 #define syn_gfx_flush_partial(ctx, offset, len) syn_canvas_flush_partial((ctx), (offset), (len))
+
+#ifdef __cplusplus
+}
+#endif
 
 /* ══════════════════════════════════════════════════════════════════════════
  * Backend: Direct-draw (stub — future implementation)

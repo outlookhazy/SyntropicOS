@@ -19,6 +19,8 @@
 #ifndef SYN_FMT_H
 #define SYN_FMT_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -143,14 +145,17 @@ static inline bool syn_str_prefix_icase(const char *str, const char *prefix)
 
 /**
  * @brief Parse a decimal integer from a string.
- * @param s  Null-terminated decimal string.
- * @return Parsed unsigned 32-bit integer.
+ * @param s  Null-terminated decimal string (or NULL).
+ * @return Parsed unsigned 32-bit integer, or 0 if @p s is NULL.
  */
 static inline uint32_t syn_fmt_parse_uint(const char *s)
 {
-    uint32_t val = 0;
+    if (s == NULL) {
+        return 0U;
+    }
+    uint32_t val = 0U;
     while (*s >= '0' && *s <= '9') {
-        val = val * 10 + (uint32_t)(*s - '0');
+        val = val * 10U + (uint32_t)(*s - '0');
         s++;
     }
     return val;

@@ -10,6 +10,10 @@ void test_flight_init(void)
 {
     SYN_Flight_Controller fc;
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_flight_init(&fc));
+    TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(-500), fc.pid_rate_roll.cfg.out_min);
+    TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(500), fc.pid_rate_roll.cfg.out_max);
+    TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(-200), fc.pid_angle_roll.cfg.out_min);
+    TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(200), fc.pid_angle_roll.cfg.out_max);
 }
 
 void test_flight_hover(void)
@@ -118,4 +122,36 @@ void test_flight_null_and_bounds(void)
 {
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_flight_init(NULL));
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_flight_update(NULL, NULL, NULL, 1, NULL));
+}
+
+void test_r5_flight_pid_regressions(void)
+{
+    SYN_Flight_Controller fc;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_flight_init(&fc));
+
+    /* Negative roll disturbance (-40 deg/s -> positive u_roll = +60 us, previously truncated to 0)
+     */
+    SYN_Flight_IMU imu = {.gyro_roll = Q16_FROM_INT(-40),
+                          .gyro_pitch = Q16_FROM_INT(20),
+                          .gyro_yaw = Q16_FROM_INT(-10),
+                          .angle_roll = Q16_FROM_INT(-10),
+                          .angle_pitch = Q16_FROM_INT(10)};
+    SYN_Flight_Commands cmd = {.throttle_us = 1500,
+                               .roll_target = 0,
+                               .pitch_target = 0,
+                               .yaw_target = 0,
+                               .angle_mode = false};
+    SYN_Flight_MotorOutputs motors;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_flight_update(&fc, &imu, &cmd, 10, &motors));
+    TEST_ASSERT_TRUE(motors.m3 > motors.m1 + 50U);
+
+    /* Angle mode saturation at +-200 deg/s and rate loop saturation at +-500 us */
+    imu.angle_roll = Q16_FROM_INT(-90);
+    imu.gyro_roll = 0;
+    imu.gyro_pitch = 0;
+    imu.gyro_yaw = 0;
+    imu.angle_pitch = 0;
+    cmd.angle_mode = true;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_flight_update(&fc, &imu, &cmd, 10, &motors));
+    TEST_ASSERT_TRUE((int32_t)motors.m3 - (int32_t)motors.m1 >= 400);
 }

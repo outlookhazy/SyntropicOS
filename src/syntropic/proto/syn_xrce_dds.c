@@ -10,6 +10,7 @@
 #if !defined(SYN_USE_XRCE_DDS) || SYN_USE_XRCE_DDS
 
 #include "../port/syn_port_system.h"
+#include "../sched/syn_sched.h"
 #include "syn_xrce_dds.h"
 
 #include <string.h>
@@ -403,7 +404,7 @@ static void xrce_write_header(SYN_CDR_Writer *w, uint8_t session_id, uint8_t str
     (void)syn_cdr_write_u8(w, session_id);
     (void)syn_cdr_write_u8(w, stream_id);
     (void)syn_cdr_write_u16(w, seq_num);
-    if (session_id == 0x00U || session_id >= 0x80U) {
+    if (session_id < 0x80U) {
         (void)syn_cdr_write_u32(w, client_key);
     }
 }
@@ -417,6 +418,7 @@ static void xrce_write_header(SYN_CDR_Writer *w, uint8_t session_id, uint8_t str
  */
 static size_t xrce_start_submessage(SYN_CDR_Writer *w, uint8_t submsg_id, uint8_t flags)
 {
+    (void)cdr_pad_writer(w, 4U);
     (void)syn_cdr_write_u8(w, submsg_id);
     (void)syn_cdr_write_u8(w, flags | SYN_XRCE_FLAG_LITTLE_ENDIAN);
     size_t len_pos = w->pos;
@@ -434,7 +436,12 @@ static void xrce_finish_submessage(SYN_CDR_Writer *w, size_t len_pos)
     if (w->error || len_pos + 2U > w->pos) {
         return;
     }
-    uint16_t submsg_len = (uint16_t)(w->pos - (len_pos + 2U));
+    size_t payload_len = w->pos - (len_pos + 2U);
+    if (payload_len > UINT16_MAX) {
+        w->error = true;
+        return;
+    }
+    uint16_t submsg_len = (uint16_t)payload_len;
     w->data[len_pos] = (uint8_t)(submsg_len & 0xFFU);
     w->data[len_pos + 1U] = (uint8_t)((submsg_len >> 8U) & 0xFFU);
 }
@@ -757,8 +764,112 @@ SYN_Status syn_xrce_client_read_data(SYN_XRCE_Client *client, uint16_t reader_id
     return SYN_OK;
 }
 
-SYN_Status syn_xrce_client_step(SYN_XRCE_Client *client, uint32_t now_ms)
+/**
+ * @brief Decode a single inbound XRCE submessage body within [r->pos, submsg_end).
+ * @param client     XRCE client instance.
+ * @param r          CDR reader positioned at submessage payload start.
+ * @param submsg_id  Submessage identifier.
+ * @param submsg_end Exclusive end byte offset of the submessage inside r->data.
+ */
+static void xrce_dispatch_submessage(SYN_XRCE_Client *client, SYN_CDR_Reader *r, uint8_t submsg_id,
+                                     size_t submsg_end)
 {
+    if (submsg_id == SYN_XRCE_SUBMSG_STATUS) {
+        uint16_t req_id = 0U;
+        uint16_t obj_id = 0U;
+        uint8_t status = 0U;
+        uint8_t impl_status = 0U;
+        (void)syn_cdr_read_u16(r, &req_id);
+        (void)syn_cdr_read_u16(r, &obj_id);
+        (void)syn_cdr_read_u8(r, &status);
+        (void)syn_cdr_read_u8(r, &impl_status);
+
+        if (!r->error && r->pos <= submsg_end) {
+            if (client->state == SYN_XRCE_STATE_CONNECTING && status == SYN_XRCE_STATUS_OK) {
+                client->state = SYN_XRCE_STATE_CONNECTED;
+            }
+
+            if (client->cfg.on_status != NULL) {
+                client->cfg.on_status(req_id, status, client->cfg.user_data);
+            }
+        }
+    } else if (submsg_id == SYN_XRCE_SUBMSG_DATA) {
+        uint16_t req_id = 0U;
+        uint16_t obj_id = 0U;
+        uint8_t data_fmt = 0U;
+        (void)syn_cdr_read_u16(r, &req_id);
+        (void)syn_cdr_read_u16(r, &obj_id);
+        (void)syn_cdr_read_u8(r, &data_fmt);
+
+        if (!r->error && r->pos <= submsg_end) {
+            size_t pld_len = submsg_end - r->pos;
+            if (client->cfg.on_data != NULL && pld_len > 0U) {
+                client->cfg.on_data(obj_id, &r->data[r->pos], pld_len, client->cfg.user_data);
+            }
+        }
+    } else {
+        /* Skip other submessages */
+    }
+}
+
+/**
+ * @brief Parse inbound XRCE datagram header and iterate bounded submessages.
+ * @param client XRCE client instance.
+ * @param rx_len Length of received datagram in client->cfg.rx_buf.
+ */
+static void xrce_parse_rx_frame(SYN_XRCE_Client *client, size_t rx_len)
+{
+    SYN_CDR_Reader r;
+    syn_cdr_reader_init(&r, client->cfg.rx_buf, rx_len);
+
+    uint8_t session_id = 0U;
+    uint8_t stream_id = 0U;
+    uint16_t seq_num = 0U;
+    (void)syn_cdr_read_u8(&r, &session_id);
+    (void)syn_cdr_read_u8(&r, &stream_id);
+    (void)syn_cdr_read_u16(&r, &seq_num);
+
+    if (session_id < 0x80U) {
+        uint32_t client_key = 0U;
+        (void)syn_cdr_read_u32(&r, &client_key);
+    }
+
+    while (!r.error && r.pos <= r.size && (r.size - r.pos) >= 4U) {
+        uint8_t submsg_id = 0U;
+        uint8_t flags = 0U;
+        uint16_t submsg_len = 0U;
+        (void)syn_cdr_read_u8(&r, &submsg_id);
+        (void)syn_cdr_read_u8(&r, &flags);
+        (void)syn_cdr_read_u16(&r, &submsg_len);
+
+        size_t submsg_start = r.pos;
+        if ((size_t)submsg_len > r.size - submsg_start) {
+            break;
+        }
+
+        size_t submsg_end = submsg_start + (size_t)submsg_len;
+        r.size = submsg_end;
+        xrce_dispatch_submessage(client, &r, submsg_id, submsg_end);
+        r.size = rx_len;
+        r.error = false;
+        size_t next_pos = (submsg_end < r.size) ? ((submsg_end + 3U) & ~(size_t)3U) : submsg_end;
+        r.pos = (next_pos <= r.size) ? next_pos : r.size;
+    }
+}
+
+/**
+ * @brief Step XRCE client once and report whether an inbound datagram was consumed.
+ * @param client          XRCE client instance.
+ * @param now_ms          Current system timestamp in milliseconds.
+ * @param out_rx_consumed [out] Optional flag set true if a non-empty datagram was read.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on NULL client or transport.
+ */
+static SYN_Status xrce_client_step_ex(SYN_XRCE_Client *client, uint32_t now_ms,
+                                      bool *out_rx_consumed)
+{
+    if (out_rx_consumed != NULL) {
+        *out_rx_consumed = false;
+    }
     if (client == NULL || client->cfg.transport == NULL) {
         return SYN_INVALID_PARAM;
     }
@@ -767,67 +878,12 @@ SYN_Status syn_xrce_client_step(SYN_XRCE_Client *client, uint32_t now_ms)
     size_t rx_len = 0U;
     if (syn_transport_recv(client->cfg.transport, client->cfg.rx_buf, client->cfg.rx_buf_size,
                            &rx_len) &&
-        rx_len >= 4U) {
-        SYN_CDR_Reader r;
-        syn_cdr_reader_init(&r, client->cfg.rx_buf, rx_len);
-
-        uint8_t session_id = 0U;
-        uint8_t stream_id = 0U;
-        uint16_t seq_num = 0U;
-        (void)syn_cdr_read_u8(&r, &session_id);
-        (void)syn_cdr_read_u8(&r, &stream_id);
-        (void)syn_cdr_read_u16(&r, &seq_num);
-
-        if (session_id == 0x00U || session_id >= 0x80U) {
-            uint32_t client_key = 0U;
-            (void)syn_cdr_read_u32(&r, &client_key);
+        rx_len > 0U) {
+        if (out_rx_consumed != NULL) {
+            *out_rx_consumed = true;
         }
-
-        /* Parse Submessages in payload */
-        while (r.pos + 4U <= r.size && !r.error) {
-            uint8_t submsg_id = 0U;
-            uint8_t flags = 0U;
-            uint16_t submsg_len = 0U;
-            (void)syn_cdr_read_u8(&r, &submsg_id);
-            (void)syn_cdr_read_u8(&r, &flags);
-            (void)syn_cdr_read_u16(&r, &submsg_len);
-
-            size_t submsg_start = r.pos;
-
-            if (submsg_id == SYN_XRCE_SUBMSG_STATUS) {
-                uint16_t req_id = 0U;
-                uint16_t obj_id = 0U;
-                uint8_t status = 0U;
-                uint8_t impl_status = 0U;
-                (void)syn_cdr_read_u16(&r, &req_id);
-                (void)syn_cdr_read_u16(&r, &obj_id);
-                (void)syn_cdr_read_u8(&r, &status);
-                (void)syn_cdr_read_u8(&r, &impl_status);
-
-                if (client->state == SYN_XRCE_STATE_CONNECTING && status == SYN_XRCE_STATUS_OK) {
-                    client->state = SYN_XRCE_STATE_CONNECTED;
-                }
-
-                if (client->cfg.on_status != NULL) {
-                    client->cfg.on_status(req_id, status, client->cfg.user_data);
-                }
-            } else if (submsg_id == SYN_XRCE_SUBMSG_DATA) {
-                uint16_t req_id = 0U;
-                uint16_t obj_id = 0U;
-                uint8_t data_fmt = 0U;
-                (void)syn_cdr_read_u16(&r, &req_id);
-                (void)syn_cdr_read_u16(&r, &obj_id);
-                (void)syn_cdr_read_u8(&r, &data_fmt);
-
-                size_t pld_len = (r.size > r.pos) ? r.size - r.pos : 0U;
-                if (client->cfg.on_data != NULL && pld_len > 0U) {
-                    client->cfg.on_data(obj_id, &r.data[r.pos], pld_len, client->cfg.user_data);
-                }
-            } else {
-                /* Skip other submessages */
-            }
-
-            r.pos = submsg_start + submsg_len;
+        if (rx_len >= 4U) {
+            xrce_parse_rx_frame(client, rx_len);
         }
     }
 
@@ -856,10 +912,15 @@ SYN_Status syn_xrce_client_step(SYN_XRCE_Client *client, uint32_t now_ms)
     return SYN_OK;
 }
 
+SYN_Status syn_xrce_client_step(SYN_XRCE_Client *client, uint32_t now_ms)
+{
+    return xrce_client_step_ex(client, now_ms, NULL);
+}
+
 SYN_PT_Status syn_xrce_client_pt(SYN_PT *pt, SYN_Task *task)
 {
     if (pt == NULL || task == NULL || task->user_data == NULL) {
-        return PT_ENDED;
+        return PT_EXITED;
     }
 
     SYN_XRCE_Client *client = (SYN_XRCE_Client *)task->user_data;
@@ -867,11 +928,18 @@ SYN_PT_Status syn_xrce_client_pt(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     for (;;) {
+        bool rx_consumed = false;
         uint32_t now = syn_port_get_tick_ms();
-        if (syn_xrce_client_step(client, now) != SYN_OK) {
+        if (xrce_client_step_ex(client, now, &rx_consumed) != SYN_OK) {
             break;
         }
-        PT_YIELD(pt);
+        if (rx_consumed && client->cfg.transport != NULL &&
+            client->cfg.transport->has_data != NULL &&
+            syn_transport_has_data(client->cfg.transport)) {
+            PT_CONTINUE_IF_NEEDED(pt, task);
+        } else {
+            PT_PASS(pt);
+        }
     }
 
     PT_END(pt);

@@ -33,6 +33,7 @@ typedef struct {
     size_t free_count;   /**< Current free blocks */
     uint8_t *start_ptr;  /**< Start pointer of slab region */
     void *freelist;      /**< Embedded freelist head */
+    uint64_t free_bits;  /**< O(1) free-block bitmap for indices 0..63 */
 } SYN_SlabClass;
 
 /**

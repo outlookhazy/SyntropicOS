@@ -4,6 +4,10 @@
  */
 
 #include "syntropic/drivers/syn_usb.h"
+#include "syntropic/drivers/syn_usb_cdc.h"
+#include "syntropic/drivers/syn_usb_hid.h"
+#include "syntropic/drivers/syn_usb_midi.h"
+#include "syntropic/drivers/syn_usb_msc.h"
 #include "unity/unity.h"
 
 #include <string.h>
@@ -208,4 +212,118 @@ void test_usb_null_checks(void)
     /* Unknown bRequest */
     pkt.bRequest = 0xFF;
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+}
+
+void test_r5_usb_regressions(void)
+{
+    static const uint8_t hid_rep_desc[8] = {0x05, 0x01, 0x09, 0x00, 0xA1, 0x01, 0xC0, 0x00};
+
+    SYN_USB_Device dev;
+    SYN_USB_MSC msc;
+    SYN_USB_CDC cdc;
+    SYN_USB_HID hid;
+    SYN_USB_MIDI midi;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_init(&dev, TEST_DEVICE_DESC));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_msc_init(&msc));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_cdc_init(&cdc));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_hid_init(&hid));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_midi_init(&midi));
+
+    /* Register all 4 classes on one composite USB device */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_msc_register(&dev, &msc));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_cdc_register(&dev, &cdc));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_hid_register(&dev, &hid, hid_rep_desc, sizeof(hid_rep_desc)));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_midi_register(&dev, &midi));
+
+    TEST_ASSERT_EQUAL_UINT8(4U, dev.class_count);
+    TEST_ASSERT_EQUAL_UINT8(6U, dev.iface_count);
+    TEST_ASSERT_EQUAL_UINT8(6U, dev.config_buf[4]);
+
+    /* Verify non-colliding interface numbers */
+    TEST_ASSERT_EQUAL_UINT8(0U, msc.iface_num);
+    TEST_ASSERT_EQUAL_UINT8(1U, cdc.iface_num);
+    TEST_ASSERT_EQUAL_UINT8(3U, hid.iface_num);
+    TEST_ASSERT_EQUAL_UINT8(4U, midi.iface_num);
+
+    /* Verify non-colliding IN endpoints across MSC, CDC (cmd+in), HID, MIDI */
+    TEST_ASSERT_EQUAL_HEX8(0x82U, msc.ep_in);
+    TEST_ASSERT_EQUAL_HEX8(0x81U, cdc.ep_cmd);
+    TEST_ASSERT_EQUAL_HEX8(0x83U, cdc.ep_in);
+    TEST_ASSERT_EQUAL_HEX8(0x84U, hid.ep_in);
+    TEST_ASSERT_EQUAL_HEX8(0x85U, midi.ep_in);
+
+    /* Verify non-colliding OUT endpoints across MSC, CDC, MIDI */
+    TEST_ASSERT_EQUAL_HEX8(0x02U, msc.ep_out);
+    TEST_ASSERT_EQUAL_HEX8(0x01U, cdc.ep_out);
+    TEST_ASSERT_EQUAL_HEX8(0x03U, midi.ep_out);
+
+    /* Verify patched CDC IAD & Union functional descriptors in config_buf */
+    uint16_t cdc_off = 9U + SYN_USB_MSC_DESC_SIZE;
+    TEST_ASSERT_EQUAL_UINT8(1U, dev.config_buf[cdc_off + 2U]);  /* IAD bFirstInterface */
+    TEST_ASSERT_EQUAL_UINT8(1U, dev.config_buf[cdc_off + 10U]); /* Comm bInterfaceNumber */
+    TEST_ASSERT_EQUAL_UINT8(2U, dev.config_buf[cdc_off + 26U]); /* CM bDataInterface */
+    TEST_ASSERT_EQUAL_UINT8(1U, dev.config_buf[cdc_off + 34U]); /* Union bMasterInterface0 */
+    TEST_ASSERT_EQUAL_UINT8(2U, dev.config_buf[cdc_off + 35U]); /* Union bSlaveInterface0 */
+    TEST_ASSERT_EQUAL_UINT8(2U, dev.config_buf[cdc_off + 45U]); /* Data bInterfaceNumber */
+
+    /* Verify patched MIDI Audio Control baInterfaceNr -> 5 */
+    uint16_t midi_off = (uint16_t)(cdc_off + 66U + 25U);
+    TEST_ASSERT_EQUAL_UINT8(4U, dev.config_buf[midi_off + 2U]);
+    TEST_ASSERT_EQUAL_UINT8(5U, dev.config_buf[midi_off + 17U]);
+    TEST_ASSERT_EQUAL_UINT8(5U, dev.config_buf[midi_off + 20U]);
+
+    /* Verify setup packet routing to each composite interface + unmatched fallback */
+    uint8_t resp[64];
+    uint16_t rlen = 0U;
+    SYN_USB_SetupPacket pkt = {
+        .bmRequestType = 0xA1U, .bRequest = 0xFEU, .wValue = 0U, .wIndex = 0U, .wLength = 1U};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_UINT16(1U, rlen);
+
+    pkt.bRequest = SYN_USB_CDC_GET_LINE_CODING;
+    pkt.wIndex = 1U;
+    pkt.wLength = 7U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_UINT16(7U, rlen);
+
+    pkt.bmRequestType = 0x81U;
+    pkt.bRequest = SYN_USB_REQ_GET_DESCRIPTOR;
+    pkt.wValue = (uint16_t)(0x22U << 8);
+    pkt.wIndex = 3U;
+    pkt.wLength = sizeof(hid_rep_desc);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_UINT16(sizeof(hid_rep_desc), rlen);
+
+    /* Unmatched interface falls through to standard handler */
+    pkt.bmRequestType = 0x21U;
+    pkt.bRequest = 0x99U;
+    pkt.wIndex = 99U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+
+    /* Endpoint allocator edge cases & exhaustion rollback */
+    uint8_t ep_out = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_usb_alloc_ep(NULL, 0x81U, &ep_out));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_usb_alloc_ep(&dev, 0x81U, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_alloc_ep(&dev, 0x80U, &ep_out));
+    TEST_ASSERT_EQUAL_HEX8(0x86U, ep_out);
+
+    SYN_USB_Device dev2;
+    syn_usb_init(&dev2, TEST_DEVICE_DESC);
+    dev2.ep_in_mask = 0xFFFEU;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_usb_alloc_ep(&dev2, 0x81U, &ep_out));
+    SYN_USB_HID hid2;
+    syn_usb_hid_init(&hid2);
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_usb_hid_register(&dev2, &hid2, hid_rep_desc, sizeof(hid_rep_desc)));
+    TEST_ASSERT_EQUAL_UINT8(0U, dev2.class_count);
+
+    /* Truncated trailing byte in custom descriptor breaks cleanly */
+    dev2.ep_in_mask = 0U;
+    SYN_USB_ClassDriver raw_cls = {.iface_start = 2U, .iface_count = 1U};
+    uint8_t short_desc[10] = {0x09U, 0x04U, 0x00U, 0x00U, 0x00U, 0xFFU, 0x00U, 0x00U, 0x00U, 0x01U};
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_register_class(&dev2, &raw_cls, short_desc, sizeof(short_desc)));
+    TEST_ASSERT_EQUAL_UINT8(2U, dev2.classes[0].iface_start);
 }

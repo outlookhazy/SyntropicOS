@@ -504,39 +504,8 @@ SYN_AutoTune_State syn_autotune_update(SYN_AutoTune *at)
             at->result.pid_scale = scale;
             at->result.Ku = Ku;
 
-            int32_t Tu_i = (int32_t)Tu;
-            switch (at->cfg.method) {
-            case SYN_ATUNE_ZN_CLASSIC:
-                /* Kp = 0.6*Ku, Ki = 1.2*Ku/Tu, Kd = 3*Ku*Tu/40 */
-                at->result.kp = (int32_t)((int64_t)Ku * 60 / 100);
-                at->result.ki = (int32_t)((int64_t)Ku * 120 / Tu_i);
-                at->result.kd = (int32_t)((int64_t)Ku * 3 * Tu_i / (40L * 1000L));
-                break;
-            case SYN_ATUNE_ZN_NO_OVERSHOOT:
-                at->result.kp = (int32_t)((int64_t)Ku * 33 / 100);
-                at->result.ki = (int32_t)((int64_t)Ku * 66 / Tu_i);
-                at->result.kd = (int32_t)((int64_t)Ku * 11 * Tu_i / 100000);
-                break;
-            case SYN_ATUNE_TYREUS_LUYBEN:
-                /* Kp = Ku/2.2, Ki = Ku/(2.2*Tu), Kd = Ku*Tu/6.3
-                 * For Ki with large Tu: multiply first to avoid truncation */
-                at->result.kp = (int32_t)((int64_t)Ku * 100 / 220);
-                if (Tu_i > 0) {
-                    at->result.ki = (int32_t)((int64_t)Ku * 10000 / ((int64_t)220 * Tu_i));
-                }
-                at->result.kd = (int32_t)((int64_t)Ku * Tu_i / 6300);
-                break;
-            }
-
-            /* Apply safety multiplier */
-            if (at->cfg.gain_multiplier_pct != 100) {
-                at->result.kp =
-                    (int32_t)((int64_t)at->result.kp * at->cfg.gain_multiplier_pct / 100);
-                at->result.ki =
-                    (int32_t)((int64_t)at->result.ki * at->cfg.gain_multiplier_pct / 100);
-                at->result.kd =
-                    (int32_t)((int64_t)at->result.kd * at->cfg.gain_multiplier_pct / 100);
-            }
+            syn_autotune_calc_relay_gains(Ku, Tu, at->cfg.method, at->cfg.gain_multiplier_pct,
+                                          &at->result.kp, &at->result.ki, &at->result.kd);
         }
         break;
     }
@@ -574,24 +543,49 @@ SYN_AutoTune_State syn_autotune_update(SYN_AutoTune *at)
     return at->state;
 }
 
+static int32_t autotune_clamp_i64(int64_t val)
+{
+    if (val > (int64_t)INT32_MAX) {
+        return INT32_MAX;
+    }
+    if (val < (int64_t)INT32_MIN) {
+        return INT32_MIN;
+    }
+    return (int32_t)val;
+}
+
 void syn_autotune_apply(SYN_AutoTune *at)
 {
     SYN_ASSERT(at != NULL);
-    if (at->state != SYN_ATUNE_DONE)
+    if (at->state != SYN_ATUNE_DONE) {
         return;
+    }
+
+    uint8_t pid_scale = (at->result.pid_scale < 31U) ? at->result.pid_scale : 30U;
+    uint8_t ff_scale = (at->result.ff_scale < 31U) ? at->result.ff_scale : 30U;
 
     at->ctrl->cfg.pid_kp = at->result.kp;
     at->ctrl->cfg.pid_ki = at->result.ki;
     at->ctrl->cfg.pid_kd = at->result.kd;
+    at->ctrl->cfg.pid_scale = pid_scale;
     at->ctrl->cfg.ff_kv = at->result.ff_kv;
     at->ctrl->cfg.ff_ka = at->result.ff_ka;
-    at->ctrl->cfg.pid_scale = at->result.pid_scale;
+    at->ctrl->cfg.ff_scale = ff_scale;
+
+    SYN_PID_Config pid_cfg = at->ctrl->pid.cfg;
+    pid_cfg.kp = at->result.kp;
+    pid_cfg.ki = at->result.ki;
+    pid_cfg.kd = at->result.kd;
+    pid_cfg.scale = (int32_t)(1UL << pid_scale);
+    pid_cfg.integral_max = 0;
+    syn_pid_init(&at->ctrl->pid, &pid_cfg);
 }
 
 void syn_autotune_abort(SYN_AutoTune *at)
 {
-    if (at == NULL)
+    if (at == NULL) {
         return;
+    }
     SYN_ASSERT(at != NULL);
     emergency_stop(at, SYN_ATUNE_ABORT_USER);
 }
@@ -621,40 +615,44 @@ SYN_Status syn_autotune_start(SYN_AutoTune *at, SYN_MotorCtrl *ctrl,
 void syn_autotune_calc_relay_gains(int32_t Ku, uint32_t Tu_ms, SYN_AutoTune_Method method,
                                    uint16_t multiplier_pct, int32_t *kp, int32_t *ki, int32_t *kd)
 {
-    if (!kp || !ki || !kd || Tu_ms == 0)
+    if (kp == NULL || ki == NULL || kd == NULL || Tu_ms == 0U) {
         return;
+    }
 
-    int32_t p = 0, i = 0, d = 0;
-    int32_t tu = (int32_t)Tu_ms;
+    int64_t ku = (int64_t)Ku;
+    int64_t tu = (int64_t)Tu_ms;
+    int64_t p = 0;
+    int64_t i = 0;
+    int64_t d = 0;
 
     switch (method) {
     case SYN_ATUNE_ZN_CLASSIC:
-        p = (Ku * 60) / 100;
-        i = (p * 2000) / tu;
-        d = (p * tu) / 8000;
+        p = (ku * 60LL) / 100LL;
+        i = (p * 2000LL) / tu;
+        d = (p * tu) / 8000LL;
         break;
     case SYN_ATUNE_TYREUS_LUYBEN:
-        p = (Ku * 45) / 100;
-        i = (p * 1000) / ((tu * 22) / 10);
-        d = (p * tu) / 6300;
+        p = (ku * 10LL) / 22LL;
+        i = (p * 10000LL) / (22LL * tu);
+        d = (p * tu) / 6300LL;
         break;
     case SYN_ATUNE_ZN_NO_OVERSHOOT:
     default:
-        p = (Ku * 20) / 100;
-        i = (p * 2000) / tu;
-        d = (p * tu) / 3000;
+        p = (ku * 20LL) / 100LL;
+        i = (p * 2000LL) / tu;
+        d = (p * tu) / 3000LL;
         break;
     }
 
-    if (multiplier_pct != 100 && multiplier_pct > 0) {
-        p = (p * multiplier_pct) / 100;
-        i = (i * multiplier_pct) / 100;
-        d = (d * multiplier_pct) / 100;
+    if (multiplier_pct > 0U && multiplier_pct != 100U) {
+        p = (p * (int64_t)multiplier_pct) / 100LL;
+        i = (i * (int64_t)multiplier_pct) / 100LL;
+        d = (d * (int64_t)multiplier_pct) / 100LL;
     }
 
-    *kp = p;
-    *ki = i;
-    *kd = d;
+    *kp = autotune_clamp_i64(p);
+    *ki = autotune_clamp_i64(i);
+    *kd = autotune_clamp_i64(d);
 }
 
 #endif /* SYN_USE_AUTOTUNE */

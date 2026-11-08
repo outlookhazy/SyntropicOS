@@ -25,7 +25,7 @@ static const uint8_t s_days_in_month[12] = {31u, 28u, 31u, 30u, 31u, 30u,
  */
 static bool rtc_is_leap(uint16_t year)
 {
-    return ((year % 4u == 0u) && (year % 100u != 0u || year % 400u == 0u));
+    return ((year % 4u) == 0u) && (((year % 100u) != 0u) || ((year % 400u) == 0u));
 }
 
 /**
@@ -37,7 +37,7 @@ static bool rtc_is_leap(uint16_t year)
 static uint8_t rtc_days_in_month(uint8_t month, uint16_t year)
 {
     uint8_t d = s_days_in_month[(uint8_t)(month - 1u)];
-    if (month == 2u && rtc_is_leap(year)) {
+    if ((month == 2u) && rtc_is_leap(year)) {
         d++;
     }
     return d;
@@ -45,44 +45,57 @@ static uint8_t rtc_days_in_month(uint8_t month, uint16_t year)
 
 bool syn_rtc_is_valid(const SYN_RTC_DateTime *dt)
 {
-    SYN_ASSERT(dt != NULL);
-    if (dt == NULL)
-        return false; /* LCOV_EXCL_LINE: Defensive NULL check after SYN_ASSERT macro in release mode
-                       */
-    if (dt->year < 1970u)
-
+    if (dt == NULL) {
         return false;
-    if (dt->month < 1u || dt->month > 12u)
+    }
+    if (dt->year < 1970u) {
         return false;
-    if (dt->day < 1u || dt->day > rtc_days_in_month(dt->month, dt->year))
+    }
+    if ((dt->month < 1u) || (dt->month > 12u)) {
         return false;
-    if (dt->weekday != 0u && (dt->weekday < 1u || dt->weekday > 7u))
+    }
+    if ((dt->day < 1u) || (dt->day > rtc_days_in_month(dt->month, dt->year))) {
         return false;
-    if (dt->hour > 23u)
+    }
+    if (dt->weekday > 7u) {
         return false;
-    if (dt->minute > 59u)
+    }
+    if ((dt->hour > 23u) || (dt->minute > 59u) || (dt->second > 59u)) {
         return false;
-    if (dt->second > 59u)
-        return false;
+    }
     return true;
 }
 
 /** @brief Calibrated clock drift compensation in parts-per-million (PPM). */
 static int32_t s_drift_ppm = 0;
 
+/** @brief Reference Unix epoch at which RTC time or drift calibration was anchored. */
+static uint32_t s_base_epoch = 0U;
+
+/** @brief True when s_base_epoch holds a valid anchor timestamp. */
+static bool s_base_epoch_valid = false;
+
 SYN_Status syn_rtc_init(void)
 {
     s_drift_ppm = 0;
+    s_base_epoch = 0U;
+    s_base_epoch_valid = false;
     return syn_port_rtc_init();
 }
 
 void syn_rtc_set_drift_ppm(int32_t drift_ppm)
 {
-    if (drift_ppm <= -1000000 || drift_ppm > 1000000) {
+    if ((drift_ppm <= -1000000) || (drift_ppm > 1000000)) {
         return;
     }
+    if (!s_base_epoch_valid) {
+        SYN_RTC_DateTime raw_dt;
+        if ((syn_port_rtc_get(&raw_dt) == SYN_OK) && syn_rtc_is_valid(&raw_dt)) {
+            s_base_epoch = syn_rtc_to_epoch(&raw_dt);
+            s_base_epoch_valid = true;
+        }
+    }
     s_drift_ppm = drift_ppm;
-    /* Forward to port layer if port provides hardware calibration support */
 #if defined(SYN_PORT_HAS_RTC_DRIFT)
     syn_port_rtc_set_drift_ppm(drift_ppm);
 #endif
@@ -90,50 +103,58 @@ void syn_rtc_set_drift_ppm(int32_t drift_ppm)
 
 SYN_Status syn_rtc_get(SYN_RTC_DateTime *dt)
 {
-    SYN_ASSERT(dt != NULL);
+    if (dt == NULL) {
+        return SYN_INVALID_PARAM;
+    }
     SYN_Status status = syn_port_rtc_get(dt);
-    if (status != SYN_OK)
+    if (status != SYN_OK) {
         return status;
+    }
 
-    if (s_drift_ppm != 0 && (1000000LL + (int64_t)s_drift_ppm) > 0) {
-        uint32_t epoch = syn_rtc_to_epoch(dt);
-        /* Apply cross-platform PPM scaling formula */
-        int64_t comp_s = (int64_t)epoch * 1000000LL / (1000000LL + (int64_t)s_drift_ppm);
-        syn_rtc_from_epoch((uint32_t)comp_s, dt);
+    if (s_drift_ppm != 0) {
+        uint32_t raw_epoch = syn_rtc_to_epoch(dt);
+        if (!s_base_epoch_valid) {
+            s_base_epoch = raw_epoch;
+            s_base_epoch_valid = true;
+        }
+        int64_t elapsed = (int64_t)raw_epoch - (int64_t)s_base_epoch;
+        int64_t comp_elapsed = (elapsed * 1000000LL) / (1000000LL + (int64_t)s_drift_ppm);
+        int64_t comp_epoch = (int64_t)s_base_epoch + comp_elapsed;
+        uint32_t adj_epoch = (comp_epoch > 0) ? (uint32_t)comp_epoch : 0U;
+        syn_rtc_from_epoch(adj_epoch, dt);
     }
     return SYN_OK;
 }
 
 SYN_Status syn_rtc_set(const SYN_RTC_DateTime *dt)
 {
-    SYN_ASSERT(dt != NULL);
     if (!syn_rtc_is_valid(dt)) {
         return SYN_INVALID_PARAM;
     }
-    return syn_port_rtc_set(dt);
+    SYN_Status st = syn_port_rtc_set(dt);
+    if (st == SYN_OK) {
+        s_base_epoch = syn_rtc_to_epoch(dt);
+        s_base_epoch_valid = true;
+    }
+    return st;
 }
 
 uint32_t syn_rtc_to_epoch(const SYN_RTC_DateTime *dt)
 {
     SYN_ASSERT(dt != NULL);
 
-    /* Count days from 1970-01-01 to the start of dt->year */
     uint32_t days = 0u;
-    uint16_t y;
-    for (y = 1970u; y < dt->year; y++) {
+    for (uint16_t y = 1970u; y < dt->year; y++) {
         days += rtc_is_leap(y) ? 366u : 365u;
     }
 
-    /* Add days for elapsed months in the current year */
-    uint8_t m;
-    for (m = 1u; m < dt->month; m++) {
+    for (uint8_t m = 1u; m < dt->month; m++) {
         days += (uint32_t)rtc_days_in_month(m, dt->year);
     }
 
-    /* Add elapsed days in the current month (day is 1-indexed) */
     days += (uint32_t)dt->day - 1u;
 
-    return days * 86400u + (uint32_t)dt->hour * 3600u + (uint32_t)dt->minute * 60u +
+    return (days * 86400u) + ((uint32_t)dt->hour * 3600u) + ((uint32_t)dt->minute * 60u) +
            (uint32_t)dt->second;
 }
 
@@ -141,7 +162,6 @@ void syn_rtc_from_epoch(uint32_t epoch, SYN_RTC_DateTime *dt)
 {
     SYN_ASSERT(dt != NULL);
 
-    /* Extract time-of-day */
     dt->second = (uint8_t)(epoch % 60u);
     epoch /= 60u;
     dt->minute = (uint8_t)(epoch % 60u);
@@ -149,29 +169,26 @@ void syn_rtc_from_epoch(uint32_t epoch, SYN_RTC_DateTime *dt)
     dt->hour = (uint8_t)(epoch % 24u);
     epoch /= 24u;
 
-    /* epoch now = days since 1970-01-01 */
     uint32_t days = epoch;
-
-    /* 1970-01-01 was Thursday (weekday 4). 1 = Monday, 7 = Sunday */
     dt->weekday = (uint8_t)(((days + 3u) % 7u) + 1u);
 
-    /* Find year */
     uint16_t year = 1970u;
     for (;;) {
         uint32_t days_in_year = rtc_is_leap(year) ? 366u : 365u;
-        if (days < days_in_year)
+        if (days < days_in_year) {
             break;
+        }
         days -= days_in_year;
         year++;
     }
     dt->year = year;
 
-    /* Find month */
     uint8_t month = 1u;
     for (;;) {
         uint32_t dim = (uint32_t)rtc_days_in_month(month, year);
-        if (days < dim)
+        if (days < dim) {
             break;
+        }
         days -= dim;
         month++;
     }
@@ -181,8 +198,9 @@ void syn_rtc_from_epoch(uint32_t epoch, SYN_RTC_DateTime *dt)
 
 SYN_Status syn_rtc_set_alarm(const SYN_RTC_DateTime *dt)
 {
-    if (dt == NULL || !syn_rtc_is_valid(dt))
+    if (!syn_rtc_is_valid(dt)) {
         return SYN_INVALID_PARAM;
+    }
 
     return syn_port_rtc_set_alarm(dt);
 }
@@ -191,8 +209,9 @@ SYN_Status syn_rtc_schedule_alarm_seconds(uint32_t seconds_from_now, SYN_RTC_Dat
 {
     SYN_RTC_DateTime now;
     SYN_Status status = syn_rtc_get(&now);
-    if (status != SYN_OK)
+    if (status != SYN_OK) {
         return status;
+    }
 
     uint32_t current_epoch = syn_rtc_to_epoch(&now);
     uint32_t target_epoch = current_epoch + seconds_from_now;

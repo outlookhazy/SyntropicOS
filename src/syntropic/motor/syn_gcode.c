@@ -23,6 +23,10 @@
 #define SYN_GCODE_DEFAULT_JERK 2000.0f
 /** @brief Default step resolution in seconds */
 #define SYN_GCODE_DEFAULT_STEP_RES 0.001f
+/** @brief Seconds per minute conversion factor for G94 units/min feedrate */
+#define SYN_GCODE_SEC_PER_MIN 60.0f
+/** @brief Millimeters per inch conversion factor for G20 */
+#define SYN_GCODE_MM_PER_INCH 25.4f
 
 /* ── Fast ASCII Number Scanners ─────────────────────────────────────────── */
 
@@ -96,7 +100,11 @@ static const char *parse_uint_val(const char *p, uint32_t *out_val)
     uint32_t val = 0U;
     bool has_digits = false;
     while (*p >= '0' && *p <= '9') {
-        val = (val * 10U) + (uint32_t)(*p - '0');
+        uint32_t digit = (uint32_t)(*p - '0');
+        if (val > (UINT32_MAX - digit) / 10U) {
+            return NULL;
+        }
+        val = (val * 10U) + digit;
         has_digits = true;
         p++;
     }
@@ -105,6 +113,192 @@ static const char *parse_uint_val(const char *p, uint32_t *out_val)
     }
     *out_val = val;
     return p;
+}
+
+/**
+ * @brief Classify numeric G-code into its RS-274 modal or non-modal group on block.
+ * @param block  Target parsed block.
+ * @param g_code Numeric G-code value.
+ * @return true if g_code is a supported RS-274 G-code, false otherwise.
+ */
+static bool gcode_classify_g_word(SYN_GCode_Block *block, uint32_t g_code)
+{
+    if (g_code <= 3U) {
+        block->has_motion = true;
+        block->motion_mode = (SYN_GCode_MotionMode)g_code;
+        return true;
+    }
+    if (g_code >= 17U && g_code <= 19U) {
+        block->has_plane = true;
+        block->plane = (SYN_GCode_Plane)(g_code - 17U);
+        return true;
+    }
+    if (g_code == 20U || g_code == 21U) {
+        block->has_units = true;
+        block->units = (g_code == 20U) ? SYN_GCODE_UNITS_INCH : SYN_GCODE_UNITS_MM;
+        return true;
+    }
+    if (g_code == 90U || g_code == 91U) {
+        block->has_dist_mode = true;
+        block->dist_mode = (g_code == 91U) ? SYN_GCODE_DIST_INCREMENTAL : SYN_GCODE_DIST_ABSOLUTE;
+        return true;
+    }
+    if (g_code == 4U || g_code == 28U || g_code == 92U) {
+        block->has_non_modal = true;
+        block->non_modal = (SYN_GCode_NonModal)g_code;
+        return true;
+    }
+    return (g_code == 94U);
+}
+
+/**
+ * @brief Check whether numeric M-code is supported by the interpreter.
+ * @param m_code Numeric M-code value.
+ * @return true if supported (M0..M9, M30), false otherwise.
+ */
+static bool gcode_is_valid_m_code(uint32_t m_code)
+{
+    return (m_code <= 9U) || (m_code == 30U);
+}
+
+/**
+ * @brief Parse coordinate or arc-offset float word (X, Y, Z, I, J, K).
+ * @param letter    Uppercase word letter.
+ * @param p         Pointer to numeric value text.
+ * @param block     Target parsed block.
+ * @param out_match Set true if letter was handled by this helper.
+ * @return Updated scan pointer, or NULL on numeric parse error.
+ */
+static const char *gcode_parse_coord_word(char letter, const char *p, SYN_GCode_Block *block,
+                                          bool *out_match)
+{
+    float *val_ptr = NULL;
+    bool *flag_ptr = NULL;
+    *out_match = true;
+
+    switch (letter) {
+    case 'X':
+        val_ptr = &block->x;
+        flag_ptr = &block->has_x;
+        break;
+    case 'Y':
+        val_ptr = &block->y;
+        flag_ptr = &block->has_y;
+        break;
+    case 'Z':
+        val_ptr = &block->z;
+        flag_ptr = &block->has_z;
+        break;
+    case 'I':
+        val_ptr = &block->i;
+        flag_ptr = &block->has_i;
+        break;
+    case 'J':
+        val_ptr = &block->j;
+        flag_ptr = &block->has_j;
+        break;
+    case 'K':
+        val_ptr = &block->k;
+        flag_ptr = &block->has_k;
+        break;
+    default:
+        *out_match = false;
+        return p;
+    }
+
+    p = parse_float_val(p, val_ptr);
+    if (p != NULL) {
+        *flag_ptr = true;
+    }
+    return p;
+}
+
+/**
+ * @brief Parse float parameter word (F, S, P) with non-negative validation.
+ * @param letter    Uppercase word letter.
+ * @param p         Pointer to numeric value text.
+ * @param block     Target parsed block.
+ * @param out_match Set true if letter was handled by this helper.
+ * @return Updated scan pointer, or NULL on numeric or range validation error.
+ */
+static const char *gcode_parse_param_word(char letter, const char *p, SYN_GCode_Block *block,
+                                          bool *out_match)
+{
+    *out_match = true;
+    if (letter == 'F') {
+        p = parse_float_val(p, &block->f);
+        if (p == NULL || block->f <= 0.0f) {
+            return NULL;
+        }
+        block->has_f = true;
+        return p;
+    }
+    if (letter == 'S') {
+        p = parse_float_val(p, &block->s);
+        if (p == NULL || block->s < 0.0f) {
+            return NULL;
+        }
+        block->has_s = true;
+        return p;
+    }
+    if (letter == 'P') {
+        p = parse_float_val(p, &block->p);
+        if (p == NULL || block->p < 0.0f) {
+            return NULL;
+        }
+        block->has_p = true;
+        return p;
+    }
+    *out_match = false;
+    return p;
+}
+
+/**
+ * @brief Parse command or line-number integer word (G, M, T, N).
+ * @param letter Uppercase word letter.
+ * @param p      Pointer to numeric value text.
+ * @param block  Target parsed block.
+ * @return Updated scan pointer, or NULL on invalid/unsupported word.
+ */
+static const char *gcode_parse_cmd_word(char letter, const char *p, SYN_GCode_Block *block)
+{
+    bool matched = false;
+    p = gcode_parse_param_word(letter, p, block, &matched);
+    if (matched) {
+        return p;
+    }
+
+    uint32_t uval = 0U;
+    if (letter == 'G') {
+        p = parse_uint_val(p, &uval);
+        if (p == NULL || !gcode_classify_g_word(block, uval)) {
+            return NULL;
+        }
+        block->has_g = true;
+        block->g_code = uval;
+        return p;
+    }
+    if (letter == 'M') {
+        p = parse_uint_val(p, &uval);
+        if (p == NULL || !gcode_is_valid_m_code(uval)) {
+            return NULL;
+        }
+        block->has_m = true;
+        block->m_code = uval;
+        return p;
+    }
+    if (letter == 'T') {
+        p = parse_uint_val(p, &uval);
+        if (p != NULL) {
+            block->has_t = true;
+            block->t = uval;
+        }
+        return p;
+    }
+    if (letter == 'N') {
+        return parse_uint_val(p, &uval);
+    }
+    return NULL;
 }
 
 /* ── Public API Implementation ───────────────────────────────────────────── */
@@ -121,7 +315,7 @@ SYN_Status syn_gcode_init(SYN_GCode_Controller *ctrl, const SYN_GCode_Config *cf
     }
 
     if (ctrl->cfg.default_feedrate <= 0.0f) {
-        ctrl->cfg.default_feedrate = SYN_GCODE_DEFAULT_FEEDRATE;
+        ctrl->cfg.default_feedrate = SYN_GCODE_DEFAULT_FEEDRATE / SYN_GCODE_SEC_PER_MIN;
     }
     if (ctrl->cfg.max_acceleration <= 0.0f) {
         ctrl->cfg.max_acceleration = SYN_GCODE_DEFAULT_ACCEL;
@@ -177,93 +371,11 @@ SYN_Status syn_gcode_parse_line(const char *line, SYN_GCode_Block *block)
         char letter = (char)toupper((unsigned char)*p);
         p++;
 
-        switch (letter) {
-        case 'G': {
-            uint32_t val = 0U;
-            p = parse_uint_val(p, &val);
-            if (p != NULL) {
-                block->has_g = true;
-                block->g_code = val;
-            }
-            break;
+        bool matched = false;
+        p = gcode_parse_coord_word(letter, p, block, &matched);
+        if (!matched) {
+            p = gcode_parse_cmd_word(letter, p, block);
         }
-        case 'M': {
-            uint32_t val = 0U;
-            p = parse_uint_val(p, &val);
-            if (p != NULL) {
-                block->has_m = true;
-                block->m_code = val;
-            }
-            break;
-        }
-        case 'X':
-            p = parse_float_val(p, &block->x);
-            if (p != NULL) {
-                block->has_x = true;
-            }
-            break;
-        case 'Y':
-            p = parse_float_val(p, &block->y);
-            if (p != NULL) {
-                block->has_y = true;
-            }
-            break;
-        case 'Z':
-            p = parse_float_val(p, &block->z);
-            if (p != NULL) {
-                block->has_z = true;
-            }
-            break;
-        case 'I':
-            p = parse_float_val(p, &block->i);
-            if (p != NULL) {
-                block->has_i = true;
-            }
-            break;
-        case 'J':
-            p = parse_float_val(p, &block->j);
-            if (p != NULL) {
-                block->has_j = true;
-            }
-            break;
-        case 'K':
-            p = parse_float_val(p, &block->k);
-            if (p != NULL) {
-                block->has_k = true;
-            }
-            break;
-        case 'F':
-            p = parse_float_val(p, &block->f);
-            if (p != NULL) {
-                block->has_f = true;
-            }
-            break;
-        case 'S':
-            p = parse_float_val(p, &block->s);
-            if (p != NULL) {
-                block->has_s = true;
-            }
-            break;
-        case 'P':
-            p = parse_float_val(p, &block->p);
-            if (p != NULL) {
-                block->has_p = true;
-            }
-            break;
-        case 'T': {
-            uint32_t val = 0U;
-            p = parse_uint_val(p, &val);
-            if (p != NULL) {
-                block->has_t = true;
-                block->t = val;
-            }
-            break;
-        }
-        default:
-            /* Skip unknown characters */
-            break;
-        }
-
         if (p == NULL) {
             return SYN_INVALID_PARAM;
         }
@@ -272,15 +384,267 @@ SYN_Status syn_gcode_parse_line(const char *line, SYN_GCode_Block *block)
     return SYN_OK;
 }
 
-SYN_Status syn_gcode_execute_block(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block)
+/**
+ * @brief Dispatch M-code spindle and coolant state updates.
+ * @param ctrl   Controller instance.
+ * @param m_code Numeric M-code value.
+ */
+static void gcode_apply_m_code(SYN_GCode_Controller *ctrl, uint32_t m_code)
 {
-    if (ctrl == NULL || block == NULL) {
-        return SYN_INVALID_PARAM;
+    if (m_code >= 3U && m_code <= 5U) {
+        SYN_GCode_SpindleMode mode = SYN_GCODE_SPINDLE_OFF;
+        float rpm = 0.0f;
+        if (m_code == 3U) {
+            mode = SYN_GCODE_SPINDLE_CW;
+            rpm = ctrl->spindle_speed;
+        } else if (m_code == 4U) {
+            mode = SYN_GCODE_SPINDLE_CCW;
+            rpm = ctrl->spindle_speed;
+        }
+        ctrl->spindle = mode;
+        if (ctrl->cfg.on_spindle != NULL) {
+            ctrl->cfg.on_spindle(mode, rpm, ctrl->cfg.user_data);
+        }
+    } else if (m_code >= 7U && m_code <= 9U) {
+        SYN_GCode_CoolantMode mode = SYN_GCODE_COOLANT_OFF;
+        if (m_code == 7U) {
+            mode = SYN_GCODE_COOLANT_MIST;
+        } else if (m_code == 8U) {
+            mode = SYN_GCODE_COOLANT_FLOOD;
+        }
+        ctrl->coolant = mode;
+        if (ctrl->cfg.on_coolant != NULL) {
+            ctrl->cfg.on_coolant(mode, ctrl->cfg.user_data);
+        }
+    }
+}
+
+/**
+ * @brief Plan linear move on interpolator or step directly when interpolator is NULL.
+ * @param ctrl   Controller instance.
+ * @param target Target machine coordinate position in millimeters.
+ */
+static void gcode_plan_or_jump_linear(SYN_GCode_Controller *ctrl, SYN_Vector3F target)
+{
+    ctrl->dwell_steps = 0U;
+    ctrl->dwell_ms = 0U;
+    if (ctrl->cfg.interpolator != NULL) {
+        SYN_Status st = syn_interpolator_plan_linear(
+            ctrl->cfg.interpolator, ctrl->current_pos, target, ctrl->feedrate,
+            ctrl->cfg.max_acceleration, ctrl->cfg.max_jerk, ctrl->cfg.step_resolution);
+        if (st == SYN_OK) {
+            ctrl->move_in_progress = true;
+        }
+    } else {
+        ctrl->current_pos = target;
+    }
+}
+
+/**
+ * @brief Return specified axes (or all axes when none specified) to machine home (0, 0, 0).
+ * @param ctrl  Controller instance.
+ * @param block Effective parsed block.
+ */
+static void gcode_execute_home(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block)
+{
+    SYN_Vector3F home = ctrl->current_pos;
+    bool any_axis = block->has_x || block->has_y || block->has_z;
+    if (!any_axis || block->has_x) {
+        home.x = 0.0f;
+    }
+    if (!any_axis || block->has_y) {
+        home.y = 0.0f;
+    }
+    if (!any_axis || block->has_z) {
+        home.z = 0.0f;
+    }
+    gcode_plan_or_jump_linear(ctrl, home);
+}
+
+/**
+ * @brief Execute G4 non-modal dwell command.
+ * @param ctrl  Controller instance.
+ * @param block Effective parsed block.
+ */
+static void gcode_execute_dwell(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block)
+{
+    float dwell_s = block->has_p ? block->p : 0.0f;
+    if (ctrl->cfg.on_dwell != NULL) {
+        ctrl->cfg.on_dwell(dwell_s, ctrl->cfg.user_data);
+    }
+    if (dwell_s > 0.0f) {
+        uint32_t steps = (uint32_t)((dwell_s / ctrl->cfg.step_resolution) + 0.5f);
+        uint32_t ms = (uint32_t)((dwell_s * 1000.0f) + 0.5f);
+        ctrl->dwell_steps = (steps > 0U) ? steps : 1U;
+        ctrl->dwell_ms = (ms > 0U) ? ms : 1U;
+    } else {
+        ctrl->dwell_steps = 0U;
+        ctrl->dwell_ms = 0U;
+    }
+}
+
+/**
+ * @brief Execute Group 0 non-modal action (G4 dwell, G28 home, G92 offset).
+ * @param ctrl  Controller instance.
+ * @param block Effective parsed block.
+ * @param scale Active unit conversion factor to millimeters.
+ * @return true if non-modal command consumed the block's coordinate words.
+ */
+static bool gcode_execute_non_modal(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block,
+                                    float scale)
+{
+    if (!block->has_non_modal || block->non_modal == SYN_GCODE_NONMODAL_NONE) {
+        return false;
+    }
+    if (block->non_modal == SYN_GCODE_NONMODAL_OFFSET) {
+        if (block->has_x) {
+            ctrl->offset_pos.x = ctrl->current_pos.x - (block->x * scale);
+        }
+        if (block->has_y) {
+            ctrl->offset_pos.y = ctrl->current_pos.y - (block->y * scale);
+        }
+        if (block->has_z) {
+            ctrl->offset_pos.z = ctrl->current_pos.z - (block->z * scale);
+        }
+    } else if (block->non_modal == SYN_GCODE_NONMODAL_HOME) {
+        gcode_execute_home(ctrl, block);
+    } else if (block->non_modal == SYN_GCODE_NONMODAL_DWELL) {
+        gcode_execute_dwell(ctrl, block);
+    }
+    return true;
+}
+
+/**
+ * @brief Compute target machine position in millimeters for absolute or incremental mode.
+ * @param ctrl  Controller instance.
+ * @param block Effective parsed block.
+ * @param scale Active unit conversion factor to millimeters.
+ * @return Target machine position in millimeters.
+ */
+static SYN_Vector3F gcode_compute_target(const SYN_GCode_Controller *ctrl,
+                                         const SYN_GCode_Block *block, float scale)
+{
+    SYN_Vector3F target = ctrl->current_pos;
+    if (ctrl->dist_mode == SYN_GCODE_DIST_ABSOLUTE) {
+        if (block->has_x) {
+            target.x = (block->x * scale) + ctrl->offset_pos.x;
+        }
+        if (block->has_y) {
+            target.y = (block->y * scale) + ctrl->offset_pos.y;
+        }
+        if (block->has_z) {
+            target.z = (block->z * scale) + ctrl->offset_pos.z;
+        }
+    } else {
+        if (block->has_x) {
+            target.x += block->x * scale;
+        }
+        if (block->has_y) {
+            target.y += block->y * scale;
+        }
+        if (block->has_z) {
+            target.z += block->z * scale;
+        }
+    }
+    return target;
+}
+
+/**
+ * @brief Check whether block contains any axis coordinate or arc center offset word.
+ * @param block Effective parsed block.
+ * @return true if any of X, Y, Z, I, J, K is present.
+ */
+static bool gcode_has_motion_coords(const SYN_GCode_Block *block)
+{
+    return block->has_x || block->has_y || block->has_z || block->has_i || block->has_j ||
+           block->has_k;
+}
+
+/**
+ * @brief Execute Group 1 linear or circular motion move if coordinate words are present.
+ * @param ctrl  Controller instance.
+ * @param block Effective parsed block.
+ * @param scale Active unit conversion factor to millimeters.
+ */
+static void gcode_execute_motion(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block,
+                                 float scale)
+{
+    if (!gcode_has_motion_coords(block)) {
+        return;
     }
 
-    /* 1. Process Feedrate & Spindle Speed updates */
+    ctrl->dwell_steps = 0U;
+    ctrl->dwell_ms = 0U;
+    SYN_Vector3F target = gcode_compute_target(ctrl, block, scale);
+    if (ctrl->cfg.interpolator == NULL) {
+        ctrl->current_pos = target;
+        return;
+    }
+
+    if (ctrl->motion_mode == SYN_GCODE_MOTION_RAPID ||
+        ctrl->motion_mode == SYN_GCODE_MOTION_LINEAR) {
+        gcode_plan_or_jump_linear(ctrl, target);
+    } else if (ctrl->motion_mode == SYN_GCODE_MOTION_ARC_CW ||
+               ctrl->motion_mode == SYN_GCODE_MOTION_ARC_CCW) {
+        SYN_Vector3F center = {
+            .x = block->has_i ? (block->i * scale) : 0.0f,
+            .y = block->has_j ? (block->j * scale) : 0.0f,
+            .z = block->has_k ? (block->k * scale) : 0.0f,
+        };
+        bool is_cw = (ctrl->motion_mode == SYN_GCODE_MOTION_ARC_CW);
+        SYN_Status st = syn_interpolator_plan_circular(
+            ctrl->cfg.interpolator, ctrl->current_pos, target, center, is_cw, ctrl->feedrate,
+            ctrl->cfg.max_acceleration, ctrl->cfg.max_jerk, ctrl->cfg.step_resolution);
+        if (st == SYN_OK) {
+            ctrl->move_in_progress = true;
+        }
+    }
+}
+
+/**
+ * @brief Apply modal group state transitions (units, plane, distance, motion) to controller.
+ * @param ctrl  Controller instance.
+ * @param block Effective parsed block.
+ */
+static void gcode_apply_modal_groups(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block)
+{
+    if (block->has_units) {
+        ctrl->units = block->units;
+    }
+    if (block->has_plane) {
+        ctrl->plane = block->plane;
+    }
+    if (block->has_dist_mode) {
+        ctrl->dist_mode = block->dist_mode;
+    }
+    if (block->has_motion) {
+        ctrl->motion_mode = block->motion_mode;
+    }
+}
+
+/**
+ * @brief Check whether block already has any RS-274 modal or non-modal group flag populated.
+ * @param block Parsed block.
+ * @return true if at least one group flag is set.
+ */
+static bool gcode_has_classified_group(const SYN_GCode_Block *block)
+{
+    return block->has_motion || block->has_plane || block->has_dist_mode || block->has_units ||
+           block->has_non_modal;
+}
+
+/**
+ * @brief Apply feedrate, spindle speed, tool selection, and M-code words from block.
+ * @param ctrl  Controller instance.
+ * @param block Effective parsed block.
+ * @param scale Active unit conversion factor to millimeters.
+ */
+static void gcode_apply_aux_words(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block,
+                                  float scale)
+{
     if (block->has_f && block->f > 0.0f) {
-        ctrl->feedrate = block->f;
+        /* Convert G94 units/min feedrate to mm/sec */
+        ctrl->feedrate = (block->f * scale) / SYN_GCODE_SEC_PER_MIN;
     }
     if (block->has_s && block->s >= 0.0f) {
         ctrl->spindle_speed = block->s;
@@ -291,165 +655,37 @@ SYN_Status syn_gcode_execute_block(SYN_GCode_Controller *ctrl, const SYN_GCode_B
             ctrl->cfg.on_tool(block->t, ctrl->cfg.user_data);
         }
     }
-
-    /* 2. Process M-Codes */
     if (block->has_m) {
-        switch (block->m_code) {
-        case 3: /* Spindle CW */
-            ctrl->spindle = SYN_GCODE_SPINDLE_CW;
-            if (ctrl->cfg.on_spindle != NULL) {
-                ctrl->cfg.on_spindle(SYN_GCODE_SPINDLE_CW, ctrl->spindle_speed,
-                                     ctrl->cfg.user_data);
-            }
-            break;
-        case 4: /* Spindle CCW */
-            ctrl->spindle = SYN_GCODE_SPINDLE_CCW;
-            if (ctrl->cfg.on_spindle != NULL) {
-                ctrl->cfg.on_spindle(SYN_GCODE_SPINDLE_CCW, ctrl->spindle_speed,
-                                     ctrl->cfg.user_data);
-            }
-            break;
-        case 5: /* Spindle Stop */
-            ctrl->spindle = SYN_GCODE_SPINDLE_OFF;
-            if (ctrl->cfg.on_spindle != NULL) {
-                ctrl->cfg.on_spindle(SYN_GCODE_SPINDLE_OFF, 0.0f, ctrl->cfg.user_data);
-            }
-            break;
-        case 7: /* Coolant Mist */
-            ctrl->coolant = SYN_GCODE_COOLANT_MIST;
-            if (ctrl->cfg.on_coolant != NULL) {
-                ctrl->cfg.on_coolant(SYN_GCODE_COOLANT_MIST, ctrl->cfg.user_data);
-            }
-            break;
-        case 8: /* Coolant Flood */
-            ctrl->coolant = SYN_GCODE_COOLANT_FLOOD;
-            if (ctrl->cfg.on_coolant != NULL) {
-                ctrl->cfg.on_coolant(SYN_GCODE_COOLANT_FLOOD, ctrl->cfg.user_data);
-            }
-            break;
-        case 9: /* Coolant Off */
-            ctrl->coolant = SYN_GCODE_COOLANT_OFF;
-            if (ctrl->cfg.on_coolant != NULL) {
-                ctrl->cfg.on_coolant(SYN_GCODE_COOLANT_OFF, ctrl->cfg.user_data);
-            }
-            break;
-        default:
-            break;
-        }
+        gcode_apply_m_code(ctrl, block->m_code);
+    }
+}
+
+SYN_Status syn_gcode_execute_block(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block)
+{
+    if (ctrl == NULL || block == NULL) {
+        return SYN_INVALID_PARAM;
     }
 
-    /* 3. Process G-Codes (Modal state updates) */
-    if (block->has_g) {
-        switch (block->g_code) {
-        case 0:
-            ctrl->motion_mode = SYN_GCODE_MOTION_RAPID;
-            break;
-        case 1:
-            ctrl->motion_mode = SYN_GCODE_MOTION_LINEAR;
-            break;
-        case 2:
-            ctrl->motion_mode = SYN_GCODE_MOTION_ARC_CW;
-            break;
-        case 3:
-            ctrl->motion_mode = SYN_GCODE_MOTION_ARC_CCW;
-            break;
-        case 4:
-            ctrl->motion_mode = SYN_GCODE_MOTION_DWELL;
-            break;
-        case 17:
-            ctrl->plane = SYN_GCODE_PLANE_XY;
-            break;
-        case 18:
-            ctrl->plane = SYN_GCODE_PLANE_XZ;
-            break;
-        case 19:
-            ctrl->plane = SYN_GCODE_PLANE_YZ;
-            break;
-        case 20:
-            ctrl->units = SYN_GCODE_UNITS_INCH;
-            break;
-        case 21:
-            ctrl->units = SYN_GCODE_UNITS_MM;
-            break;
-        case 90:
-            ctrl->dist_mode = SYN_GCODE_DIST_ABSOLUTE;
-            break;
-        case 91:
-            ctrl->dist_mode = SYN_GCODE_DIST_INCREMENTAL;
-            break;
-        case 92:
-            /* Coordinate system preset / offset */
-            if (block->has_x) {
-                ctrl->offset_pos.x = ctrl->current_pos.x - block->x;
-            }
-            if (block->has_y) {
-                ctrl->offset_pos.y = ctrl->current_pos.y - block->y;
-            }
-            if (block->has_z) {
-                ctrl->offset_pos.z = ctrl->current_pos.z - block->z;
-            }
-            return SYN_OK;
-        default:
-            break;
+    SYN_GCode_Block eff = *block;
+    if (eff.has_g && !gcode_has_classified_group(&eff)) {
+        if (!gcode_classify_g_word(&eff, eff.g_code)) {
+            return SYN_INVALID_PARAM;
         }
     }
+    if (eff.has_m && !gcode_is_valid_m_code(eff.m_code)) {
+        return SYN_INVALID_PARAM;
+    }
 
-    /* 4. Motion Execution */
-    if (block->has_x || block->has_y || block->has_z || block->has_i || block->has_j ||
-        block->has_k) {
-        SYN_Vector3F target = ctrl->current_pos;
+    /* 1. Apply RS-274 modal groups (units/plane/distance/motion) before scaling F or axes */
+    gcode_apply_modal_groups(ctrl, &eff);
+    float scale = (ctrl->units == SYN_GCODE_UNITS_INCH) ? SYN_GCODE_MM_PER_INCH : 1.0f;
 
-        if (ctrl->dist_mode == SYN_GCODE_DIST_ABSOLUTE) {
-            if (block->has_x) {
-                target.x = block->x + ctrl->offset_pos.x;
-            }
-            if (block->has_y) {
-                target.y = block->y + ctrl->offset_pos.y;
-            }
-            if (block->has_z) {
-                target.z = block->z + ctrl->offset_pos.z;
-            }
-        } else {
-            /* Incremental */
-            if (block->has_x) {
-                target.x += block->x;
-            }
-            if (block->has_y) {
-                target.y += block->y;
-            }
-            if (block->has_z) {
-                target.z += block->z;
-            }
-        }
+    /* 2. Process Feedrate, Spindle Speed, Tool & M-Codes */
+    gcode_apply_aux_words(ctrl, &eff, scale);
 
-        if (ctrl->cfg.interpolator != NULL) {
-            if (ctrl->motion_mode == SYN_GCODE_MOTION_RAPID ||
-                ctrl->motion_mode == SYN_GCODE_MOTION_LINEAR) {
-                SYN_Status st = syn_interpolator_plan_linear(
-                    ctrl->cfg.interpolator, ctrl->current_pos, target, ctrl->feedrate,
-                    ctrl->cfg.max_acceleration, ctrl->cfg.max_jerk, ctrl->cfg.step_resolution);
-                if (st == SYN_OK) {
-                    ctrl->move_in_progress = true;
-                }
-            } else if (ctrl->motion_mode == SYN_GCODE_MOTION_ARC_CW ||
-                       ctrl->motion_mode == SYN_GCODE_MOTION_ARC_CCW) {
-                SYN_Vector3F center = {
-                    .x = block->has_i ? block->i : 0.0f,
-                    .y = block->has_j ? block->j : 0.0f,
-                    .z = block->has_k ? block->k : 0.0f,
-                };
-                bool is_cw = (ctrl->motion_mode == SYN_GCODE_MOTION_ARC_CW);
-                SYN_Status st = syn_interpolator_plan_circular(
-                    ctrl->cfg.interpolator, ctrl->current_pos, target, center, is_cw,
-                    ctrl->feedrate, ctrl->cfg.max_acceleration, ctrl->cfg.max_jerk,
-                    ctrl->cfg.step_resolution);
-                if (st == SYN_OK) {
-                    ctrl->move_in_progress = true;
-                }
-            }
-        } else {
-            ctrl->current_pos = target;
-        }
+    /* 3. Execute Group 0 non-modal commands (G4, G28, G92) or Group 1 motion */
+    if (!gcode_execute_non_modal(ctrl, &eff, scale)) {
+        gcode_execute_motion(ctrl, &eff, scale);
     }
 
     return SYN_OK;
@@ -474,15 +710,30 @@ bool syn_gcode_step(SYN_GCode_Controller *ctrl, SYN_Vector3F *out_pos)
         return false;
     }
 
-    if (ctrl->cfg.interpolator != NULL && ctrl->move_in_progress) {
-        bool active = syn_interpolator_step(ctrl->cfg.interpolator, &ctrl->current_pos);
+    if (ctrl->dwell_steps > 0U) {
+        ctrl->dwell_steps--;
+        if (ctrl->dwell_steps == 0U) {
+            ctrl->dwell_ms = 0U;
+        }
         if (out_pos != NULL) {
             *out_pos = ctrl->current_pos;
         }
-        if (!active) {
+        return true;
+    }
+
+    if (ctrl->move_in_progress) {
+        if (ctrl->cfg.interpolator == NULL) {
             ctrl->move_in_progress = false;
+        } else {
+            bool active = syn_interpolator_step(ctrl->cfg.interpolator, &ctrl->current_pos);
+            if (out_pos != NULL) {
+                *out_pos = ctrl->current_pos;
+            }
+            if (!active) {
+                ctrl->move_in_progress = false;
+            }
+            return active;
         }
-        return active;
     }
 
     if (out_pos != NULL) {
@@ -494,7 +745,7 @@ bool syn_gcode_step(SYN_GCode_Controller *ctrl, SYN_Vector3F *out_pos)
 SYN_PT_Status syn_gcode_task_pt(SYN_PT *pt, SYN_Task *task)
 {
     if (pt == NULL || task == NULL || task->user_data == NULL) {
-        return PT_ENDED;
+        return PT_EXITED;
     }
 
     SYN_GCode_Controller *ctrl = (SYN_GCode_Controller *)task->user_data;
@@ -502,11 +753,18 @@ SYN_PT_Status syn_gcode_task_pt(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     for (;;) {
-        if (ctrl->move_in_progress) {
-            SYN_Vector3F pos;
-            (void)syn_gcode_step(ctrl, &pos);
+        if (ctrl->dwell_ms > 0U) {
+            uint32_t wait_ms = ctrl->dwell_ms;
+            ctrl->dwell_ms = 0U;
+            ctrl->dwell_steps = 0U;
+            PT_DELAY_MS(pt, &task->delay_until, wait_ms);
         }
-        PT_YIELD(pt);
+        SYN_Vector3F pos;
+        if (syn_gcode_step(ctrl, &pos)) {
+            PT_CONTINUE(pt);
+        } else {
+            PT_PASS(pt);
+        }
     }
 
     PT_END(pt); /* LCOV_EXCL_LINE: Infinite task loop end */

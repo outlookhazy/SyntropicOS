@@ -7,6 +7,8 @@
 #ifndef SYN_ASN1_H
 #define SYN_ASN1_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

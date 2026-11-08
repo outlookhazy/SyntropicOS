@@ -19,7 +19,7 @@ echo "=== Coverage Summary ==="
 if command -v lcov >/dev/null 2>&1; then
     lcov --capture --rc branch_coverage=1 --ignore-errors inconsistent,path --directory build/cov --output-file build/cov/coverage.info --quiet
     lcov --extract build/cov/coverage.info "*/src/*" --rc branch_coverage=1 --ignore-errors inconsistent,path --output-file build/cov/coverage_src.info --quiet
-    lcov --summary build/cov/coverage_src.info --rc branch_coverage=1
+    lcov --summary build/cov/coverage_src.info --rc branch_coverage=1 --ignore-errors inconsistent
     python3 tools/coverage/analyze_coverage.py build/cov/coverage_src.info
 elif command -v gcovr >/dev/null 2>&1; then
     gcovr -r . --object-directory build/cov --filter "src/.*" --txt

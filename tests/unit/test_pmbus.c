@@ -91,8 +91,18 @@ void test_pmbus_status_word_decoding(void)
     TEST_ASSERT_EQUAL_UINT16(0, syn_pmbus_float_to_linear11(0.0f));
 
     /* Mantissa overflow / underflow bounds checks */
-    TEST_ASSERT_NOT_EQUAL(0, syn_pmbus_float_to_linear11(1e9f));
-    TEST_ASSERT_NOT_EQUAL(0, syn_pmbus_float_to_linear11(-1e9f));
+    TEST_ASSERT_EQUAL_HEX16(0x7BFFU, syn_pmbus_float_to_linear11(1e9f));
+    TEST_ASSERT_EQUAL_HEX16(0x7C00U, syn_pmbus_float_to_linear11(-1e9f));
+}
+
+void test_r5_a14_pmbus_nan_inf_and_float_clamp(void)
+{
+    TEST_ASSERT_EQUAL_HEX16(0x0000U, syn_pmbus_float_to_linear11(NAN));
+    TEST_ASSERT_EQUAL_HEX16(0x7BFFU, syn_pmbus_float_to_linear11(INFINITY));
+    TEST_ASSERT_EQUAL_HEX16(0x7C00U, syn_pmbus_float_to_linear11(-INFINITY));
+    TEST_ASSERT_EQUAL_HEX16(0x7BFFU, syn_pmbus_float_to_linear11(1e20f));
+    TEST_ASSERT_EQUAL_HEX16(0x7C00U, syn_pmbus_float_to_linear11(-1e20f));
+    TEST_ASSERT_EQUAL_HEX16(0x0000U, syn_pmbus_float_to_linear16(NAN, 0x18U));
 }
 
 void run_pmbus_tests(void)
@@ -101,4 +111,5 @@ void run_pmbus_tests(void)
     RUN_TEST(test_pmbus_linear16_roundtrip);
     RUN_TEST(test_pmbus_encode_read_cmd);
     RUN_TEST(test_pmbus_status_word_decoding);
+    RUN_TEST(test_r5_a14_pmbus_nan_inf_and_float_clamp);
 }

@@ -393,14 +393,14 @@ void test_tpm2_quote_and_nvram(void)
     };
     (void)syn_tpm2_init(&ctx, &cfg);
 
-    /* 1. Quote */
-    set_mock_tpm_success_header(10U + 4U + (2U + 8U) + (2U + 2U + 8U));
+    /* 1. Quote (TPMT_SIGNATURE: sigAlg=RSASSA 0x0014, hashAlg=SHA256 0x000B, TPM2B sig) */
+    set_mock_tpm_success_header(10U + 4U + (2U + 8U) + (2U + 2U + 2U + 8U));
     size_t p = 10U;
     /* parameterSize */
     s_tpm_rx_mock[p++] = 0;
     s_tpm_rx_mock[p++] = 0;
     s_tpm_rx_mock[p++] = 0;
-    s_tpm_rx_mock[p++] = 20;
+    s_tpm_rx_mock[p++] = 24;
     /* TPM2B_ATTEST quoted */
     s_tpm_rx_mock[p++] = 0x00;
     s_tpm_rx_mock[p++] = 0x08;
@@ -409,6 +409,8 @@ void test_tpm2_quote_and_nvram(void)
     /* TPMT_SIGNATURE */
     s_tpm_rx_mock[p++] = 0x00;
     s_tpm_rx_mock[p++] = 0x14; /* RSASSA */
+    s_tpm_rx_mock[p++] = 0x00;
+    s_tpm_rx_mock[p++] = 0x0B; /* hashAlg: SHA-256 */
     s_tpm_rx_mock[p++] = 0x00;
     s_tpm_rx_mock[p++] = 0x08;
     (void)memset(&s_tpm_rx_mock[p], 0x22, 8U);
@@ -453,33 +455,37 @@ void test_tpm2_quote_and_nvram(void)
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_quote(&ctx, 0x81010001U, nonce, 8U, 0x01U, &quote));
 
     /* Quote oversize sig length error */
-    set_mock_tpm_success_header(10U + 4U + (2U + 4U) + (2U + 2U));
+    set_mock_tpm_success_header(10U + 4U + (2U + 4U) + (2U + 2U + 2U));
     p = 10U;
     s_tpm_rx_mock[p++] = 0;
     s_tpm_rx_mock[p++] = 0;
     s_tpm_rx_mock[p++] = 0;
-    s_tpm_rx_mock[p++] = 20;
+    s_tpm_rx_mock[p++] = 22;
     s_tpm_rx_mock[p++] = 0x00;
     s_tpm_rx_mock[p++] = 0x04;
     p += 4U;
     s_tpm_rx_mock[p++] = 0x00;
     s_tpm_rx_mock[p++] = 0x14;
+    s_tpm_rx_mock[p++] = 0x00;
+    s_tpm_rx_mock[p++] = 0x0B;
     s_tpm_rx_mock[p++] = 0x02; /* 512 bytes > SYN_TPM2_MAX_QUOTE_LEN */
     s_tpm_rx_mock[p++] = 0x00;
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_quote(&ctx, 0x81010001U, nonce, 8U, 0x01U, &quote));
 
     /* Quote with truncated signature data */
-    set_mock_tpm_success_header(10U + 4U + (2U + 4U) + (2U + 2U + 8U));
+    set_mock_tpm_success_header(10U + 4U + (2U + 4U) + (2U + 2U + 2U + 8U));
     p = 10U;
     s_tpm_rx_mock[p++] = 0;
     s_tpm_rx_mock[p++] = 0;
     s_tpm_rx_mock[p++] = 0;
-    s_tpm_rx_mock[p++] = 20;
+    s_tpm_rx_mock[p++] = 22;
     s_tpm_rx_mock[p++] = 0x00;
     s_tpm_rx_mock[p++] = 0x04;
     p += 4U;
     s_tpm_rx_mock[p++] = 0x00;
     s_tpm_rx_mock[p++] = 0x14;
+    s_tpm_rx_mock[p++] = 0x00;
+    s_tpm_rx_mock[p++] = 0x0B;
     s_tpm_rx_mock[p++] = 0x00;
     s_tpm_rx_mock[p++] = 0x08;
     s_tpm_rx_mock_len = p; /* truncated before 8 signature bytes */
@@ -616,9 +622,200 @@ void test_tpm2_quote_and_nvram(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_tpm2_startup(&ctx, SYN_TPM2_SU_CLEAR));
 }
 
+void test_r5_n02_tpm2_bounds_and_quote_signatures(void)
+{
+    SYN_TPM2_Context ctx;
+    SYN_TPM2_Config cfg = {
+        .transport = &s_tpm_transport,
+        .rx_buf = s_tpm_rx,
+        .rx_buf_size = sizeof(s_tpm_rx),
+        .tx_buf = s_tpm_tx,
+        .tx_buf_size = sizeof(s_tpm_tx),
+    };
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tpm2_init(&ctx, &cfg));
+
+    /* 1. GetRandom: rogue TPM returns rand_len (16) > num_bytes (8) */
+    set_mock_tpm_success_header(10U + 2U + 16U);
+    s_tpm_rx_mock[10] = 0x00;
+    s_tpm_rx_mock[11] = 0x10;
+    uint8_t rand_out[8];
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_get_random(&ctx, 8U, rand_out, NULL));
+
+    /* GetRandom valid with NULL out_len */
+    set_mock_tpm_success_header(10U + 2U + 8U);
+    s_tpm_rx_mock[10] = 0x00;
+    s_tpm_rx_mock[11] = 0x08;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tpm2_get_random(&ctx, 8U, rand_out, NULL));
+
+    /* 2. PCR_Read: oversized selection sz > resp_len - rpos */
+    uint8_t digest[48];
+    size_t dlen = 0U;
+    set_mock_tpm_success_header(10U + 4U + 4U + 3U);
+    size_t p = 10U;
+    s_tpm_rx_mock[p++] = 0;
+    s_tpm_rx_mock[p++] = 0;
+    s_tpm_rx_mock[p++] = 0;
+    s_tpm_rx_mock[p++] = 1; /* updateCounter */
+    s_tpm_rx_mock[p++] = 0;
+    s_tpm_rx_mock[p++] = 0;
+    s_tpm_rx_mock[p++] = 0;
+    s_tpm_rx_mock[p++] = 1; /* sel_count = 1 */
+    s_tpm_rx_mock[p++] = 0x00;
+    s_tpm_rx_mock[p++] = 0x0B;
+    s_tpm_rx_mock[p++] = 50U; /* sz = 50 exceeds remaining 0 bytes */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_pcr_read(&ctx, 0U, SYN_TPM2_ALG_SHA256, digest, &dlen));
+
+    /* PCR_Read: truncated right after alg in selection */
+    set_mock_tpm_success_header(10U + 4U + 4U + 2U);
+    s_tpm_rx_mock[17] = 1;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_pcr_read(&ctx, 0U, SYN_TPM2_ALG_SHA256, digest, &dlen));
+
+    /* PCR_Read: truncated sel_count */
+    set_mock_tpm_success_header(15U);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_pcr_read(&ctx, 0U, SYN_TPM2_ALG_SHA256, digest, &dlen));
+
+    /* PCR_Read: oversized dlen > 32 for SHA-256 and dlen == 0 */
+    set_mock_tpm_success_header(10U + 4U + 4U + 6U + 4U + 2U + 48U);
+    p = 10U;
+    (void)memset(&s_tpm_rx_mock[p], 0, 64U);
+    s_tpm_rx_mock[13] = 1;
+    s_tpm_rx_mock[17] = 1;
+    s_tpm_rx_mock[19] = 0x0B;
+    s_tpm_rx_mock[20] = 3;
+    s_tpm_rx_mock[27] = 1;    /* digest_count = 1 */
+    s_tpm_rx_mock[29] = 0x30; /* dlen = 48 > 32 for SHA256 */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_pcr_read(&ctx, 0U, SYN_TPM2_ALG_SHA256, digest, &dlen));
+    /* Valid for SHA-384 (cap = 48) */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tpm2_pcr_read(&ctx, 0U, SYN_TPM2_ALG_SHA384, digest, &dlen));
+    TEST_ASSERT_EQUAL(48U, dlen);
+    /* Oversized > 48 for SHA-384 */
+    set_mock_tpm_success_header(10U + 4U + 4U + 6U + 4U + 2U + 64U);
+    s_tpm_rx_mock[29] = 0x40; /* dlen = 64 > 48 */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_pcr_read(&ctx, 0U, SYN_TPM2_ALG_SHA384, digest, &dlen));
+    /* dlen == 0 */
+    s_tpm_rx_mock[29] = 0x00;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_pcr_read(&ctx, 0U, SYN_TPM2_ALG_SHA256, digest, &dlen));
+
+    /* 3. NV_Read: read_len (8) > requested size (4), plus truncated param_sz */
+    uint8_t nv_out[4];
+    set_mock_tpm_success_header(12U);
+    TEST_ASSERT_EQUAL(SYN_ERROR,
+                      syn_tpm2_nv_read(&ctx, SYN_TPM2_RH_OWNER, 0x01500000U, 0U, 4U, nv_out, NULL));
+
+    set_mock_tpm_success_header(10U + 4U + 2U + 8U);
+    p = 10U;
+    s_tpm_rx_mock[p++] = 0;
+    s_tpm_rx_mock[p++] = 0;
+    s_tpm_rx_mock[p++] = 0;
+    s_tpm_rx_mock[p++] = 10;
+    s_tpm_rx_mock[p++] = 0x00;
+    s_tpm_rx_mock[p++] = 0x08; /* 8 > 4 */
+    TEST_ASSERT_EQUAL(SYN_ERROR,
+                      syn_tpm2_nv_read(&ctx, SYN_TPM2_RH_OWNER, 0x01500000U, 0U, 4U, nv_out, NULL));
+
+    /* 4. Quote: TPM_ALG_NULL, RSAPSS (0x0016), ECDSA (0x0018), unknown alg, and underflows */
+    SYN_TPM2_QuoteResult quote;
+    set_mock_tpm_success_header(12U); /* param_sz underflow */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_quote(&ctx, 0x81010001U, NULL, 0U, 0x01U, &quote));
+
+    /* Truncated sigAlg */
+    set_mock_tpm_success_header(10U + 4U + 2U + 4U);
+    p = 14U;
+    s_tpm_rx_mock[p++] = 0x00;
+    s_tpm_rx_mock[p++] = 0x04;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_quote(&ctx, 0x81010001U, NULL, 0U, 0x01U, &quote));
+
+    /* Unsigned TPM_ALG_NULL (0x0010) quote must be rejected */
+    set_mock_tpm_success_header(10U + 4U + 2U + 4U + 2U);
+    s_tpm_rx_mock[20] = 0x00;
+    s_tpm_rx_mock[21] = 0x10;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_quote(&ctx, 0x81010001U, NULL, 0U, 0x01U, &quote));
+
+    /* Truncated hashAlg when sigAlg != NULL */
+    s_tpm_rx_mock[21] = 0x16; /* RSAPSS without hashAlg */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_quote(&ctx, 0x81010001U, NULL, 0U, 0x01U, &quote));
+
+    /* RSAPSS (0x0016) valid */
+    set_mock_tpm_success_header(10U + 4U + (2U + 4U) + (2U + 2U + 2U + 6U));
+    s_tpm_rx_mock[20] = 0x00;
+    s_tpm_rx_mock[21] = 0x16;
+    s_tpm_rx_mock[22] = 0x00;
+    s_tpm_rx_mock[23] = 0x0B;
+    s_tpm_rx_mock[24] = 0x00;
+    s_tpm_rx_mock[25] = 0x06;
+    (void)memset(&s_tpm_rx_mock[26], 0x33, 6U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tpm2_quote(&ctx, 0x81010001U, NULL, 0U, 0x01U, &quote));
+    TEST_ASSERT_EQUAL(6U, quote.signature_len);
+
+    /* ECDSA (0x0018) valid r (32B) || s (32B) */
+    set_mock_tpm_success_header(10U + 4U + (2U + 4U) + (2U + 2U + 2U + 32U + 2U + 32U));
+    s_tpm_rx_mock[20] = 0x00;
+    s_tpm_rx_mock[21] = 0x18;
+    s_tpm_rx_mock[22] = 0x00;
+    s_tpm_rx_mock[23] = 0x0B;
+    s_tpm_rx_mock[24] = 0x00;
+    s_tpm_rx_mock[25] = 0x20;
+    (void)memset(&s_tpm_rx_mock[26], 0xAA, 32U);
+    s_tpm_rx_mock[58] = 0x00;
+    s_tpm_rx_mock[59] = 0x20;
+    (void)memset(&s_tpm_rx_mock[60], 0xBB, 32U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tpm2_quote(&ctx, 0x81010001U, NULL, 0U, 0x01U, &quote));
+    TEST_ASSERT_EQUAL(64U, quote.signature_len);
+    TEST_ASSERT_EQUAL_HEX8(0xAA, quote.signature[0]);
+    TEST_ASSERT_EQUAL_HEX8(0xBB, quote.signature[32]);
+
+    /* ECDSA (0x0018) short coordinates r (31B) || s (30B) zero-padded to 32B + 32B = 64B */
+    set_mock_tpm_success_header(10U + 4U + (2U + 4U) + (2U + 2U + 2U + 31U + 2U + 30U));
+    s_tpm_rx_mock[20] = 0x00;
+    s_tpm_rx_mock[21] = 0x18;
+    s_tpm_rx_mock[22] = 0x00;
+    s_tpm_rx_mock[23] = 0x0B;
+    s_tpm_rx_mock[24] = 0x00;
+    s_tpm_rx_mock[25] = 31U;
+    (void)memset(&s_tpm_rx_mock[26], 0xCC, 31U);
+    s_tpm_rx_mock[57] = 0x00;
+    s_tpm_rx_mock[58] = 30U;
+    (void)memset(&s_tpm_rx_mock[59], 0xDD, 30U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tpm2_quote(&ctx, 0x81010001U, NULL, 0U, 0x01U, &quote));
+    TEST_ASSERT_EQUAL(64U, quote.signature_len);
+    TEST_ASSERT_EQUAL_HEX8(0x00, quote.signature[0]);
+    TEST_ASSERT_EQUAL_HEX8(0xCC, quote.signature[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x00, quote.signature[32]);
+    TEST_ASSERT_EQUAL_HEX8(0x00, quote.signature[33]);
+    TEST_ASSERT_EQUAL_HEX8(0xDD, quote.signature[34]);
+
+    /* ECDSA: r_len == 0 and r_len > 32 rejected */
+    s_tpm_rx_mock[24] = 0x00;
+    s_tpm_rx_mock[25] = 0x00;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_quote(&ctx, 0x81010001U, NULL, 0U, 0x01U, &quote));
+    s_tpm_rx_mock[25] = 33U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_quote(&ctx, 0x81010001U, NULL, 0U, 0x01U, &quote));
+
+    /* ECDSA: s_len > 32 rejected */
+    set_mock_tpm_success_header(10U + 4U + (2U + 4U) + (2U + 2U + 2U + 32U + 2U + 33U));
+    s_tpm_rx_mock[20] = 0x00;
+    s_tpm_rx_mock[21] = 0x18;
+    s_tpm_rx_mock[22] = 0x00;
+    s_tpm_rx_mock[23] = 0x0B;
+    s_tpm_rx_mock[24] = 0x00;
+    s_tpm_rx_mock[25] = 32U;
+    s_tpm_rx_mock[58] = 0x00;
+    s_tpm_rx_mock[59] = 33U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_quote(&ctx, 0x81010001U, NULL, 0U, 0x01U, &quote));
+
+    /* Unknown signature algorithm (0x0099) */
+    set_mock_tpm_success_header(10U + 4U + (2U + 4U) + (2U + 2U));
+    s_tpm_rx_mock[20] = 0x00;
+    s_tpm_rx_mock[21] = 0x99;
+    s_tpm_rx_mock[22] = 0x00;
+    s_tpm_rx_mock[23] = 0x0B;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_quote(&ctx, 0x81010001U, NULL, 0U, 0x01U, &quote));
+}
+
 void run_tpm2_tests(void)
 {
     RUN_TEST(test_tpm2_init_and_lifecycle);
     RUN_TEST(test_tpm2_random_and_pcr);
     RUN_TEST(test_tpm2_quote_and_nvram);
+    RUN_TEST(test_r5_n02_tpm2_bounds_and_quote_signatures);
 }

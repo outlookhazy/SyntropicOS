@@ -10,6 +10,8 @@
 #ifndef SYN_CCP_H
 #define SYN_CCP_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -31,6 +33,11 @@ extern "C" {
 /** @brief Maximum entries per ODT */
 #ifndef SYN_CCP_MAX_ENTRIES_PER_ODT
 #define SYN_CCP_MAX_ENTRIES_PER_ODT 7U
+#endif
+
+/** @brief Maximum registered memory regions per CCP slave */
+#ifndef SYN_CCP_MAX_MEM_REGIONS
+#define SYN_CCP_MAX_MEM_REGIONS 4U
 #endif
 
 /** @name CCP Command Codes (CRO) */
@@ -87,7 +94,18 @@ extern "C" {
 typedef struct {
     uintptr_t address; /**< Memory target address */
     uint8_t size;      /**< Byte size (1, 2, 4 bytes) */
+    bool host_valid;   /**< True if address was set via trusted host pointer */
 } SYN_CCP_ODTEntry;
+
+/**
+ * @brief Registered memory region descriptor for bounds-checked MTA/DAQ access.
+ */
+typedef struct {
+    uint32_t base_addr; /**< 32-bit CCP protocol base address */
+    uint32_t size;      /**< Region byte length */
+    uint8_t *host_ptr;  /**< Backing host memory pointer */
+    bool writable;      /**< True if downloads/programming are permitted */
+} SYN_CCP_MemRegion;
 
 /**
  * @brief ODT (Object Descriptor Table) structure.
@@ -106,6 +124,7 @@ typedef struct {
     uint8_t current_odt_idx;                   /**< Current ODT index */
     uint8_t current_entry_idx;                 /**< Current entry index */
     bool running;                              /**< DAQ list running state */
+    bool pending_tx;                           /**< Pending ODT transmission for active event */
     uint8_t event_channel;                     /**< Event channel assignment */
     uint16_t prescaler;                        /**< Transmission prescaler */
     uint16_t cycle_counter;                    /**< Cycle counter */
@@ -130,19 +149,27 @@ typedef bool (*SYN_CCP_EraseFn)(uint32_t addr, uint32_t size, void *ctx);
  * @brief CCP Slave Instance Handle.
  */
 typedef struct {
-    uint16_t station_addr;                            /**< CCP station address */
-    bool connected;                                   /**< Session connection state */
-    uint8_t unlocked_resources;                       /**< Bitmask of unlocked resources */
-    uintptr_t mta0_addr;                              /**< MTA0 target address */
-    uint8_t mta0_ext;                                 /**< MTA0 extension address */
-    uintptr_t mta1_addr;                              /**< MTA1 target address */
-    uint8_t mta1_ext;                                 /**< MTA1 extension address */
-    uint8_t active_cal_page;                          /**< Currently active calibration page */
-    SYN_CCP_DAQList daq_lists[SYN_CCP_MAX_DAQ_LISTS]; /**< Configured DAQ lists */
-    uint8_t selected_daq;                             /**< Currently selected DAQ list index */
-    uint8_t selected_odt;                             /**< Currently selected ODT index */
-    SYN_CCP_SeedFn seed_cb;                           /**< Security seed generator callback */
-    void *seed_ctx;                                   /**< Context for seed callback */
+    uint16_t station_addr;           /**< CCP station address */
+    bool connected;                  /**< Session connection state */
+    uint8_t unlocked_resources;      /**< Bitmask of unlocked resources */
+    uintptr_t mta0_addr;             /**< MTA0 target address */
+    uint8_t mta0_ext;                /**< MTA0 extension address */
+    bool mta0_host_valid;            /**< True if MTA0 holds host pointer */
+    uintptr_t mta1_addr;             /**< MTA1 target address */
+    uint8_t mta1_ext;                /**< MTA1 extension address */
+    bool mta1_host_valid;            /**< True if MTA1 holds host pointer */
+    uint8_t active_cal_page;         /**< Currently active calibration page */
+    uint8_t rr_daq_idx;              /**< Round-robin DAQ list cursor */
+    bool daq_tick_drained;           /**< True once current event tick ODTs drained */
+    uint8_t daq_tick_ch;             /**< Event channel of completed tick drain */
+    uint8_t pending_unlock_resource; /**< Resource requested in last GET_SEED */
+    SYN_CCP_MemRegion mem_regions[SYN_CCP_MAX_MEM_REGIONS]; /**< Registered memory regions */
+    uint8_t region_count;                                   /**< Active memory region count */
+    SYN_CCP_DAQList daq_lists[SYN_CCP_MAX_DAQ_LISTS];       /**< Configured DAQ lists */
+    uint8_t selected_daq;       /**< Currently selected DAQ list index */
+    uint8_t selected_odt;       /**< Currently selected ODT index */
+    SYN_CCP_SeedFn seed_cb;     /**< Security seed generator callback */
+    void *seed_ctx;             /**< Context for seed callback */
     SYN_CCP_UnlockFn unlock_cb; /**< Security unlock key verification callback */
     void *unlock_ctx;           /**< Context for unlock callback */
     SYN_CCP_EraseFn erase_cb;   /**< Flash/RAM memory erase callback */
@@ -173,6 +200,25 @@ bool syn_ccp_process_cro(SYN_CCP_Slave *slave, const uint8_t cro[8], uint8_t dto
  * @param addr Target memory address.
  */
 void syn_ccp_set_mta(SYN_CCP_Slave *slave, uint8_t mta_num, uint8_t ext, uintptr_t addr);
+
+/**
+ * @brief Register a bounds-checked memory region for CCP MTA and DAQ accesses.
+ * @param slave Pointer to CCP slave handle.
+ * @param base_addr 32-bit CCP protocol base address.
+ * @param host_ptr Backing host memory buffer.
+ * @param size Size of region in bytes.
+ * @param writable True if calibration/programming writes are allowed.
+ * @return True on success, false on invalid arguments or full table.
+ */
+bool syn_ccp_register_mem_region(SYN_CCP_Slave *slave, uint32_t base_addr, void *host_ptr,
+                                 uint32_t size, bool writable);
+
+/**
+ * @brief Advance DAQ prescalers once for an event channel tick prior to ODT drain.
+ * @param slave Pointer to CCP slave handle.
+ * @param event_channel Trigger event channel index.
+ */
+void syn_ccp_daq_event(SYN_CCP_Slave *slave, uint8_t event_channel);
 
 /**
  * @brief Service periodic DAQ sampling tick.

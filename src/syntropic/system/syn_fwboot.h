@@ -18,9 +18,8 @@
  *   syn_fwboot_init(&mgr, SLOT_A_ADDR, SLOT_B_ADDR);
  *
  *   // In bootloader: pick which slot to run
- *   uint8_t slot = syn_fwboot_select(&mgr);
- *   uint32_t entry = syn_fwboot_slot_addr(&mgr, slot)
- *                    + sizeof(SYN_FwImageHeader);
+ *   uint8_t slot = syn_fwboot_select(&mgr, false);
+ *   uint32_t entry = syn_fwboot_vector_addr(&mgr, slot);
  *   // Jump to entry...
  *
  *   // In application: after successful startup
@@ -109,7 +108,24 @@ SYN_Status syn_fwboot_confirm(SYN_FwBootManager *mgr);
  */
 static inline uint32_t syn_fwboot_slot_addr(const SYN_FwBootManager *mgr, uint8_t slot)
 {
-    return (slot < 2) ? mgr->slot_addr[slot] : 0;
+    return (mgr != NULL && slot < 2U) ? mgr->slot_addr[slot] : 0U;
+}
+
+/**
+ * @brief Get the firmware vector table / payload start address of a slot.
+ *
+ * Accounts for the full flash erase sector reserved for SYN_FwImageHeader.
+ *
+ * @param mgr   Boot manager.
+ * @param slot  Slot index (SYN_FW_SLOT_A or SYN_FW_SLOT_B).
+ * @return Flash address of the firmware binary, or 0 if invalid.
+ */
+static inline uint32_t syn_fwboot_vector_addr(const SYN_FwBootManager *mgr, uint8_t slot)
+{
+    if (mgr == NULL || slot >= 2U) {
+        return 0U;
+    }
+    return mgr->slot_addr[slot] + syn_fwimage_data_offset(mgr->slot_addr[slot]);
 }
 
 /**
@@ -121,7 +137,7 @@ static inline uint32_t syn_fwboot_slot_addr(const SYN_FwBootManager *mgr, uint8_
 static inline const SYN_FwImageHeader *syn_fwboot_slot_header(const SYN_FwBootManager *mgr,
                                                               uint8_t slot)
 {
-    return (slot < 2) ? &mgr->slot_hdr[slot] : NULL;
+    return (mgr != NULL && slot < 2U) ? &mgr->slot_hdr[slot] : NULL;
 }
 
 /**
@@ -131,7 +147,7 @@ static inline const SYN_FwImageHeader *syn_fwboot_slot_header(const SYN_FwBootMa
  */
 static inline uint8_t syn_fwboot_active_slot(const SYN_FwBootManager *mgr)
 {
-    return mgr->active_slot;
+    return (mgr != NULL) ? mgr->active_slot : SYN_FW_SLOT_NONE;
 }
 
 /**

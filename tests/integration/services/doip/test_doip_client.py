@@ -133,7 +133,7 @@ def main():
     p_type, _, payload = decode_doip(data)
     if p_type == 0x0006:
         sa, ta, code = struct.unpack(">HHB", payload[:5])
-        if code == 0x00:
+        if code == 0x10:
             print(f"[DoIP TCP] Routing Activation Successful! Tester=0x{sa:04X}, ECU=0x{ta:04X}")
         else:
             print(f"[DoIP TCP] Routing Activation Failed! Code=0x{code:02X}")
@@ -206,7 +206,6 @@ def main():
 
     # Test 7: WriteDataByIdentifier (0x2E) System Status 0x0100
     print("\n--- Test 7: WriteDataByIdentifier (0x2E) System Status 0x0100 ---")
-    send_doip_uds(tcp_sock, tester_addr, ecu_addr, b'\x10\x03') # Extended session
     resp = send_doip_uds(tcp_sock, tester_addr, ecu_addr, b'\x2E\x01\x00\xA5')
     assert resp == b'\x6E\x01\x00', f"Write DID 0x0100 failed: {resp.hex()}"
     resp = send_doip_uds(tcp_sock, tester_addr, ecu_addr, b'\x22\x01\x00')
@@ -234,6 +233,10 @@ def main():
     # Test 11: Firmware Transfer (0x34, 0x36, 0x37)
     print("\n--- Test 11: Firmware Transfer (0x34, 0x36, 0x37) ---")
     send_doip_uds(tcp_sock, tester_addr, ecu_addr, b'\x10\x02') # Switch to Programming session
+    resp = send_doip_uds(tcp_sock, tester_addr, ecu_addr, b'\x27\x01')
+    seed_int = int.from_bytes(resp[2:], byteorder='little')
+    key = (seed_int ^ 0xA5A5A5A5).to_bytes(4, byteorder='little')
+    send_doip_uds(tcp_sock, tester_addr, ecu_addr, b'\x27\x02' + key)
     resp = send_doip_uds(tcp_sock, tester_addr, ecu_addr, b'\x34\x00\x11\x10\x04')
     assert resp[:2] == b'\x74\x20', f"RequestDownload failed: {resp.hex()}"
     resp = send_doip_uds(tcp_sock, tester_addr, ecu_addr, b'\x36\x01\x11\x22\x33\x44')
@@ -283,8 +286,8 @@ def main():
     nack_data = tcp_sock.recv(4096)
     p_type, _, p_load = decode_doip(nack_data)
     assert p_type == 0x8003, f"Expected Diagnostic Message NACK (0x8003), got 0x{p_type:04X}"
-    assert p_load[4] == 0x02, f"Expected Unknown Target Address code 0x02, got 0x{p_load[4]:02X}"
-    print("[DoIP UDS] Diagnostic Message NACK (0x8003, Code 0x02) Caught OK!")
+    assert p_load[4] == 0x03, f"Expected Unknown Target Address code 0x03, got 0x{p_load[4]:02X}"
+    print("[DoIP UDS] Diagnostic Message NACK (0x8003, Code 0x03) Caught OK!")
 
     # Test 18: DoIP Generic NACK for Unknown Payload Type (0x9999)
     print("\n--- Test 18: Generic NACK (Unknown Payload Type) ---")

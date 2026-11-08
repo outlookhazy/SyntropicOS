@@ -8,6 +8,7 @@
 #include "syntropic/ui/syn_imgui.h"
 #include "unity/unity.h"
 
+#include <limits.h>
 #include <string.h>
 
 static void test_imgui_navigation(void)
@@ -2083,6 +2084,113 @@ static void test_imgui_numpad_test(void)
     syn_imgui_end(&ctx);
 }
 
+static void test_r5_imgui_layout_row_and_int32_extremes(void)
+{
+    uint8_t fb[128 * 64 / 8];
+    SYN_Canvas canvas;
+    syn_canvas_init(&canvas, fb, 128, 64, 1, NULL, NULL);
+
+    SYN_IMGUI_Context ctx;
+    syn_imgui_init(&ctx);
+
+    /* 1. Multi-column layout_row: fixed width + fill remainder (-1) + wrap across rows */
+    syn_imgui_begin(&ctx, &canvas, false, false, 0, true, 50, 5);
+    syn_imgui_layout_begin(&ctx, 0, 0, 128);
+    int16_t widths[2] = {40, -1};
+    syn_imgui_layout_row(&ctx, 2, widths, 14);
+
+    bool hit_col0 = syn_imgui_button(&ctx, "C0", 0, 0, 0, 0);
+    TEST_ASSERT_FALSE(hit_col0);
+    TEST_ASSERT_EQUAL_INT(1, ctx.layout.row_item_idx);
+    TEST_ASSERT_EQUAL_INT16(43, ctx.layout.cx);
+    TEST_ASSERT_EQUAL_INT16(0, ctx.layout.cy);
+
+    /* Touch (50, 5) hits col1 at x=43..128, y=0..14 */
+    bool hit_col1 = syn_imgui_button(&ctx, "C1", 0, 0, 0, 0);
+    TEST_ASSERT_TRUE(hit_col1);
+    TEST_ASSERT_EQUAL_INT(0, ctx.layout.row_item_idx);
+    TEST_ASSERT_EQUAL_INT16(0, ctx.layout.cx);
+    TEST_ASSERT_EQUAL_INT16(17, ctx.layout.cy);
+
+    /* Equal-split columns (widths == NULL, height == 0 auto) */
+    syn_imgui_layout_row(&ctx, 2, NULL, 0);
+    syn_imgui_button(&ctx, "E0", 0, 0, 0, 0);
+    TEST_ASSERT_EQUAL_INT16(65, ctx.layout.cx);
+    syn_imgui_button(&ctx, "E1", 0, 0, 0, 0);
+    TEST_ASSERT_EQUAL_INT(0, ctx.layout.row_item_idx);
+
+    /* Overflow remainder clamp (rem <= 1) & explicit coords inside row */
+    int16_t wide_cols[2] = {128, -1};
+    syn_imgui_layout_row(&ctx, 2, wide_cols, 12);
+    syn_imgui_button(&ctx, "W0", 0, 0, 0, 0);
+    syn_imgui_button(&ctx, "W1", 0, 0, 0, 0);
+    syn_imgui_button(&ctx, "Exp", 4, 4, 20, 10);
+    syn_imgui_layout_end(&ctx);
+
+    /* Narrow equal-split clamp (avail <= row_items) */
+    syn_imgui_layout_begin(&ctx, 0, 0, 6);
+    syn_imgui_layout_row(&ctx, 4, NULL, 10);
+    syn_imgui_button(&ctx, "N0", 0, 0, 0, 0);
+    syn_imgui_layout_end(&ctx);
+    syn_imgui_end(&ctx);
+
+    /* 2. Full INT32_MIN..INT32_MAX range math without signed 32-bit overflow */
+    int32_t slider_val = 0;
+    /* Touch midpoint of slider bar: bar_x = 10 + 40 + 4 = 54, bar_w = 40 - 8 = 32; mid = 70 */
+    syn_imgui_begin(&ctx, &canvas, false, false, 0, true, 70, 10);
+    TEST_ASSERT_TRUE(syn_imgui_slider(&ctx, "S", &slider_val, INT32_MIN, INT32_MAX, 10, 5, 80, 16));
+    TEST_ASSERT_INT_WITHIN(70000000, 0, slider_val);
+    syn_imgui_end(&ctx);
+
+    /* Narrow slider bar_w == 0 guard */
+    int32_t narrow_val = 5;
+    syn_imgui_begin(&ctx, &canvas, false, false, 0, true, 12, 10);
+    TEST_ASSERT_FALSE(syn_imgui_slider(&ctx, "SN", &narrow_val, 0, 100, 0, 5, 16, 16));
+    syn_imgui_end(&ctx);
+
+    /* Slider encoder clamp at INT32_MAX and INT32_MIN */
+    slider_val = INT32_MAX - 2;
+    ctx.focused_id = 1;
+    ctx.active_id = 1;
+    syn_imgui_begin(&ctx, &canvas, false, false, 10, false, 0, 0);
+    TEST_ASSERT_TRUE(syn_imgui_slider(&ctx, "S", &slider_val, INT32_MIN, INT32_MAX, 10, 5, 80, 16));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, slider_val);
+    syn_imgui_end(&ctx);
+
+    slider_val = INT32_MIN + 2;
+    ctx.focused_id = 1;
+    ctx.active_id = 1;
+    syn_imgui_begin(&ctx, &canvas, false, false, -10, false, 0, 0);
+    TEST_ASSERT_TRUE(syn_imgui_slider(&ctx, "S", &slider_val, INT32_MIN, INT32_MAX, 10, 5, 80, 16));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, slider_val);
+    syn_imgui_end(&ctx);
+
+    /* Spinner wrap & INT32_MIN formatting */
+    int32_t spin_val = 1500000000;
+    ctx.active_id = 0;
+    ctx.focused_id = 1;
+    syn_imgui_begin(&ctx, &canvas, false, false, 2, false, 0, 0);
+    TEST_ASSERT_TRUE(
+        syn_imgui_spinner(&ctx, "SP", &spin_val, INT32_MIN, INT32_MAX, 1000000000, 0, 0, 120, 14));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, spin_val);
+    syn_imgui_end(&ctx);
+
+    /* Graph, gauge, bar_chart, value_int, progress_bar, progress_bar_ex at INT32 extremes */
+    const int32_t extreme_pts[3] = {INT32_MIN, 0, INT32_MAX};
+    syn_imgui_begin(&ctx, &canvas, false, false, 0, false, 0, 0);
+    syn_imgui_progress_bar(&ctx, 0, INT32_MIN, INT32_MAX, 0, 0, 100, 10);
+    syn_imgui_progress_bar_ex(&ctx, 0, INT32_MIN, INT32_MAX, NULL, 0, 0, 100, 12);
+    syn_imgui_progress_bar_ex(&ctx, INT32_MIN, -100, INT32_MAX, NULL, 0, 0, 100, 12);
+    syn_imgui_progress_bar_ex(&ctx, -1, 0, 100, NULL, 0, 0, 8, 12);
+    syn_imgui_progress_bar_ex(&ctx, 0, 0, 100, NULL, 0, 0, 4, 12);
+    syn_imgui_graph(&ctx, "EX", extreme_pts, 3, INT32_MIN, INT32_MAX, 0, 0, 80, 32);
+    syn_imgui_gauge(&ctx, "GX", 0, INT32_MIN, INT32_MAX, 32, 32, 20);
+    syn_imgui_bar_chart(&ctx, "BX", extreme_pts, 3, INT32_MIN, INT32_MAX, 0, 0, 80, 32);
+    syn_imgui_value_int(&ctx, "Min", INT32_MIN, 0, 0);
+    syn_imgui_value_int(&ctx, "Zero", 0, 0, 0);
+    syn_imgui_end(&ctx);
+}
+
 void run_imgui_tests(void)
 {
     RUN_TEST(test_imgui_navigation);
@@ -2147,4 +2255,5 @@ void run_imgui_tests(void)
     RUN_TEST(test_imgui_docking_tab_bar_overflow);
     RUN_TEST(test_imgui_toast_test);
     RUN_TEST(test_imgui_numpad_test);
+    RUN_TEST(test_r5_imgui_layout_row_and_int32_extremes);
 }

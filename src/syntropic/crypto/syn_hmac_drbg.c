@@ -1,16 +1,13 @@
-#if __has_include("syn_config.h")
-#include "syn_config.h"
-#endif
-
-#if !defined(SYN_USE_HMAC_DRBG) || SYN_USE_HMAC_DRBG
-
 /**
  * @file syn_hmac_drbg.c
  * @brief NIST SP 800-90A HMAC-DRBG (Deterministic Random Bit Generator) implementation.
  */
 
-#include "../util/syn_assert.h"
 #include "syn_hmac_drbg.h"
+
+#if SYN_HMAC_DRBG_ENABLED
+
+#include "../util/syn_assert.h"
 
 #include <string.h>
 

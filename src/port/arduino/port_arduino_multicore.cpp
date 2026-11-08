@@ -6,9 +6,9 @@
  * port functions using the RP2040 hardware spinlock peripheral and
  * Cortex-M0+ barrier instructions.
  *
- * Hardware spinlocks 24–27 are used (claim-free range) to avoid
- * conflicts with the Pico SDK's own spinlock usage (0–15 reserved,
- * 16–23 striped).
+ * Hardware spinlocks are dynamically claimed via spin_lock_claim_unused(true)
+ * to avoid conflicts with the Pico SDK and arduino-pico core's own spinlock
+ * usage.
  *
  * Compiled when: ARDUINO && ARDUINO_ARCH_RP2040 && SYN_USE_MULTICORE
  */

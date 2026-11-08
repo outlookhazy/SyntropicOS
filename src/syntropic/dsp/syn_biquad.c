@@ -86,13 +86,24 @@ void syn_filter_biquad_process_block(SYN_FilterBiquad *f, const q16_t *in, q16_t
     f->y2 = y2;
 }
 
+/**
+ * @brief Compute angular cutoff frequency omega = 2*pi*fc/fs in Q16.16.
+ * @param fc Cutoff frequency in Q16.16 Hz.
+ * @param fs Sample frequency in Q16.16 Hz (must be > 0).
+ * @return Angular frequency omega in Q16.16 radians/sample.
+ */
+static inline q16_t biquad_calc_omega(q16_t fc, q16_t fs)
+{
+    return (q16_t)(((int64_t)Q16_2_PI * (int64_t)fc) / (int64_t)fs);
+}
+
 void syn_filter_biquad_lowpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs)
 {
     SYN_ASSERT(f != NULL);
     SYN_ASSERT(fs > 0);
 
-    /* omega = 2 * PI * fc / fs */
-    q16_t omega = q16_div(q16_mul(Q16_2_PI, fc), fs);
+    /* omega = (2 * PI * fc) / fs */
+    q16_t omega = biquad_calc_omega(fc, fs);
 
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
@@ -123,7 +134,7 @@ void syn_filter_biquad_highpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs)
     SYN_ASSERT(f != NULL);
     SYN_ASSERT(fs > 0);
 
-    q16_t omega = q16_div(q16_mul(Q16_2_PI, fc), fs);
+    q16_t omega = biquad_calc_omega(fc, fs);
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 
@@ -154,7 +165,7 @@ void syn_filter_biquad_bandpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q
     SYN_ASSERT(fs > 0);
     SYN_ASSERT(q > 0);
 
-    q16_t omega = q16_div(q16_mul(Q16_2_PI, fc), fs);
+    q16_t omega = biquad_calc_omega(fc, fs);
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 
@@ -183,7 +194,7 @@ void syn_filter_biquad_notch(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)
     SYN_ASSERT(fs > 0);
     SYN_ASSERT(q > 0);
 
-    q16_t omega = q16_div(q16_mul(Q16_2_PI, fc), fs);
+    q16_t omega = biquad_calc_omega(fc, fs);
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 
@@ -212,7 +223,7 @@ void syn_filter_biquad_allpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)
     SYN_ASSERT(fs > 0);
     SYN_ASSERT(q > 0);
 
-    q16_t omega = q16_div(q16_mul(Q16_2_PI, fc), fs);
+    q16_t omega = biquad_calc_omega(fc, fs);
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 
@@ -240,7 +251,7 @@ void syn_filter_biquad_peaking_eq(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t
     SYN_ASSERT(fs > 0);
     SYN_ASSERT(q > 0);
 
-    q16_t omega = q16_div(q16_mul(Q16_2_PI, fc), fs);
+    q16_t omega = biquad_calc_omega(fc, fs);
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 

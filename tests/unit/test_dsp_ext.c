@@ -379,12 +379,68 @@ static void test_biquad_cascade(void)
     TEST_ASSERT_EQUAL_INT32(0, syn_filter_biquad_cascade_update(&cascade, 0));
 }
 
+static void test_r5_biquad_high_cutoff_no_overflow(void)
+{
+    SYN_FilterBiquad f;
+    q16_t fc = Q16_FROM_INT(8000);
+    q16_t fs = Q16_FROM_INT(24000);
+    q16_t q = Q16_ONE;
+
+    syn_filter_biquad_lowpass(&f, fc, fs);
+    TEST_ASSERT_TRUE(f.b0 > 0);
+    q16_t in_blk[32];
+    q16_t out_blk[32];
+    for (uint16_t i = 0U; i < 32U; i++) {
+        in_blk[i] = Q16_ONE;
+    }
+    syn_filter_biquad_process_block(&f, in_blk, out_blk, 32U);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FRAC(1, 20), Q16_ONE, out_blk[31]);
+
+    syn_filter_biquad_highpass(&f, fc, fs);
+    TEST_ASSERT_TRUE(f.b0 > 0);
+
+    syn_filter_biquad_bandpass(&f, fc, fs, q);
+    TEST_ASSERT_TRUE(f.b0 > 0);
+
+    syn_filter_biquad_notch(&f, fc, fs, q);
+    TEST_ASSERT_TRUE(f.b0 > 0);
+
+    syn_filter_biquad_allpass(&f, fc, fs, q);
+    TEST_ASSERT_TRUE(f.b2 > 0);
+
+    syn_filter_biquad_peaking_eq(&f, fc, fs, Q16_FROM_INT(6), q);
+    TEST_ASSERT_TRUE(f.b0 > Q16_ONE);
+
+    syn_filter_biquad_peaking_eq(&f, fc, fs, Q16_FROM_INT(-40), q);
+    TEST_ASSERT_TRUE(f.b0 < Q16_ONE);
+}
+
+static void test_r5_fft_thd_max_harmonics_255(void)
+{
+    static q16_t mag[257];
+    for (uint16_t i = 0U; i < 257U; i++) {
+        mag[i] = 0;
+    }
+    mag[1] = Q16_ONE;
+    mag[2] = Q16_FROM_FRAC(1, 10);
+
+    q16_t thd_pct = 0;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_thd(mag, 257U, 1U, 255U, &thd_pct));
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FRAC(1, 2), Q16_FROM_INT(10), thd_pct);
+
+    /* Large harmonic energy saturation guard */
+    mag[2] = Q16_FROM_INT(200);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_thd(mag, 257U, 1U, 255U, &thd_pct));
+    TEST_ASSERT_TRUE(thd_pct > Q16_FROM_INT(100));
+}
+
 void run_biquad_tests(void)
 {
     RUN_TEST(test_biquad_filter);
     RUN_TEST(test_biquad_attenuation);
     RUN_TEST(test_biquad_cascade);
     RUN_TEST(test_trig_math);
+    RUN_TEST(test_r5_biquad_high_cutoff_no_overflow);
 }
 
 void run_fft_tests(void)
@@ -397,4 +453,5 @@ void run_fft_tests(void)
     RUN_TEST(test_fft_n256);
     RUN_TEST(test_fft_windows);
     RUN_TEST(test_fft_spectrum_analytics);
+    RUN_TEST(test_r5_fft_thd_max_harmonics_255);
 }

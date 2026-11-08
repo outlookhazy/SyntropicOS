@@ -10,6 +10,8 @@
 #ifndef SYN_CIA418_H
 #define SYN_CIA418_H
 
+#include "../common/syn_defs.h"
+
 #include <stdint.h>
 
 #ifdef __cplusplus

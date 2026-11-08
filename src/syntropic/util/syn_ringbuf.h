@@ -25,6 +25,8 @@
 #ifndef SYN_RINGBUF_H
 #define SYN_RINGBUF_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

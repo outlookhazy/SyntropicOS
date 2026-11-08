@@ -116,52 +116,84 @@ void syn_oled_set_display_on(SYN_OLED *oled, bool on)
 }
 
 /**
- * @brief Get pixel state from monochrome canvas.
- * @param c Pointer to canvas.
- * @param x X coordinate.
- * @param y Y coordinate.
- * @return True if pixel set, false if clear.
+ * @brief Position OLED GDDRAM page and column address cursor.
+ * @param oled OLED controller context.
+ * @param page Target page index.
+ * @param col  Target column index (0 .. width - 1).
  */
-static bool get_canvas_pixel(const SYN_Canvas *c, uint16_t x, uint16_t y)
+static void oled_set_cursor(SYN_OLED *oled, uint16_t page, uint16_t col)
 {
-    if (c == NULL || c->framebuf == NULL || x >= c->width || y >= c->height)
-        return false; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
-    size_t pixel_idx = (size_t)y * c->width + x;
-    size_t byte_idx = pixel_idx / 8;
-    uint8_t bit_idx = (uint8_t)(7 - (pixel_idx % 8));
-    return (c->framebuf[byte_idx] & (1u << bit_idx)) != 0;
+    uint8_t hw_col = (uint8_t)(oled->col_offset + col);
+    send_command(oled, (uint8_t)(0xB0U + (uint8_t)page));
+    send_command(oled, (uint8_t)(hw_col & 0x0FU));
+    send_command(oled, (uint8_t)(0x10U | (uint8_t)(hw_col >> 4U)));
 }
 
-void syn_oled_flush_canvas(SYN_OLED *oled, const SYN_Canvas *c)
+/**
+ * @brief Stream page-major 1-bpp buffer to physical OLED controller over I2C.
+ * @param oled OLED controller context.
+ * @param buf Page-major pixel buffer (`buf[page * src_width + x]`, LSB = top row of page).
+ * @param src_width Row stride per page in pixels.
+ * @param buf_len Total byte length of buf.
+ */
+static void oled_flush_page_buffer(SYN_OLED *oled, const uint8_t *buf, uint16_t src_width,
+                                   size_t buf_len)
 {
-    if (oled == NULL || c == NULL || c->framebuf == NULL)
-        return;
+    uint16_t pages = (uint16_t)((oled->height + 7U) / 8U);
 
-    uint8_t pages = (uint8_t)(oled->height / 8);
+    for (uint16_t p = 0U; p < pages; p++) {
+        oled_set_cursor(oled, p, 0U);
 
-    for (uint8_t p = 0; p < pages; p++) {
-        send_command(oled, (uint8_t)(0xB0 + p)); /* Page address */
-
-        uint8_t col = (uint8_t)(0x00 + oled->col_offset);
-        send_command(oled, (uint8_t)(col & 0x0F));        /* Column Low Nibble */
-        send_command(oled, (uint8_t)(0x10 | (col >> 4))); /* Column High Nibble */
-
-        for (uint16_t x = 0; x < oled->width; x++) {
-            uint8_t byte = 0;
-            for (uint8_t bit = 0; bit < 8; bit++) {
-                uint16_t y = (uint16_t)(p * 8 + bit);
-                if (get_canvas_pixel(c, x, y)) {
-                    byte |= (uint8_t)(1u << bit);
+        for (uint16_t x = 0U; x < oled->width; x++) {
+            uint8_t byte = 0U;
+            if (x < src_width) {
+                size_t idx = (size_t)p * (size_t)src_width + (size_t)x;
+                if (idx < buf_len) {
+                    byte = buf[idx];
                 }
             }
-            write_i2c_reg(&oled->i2c, oled->i2c_addr, 0x40, byte);
+            write_i2c_reg(&oled->i2c, oled->i2c_addr, 0x40U, byte);
         }
     }
 }
 
+void syn_oled_flush_canvas(SYN_OLED *oled, const SYN_Canvas *c)
+{
+    if (oled == NULL || c == NULL || c->framebuf == NULL || c->bpp != 1U) {
+        return;
+    }
+
+    oled->flush_offset = 0U;
+    oled_flush_page_buffer(oled, c->framebuf, c->width, c->buf_size);
+}
+
 void syn_oled_canvas_flush_cb(const uint8_t *buf, size_t len, void *ctx)
 {
-    (void)buf;
-    (void)len;
-    (void)ctx;
+    if (buf == NULL || ctx == NULL || len == 0U) {
+        return;
+    }
+
+    SYN_OLED *oled = (SYN_OLED *)ctx;
+    uint16_t pages = (uint16_t)((oled->height + 7U) / 8U);
+    size_t total = (size_t)pages * (size_t)oled->width;
+    if (total == 0U) {
+        return;
+    }
+
+    if (len >= total) {
+        oled->flush_offset = 0U;
+        len = total;
+    }
+
+    for (size_t i = 0U; i < len; i++) {
+        size_t pos = ((size_t)oled->flush_offset + i) % total;
+        uint16_t page = (uint16_t)(pos / (size_t)oled->width);
+        uint16_t col = (uint16_t)(pos % (size_t)oled->width);
+        if (i == 0U || col == 0U) {
+            oled_set_cursor(oled, page, col);
+        }
+        write_i2c_reg(&oled->i2c, oled->i2c_addr, 0x40U, buf[i]);
+    }
+
+    oled->flush_offset = (uint16_t)(((size_t)oled->flush_offset + len) % total);
 }

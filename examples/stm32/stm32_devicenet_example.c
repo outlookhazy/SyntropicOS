@@ -19,8 +19,9 @@
 
 #define STM32_DEVICENET_MAC_ID 0x06U /* DeviceNet Node Address: 6 */
 
-/* DeviceNet Node Instance Context */
+/* DeviceNet Node & CAN Bus Instances */
 static SYN_DeviceNet_Node g_dnet;
+static SYN_CAN g_can;
 
 /* Scheduler & Task Handles */
 static SYN_Task g_task;
@@ -40,25 +41,28 @@ static void on_can_frame_received(uint32_t can_id, const uint8_t data[8], uint8_
     /* Process incoming CAN frame through DeviceNet stack */
     if (syn_devicenet_on_can_rx(&g_dnet, can_id, data, len, &tx_can_id, tx_data, &tx_len)) {
         /* Transmit DeviceNet response frame over STM32 bxCAN / FDCAN driver */
-        SYN_CAN_Frame tx_frame;
+        SYN_CAN_Frame tx_frame = {0};
         tx_frame.id = tx_can_id;
         tx_frame.dlc = tx_len;
         memcpy(tx_frame.data, tx_data, tx_len);
-        syn_can_send(NULL, &tx_frame);
+        syn_can_send(&g_can, &tx_frame);
     }
 }
 
 /* Periodic 10ms timer task servicing DeviceNet state machine */
 static SYN_PT_Status app_10ms_task(SYN_PT *pt, SYN_Task *task)
 {
-    (void)task;
     PT_BEGIN(pt);
 
-    /* Advance DeviceNet timers (Duplicate MAC check & QuickConnect) */
-    syn_devicenet_poll(&g_dnet, 10);
+    for (;;) {
+        /* Advance DeviceNet timers (Duplicate MAC check & QuickConnect) */
+        syn_devicenet_poll(&g_dnet, 10);
 
-    /* Update simulated sensor input assembly data */
-    g_sensor_inputs[0]++;
+        /* Update simulated sensor input assembly data */
+        g_sensor_inputs[0]++;
+
+        PT_TASK_DELAY_MS(pt, task, 10);
+    }
 
     PT_END(pt);
 }
@@ -66,6 +70,8 @@ static SYN_PT_Status app_10ms_task(SYN_PT *pt, SYN_Task *task)
 void stm32_devicenet_example_init(void)
 {
     (void)on_can_frame_received;
+
+    syn_can_init(&g_can, 0U, 500000U);
 
     /* Initialize DeviceNet Node at MAC ID 6, 500kbps Baud Rate */
     syn_devicenet_init(&g_dnet, STM32_DEVICENET_MAC_ID, SYN_DEVICENET_BAUD_500K);
@@ -78,6 +84,6 @@ void stm32_devicenet_example_init(void)
     syn_devicenet_set_quickconnect(&g_dnet, true);
 
     /* Initialize task and scheduler */
-    syn_task_create(&g_task, "dnet_task", app_10ms_task, 1, NULL);
+    syn_task_create(&g_task, "dnet_task", app_10ms_task, SYN_PRIO_HIGH, NULL);
     syn_sched_init(&g_sched, &g_task, 1);
 }

@@ -119,8 +119,34 @@ void test_vad_processing_and_state_machine(void)
     TEST_ASSERT_EQUAL(SYN_VAD_STATE_SILENCE, syn_vad_process_frame(&vad, silence_frame, 0U, NULL));
 }
 
+static void test_r5_vad_full_scale_no_overflow(void)
+{
+    SYN_VAD vad;
+    SYN_VAD_Config cfg = {
+        .sample_rate_hz = 16000U,
+        .frame_length = 8U,
+        .attack_frames = 1U,
+        .hangover_frames = 1U,
+        .sensitivity = SYN_VAD_SENSITIVITY_AGGRESSIVE,
+        .initial_noise_floor = 500000000U,
+    };
+    TEST_ASSERT_EQUAL(SYN_OK, syn_vad_init(&vad, &cfg));
+
+    /* Full-scale rail-to-rail [-32768, +32767] triggers diff = 65535 (diff^2 > INT32_MAX) */
+    const int16_t rail_frame[8] = {-32768, 32767, -32768, 32767, -32768, 32767, -32768, 32767};
+    SYN_VAD_Features feat;
+    SYN_VAD_State st = syn_vad_process_frame(&vad, rail_frame, 8U, &feat);
+
+    /* High noise_floor * multiplier does NOT wrap 32-bit, and EMA noise_floor * 31ULL stays ~5e8 */
+    TEST_ASSERT_EQUAL(SYN_VAD_STATE_SILENCE, st);
+    TEST_ASSERT_FALSE(feat.is_speech_instant);
+    TEST_ASSERT_TRUE(feat.hf_energy > 3000000000U);
+    TEST_ASSERT_TRUE(vad.noise_floor > 480000000U);
+}
+
 void run_vad_tests(void)
 {
     RUN_TEST(test_vad_init_and_validation);
     RUN_TEST(test_vad_processing_and_state_machine);
+    RUN_TEST(test_r5_vad_full_scale_no_overflow);
 }

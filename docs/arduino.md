@@ -107,7 +107,7 @@ void setup()
     syn_led_blink(&led, 500, 500);
 
     // Create the task and start the scheduler
-    syn_task_create(&tasks[0], "blink", blink_task, 0, NULL);
+    syn_task_create(&tasks[0], "blink", blink_task, SYN_PRIO_NORMAL, NULL);
     syn_sched_init(&sched, tasks, 1);
 }
 
@@ -154,7 +154,7 @@ static SYN_PT_Status my_task(SYN_PT *pt, SYN_Task *task)
         // Do something...
         PT_TASK_DELAY_MS(pt, task, 500);   // Pause 500ms (others keep running!)
         // Do something else...
-        PT_YIELD(pt);                      // Let other tasks run, resume next cycle
+        PT_PASS(pt);                       // Let other tasks run this round
     }
 
     PT_END(pt);               // Always end with this
@@ -165,7 +165,10 @@ static SYN_PT_Status my_task(SYN_PT *pt, SYN_Task *task)
 
 1. Start with `PT_BEGIN(pt);`
 2. End with `PT_END(pt);`
-3. Use `PT_TASK_DELAY_MS()` or `PT_YIELD()` to pause
+3. Pause cooperatively so other tasks can run:
+   - `PT_TASK_DELAY_MS(pt, task, ms)` — wait at least `ms` milliseconds
+   - `PT_PASS(pt)` — no immediate work left right now; let other tasks run this round
+   - `PT_CONTINUE(pt)` — finished one chunk and more work is waiting; share CPU while staying active
 
 ### How It Works (Without the Jargon)
 
@@ -207,9 +210,9 @@ You can run as many tasks as you want:
 static SYN_Task tasks[3];  // Room for 3 tasks
 
 void setup() {
-    syn_task_create(&tasks[0], "blink",  blink_task,  1, NULL);
-    syn_task_create(&tasks[1], "serial", serial_task, 0, NULL);  // Higher priority (0 = highest)
-    syn_task_create(&tasks[2], "sensor", sensor_task, 1, NULL);
+    syn_task_create(&tasks[0], "blink",  blink_task,  SYN_PRIO_HIGH,     NULL);
+    syn_task_create(&tasks[1], "serial", serial_task, SYN_PRIO_CRITICAL, NULL);  // Higher priority (0 = highest)
+    syn_task_create(&tasks[2], "sensor", sensor_task, SYN_PRIO_HIGH,     NULL);
     syn_sched_init(&sched, tasks, 3);
 }
 ```
@@ -218,8 +221,8 @@ All three run concurrently. No blocking. No threads. No heap allocation.
 
 ### Priority
 
-The second-to-last argument in `syn_task_create()` is the priority.
-Lower numbers = higher priority (0 is the highest priority). Tasks at the same priority level take turns equally.
+The second-to-last argument in `syn_task_create()` is the `SYN_Prio` priority level (`SYN_PRIO_CRITICAL`, `SYN_PRIO_HIGH`, `SYN_PRIO_NORMAL`, `SYN_PRIO_LOW`).
+Lower enum values = higher priority (`SYN_PRIO_CRITICAL = 0` is highest). Equal-priority tasks rotate round-robin, and each priority level enforces a default maximum wait window (`1 ms`, `5 ms`, `15 ms`, `50 ms`) so active higher-priority tasks cannot starve lower-priority tasks indefinitely.
 
 ### CLI (Command Line Interface)
 
@@ -251,25 +254,19 @@ transitions between states on commands and events.
 
 ## Disabling Unused Modules
 
-By default, all SyntropicOS modules are available. On small boards like the
-Arduino Uno (32 KB flash), the linker automatically strips any code you don't
-use — so you generally don't need to do anything.
+By default, all SyntropicOS modules are available. Because Arduino cores compile with `-ffunction-sections -fdata-sections` and link with `--gc-sections`, unused functions in library `.c` files are stripped automatically by the linker.
 
-If you want explicit control, create a file called `syn_config.h` in your
-sketch folder. Copy the template from the library:
+> **Important (Arduino IDE Translation Units):** Arduino IDE compiles library `.c` files in `libraries/SyntropicOS/src/` separately **without** `-I<sketch_dir>`. A `syn_config.h` placed in your sketch folder applies only to headers compiled into your `.ino` translation unit (header-only utilities and inline definitions), **not** to separately compiled library `.c` files.
 
-```
-SyntropicOS/src/syntropic/syn_config_template.h
-```
+To apply `SYN_USE_*` or static-buffer sizing overrides across all library `.c` translation units, use one of these approaches:
 
-Rename it to `syn_config.h`, put it next to your `.ino` file, and set any
-module you don't need to `0`:
-
-```c
-#define SYN_USE_MQTT    0   // Don't need MQTT
-#define SYN_USE_FFT     0   // Don't need FFT
-#define SYN_USE_CAN     0   // Don't need CAN bus
-```
+1. **Library-level `syn_config.h` (Arduino IDE):** Copy `SyntropicOS/src/syntropic/syn_config_template.h` to `SyntropicOS/src/syn_config.h` inside your `libraries/SyntropicOS/` folder and set unused modules to `0`:
+   ```c
+   #define SYN_USE_MQTT    0   // Disable MQTT
+   #define SYN_USE_FFT     0   // Disable FFT
+   #define SYN_USE_CAN     0   // Disable CAN bus
+   ```
+2. **Compiler flags (`platformio.ini` or `platform.local.txt`):** Pass `-I<config_dir>` or `-DSYN_USE_...=0` via `build_flags` in PlatformIO or `compiler.c.extra_flags` / `compiler.cpp.extra_flags` in Arduino's `platform.local.txt`.
 
 ## Supported Boards
 
@@ -277,7 +274,7 @@ SyntropicOS works on any board supported by the Arduino IDE:
 
 | Board | Status | Notes |
 |-------|--------|-------|
-| Arduino Uno / Nano / Mega | ✅ | 32 KB flash — use `syn_config.h` to disable heavy modules |
+| Arduino Uno / Nano / Mega | ✅ | 32 KB flash / 2 KB SRAM — linker strips unused code; use library-level `syn_config.h` or build flags to shrink static buffers |
 | ESP32 / ESP32-S3 | ✅ | Plenty of resources, everything enabled |
 | STM32 (STM32duino) | ✅ | Blue Pill, Nucleo, etc. |
 | RP2040 (Arduino-Pico) | ✅ | Raspberry Pi Pico |
@@ -295,9 +292,7 @@ extern "C" void syn_assert_failed(const char *file, int line) {
 }
 ```
 
-**Sketch too large for Uno** — Create a `syn_config.h` (see above) and
-disable modules you don't use. The biggest are `SYN_USE_FFT`, `SYN_USE_CANVAS`,
-`SYN_USE_IMGUI`, and the network modules.
+**Sketch too large for Uno** — Place `syn_config.h` in `libraries/SyntropicOS/src/` (or pass `-D` flags via `platform.local.txt` / PlatformIO `build_flags`; see above) to disable unused modules and reduce static buffer sizes (`SYN_LOG_BUF_SIZE`, `SYN_CLI_LINE_BUF_SIZE`, `SYN_UART_RX_BUF_SIZE`).
 
 **Nothing happens after upload** — Make sure your `loop()` calls
 `syn_sched_run(&sched)`. Without it, no tasks will execute.

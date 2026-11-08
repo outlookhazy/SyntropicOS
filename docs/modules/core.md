@@ -34,15 +34,16 @@ flowchart LR
 ### Complete Code Example (Line-Oriented Serial Stream)
 
 ```c
-#include <syntropic/util/syn_stream.h>
 #include <syntropic/pt/syn_pt.h>
+#include <syntropic/sched/syn_task.h>
+#include <syntropic/util/syn_stream.h>
 
 static uint8_t raw_buffer[128];
 static SYN_Stream rx_stream;
 
 void stream_setup(void) {
     syn_stream_init(&rx_stream, raw_buffer, sizeof(raw_buffer));
-    
+
     // De-block task only when a newline '\n' character is received
     syn_stream_set_delimiter(&rx_stream, '\n');
 }
@@ -57,6 +58,7 @@ void USART1_IRQHandler(void) {
 SYN_PT_Status line_consumer_task(SYN_PT *pt, SYN_Task *task) {
     static uint8_t line_buf[64];
     static size_t bytes_read;
+    (void)task;
 
     PT_BEGIN(pt);
     for (;;) {
@@ -64,7 +66,7 @@ SYN_PT_Status line_consumer_task(SYN_PT *pt, SYN_Task *task) {
         PT_STREAM_WAIT(pt, &rx_stream);
 
         bytes_read = syn_stream_read_line(&rx_stream, line_buf, sizeof(line_buf));
-        process_cmd((char*)line_buf, bytes_read);
+        process_cmd((char *)line_buf, bytes_read);
     }
     PT_END(pt);
 }
@@ -74,15 +76,15 @@ SYN_PT_Status line_consumer_task(SYN_PT *pt, SYN_Task *task) {
 
 ## 2. Binary Serialization & Structure Packing (`util/syn_pack.h`)
 
-Provides endianness-independent serialization (`pack_u16_be`, `pack_u32_le`, etc.) to prevent unaligned memory access traps on Cortex-M0/M3 microcontrollers.
+Provides endianness-independent serialization (`syn_pack_u16`, `syn_pack_u32_le`, `syn_unpack_u16`, `syn_peek_u16`, `syn_poke_u16`, etc.) to prevent unaligned memory access traps on Cortex-M0/M3 microcontrollers.
 
 ```c
 #include <syntropic/util/syn_pack.h>
 
 void serialize_packet(uint8_t *dest, uint16_t id, uint32_t val) {
-    size_t offset = 0;
-    offset += syn_pack_u16_be(&dest[offset], id);
-    offset += syn_pack_u32_be(&dest[offset], val);
+    size_t pos = 0;
+    syn_pack_u16(dest, &pos, id);   // Big-endian uint16_t (auto-advances pos)
+    syn_pack_u32(dest, &pos, val);  // Big-endian uint32_t (use _le suffix for little-endian)
 }
 ```
 
@@ -100,13 +102,14 @@ static uint8_t queue_buf[256];
 static SYN_SPSC_Queue rx_queue;
 
 void setup_queue(void) {
-    syn_spsc_queue_init(&rx_queue, queue_buf, sizeof(queue_buf));
+    syn_spsc_queue_init(&rx_queue, queue_buf, sizeof(queue_buf[0]),
+                        sizeof(queue_buf) / sizeof(queue_buf[0]));
 }
 
 // In USART RX ISR:
 void USART1_IRQHandler(void) {
     uint8_t byte = (uint8_t)USART1->DR;
-    syn_spsc_queue_push(&rx_queue, byte);
+    syn_spsc_queue_push(&rx_queue, &byte);
 }
 
 // In main task loop:

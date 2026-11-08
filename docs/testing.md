@@ -8,7 +8,7 @@ All testing targets are fully containerized using **Podman** / **Docker**, provi
 
 | Make Target | Containerized Target | Description |
 | :--- | :--- | :--- |
-| `make test` | `make container-test` | Runs host Unity unit test suite (1000+ unit tests) |
+| `make test` | `make container-test` | Runs host Unity unit test suite (2000+ unit tests) |
 | `make san` | `make container-san` | Executes unit tests with AddressSanitizer (ASan) & UBSan |
 | `make qemu` | `make container-qemu` | Bare-metal QEMU Cortex-M4 startup & RAM verification |
 | `make fuzz` | `make container-fuzz` | Runs LLVM `libFuzzer` protocol targets (COBS, Modbus, MQTT, HTTP, IR) |

@@ -6,15 +6,15 @@
 #ifndef SYN_PORT_USB_H
 #define SYN_PORT_USB_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** USB Endpoint Types per USB Spec */
 #define SYN_USB_EP_TYPE_CONTROL 0U /**< Control Endpoint (0) */

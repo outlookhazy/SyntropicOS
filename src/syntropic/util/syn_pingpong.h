@@ -32,6 +32,8 @@
 #ifndef SYN_PINGPONG_H
 #define SYN_PINGPONG_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

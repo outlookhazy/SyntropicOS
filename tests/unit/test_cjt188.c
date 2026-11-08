@@ -203,6 +203,40 @@ void test_cjt188_edge_cases_and_nulls(void)
     TEST_ASSERT_FALSE(decoder.in_frame);
 }
 
+void test_r5_cjt188_streaming_nonzero_payload(void)
+{
+    SYN_CJT188_Decoder decoder;
+    syn_cjt188_decoder_init(&decoder);
+
+    /* Read Data Response (0x81) with L=8 (DI 2B + SER 1B + 5B BCD meter flow payload) */
+    uint8_t resp[] = {
+        0xFEU, 0xFEU, 0x68U, 0x10U, 0x44U, 0x33U, 0x22U, 0x11U, 0x00U, 0x33U, 0x78U, 0x81U,
+        0x08U, 0x1FU, 0x90U, 0x02U, 0x12U, 0x34U, 0x56U, 0x78U, 0x2CU, 0x00U, 0x16U,
+    };
+    resp[21] = syn_cjt188_checksum(&resp[2], 19U);
+
+    SYN_CJT188_Frame frame;
+    memset(&frame, 0, sizeof(frame));
+    bool got_frame = false;
+    for (size_t i = 0U; i < sizeof(resp); i++) {
+        if (syn_cjt188_decoder_feed(&decoder, resp[i], &frame)) {
+            got_frame = true;
+        }
+    }
+
+    TEST_ASSERT_TRUE(got_frame);
+    TEST_ASSERT_FALSE(decoder.in_frame);
+    TEST_ASSERT_EQUAL(0U, decoder.index);
+    TEST_ASSERT_NOT_NULL(frame.payload);
+    TEST_ASSERT_EQUAL(5U, frame.payload_len);
+    /* Payload bytes in zero-copy decoder->buf must NOT be zeroed upon completion */
+    TEST_ASSERT_EQUAL_HEX8(0x12U, frame.payload[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x34U, frame.payload[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x56U, frame.payload[2]);
+    TEST_ASSERT_EQUAL_HEX8(0x78U, frame.payload[3]);
+    TEST_ASSERT_EQUAL_HEX8(0x2CU, frame.payload[4]);
+}
+
 void run_cjt188_tests(void)
 {
     RUN_TEST(test_cjt188_checksum_calculation);
@@ -211,4 +245,5 @@ void run_cjt188_tests(void)
     RUN_TEST(test_cjt188_parse_valid_frame);
     RUN_TEST(test_cjt188_streaming_decoder);
     RUN_TEST(test_cjt188_edge_cases_and_nulls);
+    RUN_TEST(test_r5_cjt188_streaming_nonzero_payload);
 }

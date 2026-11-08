@@ -28,8 +28,9 @@ static float g_kd = 0.05f;
 static float g_setpoint = 100.0f;
 static float g_process_var = 0.0f;
 
-/* XCP Slave Instance Context */
+/* XCP Slave & CAN Bus Instances */
 static SYN_XCP_Slave g_xcp;
+static SYN_CAN g_can;
 
 /* Scheduler & Task Handles */
 static SYN_Task g_task;
@@ -44,11 +45,11 @@ static void on_can_frame_received(uint32_t can_id, const uint8_t data[8], uint8_
         uint8_t dto[8] = {0};
         if (syn_xcp_process_cto(&g_xcp, data, dto)) {
             /* Transmit Command Return Message (DTO/RES) on CAN ID = 0x201 */
-            SYN_CAN_Frame tx_frame;
+            SYN_CAN_Frame tx_frame = {0};
             tx_frame.id = 0x201U;
             tx_frame.dlc = 8;
             memcpy(tx_frame.data, dto, 8);
-            syn_can_send(NULL, &tx_frame);
+            syn_can_send(&g_can, &tx_frame);
         }
     }
 }
@@ -56,24 +57,27 @@ static void on_can_frame_received(uint32_t can_id, const uint8_t data[8], uint8_
 /* Periodic 10ms timer task servicing live DAQ streaming & PID control */
 static SYN_PT_Status app_10ms_task(SYN_PT *pt, SYN_Task *task)
 {
-    (void)task;
     PT_BEGIN(pt);
 
-    /* Update simulated system & compute PID */
-    float control_output = syn_pid_update(&g_pid, g_setpoint, g_process_var, 0.010f);
-    g_process_var += (control_output * 0.01f);
+    for (;;) {
+        /* Update simulated system & compute PID */
+        float control_output = syn_pid_update(&g_pid, g_setpoint, g_process_var, 0.010f);
+        g_process_var += (control_output * 0.01f);
 
-    /* Service periodic XCP DAQ Event Channel 1 */
-    uint8_t daq_dto[8] = {0};
-    uint8_t list_idx = 0;
-    uint8_t odt_idx = 0;
-    if (syn_xcp_service_daq(&g_xcp, 0x01U, daq_dto, &list_idx, &odt_idx)) {
-        /* Send DAQ telemetry packet on CAN ID = 0x202 + list_idx */
-        SYN_CAN_Frame tx_frame;
-        tx_frame.id = 0x202U + list_idx;
-        tx_frame.dlc = 8;
-        memcpy(tx_frame.data, daq_dto, 8);
-        syn_can_send(NULL, &tx_frame);
+        /* Service periodic XCP DAQ Event Channel 1 */
+        uint8_t daq_dto[8] = {0};
+        uint8_t list_idx = 0;
+        uint8_t odt_idx = 0;
+        if (syn_xcp_service_daq(&g_xcp, 0x01U, daq_dto, &list_idx, &odt_idx)) {
+            /* Send DAQ telemetry packet on CAN ID = 0x202 + list_idx */
+            SYN_CAN_Frame tx_frame = {0};
+            tx_frame.id = 0x202U + list_idx;
+            tx_frame.dlc = 8;
+            memcpy(tx_frame.data, daq_dto, 8);
+            syn_can_send(&g_can, &tx_frame);
+        }
+
+        PT_TASK_DELAY_MS(pt, task, 10);
     }
 
     PT_END(pt);
@@ -82,6 +86,8 @@ static SYN_PT_Status app_10ms_task(SYN_PT *pt, SYN_Task *task)
 void stm32_xcp_example_init(void)
 {
     (void)on_can_frame_received;
+
+    syn_can_init(&g_can, 0U, 500000U);
 
     /* Initialize PID controller */
     SYN_PID_Config pid_cfg = {
@@ -92,6 +98,6 @@ void stm32_xcp_example_init(void)
     syn_xcp_init(&g_xcp, STM32_XCP_STATION_ID);
 
     /* Initialize task and scheduler */
-    syn_task_create(&g_task, "xcp_pid_task", app_10ms_task, 1, NULL);
+    syn_task_create(&g_task, "xcp_pid_task", app_10ms_task, SYN_PRIO_HIGH, NULL);
     syn_sched_init(&g_sched, &g_task, 1);
 }

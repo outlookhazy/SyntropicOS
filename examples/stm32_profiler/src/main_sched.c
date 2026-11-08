@@ -43,8 +43,10 @@ static SYN_PT_Status task_sensor_func(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     while (1) {
+        syn_profiler_task_begin(&s_profiler, TASK_SENSOR);
         syn_port_delay_ms(1);
-        PT_YIELD(pt);
+        syn_profiler_task_end(&s_profiler, TASK_SENSOR);
+        PT_PASS(pt);
     }
 
     PT_END(pt);
@@ -56,8 +58,10 @@ static SYN_PT_Status task_control_func(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     while (1) {
+        syn_profiler_task_begin(&s_profiler, TASK_CONTROL);
         syn_port_delay_ms(1);
-        PT_YIELD(pt);
+        syn_profiler_task_end(&s_profiler, TASK_CONTROL);
+        PT_PASS(pt);
     }
 
     PT_END(pt);
@@ -70,10 +74,15 @@ static SYN_PT_Status task_monitor_func(SYN_PT *pt, SYN_Task *task)
 
     PT_BEGIN(pt);
 
-    while (1) {
-        uint32_t now_ms = syn_port_get_tick_ms();
+    last_report_ms = syn_port_get_tick_ms();
 
-        if (now_ms - last_report_ms >= 1000u) {
+    while (1) {
+        syn_profiler_task_begin(&s_profiler, TASK_MONITOR);
+        uint32_t now_ms = syn_port_get_tick_ms();
+        bool report_due = (now_ms - last_report_ms >= 1000u);
+        syn_profiler_task_end(&s_profiler, TASK_MONITOR);
+
+        if (report_due) {
             last_report_ms = now_ms;
 
             syn_profiler_update(&s_profiler);
@@ -81,7 +90,7 @@ static SYN_PT_Status task_monitor_func(SYN_PT *pt, SYN_Task *task)
             syn_profiler_dump(&s_profiler, print_profiler_output);
         }
 
-        PT_YIELD(pt);
+        PT_PASS(pt);
     }
 
     PT_END(pt);
@@ -97,19 +106,20 @@ int main_sched(void)
     syn_profiler_register(&s_profiler, TASK_CONTROL, "ControlTask");
     syn_profiler_register(&s_profiler, TASK_MONITOR, "MonitorTask");
 
-    syn_task_create(&s_tasks[TASK_SENSOR], "SensorTask", task_sensor_func, 1, NULL);
-    syn_task_create(&s_tasks[TASK_CONTROL], "ControlTask", task_control_func, 1, NULL);
-    syn_task_create(&s_tasks[TASK_MONITOR], "MonitorTask", task_monitor_func, 2, NULL);
+    syn_task_create(&s_tasks[TASK_SENSOR], "SensorTask", task_sensor_func, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&s_tasks[TASK_CONTROL], "ControlTask", task_control_func, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&s_tasks[TASK_MONITOR], "MonitorTask", task_monitor_func, SYN_PRIO_NORMAL,
+                    NULL);
 
     SYN_Sched sched;
     syn_sched_init(&sched, s_tasks, TASK_COUNT);
 
-    for (int i = 0; i < 100; i++) {
-        uint8_t current_task_idx = 0;
-
-        syn_profiler_task_begin(&s_profiler, current_task_idx);
+    uint32_t start_ms = syn_port_get_tick_ms();
+    for (uint32_t i = 0; i < 2000u; i++) {
         syn_sched_run(&sched);
-        syn_profiler_task_end(&s_profiler, current_task_idx);
+        if (syn_port_get_tick_ms() - start_ms >= 1050u) {
+            break;
+        }
     }
 
     stm32_uart_send_string("\r\n=== STM32 Scheduler & CPU Profiler Demo Complete ===\r\n");

@@ -20,14 +20,13 @@ static const int32_t proto4_40[40] = {
     1878,  2989, 3975, 4707, 5088, 5088, 4707, 3975, 2989, 1878,  778,   -188, -904, -1251,
     -1251, -998, -600, -158, 209,  428,  482,  395,  209,  0,     0,     0};
 
-/** SBC Proto8 Windowing Coefficients for 8-subband synthesis (scaled fixed-point Q15) */
+/** SBC Proto8 Windowing Coefficients for 8-subband synthesis (linear-phase symmetric QMF) */
 static const int32_t proto8_80[80] = {
-    0,     156,   311,   464,   613,   756,   891,   1017,  1132,  1234,  1321,  1391,
-    1443,  1475,  1486,  1475,  1443,  1391,  1321,  1234,  1132,  1017,  891,   756,
-    613,   464,   311,   156,   0,     -156,  -311,  -464,  -613,  -756,  -891,  -1017,
-    -1132, -1234, -1321, -1391, -1443, -1475, -1486, -1475, -1443, -1391, -1321, -1234,
-    -1132, -1017, -891,  -756,  -613,  -464,  -311,  -156,  0,     156,   311,   464,
-    613,   756,   891,   1017,  1132,  1234,  1321,  1391,  1443,  1475,  1486,  1475};
+    0,    0,    1,    2,    4,    6,    6,    3,    -4,   -14,  -27,  -40,  -49,  -50,  -39,  -16,
+    19,   63,   108,  146,  166,  160,  121,  48,   -54,  -174, -295, -393, -445, -429, -327, -132,
+    154,  518,  933,  1367, 1780, 2133, 2391, 2527, 2527, 2391, 2133, 1780, 1367, 933,  518,  154,
+    -132, -327, -429, -445, -393, -295, -174, -54,  48,   121,  160,  166,  146,  108,  63,   19,
+    -16,  -39,  -50,  -49,  -40,  -27,  -14,  -4,   3,    6,    6,    4,    2,    1,    0,    0};
 
 /** IDCT matrix coefficients Q15 for 4 subbands */
 static const int32_t syn_cos4[8][4] = {
@@ -62,6 +61,7 @@ typedef struct {
     size_t len;
     size_t bit_pos;
 } BitReader;
+
 static inline int16_t clamp_s16(int32_t val)
 {
     if (val > 32767) {
@@ -130,6 +130,106 @@ static void sbc_calculate_bits(const SYN_SBC_FrameInfo *info, int32_t scale_fact
         }
     }
 }
+static uint16_t sbc_calc_frame_len(const SYN_SBC_FrameInfo *info)
+{
+    uint32_t sf_bits = 4U * (uint32_t)info->subbands * (uint32_t)info->channels;
+    uint32_t audio_bits = 0U;
+
+    if (info->mode == SYN_SBC_MODE_MONO || info->mode == SYN_SBC_MODE_DUAL_CHANNEL) {
+        audio_bits = (uint32_t)info->blocks * (uint32_t)info->channels * (uint32_t)info->bitpool;
+    } else {
+        audio_bits = (uint32_t)info->blocks * (uint32_t)info->bitpool;
+        if (info->mode == SYN_SBC_MODE_JOINT_STEREO) {
+            audio_bits += (uint32_t)info->subbands;
+        }
+    }
+
+    return (uint16_t)(4U + (sf_bits / 8U) + ((audio_bits + 7U) / 8U));
+}
+
+static uint8_t sbc_read_join_mask(BitReader *br, uint8_t subbands)
+{
+    uint8_t join_mask = 0U;
+    for (uint8_t sb = 0U; sb + 1U < subbands; sb++) {
+        if (get_bits(br, 1U) != 0U) {
+            join_mask |= (uint8_t)(1U << sb);
+        }
+    }
+    (void)get_bits(br, 1U); /* RFA bit */
+    return join_mask;
+}
+
+static void sbc_uncouple_joint_stereo(SYN_SBC_Decoder *dec)
+{
+    if (dec->info.mode != SYN_SBC_MODE_JOINT_STEREO) {
+        return;
+    }
+
+    uint8_t sbs = dec->info.subbands;
+    for (uint8_t sb = 0U; sb + 1U < sbs; sb++) {
+        if ((dec->info.join & (uint8_t)(1U << sb)) != 0U) {
+            for (uint8_t blk = 0U; blk < dec->info.blocks; blk++) {
+                int32_t mid = dec->audio_sample[blk][0][sb];
+                int32_t side = dec->audio_sample[blk][1][sb];
+                dec->audio_sample[blk][0][sb] = mid + side;
+                dec->audio_sample[blk][1][sb] = mid - side;
+            }
+        }
+    }
+}
+
+static void sbc_unpack_samples(SYN_SBC_Decoder *dec, BitReader *br, int32_t bits[2][8])
+{
+    for (uint8_t blk = 0U; blk < dec->info.blocks; blk++) {
+        for (uint8_t ch = 0U; ch < dec->info.channels; ch++) {
+            for (uint8_t sb = 0U; sb < dec->info.subbands; sb++) {
+                if (bits[ch][sb] > 0) {
+                    uint32_t b = (uint32_t)bits[ch][sb];
+                    uint32_t raw_sample = get_bits(br, (uint8_t)b);
+                    uint32_t sf = (uint32_t)dec->scale_factors[ch][sb];
+                    uint32_t levels = (1U << b) - 1U;
+                    uint64_t num = (uint64_t)(2U * raw_sample + 1U) << sf;
+                    int32_t val = (int32_t)(num / (uint64_t)levels) - (int32_t)(1U << sf);
+                    dec->audio_sample[blk][ch][sb] = val;
+                } else {
+                    dec->audio_sample[blk][ch][sb] = 0;
+                }
+            }
+        }
+    }
+}
+
+static void sbc_synthesize_channel(SYN_SBC_Decoder *dec, uint8_t blk, uint8_t ch, int16_t *pcm_out,
+                                   size_t *pcm_idx)
+{
+    uint8_t sbs = dec->info.subbands;
+
+    for (int i = (20 * (int)sbs) - 1; i >= 2 * (int)sbs; i--) {
+        dec->V[ch][i] = dec->V[ch][i - 2 * (int)sbs];
+    }
+
+    for (uint16_t i = 0U; i < 2U * (uint16_t)sbs; i++) {
+        int32_t sum = 0;
+        for (uint8_t sb = 0U; sb < sbs; sb++) {
+            int32_t cos_val = (sbs == 4U) ? syn_cos4[i][sb] : syn_cos8[i][sb];
+            sum += (int32_t)(((int64_t)dec->audio_sample[blk][ch][sb] * (int64_t)cos_val) >> 8);
+        }
+        dec->V[ch][i] = sum;
+    }
+
+    const int32_t *proto = (sbs == 4U) ? proto4_40 : proto8_80;
+    for (uint8_t sb = 0U; sb < sbs; sb++) {
+        int32_t pcm_val = 0;
+        for (int idx = 0; idx < 10; idx++) {
+            int32_t coef = proto[idx * (int)sbs + (int)sb];
+            int32_t v_sample = dec->V[ch][idx * 2 * (int)sbs + (int)sb];
+            pcm_val += (int32_t)(((int64_t)v_sample * (int64_t)coef) >> 8);
+        }
+        pcm_out[*pcm_idx] = clamp_s16(pcm_val);
+        (*pcm_idx)++;
+    }
+}
+
 /** @endcond */
 
 void syn_sbc_decoder_init(SYN_SBC_Decoder *dec)
@@ -179,23 +279,13 @@ SYN_Status syn_sbc_parse_header(const uint8_t *data, size_t len, SYN_SBC_FrameIn
     info->subbands = ((h1 & 0x01U) != 0U) ? 8U : 4U;
     info->bitpool = h2;
 
-    info->join = (info->mode == SYN_SBC_MODE_JOINT_STEREO) ? data[3] : 0U;
-
-    /* Calculate total frame length according to Bluetooth A2DP specification */
-    uint16_t header_len = 4U;
-
-    uint32_t bits_per_frame = 0;
-    if (info->mode == SYN_SBC_MODE_MONO || info->mode == SYN_SBC_MODE_DUAL_CHANNEL) {
-        bits_per_frame =
-            (uint32_t)info->blocks * (uint32_t)info->channels * (uint32_t)info->bitpool;
-    } else {
-        bits_per_frame = (uint32_t)info->blocks * (uint32_t)info->bitpool;
-        if (info->mode == SYN_SBC_MODE_JOINT_STEREO) {
-            bits_per_frame += (uint32_t)info->subbands;
-        }
+    info->join = 0U;
+    if (info->mode == SYN_SBC_MODE_JOINT_STEREO && len >= 5U) {
+        BitReader br = {data, len, 32U};
+        info->join = sbc_read_join_mask(&br, info->subbands);
     }
 
-    info->frame_len = (uint16_t)(header_len + (bits_per_frame + 7U) / 8U);
+    info->frame_len = sbc_calc_frame_len(info);
 
     return SYN_OK;
 }
@@ -212,13 +302,16 @@ SYN_Status syn_sbc_decode_frame(SYN_SBC_Decoder *dec, const uint8_t *in, size_t 
         return status;
     }
 
-    size_t req_samples =
-        (size_t)dec->info.blocks * (size_t)dec->info.subbands * (size_t)dec->info.channels;
+    size_t req_samples = (size_t)dec->info.blocks * (size_t)dec->info.subbands;
+    req_samples *= (size_t)dec->info.channels;
     if (pcm_cap < req_samples) {
         return SYN_INVALID_PARAM;
     }
 
     BitReader br = {in, in_len, 32U}; /* Skip 4-byte header */
+    if (dec->info.mode == SYN_SBC_MODE_JOINT_STEREO) {
+        dec->info.join = sbc_read_join_mask(&br, dec->info.subbands);
+    }
 
     /* 1. Unpack scale factors */
     for (uint8_t ch = 0U; ch < dec->info.channels; ch++) {
@@ -231,57 +324,15 @@ SYN_Status syn_sbc_decode_frame(SYN_SBC_Decoder *dec, const uint8_t *in, size_t 
     int32_t bits[2][8];
     sbc_calculate_bits(&dec->info, dec->scale_factors, bits);
 
-    /* 3. Unpack subband samples & reconstruct audio samples */
-    for (uint8_t blk = 0U; blk < dec->info.blocks; blk++) {
-        for (uint8_t ch = 0U; ch < dec->info.channels; ch++) {
-            for (uint8_t sb = 0U; sb < dec->info.subbands; sb++) {
-                if (bits[ch][sb] > 0) {
-                    uint32_t raw_sample = get_bits(&br, (uint8_t)bits[ch][sb]);
-                    int32_t sf = dec->scale_factors[ch][sb];
-                    int32_t b = bits[ch][sb];
-                    int32_t levels = (1 << b) - 1;
-                    int32_t val =
-                        (int32_t)(((uint64_t)(2U * raw_sample + 1U) << sf) / (uint32_t)levels) -
-                        (1 << sf);
-                    dec->audio_sample[blk][ch][sb] = val;
-                } else {
-                    dec->audio_sample[blk][ch][sb] = 0;
-                }
-            }
-        }
-    }
+    /* 3. Unpack subband samples & Joint Stereo M/S uncoupling */
+    sbc_unpack_samples(dec, &br, bits);
+    sbc_uncouple_joint_stereo(dec);
 
     /* 4. Synthesis filterbank matrixing and windowing */
     size_t pcm_idx = 0U;
-    uint8_t sbs = dec->info.subbands;
-
     for (uint8_t blk = 0U; blk < dec->info.blocks; blk++) {
         for (uint8_t ch = 0U; ch < dec->info.channels; ch++) {
-            /* Shift V vector by 2*subbands */
-            for (int i = (10 * (int)sbs) - 1; i >= 2 * (int)sbs; i--) {
-                dec->V[ch][i] = dec->V[ch][i - 2 * (int)sbs];
-            }
-
-            /* Perform IDCT synthesis matrixing into V[ch][0..2*subbands-1] */
-            for (uint16_t i = 0U; i < 2U * sbs; i++) {
-                int32_t sum = 0;
-                for (uint8_t sb = 0U; sb < sbs; sb++) {
-                    int32_t cos_val = (sbs == 4U) ? syn_cos4[i][sb] : syn_cos8[i][sb];
-                    sum += (int32_t)(((int64_t)dec->audio_sample[blk][ch][sb] * cos_val) >> 8);
-                }
-                dec->V[ch][i] = sum;
-            }
-
-            /* Windowing with proto window to compute final PCM sample */
-            for (uint8_t sb = 0U; sb < sbs; sb++) {
-                int32_t pcm_val = 0;
-                for (int idx = 0; idx < 10; idx++) {
-                    int32_t coef = (sbs == 4U) ? proto4_40[idx * 4 + sb] : proto8_80[idx * 8 + sb];
-                    pcm_val +=
-                        (int32_t)(((int64_t)dec->V[ch][idx * 2 * (int)sbs + (int)sb] * coef) >> 8);
-                }
-                pcm_out[pcm_idx++] = clamp_s16(pcm_val);
-            }
+            sbc_synthesize_channel(dec, blk, ch, pcm_out, &pcm_idx);
         }
     }
 

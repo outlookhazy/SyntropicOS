@@ -9,7 +9,19 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (`YYYY.M.
 
 ## [Unreleased]
 
+### Changed (Breaking)
+- **Cooperative Scheduler & Protothread Yield Intent (`syn_pt`, `syn_task`, `syn_sched`)**:
+  - Replaced ambiguous yield macros (`PT_YIELD`, `PT_YIELD_UNTIL`, `PT_DEFER` removed) with explicit intent macros `PT_PASS(pt)` (`PT_IDLE`), `PT_CONTINUE(pt)` (`PT_MORE`), and `PT_CONTINUE_IF_NEEDED(pt, task)` (`syn_task_should_share`).
+  - Renamed `SYN_PT_Status` values `PT_WAITING` -> `PT_IDLE` (`0`) and `PT_YIELDED` -> `PT_MORE` (`1`), and aligned exit statuses with macro names so `PT_EXIT` returns `PT_EXITED` (`2`) and `PT_END` returns `PT_ENDED` (`3`).
+  - Fixed `PT_SPAWN` to propagate child `PT_IDLE` and `PT_MORE` statuses unchanged instead of collapsing to `0`.
+  - Added `SYN_Prio` enum (`SYN_PRIO_CRITICAL = 0`, `SYN_PRIO_HIGH = 1`, `SYN_PRIO_NORMAL = 2`, `SYN_PRIO_LOW = 3`), changed `SYN_SCHED_PRIO_LEVELS` default from `8` to `4`, updated `syn_task_create()`, `syn_task_boost_priority()`, and `syn_task_set_base_priority()` priority parameters from `uint8_t` to `SYN_Prio`, and removed `SYN_TASK_DEFERRED` and `SYN_TASK_WAITING` from `SYN_TaskState`.
+  - Replaced strict-priority single-pass deferral in `syn_sched_run()` with ranked dispatch (`Overdue` -> `Work` -> `Poll` -> round reset, ordered by priority then round-robin within every rank) and configurable per-priority starvation windows (`syn_sched_set_max_wait`, defaults `1 / 5 / 15 / 50 ms`).
+- **Active Object Task Binding (`syn_ao`)**:
+  - Updated `syn_ao_init()` to accept caller-owned `SYN_Task *task` and `SYN_Prio priority` parameters (`syn_ao_init(ao, task, name, priority, transitions, initial_state, mailbox_buf, mailbox_cap)`).
+  - Replaced embedded `SYN_Task task` field in `SYN_ActiveObject` with `SYN_Task *task` pointer, removed unused `SYN_PT pt` field, and enforced `mailbox_cap >= 2` (usable mailbox depth `mailbox_cap - 1`).
+
 ### Fixed
+- **WireGuard Transport Padding & Standalone Modularity (`syn_wg`, `syn_hkdf`, `syn_ethercat`)**: Trimmed 16-byte WireGuard transport padding on receive using inner IPv4/IPv6 header length (`syn_wg`), split `SYN_HKDF_SHA512_ENABLED` so HKDF-SHA256 builds standalone when `SYN_USE_SHA512=0`, and split `SYN_ECAT_COE_OD_ENABLED` so EtherCAT builds standalone when `SYN_USE_CANOPEN=0`.
 - **UDS Service 0x19 (ReadDTCInformation)**: Fixed fallback response wire formatting for subfunctions `0x04`, `0x06`, `0x10`, `0x18`, and `0x19` to return authoritative `statusOfDTC` instead of `SYN_UDS_DTC_STATUS_AVAILABILITY_MASK`. Enforced NRC `0x31` (`RequestOutOfRange`) when requested DTC is not registered.
 - **UDS DTC Lifecycle & State Machine**: Aligned `syn_uds_dtc_report_test_result()` and `syn_uds_dtc_start_operation_cycle()` with ISO 14229-1: set Fault Detection Counter to +127 on qualified failure and -128 on qualified pass; clear `pendingDTC` (bit 2) on operation cycle transition if preceding cycle completed without malfunction.
 - **DTC Manager Demo (`examples/stm32_dtc_manager_demo`)**: Corrected wire format in callback handlers for subfunctions `0x04` and `0x06` to adhere to ISO 14229-1 Tables 258 and 260. Consolidated DTC status tracking to use `syn_uds_dtc_get_status()` as single source of truth.
@@ -27,7 +39,7 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (`YYYY.M.
 - **ISO 14229-1 UDS Bootloader & Enhancements**: Extended `syn_uds` with multi-DID reading (`0x22`), post-TX ECU reset handlers (`0x11`), CommunicationControl (`0x28`), ControlDTCSetting (`0x85`), and added STM32F767 production A/B dual-bank swap bootloader example (`examples/stm32f7_uds_bootloader`).
 - **Sensored FOC & Motor Control (`syn_foc_encoder`)**: Sensored FOC speed estimation, quadrature encoder feedback integration, 6-sector SVPWM dead-time compensation, and inverse Clarke/Park transforms.
 - **Data Utilities & Security (`syn_lz4`, `syn_protobuf`, `syn_ymodem`, `syn_goertzel`, `syn_ntp_server`)**: Zero-heap LZ4 frame compression/decompression, Google Protocol Buffers varint/wire format encoder, YMODEM / XMODEM-1K serial file receiver, Goertzel DTMF tone detector, and NTP time server.
-- **PlatformIO & Arduino Packaging Audit**: Updated `library.json`, `library.properties`, `sources.mk`, `CMakeLists.txt`, and header manifests for seamless cross-platform IDE integration.
+- **PlatformIO & Arduino Packaging Audit**: Updated `library.json`, `library.properties`, `sources.mk`, `CMakeLists.txt`, and header manifests for cross-platform Arduino IDE and PlatformIO builds.
 
 ---
 

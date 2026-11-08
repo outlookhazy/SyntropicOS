@@ -41,7 +41,7 @@ static void hb_rx_handler(const SYN_Packet *pkt, void *ctx)
                                       (uint32_t)pkt->src);
                 }
                 if (hb->on_peer_found != NULL) {
-                    hb->on_peer_found(pkt->src, hb->cb_ctx);
+                    hb->on_peer_found(pkt->src, hb->found_ctx);
                 }
             }
             return;
@@ -113,8 +113,9 @@ void syn_heartbeat_update(SYN_Heartbeat *hb)
     /* Check peer timeouts */
     for (uint8_t i = 0; i < hb->peer_capacity; i++) {
         SYN_HB_Peer *p = &hb->peers[i];
-        if (!p->used)
+        if (!p->used) {
             continue;
+        }
 
         uint32_t elapsed = now - p->last_seen;
         if (p->alive && elapsed >= hb->timeout_ms) {
@@ -125,7 +126,7 @@ void syn_heartbeat_update(SYN_Heartbeat *hb)
                                   (uint32_t)p->node_id);
             }
             if (hb->on_peer_lost != NULL) {
-                hb->on_peer_lost(p->node_id, hb->cb_ctx);
+                hb->on_peer_lost(p->node_id, hb->lost_ctx);
             }
         }
     }
@@ -135,15 +136,14 @@ void syn_heartbeat_on_peer_lost(SYN_Heartbeat *hb, SYN_HB_Callback cb, void *ctx
 {
     SYN_ASSERT(hb != NULL);
     hb->on_peer_lost = cb;
-    hb->cb_ctx = ctx;
+    hb->lost_ctx = ctx;
 }
 
 void syn_heartbeat_on_peer_found(SYN_Heartbeat *hb, SYN_HB_Callback cb, void *ctx)
 {
     SYN_ASSERT(hb != NULL);
     hb->on_peer_found = cb;
-    /* Note: shares cb_ctx with on_peer_lost */
-    hb->cb_ctx = ctx;
+    hb->found_ctx = ctx;
 }
 
 bool syn_heartbeat_peer_alive(const SYN_Heartbeat *hb, uint8_t node_id)

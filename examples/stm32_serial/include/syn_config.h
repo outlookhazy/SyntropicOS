@@ -12,9 +12,15 @@
 #define SYN_UART_MAX_INSTANCES 1
 
 /* Multitasking */
-#define SYN_USE_PT             1
-#define SYN_USE_SCHED          1
-#define SYN_USE_TIMER          0
+#define SYN_USE_PT                     1
+#define SYN_USE_SCHED                  1
+#define SYN_SCHED_PRIO_LEVELS          4
+#define SYN_SCHED_MAX_WAIT_CRITICAL_MS 1U
+#define SYN_SCHED_MAX_WAIT_HIGH_MS     5U
+#define SYN_SCHED_MAX_WAIT_NORMAL_MS   15U
+#define SYN_SCHED_MAX_WAIT_LOW_MS      50U
+#define SYN_USE_TIMER                  0
+#define SYN_USE_MUTEX                  0
 
 /* Services */
 #define SYN_USE_LOG            1

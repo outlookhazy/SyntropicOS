@@ -6,16 +6,16 @@
 #ifndef SYN_USB_HID_KEYBOARD_H
 #define SYN_USB_HID_KEYBOARD_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/drivers/syn_usb_hid.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** USB HID Keyboard Modifier Bitmasks per USB HID Usage Tables §10 */
 /** @brief Left Ctrl modifier bitmask. */

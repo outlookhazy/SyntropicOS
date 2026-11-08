@@ -8,12 +8,14 @@
 
 #if defined(ARDUINO)
 
+#include "syntropic/common/syn_compiler.h"
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/port/syn_port_system.h"
 #include "syntropic/port/syn_port_gpio.h"
 #include "syntropic/port/syn_port_uart.h"
 #include "syntropic/port/syn_port_adc.h"
 #include "syntropic/drivers/syn_rtc.h"
+#include "syntropic/util/syn_assert.h"
 
 #include <Arduino.h>
 
@@ -21,23 +23,32 @@
   inline void* operator new(size_t, void* ptr) { return ptr; }
 #endif
 
-
 #if defined(ARDUINO_ARCH_AVR)
 #include <avr/wdt.h>
 #elif defined(ARDUINO_ARCH_RP2040)
 #include "hardware/sync.h"
 #include "hardware/watchdog.h"
+#include "pico/platform.h"
+#elif defined(ARDUINO_ARCH_ESP32)
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #endif
 
 /* ── System Port ────────────────────────────────────────────────────────── */
 
-static uint32_t critical_nesting = 0;
-static uint32_t critical_saved_state = 0;
-
-void syn_port_enter_critical(void);
+#if defined(ARDUINO_ARCH_ESP32)
+static portMUX_TYPE s_crit_mux = portMUX_INITIALIZER_UNLOCKED;
+#elif defined(ARDUINO_ARCH_RP2040)
+static volatile uint32_t s_crit_depth[2] = {0U, 0U};
+static volatile uint32_t s_saved_irq[2] = {0U, 0U};
+#else
+static volatile uint32_t s_crit_depth = 0U;
+static volatile uint32_t s_saved_irq = 0U;
+#endif
 
 extern "C" {
-SYN_WEAK void syn_assert_failed(const char *file, int line)
+
+SYN_WEAK SYN_NORETURN void syn_assert_failed(const char *file, int line)
 {
     Serial.print(F("\r\n[ASSERT FAILED] "));
     Serial.print(file);
@@ -47,54 +58,108 @@ SYN_WEAK void syn_assert_failed(const char *file, int line)
     delay(100);
     syn_port_system_reset();
 }
-}
 
 void syn_port_enter_critical(void)
 {
-    if (critical_nesting == 0) {
-#if defined(ARDUINO_ARCH_AVR)
-        /* Save SREG (which contains the global interrupt enable bit I) */
-        critical_saved_state = SREG;
-        noInterrupts();
+#if defined(ARDUINO_ARCH_ESP32)
+    portENTER_CRITICAL_SAFE(&s_crit_mux);
 #elif defined(ARDUINO_ARCH_RP2040)
-        /* Pico SDK: atomically saves interrupt state and disables interrupts */
-        critical_saved_state = save_and_disable_interrupts();
-#elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_SAM) || defined(CORE_TEENSY)
-        /* Save PRIMASK (bit 0 = 1 means interrupts already disabled) */
-        critical_saved_state = __get_PRIMASK();
-        __disable_irq();
-#else
-        critical_saved_state = 0;
-        noInterrupts();
-#endif
+    uint32_t status = save_and_disable_interrupts();
+    uint32_t core = get_core_num();
+    if (s_crit_depth[core] == 0U) {
+        s_saved_irq[core] = status;
     }
-    critical_nesting++;
+    s_crit_depth[core]++;
+#elif defined(ARDUINO_ARCH_AVR) || defined(__AVR__)
+    uint8_t sreg = SREG;
+    noInterrupts();
+    if (s_crit_depth == 0U) {
+        s_saved_irq = sreg;
+    }
+    s_crit_depth++;
+#elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_SAM) || defined(CORE_TEENSY) || \
+    defined(ARDUINO_ARCH_STM32) || defined(ARDUINO_ARCH_NRF52) || defined(ARDUINO_ARCH_MBED) || \
+    defined(ARDUINO_ARCH_RENESAS) || defined(__ARM_ARCH_ISA_THUMB)
+    uint32_t primask = 0U;
+    __asm__ volatile("mrs %0, primask" : "=r"(primask));
+    __asm__ volatile("cpsid i" ::: "memory");
+    if (s_crit_depth == 0U) {
+        s_saved_irq = primask;
+    }
+    s_crit_depth++;
+#elif defined(__riscv)
+    uint32_t mstatus = 0U;
+    __asm__ volatile("csrrci %0, mstatus, 8" : "=r"(mstatus));
+    if (s_crit_depth == 0U) {
+        s_saved_irq = mstatus;
+    }
+    s_crit_depth++;
+#elif defined(ARDUINO_ARCH_ESP8266)
+    uint32_t ps = xt_rsil(15);
+    if (s_crit_depth == 0U) {
+        s_saved_irq = ps;
+    }
+    s_crit_depth++;
+#else
+    if (s_crit_depth == 0U) {
+        noInterrupts();
+    }
+    s_crit_depth++;
+#endif
 }
 
 void syn_port_exit_critical(void)
 {
-    if (critical_nesting > 0) {
-        critical_nesting--;
-        if (critical_nesting == 0) {
-#if defined(ARDUINO_ARCH_AVR)
-            /* Restore SREG — only re-enables interrupts if they were on before */
-            SREG = (uint8_t)critical_saved_state;
+#if defined(ARDUINO_ARCH_ESP32)
+    portEXIT_CRITICAL_SAFE(&s_crit_mux);
 #elif defined(ARDUINO_ARCH_RP2040)
-            /* Pico SDK: restores the saved interrupt state */
-            restore_interrupts(critical_saved_state);
-#elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_SAM) || defined(CORE_TEENSY)
-            /* Only re-enable if PRIMASK showed interrupts were enabled on entry */
-            if ((critical_saved_state & 1U) == 0) {
-                __enable_irq();
-            }
-#else
-            interrupts();
-#endif
+    uint32_t core = get_core_num();
+    if (s_crit_depth[core] > 0U) {
+        s_crit_depth[core]--;
+        if (s_crit_depth[core] == 0U) {
+            restore_interrupts(s_saved_irq[core]);
         }
     }
+#elif defined(ARDUINO_ARCH_AVR) || defined(__AVR__)
+    if (s_crit_depth > 0U) {
+        s_crit_depth--;
+        if (s_crit_depth == 0U && (s_saved_irq & 0x80U) != 0U) {
+            interrupts();
+        }
+    }
+#elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_SAM) || defined(CORE_TEENSY) || \
+    defined(ARDUINO_ARCH_STM32) || defined(ARDUINO_ARCH_NRF52) || defined(ARDUINO_ARCH_MBED) || \
+    defined(ARDUINO_ARCH_RENESAS) || defined(__ARM_ARCH_ISA_THUMB)
+    if (s_crit_depth > 0U) {
+        s_crit_depth--;
+        if (s_crit_depth == 0U && (s_saved_irq & 1U) == 0U) {
+            __asm__ volatile("cpsie i" ::: "memory");
+        }
+    }
+#elif defined(__riscv)
+    if (s_crit_depth > 0U) {
+        s_crit_depth--;
+        if (s_crit_depth == 0U && (s_saved_irq & 0x8U) != 0U) {
+            __asm__ volatile("csrsi mstatus, 8");
+        }
+    }
+#elif defined(ARDUINO_ARCH_ESP8266)
+    if (s_crit_depth > 0U) {
+        s_crit_depth--;
+        if (s_crit_depth == 0U) {
+            xt_wsr_ps(s_saved_irq);
+        }
+    }
+#else
+    (void)s_saved_irq;
+    if (s_crit_depth > 0U) {
+        s_crit_depth--;
+        if (s_crit_depth == 0U) {
+            interrupts();
+        }
+    }
+#endif
 }
-
-extern "C" {
 
 uint32_t syn_port_get_tick_ms(void)
 {
@@ -106,28 +171,33 @@ uint32_t syn_port_get_tick_us(void)
     return micros();
 }
 
-
 void syn_port_delay_ms(uint32_t ms)
 {
     delay(ms);
 }
 
-void syn_port_system_reset(void)
+SYN_NORETURN void syn_port_system_reset(void)
 {
 #if defined(ARDUINO_ARCH_AVR)
-    // Setup watchdog for a short reset timeout, then loop forever
     wdt_enable(WDTO_15MS);
-    for (;;);
+    for (;;) {
+    }
 #elif defined(ARDUINO_ARCH_RP2040)
-    // RP2040: immediate reboot via hardware watchdog
     watchdog_reboot(0, 0, 0);
-    for (;;);
-#elif defined(ARDUINO_ARCH_SAMD)
+    for (;;) {
+    }
+#elif defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_ESP8266)
+    ESP.restart();
+    for (;;) {
+    }
+#elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_STM32) || defined(ARDUINO_ARCH_NRF52)
     NVIC_SystemReset();
+    for (;;) {
+    }
 #else
-    // Fallback: jump to reset vector (address 0)
     ((void (*)(void))0)();
-    for (;;);
+    for (;;) {
+    }
 #endif
 }
 
@@ -290,62 +360,72 @@ SYN_Status syn_port_uart_receive_byte(SYN_UARTInstance instance, uint8_t *byte, 
 
 /* ── ADC Port ───────────────────────────────────────────────────────────── */
 
-SYN_Status syn_port_adc_init(uint8_t channel)
+SYN_Status syn_port_adc_init(uint8_t adc_id, uint32_t channel_mask)
 {
+    if (adc_id != 0U) {
+        return SYN_NOT_IMPLEMENTED;
+    }
 #if defined(ARDUINO_ARCH_RP2040)
-    /* RP2040 ADC channels 0–3 map to GP26–GP29; channel 4 is internal temp.
-     * analogRead() accepts the GPIO number directly on arduino-pico. */
-    if (channel <= 3) {
-        pinMode(26 + channel, INPUT);
+    for (uint8_t ch = 0U; ch <= 3U; ch++) {
+        if ((channel_mask & (1UL << ch)) != 0UL) {
+            pinMode(26U + ch, INPUT);
+        }
     }
-    /* channel 4 (temperature) needs no pin init */
+#elif defined(A0)
+    for (uint8_t ch = 0U; ch < 6U; ch++) {
+        if ((channel_mask & (1UL << ch)) != 0UL) {
+            pinMode(A0 + ch, INPUT);
+        }
+    }
 #else
-    if (channel < 6) {
-        pinMode(A0 + channel, INPUT);
-    }
+    (void)channel_mask;
 #endif
     return SYN_OK;
 }
 
-uint16_t syn_port_adc_read(uint8_t channel)
+SYN_Status syn_port_adc_deinit(uint8_t adc_id)
 {
-#if defined(ARDUINO_ARCH_RP2040)
-    /* Map SyntropicOS ADC channel 0–3 to GP26–GP29 */
-    if (channel <= 3) {
-        return analogRead(26 + channel);
+    if (adc_id != 0U) {
+        return SYN_NOT_IMPLEMENTED;
     }
-    /* channel 4 = internal temperature sensor */
-    if (channel == 4) {
-        /* arduino-pico: read temp via analogReadTemp() helper */
+    return SYN_OK;
+}
+
+uint16_t syn_port_adc_read_channel(uint8_t adc_id, uint8_t channel)
+{
+    if (adc_id != 0U) {
+        return 0U;
+    }
+#if defined(ARDUINO_ARCH_RP2040)
+    if (channel <= 3U) {
+        return (uint16_t)analogRead(26U + channel);
+    }
+    if (channel == 4U) {
         return (uint16_t)analogReadTemp();
     }
-    return 0;
+    return 0U;
+#elif defined(A0)
+    return (uint16_t)analogRead(A0 + channel);
 #else
-    return analogRead(channel);
+    return (uint16_t)analogRead(channel);
 #endif
 }
 
-uint8_t syn_port_adc_resolution(void)
+SYN_Status syn_port_adc_start_dma_scan(uint8_t adc_id, uint16_t *dest, size_t num_channels)
 {
-#if defined(ARDUINO_ARCH_RP2040)
-    return 12;  /* RP2040 ADC is 12-bit (0–4095) */
-#else
-    return 10;
-#endif
+    if (adc_id != 0U || dest == NULL || num_channels == 0U) {
+        return SYN_INVALID_PARAM;
+    }
+    return SYN_NOT_IMPLEMENTED;
 }
 
-uint16_t syn_port_adc_reference_mv(void)
-{
-#if defined(ARDUINO_ARCH_RP2040)
-    return 3300;  /* RP2040 ADC reference is 3.3V */
-#else
-    return 5000;
-#endif
-}
+} /* extern "C" */
 
 /* ── PWM Port ───────────────────────────────────────────────────────────── */
 
 #include "syntropic/port/syn_port_pwm.h"
+
+extern "C" {
 
 /*
  * Arduino analogWrite() is 8-bit (0–255). The 16-bit raw duty interface
@@ -413,6 +493,8 @@ void syn_port_pwm_set_freq(uint8_t channel, uint32_t freq_hz)
     (void)freq_hz;
 }
 
+} /* extern "C" */
+
 /* ── I2C Port ───────────────────────────────────────────────────────────── */
 
 #if __has_include(<Wire.h>)
@@ -420,64 +502,78 @@ void syn_port_pwm_set_freq(uint8_t channel, uint32_t freq_hz)
 #include <Wire.h>
 #include "syntropic/port/syn_port_i2c.h"
 
-SYN_Status syn_port_i2c_init(const SYN_I2C_Config *cfg)
+extern "C" {
+
+SYN_Status syn_port_i2c_init(uint8_t i2c_id, uint32_t clock_speed_hz, uint8_t role,
+                             uint16_t own_addr)
 {
-    if (!cfg) return SYN_INVALID_PARAM;
-    /* Bus 0 = Wire. Secondary buses not universally available. */
-    if (cfg->bus != 0) return SYN_NOT_IMPLEMENTED;
-    Wire.begin();
-    Wire.setClock(cfg->clock_hz);
+    if (i2c_id != 0U) {
+        return SYN_NOT_IMPLEMENTED;
+    }
+    if (clock_speed_hz == 0U) {
+        return SYN_INVALID_PARAM;
+    }
+    if (role == 0U) {
+        (void)own_addr;
+        Wire.begin();
+        Wire.setClock(clock_speed_hz);
+    } else {
+        Wire.begin((uint8_t)(own_addr & 0x7FU));
+    }
     return SYN_OK;
 }
 
-SYN_Status syn_port_i2c_deinit(uint8_t bus)
+SYN_Status syn_port_i2c_deinit(uint8_t i2c_id)
 {
-    if (bus != 0) return SYN_NOT_IMPLEMENTED;
+    if (i2c_id != 0U) {
+        return SYN_NOT_IMPLEMENTED;
+    }
 #if defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_ESP32) || \
-    defined(ARDUINO_ARCH_MEGAAVR) || defined(ARDUINO_ARCH_MBED)
+    defined(ARDUINO_ARCH_MEGAAVR) || defined(ARDUINO_ARCH_MBED) || \
+    defined(ARDUINO_ARCH_RP2040)
     Wire.end();
 #endif
-    /* AVR Wire has no end() — just return OK */
     return SYN_OK;
 }
 
-SYN_Status syn_port_i2c_write(uint8_t bus, uint8_t addr,
-                                const uint8_t *data, size_t len)
+SYN_Status syn_port_i2c_transfer(uint8_t i2c_id, uint16_t addr, const uint8_t *tx, size_t tx_len,
+                                 uint8_t *rx, size_t rx_len)
 {
-    if (bus != 0) return SYN_NOT_IMPLEMENTED;
-    Wire.beginTransmission(addr);
-    Wire.write(data, len);
-    uint8_t result = Wire.endTransmission();
-    return (result == 0) ? SYN_OK : SYN_ERROR;
-}
-
-SYN_Status syn_port_i2c_read(uint8_t bus, uint8_t addr,
-                               uint8_t *data, size_t len)
-{
-    if (bus != 0) return SYN_NOT_IMPLEMENTED;
-    size_t received = Wire.requestFrom(addr, (uint8_t)len);
-    for (size_t i = 0; i < received && i < len; i++) {
-        data[i] = (uint8_t)Wire.read();
+    if (i2c_id != 0U) {
+        return SYN_NOT_IMPLEMENTED;
     }
-    return (received == len) ? SYN_OK : SYN_ERROR;
-}
-
-SYN_Status syn_port_i2c_write_read(uint8_t bus, uint8_t addr,
-                                     const uint8_t *tx_data, size_t tx_len,
-                                     uint8_t *rx_data, size_t rx_len)
-{
-    if (bus != 0) return SYN_NOT_IMPLEMENTED;
-    Wire.beginTransmission(addr);
-    Wire.write(tx_data, tx_len);
-    uint8_t result = Wire.endTransmission(false);  /* No STOP — repeated start */
-    if (result != 0) return SYN_ERROR;
-
-    size_t received = Wire.requestFrom(addr, (uint8_t)rx_len);
-    for (size_t i = 0; i < received && i < rx_len; i++) {
-        rx_data[i] = (uint8_t)Wire.read();
+    if (addr > 0x7FU || rx_len > 255U || (tx_len > 0U && tx == NULL) ||
+        (rx_len > 0U && rx == NULL)) {
+        return SYN_INVALID_PARAM;
     }
-    return (received == rx_len) ? SYN_OK : SYN_ERROR;
+
+    uint8_t addr7 = (uint8_t)addr;
+    if (tx_len > 0U || rx_len == 0U) {
+        Wire.beginTransmission(addr7);
+        if (tx_len > 0U) {
+            Wire.write(tx, tx_len);
+        }
+        bool send_stop = (rx_len == 0U);
+        uint8_t result = Wire.endTransmission(send_stop);
+        if (result != 0U) {
+            return SYN_ERROR;
+        }
+    }
+
+    if (rx_len > 0U) {
+        size_t received = (size_t)Wire.requestFrom(addr7, (uint8_t)rx_len);
+        for (size_t i = 0U; i < received && i < rx_len; i++) {
+            rx[i] = (uint8_t)Wire.read();
+        }
+        if (received != rx_len) {
+            return SYN_ERROR;
+        }
+    }
+
+    return SYN_OK;
 }
+
+} /* extern "C" */
 
 #endif /* Wire.h */
 
@@ -490,61 +586,60 @@ SYN_Status syn_port_i2c_write_read(uint8_t bus, uint8_t addr,
 
 static SPISettings spi_settings;
 
-SYN_Status syn_port_spi_init(const SYN_SPI_Config *cfg)
-{
-    if (!cfg || cfg->bus != 0) return SYN_INVALID_PARAM;
+extern "C" {
 
-    uint8_t mode;
-    switch (cfg->mode) {
-        case SYN_SPI_MODE_0: mode = SPI_MODE0; break;
-        case SYN_SPI_MODE_1: mode = SPI_MODE1; break;
-        case SYN_SPI_MODE_2: mode = SPI_MODE2; break;
-        case SYN_SPI_MODE_3: mode = SPI_MODE3; break;
-        default:             mode = SPI_MODE0; break;
+SYN_Status syn_port_spi_init(uint8_t spi_id, uint32_t baudrate_hz, uint8_t mode, uint8_t role)
+{
+    if (spi_id != 0U || role != 0U) {
+        return SYN_NOT_IMPLEMENTED;
+    }
+    if (baudrate_hz == 0U || mode > 3U) {
+        return SYN_INVALID_PARAM;
     }
 
-    uint8_t order = (cfg->bit_order == 1) ? LSBFIRST : MSBFIRST;
-    spi_settings = SPISettings(cfg->clock_hz, order, mode);
+    uint8_t spi_mode;
+    switch (mode) {
+        case 1U: spi_mode = SPI_MODE1; break;
+        case 2U: spi_mode = SPI_MODE2; break;
+        case 3U: spi_mode = SPI_MODE3; break;
+        default: spi_mode = SPI_MODE0; break;
+    }
+
+    spi_settings = SPISettings(baudrate_hz, MSBFIRST, spi_mode);
     SPI.begin();
     return SYN_OK;
 }
 
-SYN_Status syn_port_spi_deinit(uint8_t bus)
+SYN_Status syn_port_spi_deinit(uint8_t spi_id)
 {
-    if (bus != 0) return SYN_NOT_IMPLEMENTED;
+    if (spi_id != 0U) {
+        return SYN_NOT_IMPLEMENTED;
+    }
     SPI.end();
     return SYN_OK;
 }
 
-SYN_Status syn_port_spi_transfer(uint8_t bus,
-                                   const uint8_t *tx_buf,
-                                   uint8_t *rx_buf,
-                                   size_t len)
+SYN_Status syn_port_spi_transfer(uint8_t spi_id, const uint8_t *tx, uint8_t *rx, size_t len)
 {
-    if (bus != 0) return SYN_NOT_IMPLEMENTED;
+    if (spi_id != 0U) {
+        return SYN_NOT_IMPLEMENTED;
+    }
+    if (len > 0U && tx == NULL && rx == NULL) {
+        return SYN_INVALID_PARAM;
+    }
     SPI.beginTransaction(spi_settings);
-    for (size_t i = 0; i < len; i++) {
-        uint8_t tx_byte = tx_buf ? tx_buf[i] : 0xFF;
+    for (size_t i = 0U; i < len; i++) {
+        uint8_t tx_byte = (tx != NULL) ? tx[i] : 0xFFU;
         uint8_t rx_byte = SPI.transfer(tx_byte);
-        if (rx_buf) rx_buf[i] = rx_byte;
+        if (rx != NULL) {
+            rx[i] = rx_byte;
+        }
     }
     SPI.endTransaction();
     return SYN_OK;
 }
 
-SYN_Status syn_port_spi_cs_assert(uint8_t bus, SYN_GPIO_Pin cs_pin)
-{
-    (void)bus;
-    digitalWrite(cs_pin, LOW);
-    return SYN_OK;
-}
-
-SYN_Status syn_port_spi_cs_deassert(uint8_t bus, SYN_GPIO_Pin cs_pin)
-{
-    (void)bus;
-    digitalWrite(cs_pin, HIGH);
-    return SYN_OK;
-}
+} /* extern "C" */
 
 #endif /* SPI.h */
 
@@ -554,6 +649,8 @@ SYN_Status syn_port_spi_cs_deassert(uint8_t bus, SYN_GPIO_Pin cs_pin)
 
 #include "syntropic/port/syn_port_exti.h"
 #include "syntropic/drivers/syn_exti.h"
+
+extern "C" {
 
 /*
  * Arduino's attachInterrupt() requires a plain function pointer — no context
@@ -652,15 +749,20 @@ void syn_port_exti_clear_pending(SYN_GPIO_Pin pin)
     (void)pin;
 }
 
+} /* extern "C" */
+
 #endif /* digitalPinToInterrupt */
 
 /* ── Hardware Watchdog Port ─────────────────────────────────────────────── */
 
 #include "syntropic/port/syn_port_wdt.h"
+#if defined(ARDUINO_ARCH_AVR)
+#include <avr/wdt.h>
+#endif
+
+extern "C" {
 
 #if defined(ARDUINO_ARCH_AVR)
-
-#include <avr/wdt.h>
 
 SYN_Status syn_port_wdt_init(uint32_t timeout_ms)
 {
@@ -714,9 +816,9 @@ SYN_Status syn_port_wdt_init(uint32_t timeout_ms)
     else                         period = 0x0B;  /* 8192ms */
 
     /* CCP unlock + set period in WDT.CTRLA */
-    noInterrupts();
+    syn_port_enter_critical();
     _PROTECTED_WRITE(WDT.CTRLA, period);
-    interrupts();
+    syn_port_exit_critical();
     return SYN_OK;
 }
 
@@ -761,10 +863,13 @@ void syn_port_wdt_feed(void)
 
 #endif /* WDT arch selection */
 
+} /* extern "C" */
+
 /* ── Console serial port (Arduino Serial) ──────────────────────────────── */
 
-extern "C" {
 #include "syntropic/port/syn_port_serial.h"
+
+extern "C" {
 
 SYN_Status syn_port_serial_init(uint32_t baudrate)
 {
@@ -788,11 +893,20 @@ int syn_port_serial_read(uint8_t *buf, size_t max_len)
     }
     return (int)count;
 }
-}
+
+} /* extern "C" */
 
 /* ── Socket Port (Arduino Ethernet / W5500 / W5100 / ENC28J60) ───────────── */
 
-#if __has_include(<Ethernet.h>)
+#ifndef SYN_ARDUINO_HAS_ETHERNET
+  #if __has_include(<Ethernet.h>)
+    #define SYN_ARDUINO_HAS_ETHERNET 1
+  #else
+    #define SYN_ARDUINO_HAS_ETHERNET 0
+  #endif
+#endif
+
+#if SYN_ARDUINO_HAS_ETHERNET
 
 #include <Ethernet.h>
 #include <utility/w5100.h>
@@ -811,6 +925,8 @@ struct SynArduinoSocketSlot {
     SynSockType type;
     uint16_t port;
     uint8_t hw_sock;
+    uint8_t pending_accept_hw;
+    int pending_pkt_len;
     EthernetServer *server;
     EthernetUDP *udp;
 };
@@ -820,8 +936,15 @@ struct SynArduinoSocketSlot {
 #endif
 
 static SynArduinoSocketSlot s_arduino_sockets[SYN_ARDUINO_MAX_SOCKETS];
-static uint8_t s_udp_buf[SYN_ARDUINO_MAX_SOCKETS][sizeof(EthernetUDP)];
-static EthernetServer *s_srv = NULL;
+static uint8_t s_srv_buf[SYN_ARDUINO_MAX_SOCKETS][sizeof(EthernetServer)]
+    __attribute__((aligned(sizeof(void *))));
+static uint8_t s_udp_buf[SYN_ARDUINO_MAX_SOCKETS][sizeof(EthernetUDP)]
+    __attribute__((aligned(sizeof(void *))));
+
+static bool valid_arduino_sock(SYN_Socket sock, SynSockType type) {
+    return (sock >= 0 && sock < SYN_ARDUINO_MAX_SOCKETS &&
+            s_arduino_sockets[sock].type == type);
+}
 
 static int alloc_socket_slot(SynSockType type) {
     for (int i = 0; i < SYN_ARDUINO_MAX_SOCKETS; i++) {
@@ -829,6 +952,8 @@ static int alloc_socket_slot(SynSockType type) {
             s_arduino_sockets[i].type = type;
             s_arduino_sockets[i].port = 0;
             s_arduino_sockets[i].hw_sock = MAX_SOCK_NUM;
+            s_arduino_sockets[i].pending_accept_hw = MAX_SOCK_NUM;
+            s_arduino_sockets[i].pending_pkt_len = 0;
             s_arduino_sockets[i].server = NULL;
             s_arduino_sockets[i].udp = NULL;
             return i;
@@ -872,7 +997,7 @@ SYN_Socket syn_port_sock_connect_host(const char *host, uint16_t port) {
 }
 
 int syn_port_sock_send(SYN_Socket sock, const void *data, size_t len) {
-    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_TCP_CLIENT) {
+    if (!valid_arduino_sock(sock, SYN_SOCK_TCP_CLIENT)) {
         return -1;
     }
     uint8_t hw = s_arduino_sockets[sock].hw_sock;
@@ -883,7 +1008,7 @@ int syn_port_sock_send(SYN_Socket sock, const void *data, size_t len) {
 }
 
 int syn_port_sock_send_all(SYN_Socket sock, const void *data, size_t len) {
-    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_TCP_CLIENT) {
+    if (!valid_arduino_sock(sock, SYN_SOCK_TCP_CLIENT)) {
         return -1;
     }
     uint8_t hw = s_arduino_sockets[sock].hw_sock;
@@ -895,68 +1020,107 @@ int syn_port_sock_send_all(SYN_Socket sock, const void *data, size_t len) {
 }
 
 int syn_port_sock_recv(SYN_Socket sock, void *buf, size_t max_len, uint32_t timeout_ms) {
-    (void)timeout_ms;
-    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_TCP_CLIENT) {
+    if (!valid_arduino_sock(sock, SYN_SOCK_TCP_CLIENT) || (buf == NULL && max_len > 0U)) {
         return -1;
     }
     uint8_t hw = s_arduino_sockets[sock].hw_sock;
     if (hw >= MAX_SOCK_NUM) return 0;
 
     EthernetClient c(hw);
-    int avail = c.available();
-    if (avail > 0) {
-        size_t to_read = (size_t)avail < max_len ? (size_t)avail : max_len;
-        int n = c.read((uint8_t *)buf, to_read);
-        Serial.print(F("[RECV]: Read "));
-        Serial.print(n);
-        Serial.println(F(" bytes"));
-        return n;
-    }
+    uint32_t start = millis();
+    do {
+        int avail = c.available();
+        if (avail > 0) {
+            size_t to_read = (size_t)avail < max_len ? (size_t)avail : max_len;
+            return c.read((uint8_t *)buf, to_read);
+        }
 
-    if (c.status() == SnSR::CLOSED || c.status() == SnSR::FIN_WAIT || c.status() == SnSR::TIME_WAIT || c.status() == SnSR::LAST_ACK || c.status() == SnSR::CLOSE_WAIT) {
-        return 0; /* Connection closed by peer */
-    }
+        if (!c.connected()) {
+            return 0; /* Connection closed by peer */
+        }
+
+        if (timeout_ms == 0U) {
+            break;
+        }
+        delay(1);
+    } while ((millis() - start) < timeout_ms);
 
     return -1; /* Connection alive, but no data available yet (WOULDBLOCK) */
 }
 
-static EthernetServer s_server_inst(8080);
+bool syn_port_sock_readable(SYN_Socket sock) {
+    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS) {
+        return false;
+    }
+    if (s_arduino_sockets[sock].type == SYN_SOCK_TCP_CLIENT) {
+        uint8_t hw = s_arduino_sockets[sock].hw_sock;
+        if (hw >= MAX_SOCK_NUM) return false;
+        EthernetClient c(hw);
+        return (c.available() > 0) || !c.connected();
+    }
+    if (s_arduino_sockets[sock].type == SYN_SOCK_TCP_LISTEN) {
+        if (s_arduino_sockets[sock].pending_accept_hw < MAX_SOCK_NUM) {
+            return true;
+        }
+        EthernetServer *srv = s_arduino_sockets[sock].server;
+        if (!srv) return false;
+        EthernetClient client = srv->accept();
+        if (client) {
+            s_arduino_sockets[sock].pending_accept_hw = client.getSocketNumber();
+            return true;
+        }
+    }
+    return false;
+}
 
 SYN_Socket syn_port_sock_listen(uint16_t port, int backlog) {
     (void)backlog;
+    if (port == 0U) {
+        return SYN_SOCKET_INVALID;
+    }
     int slot = alloc_socket_slot(SYN_SOCK_TCP_LISTEN);
-    if (slot == SYN_SOCKET_INVALID) return SYN_SOCKET_INVALID;
+    if (slot == SYN_SOCKET_INVALID) {
+        return SYN_SOCKET_INVALID;
+    }
 
+    new (s_srv_buf[slot]) EthernetServer(port);
+    s_arduino_sockets[slot].server = (EthernetServer *)s_srv_buf[slot];
     s_arduino_sockets[slot].port = port;
-
-    s_srv = &s_server_inst;
-    s_arduino_sockets[slot].server = s_srv;
     s_arduino_sockets[slot].server->begin();
 
-    Serial.print(F("[SOCK] Listening on port "));
-    Serial.println(port);
-    
     return slot;
 }
 
 SYN_Socket syn_port_sock_accept(SYN_Socket listener, uint32_t timeout_ms) {
-    (void)timeout_ms;
-    if (listener < 0 || listener >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[listener].type != SYN_SOCK_TCP_LISTEN) {
+    if (!valid_arduino_sock(listener, SYN_SOCK_TCP_LISTEN)) {
         return SYN_SOCKET_INVALID;
     }
     EthernetServer *srv = s_arduino_sockets[listener].server;
     if (!srv) return SYN_SOCKET_INVALID;
 
-    EthernetClient client = srv->accept();
+    uint8_t hw_sock = MAX_SOCK_NUM;
+    if (s_arduino_sockets[listener].pending_accept_hw < MAX_SOCK_NUM) {
+        hw_sock = s_arduino_sockets[listener].pending_accept_hw;
+        s_arduino_sockets[listener].pending_accept_hw = MAX_SOCK_NUM;
+    } else {
+        uint32_t start = millis();
+        do {
+            EthernetClient client = srv->accept();
+            if (client) {
+                hw_sock = client.getSocketNumber();
+                break;
+            }
+            if (timeout_ms == 0U) {
+                break;
+            }
+            delay(1);
+        } while ((millis() - start) < timeout_ms);
+    }
 
-    if (client) {
-        uint8_t hw_sock = client.getSocketNumber();
-        Serial.print(F("[ACCEPT SUCCESS] hw_sock: "));
-        Serial.println(hw_sock);
-        Serial.flush();
+    if (hw_sock < MAX_SOCK_NUM) {
         int slot = alloc_socket_slot(SYN_SOCK_TCP_CLIENT);
         if (slot == SYN_SOCKET_INVALID) {
-            client.stop();
+            EthernetClient(hw_sock).stop();
             return SYN_SOCKET_INVALID;
         }
 
@@ -976,6 +1140,7 @@ SYN_Socket syn_port_udp_open(uint16_t port) {
     s_arduino_sockets[slot].udp = (EthernetUDP *)s_udp_buf[slot];
 
     s_arduino_sockets[slot].port = port;
+    s_arduino_sockets[slot].pending_pkt_len = 0;
 
     SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
     int res = s_arduino_sockets[slot].udp->begin(port);
@@ -990,7 +1155,7 @@ SYN_Socket syn_port_udp_open(uint16_t port) {
 }
 
 int syn_port_udp_sendto(SYN_Socket sock, const void *data, size_t len, const SYN_SockAddr *to) {
-    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_UDP || !to) {
+    if (!valid_arduino_sock(sock, SYN_SOCK_UDP) || !to) {
         return -1;
     }
     EthernetUDP *u = s_arduino_sockets[sock].udp;
@@ -1013,35 +1178,57 @@ int syn_port_udp_sendto(SYN_Socket sock, const void *data, size_t len, const SYN
     return res == 1 ? (int)len : -1;
 }
 
+bool syn_port_udp_readable(SYN_Socket sock) {
+    if (!valid_arduino_sock(sock, SYN_SOCK_UDP)) {
+        return false;
+    }
+    EthernetUDP *u = s_arduino_sockets[sock].udp;
+    if (!u) return false;
+
+    if (s_arduino_sockets[sock].pending_pkt_len > 0) {
+        return true;
+    }
+
+    SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+    int packetSize = u->parsePacket();
+    SPI.endTransaction();
+    if (packetSize > 0) {
+        s_arduino_sockets[sock].pending_pkt_len = packetSize;
+        return true;
+    }
+    return false;
+}
+
 int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len, SYN_SockAddr *from, uint32_t timeout_ms) {
-    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_UDP) {
+    if (!valid_arduino_sock(sock, SYN_SOCK_UDP)) {
         return -1;
     }
     EthernetUDP *u = s_arduino_sockets[sock].udp;
     if (!u) return -1;
 
-    uint32_t start = millis();
-    int packetSize = 0;
-    do {
-        SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-        packetSize = u->parsePacket();
-        SPI.endTransaction();
-        if (packetSize > 0) break;
-        if (timeout_ms == 0) return 0; /* Non-blocking poll */
-        delay(1);
-    } while ((millis() - start) < timeout_ms);
+    int packetSize = s_arduino_sockets[sock].pending_pkt_len;
+    s_arduino_sockets[sock].pending_pkt_len = 0;
 
-    if (packetSize <= 0) return (timeout_ms == 0) ? 0 : -1;
+    if (packetSize <= 0) {
+        uint32_t start = millis();
+        do {
+            SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+            packetSize = u->parsePacket();
+            SPI.endTransaction();
+            if (packetSize > 0) break;
+            if (timeout_ms == 0) return 0; /* Non-blocking poll */
+            delay(1);
+        } while ((millis() - start) < timeout_ms);
+    }
+
+    if (packetSize <= 0) return -1;
 
     size_t to_read = (size_t)packetSize < max_len ? (size_t)packetSize : max_len;
 
     SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
     int read_bytes = u->read((uint8_t *)buf, to_read);
-    IPAddress remote;
-    if (read_bytes > 0 && from) {
-        remote = u->remoteIP();
-        from->port = u->remotePort();
-    }
+    IPAddress remote = u->remoteIP();
+    uint16_t remote_port = u->remotePort();
     SPI.endTransaction();
 
     if (read_bytes > 0 && from) {
@@ -1049,13 +1236,13 @@ int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len, SYN_SockAd
         from->ip[1] = remote[1];
         from->ip[2] = remote[2];
         from->ip[3] = remote[3];
+        from->port = remote_port;
     }
     return read_bytes;
 }
 
 SYN_Status syn_port_udp_join_multicast(SYN_Socket sock, const char *multicast_ip) {
-    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS) return SYN_INVALID_PARAM;
-    if (s_arduino_sockets[sock].type != SYN_SOCK_UDP || !s_arduino_sockets[sock].udp) {
+    if (!valid_arduino_sock(sock, SYN_SOCK_UDP) || !s_arduino_sockets[sock].udp) {
         return SYN_INVALID_PARAM;
     }
     uint8_t m_ip[4];
@@ -1065,6 +1252,7 @@ SYN_Status syn_port_udp_join_multicast(SYN_Socket sock, const char *multicast_ip
     IPAddress mcast(m_ip[0], m_ip[1], m_ip[2], m_ip[3]);
     uint16_t local_port = s_arduino_sockets[sock].port;
 
+    s_arduino_sockets[sock].pending_pkt_len = 0;
     s_arduino_sockets[sock].udp->stop();
     if (s_arduino_sockets[sock].udp->beginMulticast(mcast, local_port) == 1) {
         return SYN_OK;
@@ -1080,15 +1268,51 @@ void syn_port_sock_close(SYN_Socket sock) {
         if (hw_sock < MAX_SOCK_NUM) {
             EthernetClient c(hw_sock);
             c.flush();
-            SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-            W5100.execCmdSn(hw_sock, Sock_DISCON);
-            SPI.endTransaction();
-            if (s_srv) s_srv->begin();
+            c.stop();
+            for (int i = 0; i < SYN_ARDUINO_MAX_SOCKETS; i++) {
+                if (s_arduino_sockets[i].type == SYN_SOCK_TCP_LISTEN &&
+                    s_arduino_sockets[i].server != NULL) {
+                    s_arduino_sockets[i].server->begin();
+                }
+            }
         }
         s_arduino_sockets[sock].hw_sock = MAX_SOCK_NUM;
     } else if (s_arduino_sockets[sock].type == SYN_SOCK_TCP_LISTEN) {
+        uint16_t listen_port = s_arduino_sockets[sock].port;
+        if (s_arduino_sockets[sock].pending_accept_hw < MAX_SOCK_NUM) {
+            EthernetClient(s_arduino_sockets[sock].pending_accept_hw).stop();
+            s_arduino_sockets[sock].pending_accept_hw = MAX_SOCK_NUM;
+        }
         s_arduino_sockets[sock].server = NULL;
+        s_arduino_sockets[sock].port = 0;
+        s_arduino_sockets[sock].type = SYN_SOCK_FREE;
+
+        bool same_port_active = false;
+        for (int i = 0; i < SYN_ARDUINO_MAX_SOCKETS; i++) {
+            if (s_arduino_sockets[i].type == SYN_SOCK_TCP_LISTEN &&
+                s_arduino_sockets[i].port == listen_port) {
+                same_port_active = true;
+                break;
+            }
+        }
+        if (!same_port_active) {
+            SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+            for (uint8_t s = 0; s < MAX_SOCK_NUM; s++) {
+                if (W5100.readSnSR(s) == SnSR::LISTEN) {
+                    W5100.execCmdSn(s, Sock_CLOSE);
+                }
+            }
+            SPI.endTransaction();
+            for (int i = 0; i < SYN_ARDUINO_MAX_SOCKETS; i++) {
+                if (s_arduino_sockets[i].type == SYN_SOCK_TCP_LISTEN &&
+                    s_arduino_sockets[i].server != NULL) {
+                    s_arduino_sockets[i].server->begin();
+                }
+            }
+        }
+        return;
     } else if (s_arduino_sockets[sock].type == SYN_SOCK_UDP) {
+        s_arduino_sockets[sock].pending_pkt_len = 0;
         if (s_arduino_sockets[sock].udp) {
             s_arduino_sockets[sock].udp->stop();
             s_arduino_sockets[sock].udp = NULL;
@@ -1097,11 +1321,33 @@ void syn_port_sock_close(SYN_Socket sock) {
     s_arduino_sockets[sock].type = SYN_SOCK_FREE;
 }
 
+} /* extern "C" */
 
+#else /* !SYN_ARDUINO_HAS_ETHERNET */
 
+#include "syntropic/port/syn_port_socket.h"
 
+extern "C" {
+
+SYN_WEAK bool syn_port_sock_readable(SYN_Socket sock)
+{
+    (void)sock;
+    return false;
+}
+
+SYN_WEAK bool syn_port_udp_readable(SYN_Socket sock)
+{
+    (void)sock;
+    return false;
+}
+
+} /* extern "C" */
+
+#endif /* SYN_ARDUINO_HAS_ETHERNET */
 
 /* ── RTC Port (Software RTC implementation on Arduino) ─────────────────── */
+
+extern "C" {
 
 static uint32_t s_rtc_base_epoch = 0;
 static uint32_t s_rtc_base_ms = 0;
@@ -1131,7 +1377,7 @@ SYN_Status syn_port_rtc_get(SYN_RTC_DateTime *dt)
     return SYN_OK;
 }
 
-#endif /* Ethernet.h */
+} /* extern "C" */
 
 /* ── Flash / EEPROM Port Implementation ────────────────────────────────────── */
 
@@ -1139,6 +1385,8 @@ SYN_Status syn_port_rtc_get(SYN_RTC_DateTime *dt)
 #if defined(ARDUINO_ARCH_AVR)
 #include <avr/eeprom.h>
 #endif
+
+extern "C" {
 
 #define SYN_ARDUINO_SECTOR_SIZE  64  /* 64-byte sector pages */
 

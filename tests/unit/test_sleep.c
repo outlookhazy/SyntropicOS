@@ -60,11 +60,14 @@ static void test_sleep(void)
     TEST_ASSERT_EQUAL_INT(0, syn_sleep_locks(&sl));
 
     /* Test SYN_SLEEP_NONE and SYN_SLEEP_DEEP modes */
+    int count_before_none = mock_sleep_count;
     syn_sleep_init(&sl, SYN_SLEEP_NONE);
-    TEST_ASSERT_TRUE(syn_sleep_enter(&sl));
+    TEST_ASSERT_FALSE(syn_sleep_enter(&sl));
+    TEST_ASSERT_EQUAL_INT(count_before_none, mock_sleep_count);
 
     syn_sleep_init(&sl, SYN_SLEEP_DEEP);
     TEST_ASSERT_TRUE(syn_sleep_enter(&sl));
+    TEST_ASSERT_EQUAL_INT(count_before_none + 1, mock_sleep_count);
 }
 
 /**
@@ -91,8 +94,24 @@ static void test_sleep_lock_unlock_atomic(void)
     TEST_ASSERT_FALSE(syn_sleep_any_locked(&sl));
 }
 
+static void test_r5_sleep_none_veto_and_null(void)
+{
+    mock_sleep_count = 0;
+
+    TEST_ASSERT_FALSE(syn_sleep_enter(NULL));
+    TEST_ASSERT_EQUAL_INT(0, mock_sleep_count);
+
+    SYN_Sleep sl;
+    syn_sleep_init(&sl, SYN_SLEEP_NONE);
+    TEST_ASSERT_FALSE(syn_sleep_enter(&sl));
+    TEST_ASSERT_EQUAL_INT(0, mock_sleep_count);
+    TEST_ASSERT_EQUAL_UINT32(0U, sl.enter_count);
+    TEST_ASSERT_EQUAL_UINT32(1U, sl.veto_count);
+}
+
 void run_sleep_tests(void)
 {
     RUN_TEST(test_sleep);
     RUN_TEST(test_sleep_lock_unlock_atomic);
+    RUN_TEST(test_r5_sleep_none_veto_and_null);
 }

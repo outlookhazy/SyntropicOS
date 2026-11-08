@@ -532,9 +532,9 @@ SYN_Status syn_matrix_inv_lu(const SYN_Matrix *src, SYN_Matrix *dst)
     if (src->cols != n || dst->rows != n || dst->cols != n || n > SYN_SOLVER_MAX_N) {
         return SYN_INVALID_PARAM;
     }
-    q16_t lu_work[n * n];
-    uint8_t p_work[n];
-    q16_t col_work[n];
+    q16_t lu_work[SYN_SOLVER_MAX_N * SYN_SOLVER_MAX_N];
+    uint8_t p_work[SYN_SOLVER_MAX_N];
+    q16_t col_work[SYN_SOLVER_MAX_N];
     return syn_matrix_inv_lu_work(src, dst, lu_work, p_work, col_work);
 }
 
@@ -667,15 +667,20 @@ q16_t syn_vec_norm(const q16_t *v, uint8_t n)
 {
     SYN_ASSERT(v != NULL);
 
-    int64_t sum = 0;
+    const uint64_t max_sq = (uint64_t)INT32_MAX * (uint64_t)INT32_MAX;
+    uint64_t sum = 0U;
     uint8_t i;
-    for (i = 0; i < n; i++) {
-        sum += (int64_t)v[i] * v[i];
+    for (i = 0U; i < n; i++) {
+        uint64_t u = (v[i] < 0) ? (uint64_t)(-(int64_t)v[i]) : (uint64_t)(uint32_t)v[i];
+        uint64_t sq = u * u;
+        if (sq >= max_sq || sum >= (max_sq - sq)) {
+            return INT32_MAX;
+        }
+        sum += sq;
     }
 
-    /* sum is in Q32.32. Convert to Q16.16 for q16_sqrt. */
-    q16_t sum_q16 = (q16_t)(sum >> Q16_SHIFT);
-    return q16_sqrt(sum_q16);
+    /* sum is in Q32.32; its integer square root is directly in Q16.16. */
+    return (q16_t)syn_isqrt64(sum);
 }
 
 SYN_Status syn_vec_normalize(const q16_t *v, q16_t *out, uint8_t n)
@@ -783,9 +788,9 @@ SYN_Status syn_matrix_solve_lu(const SYN_Matrix *A, const SYN_Matrix *b, SYN_Mat
     uint8_t n = A->rows;
     if (n > SYN_SOLVER_MAX_N)
         return SYN_INVALID_PARAM;
-    q16_t lu[n * n];
-    uint8_t P[n];
-    q16_t y[n];
+    q16_t lu[SYN_SOLVER_MAX_N * SYN_SOLVER_MAX_N];
+    uint8_t P[SYN_SOLVER_MAX_N];
+    q16_t y[SYN_SOLVER_MAX_N];
     return syn_matrix_solve_lu_work(A, b, x, lu, P, y);
 }
 
@@ -850,9 +855,40 @@ SYN_Status syn_matrix_solve_cholesky(const SYN_Matrix *A, const SYN_Matrix *b, S
     uint8_t n = A->rows;
     if (n > SYN_SOLVER_MAX_N)
         return SYN_INVALID_PARAM;
-    q16_t L[n * n];
-    q16_t y[n];
+    q16_t L[SYN_SOLVER_MAX_N * SYN_SOLVER_MAX_N];
+    q16_t y[SYN_SOLVER_MAX_N];
     return syn_matrix_solve_cholesky_work(A, b, x, L, y);
+}
+
+/**
+ * @brief Accumulate normal equations A^T A and A^T b directly without forming A^T.
+ * @param A        Design matrix (M x N).
+ * @param b        Observation vector (M x 1).
+ * @param ata_data Output buffer for symmetric N x N matrix A^T A.
+ * @param atb_data Output buffer for N x 1 vector A^T b.
+ */
+static void matrix_build_normal_eqs(const SYN_Matrix *A, const SYN_Matrix *b, q16_t *ata_data,
+                                    q16_t *atb_data)
+{
+    uint8_t m = A->rows;
+    uint8_t n = A->cols;
+    for (uint8_t i = 0U; i < n; i++) {
+        int64_t acc_b = 0;
+        for (uint8_t k = 0U; k < m; k++) {
+            acc_b += (int64_t)SYN_MAT_AT(A, k, i) * SYN_MAT_AT(b, k, 0);
+        }
+        atb_data[i] = (q16_t)(acc_b >> Q16_SHIFT);
+
+        for (uint8_t j = i; j < n; j++) {
+            int64_t acc_a = 0;
+            for (uint8_t k = 0U; k < m; k++) {
+                acc_a += (int64_t)SYN_MAT_AT(A, k, i) * SYN_MAT_AT(A, k, j);
+            }
+            q16_t val = (q16_t)(acc_a >> Q16_SHIFT);
+            ata_data[(size_t)i * n + j] = val;
+            ata_data[(size_t)j * n + i] = val;
+        }
+    }
 }
 
 SYN_Status syn_matrix_least_squares_work(const SYN_Matrix *A, const SYN_Matrix *b, SYN_Matrix *x,
@@ -860,23 +896,18 @@ SYN_Status syn_matrix_least_squares_work(const SYN_Matrix *A, const SYN_Matrix *
                                          q16_t *solver_lu, q16_t *solver_y)
 {
     SYN_ASSERT(A != NULL && b != NULL && x != NULL);
+    (void)at_data;
 
     uint8_t m = A->rows;
     uint8_t n = A->cols;
-    if (m < n || b->rows != m || b->cols != 1 || x->rows != n || x->cols != 1) {
+    if (n == 0U || m < n || n > SYN_SOLVER_MAX_N || b->rows != m || b->cols != 1U || x->rows != n ||
+        x->cols != 1U) {
         return SYN_INVALID_PARAM;
     }
 
     SYN_Matrix AtA = {ata_data, n, n};
-    SYN_Matrix Atb = {atb_data, n, 1};
-    SYN_Matrix AT = {at_data, n, m};
-    memset(at_data, 0, (size_t)n * m * sizeof(q16_t));
-    memset(ata_data, 0, (size_t)n * n * sizeof(q16_t));
-    memset(atb_data, 0, (size_t)n * sizeof(q16_t));
-
-    syn_matrix_transpose(A, &AT);
-    syn_matrix_mul(&AT, A, &AtA);
-    syn_matrix_mul(&AT, b, &Atb);
+    SYN_Matrix Atb = {atb_data, n, 1U};
+    matrix_build_normal_eqs(A, b, ata_data, atb_data);
 
     SYN_Status status = syn_matrix_solve_cholesky_work(&AtA, &Atb, x, solver_lu, solver_y);
     if (status != SYN_OK) {
@@ -892,16 +923,15 @@ SYN_Status syn_matrix_least_squares(const SYN_Matrix *A, const SYN_Matrix *b, SY
     SYN_ASSERT(A != NULL && b != NULL && x != NULL);
     uint8_t m = A->rows;
     uint8_t n = A->cols;
-    if (m < n)
+    if (n == 0U || m < n || n > SYN_SOLVER_MAX_N)
         return SYN_INVALID_PARAM;
 
-    q16_t ata_data[n * n];
-    q16_t atb_data[n];
-    q16_t at_data[n * m];
-    q16_t solver_lu[n * n];
-    q16_t solver_y[n];
+    q16_t ata_data[SYN_SOLVER_MAX_N * SYN_SOLVER_MAX_N];
+    q16_t atb_data[SYN_SOLVER_MAX_N];
+    q16_t solver_lu[SYN_SOLVER_MAX_N * SYN_SOLVER_MAX_N];
+    q16_t solver_y[SYN_SOLVER_MAX_N];
 
-    return syn_matrix_least_squares_work(A, b, x, ata_data, atb_data, at_data, solver_lu, solver_y);
+    return syn_matrix_least_squares_work(A, b, x, ata_data, atb_data, NULL, solver_lu, solver_y);
 }
 
 SYN_Status syn_matrix_get_block(const SYN_Matrix *src, uint8_t r0, uint8_t c0, SYN_Matrix *dst)

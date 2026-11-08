@@ -24,6 +24,8 @@
 #ifndef SYN_QMATH_H
 #define SYN_QMATH_H
 
+#include "../common/syn_defs.h"
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -68,7 +70,7 @@ typedef int16_t q15_t;
 /* ── Conversion macros ──────────────────────────────────────────────────── */
 
 /** Integer to Q16. */
-#define Q16_FROM_INT(n) ((q16_t)((int32_t)(n) * Q16_ONE))
+#define Q16_FROM_INT(n) ((q16_t)((uint32_t)(int32_t)(n) << Q16_SHIFT))
 
 /** Fraction to Q16: Q16_FROM_FRAC(1, 3) ≈ 0.333. */
 #define Q16_FROM_FRAC(num, den) \
@@ -77,17 +79,29 @@ typedef int16_t q15_t;
 /** Float literal to Q16 (compile-time only, avoid at runtime). */
 #define Q16_FROM_FLOAT(f) ((q16_t)((f) * (1L << Q16_SHIFT)))
 
-/** Q16 to integer (truncates toward zero). */
+/** Q16 to integer (truncates toward negative infinity). */
 #define Q16_TO_INT(q) ((int32_t)((q) >> Q16_SHIFT))
 
-/** Q16 to integer (rounded). */
-#define Q16_TO_INT_ROUND(q) ((int32_t)(((q) + Q16_HALF) >> Q16_SHIFT))
+/** Q16 to integer (rounded, 64-bit intermediate avoids INT32_MAX overflow). */
+#define Q16_TO_INT_ROUND(q) ((int32_t)(((int64_t)(q) + (int64_t)Q16_HALF) >> Q16_SHIFT))
+
+/**
+ * @brief Extract scaled fractional magnitude of a Q16 value safely across full int32_t range.
+ * @param q      Input Q16 value.
+ * @param scale  Decimal scale factor (e.g. 1000 or 10000).
+ * @return Scaled fractional magnitude in [0, scale - 1].
+ */
+static inline int32_t syn_q16_frac_scaled(q16_t q, uint32_t scale)
+{
+    uint64_t mag = (q < 0) ? (uint64_t)(-(int64_t)q) : (uint64_t)(uint32_t)q;
+    return (int32_t)(((mag & 0xFFFFULL) * (uint64_t)scale) >> Q16_SHIFT);
+}
 
 /** Fractional part as 0–999 (for printf: "%d.%03d"). */
-#define Q16_FRAC_1000(q) ((int32_t)((((q) & 0xFFFF) * 1000L) >> Q16_SHIFT))
+#define Q16_FRAC_1000(q) syn_q16_frac_scaled((q), 1000U)
 
 /** Fractional part as 0–9999 (for printf: "%d.%04d"). */
-#define Q16_FRAC_10000(q) ((int32_t)((((q) & 0xFFFF) * 10000L) >> Q16_SHIFT))
+#define Q16_FRAC_10000(q) syn_q16_frac_scaled((q), 10000U)
 
 /** Float literal to Q7. */
 #define Q7_FROM_FLOAT(f)                 \
@@ -115,7 +129,7 @@ typedef int16_t q15_t;
  */
 static inline q16_t q7_to_q16(q7_t q)
 {
-    return (q16_t)((int32_t)q << 9);
+    return (q16_t)((uint32_t)(int32_t)q << 9U);
 }
 
 /**
@@ -140,7 +154,7 @@ static inline q7_t q16_to_q7(q16_t q)
  */
 static inline q16_t q15_to_q16(q15_t q)
 {
-    return (q16_t)((int32_t)q << 1);
+    return (q16_t)((uint32_t)(int32_t)q << 1U);
 }
 
 /**
@@ -212,7 +226,15 @@ static inline q16_t q16_div(q16_t a, q16_t b)
     if (b == 0) {
         return (a >= 0) ? INT32_MAX : INT32_MIN;
     }
-    return (q16_t)(((int64_t)((uint64_t)(int64_t)a << Q16_SHIFT)) / b);
+    int64_t num = (int64_t)((uint64_t)(int64_t)a << Q16_SHIFT);
+    int64_t quo = num / (int64_t)b;
+    if (quo > (int64_t)INT32_MAX) {
+        return INT32_MAX;
+    }
+    if (quo < (int64_t)INT32_MIN) {
+        return INT32_MIN;
+    }
+    return (q16_t)quo;
 }
 
 /**
@@ -244,6 +266,9 @@ static inline q16_t q16_sub(q16_t a, q16_t b)
  */
 static inline q16_t q16_abs(q16_t a)
 {
+    if (a == INT32_MIN) {
+        return INT32_MAX;
+    }
     return (a < 0) ? -a : a;
 }
 
@@ -304,7 +329,15 @@ static inline q16_t q16_mul_sat(q16_t a, q16_t b)
  */
 static inline q16_t q16_lerp(q16_t a, q16_t b, q16_t t)
 {
-    return a + q16_mul(b - a, t);
+    int64_t diff = (int64_t)b - (int64_t)a;
+    int64_t res = (int64_t)a + ((diff * (int64_t)t) >> Q16_SHIFT);
+    if (res > (int64_t)INT32_MAX) {
+        return INT32_MAX;
+    }
+    if (res < (int64_t)INT32_MIN) {
+        return INT32_MIN;
+    }
+    return (q16_t)res;
 }
 
 /**

@@ -8,7 +8,7 @@ Connect a USB-to-serial adapter to USART1 at **115200 baud** to interact with th
 
 | Module | What it shows |
 |--------|--------------|
-| **Scheduler** | Two cooperative protothread tasks with equal priority |
+| **Scheduler** | Two cooperative protothread tasks with distinct priorities (`SYN_PRIO_HIGH` and `SYN_PRIO_LOW`) |
 | **CLI** | Interactive command-line interface over USART1 |
 | **LED** | Blink, flash, SOS Morse pattern via the `syn_led` driver |
 | **FSM** | Three-state machine (IDLE → RUNNING → FAULT) |
@@ -76,7 +76,7 @@ is portable and would look nearly identical on any SyntropicOS-supported platfor
 
 | Task | Priority | Rate | Purpose |
 |------|----------|------|---------|
-| `blink` | 1 | 50 ms | LED animation + periodic tick log |
-| `cli` | 1 | every cycle | Poll USART1 for serial input |
+| `blink` | `SYN_PRIO_LOW` (`3`) | 50 ms | LED animation + periodic tick log (`PT_TASK_DELAY_MS`) |
+| `cli` | `SYN_PRIO_HIGH` (`1`) | every cycle | Poll USART1 (`PT_CONTINUE_IF_NEEDED` while RX bytes arrive, `PT_PASS` when empty) |
 
-Both tasks share priority 1, giving them fair round-robin scheduling.
+`cli` runs at `SYN_PRIO_HIGH` (`1`) for responsive serial input while yielding via `PT_CONTINUE_IF_NEEDED` when `blink` (`SYN_PRIO_LOW`, `3`) reaches its deadline, and `PT_PASS` once the RX buffer is empty.

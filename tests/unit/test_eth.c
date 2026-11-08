@@ -6,6 +6,7 @@
 #include "mocks/mock_port.h"
 #include "syntropic/net/syn_eth.h"
 #include "syntropic/net/syn_icmp.h"
+#include "syntropic/net/syn_igmp.h"
 #include "syntropic/net/syn_tcp.h"
 #include "syntropic/net/syn_transport_udp.h"
 #include "unity/unity.h"
@@ -166,14 +167,14 @@ void test_eth_coroutine_pt(void)
     PT_INIT(&pt);
 
     uint8_t mac[6];
-    /* First step: ARP lookup fails (not found) -> coroutine yields (PT_WAITING) */
-    TEST_ASSERT_EQUAL_INT(PT_WAITING, eth_coroutine_task(&pt, &eth, PEER_IP, mac));
+    /* First step: ARP lookup fails (not found) -> coroutine yields (PT_IDLE) */
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, eth_coroutine_task(&pt, &eth, PEER_IP, mac));
 
     /* Insert entry into ARP cache */
     syn_eth_arp_update(&eth, PEER_IP, PEER_MAC);
 
-    /* Second step: ARP lookup succeeds -> coroutine completes (PT_EXITED) */
-    TEST_ASSERT_EQUAL_INT(PT_EXITED, eth_coroutine_task(&pt, &eth, PEER_IP, mac));
+    /* Second step: ARP lookup succeeds -> coroutine completes (PT_ENDED) */
+    TEST_ASSERT_EQUAL_INT(PT_ENDED, eth_coroutine_task(&pt, &eth, PEER_IP, mac));
     TEST_ASSERT_EQUAL_INT(0, memcmp(PEER_MAC, mac, 6));
 }
 
@@ -460,6 +461,7 @@ void test_eth_dispatch_icmp(void)
     frame[12] = 0x08;
     frame[13] = 0x00; /* IPv4 */
     frame[14] = 0x45; /* IHL=5 */
+    frame[17] = 28;   /* IP total length = 20 + 8 */
     frame[23] = 1;    /* Protocol = ICMP */
     frame[26] = (uint8_t)(PEER_IP >> 24);
     frame[27] = (uint8_t)(PEER_IP >> 16);
@@ -471,6 +473,9 @@ void test_eth_dispatch_icmp(void)
     frame[33] = (uint8_t)MY_IP;
     frame[34] = 8; /* ICMP type echo request */
     frame[35] = 0; /* code */
+    uint16_t icmp_csum = syn_icmp_checksum(&frame[34], 8);
+    frame[36] = (uint8_t)(icmp_csum >> 8);
+    frame[37] = (uint8_t)(icmp_csum & 0xFF);
 
     uint8_t tx[128];
     size_t tx_len = 0;
@@ -623,6 +628,10 @@ static void test_eth_weak_hooks_and_udp_dispatch(void)
     memcpy(&arp_reply[6], PEER_MAC, 6);
     arp_reply[12] = 0x08;
     arp_reply[13] = 0x06; /* ARP */
+    arp_reply[14] = 0x00;
+    arp_reply[15] = 0x01; /* htype = Ethernet */
+    arp_reply[16] = 0x08;
+    arp_reply[17] = 0x00; /* ptype = IPv4 */
     arp_reply[20] = 0x00;
     arp_reply[21] = 0x02; /* Reply */
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, arp_reply, 42, NULL, NULL));
@@ -656,9 +665,11 @@ static void test_eth_runt_arp_frame(void)
     uint8_t mac[6] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x01};
     syn_eth_init(&eth, mac, 0x0A000001);
     uint8_t runt[20] = {0};
+    memcpy(runt, mac, 6);
     syn_poke_u16(SYN_ETHTYPE_ARP, runt, 12);
-    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
-                      syn_eth_process_frame(&eth, runt, sizeof(runt), NULL, NULL));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_eth_process_frame(&eth, runt, sizeof(runt), NULL, NULL));
+    TEST_ASSERT_EQUAL_UINT32(0U, eth.arp_requests);
+    TEST_ASSERT_EQUAL_UINT32(0U, eth.arp_replies);
 }
 
 void test_eth_header_packing_helpers(void)
@@ -817,6 +828,80 @@ static void test_eth_frame_filtering_and_protocol_dispatch(void)
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, wrong_mac_frame, 60, tx, &tx_len));
 }
 
+static void test_r5_n07_eth_mcast_igmp_and_ihl(void)
+{
+    SYN_ETH eth;
+    SYN_IGMP igmp;
+    uint8_t join_tx[60];
+    size_t join_len = 0;
+    uint8_t tx[128];
+    size_t tx_len = 0;
+
+    syn_eth_init(&eth, MY_MAC, MY_IP);
+    syn_igmp_init(&igmp);
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_igmp_join_group(&igmp, &eth, 0xE00000FBUL, join_tx, &join_len));
+
+    /* 1. Default IGMP hook is NULL -> multicast IGMP query accepted by MAC filter, ignored */
+    syn_eth_set_igmp_instance(NULL);
+    TEST_ASSERT_NULL(syn_eth_get_igmp_instance());
+
+    uint8_t mcast_query[60] = {0};
+    /* Multicast MAC 01:00:5E:00:00:01 (224.0.0.1 All-Hosts) */
+    mcast_query[0] = 0x01;
+    mcast_query[1] = 0x00;
+    mcast_query[2] = 0x5E;
+    mcast_query[3] = 0x00;
+    mcast_query[4] = 0x00;
+    mcast_query[5] = 0x01;
+    memcpy(&mcast_query[6], PEER_MAC, 6);
+    mcast_query[12] = 0x08;
+    mcast_query[13] = 0x00;
+    mcast_query[14] = 0x46; /* IPv4 IHL=6 (24B with Router Alert option) */
+    mcast_query[23] = 2;    /* Protocol = IGMP */
+    mcast_query[34] = 0x94; /* Router Alert option */
+    mcast_query[35] = 0x04;
+    mcast_query[38] = SYN_IGMP_TYPE_MEMBERSHIP_QUERY;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, mcast_query, 60, tx, &tx_len));
+    TEST_ASSERT_EQUAL_UINT32(0U, igmp.queries_received);
+    TEST_ASSERT_EQUAL_size_t(0U, tx_len);
+
+    /* 2. Inject IGMP instance -> Router Alert IGMP query dispatched & emits IGMPv2 Report */
+    syn_eth_set_igmp_instance(&igmp);
+    TEST_ASSERT_EQUAL_PTR(&igmp, syn_eth_get_igmp_instance());
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, mcast_query, 60, tx, &tx_len));
+    TEST_ASSERT_EQUAL_UINT32(1U, igmp.queries_received);
+    TEST_ASSERT_EQUAL_size_t(60U, tx_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_IGMP_TYPE_V2_REPORT, tx[34]);
+
+    /* 3. Non-IPv4 multicast MACs (01:00:5E:80:00:01, 01:00:5F:00:00:01, 01:80:C2:00:00:00)
+     *    must be rejected by eth_accept_dst_mac */
+    uint8_t bad_mcast[60];
+    memcpy(bad_mcast, mcast_query, sizeof(bad_mcast));
+    bad_mcast[3] = 0x80; /* High bit of byte 3 set -> invalid IPv4 multicast MAC */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, bad_mcast, 60, tx, &tx_len));
+    TEST_ASSERT_EQUAL_UINT32(1U, igmp.queries_received);
+
+    bad_mcast[3] = 0x00;
+    bad_mcast[2] = 0x5F;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, bad_mcast, 60, tx, &tx_len));
+    bad_mcast[1] = 0x80;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, bad_mcast, 60, tx, &tx_len));
+    TEST_ASSERT_EQUAL_UINT32(1U, igmp.queries_received);
+
+    /* 4. IPv4 frames with IHL < 20 or 14 + IHL > len ignored safely */
+    uint8_t bad_ihl[60];
+    memcpy(bad_ihl, mcast_query, sizeof(bad_ihl));
+    bad_ihl[14] = 0x44; /* IHL = 16 < 20 */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, bad_ihl, 60, tx, &tx_len));
+    bad_ihl[14] = 0x4F; /* IHL = 60 -> 14 + 60 = 74 > 60 */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, bad_ihl, 60, tx, &tx_len));
+    TEST_ASSERT_EQUAL_UINT32(1U, igmp.queries_received);
+
+    syn_eth_set_igmp_instance(NULL);
+}
+
 void run_eth_tests(void)
 {
     RUN_TEST(test_eth_generate_mac);
@@ -841,4 +926,5 @@ void run_eth_tests(void)
     RUN_TEST(test_eth_runt_arp_frame);
     RUN_TEST(test_eth_header_packing_helpers);
     RUN_TEST(test_eth_frame_filtering_and_protocol_dispatch);
+    RUN_TEST(test_r5_n07_eth_mcast_igmp_and_ihl);
 }

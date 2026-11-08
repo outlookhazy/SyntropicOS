@@ -5,13 +5,259 @@
 
 #include "syntropic/proto/syn_cose.h"
 
-#if !defined(SYN_USE_COSE) || SYN_USE_COSE
+#if SYN_COSE_ENABLED
 
 #include "syntropic/util/syn_random.h"
 
 #include <string.h>
 
 /** @cond INTERNAL */
+
+static void syn_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
+
+/* Parse protected CBOR header map and extract COSE algorithm label (1) */
+static bool cose_parse_protected_alg(const uint8_t *buf, size_t len, SYN_COSE_Algorithm *alg_out)
+{
+    *alg_out = SYN_COSE_ALGO_UNKNOWN;
+    if (len == 0U) {
+        return true;
+    }
+
+    SYN_CborReader pr;
+    syn_cbor_reader_init(&pr, buf, len);
+    size_t pairs = syn_cbor_read_map_begin(&pr);
+    if (!syn_cbor_reader_ok(&pr)) {
+        return false;
+    }
+
+    for (size_t i = 0U; i < pairs && syn_cbor_reader_ok(&pr); i++) {
+        uint64_t label = syn_cbor_read_uint(&pr);
+        if (!syn_cbor_reader_ok(&pr)) {
+            return false;
+        }
+        if (label == SYN_COSE_HEADER_ALG) {
+            *alg_out = (SYN_COSE_Algorithm)syn_cbor_read_int(&pr);
+        } else {
+            syn_cbor_skip(&pr);
+        }
+    }
+
+    return syn_cbor_reader_ok(&pr);
+}
+
+/* Parse unprotected header map for Sign1 / Mac0 (extracting optional kid) */
+static bool cose_parse_unprot_kid(SYN_CborReader *r, uint8_t kid[SYN_COSE_MAX_KID_LEN],
+                                  size_t *kid_len)
+{
+    *kid_len = 0U;
+    size_t pairs = syn_cbor_read_map_begin(r);
+    if (!syn_cbor_reader_ok(r)) {
+        return false;
+    }
+
+    for (size_t i = 0U; i < pairs && syn_cbor_reader_ok(r); i++) {
+        uint64_t label = syn_cbor_read_uint(r);
+        if (!syn_cbor_reader_ok(r)) {
+            return false;
+        }
+        if (label == SYN_COSE_HEADER_KID) {
+            *kid_len = syn_cbor_read_bytes(r, kid, SYN_COSE_MAX_KID_LEN);
+            if (*kid_len > SYN_COSE_MAX_KID_LEN) {
+                return false;
+            }
+        } else {
+            syn_cbor_skip(r);
+        }
+    }
+
+    return syn_cbor_reader_ok(r);
+}
+
+/* Parse unprotected header map for Encrypt0 (extracting IV and optional kid) */
+static bool cose_parse_unprot_enc0(SYN_CborReader *r, uint8_t iv[SYN_COSE_MAX_IV_LEN],
+                                   size_t *iv_len, uint8_t kid[SYN_COSE_MAX_KID_LEN],
+                                   size_t *kid_len)
+{
+    *iv_len = 0U;
+    *kid_len = 0U;
+    size_t pairs = syn_cbor_read_map_begin(r);
+    if (!syn_cbor_reader_ok(r)) {
+        return false;
+    }
+
+    for (size_t i = 0U; i < pairs && syn_cbor_reader_ok(r); i++) {
+        uint64_t label = syn_cbor_read_uint(r);
+        if (!syn_cbor_reader_ok(r)) {
+            return false;
+        }
+        if (label == SYN_COSE_HEADER_IV) {
+            *iv_len = syn_cbor_read_bytes(r, iv, SYN_COSE_MAX_IV_LEN);
+            if (*iv_len > SYN_COSE_MAX_IV_LEN) {
+                return false;
+            }
+        } else if (label == SYN_COSE_HEADER_KID) {
+            *kid_len = syn_cbor_read_bytes(r, kid, SYN_COSE_MAX_KID_LEN);
+            if (*kid_len > SYN_COSE_MAX_KID_LEN) {
+                return false;
+            }
+        } else {
+            syn_cbor_skip(r);
+        }
+    }
+
+    return syn_cbor_reader_ok(r);
+}
+
+/* Resolve key length, tag length, and CCM flag for COSE_Encrypt0 algorithms */
+static bool cose_enc0_alg_params(SYN_COSE_Algorithm alg, size_t *key_len, size_t *tag_len,
+                                 bool *is_ccm)
+{
+    *tag_len = 16U;
+    *is_ccm = false;
+
+    if (alg == SYN_COSE_ALGO_CHACHA20_POLY1305) {
+        *key_len = 32U;
+        return true;
+    }
+    if (alg == SYN_COSE_ALGO_A128GCM || alg == SYN_COSE_ALGO_AES_CCM_16_64_128 ||
+        alg == SYN_COSE_ALGO_AES_CCM_16_128_128) {
+        *key_len = 16U;
+        *is_ccm = (alg != SYN_COSE_ALGO_A128GCM);
+        if (alg == SYN_COSE_ALGO_AES_CCM_16_64_128) {
+            *tag_len = 8U;
+        }
+        return true;
+    }
+    if (alg == SYN_COSE_ALGO_A192GCM) {
+        *key_len = 24U;
+        return true;
+    }
+    if (alg == SYN_COSE_ALGO_A256GCM || alg == SYN_COSE_ALGO_AES_CCM_16_64_256 ||
+        alg == SYN_COSE_ALGO_AES_CCM_16_128_256) {
+        *key_len = 32U;
+        *is_ccm = (alg != SYN_COSE_ALGO_A256GCM);
+        if (alg == SYN_COSE_ALGO_AES_CCM_16_64_256) {
+            *tag_len = 8U;
+        }
+        return true;
+    }
+    return false;
+}
+
+/* Execute authenticated encryption for COSE_Encrypt0 */
+static SYN_Status cose_aead_encrypt(SYN_COSE_Algorithm alg, size_t key_len, size_t tag_len,
+                                    bool is_ccm, const uint8_t *key, const uint8_t *iv,
+                                    size_t iv_len, const uint8_t *aad, size_t aad_len,
+                                    const uint8_t *pt, size_t pt_len, uint8_t *ct_out,
+                                    uint8_t tag[16])
+{
+    if (alg == SYN_COSE_ALGO_CHACHA20_POLY1305) {
+        if (pt_len > 0U && pt != NULL) {
+            syn_aead_encrypt(key, iv, aad, aad_len, pt, pt_len, ct_out, tag);
+        } else {
+            syn_aead_encrypt(key, iv, aad, aad_len, NULL, 0U, NULL, tag);
+        }
+        return SYN_OK;
+    }
+    if (is_ccm) {
+        SYN_AES_Context aes_ctx;
+        SYN_Status st = syn_aes_init(&aes_ctx, key, key_len);
+        if (st == SYN_OK) {
+            st = syn_aes_ccm_encrypt(&aes_ctx, iv, iv_len, aad, aad_len, pt, pt_len, ct_out, tag,
+                                     tag_len);
+        }
+        syn_secure_zero(&aes_ctx, sizeof(aes_ctx));
+        return (st == SYN_OK) ? SYN_OK : SYN_ERROR;
+    }
+    SYN_AES_GCM_Context gcm_ctx;
+    SYN_Status st = syn_aes_gcm_init(&gcm_ctx, key, key_len);
+    if (st == SYN_OK) {
+        st = syn_aes_gcm_encrypt(&gcm_ctx, iv, iv_len, aad, aad_len, pt, pt_len, ct_out, tag);
+    }
+    syn_secure_zero(&gcm_ctx, sizeof(gcm_ctx));
+    return (st == SYN_OK) ? SYN_OK : SYN_ERROR;
+}
+
+/* Execute authenticated decryption for COSE_Encrypt0 */
+static SYN_Status cose_aead_decrypt(SYN_COSE_Algorithm alg, size_t key_len, size_t tag_len,
+                                    bool is_ccm, const uint8_t *key, const uint8_t *iv,
+                                    size_t iv_len, const uint8_t *aad, size_t aad_len,
+                                    const uint8_t *ct, size_t pt_len, const uint8_t *tag,
+                                    uint8_t *pt_out)
+{
+    if (alg == SYN_COSE_ALGO_CHACHA20_POLY1305) {
+        return syn_aead_decrypt(key, iv, aad, aad_len, ct, pt_len, tag, pt_out) ? SYN_OK
+                                                                                : SYN_ERROR;
+    }
+    if (is_ccm) {
+        SYN_AES_Context aes_ctx;
+        SYN_Status st = syn_aes_init(&aes_ctx, key, key_len);
+        if (st == SYN_OK) {
+            st = syn_aes_ccm_decrypt(&aes_ctx, iv, iv_len, aad, aad_len, ct, pt_len, tag, tag_len,
+                                     pt_out);
+        }
+        syn_secure_zero(&aes_ctx, sizeof(aes_ctx));
+        return (st == SYN_OK) ? SYN_OK : SYN_ERROR;
+    }
+    SYN_AES_GCM_Context gcm_ctx;
+    SYN_Status st = syn_aes_gcm_init(&gcm_ctx, key, key_len);
+    if (st == SYN_OK) {
+        st = syn_aes_gcm_decrypt(&gcm_ctx, iv, iv_len, aad, aad_len, ct, pt_len, pt_out, tag);
+    }
+    syn_secure_zero(&gcm_ctx, sizeof(gcm_ctx));
+    return (st == SYN_OK) ? SYN_OK : SYN_ERROR;
+}
+
+/* Read bounded byte string field in COSE_Key map */
+static bool cose_key_read_bounded(SYN_CborReader *r, uint8_t *dst, size_t cap, size_t *out_len)
+{
+    size_t n = syn_cbor_read_bytes(r, dst, cap);
+    if (!syn_cbor_reader_ok(r) || n > cap) {
+        return false;
+    }
+    *out_len = n;
+    return true;
+}
+
+/* Decode one label/value entry of a COSE_Key map */
+static bool cose_key_decode_entry(SYN_CborReader *r, int64_t label, SYN_COSE_Key *key_out)
+{
+    switch (label) {
+    case SYN_COSE_KEY_KTY:
+        key_out->kty = (SYN_COSE_KeyType)syn_cbor_read_int(r);
+        return syn_cbor_reader_ok(r);
+    case SYN_COSE_KEY_KID:
+        return cose_key_read_bounded(r, key_out->kid, sizeof(key_out->kid), &key_out->kid_len);
+    case SYN_COSE_KEY_ALG:
+        key_out->alg = (SYN_COSE_Algorithm)syn_cbor_read_int(r);
+        return syn_cbor_reader_ok(r);
+    case SYN_COSE_KEY_CRV:
+        if (key_out->kty == SYN_COSE_KTY_SYMMETRIC || syn_cbor_peek_type(r) == SYN_CBOR_BYTES) {
+            return cose_key_read_bounded(r, key_out->priv_d, sizeof(key_out->priv_d),
+                                         &key_out->priv_d_len);
+        }
+        key_out->crv = (SYN_COSE_Curve)syn_cbor_read_int(r);
+        return syn_cbor_reader_ok(r);
+    case SYN_COSE_KEY_X:
+        return cose_key_read_bounded(r, key_out->pub_x, sizeof(key_out->pub_x),
+                                     &key_out->pub_x_len);
+    case SYN_COSE_KEY_Y:
+        return cose_key_read_bounded(r, key_out->pub_y, sizeof(key_out->pub_y),
+                                     &key_out->pub_y_len);
+    case SYN_COSE_KEY_D:
+        return cose_key_read_bounded(r, key_out->priv_d, sizeof(key_out->priv_d),
+                                     &key_out->priv_d_len);
+    default:
+        syn_cbor_skip(r);
+        return syn_cbor_reader_ok(r);
+    }
+}
 
 /* Build serialized Sig_structure per RFC 9052 Section 4.4 */
 static bool build_sig_structure(const uint8_t *body_protected, size_t body_protected_len,
@@ -98,6 +344,87 @@ static bool build_mac_structure(const uint8_t *body_protected, size_t body_prote
     return true;
 }
 
+static SYN_Status cose_verify_sign1_sig(SYN_COSE_Algorithm alg, const uint8_t *public_key,
+                                        size_t public_key_len, const uint8_t *sig_ptr,
+                                        const uint8_t *sig_structure, size_t sig_struct_len)
+{
+    if (alg == SYN_COSE_ALGO_EDDSA) {
+        if (public_key_len != SYN_ED25519_PUBLIC_KEY_SIZE ||
+            !syn_ed25519_verify(sig_ptr, sig_structure, sig_struct_len, public_key)) {
+            return SYN_ERROR;
+        }
+        return SYN_OK;
+    }
+
+    const uint8_t *px = public_key;
+    const uint8_t *py = public_key + 32;
+    if (public_key_len == 65U && public_key[0] == 0x04U) {
+        px = public_key + 1;
+        py = public_key + 33;
+    } else if (public_key_len != 64U) {
+        return SYN_ERROR;
+    }
+
+    uint8_t hash[SYN_SHA256_DIGEST_SIZE];
+    syn_sha256(sig_structure, sig_struct_len, hash);
+    return syn_p256_verify_ecdsa(hash, sig_ptr, sig_ptr + 32, px, py) ? SYN_OK : SYN_ERROR;
+}
+
+static bool cose_parse_enc0_prot_and_unprot(SYN_CborReader *r, uint8_t *protected_buf,
+                                            size_t *protected_len, SYN_COSE_Algorithm *parsed_alg,
+                                            size_t *key_len, size_t *tag_len, bool *is_ccm,
+                                            uint8_t *parsed_iv, size_t *parsed_iv_len,
+                                            uint8_t *parsed_kid, size_t *parsed_kid_len)
+{
+    *protected_len = syn_cbor_read_bytes(r, protected_buf, SYN_COSE_MAX_PROTECTED_LEN);
+    if (!syn_cbor_reader_ok(r) || *protected_len > SYN_COSE_MAX_PROTECTED_LEN ||
+        !cose_parse_protected_alg(protected_buf, *protected_len, parsed_alg) ||
+        !cose_enc0_alg_params(*parsed_alg, key_len, tag_len, is_ccm) ||
+        !cose_parse_unprot_enc0(r, parsed_iv, parsed_iv_len, parsed_kid, parsed_kid_len)) {
+        return false;
+    }
+    return (*is_ccm || *parsed_iv_len == 12U);
+}
+
+static size_t cose_mac0_tag_len(SYN_COSE_Algorithm alg)
+{
+    if (alg == SYN_COSE_ALGO_HMAC_256_256) {
+        return 32U;
+    }
+    if (alg == SYN_COSE_ALGO_HMAC_256_64) {
+        return 8U;
+    }
+    return 0U;
+}
+
+static bool cose_parse_prot_and_kid(SYN_CborReader *r, uint8_t *protected_buf,
+                                    size_t *protected_len, SYN_COSE_Algorithm *parsed_alg,
+                                    uint8_t *parsed_kid, size_t *parsed_kid_len)
+{
+    *protected_len = syn_cbor_read_bytes(r, protected_buf, SYN_COSE_MAX_PROTECTED_LEN);
+    if (!syn_cbor_reader_ok(r) || *protected_len > SYN_COSE_MAX_PROTECTED_LEN ||
+        !cose_parse_protected_alg(protected_buf, *protected_len, parsed_alg) ||
+        !cose_parse_unprot_kid(r, parsed_kid, parsed_kid_len)) {
+        return false;
+    }
+    return true;
+}
+
+static SYN_Status cose_mac0_verify_tag(const uint8_t *key, size_t key_len,
+                                       const uint8_t *mac_struct, size_t mac_struct_len,
+                                       const uint8_t *tag_ptr, size_t exp_tag_len)
+{
+    uint8_t expected_tag[32];
+    syn_hmac_sha256(key, key_len, mac_struct, mac_struct_len, expected_tag);
+
+    uint8_t diff = 0U;
+    for (size_t i = 0U; i < exp_tag_len; i++) {
+        diff |= (uint8_t)(tag_ptr[i] ^ expected_tag[i]);
+    }
+    syn_secure_zero(expected_tag, sizeof(expected_tag));
+    return (diff == 0U) ? SYN_OK : SYN_ERROR;
+}
+
 /** @endcond */
 
 SYN_Status syn_cose_sign1_create(SYN_COSE_Algorithm alg, const uint8_t *secret_key,
@@ -125,7 +452,7 @@ SYN_Status syn_cose_sign1_create(SYN_COSE_Algorithm alg, const uint8_t *secret_k
     size_t protected_raw_len = syn_cbor_writer_len(&pw);
 
     /* 2. Build Sig_structure for signature generation */
-    uint8_t sig_structure[1024];
+    uint8_t sig_structure[SYN_COSE_MAX_STRUCT_LEN];
     size_t sig_struct_len = 0;
     if (!build_sig_structure(protected_raw, protected_raw_len, external_aad, external_aad_len,
                              payload, payload_len, sig_structure, sizeof(sig_structure),
@@ -136,17 +463,25 @@ SYN_Status syn_cose_sign1_create(SYN_COSE_Algorithm alg, const uint8_t *secret_k
     /* 3. Compute signature */
     uint8_t signature[SYN_COSE_MAX_SIG_LEN];
     size_t sig_len = 64U;
+    bool sign_ok = false;
 
     if (alg == SYN_COSE_ALGO_EDDSA) {
-        (void)syn_ed25519_sign(sig_structure, sig_struct_len, secret_key, public_key, signature);
+        sign_ok =
+            syn_ed25519_sign(sig_structure, sig_struct_len, secret_key, public_key, signature);
     } else {
         /* ES256: Hash Sig_structure with SHA-256 then sign with P-256 ECDSA */
         uint8_t hash[SYN_SHA256_DIGEST_SIZE];
+        uint8_t nonce_k[32];
         syn_sha256(sig_structure, sig_struct_len, hash);
 
-        uint8_t nonce_k[32];
-        (void)syn_random_fill(nonce_k, sizeof(nonce_k));
-        (void)syn_p256_sign_ecdsa(secret_key, nonce_k, hash, signature, signature + 32);
+        if (syn_random_fill(nonce_k, sizeof(nonce_k)) == SYN_OK) {
+            sign_ok = syn_p256_sign_ecdsa(secret_key, nonce_k, hash, signature, signature + 32);
+        }
+        syn_secure_zero(nonce_k, sizeof(nonce_k));
+    }
+
+    if (!sign_ok) {
+        return SYN_ERROR;
     }
 
     /* 4. Encode final COSE_Sign1 message */
@@ -195,114 +530,57 @@ SYN_Status syn_cose_sign1_verify(const uint8_t *msg, size_t msg_len, const uint8
         return SYN_ERROR;
     }
 
-    /* 1. Read protected header bstr */
+    /* 1 & 2. Read protected and unprotected headers */
     uint8_t protected_buf[SYN_COSE_MAX_PROTECTED_LEN];
-    size_t protected_len = syn_cbor_read_bytes(&r, protected_buf, sizeof(protected_buf));
-    if (!syn_cbor_reader_ok(&r)) {
-        return SYN_ERROR;
-    }
-
-    /* Parse protected header map */
+    size_t protected_len = 0U;
     SYN_COSE_Algorithm parsed_alg = SYN_COSE_ALGO_UNKNOWN;
-    if (protected_len > 0U) {
-        SYN_CborReader pr;
-        syn_cbor_reader_init(&pr, protected_buf, protected_len);
-        size_t pairs = syn_cbor_read_map_begin(&pr);
-        for (size_t i = 0; i < pairs; i++) {
-            uint64_t label = syn_cbor_read_uint(&pr);
-            if (label == SYN_COSE_HEADER_ALG) {
-                parsed_alg = (SYN_COSE_Algorithm)syn_cbor_read_int(&pr);
-            } else {
-                syn_cbor_skip(&pr);
-            }
-        }
-    }
-
-    if (parsed_alg != SYN_COSE_ALGO_EDDSA && parsed_alg != SYN_COSE_ALGO_ES256) {
-        return SYN_ERROR;
-    }
-
-    /* 2. Read unprotected header map */
     uint8_t parsed_kid[SYN_COSE_MAX_KID_LEN] = {0};
     size_t parsed_kid_len = 0;
-
-    size_t unprot_pairs = syn_cbor_read_map_begin(&r);
-    if (!syn_cbor_reader_ok(&r)) {
-        return SYN_ERROR;
-    }
-    for (size_t i = 0; i < unprot_pairs; i++) {
-        uint64_t label = syn_cbor_read_uint(&r);
-        if (label == SYN_COSE_HEADER_KID) {
-            parsed_kid_len = syn_cbor_read_bytes(&r, parsed_kid, sizeof(parsed_kid));
-        } else {
-            syn_cbor_skip(&r);
-        }
-    }
-
-    /* 3. Read payload */
-    uint8_t payload_buf[1024];
-    size_t payload_len = syn_cbor_read_bytes(&r, payload_buf, sizeof(payload_buf));
-    if (!syn_cbor_reader_ok(&r)) {
+    if (!cose_parse_prot_and_kid(&r, protected_buf, &protected_len, &parsed_alg, parsed_kid,
+                                 &parsed_kid_len) ||
+        (parsed_alg != SYN_COSE_ALGO_EDDSA && parsed_alg != SYN_COSE_ALGO_ES256)) {
         return SYN_ERROR;
     }
 
-    /* 4. Read signature */
-    uint8_t sig_buf[SYN_COSE_MAX_SIG_LEN];
-    size_t sig_len = syn_cbor_read_bytes(&r, sig_buf, sizeof(sig_buf));
+    /* 3. Read payload (zero-copy view into msg) */
+    size_t payload_len = syn_cbor_read_bytes(&r, NULL, 0U);
+    if (!syn_cbor_reader_ok(&r)) {
+        return SYN_ERROR;
+    }
+    const uint8_t *payload_ptr = &r.buf[r.pos - payload_len];
+
+    /* 4. Read signature (zero-copy view into msg) */
+    size_t sig_len = syn_cbor_read_bytes(&r, NULL, 0U);
     if (!syn_cbor_reader_ok(&r) || sig_len != 64U) {
         return SYN_ERROR;
     }
+    const uint8_t *sig_ptr = &r.buf[r.pos - sig_len];
 
     /* Populate optional output struct */
     if (parsed_out != NULL) {
         parsed_out->alg = parsed_alg;
         (void)memcpy(parsed_out->kid, parsed_kid, parsed_kid_len);
         parsed_out->kid_len = parsed_kid_len;
-        parsed_out->payload = payload_buf;
+        parsed_out->payload = payload_ptr;
         parsed_out->payload_len = payload_len;
-        parsed_out->signature = sig_buf;
+        parsed_out->signature = sig_ptr;
         parsed_out->signature_len = sig_len;
         (void)memcpy(parsed_out->protected_hdr, protected_buf, protected_len);
         parsed_out->protected_hdr_len = protected_len;
     }
 
     /* 5. Reconstruct Sig_structure */
-    uint8_t sig_structure[1024];
+    uint8_t sig_structure[SYN_COSE_MAX_STRUCT_LEN];
     size_t sig_struct_len = 0;
     if (!build_sig_structure(protected_buf, protected_len, external_aad, external_aad_len,
-                             payload_buf, payload_len, sig_structure, sizeof(sig_structure),
+                             payload_ptr, payload_len, sig_structure, sizeof(sig_structure),
                              &sig_struct_len)) {
         return SYN_ERROR;
     }
 
     /* 6. Verify signature */
-    if (parsed_alg == SYN_COSE_ALGO_EDDSA) {
-        if (public_key_len != SYN_ED25519_PUBLIC_KEY_SIZE) {
-            return SYN_ERROR;
-        }
-        if (!syn_ed25519_verify(sig_buf, sig_structure, sig_struct_len, public_key)) {
-            return SYN_ERROR;
-        }
-    } else {
-        /* ES256 */
-        const uint8_t *px = public_key;
-        const uint8_t *py = public_key + 32;
-        if (public_key_len == 65U && public_key[0] == 0x04U) {
-            px = public_key + 1;
-            py = public_key + 33;
-        } else if (public_key_len != 64U) {
-            return SYN_ERROR;
-        }
-
-        uint8_t hash[SYN_SHA256_DIGEST_SIZE];
-        syn_sha256(sig_structure, sig_struct_len, hash);
-
-        if (!syn_p256_verify_ecdsa(hash, sig_buf, sig_buf + 32, px, py)) {
-            return SYN_ERROR;
-        }
-    }
-
-    return SYN_OK;
+    return cose_verify_sign1_sig(parsed_alg, public_key, public_key_len, sig_ptr, sig_structure,
+                                 sig_struct_len);
 }
 
 SYN_Status syn_cose_encrypt0_create(SYN_COSE_Algorithm alg, const uint8_t *key, const uint8_t *iv,
@@ -316,37 +594,14 @@ SYN_Status syn_cose_encrypt0_create(SYN_COSE_Algorithm alg, const uint8_t *key, 
         return SYN_ERROR;
     }
 
-    size_t key_len = 0;
+    size_t key_len = 0U;
     size_t tag_len = 16U;
-    if (alg == SYN_COSE_ALGO_CHACHA20_POLY1305) {
-        key_len = 32U;
-    } else if (alg == SYN_COSE_ALGO_A128GCM || alg == SYN_COSE_ALGO_AES_CCM_16_64_128 ||
-               alg == SYN_COSE_ALGO_AES_CCM_16_128_128) {
-        key_len = 16U;
-        if (alg == SYN_COSE_ALGO_AES_CCM_16_64_128) {
-            tag_len = 8U;
-        }
-    } else if (alg == SYN_COSE_ALGO_A192GCM) {
-        key_len = 24U;
-    } else if (alg == SYN_COSE_ALGO_A256GCM || alg == SYN_COSE_ALGO_AES_CCM_16_64_256 ||
-               alg == SYN_COSE_ALGO_AES_CCM_16_128_256) {
-        key_len = 32U;
-        if (alg == SYN_COSE_ALGO_AES_CCM_16_64_256) {
-            tag_len = 8U;
-        }
-    } else {
+    bool is_ccm = false;
+    if (!cose_enc0_alg_params(alg, &key_len, &tag_len, &is_ccm)) {
         return SYN_ERROR;
     }
-
-    if (alg == SYN_COSE_ALGO_AES_CCM_16_64_128 || alg == SYN_COSE_ALGO_AES_CCM_16_64_256 ||
-        alg == SYN_COSE_ALGO_AES_CCM_16_128_128 || alg == SYN_COSE_ALGO_AES_CCM_16_128_256) {
-        if (iv_len < 7U || iv_len > 13U) {
-            return SYN_ERROR;
-        }
-    } else {
-        if (iv_len != 12U) {
-            return SYN_ERROR;
-        }
+    if (!is_ccm && iv_len != 12U) {
+        return SYN_ERROR;
     }
 
     /* 1. Build protected header: { 1: alg } */
@@ -359,43 +614,18 @@ SYN_Status syn_cose_encrypt0_create(SYN_COSE_Algorithm alg, const uint8_t *key, 
     size_t protected_raw_len = syn_cbor_writer_len(&pw);
 
     /* 2. Build Enc_structure for AAD */
-    uint8_t enc_structure[512];
+    if (plaintext_len > SYN_COSE_MAX_ENCRYPT0_PAYLOAD) {
+        return SYN_ERROR;
+    }
+    uint8_t enc_structure[SYN_COSE_MAX_ENC_STRUCT_LEN];
     size_t enc_struct_len = 0;
     if (!build_enc_structure(protected_raw, protected_raw_len, external_aad, external_aad_len,
                              enc_structure, sizeof(enc_structure), &enc_struct_len)) {
         return SYN_ERROR;
     }
 
-    /* 3. Encrypt plaintext (Payload || Tag) */
-    uint8_t ct_tag_buf[1024];
-    if (plaintext_len + tag_len > sizeof(ct_tag_buf)) {
-        return SYN_ERROR;
-    }
-
-    uint8_t tag[16];
-    if (alg == SYN_COSE_ALGO_CHACHA20_POLY1305) {
-        if (plaintext_len > 0U && plaintext != NULL) {
-            syn_aead_encrypt(key, iv, enc_structure, enc_struct_len, plaintext, plaintext_len,
-                             ct_tag_buf, tag);
-        } else {
-            syn_aead_encrypt(key, iv, enc_structure, enc_struct_len, NULL, 0U, NULL, tag);
-        }
-    } else if (alg == SYN_COSE_ALGO_AES_CCM_16_64_128 || alg == SYN_COSE_ALGO_AES_CCM_16_64_256 ||
-               alg == SYN_COSE_ALGO_AES_CCM_16_128_128 || alg == SYN_COSE_ALGO_AES_CCM_16_128_256) {
-        SYN_AES_Context aes_ctx;
-        (void)syn_aes_init(&aes_ctx, key, key_len);
-        (void)syn_aes_ccm_encrypt(&aes_ctx, iv, iv_len, enc_structure, enc_struct_len, plaintext,
-                                  plaintext_len, ct_tag_buf, tag, tag_len);
-    } else {
-        SYN_AES_GCM_Context gcm_ctx;
-        (void)syn_aes_gcm_init(&gcm_ctx, key, key_len);
-        (void)syn_aes_gcm_encrypt(&gcm_ctx, iv, iv_len, enc_structure, enc_struct_len, plaintext,
-                                  plaintext_len, ct_tag_buf, tag);
-    }
-    (void)memcpy(ct_tag_buf + plaintext_len, tag, tag_len);
+    /* 3. Encode COSE_Encrypt0 header + bstr prefix directly into out_buf */
     size_t total_ct_len = plaintext_len + tag_len;
-
-    /* 4. Encode final COSE_Encrypt0 message */
     SYN_CborWriter w;
     syn_cbor_writer_init(&w, out_buf, out_buf_size);
 
@@ -412,14 +642,24 @@ SYN_Status syn_cose_encrypt0_create(SYN_COSE_Algorithm alg, const uint8_t *key, 
         syn_cbor_write_bytes(&w, kid, kid_len);
     }
 
-    /* Ciphertext + Tag */
-    syn_cbor_write_bytes(&w, ct_tag_buf, total_ct_len);
-
-    if (!syn_cbor_writer_ok(&w)) {
+    size_t bstr_hdr_pos = syn_cbor_writer_len(&w);
+    syn_cbor_write_uint(&w, (uint64_t)total_ct_len);
+    size_t ct_pos = syn_cbor_writer_len(&w);
+    if (!syn_cbor_writer_ok(&w) || total_ct_len > (out_buf_size - ct_pos)) {
         return SYN_ERROR;
     }
+    out_buf[bstr_hdr_pos] |= 0x40U; /* CBOR major type 2 (byte string) */
 
-    *out_len = syn_cbor_writer_len(&w);
+    /* 4. Encrypt plaintext || tag directly into out_buf */
+    uint8_t tag[16];
+    if (cose_aead_encrypt(alg, key_len, tag_len, is_ccm, key, iv, iv_len, enc_structure,
+                          enc_struct_len, plaintext, plaintext_len, out_buf + ct_pos,
+                          tag) != SYN_OK) {
+        return SYN_ERROR;
+    }
+    (void)memcpy(out_buf + ct_pos + plaintext_len, tag, tag_len);
+
+    *out_len = ct_pos + total_ct_len;
     return SYN_OK;
 }
 
@@ -441,92 +681,29 @@ SYN_Status syn_cose_encrypt0_decrypt(const uint8_t *msg, size_t msg_len, const u
         return SYN_ERROR;
     }
 
-    /* 1. Read protected header */
+    /* 1 & 2. Read protected + unprotected headers */
     uint8_t protected_buf[SYN_COSE_MAX_PROTECTED_LEN];
-    size_t protected_len = syn_cbor_read_bytes(&r, protected_buf, sizeof(protected_buf));
-    if (!syn_cbor_reader_ok(&r)) {
-        return SYN_ERROR;
-    }
-
+    size_t protected_len = 0U;
     SYN_COSE_Algorithm parsed_alg = SYN_COSE_ALGO_UNKNOWN;
-    if (protected_len > 0U) {
-        SYN_CborReader pr;
-        syn_cbor_reader_init(&pr, protected_buf, protected_len);
-        size_t pairs = syn_cbor_read_map_begin(&pr);
-        for (size_t i = 0; i < pairs; i++) {
-            uint64_t label = syn_cbor_read_uint(&pr);
-            if (label == SYN_COSE_HEADER_ALG) {
-                parsed_alg = (SYN_COSE_Algorithm)syn_cbor_read_int(&pr);
-            } else {
-                syn_cbor_skip(&pr);
-            }
-        }
-    }
-
-    size_t key_len = 0;
+    size_t key_len = 0U;
     size_t tag_len = 16U;
-    if (parsed_alg == SYN_COSE_ALGO_CHACHA20_POLY1305) {
-        key_len = 32U;
-    } else if (parsed_alg == SYN_COSE_ALGO_A128GCM ||
-               parsed_alg == SYN_COSE_ALGO_AES_CCM_16_64_128 ||
-               parsed_alg == SYN_COSE_ALGO_AES_CCM_16_128_128) {
-        key_len = 16U;
-        if (parsed_alg == SYN_COSE_ALGO_AES_CCM_16_64_128) {
-            tag_len = 8U;
-        }
-    } else if (parsed_alg == SYN_COSE_ALGO_A192GCM) {
-        key_len = 24U;
-    } else if (parsed_alg == SYN_COSE_ALGO_A256GCM ||
-               parsed_alg == SYN_COSE_ALGO_AES_CCM_16_64_256 ||
-               parsed_alg == SYN_COSE_ALGO_AES_CCM_16_128_256) {
-        key_len = 32U;
-        if (parsed_alg == SYN_COSE_ALGO_AES_CCM_16_64_256) {
-            tag_len = 8U;
-        }
-    } else {
-        return SYN_ERROR;
-    }
-
-    /* 2. Read unprotected header map */
+    bool is_ccm = false;
     uint8_t parsed_iv[SYN_COSE_MAX_IV_LEN] = {0};
     size_t parsed_iv_len = 0;
     uint8_t parsed_kid[SYN_COSE_MAX_KID_LEN] = {0};
     size_t parsed_kid_len = 0;
-
-    size_t unprot_pairs = syn_cbor_read_map_begin(&r);
-    if (!syn_cbor_reader_ok(&r)) {
+    if (!cose_parse_enc0_prot_and_unprot(&r, protected_buf, &protected_len, &parsed_alg, &key_len,
+                                         &tag_len, &is_ccm, parsed_iv, &parsed_iv_len, parsed_kid,
+                                         &parsed_kid_len)) {
         return SYN_ERROR;
     }
-    for (size_t i = 0; i < unprot_pairs; i++) {
-        uint64_t label = syn_cbor_read_uint(&r);
-        if (label == SYN_COSE_HEADER_IV) {
-            parsed_iv_len = syn_cbor_read_bytes(&r, parsed_iv, sizeof(parsed_iv));
-        } else if (label == SYN_COSE_HEADER_KID) {
-            parsed_kid_len = syn_cbor_read_bytes(&r, parsed_kid, sizeof(parsed_kid));
-        } else {
-            syn_cbor_skip(&r);
-        }
-    }
 
-    if (parsed_alg == SYN_COSE_ALGO_AES_CCM_16_64_128 ||
-        parsed_alg == SYN_COSE_ALGO_AES_CCM_16_64_256 ||
-        parsed_alg == SYN_COSE_ALGO_AES_CCM_16_128_128 ||
-        parsed_alg == SYN_COSE_ALGO_AES_CCM_16_128_256) {
-        if (parsed_iv_len < 7U || parsed_iv_len > 13U) {
-            return SYN_ERROR;
-        }
-    } else {
-        if (parsed_iv_len != 12U) {
-            return SYN_ERROR;
-        }
-    }
-
-    /* 3. Read ciphertext + tag */
-    uint8_t ct_tag_buf[1024];
-    size_t ct_tag_len = syn_cbor_read_bytes(&r, ct_tag_buf, sizeof(ct_tag_buf));
+    /* 3. Read ciphertext + tag (zero-copy view into msg) */
+    size_t ct_tag_len = syn_cbor_read_bytes(&r, NULL, 0U);
     if (!syn_cbor_reader_ok(&r) || ct_tag_len < tag_len) {
         return SYN_ERROR;
     }
+    const uint8_t *ct_tag_ptr = &r.buf[r.pos - ct_tag_len];
 
     size_t pt_len = ct_tag_len - tag_len;
     if (out_plaintext != NULL && pt_len > out_plaintext_size) {
@@ -540,14 +717,14 @@ SYN_Status syn_cose_encrypt0_decrypt(const uint8_t *msg, size_t msg_len, const u
         parsed_out->iv_len = parsed_iv_len;
         (void)memcpy(parsed_out->kid, parsed_kid, parsed_kid_len);
         parsed_out->kid_len = parsed_kid_len;
-        parsed_out->ciphertext = ct_tag_buf;
+        parsed_out->ciphertext = ct_tag_ptr;
         parsed_out->ciphertext_len = ct_tag_len;
         (void)memcpy(parsed_out->protected_hdr, protected_buf, protected_len);
         parsed_out->protected_hdr_len = protected_len;
     }
 
     /* 4. Reconstruct Enc_structure */
-    uint8_t enc_structure[512];
+    uint8_t enc_structure[SYN_COSE_MAX_ENC_STRUCT_LEN];
     size_t enc_struct_len = 0;
     if (!build_enc_structure(protected_buf, protected_len, external_aad, external_aad_len,
                              enc_structure, sizeof(enc_structure), &enc_struct_len)) {
@@ -555,29 +732,11 @@ SYN_Status syn_cose_encrypt0_decrypt(const uint8_t *msg, size_t msg_len, const u
     }
 
     /* 5. Decrypt and verify tag */
-    const uint8_t *tag = ct_tag_buf + pt_len;
-    if (parsed_alg == SYN_COSE_ALGO_CHACHA20_POLY1305) {
-        if (!syn_aead_decrypt(key, parsed_iv, enc_structure, enc_struct_len, ct_tag_buf, pt_len,
-                              tag, out_plaintext)) {
-            return SYN_ERROR;
-        }
-    } else if (parsed_alg == SYN_COSE_ALGO_AES_CCM_16_64_128 ||
-               parsed_alg == SYN_COSE_ALGO_AES_CCM_16_64_256 ||
-               parsed_alg == SYN_COSE_ALGO_AES_CCM_16_128_128 ||
-               parsed_alg == SYN_COSE_ALGO_AES_CCM_16_128_256) {
-        SYN_AES_Context aes_ctx;
-        (void)syn_aes_init(&aes_ctx, key, key_len);
-        if (syn_aes_ccm_decrypt(&aes_ctx, parsed_iv, parsed_iv_len, enc_structure, enc_struct_len,
-                                ct_tag_buf, pt_len, tag, tag_len, out_plaintext) != SYN_OK) {
-            return SYN_ERROR;
-        }
-    } else {
-        SYN_AES_GCM_Context gcm_ctx;
-        (void)syn_aes_gcm_init(&gcm_ctx, key, key_len);
-        if (syn_aes_gcm_decrypt(&gcm_ctx, parsed_iv, parsed_iv_len, enc_structure, enc_struct_len,
-                                ct_tag_buf, pt_len, out_plaintext, tag) != SYN_OK) {
-            return SYN_ERROR;
-        }
+    const uint8_t *tag = ct_tag_ptr + pt_len;
+    if (cose_aead_decrypt(parsed_alg, key_len, tag_len, is_ccm, key, parsed_iv, parsed_iv_len,
+                          enc_structure, enc_struct_len, ct_tag_ptr, pt_len, tag,
+                          out_plaintext) != SYN_OK) {
+        return SYN_ERROR;
     }
 
     *out_plaintext_len = pt_len;
@@ -616,7 +775,7 @@ SYN_Status syn_cose_mac0_create(SYN_COSE_Algorithm alg, const uint8_t *key, size
     size_t protected_raw_len = syn_cbor_writer_len(&pw);
 
     /* 2. Build MAC_structure */
-    uint8_t mac_structure[1024];
+    uint8_t mac_structure[SYN_COSE_MAX_STRUCT_LEN];
     size_t mac_struct_len = 0;
     if (!build_mac_structure(protected_raw, protected_raw_len, external_aad, external_aad_len,
                              payload, payload_len, mac_structure, sizeof(mac_structure),
@@ -675,98 +834,59 @@ SYN_Status syn_cose_mac0_verify(const uint8_t *msg, size_t msg_len, const uint8_
         return SYN_ERROR;
     }
 
-    /* 0. Protected header */
+    /* 0 & 1. Protected and unprotected headers */
     uint8_t protected_buf[SYN_COSE_MAX_PROTECTED_LEN];
-    size_t protected_len = syn_cbor_read_bytes(&r, protected_buf, sizeof(protected_buf));
-    if (!syn_cbor_reader_ok(&r)) {
-        return SYN_ERROR;
-    }
-
+    size_t protected_len = 0U;
     SYN_COSE_Algorithm parsed_alg = SYN_COSE_ALGO_UNKNOWN;
-    if (protected_len > 0U) {
-        SYN_CborReader pr;
-        syn_cbor_reader_init(&pr, protected_buf, protected_len);
-        size_t pairs = syn_cbor_read_map_begin(&pr);
-        for (size_t i = 0; i < pairs; i++) {
-            uint64_t label = syn_cbor_read_uint(&pr);
-            if (label == SYN_COSE_HEADER_ALG) {
-                parsed_alg = (SYN_COSE_Algorithm)syn_cbor_read_int(&pr);
-            } else {
-                syn_cbor_skip(&pr);
-            }
-        }
-    }
-
-    size_t exp_tag_len = 0U;
-    if (parsed_alg == SYN_COSE_ALGO_HMAC_256_256) {
-        exp_tag_len = 32U;
-    } else if (parsed_alg == SYN_COSE_ALGO_HMAC_256_64) {
-        exp_tag_len = 8U;
-    } else {
-        return SYN_ERROR;
-    }
-
-    /* 1. Unprotected header */
     uint8_t parsed_kid[SYN_COSE_MAX_KID_LEN] = {0};
     size_t parsed_kid_len = 0;
-    size_t unprot_pairs = syn_cbor_read_map_begin(&r);
-    if (!syn_cbor_reader_ok(&r)) {
+    size_t exp_tag_len = 0U;
+    if (!cose_parse_prot_and_kid(&r, protected_buf, &protected_len, &parsed_alg, parsed_kid,
+                                 &parsed_kid_len)) {
         return SYN_ERROR;
     }
-    for (size_t i = 0; i < unprot_pairs; i++) {
-        uint64_t label = syn_cbor_read_uint(&r);
-        if (label == SYN_COSE_HEADER_KID) {
-            parsed_kid_len = syn_cbor_read_bytes(&r, parsed_kid, sizeof(parsed_kid));
-        } else {
-            syn_cbor_skip(&r);
-        }
-    }
-
-    /* 2. Payload */
-    uint8_t payload_buf[1024];
-    size_t payload_len = syn_cbor_read_bytes(&r, payload_buf, sizeof(payload_buf));
-    if (!syn_cbor_reader_ok(&r)) {
+    exp_tag_len = cose_mac0_tag_len(parsed_alg);
+    if (exp_tag_len == 0U) {
         return SYN_ERROR;
     }
 
-    /* 3. Tag */
-    uint8_t tag_buf[SYN_COSE_MAX_TAG_LEN];
-    size_t tag_len = syn_cbor_read_bytes(&r, tag_buf, sizeof(tag_buf));
+    /* 2. Payload (zero-copy view into msg) */
+    size_t payload_len = syn_cbor_read_bytes(&r, NULL, 0U);
+    if (!syn_cbor_reader_ok(&r)) {
+        return SYN_ERROR;
+    }
+    const uint8_t *payload_ptr = &r.buf[r.pos - payload_len];
+
+    /* 3. Tag (zero-copy view into msg) */
+    size_t tag_len = syn_cbor_read_bytes(&r, NULL, 0U);
     if (!syn_cbor_reader_ok(&r) || tag_len != exp_tag_len) {
         return SYN_ERROR;
     }
+    const uint8_t *tag_ptr = &r.buf[r.pos - tag_len];
 
     if (parsed_out != NULL) {
         parsed_out->alg = parsed_alg;
         (void)memcpy(parsed_out->kid, parsed_kid, parsed_kid_len);
         parsed_out->kid_len = parsed_kid_len;
-        parsed_out->payload = payload_buf;
+        parsed_out->payload = payload_ptr;
         parsed_out->payload_len = payload_len;
-        parsed_out->tag = tag_buf;
+        parsed_out->tag = tag_ptr;
         parsed_out->tag_len = tag_len;
         (void)memcpy(parsed_out->protected_hdr, protected_buf, protected_len);
         parsed_out->protected_hdr_len = protected_len;
     }
 
     /* 4. Reconstruct MAC_structure */
-    uint8_t mac_structure[1024];
+    uint8_t mac_structure[SYN_COSE_MAX_STRUCT_LEN];
     size_t mac_struct_len = 0;
     if (!build_mac_structure(protected_buf, protected_len, external_aad, external_aad_len,
-                             payload_buf, payload_len, mac_structure, sizeof(mac_structure),
+                             payload_ptr, payload_len, mac_structure, sizeof(mac_structure),
                              &mac_struct_len)) {
         return SYN_ERROR;
     }
 
     /* 5. Compute HMAC and constant-time compare */
-    uint8_t expected_tag[32];
-    syn_hmac_sha256(key, key_len, mac_structure, mac_struct_len, expected_tag);
-
-    uint8_t diff = 0U;
-    for (size_t i = 0U; i < exp_tag_len; i++) {
-        diff |= (uint8_t)(tag_buf[i] ^ expected_tag[i]);
-    }
-
-    return (diff == 0U) ? SYN_OK : SYN_ERROR;
+    return cose_mac0_verify_tag(key, key_len, mac_structure, mac_struct_len, tag_ptr, exp_tag_len);
 }
 
 /* ── COSE_Key API ────────────────────────────────────────────────────────── */
@@ -886,50 +1006,19 @@ SYN_Status syn_cose_key_decode(const uint8_t *buf, size_t buf_len, SYN_COSE_Key 
         return SYN_ERROR;
     }
 
-    for (size_t i = 0; i < map_sz; i++) {
+    for (size_t i = 0U; i < map_sz && syn_cbor_reader_ok(&r); i++) {
         int64_t label = syn_cbor_read_int(&r);
-
-        switch (label) {
-        case SYN_COSE_KEY_KTY: {
-            int64_t val = syn_cbor_read_int(&r);
-            key_out->kty = (SYN_COSE_KeyType)val;
-            break;
-        }
-        case SYN_COSE_KEY_KID:
-            key_out->kid_len = syn_cbor_read_bytes(&r, key_out->kid, sizeof(key_out->kid));
-            break;
-        case SYN_COSE_KEY_ALG: {
-            int64_t val = syn_cbor_read_int(&r);
-            key_out->alg = (SYN_COSE_Algorithm)val;
-            break;
-        }
-        case SYN_COSE_KEY_CRV: { /* -1: crv or k */
-            if (key_out->kty == SYN_COSE_KTY_SYMMETRIC ||
-                syn_cbor_peek_type(&r) == SYN_CBOR_BYTES) {
-                key_out->priv_d_len =
-                    syn_cbor_read_bytes(&r, key_out->priv_d, sizeof(key_out->priv_d));
-            } else {
-                int64_t val = syn_cbor_read_int(&r);
-                key_out->crv = (SYN_COSE_Curve)val;
-            }
-            break;
-        }
-        case SYN_COSE_KEY_X: /* -2 */
-            key_out->pub_x_len = syn_cbor_read_bytes(&r, key_out->pub_x, sizeof(key_out->pub_x));
-            break;
-        case SYN_COSE_KEY_Y: /* -3 */
-            key_out->pub_y_len = syn_cbor_read_bytes(&r, key_out->pub_y, sizeof(key_out->pub_y));
-            break;
-        case SYN_COSE_KEY_D: /* -4 */
-            key_out->priv_d_len = syn_cbor_read_bytes(&r, key_out->priv_d, sizeof(key_out->priv_d));
-            break;
-        default:
-            syn_cbor_skip(&r);
-            break;
+        if (!syn_cbor_reader_ok(&r) || !cose_key_decode_entry(&r, label, key_out)) {
+            syn_secure_zero(key_out, sizeof(*key_out));
+            return SYN_ERROR;
         }
     }
 
-    return (key_out->kty != SYN_COSE_KTY_RESERVED) ? SYN_OK : SYN_ERROR;
+    if (key_out->kty == SYN_COSE_KTY_RESERVED) {
+        syn_secure_zero(key_out, sizeof(*key_out));
+        return SYN_ERROR;
+    }
+    return SYN_OK;
 }
 
-#endif /* SYN_USE_COSE */
+#endif /* SYN_COSE_ENABLED */

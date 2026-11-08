@@ -8,7 +8,7 @@
  *
  * Layout in flash:
  * ```
- * [SYN_FwImageHeader (24 bytes)] [firmware binary (image_size bytes)]
+ * [SYN_FwImageHeader (Sector 0)] [firmware binary at hdr_offset (image_size bytes)]
  * ```
  *
  * @par Lifecycle
@@ -24,6 +24,7 @@
 #define SYN_FWIMAGE_H
 
 #include "../common/syn_defs.h"
+#include "../port/syn_port_flash.h"
 #include "../util/syn_crc.h"
 
 #include <stdbool.h>
@@ -77,6 +78,22 @@ typedef struct {
 /* ── Validation ─────────────────────────────────────────────────────────── */
 
 /**
+ * @brief Compute the byte offset from slot start where firmware payload begins.
+ *
+ * Reserves one full flash erase sector (at least sizeof(SYN_FwImageHeader))
+ * at the beginning of each slot so header state rewrites never erase payload.
+ *
+ * @param slot_addr  Flash base address of the slot.
+ * @return Payload byte offset from @p slot_addr.
+ */
+static inline uint32_t syn_fwimage_data_offset(uint32_t slot_addr)
+{
+    uint32_t sec_sz = syn_port_flash_sector_size(slot_addr);
+    uint32_t min_sz = (uint32_t)sizeof(SYN_FwImageHeader);
+    return (sec_sz > 0U) ? (((min_sz + sec_sz - 1U) / sec_sz) * sec_sz) : min_sz;
+}
+
+/**
  * @brief Validate a firmware image header.
  *
  * Checks magic number and header CRC.
@@ -87,8 +104,9 @@ typedef struct {
  */
 static inline bool syn_fwimage_header_valid(const SYN_FwImageHeader *hdr)
 {
-    if (hdr->magic != SYN_FW_MAGIC)
+    if (hdr->magic != SYN_FW_MAGIC) {
         return false;
+    }
 
     /* CRC-32 over all fields before header_crc, including padding and HMAC (if present).
      * offsetof correctly accounts for struct layout and padding. */
@@ -119,8 +137,9 @@ static inline void syn_fwimage_seal_header(SYN_FwImageHeader *hdr)
  */
 static inline bool syn_fwimage_is_bootable(const SYN_FwImageHeader *hdr)
 {
-    if (!syn_fwimage_header_valid(hdr))
+    if (!syn_fwimage_header_valid(hdr)) {
         return false;
+    }
     return (hdr->state == SYN_FW_STATE_NEW || hdr->state == SYN_FW_STATE_TESTING ||
             hdr->state == SYN_FW_STATE_CONFIRMED);
 }

@@ -1,6 +1,4 @@
-#if __has_include("syn_config.h")
-#include "syn_config.h"
-#endif
+#include "../common/syn_defs.h"
 
 #if !defined(SYN_USE_BASE64) || SYN_USE_BASE64
 
@@ -31,6 +29,31 @@ static const char B64_URL_TABLE[] =
 #define B64_VAL_WS 0xFDU
 
 /**
+ * @brief Decode non-alphanumeric Base64 symbol, padding, or whitespace.
+ * @param c        ASCII character to decode.
+ * @param url_mode True if decoding in URL-safe mode (- and _).
+ * @return 6-bit value (62-63) or marker constant.
+ */
+static uint8_t decode_special_char(char c, bool url_mode)
+{
+    char c62 = url_mode ? '-' : '+';
+    char c63 = url_mode ? '_' : '/';
+    if (c == c62) {
+        return 62U;
+    }
+    if (c == c63) {
+        return 63U;
+    }
+    if (c == '=') {
+        return B64_VAL_PAD;
+    }
+    if ((c == ' ') || (c == '\t') || (c == '\r') || (c == '\n')) {
+        return B64_VAL_WS;
+    }
+    return B64_VAL_INVALID;
+}
+
+/**
  * @brief Decode single ASCII character into 6-bit value or control marker.
  * @param c        ASCII character to decode.
  * @param url_mode True if decoding in URL-safe mode (- and _).
@@ -38,34 +61,16 @@ static const char B64_URL_TABLE[] =
  */
 static uint8_t decode_char(char c, bool url_mode)
 {
-    if (c >= 'A' && c <= 'Z') {
+    if ((c >= 'A') && (c <= 'Z')) {
         return (uint8_t)(c - 'A');
     }
-    if (c >= 'a' && c <= 'z') {
+    if ((c >= 'a') && (c <= 'z')) {
         return (uint8_t)(c - 'a' + 26);
     }
-    if (c >= '0' && c <= '9') {
+    if ((c >= '0') && (c <= '9')) {
         return (uint8_t)(c - '0' + 52);
     }
-    if (c == '+' && !url_mode) {
-        return 62U;
-    }
-    if (c == '-' && url_mode) {
-        return 62U;
-    }
-    if (c == '/' && !url_mode) {
-        return 63U;
-    }
-    if (c == '_' && url_mode) {
-        return 63U;
-    }
-    if (c == '=') {
-        return B64_VAL_PAD;
-    }
-    if (c == ' ' || c == '\t' || c == '\r' || c == '\n') {
-        return B64_VAL_WS;
-    }
-    return B64_VAL_INVALID;
+    return decode_special_char(c, url_mode);
 }
 
 bool syn_base64_encode(const uint8_t *src, size_t src_len, char *dst, size_t dst_size,
@@ -172,6 +177,84 @@ bool syn_base64url_encode(const uint8_t *src, size_t src_len, char *dst, size_t 
 }
 
 /**
+ * @brief Validate and record a Base64 '=' padding character.
+ * @param q_pos     Data characters seen in the current quartet (0..3).
+ * @param pad_count [in,out] Padding characters seen so far.
+ * @return True if '=' is valid at this position, false otherwise.
+ */
+static bool base64_handle_pad(uint8_t q_pos, uint8_t *pad_count)
+{
+    if (*pad_count == 0U) {
+        if (q_pos < 2U) {
+            return false;
+        }
+        *pad_count = 1U;
+        return true;
+    }
+    if ((*pad_count == 1U) && (q_pos == 2U)) {
+        *pad_count = 2U;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief Validate final incomplete quartet and canonical zero pad bits.
+ * @param block     Accumulated bit buffer.
+ * @param q_pos     Data characters in final quartet (0..3).
+ * @param pad_count Padding '=' characters seen at end (0..2).
+ * @return True if stream termination and pad bits are valid, false otherwise.
+ */
+static bool base64_validate_tail(uint32_t block, uint8_t q_pos, uint8_t pad_count)
+{
+    if (q_pos == 1U) {
+        return false;
+    }
+    if (q_pos == 2U) {
+        if (pad_count == 1U) {
+            return false;
+        }
+        return (block & 0x0FU) == 0U;
+    }
+    if (q_pos == 3U) {
+        return (block & 0x03U) == 0U;
+    }
+    return true;
+}
+
+/**
+ * @brief Append a decoded 6-bit Base64 symbol and emit a byte when >= 8 bits are buffered.
+ * @param val      Decoded 6-bit value (0..63).
+ * @param block    [in,out] Bit accumulator.
+ * @param bits     [in,out] Buffered bit count.
+ * @param q_pos    [in,out] Quartet symbol position (0..3).
+ * @param dst      [out] Destination byte buffer.
+ * @param dst_size Destination buffer capacity.
+ * @param out_pos  [in,out] Output byte write index.
+ * @return True on success, false if destination buffer is full.
+ */
+static bool base64_push_symbol(uint8_t val, uint32_t *block, uint8_t *bits, uint8_t *q_pos,
+                               uint8_t *dst, size_t dst_size, size_t *out_pos)
+{
+    *block = (*block << 6U) | (uint32_t)val;
+    *bits = (uint8_t)(*bits + 6U);
+    (*q_pos)++;
+
+    if (*bits >= 8U) {
+        *bits = (uint8_t)(*bits - 8U);
+        if (*out_pos >= dst_size) {
+            return false;
+        }
+        dst[(*out_pos)++] = (uint8_t)((*block >> *bits) & 0xFFU);
+    }
+    if (*q_pos == 4U) {
+        *q_pos = 0U;
+        *block = 0U;
+    }
+    return true;
+}
+
+/**
  * @brief Internal shared decoder for standard and URL-safe Base64.
  * @param src      Input Base64 string buffer.
  * @param src_len  Length of input string (or 0 for strlen).
@@ -184,7 +267,7 @@ bool syn_base64url_encode(const uint8_t *src, size_t src_len, char *dst, size_t 
 static bool base64_decode_internal(const char *src, size_t src_len, uint8_t *dst, size_t dst_size,
                                    size_t *out_len, bool url_mode)
 {
-    if (dst == NULL || src == NULL) {
+    if ((dst == NULL) || (src == NULL)) {
         return false;
     }
 
@@ -193,42 +276,35 @@ static bool base64_decode_internal(const char *src, size_t src_len, uint8_t *dst
     }
 
     uint32_t block = 0U;
-    int bits = 0;
-    size_t out_pos = 0;
-    bool pad_seen = false;
+    uint8_t bits = 0U;
+    uint8_t q_pos = 0U;
+    uint8_t pad_count = 0U;
+    size_t out_pos = 0U;
 
-    for (size_t i = 0; i < src_len; i++) {
-        char c = src[i];
-        uint8_t val = decode_char(c, url_mode);
-
+    for (size_t i = 0U; i < src_len; i++) {
+        uint8_t val = decode_char(src[i], url_mode);
         if (val == B64_VAL_WS) {
             continue;
         }
-
         if (val == B64_VAL_INVALID) {
             return false;
         }
-
         if (val == B64_VAL_PAD) {
-            pad_seen = true;
-            continue;
-        }
-
-        if (pad_seen) {
-            /* Non-padding character encountered after padding '=' */
-            return false;
-        }
-
-        block = (block << 6U) | (uint32_t)val;
-        bits += 6;
-
-        if (bits >= 8) {
-            bits -= 8;
-            if (out_pos >= dst_size) {
+            if (!base64_handle_pad(q_pos, &pad_count)) {
                 return false;
             }
-            dst[out_pos++] = (uint8_t)((block >> bits) & 0xFFU);
+            continue;
         }
+        if (pad_count > 0U) {
+            return false;
+        }
+        if (!base64_push_symbol(val, &block, &bits, &q_pos, dst, dst_size, &out_pos)) {
+            return false;
+        }
+    }
+
+    if (!base64_validate_tail(block, q_pos, pad_count)) {
+        return false;
     }
 
     if (out_len != NULL) {

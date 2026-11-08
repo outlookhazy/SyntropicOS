@@ -16,9 +16,18 @@
 #define SYN_LWM2M_H
 
 #include "syntropic/common/syn_defs.h"
-#include "syntropic/net/syn_coap.h"
 
-#if !defined(SYN_USE_LWM2M) || SYN_USE_LWM2M
+#if (!defined(SYN_USE_LWM2M) || SYN_USE_LWM2M) && (!defined(SYN_USE_COAP) || SYN_USE_COAP)
+/** @brief Non-zero when LwM2M and CoAP dependencies are enabled. */
+#define SYN_LWM2M_ENABLED 1
+#else
+/** @brief Non-zero when LwM2M and CoAP dependencies are enabled. */
+#define SYN_LWM2M_ENABLED 0
+#endif
+
+#if SYN_LWM2M_ENABLED
+
+#include "syntropic/net/syn_coap.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -183,8 +192,8 @@ typedef struct {
     uint16_t obj_id;         /**< Target Object ID */
     uint16_t inst_id;        /**< Target Instance ID */
     int32_t res_id;          /**< Target Resource ID (-1 if observing whole instance) */
-    uint32_t pmin;           /**< Minimum observation period in ms */
-    uint32_t pmax;           /**< Maximum observation period in ms */
+    uint32_t pmin;           /**< Minimum observation period in seconds */
+    uint32_t pmax;           /**< Maximum observation period in seconds */
     uint32_t last_notify_ms; /**< Timestamp of last notification in ms */
     uint32_t seq;            /**< Notification sequence counter */
 } SYN_LwM2M_Observation;
@@ -219,6 +228,9 @@ typedef struct {
     size_t object_count;                                    /**< Count of registered objects */
 
     SYN_LwM2M_Observation observations[SYN_LWM2M_MAX_OBSERVERS]; /**< Observation slots */
+    char query_ep[64];      /**< Per-instance Uri-Query endpoint scratch buffer */
+    char query_lt[32];      /**< Per-instance Uri-Query lifetime scratch buffer */
+    uint8_t obs_seq_buf[3]; /**< Per-instance Observe sequence scratch buffer */
 } SYN_LwM2M_Client;
 
 /* ── TLV Codec API ───────────────────────────────────────────────────────── */
@@ -424,7 +436,7 @@ bool syn_lwm2m_register_object(SYN_LwM2M_Client *client, const SYN_LwM2M_Object 
  * @param payload_buf_sz  Capacity of payload buffer.
  * @return Length of serialized payload in bytes, or 0 on error.
  */
-size_t syn_lwm2m_build_register_request(const SYN_LwM2M_Client *client, uint16_t msg_id,
+size_t syn_lwm2m_build_register_request(SYN_LwM2M_Client *client, uint16_t msg_id,
                                         const uint8_t *token, uint8_t token_len, SYN_CoapMsg *req,
                                         SYN_CoapOption *req_opts, size_t max_req_opts,
                                         size_t *req_opt_cnt, uint8_t *payload_buf,
@@ -444,9 +456,10 @@ size_t syn_lwm2m_build_register_request(const SYN_LwM2M_Client *client, uint16_t
  * @param req_opt_cnt     [out] Number of populated options.
  * @param payload_buf     [out] Optional buffer for updated link format.
  * @param payload_buf_sz  Capacity of payload buffer.
- * @return Length of payload in bytes (0 if lifetime update only).
+ * @return Length of payload in bytes (0 if lifetime update only; req->code is COAP_CODE_POST on
+ *         success or 0 on error).
  */
-size_t syn_lwm2m_build_update_request(const SYN_LwM2M_Client *client, uint16_t msg_id,
+size_t syn_lwm2m_build_update_request(SYN_LwM2M_Client *client, uint16_t msg_id,
                                       const uint8_t *token, uint8_t token_len, uint32_t lifetime_s,
                                       SYN_CoapMsg *req, SYN_CoapOption *req_opts,
                                       size_t max_req_opts, size_t *req_opt_cnt,
@@ -651,6 +664,6 @@ SYN_LwM2M_Object syn_lwm2m_make_temperature_object(SYN_LwM2M_SensorContext *ctx)
 }
 #endif
 
-#endif /* SYN_USE_LWM2M */
+#endif /* SYN_LWM2M_ENABLED */
 
 #endif /* SYN_LWM2M_H */

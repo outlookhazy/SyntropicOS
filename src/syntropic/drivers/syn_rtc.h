@@ -42,7 +42,7 @@ SYN_Status syn_rtc_init(void);
 /**
  * @brief Read the current date/time.
  * @param dt  Output, must not be NULL.
- * @return SYN_OK on success, SYN_ERROR on hardware failure.
+ * @return SYN_OK on success, SYN_INVALID_PARAM if dt is NULL, SYN_ERROR on hardware failure.
  */
 SYN_Status syn_rtc_get(SYN_RTC_DateTime *dt);
 
@@ -84,6 +84,10 @@ void syn_rtc_from_epoch(uint32_t epoch, SYN_RTC_DateTime *dt);
 
 /**
  * @brief Set the RTC clock drift compensation in Parts-Per-Million (PPM).
+ *
+ * Drift scaling is applied only to seconds elapsed since the anchor epoch set
+ * by syn_rtc_set() or the first syn_rtc_set_drift_ppm() call.
+ *
  * @param drift_ppm  Drift in Parts-Per-Million (+ = fast, - = slow).
  */
 void syn_rtc_set_drift_ppm(int32_t drift_ppm);

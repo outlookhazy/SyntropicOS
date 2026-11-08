@@ -511,6 +511,7 @@ void test_httpd_read_body_buffered_direct(void)
 
     /* Partial buffered read — consume > to_read branch */
     memset(&req, 0, sizeof(req));
+    resp.body_consumed = 0U;
     req.content_length = 10;
     req.body_buffered_offset = body_off;
     req.body_buffered_len = 10; /* 10 buffered but max_len=3 */
@@ -557,8 +558,8 @@ void test_httpd_read_body_socket_recv_consumed(void)
 
     char out[32];
     int n = syn_httpd_read_body(&req, &resp, out, sizeof(out));
-    TEST_ASSERT_EQUAL_INT(5, n);                      /* socket recv returned 5 */
-    TEST_ASSERT_EQUAL_INT(5, (int)req.body_consumed); /* line 414 executed */
+    TEST_ASSERT_EQUAL_INT(5, n);                       /* socket recv returned 5 */
+    TEST_ASSERT_EQUAL_INT(5, (int)resp.body_consumed); /* tracked on mutable resp */
 }
 /** httpd_task protothread — non-blocking step + yield */
 static void test_httpd_task_protothread(void)
@@ -573,11 +574,11 @@ static void test_httpd_task_protothread(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &srv;
 
     /* First call: step() accepts + recvs + dispatches (fall-through),
-     * then PT_WAIT_UNTIL returns PT_WAITING (no new data) or PT_YIELDED */
+     * then PT_WAIT_UNTIL returns PT_IDLE (no new data) or PT_MORE */
     SYN_PT_Status st = syn_httpd_task(&pt, &task);
     TEST_ASSERT_NOT_EQUAL(PT_EXITED, st);
     TEST_ASSERT_NOT_EQUAL(PT_ENDED, st);
@@ -741,9 +742,10 @@ static void test_httpd_header_length_limits_and_malformed_lines(void)
     syn_httpd_step(&srv);
 
     /* 5. NULL header guards & drop_client(NULL) (lines 234 & 440) */
+    SYN_HttpdResponse dummy_hdr_resp = {0};
     syn_httpd_header(NULL, "Host", "test");
-    syn_httpd_header((const SYN_HttpdResponse *)1, NULL, "test");
-    syn_httpd_header((const SYN_HttpdResponse *)1, "Host", NULL);
+    syn_httpd_header(&dummy_hdr_resp, NULL, "test");
+    syn_httpd_header(&dummy_hdr_resp, "Host", NULL);
 
     /* 6. READING_HEADERS state timeout when recv returns -1 (line 366) */
     setup_server();
@@ -805,25 +807,26 @@ static void test_httpd_connection_listener_and_task_polling(void)
     SYN_Task task = {.user_data = &srv};
     SYN_PT pt;
     PT_INIT(&pt);
-    TEST_ASSERT_EQUAL(PT_WAITING, syn_httpd_task(&pt, &task));
-    TEST_ASSERT_EQUAL(PT_WAITING, syn_httpd_task(&pt, &task));
+    /* Stopped server exits task cleanly (PT_ENDED) */
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_httpd_task(&pt, &task));
 
+    PT_INIT(&pt);
     srv.running = true;
     srv.listener = 1;
     srv.client = SYN_SOCKET_INVALID;
+    srv.work_buf_size = 2; /* space = 1 byte so 2-byte payload takes two steps */
     mock_sock_connected = true;
-    uint8_t dummy[] = {0x00};
-    mock_sock_set_response(dummy, 1);
+    uint8_t dummy2[] = {'G', 'E'};
+    mock_sock_set_response(dummy2, sizeof(dummy2));
     SYN_PT_Status res = syn_httpd_task(&pt, &task);
-    TEST_ASSERT_TRUE(res == PT_WAITING || res == PT_YIELDED);
+    /* Accepted client read 1 of 2 bytes -> readable data remains -> yields PT_MORE */
+    TEST_ASSERT_EQUAL(PT_MORE, res);
 
-    /* Client socket readable (line 546) */
+    /* Second step consumes final queued byte -> socket drained -> yields PT_IDLE */
     srv.listener = SYN_SOCKET_INVALID;
-    srv.client = 2;
-    mock_sock_set_response(dummy, 1);
-    PT_INIT(&pt);
+    srv.work_buf_size = sizeof(wbuf);
     res = syn_httpd_task(&pt, &task);
-    TEST_ASSERT_TRUE(res == PT_WAITING || res == PT_YIELDED);
+    TEST_ASSERT_EQUAL(PT_IDLE, res);
 
     /* Request line with 1 space only (sp2 == NULL, line 122) */
     setup_server();
@@ -972,6 +975,333 @@ static void test_httpd_query_params(void)
     TEST_ASSERT_FALSE(syn_httpd_get_query_param(q, "key", val, 0));
 }
 
+static void test_httpd_task_guards_dispatching_stop_and_n05(void)
+{
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task empty_task = {0};
+
+    /* 1. NULL guards (syn_httpd.c:570-572) */
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_httpd_task(NULL, &empty_task));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_httpd_task(&pt, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_httpd_task(&pt, &empty_task));
+
+    /* 2. Park task at PT_WAIT_UNTIL while idle, then enter SYN_HTTPD_DISPATCHING ->
+     *    wakes via httpd_has_work line 563 and dispatches route */
+    setup_server();
+    srv.running = true;
+    mock_sock_connected = false;
+    mock_sock_accept_ok = false;
+
+    SYN_Task task = {0};
+    task.user_data = &srv;
+    PT_INIT(&pt);
+
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_httpd_task(&pt, &task));
+
+    const char *raw_req = "GET / HTTP/1.1\r\nHost: test\r\n\r\n";
+    memcpy(srv.work_buf, raw_req, strlen(raw_req) + 1);
+    srv.rx_total = strlen(raw_req);
+    srv.client = 11;
+    srv.state = SYN_HTTPD_DISPATCHING;
+    mock_sock_connected = true;
+    mock_sock_rx_len = 0;
+    mock_sock_rx_pos = 0;
+
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_httpd_task(&pt, &task));
+    TEST_ASSERT_TRUE(handler_called);
+    TEST_ASSERT_EQUAL(SYN_HTTPD_IDLE, srv.state);
+
+    /* 3. While parked at PT_WAIT_UNTIL (line 578), stop server (srv.running = false) ->
+     *    wakes and hits `if (!srv->running) break;` at line 580 -> PT_ENDED */
+    srv.running = false;
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_httpd_task(&pt, &task));
+
+    /* 4. Regression N-05: while in SYN_HTTPD_READING_HEADERS with no unread client data
+     *    before recv_deadline, syn_httpd_task yields PT_IDLE (never spins PT_MORE even if
+     *    listener has pending readability), then wakes at recv_deadline to send 408 */
+    setup_server();
+    srv.running = true;
+    mock_tick_ms = 1000;
+    mock_sock_connected = true;
+    mock_sock_accept_ok = true;
+    const char *partial_hdr = "GET / HTTP/1.1\r\nHost: slow-client";
+    mock_sock_set_response(partial_hdr, strlen(partial_hdr));
+
+    PT_INIT(&pt);
+    memset(&task, 0, sizeof(task));
+    task.user_data = &srv;
+
+    /* Accepts client, reads partial header, drains client RX -> must yield PT_IDLE */
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_httpd_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_HTTPD_READING_HEADERS, srv.state);
+    uint32_t deadline = srv.recv_deadline;
+    TEST_ASSERT_TRUE((int32_t)(deadline - mock_tick_ms) > 0);
+
+    /* Before deadline with empty client RX: stays PT_IDLE */
+    mock_tick_ms = deadline - 100U;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_httpd_task(&pt, &task));
+
+    /* Even if listener socket appears readable while client socket is not readable,
+     * READING_HEADERS must still stay PT_IDLE before recv_deadline */
+    SYN_Socket saved_client = srv.client;
+    srv.client = SYN_SOCKET_INVALID;
+    mock_sock_set_response("NEWCONN", 7);
+    TEST_ASSERT_TRUE(syn_port_sock_readable(srv.listener));
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_httpd_task(&pt, &task));
+
+    /* Restore client with empty RX and advance to recv_deadline -> wakes and sends 408 */
+    srv.client = saved_client;
+    mock_sock_rx_len = 0;
+    mock_sock_rx_pos = 0;
+    mock_sock_tx_len = 0;
+    mock_sock_accept_ok = false;
+    mock_tick_ms = deadline;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_httpd_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_HTTPD_IDLE, srv.state);
+    mock_sock_tx_buf[mock_sock_tx_len] = '\0';
+    TEST_ASSERT_NOT_NULL(strstr((const char *)mock_sock_tx_buf, "408"));
+}
+
+static bool s_r3_ws_hdr_intact = false;
+static char s_r3_ct_seen[64];
+
+static void r3_inspect_headers_handler(const SYN_HttpdRequest *req, SYN_HttpdResponse *resp,
+                                       void *ctx)
+{
+    (void)ctx;
+    s_r3_ws_hdr_intact =
+        (req->headers != NULL) &&
+        (strstr(req->headers, "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==") != NULL);
+    memset(s_r3_ct_seen, 0, sizeof(s_r3_ct_seen));
+    if (req->content_type != NULL) {
+        strncpy(s_r3_ct_seen, req->content_type, sizeof(s_r3_ct_seen) - 1U);
+    }
+    syn_httpd_status(resp, 200, "OK");
+    syn_httpd_body_str(resp, "ok");
+}
+
+static void test_httpd_round3_regressions(void)
+{
+    /* 1. R3-N13: Content-Type before Sec-WebSocket-Key must not truncate req->headers */
+    mock_port_reset();
+    SYN_HttpdRoute r3_routes[] = {
+        {.method = SYN_HTTP_GET, .path = "/ws-check", .handler = r3_inspect_headers_handler}};
+    SYN_Httpd r3_srv;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_httpd_init(&r3_srv, 80, r3_routes, 1, work_buf, sizeof(work_buf)));
+
+    const char *req_hdr_order = "GET /ws-check HTTP/1.1\r\n"
+                                "Content-Type:   application/json\r\n"
+                                "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n"
+                                "\r\n";
+    mock_sock_set_response(req_hdr_order, strlen(req_hdr_order));
+    s_r3_ws_hdr_intact = false;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_httpd_step(&r3_srv));
+    TEST_ASSERT_TRUE(s_r3_ws_hdr_intact);
+    TEST_ASSERT_EQUAL_STRING("application/json", s_r3_ct_seen);
+
+    /* Oversized Content-Type (>= 64 bytes) is bounded cleanly in content_type_buf */
+    const char *req_long_ct =
+        "GET /ws-check HTTP/1.1\r\n"
+        "Content-Type: "
+        "application/vnd.very.long.custom.media.type.that.exceeds.sixty.four.chars\r\n"
+        "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n"
+        "\r\n";
+    mock_sock_set_response(req_long_ct, strlen(req_long_ct));
+    s_r3_ws_hdr_intact = false;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_httpd_step(&r3_srv));
+    TEST_ASSERT_TRUE(s_r3_ws_hdr_intact);
+    TEST_ASSERT_EQUAL_UINT(63U, strlen(s_r3_ct_seen));
+
+    /* 2. R3-N06: Socket recv error while readable drops client and returns SYN_ERROR */
+    setup_server();
+    srv.state = SYN_HTTPD_READING_HEADERS;
+    srv.client = 11;
+    srv.recv_deadline = 5000U;
+    mock_tick_ms = 100U;
+    mock_sock_connected = true;
+    mock_sock_recv_fail = true;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_httpd_step(&srv));
+    TEST_ASSERT_EQUAL(SYN_HTTPD_IDLE, srv.state);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, srv.client);
+
+    /* Non-readable empty socket in READING_HEADERS returns SYN_TIMEOUT without dropping client */
+    setup_server();
+    srv.state = SYN_HTTPD_READING_HEADERS;
+    srv.client = 11;
+    srv.recv_deadline = 5000U;
+    mock_tick_ms = 100U;
+    mock_sock_connected = true;
+    TEST_ASSERT_EQUAL(SYN_TIMEOUT, syn_httpd_step(&srv));
+    TEST_ASSERT_EQUAL(SYN_HTTPD_READING_HEADERS, srv.state);
+
+    /* 3. R3-N06: Readable listener with failing accept yields PT_IDLE via PT_PASS (never spins) */
+    setup_server();
+    mock_sock_connected = true;
+    mock_sock_set_response("X", 1);
+    mock_sock_accept_ok = false;
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = {0};
+    task.user_data = &srv;
+
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_httpd_task(&pt, &task));
+    srv.running = false;
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_httpd_task(&pt, &task));
+}
+
+static void test_httpd_round4_request_line_smuggling(void)
+{
+    /* R4-N15: sp1 on a subsequent header line (no space in request line) -> 400 Bad Request */
+    setup_server();
+    handler_called = false;
+    const char *smuggle_sp1 = "GET\r\nHost: foo bar\r\n\r\n";
+    mock_sock_set_response(smuggle_sp1, strlen(smuggle_sp1));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_httpd_step(&srv));
+    TEST_ASSERT_FALSE(handler_called);
+    mock_sock_tx_buf[mock_sock_tx_len] = '\0';
+    TEST_ASSERT_NOT_NULL(strstr((const char *)mock_sock_tx_buf, "400 Bad Request"));
+
+    /* R4-N15: sp2 on a subsequent header line (only 1 space in request line) -> 400 Bad Request */
+    setup_server();
+    handler_called = false;
+    const char *smuggle_sp2 = "GET /\r\nHost: foo bar\r\n\r\n";
+    mock_sock_set_response(smuggle_sp2, strlen(smuggle_sp2));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_httpd_step(&srv));
+    TEST_ASSERT_FALSE(handler_called);
+    mock_sock_tx_buf[mock_sock_tx_len] = '\0';
+    TEST_ASSERT_NOT_NULL(strstr((const char *)mock_sock_tx_buf, "400 Bad Request"));
+}
+
+static size_t s_stream_total = 0U;
+static uint8_t s_stream_xor = 0U;
+
+static void stream_post_handler(const SYN_HttpdRequest *req, SYN_HttpdResponse *resp, void *ctx)
+{
+    (void)ctx;
+    handler_called = true;
+    s_stream_total = 0U;
+    s_stream_xor = 0U;
+    uint8_t chunk[128];
+    for (;;) {
+        int n = syn_httpd_read_body(req, resp, chunk, sizeof(chunk));
+        if (n <= 0) {
+            break;
+        }
+        for (int i = 0; i < n; i++) {
+            s_stream_xor ^= chunk[i];
+        }
+        s_stream_total += (size_t)n;
+    }
+    syn_httpd_status(resp, 200, "OK");
+    syn_httpd_body_str(resp, "streamed");
+}
+
+static void test_r5_n13_httpd_split_post_413_and_const_body(void)
+{
+    /* 1. Split TCP POST body accumulated across 3 separate non-blocking reads before dispatch */
+    setup_server();
+    handler_called = false;
+    memset(body_buf, 0, sizeof(body_buf));
+    body_read_len = 0;
+    mock_sock_connected = true;
+    mock_sock_accept_ok = true;
+
+    const char *post_hdrs = "POST /body HTTP/1.1\r\n"
+                            "Host: localhost\r\n"
+                            "Content-Length: 11\r\n"
+                            "\r\n";
+    mock_sock_set_response(post_hdrs, strlen(post_hdrs));
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = {.user_data = &srv};
+
+    /* Step 1: reads headers only, transitions to SYN_HTTPD_READING_BODY, yields PT_IDLE */
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_httpd_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_HTTPD_READING_BODY, srv.state);
+    TEST_ASSERT_FALSE(handler_called);
+
+    /* Step 2: first 6 bytes of POST body arrive ("hello ") -> still awaiting remaining 5 bytes */
+    mock_sock_set_response("hello ", 6U);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_httpd_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_HTTPD_READING_BODY, srv.state);
+    TEST_ASSERT_FALSE(handler_called);
+
+    /* Step 3: final 5 bytes ("world") arrive -> dispatches route with complete 11-byte body */
+    mock_sock_set_response("world", 5U);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_httpd_task(&pt, &task));
+    TEST_ASSERT_TRUE(handler_called);
+    TEST_ASSERT_EQUAL_INT(11, body_read_len);
+    TEST_ASSERT_EQUAL_STRING("hello world", body_buf);
+    TEST_ASSERT_EQUAL(SYN_HTTPD_IDLE, srv.state);
+
+    /* 2a. Oversized headers exceeding work_buf capacity rejected with 413 */
+    setup_server();
+    handler_called = false;
+    static char huge_hdr[1100];
+    memset(huge_hdr, 'A', sizeof(huge_hdr));
+    memcpy(huge_hdr, "GET / HTTP/1.1\r\nX-Big: ", 23U);
+    mock_sock_set_response(huge_hdr, sizeof(huge_hdr));
+    TEST_ASSERT_EQUAL(SYN_TIMEOUT, syn_httpd_step(&srv));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_httpd_step(&srv));
+    TEST_ASSERT_FALSE(handler_called);
+    TEST_ASSERT_EQUAL(SYN_HTTPD_IDLE, srv.state);
+    mock_sock_tx_buf[mock_sock_tx_len] = '\0';
+    TEST_ASSERT_NOT_NULL(strstr((const char *)mock_sock_tx_buf, "413 Request Too Large"));
+
+    /* 2b. Content-Length exceeding work_buf capacity dispatches to streaming handler */
+    mock_port_reset();
+    handler_called = false;
+    SYN_HttpdRoute stream_routes[] = {
+        {.method = SYN_HTTP_POST, .path = "/ota", .handler = stream_post_handler, .ctx = NULL}};
+    SYN_Httpd stream_srv;
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_httpd_init(&stream_srv, 80, stream_routes, 1, work_buf, sizeof(work_buf)));
+    static uint8_t big_req[2600];
+    const char *ota_hdr = "POST /ota HTTP/1.1\r\nContent-Length: 2500\r\n\r\n";
+    size_t ota_hlen = strlen(ota_hdr);
+    memcpy(big_req, ota_hdr, ota_hlen);
+    uint8_t expected_xor = 0U;
+    for (size_t i = 0U; i < 2500U; i++) {
+        big_req[ota_hlen + i] = (uint8_t)((i * 7U + 3U) & 0xFFU);
+        expected_xor ^= big_req[ota_hlen + i];
+    }
+    mock_sock_set_response(big_req, ota_hlen + 2500U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_httpd_step(&stream_srv));
+    TEST_ASSERT_TRUE(handler_called);
+    TEST_ASSERT_EQUAL_size_t(2500U, s_stream_total);
+    TEST_ASSERT_EQUAL_HEX8(expected_xor, s_stream_xor);
+
+    /* 3. Strictly const SYN_HttpdRequest read via syn_httpd_read_body without const-cast UB */
+    uint8_t backing[16] = "abcdef";
+    static const SYN_HttpdRequest const_req = {
+        .method = SYN_HTTP_POST,
+        .content_length = 6U,
+        .body_buffered_offset = 0U,
+        .body_buffered_len = 6U,
+    };
+    SYN_HttpdResponse mut_resp = {.sock = 1, .buf = backing, .buf_size = sizeof(backing)};
+    char out_chunk[4];
+    TEST_ASSERT_EQUAL_INT(3, syn_httpd_read_body(&const_req, &mut_resp, out_chunk, 3U));
+    TEST_ASSERT_EQUAL_MEMORY("abc", out_chunk, 3U);
+    TEST_ASSERT_EQUAL_INT(3, syn_httpd_read_body(&const_req, &mut_resp, out_chunk, 4U));
+    TEST_ASSERT_EQUAL_MEMORY("def", out_chunk, 3U);
+    TEST_ASSERT_EQUAL_INT(0, syn_httpd_read_body(&const_req, &mut_resp, out_chunk, 4U));
+
+    /* Non-zero req.body_consumed starting offset honored when resp.body_consumed == 0 */
+    SYN_HttpdRequest offset_req = const_req;
+    offset_req.body_consumed = 4U;
+    memset(&mut_resp, 0, sizeof(mut_resp));
+    mut_resp.sock = 1;
+    mut_resp.buf = backing;
+    mut_resp.buf_size = sizeof(backing);
+    TEST_ASSERT_EQUAL_INT(2, syn_httpd_read_body(&offset_req, &mut_resp, out_chunk, 4U));
+    TEST_ASSERT_EQUAL_MEMORY("ef", out_chunk, 2U);
+}
+
 void run_httpd_tests(void)
 {
     RUN_TEST(test_httpd_get_root);
@@ -1011,6 +1341,10 @@ void run_httpd_tests(void)
     RUN_TEST(test_httpd_header_length_limits_and_malformed_lines);
     RUN_TEST(test_httpd_connection_listener_and_task_polling);
     RUN_TEST(test_httpd_query_params);
+    RUN_TEST(test_httpd_task_guards_dispatching_stop_and_n05);
+    RUN_TEST(test_httpd_round3_regressions);
+    RUN_TEST(test_httpd_round4_request_line_smuggling);
+    RUN_TEST(test_r5_n13_httpd_split_post_413_and_const_body);
 
     /* Test NULL parameter guards for response helpers */
     SYN_HttpdResponse resp_dummy = {0};

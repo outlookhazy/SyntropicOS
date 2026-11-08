@@ -23,6 +23,7 @@
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/port/syn_port_adc.h"
 #include "syntropic/port/syn_port_can.h"
+#include "syntropic/port/syn_port_dma.h"
 #include "syntropic/port/syn_port_exti.h"
 #include "syntropic/port/syn_port_flash.h"
 #include "syntropic/port/syn_port_gpio.h"
@@ -66,12 +67,29 @@
 #define RCC_CAN1EN (1U << 25)
 #define RCC_ADC1EN (1U << 9)
 
-/* ── SysTick (STK) ──────────────────────────────────────────────────────── */
+/* ── SysTick (STK) & PFIC ───────────────────────────────────────────────── */
 
-#define STK_CTRL (*(volatile uint32_t *)(0xE000E010UL + 0x00))
-#define STK_SR (*(volatile uint32_t *)(0xE000E010UL + 0x04))
-#define STK_CNTL (*(volatile uint32_t *)(0xE000E010UL + 0x08))
-#define STK_CNTH (*(volatile uint32_t *)(0xE000E010UL + 0x0C))
+#ifndef SYN_PORT_SYSCLK_HZ
+#define SYN_PORT_SYSCLK_HZ 144000000UL
+#endif
+
+#define STK_BASE 0xE000F000UL
+#define STK_CTLR (*(volatile uint32_t *)(STK_BASE + 0x00UL))
+#define STK_SR (*(volatile uint32_t *)(STK_BASE + 0x04UL))
+#define STK_CNTL (*(volatile uint32_t *)(STK_BASE + 0x08UL))
+#define STK_CNTH (*(volatile uint32_t *)(STK_BASE + 0x0CUL))
+#define STK_CMPLR (*(volatile uint32_t *)(STK_BASE + 0x10UL))
+#define STK_CMPHR (*(volatile uint32_t *)(STK_BASE + 0x14UL))
+
+#define STK_CTLR_STE (1U << 0)
+#define STK_CTLR_STIE (1U << 1)
+#define STK_CTLR_STCLK (1U << 2)
+#define STK_CTLR_STRE (1U << 3)
+#define STK_CTLR_INIT (1U << 5)
+#define STK_SR_CNTIF (1U << 0)
+
+#define PFIC_CFGR (*(volatile uint32_t *)0xE000E048UL)
+#define PFIC_CFGR_RESETSYS 0xBEEF0080UL
 
 /* ── GPIO ───────────────────────────────────────────────────────────────── */
 
@@ -124,6 +142,7 @@ typedef struct {
 #define FLASH_KEY1 0x45670123UL
 #define FLASH_KEY2 0xCDEF89ABUL
 
+#define FLASH_CTLR_PG (1U << 0)
 #define FLASH_CTLR_PER (1U << 1)
 #define FLASH_CTLR_STRT (1U << 6)
 #define FLASH_CTLR_LOCK (1U << 7)
@@ -162,13 +181,16 @@ typedef struct {
 #define I2C1 ((I2C_TypeDef *)(APB1_BASE + 0x5400))
 
 #define I2C_CTLR1_PE (1U << 0)
-#define I2C_CTLR1_START(1U << 8)
+#define I2C_CTLR1_START (1U << 8)
 #define I2C_CTLR1_STOP (1U << 9)
 #define I2C_CTLR1_ACK (1U << 10)
 #define I2C_STAR1_SB (1U << 0)
 #define I2C_STAR1_ADDR (1U << 1)
-#define I2C_STAR1_TXE (1U << 7)
+#define I2C_STAR1_BTF (1U << 2)
 #define I2C_STAR1_RXNE (1U << 6)
+#define I2C_STAR1_TXE (1U << 7)
+#define I2C_STAR1_AF (1U << 10)
+#define SYN_CH32_I2C_TIMEOUT_MS 100U
 
 /* ── CAN (bxCAN) ────────────────────────────────────────────────────────── */
 
@@ -238,17 +260,20 @@ typedef struct {
 
 static volatile uint32_t s_tick_ms = 0U;
 static volatile uint32_t s_critical_nesting = 0U;
+static volatile uint32_t s_saved_mstatus = 0U;
 
 #if defined(__riscv)
-#define SYN_ISR_ATTR __attribute__((interrupt("WCH-Interrupt-fast")))
+#define SYN_ISR_ATTR __attribute__((interrupt("machine")))
 #else
 #define SYN_ISR_ATTR
 #endif
 
-/* STK SysTick Interrupt Handler — executed via PFIC hardware HPE engine */
+/**
+ * @brief STK SysTick interrupt handler executed on 1 ms compare match.
+ */
 SYN_ISR_ATTR void SysTick_Handler(void)
 {
-    STK_SR = 0;
+    STK_SR = 0U;
     s_tick_ms++;
 }
 
@@ -256,18 +281,50 @@ SYN_ISR_ATTR void SysTick_Handler(void)
  *  System & Clock Implementation
  * ═══════════════════════════════════════════════════════════════════════════ */
 
+/**
+ * @brief Initialize QingKe V4F STK timer for 1 ms interrupts and enable SysTick IRQ.
+ */
+void syn_port_system_init(void)
+{
+    uint32_t reload = (uint32_t)(SYN_PORT_SYSCLK_HZ / 1000UL);
+    if (reload > 0U) {
+        reload -= 1U;
+    }
+
+    STK_CTLR = 0U;
+    STK_SR = 0U;
+    STK_CNTL = 0U;
+    STK_CNTH = 0U;
+    STK_CMPLR = reload;
+    STK_CMPHR = 0U;
+    STK_CTLR = STK_CTLR_INIT | STK_CTLR_STRE | STK_CTLR_STCLK | STK_CTLR_STIE | STK_CTLR_STE;
+
+    syn_port_nvic_enable_irq(12U);
+#if defined(__riscv)
+    __asm__ volatile("csrsi mstatus, 8");
+#endif
+}
+
 void syn_port_enter_critical(void)
 {
-    __asm__ volatile("csrci mstatus, 8");
+    uint32_t mstatus = 0U;
+#if defined(__riscv)
+    __asm__ volatile("csrrci %0, mstatus, 8" : "=r"(mstatus));
+#endif
+    if (s_critical_nesting == 0U) {
+        s_saved_mstatus = mstatus;
+    }
     s_critical_nesting++;
 }
 
 void syn_port_exit_critical(void)
 {
-    if (s_critical_nesting > 0) {
+    if (s_critical_nesting > 0U) {
         s_critical_nesting--;
-        if (s_critical_nesting == 0) {
+        if (s_critical_nesting == 0U && (s_saved_mstatus & 0x8U) != 0U) {
+#if defined(__riscv)
             __asm__ volatile("csrsi mstatus, 8");
+#endif
         }
     }
 }
@@ -279,7 +336,33 @@ uint32_t syn_port_get_tick_ms(void)
 
 uint32_t syn_port_get_tick_us(void)
 {
-    return s_tick_ms * 1000U;
+    uint32_t reload = STK_CMPLR;
+    uint32_t cycles_per_us = (uint32_t)(SYN_PORT_SYSCLK_HZ / 1000000UL);
+    if ((STK_CTLR & STK_CTLR_STE) == 0U || reload == 0U || cycles_per_us == 0U) {
+        return s_tick_ms * 1000U;
+    }
+
+    uint32_t ms1;
+    uint32_t ms2;
+    uint32_t cnt;
+    uint32_t sr1;
+    uint32_t sr2;
+    do {
+        ms1 = s_tick_ms;
+        sr1 = STK_SR & STK_SR_CNTIF;
+        cnt = STK_CNTL;
+        ms2 = s_tick_ms;
+        sr2 = STK_SR & STK_SR_CNTIF;
+    } while (ms1 != ms2 || sr1 != sr2);
+
+    if (sr1 != 0U) {
+        ms1++;
+    }
+    if (cnt > reload) {
+        cnt = reload;
+    }
+
+    return (ms1 * 1000U) + (cnt / cycles_per_us);
 }
 
 void syn_port_delay_ms(uint32_t ms)
@@ -306,7 +389,7 @@ void syn_port_nvic_enable_irq(uint8_t irq_num)
 
 SYN_NORETURN void syn_port_system_reset(void)
 {
-    *(volatile uint32_t *)0xE000ED0C = 0x05FA0004;
+    PFIC_CFGR = PFIC_CFGR_RESETSYS;
     while (1) {
     }
 }
@@ -328,16 +411,30 @@ SYN_Status syn_port_gpio_init(SYN_GPIO_Pin pin, SYN_GPIO_Mode mode)
 
     GPIO_TypeDef *gpio = gpio_ports[port_idx];
 
-    uint32_t config_val = 0U;
-    if (mode == SYN_GPIO_MODE_OUTPUT_PP) {
+    uint32_t config_val;
+    switch (mode) {
+    case SYN_GPIO_OUTPUT:
         config_val = 0x3U;
-    } else if (mode == SYN_GPIO_MODE_INPUT_PULLUP || mode == SYN_GPIO_MODE_INPUT_PULLDOWN) {
+        break;
+    case SYN_GPIO_OUTPUT_OD:
+        config_val = 0x7U;
+        break;
+    case SYN_GPIO_INPUT_PULLUP:
         config_val = 0x8U;
-    } else {
+        gpio->BSHR = (1U << pin_idx);
+        break;
+    case SYN_GPIO_INPUT_PULLDOWN:
+        config_val = 0x8U;
+        gpio->BCR = (1U << pin_idx);
+        break;
+    case SYN_GPIO_INPUT:
         config_val = 0x4U;
+        break;
+    default:
+        return SYN_INVALID_PARAM;
     }
 
-    if (pin_idx < 8) {
+    if (pin_idx < 8U) {
         uint32_t shift = pin_idx * 4U;
         gpio->CFGLR = (gpio->CFGLR & ~(0xFU << shift)) | (config_val << shift);
     } else {
@@ -350,7 +447,7 @@ SYN_Status syn_port_gpio_init(SYN_GPIO_Pin pin, SYN_GPIO_Mode mode)
 
 SYN_Status syn_port_gpio_deinit(SYN_GPIO_Pin pin)
 {
-    return syn_port_gpio_init(pin, SYN_GPIO_MODE_INPUT_FLOAT);
+    return syn_port_gpio_init(pin, SYN_GPIO_INPUT);
 }
 
 SYN_Status syn_port_gpio_write(SYN_GPIO_Pin pin, SYN_GPIO_State state)
@@ -398,7 +495,7 @@ SYN_Status syn_port_gpio_toggle(SYN_GPIO_Pin pin)
 SYN_Status syn_port_uart_init(SYN_UARTInstance instance, uint32_t baudrate)
 {
     if (instance != 0) {
-        return SYN_NOT_SUPPORTED;
+        return SYN_NOT_IMPLEMENTED;
     }
 
     RCC_APB2PCENR |= RCC_USART1EN;
@@ -417,7 +514,7 @@ SYN_Status syn_port_uart_init(SYN_UARTInstance instance, uint32_t baudrate)
 SYN_Status syn_port_uart_deinit(SYN_UARTInstance instance)
 {
     if (instance != 0)
-        return SYN_NOT_SUPPORTED;
+        return SYN_NOT_IMPLEMENTED;
     USART1->CTLR1 = 0;
     return SYN_OK;
 }
@@ -425,7 +522,7 @@ SYN_Status syn_port_uart_deinit(SYN_UARTInstance instance)
 SYN_Status syn_port_uart_transmit_byte(SYN_UARTInstance instance, uint8_t byte)
 {
     if (instance != 0)
-        return SYN_NOT_SUPPORTED;
+        return SYN_NOT_IMPLEMENTED;
 
     while (!(USART1->STATR & USART_STATR_TXE)) {
     }
@@ -449,34 +546,45 @@ SYN_Status syn_port_uart_transmit(SYN_UARTInstance instance, const uint8_t *data
 
 SYN_Status syn_port_uart_receive_byte(SYN_UARTInstance instance, uint8_t *byte, uint32_t timeout_ms)
 {
-    (void)timeout_ms;
-    if (instance != 0 || byte == NULL)
+    if (instance != 0 || byte == NULL) {
         return SYN_INVALID_PARAM;
-
-    if (USART1->STATR & USART_STATR_RXNE) {
-        *byte = (uint8_t)USART1->DATAR;
-        return SYN_OK;
     }
+
+    uint32_t start_ms = syn_port_get_tick_ms();
+    do {
+        if ((USART1->STATR & USART_STATR_RXNE) != 0U) {
+            *byte = (uint8_t)USART1->DATAR;
+            return SYN_OK;
+        }
+    } while ((syn_port_get_tick_ms() - start_ms) < timeout_ms);
+
     return SYN_TIMEOUT;
 }
 
 SYN_Status syn_port_uart_receive(SYN_UARTInstance instance, uint8_t *data, size_t len,
                                  size_t *received, uint32_t timeout_ms)
 {
-    (void)timeout_ms;
-    if (data == NULL || received == NULL)
+    if (instance != 0 || data == NULL || received == NULL) {
         return SYN_INVALID_PARAM;
+    }
+    if (len == 0U) {
+        *received = 0U;
+        return SYN_OK;
+    }
 
-    size_t count = 0;
-    for (size_t i = 0; i < len; i++) {
-        if (syn_port_uart_receive_byte(instance, &data[i], 0) == SYN_OK) {
+    size_t count = 0U;
+    uint32_t start_ms = syn_port_get_tick_ms();
+    while (count < len) {
+        uint32_t elapsed = syn_port_get_tick_ms() - start_ms;
+        uint32_t rem = (timeout_ms > elapsed) ? (timeout_ms - elapsed) : 0U;
+        if (syn_port_uart_receive_byte(instance, &data[count], rem) == SYN_OK) {
             count++;
         } else {
             break;
         }
     }
     *received = count;
-    return SYN_OK;
+    return (count > 0U) ? SYN_OK : SYN_TIMEOUT;
 }
 
 int _write(int file, char *ptr, int len)
@@ -492,9 +600,10 @@ int _write(int file, char *ptr, int len)
 
 SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
 {
-    if (buf == NULL)
+    if (buf == NULL) {
         return SYN_INVALID_PARAM;
-    memcpy(buf, (const void *)addr, len);
+    }
+    memcpy(buf, (const void *)(uintptr_t)addr, len);
     return SYN_OK;
 }
 
@@ -523,23 +632,39 @@ SYN_Status syn_port_flash_erase(uint32_t addr)
 
 SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
 {
-    if (buf == NULL)
+    if (buf == NULL || (addr & 1U) != 0U) {
         return SYN_INVALID_PARAM;
+    }
+    if (len == 0U) {
+        return SYN_OK;
+    }
 
-    if (FLASH_CTLR & FLASH_CTLR_LOCK) {
+    if ((FLASH_CTLR & FLASH_CTLR_LOCK) != 0U) {
         FLASH_KEYR = FLASH_KEY1;
         FLASH_KEYR = FLASH_KEY2;
     }
 
-    const uint32_t *src = (const uint32_t *)buf;
-    size_t words = len / 4U;
-
-    for (size_t i = 0; i < words; i++) {
-        while (FLASH_STATR & FLASH_STATR_BSY) {
-        }
-        *(volatile uint32_t *)(addr + i * 4U) = src[i];
+    while ((FLASH_STATR & FLASH_STATR_BSY) != 0U) {
     }
 
+    FLASH_CTLR |= FLASH_CTLR_PG;
+
+    const uint8_t *src = (const uint8_t *)buf;
+    for (size_t i = 0U; i < len; i += 2U) {
+        uint16_t hw = (uint16_t)src[i];
+        if ((i + 1U) < len) {
+            hw |= (uint16_t)((uint16_t)src[i + 1U] << 8);
+        } else {
+            hw |= 0xFF00U;
+        }
+        while ((FLASH_STATR & FLASH_STATR_BSY) != 0U) {
+        }
+        *(volatile uint16_t *)(uintptr_t)(addr + (uint32_t)i) = hw;
+        while ((FLASH_STATR & FLASH_STATR_BSY) != 0U) {
+        }
+    }
+
+    FLASH_CTLR &= ~FLASH_CTLR_PG;
     FLASH_CTLR |= FLASH_CTLR_LOCK;
     return SYN_OK;
 }
@@ -560,7 +685,7 @@ SYN_Status syn_port_spi_init(uint8_t spi_id, uint32_t baudrate_hz, uint8_t mode,
     (void)mode;
     (void)role;
     if (spi_id != 0)
-        return SYN_NOT_SUPPORTED;
+        return SYN_NOT_IMPLEMENTED;
 
     RCC_APB2PCENR |= RCC_SPI1EN | RCC_IOPAEN;
     SPI1->CTLR1 = SPI_CTLR1_MSTR | SPI_CTLR1_SPE;
@@ -570,7 +695,7 @@ SYN_Status syn_port_spi_init(uint8_t spi_id, uint32_t baudrate_hz, uint8_t mode,
 SYN_Status syn_port_spi_deinit(uint8_t spi_id)
 {
     if (spi_id != 0)
-        return SYN_NOT_SUPPORTED;
+        return SYN_NOT_IMPLEMENTED;
     SPI1->CTLR1 = 0;
     return SYN_OK;
 }
@@ -578,7 +703,7 @@ SYN_Status syn_port_spi_deinit(uint8_t spi_id)
 SYN_Status syn_port_spi_transfer(uint8_t spi_id, const uint8_t *tx, uint8_t *rx, size_t len)
 {
     if (spi_id != 0)
-        return SYN_NOT_SUPPORTED;
+        return SYN_NOT_IMPLEMENTED;
 
     for (size_t i = 0; i < len; i++) {
         uint8_t send_val = tx ? tx[i] : 0xFFU;
@@ -608,7 +733,7 @@ SYN_Status syn_port_i2c_init(uint8_t i2c_id, uint32_t clock_speed_hz, uint8_t ro
     (void)role;
     (void)own_addr;
     if (i2c_id != 0)
-        return SYN_NOT_SUPPORTED;
+        return SYN_NOT_IMPLEMENTED;
 
     RCC_APB1PCENR |= RCC_I2C1EN;
     I2C1->CTLR1 = I2C_CTLR1_PE;
@@ -618,62 +743,141 @@ SYN_Status syn_port_i2c_init(uint8_t i2c_id, uint32_t clock_speed_hz, uint8_t ro
 SYN_Status syn_port_i2c_deinit(uint8_t i2c_id)
 {
     if (i2c_id != 0)
-        return SYN_NOT_SUPPORTED;
+        return SYN_NOT_IMPLEMENTED;
     I2C1->CTLR1 = 0;
+    return SYN_OK;
+}
+
+/**
+ * @brief Wait for an I2C1 STAR1 status flag with NACK and tick timeout checks.
+ */
+static SYN_Status ch32_i2c1_wait_flag(uint32_t flag, uint32_t start_ms)
+{
+    while ((I2C1->STAR1 & flag) == 0U) {
+        if ((I2C1->STAR1 & I2C_STAR1_AF) != 0U) {
+            I2C1->STAR1 &= ~I2C_STAR1_AF;
+            I2C1->CTLR1 |= I2C_CTLR1_STOP;
+            return SYN_ERROR;
+        }
+        if ((syn_port_get_tick_ms() - start_ms) >= SYN_CH32_I2C_TIMEOUT_MS) {
+            I2C1->CTLR1 |= I2C_CTLR1_STOP;
+            return SYN_TIMEOUT;
+        }
+    }
+    return SYN_OK;
+}
+
+/**
+ * @brief Execute the master write phase on I2C1.
+ */
+static SYN_Status ch32_i2c1_write_phase(uint16_t addr, const uint8_t *tx, size_t tx_len,
+                                        bool send_stop, uint32_t start_ms)
+{
+    SYN_Status st;
+    I2C1->CTLR1 |= I2C_CTLR1_START;
+    st = ch32_i2c1_wait_flag(I2C_STAR1_SB, start_ms);
+    if (st != SYN_OK) {
+        return st;
+    }
+
+    I2C1->DATAR = (uint8_t)(addr << 1);
+    st = ch32_i2c1_wait_flag(I2C_STAR1_ADDR, start_ms);
+    if (st != SYN_OK) {
+        return st;
+    }
+    (void)I2C1->STAR2;
+
+    for (size_t i = 0U; i < tx_len; i++) {
+        st = ch32_i2c1_wait_flag(I2C_STAR1_TXE, start_ms);
+        if (st != SYN_OK) {
+            return st;
+        }
+        I2C1->DATAR = tx[i];
+    }
+
+    if (tx_len > 0U) {
+        st = ch32_i2c1_wait_flag(I2C_STAR1_BTF, start_ms);
+        if (st != SYN_OK) {
+            return st;
+        }
+    }
+
+    if (send_stop) {
+        I2C1->CTLR1 |= I2C_CTLR1_STOP;
+    }
+    return SYN_OK;
+}
+
+/**
+ * @brief Execute the master read phase on I2C1.
+ */
+static SYN_Status ch32_i2c1_read_phase(uint16_t addr, uint8_t *rx, size_t rx_len, uint32_t start_ms)
+{
+    SYN_Status st;
+    I2C1->CTLR1 |= I2C_CTLR1_ACK;
+    I2C1->CTLR1 |= I2C_CTLR1_START;
+    st = ch32_i2c1_wait_flag(I2C_STAR1_SB, start_ms);
+    if (st != SYN_OK) {
+        return st;
+    }
+
+    I2C1->DATAR = (uint8_t)((addr << 1) | 1U);
+    st = ch32_i2c1_wait_flag(I2C_STAR1_ADDR, start_ms);
+    if (st != SYN_OK) {
+        return st;
+    }
+
+    if (rx_len == 1U) {
+        /* Clear ACK prior to clearing ADDR via STAR2 read, then issue STOP */
+        I2C1->CTLR1 &= ~I2C_CTLR1_ACK;
+        (void)I2C1->STAR2;
+        I2C1->CTLR1 |= I2C_CTLR1_STOP;
+        st = ch32_i2c1_wait_flag(I2C_STAR1_RXNE, start_ms);
+        if (st != SYN_OK) {
+            return st;
+        }
+        rx[0] = (uint8_t)I2C1->DATAR;
+        return SYN_OK;
+    }
+
+    (void)I2C1->STAR2;
+    for (size_t i = 0U; i < rx_len; i++) {
+        if ((i + 1U) == rx_len) {
+            I2C1->CTLR1 &= ~I2C_CTLR1_ACK;
+            I2C1->CTLR1 |= I2C_CTLR1_STOP;
+        }
+        st = ch32_i2c1_wait_flag(I2C_STAR1_RXNE, start_ms);
+        if (st != SYN_OK) {
+            return st;
+        }
+        rx[i] = (uint8_t)I2C1->DATAR;
+    }
     return SYN_OK;
 }
 
 SYN_Status syn_port_i2c_transfer(uint8_t i2c_id, uint16_t addr, const uint8_t *tx, size_t tx_len,
                                  uint8_t *rx, size_t rx_len)
 {
-    if (i2c_id != 0)
-        return SYN_NOT_SUPPORTED;
-
-    /* Generate START condition */
-    I2C1->CTLR1 |= I2C_CTLR1_START;
-    while (!(I2C1->STAR1 & I2C_STAR1_SB)) {
+    if (i2c_id != 0U) {
+        return SYN_NOT_IMPLEMENTED;
     }
 
-    if (tx != NULL && tx_len > 0) {
-        /* Send 7-bit slave address + Write bit (0) */
-        I2C1->DATAR = (uint8_t)(addr << 1);
-        while (!(I2C1->STAR1 & I2C_STAR1_ADDR)) {
-        }
-        (void)I2C1->STAR2;
+    if ((tx_len > 0U && tx == NULL) || (rx_len > 0U && rx == NULL)) {
+        return SYN_INVALID_PARAM;
+    }
 
-        for (size_t i = 0; i < tx_len; i++) {
-            while (!(I2C1->STAR1 & I2C_STAR1_TXE)) {
-            }
-            I2C1->DATAR = tx[i];
+    uint32_t start_ms = syn_port_get_tick_ms();
+    if (tx_len > 0U || rx_len == 0U) {
+        SYN_Status st = ch32_i2c1_write_phase(addr, tx, tx_len, (rx_len == 0U), start_ms);
+        if (st != SYN_OK) {
+            return st;
         }
     }
 
-    if (rx != NULL && rx_len > 0) {
-        /* Generate REPEATED START condition for read */
-        I2C1->CTLR1 |= I2C_CTLR1_START;
-        while (!(I2C1->STAR1 & I2C_STAR1_SB)) {
-        }
-
-        /* Send 7-bit slave address + Read bit (1) */
-        I2C1->DATAR = (uint8_t)((addr << 1) | 1U);
-        while (!(I2C1->STAR1 & I2C_STAR1_ADDR)) {
-        }
-        (void)I2C1->STAR2;
-
-        for (size_t i = 0; i < rx_len; i++) {
-            if (i == rx_len - 1) {
-                I2C1->CTLR1 &= ~I2C_CTLR1_ACK;
-            } else {
-                I2C1->CTLR1 |= I2C_CTLR1_ACK;
-            }
-            while (!(I2C1->STAR1 & I2C_STAR1_RXNE)) {
-            }
-            rx[i] = (uint8_t)I2C1->DATAR;
-        }
+    if (rx_len > 0U) {
+        return ch32_i2c1_read_phase(addr, rx, rx_len, start_ms);
     }
 
-    /* Generate STOP condition */
-    I2C1->CTLR1 |= I2C_CTLR1_STOP;
     return SYN_OK;
 }
 
@@ -813,7 +1017,7 @@ SYN_Status syn_port_adc_init(uint8_t adc_id, uint32_t channel_mask)
 {
     (void)channel_mask;
     if (adc_id != 0)
-        return SYN_NOT_SUPPORTED;
+        return SYN_NOT_IMPLEMENTED;
 
     RCC_APB2PCENR |= RCC_ADC1EN;
     ADC1->CTLR2 |= ADC_CTLR2_ADON;
@@ -823,7 +1027,7 @@ SYN_Status syn_port_adc_init(uint8_t adc_id, uint32_t channel_mask)
 SYN_Status syn_port_adc_deinit(uint8_t adc_id)
 {
     if (adc_id != 0)
-        return SYN_NOT_SUPPORTED;
+        return SYN_NOT_IMPLEMENTED;
     ADC1->CTLR2 &= ~ADC_CTLR2_ADON;
     return SYN_OK;
 }
@@ -909,8 +1113,6 @@ void syn_port_exti_clear_pending(SYN_GPIO_Pin pin)
  *  DMA Implementation (DMA1 / DMA2)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-#include "syntropic/port/syn_port_dma.h"
-
 typedef struct {
     volatile uint32_t CFGR;
     volatile uint32_t CNTR;
@@ -994,7 +1196,7 @@ void syn_port_cache_invalidate(void *addr, size_t len)
  *  Ethernet Implementation (10/100M MAC + DMA Descriptor Ring)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-#include "src/port/syn_port_eth.h"
+#include "port/syn_port_eth.h"
 
 typedef struct {
     volatile uint32_t Status;
@@ -1049,19 +1251,21 @@ SYN_Status syn_port_eth_init(const uint8_t mac_addr[6])
     for (uint32_t i = 0; i < ETH_TX_DESC_NUM; i++) {
         DMATxDscrTab[i].Status = 0;
         DMATxDscrTab[i].ControlBufferSize = 0;
-        DMATxDscrTab[i].Buffer1Addr = (uint32_t)&Tx_Buff[i][0];
-        DMATxDscrTab[i].Buffer2NextDescAddr = (uint32_t)&DMATxDscrTab[(i + 1) % ETH_TX_DESC_NUM];
+        DMATxDscrTab[i].Buffer1Addr = (uint32_t)(uintptr_t)&Tx_Buff[i][0];
+        DMATxDscrTab[i].Buffer2NextDescAddr =
+            (uint32_t)(uintptr_t)&DMATxDscrTab[(i + 1) % ETH_TX_DESC_NUM];
     }
-    ETH_DMA->TDLAR = (uint32_t)&DMATxDscrTab[0];
+    ETH_DMA->TDLAR = (uint32_t)(uintptr_t)&DMATxDscrTab[0];
 
     /* Setup Rx DMA Descriptors */
     for (uint32_t i = 0; i < ETH_RX_DESC_NUM; i++) {
         DMARxDscrTab[i].Status = ETH_DMARXDESC_OWN;
         DMARxDscrTab[i].ControlBufferSize = ETH_MAX_PACKET_SIZE;
-        DMARxDscrTab[i].Buffer1Addr = (uint32_t)&Rx_Buff[i][0];
-        DMARxDscrTab[i].Buffer2NextDescAddr = (uint32_t)&DMARxDscrTab[(i + 1) % ETH_RX_DESC_NUM];
+        DMARxDscrTab[i].Buffer1Addr = (uint32_t)(uintptr_t)&Rx_Buff[i][0];
+        DMARxDscrTab[i].Buffer2NextDescAddr =
+            (uint32_t)(uintptr_t)&DMARxDscrTab[(i + 1) % ETH_RX_DESC_NUM];
     }
-    ETH_DMA->RDLAR = (uint32_t)&DMARxDscrTab[0];
+    ETH_DMA->RDLAR = (uint32_t)(uintptr_t)&DMARxDscrTab[0];
 
     /* Start Ethernet Transmission & Reception DMA engines */
     ETH_DMA->OMR |= (1U << 13) | (1U << 1); /* ST (Start Tx) | SR (Start Rx) */
@@ -1182,8 +1386,8 @@ SYN_Status syn_port_i2c_cancel(uint8_t bus)
  *  USB Device & Host Implementation (CH32V307 USBFS / USBHS)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-#include "src/port/syn_port_usb.h"
-#include "src/port/syn_port_usb_host.h"
+#include "port/syn_port_usb.h"
+#include "port/syn_port_usb_host.h"
 
 typedef struct {
     volatile uint8_t BASE_CTRL;

@@ -12,10 +12,6 @@
 #ifndef SYN_DHCP_H
 #define SYN_DHCP_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/net/syn_eth.h"
 #include "syntropic/pt/syn_pt.h"
@@ -23,6 +19,10 @@ extern "C" {
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SYN_DHCP_CLIENT_PORT 68U /**< DHCP UDP client port (68) */
 #define SYN_DHCP_SERVER_PORT 67U /**< DHCP UDP server port (67) */
@@ -124,6 +124,7 @@ SYN_Status syn_dhcp_process_packet(SYN_DHCP *dhcp, SYN_ETH *eth, const uint8_t *
 
 /**
  * @brief Block task execution (SYN_TASK_BLOCKED) until DHCP IP lease binding completes.
+ * @note Packet RX driver must call syn_task_resume(task) when syn_dhcp_process_packet() binds.
  *
  * @param pt   Protothread context.
  * @param task Pointer to SYN_Task.

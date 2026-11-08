@@ -1,6 +1,7 @@
 #include "mocks/mock_port.h"
 #include "syntropic/net/syn_dns.h"
 #include "syntropic/port/syn_port_system.h"
+#include "syntropic/sched/syn_sched.h"
 #include "unity/unity.h"
 
 #include <string.h>
@@ -34,6 +35,7 @@ void test_dns_resolve(void)
 
     SYN_SockAddr resolved;
     SYN_DnsResolver r;
+    syn_dns_init(&r);
     r.dns_server = NULL;
     r.hostname = "google.com";
     r.addr_out = &resolved;
@@ -41,10 +43,10 @@ void test_dns_resolve(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &r;
 
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         syn_port_delay_ms(1);
     }
 
@@ -93,7 +95,7 @@ void test_mdns_responder(void)
     SYN_PT pt;
     PT_INIT(&pt);
 
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &mdns;
 
     /* Run task */
@@ -135,6 +137,7 @@ static void test_dns_resolve_custom_server(void)
     SYN_SockAddr custom = {{1, 1, 1, 1}, 53};
     SYN_SockAddr resolved;
     SYN_DnsResolver r;
+    syn_dns_init(&r);
     r.dns_server = &custom;
     r.hostname = "foo.com";
     r.addr_out = &resolved;
@@ -142,9 +145,9 @@ static void test_dns_resolve_custom_server(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &r;
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         syn_port_delay_ms(1);
     }
     TEST_ASSERT_EQUAL(SYN_OK, r.status);
@@ -159,6 +162,7 @@ static void test_dns_resolve_udp_open_fail(void)
 
     SYN_SockAddr resolved;
     SYN_DnsResolver r;
+    syn_dns_init(&r);
     r.dns_server = NULL;
     r.hostname = "test.com";
     r.addr_out = &resolved;
@@ -166,9 +170,9 @@ static void test_dns_resolve_udp_open_fail(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &r;
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         syn_port_delay_ms(1);
     }
     TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
@@ -183,6 +187,7 @@ static void test_dns_resolve_send_fail(void)
 
     SYN_SockAddr resolved;
     SYN_DnsResolver r;
+    syn_dns_init(&r);
     r.dns_server = NULL;
     r.hostname = "test.com";
     r.addr_out = &resolved;
@@ -190,9 +195,9 @@ static void test_dns_resolve_send_fail(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &r;
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         syn_port_delay_ms(1);
     }
     TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
@@ -207,6 +212,7 @@ static void test_dns_resolve_timeout(void)
 
     SYN_SockAddr resolved;
     SYN_DnsResolver r;
+    syn_dns_init(&r);
     r.dns_server = NULL;
     r.hostname = "timeout.com";
     r.addr_out = &resolved;
@@ -214,7 +220,7 @@ static void test_dns_resolve_timeout(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &r;
     for (int i = 0; i < 200; i++) {
         if (syn_dns_resolve_task(&pt, &task) >= PT_EXITED)
@@ -233,6 +239,7 @@ static void test_dns_resolve_bad_packet_header(void)
 
     SYN_SockAddr resolved;
     SYN_DnsResolver r;
+    syn_dns_init(&r);
     r.dns_server = NULL;
     r.hostname = "example.com";
     r.addr_out = &resolved;
@@ -240,9 +247,9 @@ static void test_dns_resolve_bad_packet_header(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &r;
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         mock_tick_ms += 1;
     }
     TEST_ASSERT_EQUAL(SYN_TIMEOUT, r.status);
@@ -253,7 +260,7 @@ static void test_dns_resolve_bad_packet_header(void)
                                0x00, 0x01, 0x00, 0x00, 0x00, 0x00};
     mock_udp_set_response(wrong_txid_rx, sizeof(wrong_txid_rx), NULL);
     PT_INIT(&pt);
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         mock_tick_ms += 1;
     }
     TEST_ASSERT_EQUAL(SYN_TIMEOUT, r.status);
@@ -264,7 +271,7 @@ static void test_dns_resolve_bad_packet_header(void)
                                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     mock_udp_set_response(zero_answers_rx, sizeof(zero_answers_rx), NULL);
     PT_INIT(&pt);
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         mock_tick_ms += 1;
     }
     TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
@@ -290,6 +297,7 @@ static void test_dns_resolve_cname(void)
 
     SYN_SockAddr resolved;
     SYN_DnsResolver r;
+    syn_dns_init(&r);
     r.dns_server = NULL;
     r.hostname = "example.com";
     r.addr_out = &resolved;
@@ -297,7 +305,7 @@ static void test_dns_resolve_cname(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &r;
     for (int i = 0; i < 2000; i++) {
         if (syn_dns_resolve_task(&pt, &task) >= PT_EXITED)
@@ -333,7 +341,7 @@ static void test_mdns_malformed_query(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &mdns;
     syn_mdns_task(&pt, &task);
 }
@@ -353,7 +361,7 @@ static void test_mdns_no_match(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &mdns;
     syn_mdns_task(&pt, &task);
 }
@@ -368,6 +376,7 @@ static void test_dns_resolve_malformed_responses(void)
 
     SYN_SockAddr resolved;
     SYN_DnsResolver r;
+    syn_dns_init(&r);
     r.dns_server = NULL;
     r.hostname = "google.com";
     r.addr_out = &resolved;
@@ -375,10 +384,10 @@ static void test_dns_resolve_malformed_responses(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &r;
 
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         syn_port_delay_ms(1);
     }
     /* Runt response (n < 12) is ignored and loop times out → SYN_TIMEOUT */
@@ -402,6 +411,7 @@ static void test_dns_resolve_rcode_error_and_txid_mismatch(void)
 
     SYN_SockAddr resolved;
     SYN_DnsResolver r;
+    syn_dns_init(&r);
     r.dns_server = NULL;
     r.hostname = "google.com";
     r.addr_out = &resolved;
@@ -409,10 +419,10 @@ static void test_dns_resolve_rcode_error_and_txid_mismatch(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &r;
 
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         syn_port_delay_ms(1);
     }
     TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
@@ -461,7 +471,7 @@ static void test_dns_parse_response_error_branches(void)
     uint8_t rx_bad_txid[12] = {0xFF, 0xFF, 0x81, 0x80, 0, 0, 0, 1, 0, 0, 0, 0};
     mock_udp_set_response(rx_bad_txid, sizeof(rx_bad_txid), &from);
     PT_INIT(&pt);
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         mock_tick_ms += 1100;
     }
 
@@ -469,7 +479,7 @@ static void test_dns_parse_response_error_branches(void)
     uint8_t rx_no_answers[12] = {0x00, 0x00, 0x81, 0x80, 0, 1, 0, 0, 0, 0, 0, 0};
     mock_udp_set_response(rx_no_answers, sizeof(rx_no_answers), &from);
     PT_INIT(&pt);
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         mock_tick_ms += 1100;
     }
 }
@@ -489,7 +499,7 @@ static void test_dns_resolve_malformed_qname_and_truncated_records(void)
                                 0,    0,    0x80, 0x01, 0,    0,    0,    0,    0, 0};
     mock_udp_set_response(rx_bad_qname, sizeof(rx_bad_qname), &from);
     PT_INIT(&pt);
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         mock_tick_ms += 1100;
     }
 
@@ -498,7 +508,7 @@ static void test_dns_resolve_malformed_qname_and_truncated_records(void)
                                 0,    0,    0,    0x03, 'f',  'o',  'o',  0x00, 0x01};
     mock_udp_set_response(rx_trunc_ans, sizeof(rx_trunc_ans), &from);
     PT_INIT(&pt);
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         mock_tick_ms += 1100;
     }
 }
@@ -553,7 +563,16 @@ static void test_dns_resolve_null_params(void)
     SYN_Task task;
     memset(&task, 0, sizeof(task));
     task.user_data = &res;
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+
+    /* addr_out == NULL rejected immediately with SYN_ERROR */
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_ERROR, res.status);
+
+    /* dns_server == NULL with valid addr_out falls back to 8.8.8.8:53 and times out */
+    SYN_SockAddr addr_out;
+    res.addr_out = &addr_out;
+    PT_INIT(&pt);
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         mock_tick_ms += 1100;
     }
     TEST_ASSERT_EQUAL(SYN_TIMEOUT, res.status);
@@ -580,6 +599,7 @@ static void test_dns_mdns_init_open_failure_and_truncated_records(void)
     mock_udp_set_response(trunc_a, sizeof(trunc_a), NULL);
     SYN_SockAddr resolved;
     SYN_DnsResolver r;
+    syn_dns_init(&r);
     r.dns_server = NULL;
     r.hostname = "a.com";
     r.addr_out = &resolved;
@@ -587,7 +607,7 @@ static void test_dns_mdns_init_open_failure_and_truncated_records(void)
     SYN_PT pt;
     PT_INIT(&pt);
     SYN_Task task = {.user_data = &r};
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         mock_tick_ms += 10;
     }
     TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
@@ -598,7 +618,7 @@ static void test_dns_mdns_init_open_failure_and_truncated_records(void)
     mock_udp_set_response(rcode_err, sizeof(rcode_err), NULL);
     PT_INIT(&pt);
     task.user_data = &r;
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         mock_tick_ms += 10;
     }
     TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
@@ -612,7 +632,7 @@ static void test_dns_mdns_init_open_failure_and_truncated_records(void)
     mock_udp_set_response(trunc_ans_hdr, sizeof(trunc_ans_hdr), NULL);
     PT_INIT(&pt);
     task.user_data = &r;
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         mock_tick_ms += 10;
     }
     TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
@@ -756,10 +776,12 @@ static void test_dns_mdns_init_open_failure_and_truncated_records(void)
     syn_mdns_init(&mdns_dev, "mydev", dev_ip);
     uint8_t com_query[] = {0,   0,   0,   0,   0, 1,   0,   0,   0, 0, 0, 0, 5, 'm',
                            'y', 'd', 'e', 'v', 3, 'c', 'o', 'm', 0, 0, 1, 0, 1};
+    mock_udp_tx_len = 0;
     mock_udp_set_response(com_query, sizeof(com_query), &from);
     PT_INIT(&pt);
     task.user_data = &mdns_dev;
     syn_mdns_task(&pt, &task);
+    TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
 
     /* mDNS packet with Response flag QR bit set (0x8400) */
     uint8_t resp_flag_pkt[] = {0, 0,   0x84, 0,   0,   1,   0, 0, 0, 0, 0, 0,
@@ -767,14 +789,16 @@ static void test_dns_mdns_init_open_failure_and_truncated_records(void)
     mock_udp_set_response(resp_flag_pkt, sizeof(resp_flag_pkt), &from);
     PT_INIT(&pt);
     syn_mdns_task(&pt, &task);
+    TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
 
     /* mDNS packet with 0 questions */
     uint8_t zero_q_pkt[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 'x'};
     mock_udp_set_response(zero_q_pkt, sizeof(zero_q_pkt), &from);
     PT_INIT(&pt);
     syn_mdns_task(&pt, &task);
+    TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
 
-    /* mDNS packet with 2 questions: Q1 malformed, Q2 valid match */
+    /* mDNS packet with 2 questions: Q1 malformed (label len 55 > buffer), rejected */
     uint8_t multi_q_pkt[] = {0,   0,   0,   0,   0,   2,   0,   0,   0,
                              0,   0,   0,   55,  'b', 'a', 'd', /* invalid label len 55 > buffer */
                              5,   'm', 'y', 'd', 'e', 'v', 5,   'l', 'o',
@@ -782,6 +806,7 @@ static void test_dns_mdns_init_open_failure_and_truncated_records(void)
     mock_udp_set_response(multi_q_pkt, sizeof(multi_q_pkt), &from);
     PT_INIT(&pt);
     syn_mdns_task(&pt, &task);
+    TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
 
     /* DNS resolver with dns_server == NULL (lines 160-166) */
     SYN_DnsResolver r_null_srv;
@@ -873,6 +898,7 @@ void test_dns_parse_truncated_compression_pointer(void)
 
     SYN_SockAddr resolved;
     SYN_DnsResolver r;
+    syn_dns_init(&r);
     r.dns_server = NULL;
     r.hostname = "a.b";
     r.addr_out = &resolved;
@@ -880,10 +906,10 @@ void test_dns_parse_truncated_compression_pointer(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &r;
 
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         syn_port_delay_ms(1);
     }
 
@@ -908,6 +934,7 @@ void test_dns_resolve_hostname_too_long(void)
 
     SYN_SockAddr resolved;
     SYN_DnsResolver r;
+    syn_dns_init(&r);
     r.dns_server = NULL;
     r.hostname = long_hostname;
     r.addr_out = &resolved;
@@ -915,14 +942,428 @@ void test_dns_resolve_hostname_too_long(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &r;
 
-    while (syn_dns_resolve_task(&pt, &task) == PT_WAITING) {
+    while (syn_dns_resolve_task(&pt, &task) == PT_IDLE) {
         syn_port_delay_ms(1);
     }
 
     TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
+}
+
+void test_dns_and_mdns_task_guards_and_yielding(void)
+{
+    mock_port_reset();
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task empty_task = {0};
+
+    /* 1. syn_dns_resolve_task NULL guards (syn_dns.c:160-162) */
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dns_resolve_task(NULL, &empty_task));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dns_resolve_task(&pt, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dns_resolve_task(&pt, &empty_task));
+
+    /* 2. syn_dns_resolve_task runt/TXID mismatch PT_CONTINUE_IF_NEEDED (syn_dns.c:228-229) */
+    mock_tick_ms = 0x1234U;
+    uint8_t runt_pkt[4] = {0x12, 0x34, 0x81, 0x80};
+    uint8_t wrong_txid_pkt[12] = {0x99, 0x99, 0x81, 0x80, 0, 1, 0, 1, 0, 0, 0, 0};
+    uint8_t valid_resp[] = {0x12, 0x34, 0x81, 0x80, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00,
+                            0x00, 6,    'g',  'o',  'o',  'g',  'l',  'e',  3,    'c',  'o',
+                            'm',  0,    0x00, 0x01, 0x00, 0x01, 0xC0, 0x0C, 0x00, 0x01, 0x00,
+                            0x01, 0x00, 0x00, 0x01, 0x2C, 0x00, 0x04, 10,   20,   30,   40};
+    SYN_SockAddr from = {{8, 8, 8, 8}, 53};
+    mock_udp_rx_count = 0;
+    mock_udp_rx_pos = 0;
+    mock_udp_inject_packet(runt_pkt, sizeof(runt_pkt), &from);
+    mock_udp_inject_packet(wrong_txid_pkt, sizeof(wrong_txid_pkt), &from);
+    mock_udp_inject_packet(valid_resp, sizeof(valid_resp), &from);
+
+    SYN_SockAddr resolved = {0};
+    SYN_DnsResolver r = {0};
+    r.hostname = "google.com";
+    r.addr_out = &resolved;
+    r.timeout_ms = 500;
+
+    SYN_Sched sched = {0};
+    SYN_Task task = {0};
+    task.user_data = &r;
+    task.sched = &sched;
+    sched.running = &task;
+    sched.share_contended = true;
+    PT_INIT(&pt);
+
+    TEST_ASSERT_EQUAL(PT_MORE, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(PT_MORE, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_OK, r.status);
+    TEST_ASSERT_EQUAL_UINT8(10, resolved.ip[0]);
+    TEST_ASSERT_EQUAL_UINT8(40, resolved.ip[3]);
+
+    /* 3. syn_mdns_task NULL guards & invalid socket exit (syn_dns.c:345-356) */
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_mdns_task(NULL, &empty_task));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_mdns_task(&pt, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_mdns_task(&pt, &empty_task));
+
+    SYN_Mdns mdns = {0};
+    mdns.hostname = "synnode";
+    mdns.sock = SYN_SOCKET_INVALID;
+    memset(&task, 0, sizeof(task));
+    task.user_data = &mdns;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_mdns_task(&pt, &task));
+
+    /* 4. syn_mdns_task back-to-back UDP datagrams hit PT_CONTINUE_IF_NEEDED (syn_dns.c:431-432) */
+    mock_port_reset();
+    const uint8_t ip[4] = {192, 168, 1, 77};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mdns_init(&mdns, "synnode", ip));
+
+    uint8_t mdns_query[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+                            0x00, 7,    's',  'y',  'n',  'n',  'o',  'd',  'e',  5,    'l',
+                            'o',  'c',  'a',  'l',  0,    0x00, 0x01, 0x00, 0x01};
+    SYN_SockAddr mcast_src = {{192, 168, 1, 5}, 5353};
+    mock_udp_rx_count = 0;
+    mock_udp_rx_pos = 0;
+    mock_udp_inject_packet(mdns_query, sizeof(mdns_query), &mcast_src);
+    mock_udp_inject_packet(mdns_query, sizeof(mdns_query), &mcast_src);
+
+    memset(&sched, 0, sizeof(sched));
+    memset(&task, 0, sizeof(task));
+    task.user_data = &mdns;
+    task.sched = &sched;
+    sched.running = &task;
+    sched.share_contended = true;
+    PT_INIT(&pt);
+
+    /* First datagram processed while 2nd remains readable -> yields PT_MORE */
+    TEST_ASSERT_EQUAL(PT_MORE, syn_mdns_task(&pt, &task));
+    TEST_ASSERT_TRUE(mock_udp_tx_len > 0);
+    size_t first_tx_len = mock_udp_tx_len;
+
+    /* Resumes at continue (line 432), processes 2nd datagram, queue now empty -> PT_IDLE */
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &task));
+    TEST_ASSERT_TRUE(mock_udp_tx_len > first_tx_len);
+}
+
+static void test_dns_round3_regressions(void)
+{
+    mock_port_reset();
+
+    /* 1. R3-N12: syn_dns_init(NULL) & valid init, plus mid-flight restart socket cleanup */
+    syn_dns_init(NULL);
+    SYN_DnsResolver r;
+    syn_dns_init(&r);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, r.sock);
+    TEST_ASSERT_FALSE(r.sock_open);
+
+    SYN_SockAddr resolved = {0};
+    r.hostname = NULL;
+    r.addr_out = &resolved;
+    r.timeout_ms = 500U;
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = {0};
+    task.user_data = &r;
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
+
+    PT_INIT(&pt);
+    r.hostname = "restart.example";
+
+    /* First step opens socket and parks waiting for reply */
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_TRUE(r.sock_open);
+    TEST_ASSERT_NOT_EQUAL(SYN_SOCKET_INVALID, r.sock);
+    SYN_Socket first_sock = r.sock;
+    int closes_before = mock_sock_close_count;
+
+    /* R4-T11: mid-flight PT_INIT restart closes the exact open socket before opening a new one */
+    PT_INIT(&pt);
+    mock_tick_ms = 0x2222U;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(closes_before + 1, mock_sock_close_count);
+    TEST_ASSERT_EQUAL(first_sock, mock_sock_last_closed);
+    TEST_ASSERT_TRUE(r.sock_open);
+
+    /* 2. R3-N06: mock_udp_recv_fail (readable=true, recvfrom=-1) yields PT_IDLE via PT_PASS */
+    mock_udp_recv_fail = true;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_dns_resolve_task(&pt, &task));
+    mock_udp_recv_fail = false;
+
+    /* 3. R3-N06: 0-byte UDP datagram followed by valid DNS response yields PT_IDLE then completes
+     */
+    SYN_SockAddr from = {{8, 8, 8, 8}, 53};
+    uint8_t valid_resp[] = {0x22, 0x22, 0x81, 0x80, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,
+                            0x00, 0x00, 7,    'r',  'e',  's',  't',  'a',  'r',  't',
+                            7,    'e',  'x',  'a',  'm',  'p',  'l',  'e',  0,    0x00,
+                            0x01, 0x00, 0x01, 0xC0, 0x0C, 0x00, 0x01, 0x00, 0x01, 0x00,
+                            0x00, 0x00, 0x3C, 0x00, 0x04, 172,  16,   0,    9};
+    uint8_t empty_dgram[1] = {0};
+    mock_udp_rx_count = 0;
+    mock_udp_rx_pos = 0;
+    mock_udp_inject_packet(empty_dgram, 0U, &from);
+    mock_udp_inject_packet(valid_resp, sizeof(valid_resp), &from);
+
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_OK, r.status);
+    TEST_ASSERT_EQUAL_UINT8(9U, resolved.ip[3]);
+    TEST_ASSERT_FALSE(r.sock_open);
+
+    /* 4. parse_response truncated question QTYPE/QCLASS (pos + 4 > rx_len) */
+    mock_port_reset();
+    mock_tick_ms = 0x3333U;
+    uint8_t trunc_q_footer[] = {0x33, 0x33, 0x81, 0x80, 0x00, 0x01, 0x00, 0x01, 0x00,
+                                0x00, 0x00, 0x00, 1,    'a',  0,    0x00, 0x01};
+    mock_udp_set_response(trunc_q_footer, sizeof(trunc_q_footer), &from);
+    syn_dns_init(&r);
+    r.hostname = "a";
+    r.addr_out = &resolved;
+    r.timeout_ms = 200U;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
+
+    /* 5. R3-N06 & edge cases in syn_mdns_task */
+    mock_port_reset();
+    SYN_Mdns mdns;
+    const uint8_t ip[4] = {192, 168, 1, 88};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mdns_init(&mdns, "mydev", ip));
+    SYN_Task mdns_task = {0};
+    mdns_task.user_data = &mdns;
+    PT_INIT(&pt);
+
+    /* Socket error (readable=true, recvfrom=-1) yields PT_IDLE via PT_PASS without spinning */
+    mock_udp_recv_fail = true;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mdns_task));
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mdns_task));
+    mock_udp_recv_fail = false;
+
+    /* Question loop boundaries:
+     * (a) 2 questions where Q2 starts at rx_len (p >= buf_len in match_dns_label)
+     * (b) packet truncated right after host label (p >= buf_len on "local" label)
+     * (c) packet truncated right after "local" label (p >= buf_len on 0 terminator)
+     * (d) non-matching QNAME truncated before 4-byte QTYPE/QCLASS (pos + 4 > rx_len) */
+    SYN_SockAddr msrc = {{192, 168, 1, 2}, 5353};
+    uint8_t q_two_trunc[] = {0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1};
+    uint8_t q_eof_after_host[] = {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5, 'm', 'y', 'd', 'e', 'v'};
+    uint8_t q_eof_after_local[] = {0, 0,   0,   0,   0,   1,   0, 0,   0,   0,   0,   0,
+                                   5, 'm', 'y', 'd', 'e', 'v', 5, 'l', 'o', 'c', 'a', 'l'};
+    uint8_t q_trunc_qtype[] = {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 'x', 0, 0, 1};
+
+    mock_udp_set_response(q_two_trunc, sizeof(q_two_trunc), &msrc);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mdns_task));
+
+    mock_udp_set_response(q_eof_after_host, sizeof(q_eof_after_host), &msrc);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mdns_task));
+
+    mock_udp_set_response(q_eof_after_local, sizeof(q_eof_after_local), &msrc);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mdns_task));
+
+    mock_udp_set_response(q_trunc_qtype, sizeof(q_trunc_qtype), &msrc);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mdns_task));
+
+    /* Oversized base hostname (225 chars -> 34 + 225 > 256 resp buffer) dropped safely */
+    char huge_host[226];
+    memset(huge_host, 'h', 225);
+    huge_host[225] = '\0';
+    SYN_Mdns huge_mdns;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mdns_init(&huge_mdns, huge_host, ip));
+    uint8_t huge_query[249];
+    memset(huge_query, 0, 12);
+    huge_query[5] = 1U;
+    huge_query[12] = 225U;
+    memcpy(huge_query + 13, huge_host, 225);
+    huge_query[238] = 5U;
+    memcpy(huge_query + 239, "local", 5);
+    huge_query[244] = 0U;
+    huge_query[245] = 0U;
+    huge_query[246] = 1U;
+    huge_query[247] = 0U;
+    huge_query[248] = 1U;
+    mock_udp_tx_len = 0;
+    mock_udp_set_response(huge_query, sizeof(huge_query), &msrc);
+    mdns_task.user_data = &huge_mdns;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mdns_task));
+    TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
+
+    /* Unmatched protothread line falls through to PT_END */
+    pt.lc = 0xFFFFU;
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_mdns_task(&pt, &mdns_task));
+}
+
+static void test_dns_round4_regressions(void)
+{
+    mock_port_reset();
+
+    SYN_SockAddr resolved = {0};
+    SYN_SockAddr from = {{8, 8, 8, 8}, 53};
+    SYN_DnsResolver r;
+    SYN_PT pt;
+    SYN_Task task = {0};
+    task.user_data = &r;
+
+    /* 1. R4-N14: encode_qname label bounds (empty, consecutive dots, >63 label, >240 total) */
+    const char *bad_hosts[3] = {"", ".lead.example", "double..dot"};
+    for (size_t i = 0U; i < 3U; i++) {
+        syn_dns_init(&r);
+        r.hostname = bad_hosts[i];
+        r.addr_out = &resolved;
+        r.timeout_ms = 100U;
+        PT_INIT(&pt);
+        TEST_ASSERT_EQUAL(PT_EXITED, syn_dns_resolve_task(&pt, &task));
+        TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
+    }
+
+    char label64[70];
+    memset(label64, 'a', 64U);
+    memcpy(label64 + 64U, ".com", 5U);
+    syn_dns_init(&r);
+    r.hostname = label64;
+    r.addr_out = &resolved;
+    r.timeout_ms = 100U;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
+
+    /* Four 60-char labels (valid <=63 labels) exceeding 240-byte QNAME buffer */
+    char multi243[248];
+    memset(multi243, 'b', 243U);
+    multi243[60] = '.';
+    multi243[121] = '.';
+    multi243[182] = '.';
+    multi243[243] = '\0';
+    syn_dns_init(&r);
+    r.hostname = multi243;
+    r.addr_out = &resolved;
+    r.timeout_ms = 100U;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
+
+    /* 2. R4-N14: mismatched-TXID flood terminates at timeout_ms on top-of-loop check */
+    mock_port_reset();
+    mock_tick_ms = 0x4444U;
+    uint8_t wrong_txid[12] = {0x99U, 0x99U, 0x81U, 0x80U, 0U, 1U, 0U, 1U, 0U, 0U, 0U, 0U};
+    mock_udp_rx_count = 0;
+    mock_udp_rx_pos = 0;
+    mock_udp_inject_packet(wrong_txid, sizeof(wrong_txid), &from);
+    mock_udp_inject_packet(wrong_txid, sizeof(wrong_txid), &from);
+    mock_udp_inject_packet(wrong_txid, sizeof(wrong_txid), &from);
+
+    SYN_Sched sched = {0};
+    syn_dns_init(&r);
+    r.hostname = "flood.example";
+    r.addr_out = &resolved;
+    r.timeout_ms = 50U;
+    memset(&task, 0, sizeof(task));
+    task.user_data = &r;
+    task.sched = &sched;
+    sched.running = &task;
+    sched.share_contended = true;
+    PT_INIT(&pt);
+
+    TEST_ASSERT_EQUAL(PT_MORE, syn_dns_resolve_task(&pt, &task));
+    mock_tick_advance(60U);
+    /* Top-of-loop timeout fires despite 2 unread wrong-TXID datagrams still in queue */
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_TIMEOUT, r.status);
+    TEST_ASSERT_EQUAL_INT(1, mock_udp_rx_pos);
+
+    /* 3. R4-N14: parse_response QR==0, p>=buf_len, 0x40 reserved label, & CNAME rdlen overflow */
+    mock_port_reset();
+    memset(&task, 0, sizeof(task));
+    task.user_data = &r;
+
+    /* (a) QR == 0 (query packet with matching TXID) */
+    mock_tick_ms = 0x5001U;
+    uint8_t qr0_pkt[] = {0x50U, 0x01U, 0x01U, 0x00U, 0U, 0U, 0U, 1U, 0U, 0U, 0U, 0U, 0U, 0U,
+                         1U,    0U,    1U,    0U,    0U, 0U, 1U, 0U, 4U, 1U, 2U, 3U, 4U};
+    mock_udp_set_response(qr0_pkt, sizeof(qr0_pkt), &from);
+    syn_dns_init(&r);
+    r.hostname = "a.com";
+    r.addr_out = &resolved;
+    r.timeout_ms = 100U;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
+
+    /* (b) p >= buf_len on empty question section (rx_len == 12, questions == 1, answers == 1) */
+    mock_port_reset();
+    mock_tick_ms = 0x5002U;
+    uint8_t q_empty_12[12] = {0x50U, 0x02U, 0x81U, 0x80U, 0U, 1U, 0U, 1U, 0U, 0U, 0U, 0U};
+    mock_udp_set_response(q_empty_12, sizeof(q_empty_12), &from);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
+
+    /* (c) Reserved label prefix 0x41 */
+    mock_port_reset();
+    mock_tick_ms = 0x5003U;
+    uint8_t rsv_lbl[] = {0x50U, 0x03U, 0x81U, 0x80U, 0U, 1U, 0U, 1U, 0U, 0U, 0U, 0U, 0x41U, 'x'};
+    mock_udp_set_response(rsv_lbl, sizeof(rsv_lbl), &from);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
+
+    /* (d) CNAME (type 5) with rdlen = 100 exceeding remaining buffer */
+    mock_port_reset();
+    mock_tick_ms = 0x5004U;
+    uint8_t cname_ovf[] = {0x50U, 0x04U, 0x81U, 0x80U, 0U, 0U, 0U, 1U, 0U, 0U,   0U,  0U, 0U,
+                           0U,    5U,    0U,    1U,    0U, 0U, 0U, 9U, 0U, 100U, 'x', 'y'};
+    mock_udp_set_response(cname_ovf, sizeof(cname_ovf), &from);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_dns_resolve_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
+
+    /* 4. R4-N14: mDNS ignores AAAA (28), replies on ANY (255), & enforces 1..63 base_len */
+    mock_port_reset();
+    SYN_Mdns mdns;
+    const uint8_t ip[4] = {192, 168, 10, 20};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mdns_init(&mdns, "node1", ip));
+    SYN_Task mtask = {.user_data = &mdns};
+    SYN_SockAddr msrc = {{192, 168, 10, 2}, 5353};
+
+    /* AAAA query alone -> no response */
+    uint8_t q_aaaa[] = {0U,  0U,  0U,  0U, 0U,  1U,  0U,  0U,  0U,  0U, 0U, 0U,  5U, 'n', 'o',
+                        'd', 'e', '1', 5U, 'l', 'o', 'c', 'a', 'l', 0U, 0U, 28U, 0U, 1U};
+    mock_udp_tx_len = 0U;
+    mock_udp_set_response(q_aaaa, sizeof(q_aaaa), &msrc);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mtask));
+    TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
+
+    /* Truncated QTYPE after matching QNAME -> no response */
+    mock_udp_set_response(q_aaaa, sizeof(q_aaaa) - 2U, &msrc);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mtask));
+    TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
+
+    /* Dual question: Q1 = AAAA (28), Q2 = ANY (255) -> sends A response */
+    uint8_t q_dual[] = {0U,  0U,  0U,  0U,  0U,  2U,  0U,  0U,   0U,  0U,  0U,  0U,
+                        5U,  'n', 'o', 'd', 'e', '1', 5U,  'l',  'o', 'c', 'a', 'l',
+                        0U,  0U,  28U, 0U,  1U,  5U,  'n', 'o',  'd', 'e', '1', 5U,
+                        'l', 'o', 'c', 'a', 'l', 0U,  0U,  255U, 0U,  1U};
+    mock_udp_set_response(q_dual, sizeof(q_dual), &msrc);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mtask));
+    TEST_ASSERT_TRUE(mock_udp_tx_len > 12U);
+
+    /* Empty base hostname "" -> suppressed in mdns_send_response */
+    SYN_Mdns empty_mdns;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mdns_init(&empty_mdns, "", ip));
+    mtask.user_data = &empty_mdns;
+    uint8_t q_empty_host[] = {0U, 0U, 0U,  0U,  0U,  1U,  0U,  0U, 0U, 0U, 0U, 0U,
+                              0U, 5U, 'l', 'o', 'c', 'a', 'l', 0U, 0U, 1U, 0U, 1U};
+    mock_udp_tx_len = 0U;
+    mock_udp_set_response(q_empty_host, sizeof(q_empty_host), &msrc);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mtask));
+    TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
 }
 
 void run_dns_tests(void)
@@ -950,4 +1391,7 @@ void run_dns_tests(void)
     RUN_TEST(test_mdns_fqdn_hostname);
     RUN_TEST(test_dns_parse_truncated_compression_pointer);
     RUN_TEST(test_dns_resolve_hostname_too_long);
+    RUN_TEST(test_dns_and_mdns_task_guards_and_yielding);
+    RUN_TEST(test_dns_round3_regressions);
+    RUN_TEST(test_dns_round4_regressions);
 }

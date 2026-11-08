@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 #define SYN_USB_MIDI_MAX_PACKET_SIZE 64U /**< Maximum USB MIDI packet size in bytes */
+#define SYN_USB_MIDI_DESC_SIZE 73U       /**< Audio Control + MIDI Streaming descriptor size */
 
 /** USB MIDI Code Index Number (CIN) definitions per USB MIDI Spec Table 4-1 */
 #define SYN_USB_MIDI_CIN_MISC 0x0U             /**< Miscellaneous function codes */

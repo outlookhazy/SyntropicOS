@@ -296,6 +296,8 @@ static void test_cia402_canopen_od_binding(void)
     /* SDO Download: Write 0x000F to 0x6040:0x00 (Controlword) */
     uint8_t sdo_write_cw[8] = {0x2BU, 0x40U, 0x60U, 0x00U, 0x0FU, 0x00U, 0x00U, 0x00U};
     TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x601U, sdo_write_cw, 8));
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &dummy_id, dummy_buf, &dummy_len));
+    TEST_ASSERT_EQUAL_HEX8(0x60U, dummy_buf[0]);
 
     /* Trigger Drive Controlword Update */
     syn_cia402_set_controlword(&drive, drive.controlword);
@@ -415,6 +417,69 @@ static void test_cia402_invalid_params(void)
     TEST_ASSERT_EQUAL(SYN_CIA402_STATE_SWITCH_ON_DISABLED, drive.state);
 }
 
+static void test_r5_a17_quick_stop_reenable_and_fractional_step(void)
+{
+    SYN_CiA402Drive drive;
+    SYN_CiA402Config cfg = {.max_profile_velocity = 500U,
+                            .profile_acceleration = 5000U,
+                            .profile_deceleration = 5000U,
+                            .quick_stop_deceleration = 10000U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_init(&drive, &cfg));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x000FU));
+    TEST_ASSERT_EQUAL(SYN_CIA402_STATE_OPERATION_ENABLED, drive.state);
+
+    /* Enter Quick Stop Active via 0x000B (bit 2 Quick Stop = 0, active-low) */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x000BU));
+    TEST_ASSERT_EQUAL(SYN_CIA402_STATE_QUICK_STOP_ACTIVE, drive.state);
+
+    /* Re-writing 0x000B or toggling bit 4 (0x001B) while bit 2 == 0 MUST stay in QUICK_STOP */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x001BU));
+    TEST_ASSERT_EQUAL(SYN_CIA402_STATE_QUICK_STOP_ACTIVE, drive.state);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x000BU));
+    TEST_ASSERT_EQUAL(SYN_CIA402_STATE_QUICK_STOP_ACTIVE, drive.state);
+
+    /* Re-asserting Quick Stop bit 2 == 1 with Switch On + Enable Op (0x000F) re-enables */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x000FU));
+    TEST_ASSERT_EQUAL(SYN_CIA402_STATE_OPERATION_ENABLED, drive.state);
+
+    /* Sub-count PP motion: 500 counts/s * 1000 us = 0.5 counts/tick -> advances 5 counts in 10ms */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_mode(&drive, SYN_CIA402_MODE_PP));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_target_position(&drive, 5));
+    for (int i = 0; i < 10; i++) {
+        TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_step(&drive, 1000U, NULL));
+    }
+    TEST_ASSERT_EQUAL_INT32(5, drive.actual_position);
+    TEST_ASSERT_TRUE(drive.target_reached);
+
+    /* External actual_position sync + sub-count PV motion (250 counts/s * 1000 us = 0.25/tick) */
+    drive.actual_position = 100;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_mode(&drive, SYN_CIA402_MODE_PV));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_target_velocity(&drive, 250));
+    drive.current_speed = 250.0f;
+    for (int i = 0; i < 8; i++) {
+        TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_step(&drive, 1000U, NULL));
+    }
+    TEST_ASSERT_EQUAL_INT32(102, drive.actual_position);
+
+    /* Also exercise non-zero residual speed during Quick Stop ramp (partial decel step) */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x000BU));
+    drive.current_speed = 500.0f;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_step(&drive, 1000U, NULL));
+    TEST_ASSERT_EQUAL(SYN_CIA402_STATE_QUICK_STOP_ACTIVE, drive.state);
+    drive.current_speed = -500.0f;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_step(&drive, 1000U, NULL));
+    TEST_ASSERT_EQUAL(SYN_CIA402_STATE_QUICK_STOP_ACTIVE, drive.state);
+
+    /* Exercise READY_TO_SWITCH_ON stay branch (0x0006 again) & SWITCHED_ON stay branch (0x0007) */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x0000U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x0006U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x0006U));
+    TEST_ASSERT_EQUAL(SYN_CIA402_STATE_READY_TO_SWITCH_ON, drive.state);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x0007U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x0007U));
+    TEST_ASSERT_EQUAL(SYN_CIA402_STATE_SWITCHED_ON, drive.state);
+}
+
 void run_cia402_tests(void)
 {
     RUN_TEST(test_cia402_init_and_state_transitions);
@@ -425,4 +490,5 @@ void run_cia402_tests(void)
     RUN_TEST(test_cia402_fault_handling_and_reset);
     RUN_TEST(test_cia402_canopen_od_binding);
     RUN_TEST(test_cia402_invalid_params);
+    RUN_TEST(test_r5_a17_quick_stop_reenable_and_fractional_step);
 }

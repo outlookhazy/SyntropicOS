@@ -7,6 +7,18 @@
 #ifndef SYN_ED25519_H
 #define SYN_ED25519_H
 
+#include "../common/syn_defs.h"
+
+#if (!defined(SYN_USE_ED25519) || SYN_USE_ED25519) && (!defined(SYN_USE_SHA512) || SYN_USE_SHA512)
+/** @brief Non-zero when Ed25519 and SHA-512 dependencies are enabled. */
+#define SYN_ED25519_ENABLED 1
+#else
+/** @brief Non-zero when Ed25519 and SHA-512 dependencies are enabled. */
+#define SYN_ED25519_ENABLED 0
+#endif
+
+#if SYN_ED25519_ENABLED
+
 #include "syn_sha512.h"
 
 #include <stdbool.h>
@@ -92,5 +104,7 @@ bool syn_ed25519_verify_hash(const uint8_t sig[SYN_ED25519_SIGNATURE_SIZE], cons
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* SYN_ED25519_ENABLED */
 
 #endif /* SYN_ED25519_H */

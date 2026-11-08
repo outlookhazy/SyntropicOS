@@ -28,11 +28,17 @@
 
 /* ── Multitasking ───────────────────────────────────────────────────────── */
 
-#define SYN_USE_PT             1
-#define SYN_USE_SCHED          1
-#define SYN_USE_TIMER          1
-#define SYN_USE_EVENT          1
-#define SYN_USE_WATCHDOG       0
+#define SYN_USE_PT                     1
+#define SYN_USE_SCHED                  1
+#define SYN_SCHED_PRIO_LEVELS          4
+#define SYN_SCHED_MAX_WAIT_CRITICAL_MS 1U
+#define SYN_SCHED_MAX_WAIT_HIGH_MS     5U
+#define SYN_SCHED_MAX_WAIT_NORMAL_MS   15U
+#define SYN_SCHED_MAX_WAIT_LOW_MS      50U
+#define SYN_USE_TIMER                  1
+#define SYN_USE_EVENT                  1
+#define SYN_USE_MUTEX                  0
+#define SYN_USE_WATCHDOG               0
 #define SYN_USE_SEQUENCER      0
 #define SYN_USE_WORKQUEUE      0
 #define SYN_USE_TICKLESS       0
@@ -42,6 +48,7 @@
 
 #define SYN_USE_LOG            1
 #define SYN_USE_CLI            1
+#define SYN_CLI_CMD_ERRORS     0
 
 /* ── Logging tuning ─────────────────────────────────────────────────────── */
 

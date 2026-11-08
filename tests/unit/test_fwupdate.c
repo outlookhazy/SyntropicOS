@@ -18,7 +18,7 @@
  * Each slot is 2048 bytes (2 sectors of 1024). */
 #define SLOT_A_ADDR 0x0000u
 #define SLOT_B_ADDR 0x0800u
-#define SLOT_SIZE (2048u - (uint32_t)sizeof(SYN_FwImageHeader))
+#define SLOT_SIZE (2048u - (uint32_t)MOCK_FLASH_SECTOR)
 
 #if defined(SYN_FW_USE_HMAC) && SYN_FW_USE_HMAC
 #if defined(SYN_FW_USE_ED25519) && SYN_FW_USE_ED25519
@@ -150,9 +150,9 @@ void test_fwupdate_basic(void)
     TEST_ASSERT_EQUAL(128, hdr.image_size);
     TEST_ASSERT_EQUAL_HEX32(expected_crc, hdr.image_crc);
 
-    /* Verify the firmware payload was preserved in sector 0 */
+    /* Verify the firmware payload was preserved in the payload sector */
     uint8_t readback[128] = {0};
-    syn_port_flash_read(SLOT_A_ADDR + (uint32_t)sizeof(SYN_FwImageHeader), readback,
+    syn_port_flash_read(SLOT_A_ADDR + syn_fwimage_data_offset(SLOT_A_ADDR), readback,
                         sizeof(readback));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(firmware, readback, sizeof(firmware));
 }
@@ -442,28 +442,26 @@ static void test_fwupdate_sector_erase_fail(void)
     static uint8_t pbuf[64];
     SYN_FwUpdate upd;
 
-    SYN_Status st = syn_fwupdate_begin(&upd, SLOT_A_ADDR, SLOT_SIZE, pbuf, sizeof(pbuf));
+    SYN_Status st = syn_fwupdate_begin(&upd, SLOT_A_ADDR, 2048u, pbuf, sizeof(pbuf));
     TEST_ASSERT_EQUAL(SYN_OK, st);
 
-    /* Write enough to fill first sector (1024 - header size).
-     * data_addr = sizeof(SYN_FwImageHeader), so we need to write
-     * 1024 - sizeof(SYN_FwImageHeader) bytes to reach sector 1024 boundary */
-    size_t fill = 1024 - (size_t)sizeof(SYN_FwImageHeader);
+    /* Write enough to fill first payload sector [1024, 2048) */
+    size_t fill = (size_t)MOCK_FLASH_SECTOR;
     uint8_t chunk[64];
     memset(chunk, 0xAA, sizeof(chunk));
 
     while (fill > 0) {
         size_t n = fill > sizeof(chunk) ? sizeof(chunk) : fill;
         st = syn_fwupdate_write(&upd, chunk, n);
-        if (st != SYN_OK)
+        if (st != SYN_OK) {
             break;
+        }
         fill -= n;
     }
     TEST_ASSERT_EQUAL(SYN_OK, st);
 
-    /* Now the next write crosses into sector at addr 1024.
-     * Make erase fail at that address. */
-    mock_flash_fail_at = 1024;
+    /* Next write crosses into sector at addr 2048; make erase fail there */
+    mock_flash_fail_at = 2048;
     st = syn_fwupdate_write(&upd, chunk, sizeof(chunk));
     TEST_ASSERT_EQUAL(SYN_ERROR, st);
 }
@@ -612,7 +610,8 @@ void test_fwupdate_aes_gcm_streaming_decryption_and_tamper(void)
     TEST_ASSERT_EQUAL(SYN_FW_STATE_NEW, hdr.state);
 
     uint8_t readback[sizeof(plaintext)];
-    syn_port_flash_read(SLOT_B_ADDR + sizeof(SYN_FwImageHeader), readback, sizeof(readback));
+    syn_port_flash_read(SLOT_B_ADDR + syn_fwimage_data_offset(SLOT_B_ADDR), readback,
+                        sizeof(readback));
     TEST_ASSERT_EQUAL_MEMORY(plaintext, readback, sizeof(plaintext));
 
     /* 7. Test bad tag on separate update (Slot A) -> must fail and abort */
@@ -649,7 +648,7 @@ void test_fwupdate_aes_gcm_streaming_decryption_and_tamper(void)
         SYN_OK, syn_fwupdate_begin(&upd_fail, SLOT_A_ADDR, SLOT_SIZE, page_buf, sizeof(page_buf)));
     TEST_ASSERT_EQUAL(SYN_OK,
                       syn_fwupdate_set_aes_gcm_key(&upd_fail, key, sizeof(key), iv, sizeof(iv)));
-    mock_flash_fail_at = SLOT_A_ADDR + sizeof(SYN_FwImageHeader);
+    mock_flash_fail_at = (int32_t)(SLOT_A_ADDR + syn_fwimage_data_offset(SLOT_A_ADDR));
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_write(&upd_fail, ciphertext, sizeof(page_buf) + 16));
     mock_flash_fail_at = -1;
 
@@ -660,7 +659,7 @@ void test_fwupdate_aes_gcm_streaming_decryption_and_tamper(void)
     TEST_ASSERT_EQUAL(SYN_OK,
                       syn_fwupdate_set_aes_gcm_key(&upd_fail, key, sizeof(key), iv, sizeof(iv)));
     TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_write(&upd_fail, ciphertext, 64));
-    mock_flash_fail_at = SLOT_A_ADDR + sizeof(SYN_FwImageHeader);
+    mock_flash_fail_at = (int32_t)(SLOT_A_ADDR + syn_fwimage_data_offset(SLOT_A_ADDR));
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd_fail, tag, 0x00040000));
     mock_flash_fail_at = -1;
 
@@ -673,6 +672,7 @@ void test_fwupdate_aes_gcm_streaming_decryption_and_tamper(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_write(&upd_fail, ciphertext, sizeof(ciphertext)));
     mock_flash_fail_at = SLOT_A_ADDR;
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd_fail, tag, 0x00040000));
+    TEST_ASSERT_FALSE(syn_fwupdate_active(&upd_fail));
     mock_flash_fail_at = -1;
 
     /* 12. Boundary guards on finish_gcm */
@@ -682,6 +682,112 @@ void test_fwupdate_aes_gcm_streaming_decryption_and_tamper(void)
                       syn_fwupdate_finish_gcm(&upd, tag, 0x00020000)); /* already inactive */
 }
 #endif
+
+static void test_r5_fwboot_and_fwupdate_regressions(void)
+{
+    mock_port_reset();
+    static uint8_t unaligned_buf[73];
+    SYN_FwUpdate upd;
+
+    /* 1. Parameter guards on syn_fwupdate_begin */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_fwupdate_begin(NULL, SLOT_A_ADDR, SLOT_SIZE, unaligned_buf, 73U));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_fwupdate_begin(&upd, SLOT_A_ADDR, SLOT_SIZE, NULL, 73U));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_fwupdate_begin(&upd, SLOT_A_ADDR, SLOT_SIZE, unaligned_buf, 0U));
+
+    /* 2. Dirty entire flash with 0xAA and stream multi-sector unaligned flushes */
+    memset(mock_flash, 0xAA, sizeof(mock_flash));
+    static uint8_t fw_img[1530];
+    for (size_t i = 0U; i < sizeof(fw_img); i++) {
+        fw_img[i] = (uint8_t)((i * 7U) ^ 0xC3U);
+    }
+    uint32_t fw_crc = syn_crc32(fw_img, sizeof(fw_img));
+
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_fwupdate_begin(&upd, SLOT_A_ADDR, 2048U, unaligned_buf, sizeof(unaligned_buf)));
+    const size_t chunks[] = {19U, 88U, 311U, 700U, 412U};
+    size_t pos = 0U;
+    for (size_t c = 0U; c < sizeof(chunks) / sizeof(chunks[0]); c++) {
+        TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_write(&upd, fw_img + pos, chunks[c]));
+        pos += chunks[c];
+    }
+    TEST_ASSERT_EQUAL(sizeof(fw_img), pos);
+    TEST_ASSERT_EQUAL(SYN_OK, TEST_FWUPDATE_FINISH(&upd, fw_crc, 0x00030100U));
+
+    static uint8_t readback[1530];
+    memset(readback, 0, sizeof(readback));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_port_flash_read(SLOT_A_ADDR + syn_fwimage_data_offset(SLOT_A_ADDR),
+                                          readback, sizeof(readback)));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(fw_img, readback, sizeof(fw_img));
+
+    /* 3. Verify payload survives select (NEW -> TESTING) and confirm (TESTING -> CONFIRMED) */
+    memset(mock_flash, 0xAA, sizeof(mock_flash));
+    uint8_t slot_fw[512];
+    for (size_t i = 0U; i < sizeof(slot_fw); i++) {
+        slot_fw[i] = (uint8_t)(0xFFU - (uint8_t)i);
+    }
+    uint32_t slot_crc = syn_crc32(slot_fw, sizeof(slot_fw));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_begin(&upd, SLOT_A_ADDR, SLOT_SIZE, unaligned_buf,
+                                                 sizeof(unaligned_buf)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_write(&upd, slot_fw, sizeof(slot_fw)));
+    TEST_ASSERT_EQUAL(SYN_OK, TEST_FWUPDATE_FINISH(&upd, slot_crc, 0x00040000U));
+
+    SYN_FwBootManager mgr;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwboot_init(&mgr, SLOT_A_ADDR, SLOT_B_ADDR));
+    TEST_ASSERT_EQUAL_UINT32(SLOT_A_ADDR, syn_fwboot_slot_addr(&mgr, SYN_FW_SLOT_A));
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_fwboot_slot_addr(&mgr, 2U));
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_fwboot_slot_addr(NULL, SYN_FW_SLOT_A));
+    TEST_ASSERT_EQUAL_UINT32(SLOT_A_ADDR + MOCK_FLASH_SECTOR,
+                             syn_fwboot_vector_addr(&mgr, SYN_FW_SLOT_A));
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_fwboot_vector_addr(&mgr, 2U));
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_fwboot_vector_addr(NULL, SYN_FW_SLOT_A));
+    TEST_ASSERT_NOT_NULL(syn_fwboot_slot_header(&mgr, SYN_FW_SLOT_A));
+    TEST_ASSERT_NULL(syn_fwboot_slot_header(&mgr, 2U));
+    TEST_ASSERT_NULL(syn_fwboot_slot_header(NULL, SYN_FW_SLOT_A));
+    TEST_ASSERT_EQUAL_UINT8(SYN_FW_SLOT_NONE, syn_fwboot_active_slot(NULL));
+
+    TEST_ASSERT_EQUAL_UINT8(SYN_FW_SLOT_A, syn_fwboot_select(&mgr, false));
+    TEST_ASSERT_EQUAL_UINT8(SYN_FW_SLOT_A, syn_fwboot_active_slot(&mgr));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwboot_confirm(&mgr));
+    /* Confirming an already CONFIRMED slot fails cleanly */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwboot_confirm(&mgr));
+
+    uint8_t verify_fw[512] = {0};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_port_flash_read(syn_fwboot_vector_addr(&mgr, SYN_FW_SLOT_A),
+                                                  verify_fw, sizeof(verify_fw)));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(slot_fw, verify_fw, sizeof(slot_fw));
+    TEST_ASSERT_EQUAL_HEX32(slot_crc, syn_crc32(verify_fw, sizeof(verify_fw)));
+
+    /* 4. Flash I/O failure propagation in syn_fwboot_init, refresh, select, confirm */
+    write_test_header(SLOT_A_ADDR, SYN_FW_STATE_CONFIRMED, 0x00010000U);
+    write_test_header(SLOT_B_ADDR, SYN_FW_STATE_NEW, 0x00020000U);
+
+    mock_flash_fail_at = (int32_t)SLOT_B_ADDR;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwboot_init(&mgr, SLOT_A_ADDR, SLOT_B_ADDR));
+    /* Slot B header read failed -> invalidated, so Slot A (CONFIRMED) is selected */
+    TEST_ASSERT_EQUAL_UINT8(SYN_FW_SLOT_A, syn_fwboot_select(&mgr, false));
+
+    mock_flash_fail_at = (int32_t)SLOT_A_ADDR;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwboot_refresh(&mgr));
+
+    /* NEW -> TESTING write failure falls back to healthy CONFIRMED slot */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwboot_init(&mgr, SLOT_A_ADDR, SLOT_B_ADDR));
+    mock_flash_write_fail_next = true;
+    TEST_ASSERT_EQUAL_UINT8(SYN_FW_SLOT_A, syn_fwboot_select(&mgr, false));
+
+    /* Confirm write failure returns SYN_ERROR and marks cached state INVALID */
+    write_test_header(SLOT_B_ADDR, SYN_FW_STATE_TESTING, 0x00020000U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwboot_init(&mgr, SLOT_A_ADDR, SLOT_B_ADDR));
+    TEST_ASSERT_EQUAL_UINT8(SYN_FW_SLOT_B, syn_fwboot_select(&mgr, false));
+    mock_flash_write_fail_next = true;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwboot_confirm(&mgr));
+    TEST_ASSERT_EQUAL(SYN_FW_STATE_INVALID, mgr.slot_hdr[SYN_FW_SLOT_B].state);
+
+    mock_port_reset();
+}
 
 void run_fwupdate_tests(void)
 {
@@ -712,6 +818,7 @@ void run_fwupdate_tests(void)
     RUN_TEST(test_fwupdate_sector_erase_fail);
     RUN_TEST(test_fwupdate_parameter_and_state_guards);
     RUN_TEST(test_fwboot_testing_priority_and_confirm_failures);
+    RUN_TEST(test_r5_fwboot_and_fwupdate_regressions);
 #if defined(SYN_FW_USE_AES_GCM) && SYN_FW_USE_AES_GCM
     RUN_TEST(test_fwupdate_aes_gcm_streaming_decryption_and_tamper);
 #endif

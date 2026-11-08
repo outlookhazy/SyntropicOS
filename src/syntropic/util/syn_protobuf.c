@@ -136,19 +136,19 @@ SYN_Status syn_pb_decode_varint(SYN_PB_Decoder *dec, uint64_t *value)
     if ((dec == NULL) || (value == NULL)) {
         return SYN_INVALID_PARAM;
     }
-    uint64_t val = 0;
-    uint32_t shift = 0;
+    uint64_t val = 0U;
+    uint32_t shift = 0U;
     while (dec->offset < dec->size) {
         uint8_t b = dec->buf[dec->offset++];
+        if ((shift == 63U) && ((b & 0xFEU) != 0U)) {
+            return SYN_ERROR;
+        }
         val |= ((uint64_t)(b & 0x7FU)) << shift;
         if ((b & 0x80U) == 0U) {
             *value = val;
             return SYN_OK;
         }
         shift += 7U;
-        if (shift >= 64U) {
-            return SYN_ERROR; /* Overflow */
-        }
     }
     return SYN_ERROR;
 }
@@ -192,16 +192,18 @@ SYN_Status syn_pb_decode_bytes(SYN_PB_Decoder *dec, const uint8_t **bytes, size_
     if ((dec == NULL) || (bytes == NULL) || (len == NULL)) {
         return SYN_INVALID_PARAM;
     }
-    uint64_t l = 0;
+    uint64_t l = 0U;
     if (syn_pb_decode_varint(dec, &l) != SYN_OK) {
         return SYN_ERROR;
     }
-    if ((size_t)l > dec->size - dec->offset) {
+    size_t rem = dec->size - dec->offset;
+    if (l > (uint64_t)rem) {
         return SYN_ERROR;
     }
+    size_t n = (size_t)l;
     *bytes = &dec->buf[dec->offset];
-    *len = (size_t)l;
-    dec->offset += (size_t)l;
+    *len = n;
+    dec->offset += n;
     return SYN_OK;
 }
 

@@ -193,6 +193,7 @@ typedef struct SYN_Modbus {
     uint16_t rx_len;         /**< Bytes received in current frame    */
     uint32_t last_byte_tick; /**< Tick of last received byte         */
     bool frame_ready;        /**< Complete frame available?           */
+    bool suppress_uart_tx;   /**< Suppress UART TX during TCP ADU dispatch */
 
     /* Stats */
     uint32_t frames_rx;          /**< Total frames received              */

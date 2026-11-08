@@ -88,7 +88,7 @@ int main(void)
     static SYN_Task tasks[1];
     static SYN_Sched sched;
 
-    syn_task_create(&tasks[0], "log_demo", log_demo_task, 0, NULL);
+    syn_task_create(&tasks[0], "log_demo", log_demo_task, SYN_PRIO_CRITICAL, NULL);
     syn_sched_init(&sched, tasks, 1);
 
     /* Step 3: Run cooperative kernel loop */

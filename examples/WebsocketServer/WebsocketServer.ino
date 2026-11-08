@@ -153,9 +153,9 @@ void setup()
     syn_httpd_init(&http_server, 8080, http_routes, 1, http_buf, sizeof(http_buf));
 
     /* 4. Register Scheduler Tasks */
-    syn_task_create(&tasks[0], "httpd", httpd_task,     1, &http_server);
-    syn_task_create(&tasks[1], "ws",    websocket_task, 2, &ws_session);
-    syn_task_create(&tasks[2], "blink", blink_task,     3, NULL);
+    syn_task_create(&tasks[0], "httpd", httpd_task,     SYN_PRIO_HIGH,   &http_server);
+    syn_task_create(&tasks[1], "ws",    websocket_task, SYN_PRIO_NORMAL, &ws_session);
+    syn_task_create(&tasks[2], "blink", blink_task,     SYN_PRIO_LOW,    NULL);
 
     syn_sched_init(&sched, tasks, 3);
 

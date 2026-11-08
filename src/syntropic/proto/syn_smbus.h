@@ -85,6 +85,18 @@ typedef struct {
 uint8_t syn_smbus_calc_pec(uint8_t init_crc, const uint8_t *data, size_t len);
 
 /**
+ * @brief Calculate full SMBus 2.0 transaction PEC CRC-8 across write header, repeated-start, and
+ * response payload.
+ *
+ * @param req_pkt     Pointer to request packet holding slave_addr, command, proto, and write data.
+ * @param rx_data     Pointer to slave read-phase response bytes (excluding trailing PEC byte).
+ * @param rx_data_len Number of response payload bytes in rx_data.
+ * @return Computed transaction PEC byte.
+ */
+uint8_t syn_smbus_calc_transaction_pec(const SYN_SMBUS_Packet *req_pkt, const uint8_t *rx_data,
+                                       size_t rx_data_len);
+
+/**
  * @brief Encode an SMBus packet into a byte stream for transmission.
  *
  * @param pkt      Pointer to packet structure.

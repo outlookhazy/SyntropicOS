@@ -138,6 +138,57 @@ static void test_pt_block_event_critical_section(void)
     TEST_ASSERT_EQUAL_UINT32(0, syn_event_flags_get(&g_block_ef));
 }
 
+static uint32_t g_timeout_step;
+
+static SYN_PT_Status pt_block_event_timeout_null_func(SYN_PT *pt, SYN_Task *task)
+{
+    PT_BEGIN(pt);
+    /* 1. Immediate timeout_ms == 0 with literal NULL out_flags */
+    PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, &g_block_ef, 0x02U, 0U, NULL);
+    g_timeout_step = 1U;
+
+    /* 2. Blocking timeout_ms > 0 signaled before deadline, literal NULL out_flags */
+    PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, &g_block_ef, 0x04U, 20U, NULL);
+    g_timeout_step = 2U;
+
+    /* 3. Blocking timeout_ms > 0 expiring on timeout, literal NULL out_flags */
+    PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, &g_block_ef, 0x08U, 15U, NULL);
+    g_timeout_step = 3U;
+    PT_END(pt);
+}
+
+static void test_r5_pt_block_event_with_timeout_null_out(void)
+{
+    SYN_Task task;
+    SYN_Sched sched;
+    mock_port_reset();
+    g_timeout_step = 0U;
+
+    syn_event_flags_init(&g_block_ef);
+    syn_event_flags_set(&g_block_ef, 0x02U);
+
+    syn_task_create(&task, "evt_to_null", pt_block_event_timeout_null_func, 0, NULL);
+    syn_sched_init(&sched, &task, 1);
+
+    /* Step 1 completes immediately and blocks on Step 2 */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(1U, g_timeout_step);
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_event_flags_get(&g_block_ef));
+
+    /* Signal 0x04U before 20 ms deadline -> wakes Step 2, blocks on Step 3 */
+    mock_tick_advance(5U);
+    syn_event_flags_set(&g_block_ef, 0x04U);
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(2U, g_timeout_step);
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_event_flags_get(&g_block_ef));
+
+    /* Advance past 15 ms deadline without setting 0x08U -> Step 3 times out */
+    mock_tick_advance(20U);
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(3U, g_timeout_step);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+}
+
 void run_event_flags_tests(void)
 {
     RUN_TEST(test_event_flags_set_clear_wait);
@@ -145,4 +196,5 @@ void run_event_flags_tests(void)
     RUN_TEST(test_event_flags_wait_any_auto_clear);
     RUN_TEST(test_event_flags_rmw_critical_sections);
     RUN_TEST(test_pt_block_event_critical_section);
+    RUN_TEST(test_r5_pt_block_event_with_timeout_null_out);
 }

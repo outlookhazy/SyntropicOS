@@ -112,7 +112,7 @@ uint32_t get_stm32f767_sector(uint32_t addr) {
     if (addr < 0x08004000U) return 0;  /* 16 KB  */
     if (addr < 0x08008000U) return 1;  /* 16 KB  */
     if (addr < 0x0800C000U) return 2;  /* 16 KB  */
-    if (addr < 0x08008000U) return 3;  /* 16 KB  */
+    if (addr < 0x08010000U) return 3;  /* 16 KB  */
     if (addr < 0x08020000U) return 4;  /* 64 KB  */
     if (addr < 0x08040000U) return 5;  /* 128 KB */
     if (addr < 0x08060000U) return 6;  /* 128 KB */

@@ -11,6 +11,9 @@
 
 #include <string.h>
 
+/** @brief Default SPI clock frequency (1 MHz) when transaction baudrate_hz is 0. */
+#define SYN_SPI_QUEUE_DEFAULT_BAUD_HZ 1000000U
+
 SYN_Status syn_spi_queue_init(SYN_SPI_Queue *q, uint8_t bus)
 {
     if (q == NULL) {
@@ -26,7 +29,7 @@ SYN_Status syn_spi_queue_init(SYN_SPI_Queue *q, uint8_t bus)
 
 SYN_Status syn_spi_queue_enqueue(SYN_SPI_Queue *q, const SYN_SPI_Transaction *tx)
 {
-    if (q == NULL || !q->initialized || tx == NULL) {
+    if ((q == NULL) || !q->initialized || (tx == NULL) || ((uint8_t)tx->mode > 3U)) {
         return SYN_INVALID_PARAM;
     }
 
@@ -35,7 +38,7 @@ SYN_Status syn_spi_queue_enqueue(SYN_SPI_Queue *q, const SYN_SPI_Transaction *tx
     }
 
     q->ring[q->tail] = *tx;
-    q->tail = (uint16_t)((q->tail + 1) % SYN_SPI_QUEUE_MAX_DEPTH);
+    q->tail = (uint16_t)((q->tail + 1U) % SYN_SPI_QUEUE_MAX_DEPTH);
     q->count++;
 
     return syn_spi_queue_process(q);
@@ -43,7 +46,7 @@ SYN_Status syn_spi_queue_enqueue(SYN_SPI_Queue *q, const SYN_SPI_Transaction *tx
 
 SYN_Status syn_spi_queue_process(SYN_SPI_Queue *q)
 {
-    if (q == NULL || !q->initialized) {
+    if ((q == NULL) || !q->initialized) {
         return SYN_INVALID_PARAM;
     }
 
@@ -51,27 +54,40 @@ SYN_Status syn_spi_queue_process(SYN_SPI_Queue *q)
         return SYN_OK;
     }
 
-    while (q->count > 0 && !q->active) {
+    while ((q->count > 0U) && !q->active) {
         SYN_SPI_Transaction tx = q->ring[q->head];
-        q->head = (uint16_t)((q->head + 1) % SYN_SPI_QUEUE_MAX_DEPTH);
+        q->head = (uint16_t)((q->head + 1U) % SYN_SPI_QUEUE_MAX_DEPTH);
         q->count--;
         q->active = true;
 
-        /* Assert target CS pin */
-        syn_port_gpio_write(tx.cs_pin, SYN_GPIO_LOW);
+        uint8_t target_bus = (tx.bus != 0U) ? tx.bus : q->bus;
+        uint32_t baud = (tx.baudrate_hz != 0U) ? tx.baudrate_hz : SYN_SPI_QUEUE_DEFAULT_BAUD_HZ;
+        uint8_t mode = (uint8_t)tx.mode;
 
-        /* Execute full duplex transfer */
-        SYN_Status status = syn_port_spi_transfer(q->bus, tx.tx_data, tx.rx_data, tx.len);
+        SYN_Status status = SYN_OK;
+        if (!q->bus_configured || (target_bus != q->configured_bus) ||
+            (baud != q->configured_baud_hz) || (mode != q->configured_mode)) {
+            status = syn_port_spi_init(target_bus, baud, mode, 0U);
+            if (status == SYN_OK) {
+                q->bus_configured = true;
+                q->configured_bus = target_bus;
+                q->configured_baud_hz = baud;
+                q->configured_mode = mode;
+            }
+        }
 
-        /* Deassert CS pin if keep_cs_active is false */
-        if (!tx.keep_cs_active) {
-            syn_port_gpio_write(tx.cs_pin, SYN_GPIO_HIGH);
+        if (status == SYN_OK) {
+            syn_port_gpio_write(tx.cs_pin, SYN_GPIO_LOW);
+            status = syn_port_spi_transfer(target_bus, tx.tx_data, tx.rx_data, tx.len);
+            if (!tx.keep_cs_active) {
+                syn_port_gpio_write(tx.cs_pin, SYN_GPIO_HIGH);
+            }
         }
 
         q->active = false;
 
         if (tx.callback != NULL) {
-            tx.callback(q->bus, status, tx.user_data);
+            tx.callback(target_bus, status, tx.user_data);
         }
     }
 
@@ -80,13 +96,13 @@ SYN_Status syn_spi_queue_process(SYN_SPI_Queue *q)
 
 SYN_Status syn_spi_queue_cancel_all(SYN_SPI_Queue *q)
 {
-    if (q == NULL || !q->initialized) {
+    if ((q == NULL) || !q->initialized) {
         return SYN_INVALID_PARAM;
     }
 
-    q->head = 0;
-    q->tail = 0;
-    q->count = 0;
+    q->head = 0U;
+    q->tail = 0U;
+    q->count = 0U;
     q->active = false;
 
     return SYN_OK;
@@ -94,8 +110,8 @@ SYN_Status syn_spi_queue_cancel_all(SYN_SPI_Queue *q)
 
 size_t syn_spi_queue_count(const SYN_SPI_Queue *q)
 {
-    if (q == NULL || !q->initialized) {
-        return 0;
+    if ((q == NULL) || !q->initialized) {
+        return 0U;
     }
 
     return (size_t)q->count;

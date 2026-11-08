@@ -7,6 +7,23 @@
 
 #include <string.h>
 
+/**
+ * @brief Resolve safe fallback pulse width for channel index.
+ * @param cfg Pointer to failsafe configuration.
+ * @param idx Channel index (0..15; index 2 defaults to 1000 us throttle idle).
+ * @return Safe pulse width in microseconds.
+ */
+static uint16_t failsafe_default_channel_us(const SYN_Failsafe_Config *cfg, size_t idx)
+{
+    if (cfg->channel_modes[idx] == SYN_FAILSAFE_DISARM) {
+        return 1000U;
+    }
+    if (cfg->fallback_us[idx] != 0U) {
+        return cfg->fallback_us[idx];
+    }
+    return (idx == 2U) ? 1000U : 1500U;
+}
+
 SYN_Status syn_failsafe_init(SYN_Failsafe_Manager *mgr, const SYN_Failsafe_Config *config)
 {
     if (!mgr || !config) {
@@ -15,10 +32,11 @@ SYN_Status syn_failsafe_init(SYN_Failsafe_Manager *mgr, const SYN_Failsafe_Confi
 
     memset(mgr, 0, sizeof(*mgr));
     mgr->config = *config;
+    mgr->in_failsafe = true;
+    mgr->ever_received = false;
 
-    /* Initialize default channels to 1500 us neutral */
-    for (size_t i = 0; i < SYN_RC_FAILSAFE_MAX_CHANNELS; i++) {
-        mgr->channels[i] = 1500U;
+    for (size_t i = 0U; i < SYN_RC_FAILSAFE_MAX_CHANNELS; i++) {
+        mgr->channels[i] = failsafe_default_channel_us(config, i);
     }
 
     return SYN_OK;
@@ -27,7 +45,7 @@ SYN_Status syn_failsafe_init(SYN_Failsafe_Manager *mgr, const SYN_Failsafe_Confi
 SYN_Status syn_failsafe_feed_frame(SYN_Failsafe_Manager *mgr, const uint16_t *in_channels,
                                    uint8_t num_channels, uint32_t timestamp_ms)
 {
-    if (!mgr || !in_channels) {
+    if (!mgr || !in_channels || num_channels == 0U) {
         return SYN_INVALID_PARAM;
     }
 
@@ -35,11 +53,12 @@ SYN_Status syn_failsafe_feed_frame(SYN_Failsafe_Manager *mgr, const uint16_t *in
         num_channels = SYN_RC_FAILSAFE_MAX_CHANNELS;
     }
 
-    for (uint8_t i = 0; i < num_channels; i++) {
+    for (uint8_t i = 0U; i < num_channels; i++) {
         mgr->channels[i] = in_channels[i];
     }
 
     mgr->last_frame_ms = timestamp_ms;
+    mgr->ever_received = true;
     mgr->in_failsafe = false;
 
     return SYN_OK;
@@ -51,20 +70,22 @@ bool syn_failsafe_step(SYN_Failsafe_Manager *mgr, uint32_t now_ms, uint16_t *out
         return true;
     }
 
-    uint32_t elapsed = now_ms - mgr->last_frame_ms;
-    if (elapsed >= mgr->config.timeout_ms) {
-        if (!mgr->in_failsafe) {
+    if (!mgr->ever_received) {
+        mgr->in_failsafe = true;
+    } else {
+        uint32_t elapsed = now_ms - mgr->last_frame_ms;
+        if (elapsed >= mgr->config.timeout_ms && !mgr->in_failsafe) {
             mgr->in_failsafe = true;
             mgr->failsafe_events++;
         }
     }
 
     if (out_channels) {
-        for (size_t i = 0; i < SYN_RC_FAILSAFE_MAX_CHANNELS; i++) {
+        for (size_t i = 0U; i < SYN_RC_FAILSAFE_MAX_CHANNELS; i++) {
             if (mgr->in_failsafe) {
                 switch (mgr->config.channel_modes[i]) {
                 case SYN_FAILSAFE_FALLBACK:
-                    out_channels[i] = mgr->config.fallback_us[i];
+                    out_channels[i] = failsafe_default_channel_us(&mgr->config, i);
                     break;
                 case SYN_FAILSAFE_DISARM:
                     out_channels[i] = 1000U;

@@ -49,12 +49,11 @@ static SYN_PT_Status task_cli_func(SYN_PT *pt, SYN_Task *task)
     uint8_t ch;
     PT_BEGIN(pt);
     for (;;) {
-        if (syn_port_serial_read(&ch, 1) > 0) {
+        while (syn_port_serial_read(&ch, 1) > 0) {
             syn_cli_process_char(&cli, (char)ch);
-            PT_YIELD(pt);
-        } else {
-            PT_TASK_DELAY_MS(pt, task, 20);
+            PT_CONTINUE_IF_NEEDED(pt, task);
         }
+        PT_TASK_DELAY_MS(pt, task, 20);
     }
     PT_END(pt);
 }
@@ -91,9 +90,9 @@ int main_sched(void)
         syn_adc_init(&adc[i], &cfg);
     }
 
-    syn_task_create(&tasks[0], "led", task_led_func, 2, NULL);
-    syn_task_create(&tasks[1], "cli", task_cli_func, 1, NULL);
-    syn_task_create(&tasks[2], "adc", task_adc_func, 0, NULL);
+    syn_task_create(&tasks[0], "led", task_led_func, SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks[1], "cli", task_cli_func, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&tasks[2], "adc", task_adc_func, SYN_PRIO_CRITICAL, NULL);
     syn_sched_init(&sched, tasks, 3);
 
     while (1) {

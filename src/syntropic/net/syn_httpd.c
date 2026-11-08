@@ -85,6 +85,36 @@ static inline uint32_t parse_uint(const char *s)
 }
 
 /**
+ * @brief Parse a single HTTP header line into request metadata without mutating headers.
+ * @param req       Target parsed request structure.
+ * @param hdr_start Start of header line.
+ * @param next_line Pointer to terminating CRLF of header line.
+ */
+static void httpd_parse_header_line(SYN_HttpdRequest *req, const char *hdr_start,
+                                    const char *next_line)
+{
+    if (prefix_icase(hdr_start, "content-length:")) {
+        const char *val = hdr_start + 15;
+        while (*val == ' ') {
+            val++;
+        }
+        req->content_length = parse_uint(val);
+    } else if (prefix_icase(hdr_start, "content-type:")) {
+        const char *val = hdr_start + 13;
+        while (*val == ' ') {
+            val++;
+        }
+        size_t ct_len = (size_t)(next_line - val);
+        if (ct_len >= sizeof(req->content_type_buf)) {
+            ct_len = sizeof(req->content_type_buf) - 1U;
+        }
+        memcpy(req->content_type_buf, val, ct_len);
+        req->content_type_buf[ct_len] = '\0';
+        req->content_type = req->content_type_buf;
+    }
+}
+
+/**
  * @brief Parse request line + headers from already-buffered data.
  *
  * This is a pure parsing function — no socket I/O. The caller guarantees
@@ -105,21 +135,25 @@ static int parse_headers_from_buf(SYN_Socket sock, SYN_HttpdRequest *req, uint8_
     buf[total] = '\0';
 
     char *end_of_headers = strstr((const char *)buf, "\r\n\r\n");
-    if (end_of_headers == NULL)
+    if (end_of_headers == NULL) {
         return -1;
+    }
 
     /* Parse request line: "GET /path?query HTTP/1.1\r\n" */
     char *line = (char *)buf;
+    char *line_end = strstr(line, "\r\n");
     char *sp1 = strchr(line, ' ');
-    if (sp1 == NULL)
+    if (sp1 == NULL || sp1 >= line_end) {
         return -1;
+    }
 
     req->method = parse_method(line, (size_t)(sp1 - line));
 
     char *path_start = sp1 + 1;
     char *sp2 = strchr(path_start, ' ');
-    if (sp2 == NULL)
+    if (sp2 == NULL || sp2 >= line_end) {
         return -1;
+    }
     *sp2 = '\0'; /* null-terminate the path+query */
 
     /* Split path and query */
@@ -130,49 +164,21 @@ static int parse_headers_from_buf(SYN_Socket sock, SYN_HttpdRequest *req, uint8_
     }
     req->path = path_start;
 
-    /* Parse headers */
-    char *hdr_start = strstr(sp2 + 1, "\r\n");
-    if (hdr_start) {
-        hdr_start += 2;
-        req->headers = hdr_start;
-    }
+    /* Parse headers without mutating header lines in work_buf */
+    char *hdr_start = line_end + 2;
+    req->headers = hdr_start;
 
-    while (hdr_start && *hdr_start != '\0' && *hdr_start != '\r' && *hdr_start != '\n') {
+    while (hdr_start < end_of_headers) {
         char *next_line = strstr(hdr_start, "\r\n");
-        if (next_line == NULL) {
-            /* LCOV_EXCL_START: Incomplete header line safety break */
-            break;
-            /* LCOV_EXCL_STOP */
-        }
-
-        if (prefix_icase(hdr_start, "content-length:")) {
-            const char *val = hdr_start + 15;
-            while (*val == ' ')
-                val++;
-            req->content_length = parse_uint(val);
-        } else if (prefix_icase(hdr_start, "content-type:")) {
-            /* cppcheck-suppress constVariablePointer */
-            char *val = hdr_start + 13;
-            while (*val == ' ')
-                val++;
-            req->content_type = val;
-            /* Null-terminate Content-Type value at end of line */
-            if (next_line)
-                *next_line = '\0';
-        }
-
-        if (!next_line)
-            break; /* LCOV_EXCL_LINE: Defensive default branch for enum state machine */
+        httpd_parse_header_line(req, hdr_start, next_line);
         hdr_start = next_line + 2;
     }
 
     /* Calculate buffered body */
-    if (end_of_headers) {
-        size_t header_len = (size_t)(end_of_headers + 4 - (char *)buf);
-        if (total > header_len) {
-            req->body_buffered_offset = header_len;
-            req->body_buffered_len = total - header_len;
-        }
+    size_t header_len = (size_t)(end_of_headers + 4 - (char *)buf);
+    if (total > header_len) {
+        req->body_buffered_offset = header_len;
+        req->body_buffered_len = total - header_len;
     }
 
     return 0;
@@ -186,38 +192,20 @@ static int parse_headers_from_buf(SYN_Socket sock, SYN_HttpdRequest *req, uint8_
  */
 static const SYN_HttpdRoute *match_route(const SYN_Httpd *srv, const SYN_HttpdRequest *req)
 {
-    /* LCOV_EXCL_START: Defensive NULL check; callers validate srv and req */
-    if (srv == NULL || req == NULL || req->path == NULL)
-        return NULL;
-    /* LCOV_EXCL_STOP */
     for (size_t i = 0; i < srv->route_count; i++) {
         const SYN_HttpdRoute *r = &srv->routes[i];
 
-        if (r->method != req->method)
+        if (r->method != req->method) {
             continue;
+        }
 
         size_t plen = strlen(r->path);
-        if (plen > 0 && r->path[plen - 1] == '*') {
-            /* Prefix match: "/api/" with wildcard */
-            size_t req_plen = strlen(req->path);
-            if (req_plen < plen - 1) {
-                continue;
-            }
-            bool match = true;
-            for (size_t k = 0; k < plen - 1; k++) {
-                if (req->path[k] != r->path[k]) {
-                    match = false;
-                    break;
-                }
-            }
-            if (match) {
+        if (plen > 0U && r->path[plen - 1U] == '*') {
+            if (strncmp(req->path, r->path, plen - 1U) == 0) {
                 return r;
             }
-        } else {
-            /* Exact match */
-            if (strcmp(req->path, r->path) == 0) {
-                return r;
-            }
+        } else if (strcmp(req->path, r->path) == 0) {
+            return r;
         }
     }
     return NULL;
@@ -250,14 +238,13 @@ static void send_error(SYN_Socket sock, int code, const char *reason)
  */
 static void drop_client(SYN_Httpd *srv)
 {
-    if (srv == NULL)
-        return; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
     if (srv->client != SYN_SOCKET_INVALID) {
         syn_port_sock_close(srv->client);
         srv->client = SYN_SOCKET_INVALID;
     }
     srv->state = SYN_HTTPD_IDLE;
-    srv->rx_total = 0;
+    srv->rx_total = 0U;
+    srv->expected_total = 0U;
 }
 
 /* ── Server API ────────────────────────────────────────────────────────── */
@@ -320,6 +307,7 @@ static void dispatch_request(SYN_Httpd *srv)
     resp.sock = srv->client;
     resp.buf = srv->work_buf;
     resp.buf_size = srv->work_buf_size;
+    resp.body_consumed = 0U;
     resp.headers_sent = false;
     resp.upgraded = false;
 
@@ -336,79 +324,127 @@ static void dispatch_request(SYN_Httpd *srv)
         /* Upgraded connection (e.g. WebSocket) — don't close, just reset state */
         srv->client = SYN_SOCKET_INVALID;
         srv->state = SYN_HTTPD_IDLE;
-        srv->rx_total = 0;
+        srv->rx_total = 0U;
+        srv->expected_total = 0U;
     }
+}
+
+/**
+ * @brief Inspect buffered headers without mutating work_buf to compute expected_total.
+ * @param srv Server instance with NUL-terminated work_buf.
+ * @return true if header terminator found, false otherwise.
+ */
+static bool httpd_check_headers_complete(SYN_Httpd *srv)
+{
+    const char *buf = (const char *)srv->work_buf;
+    const char *eoh = strstr(buf, "\r\n\r\n");
+    if (eoh == NULL) {
+        return false;
+    }
+
+    size_t hdr_len = (size_t)(eoh + 4 - buf);
+    uint32_t clen = 0U;
+    const char *line_end = strstr(buf, "\r\n");
+    const char *hdr = line_end + 2;
+    while (hdr < eoh) {
+        const char *next = strstr(hdr, "\r\n");
+        if (prefix_icase(hdr, "content-length:")) {
+            const char *val = hdr + 15;
+            while (*val == ' ') {
+                val++;
+            }
+            clen = parse_uint(val);
+        }
+        hdr = next + 2;
+    }
+
+    size_t max_body_in_buf = (srv->work_buf_size - 1U) - hdr_len;
+    size_t buf_body = ((size_t)clen <= max_body_in_buf) ? (size_t)clen : 0U;
+    srv->expected_total = hdr_len + buf_body;
+    return true;
+}
+
+/**
+ * @brief Non-blocking header and Content-Length body accumulation phase for an accepted client.
+ * @param srv Server instance in SYN_HTTPD_READING_HEADERS or SYN_HTTPD_READING_BODY state.
+ * @return SYN_OK on dispatch, SYN_TIMEOUT if awaiting bytes/expired, SYN_ERROR on failure.
+ */
+static SYN_Status httpd_step_reading(SYN_Httpd *srv)
+{
+    /* Check deadline — drop stale connections without blocking */
+    if ((int32_t)(syn_port_get_tick_ms() - srv->recv_deadline) >= 0) {
+        send_error(srv->client, 408, "Request Timeout");
+        drop_client(srv);
+        return SYN_TIMEOUT;
+    }
+
+    /* Non-blocking recv (timeout=0) */
+    size_t space = srv->work_buf_size - 1U - srv->rx_total;
+    if (space == 0U) {
+        send_error(srv->client, 413, "Request Too Large");
+        drop_client(srv);
+        return SYN_ERROR;
+    }
+
+    bool was_readable = syn_port_sock_readable(srv->client);
+    int n = syn_port_sock_recv(srv->client, srv->work_buf + srv->rx_total, space, 0);
+    if (n < 0) {
+        if (was_readable) {
+            drop_client(srv);
+            return SYN_ERROR;
+        }
+        return SYN_TIMEOUT;
+    }
+    if (n == 0) {
+        send_error(srv->client, 400, "Bad Request");
+        drop_client(srv);
+        return SYN_ERROR;
+    }
+
+    srv->rx_total += (size_t)n;
+    srv->work_buf[srv->rx_total] = '\0';
+
+    if (srv->state == SYN_HTTPD_READING_HEADERS) {
+        if (!httpd_check_headers_complete(srv)) {
+            return SYN_TIMEOUT;
+        }
+        srv->state = SYN_HTTPD_READING_BODY;
+    }
+
+    if (srv->rx_total >= srv->expected_total) {
+        srv->state = SYN_HTTPD_DISPATCHING;
+        dispatch_request(srv);
+        return SYN_OK;
+    }
+
+    return SYN_TIMEOUT;
 }
 
 SYN_Status syn_httpd_step(SYN_Httpd *srv)
 {
     SYN_ASSERT(srv != NULL);
-    if (!srv->running)
+    if (!srv->running) {
         return SYN_ERROR;
+    }
 
     switch (srv->state) {
-    /* ── IDLE: poll for new client (non-blocking) ──────────────────── */
     case SYN_HTTPD_IDLE: {
         SYN_Socket client = syn_port_sock_accept(srv->listener, 0);
         if (client == SYN_SOCKET_INVALID) {
-            return SYN_TIMEOUT; /* No client — caller should yield */
-        }
-        /* Client connected — start reading headers */
-        srv->client = client;
-        srv->rx_total = 0;
-        srv->recv_deadline = syn_port_get_tick_ms() + HTTPD_CLIENT_TIMEOUT_MS;
-        srv->state = SYN_HTTPD_READING_HEADERS;
-        /* Fall through — attempt first recv in the same tick */
-    }
-    /* fallthrough */
-
-    /* ── READING_HEADERS: non-blocking recv, accumulate in work_buf ─ */
-    case SYN_HTTPD_READING_HEADERS: {
-        /* Check deadline — drop stale connections without blocking */
-        if ((int32_t)(syn_port_get_tick_ms() - srv->recv_deadline) >= 0) {
-            send_error(srv->client, 408, "Request Timeout");
-            drop_client(srv);
             return SYN_TIMEOUT;
         }
-
-        /* Non-blocking recv (timeout=0) */
-        size_t space = srv->work_buf_size - 1 - srv->rx_total;
-        if (space == 0) {
-            /* Buffer full without finding \r\n\r\n — reject */
-            send_error(srv->client, 413, "Request Too Large");
-            drop_client(srv);
-            return SYN_ERROR;
-        }
-
-        int n = syn_port_sock_recv(srv->client, srv->work_buf + srv->rx_total, space, 0);
-        if (n < 0) {
-            /* No data available this tick — yield and retry next tick */
-            return SYN_TIMEOUT; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter
-                                   fallback */
-        }
-        if (n == 0) {
-            /* Connection closed before headers were complete */
-            send_error(srv->client, 400, "Bad Request");
-            drop_client(srv);
-            return SYN_ERROR;
-        }
-
-        srv->rx_total += (size_t)n;
-        srv->work_buf[srv->rx_total] = '\0';
-
-        /* Check for complete headers */
-        if (strstr((const char *)srv->work_buf, "\r\n\r\n") != NULL) {
-            srv->state = SYN_HTTPD_DISPATCHING;
-            /* Fall through to dispatch immediately */
-            dispatch_request(srv);
-            return SYN_OK;
-        }
-
-        /* Headers incomplete — yield, try again next tick */
-        return SYN_TIMEOUT;
+        srv->client = client;
+        srv->rx_total = 0U;
+        srv->expected_total = 0U;
+        srv->recv_deadline = syn_port_get_tick_ms() + HTTPD_CLIENT_TIMEOUT_MS;
+        srv->state = SYN_HTTPD_READING_HEADERS;
+        return httpd_step_reading(srv);
     }
 
-    /* ── DISPATCHING: parse + route + respond ──────────────────────── */
+    case SYN_HTTPD_READING_HEADERS:
+    case SYN_HTTPD_READING_BODY:
+        return httpd_step_reading(srv);
+
     case SYN_HTTPD_DISPATCHING:
         dispatch_request(srv);
         return SYN_OK;
@@ -475,8 +511,6 @@ void syn_httpd_header(const SYN_HttpdResponse *resp, const char *name, const cha
  */
 static void finalize_headers(SYN_HttpdResponse *resp)
 {
-    if (!resp)
-        return; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
     if (!resp->headers_sent) {
         sock_write(resp->sock, "\r\n");
         resp->headers_sent = true;
@@ -502,40 +536,33 @@ void syn_httpd_body_str(SYN_HttpdResponse *resp, const char *str)
     syn_httpd_body(resp, str, strlen(str));
 }
 
-int syn_httpd_read_body(const SYN_HttpdRequest *req, const SYN_HttpdResponse *resp, void *buf,
+int syn_httpd_read_body(const SYN_HttpdRequest *req, SYN_HttpdResponse *resp, void *buf,
                         size_t max_len)
 {
     SYN_ASSERT(req != NULL);
     SYN_ASSERT(resp != NULL);
 
-    if (req->content_length == 0)
+    size_t consumed =
+        (resp->body_consumed >= req->body_consumed) ? resp->body_consumed : req->body_consumed;
+    if (req->content_length == 0U || consumed >= (size_t)req->content_length) {
         return 0;
+    }
 
-    SYN_HttpdRequest *rw = (SYN_HttpdRequest *)(uintptr_t)req;
+    size_t remaining = (size_t)req->content_length - consumed;
+    size_t to_read = (max_len < remaining) ? max_len : remaining;
 
-    size_t remaining = req->content_length - rw->body_consumed;
-    if (remaining == 0)
-        return 0;
-
-    size_t to_read = max_len;
-    if (to_read > remaining)
-        to_read = remaining;
-
-    if (rw->body_buffered_len > 0) {
-        size_t consume = rw->body_buffered_len;
-        if (consume > to_read)
-            consume = to_read;
-        memcpy(buf, resp->buf + rw->body_buffered_offset, consume);
-        rw->body_buffered_offset += consume;
-        rw->body_buffered_len -= consume;
-        rw->body_consumed += consume;
+    if (consumed < req->body_buffered_len) {
+        size_t buf_avail = req->body_buffered_len - consumed;
+        size_t consume = (buf_avail < to_read) ? buf_avail : to_read;
+        memcpy(buf, resp->buf + req->body_buffered_offset + consumed, consume);
+        resp->body_consumed = consumed + consume;
         return (int)consume;
     }
 
     /* Non-blocking read — timeout=0, never stalls the scheduler */
     int n = syn_port_sock_recv(resp->sock, buf, to_read, 0);
     if (n > 0) {
-        rw->body_consumed += (size_t)n;
+        resp->body_consumed = consumed + (size_t)n;
     }
     return n;
 }
@@ -547,32 +574,55 @@ int syn_httpd_read_body(const SYN_HttpdRequest *req, const SYN_HttpdResponse *re
  */
 static bool httpd_has_work(const SYN_Httpd *srv)
 {
-    /* LCOV_EXCL_START: Defensive NULL/running check */
-    if (srv == NULL || !srv->running)
-        return false;
-    /* LCOV_EXCL_STOP */
-    if (srv->listener != SYN_SOCKET_INVALID && syn_port_sock_readable(srv->listener))
-        return true;
-    if (srv->client != SYN_SOCKET_INVALID && syn_port_sock_readable(srv->client))
-        return true;
-    return false;
+    if (srv->state == SYN_HTTPD_IDLE) {
+        return srv->listener != SYN_SOCKET_INVALID && syn_port_sock_readable(srv->listener);
+    }
+    if (srv->state == SYN_HTTPD_READING_HEADERS || srv->state == SYN_HTTPD_READING_BODY) {
+        if (srv->client != SYN_SOCKET_INVALID && syn_port_sock_readable(srv->client)) {
+            return true;
+        }
+        return (int32_t)(syn_port_get_tick_ms() - srv->recv_deadline) >= 0;
+    }
+    return true;
+}
+
+/**
+ * @brief Run one HTTP server step and report whether state or RX bytes progressed.
+ * @param srv Server instance.
+ * @return true if progress occurred, false otherwise.
+ */
+static bool httpd_step_progressed(SYN_Httpd *srv)
+{
+    SYN_HttpdState prev_state = srv->state;
+    size_t prev_rx = srv->rx_total;
+    SYN_Status st = syn_httpd_step(srv);
+    return (st == SYN_OK) || (srv->state != prev_state) || (srv->rx_total != prev_rx);
 }
 
 /* ── Protothread task ──────────────────────────────────────────────────── */
 
 SYN_PT_Status syn_httpd_task(SYN_PT *pt, SYN_Task *task)
 {
+    if (pt == NULL || task == NULL || task->user_data == NULL) {
+        return PT_EXITED;
+    }
     SYN_Httpd *srv = (SYN_Httpd *)task->user_data;
 
     PT_BEGIN(pt);
 
-    for (;;) {
-        PT_WAIT_UNTIL(pt, srv->running && httpd_has_work(srv));
-        syn_httpd_step(srv);
-        PT_YIELD(pt);
+    while (srv->running) {
+        PT_WAIT_UNTIL(pt, !srv->running || httpd_has_work(srv));
+        if (!srv->running) {
+            break;
+        }
+        if (!httpd_step_progressed(srv)) {
+            PT_PASS(pt);
+        } else if (srv->running && httpd_has_work(srv)) {
+            PT_CONTINUE(pt);
+        }
     }
 
-    PT_END(pt); /* LCOV_EXCL_LINE: Defensive bounds check / hardware port fallback */
+    PT_END(pt);
 }
 
 bool syn_httpd_get_query_param(const char *query, const char *key, char *val_buf, size_t max_len)

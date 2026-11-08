@@ -40,7 +40,7 @@ void send_ir_bitbang(SYN_IR_Protocol proto, uint32_t addr, uint32_t cmd) {
     size_t pulse_count = 0;
 
     uint8_t high_us, low_us;
-    uint8_t carrier_khz = syn_ir_protocol_carrier_khz(proto);
+    uint8_t carrier_khz = ir_carrier_khz(proto);
     get_carrier_delays(carrier_khz, &high_us, &low_us);
 
     if (syn_ir_encode_frame(&tx_frame, pulses, 128, &pulse_count) == SYN_OK) {
@@ -58,6 +58,7 @@ void send_ir_bitbang(SYN_IR_Protocol proto, uint32_t addr, uint32_t cmd) {
                 delay_us(pulses[i].duration_us);
             }
         }
+        HAL_GPIO_WritePin(IR_TX_PORT, IR_TX_PIN, GPIO_PIN_RESET);
     }
 }
 ```
@@ -81,19 +82,32 @@ void send_ir_pwm(SYN_IR_Protocol proto, uint32_t addr, uint32_t cmd) {
                 delay_us(pulses[i].duration_us);
             }
         }
+        HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
     }
 }
 ```
 
 ### Carrier Frequency Lookup Table
 ```c
+uint8_t ir_carrier_khz(SYN_IR_Protocol proto) {
+    switch (proto) {
+        case SYN_IR_PROTO_RC5:
+        case SYN_IR_PROTO_RC6:      return 36;
+        case SYN_IR_PROTO_KASEIKYO: return 37;
+        case SYN_IR_PROTO_SONY_12:
+        case SYN_IR_PROTO_SONY_15:
+        case SYN_IR_PROTO_SONY_20:  return 40;
+        default:                    return 38;
+    }
+}
+
 void get_carrier_delays(uint8_t carrier_khz, uint8_t *high_us, uint8_t *low_us) {
     switch (carrier_khz) {
-        case 36: *high_us = 14; *low_us = 14; break; // 35.7 kHz
-        case 37: *high_us = 13; *low_us = 14; break; // 37.0 kHz
-        case 38: *high_us = 13; *low_us = 13; break; // 38.4 kHz (NEC / Sony / Samsung)
-        case 40: *high_us = 12; *low_us = 13; break; // 40.0 kHz
-        case 56: *high_us = 9;  *low_us = 9;  break; // 55.5 kHz (Panasonic / Denon)
+        case 36: *high_us = 14; *low_us = 14; break; // 35.7 kHz (RC5 / RC6)
+        case 37: *high_us = 13; *low_us = 14; break; // 37.0 kHz (Kaseikyo / Panasonic)
+        case 38: *high_us = 13; *low_us = 13; break; // 38.4 kHz (NEC / Samsung / Denon)
+        case 40: *high_us = 12; *low_us = 13; break; // 40.0 kHz (Sony SIRCS)
+        case 56: *high_us = 9;  *low_us = 9;  break; // 55.5 kHz
         default: *high_us = 13; *low_us = 13; break;
     }
 }

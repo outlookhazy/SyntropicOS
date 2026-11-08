@@ -151,3 +151,60 @@ void test_ble_l2cap_encode_pdu(void)
     TEST_ASSERT_EQUAL_UINT8(3, tx_buf[5]); /* L2CAP len LSB */
     TEST_ASSERT_EQUAL_UINT8(4, tx_buf[7]); /* L2CAP CID LSB */
 }
+
+void test_r5_ble_l2cap_regressions(void)
+{
+    SYN_BLE_L2CAP l2cap;
+    syn_ble_l2cap_init(&l2cap, test_l2cap_cb, NULL);
+
+    /* Single frame with pdu_len > SYN_BLE_L2CAP_BUF_SIZE (300 > 256) must fail */
+    uint8_t big_single[304];
+    memset(big_single, 0x5AU, sizeof(big_single));
+    big_single[0] = 0x2CU; /* 300 LSB */
+    big_single[1] = 0x01U; /* 300 MSB */
+    big_single[2] = 0x04U;
+    big_single[3] = 0x00U;
+    l2cap_rx_called = false;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_l2cap_process_acl(&l2cap, 0x0001U, 0x02U, big_single,
+                                                           sizeof(big_single)));
+    TEST_ASSERT_FALSE(l2cap_rx_called);
+
+    /* Start frame where ACL payload_len (5) > L2CAP pdu_len (2) must fail */
+    uint8_t extra_start[] = {0x02U, 0x00U, 0x04U, 0x00U, 1U, 2U, 3U, 4U, 5U};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_l2cap_process_acl(&l2cap, 0x0001U, 0x02U, extra_start,
+                                                           sizeof(extra_start)));
+    TEST_ASSERT_FALSE(l2cap_rx_called);
+
+    /* Continuation fragment exceeding declared pdu_len (2 + 3 = 5 > 4) must drop without dispatch
+     */
+    uint8_t frag1[] = {0x04U, 0x00U, 0x04U, 0x00U, 0xAAU, 0xBBU};
+    uint8_t frag2_over[] = {0xCCU, 0xDDU, 0xEEU};
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ble_l2cap_process_acl(&l2cap, 0x0001U, 0x02U, frag1, sizeof(frag1)));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_l2cap_process_acl(&l2cap, 0x0001U, 0x01U, frag2_over,
+                                                           sizeof(frag2_over)));
+    TEST_ASSERT_FALSE(l2cap_rx_called);
+
+    /* Multi-fragment reassembly (3 fragments) + NULL rx_cb + reserved PB=0x03 */
+    SYN_BLE_L2CAP l2cap_nocb;
+    syn_ble_l2cap_init(&l2cap_nocb, NULL, NULL);
+    uint8_t single_ok[] = {0x01U, 0x00U, 0x04U, 0x00U, 0x99U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ble_l2cap_process_acl(&l2cap_nocb, 0x0001U, 0x02U, single_ok,
+                                                        sizeof(single_ok)));
+    uint8_t f1[] = {0x04U, 0x00U, 0x04U, 0x00U, 0x01U};
+    uint8_t f2[] = {0x02U};
+    uint8_t f3[] = {0x03U, 0x04U};
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ble_l2cap_process_acl(&l2cap_nocb, 0x0001U, 0x02U, f1, sizeof(f1)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ble_l2cap_process_acl(&l2cap_nocb, 0x0001U, 0x01U, f2, sizeof(f2)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ble_l2cap_process_acl(&l2cap_nocb, 0x0001U, 0x01U, f3, sizeof(f3)));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_ble_l2cap_process_acl(&l2cap_nocb, 0x0001U, 0x03U,
+                                                                   single_ok, sizeof(single_ok)));
+
+    uint8_t tx_buf[16];
+    uint16_t tx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ble_l2cap_encode_pdu(0x0001U, 0x0004U, NULL, 0U, tx_buf, &tx_len));
+}

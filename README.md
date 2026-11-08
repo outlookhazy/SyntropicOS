@@ -44,14 +44,15 @@ SyntropicOS is not the first system to use stackless coroutines — Contiki OS (
 
 ### 1. Stackless Protothreads (`syn_pt`)
 Protothreads provide sequential, non-blocking flow control inside standard C functions without requiring separate stacks.
-- **Continuation via Duff's Device**: `PT_BEGIN()` expands to a `switch(pt->lc)` statement. When yielding (`PT_WAIT_UNTIL` or `PT_TASK_DELAY_MS`), `pt->lc` records `__LINE__` and returns `PT_WAITING`. Upon re-invocation, the switch jumps directly to the saved line.
+- **Continuation & Explicit Yield Intent**: `PT_BEGIN()` expands to a `switch(pt->lc)` jump table. Yield macros record `__LINE__` in `pt->lc` and return explicit scheduling intent: `PT_PASS()` / `PT_WAIT_UNTIL()` return `PT_IDLE` (no immediate work left this round), while `PT_CONTINUE()` / `PT_CONTINUE_IF_NEEDED()` return `PT_MORE` (chunk finished, more work waiting).
 - **RAM Footprint**: Stores only a `uint16_t` continuation variable (2 bytes RAM).
 - **Variable Lifetime**: Local variables inside a protothread function do not persist across yields. Persistent state must be stored in `static` variables, global contexts, or a struct passed via `user_data`.
 
 ### 2. Cooperative Task Scheduler (`syn_sched`)
-The scheduler runs an array of `SYN_Task` descriptors. On each tick, it executes the highest-priority ready task (priority `0` highest). Equal-priority tasks execute round-robin.
+The scheduler dispatches one eligible `SYN_Task` per `syn_sched_run()` call using ranked selection (`Overdue -> Work -> Poll -> Round Reset`) ordered by `SYN_Prio` (`SYN_PRIO_CRITICAL = 0` .. `SYN_PRIO_LOW = 3`) and per-priority round-robin.
+- **Bounded Starvation Windows**: Configurable per-priority wait bounds (`1 / 5 / 15 / 50 ms` defaults via `syn_sched_set_max_wait()`) prevent active high-priority work from starving lower-priority tasks indefinitely.
 - **Zero Dynamic Allocation**: The application owns and allocates the `SYN_Task` array statically.
-- **Tickless Idle**: Includes low-power sleep support (`syn_sched_run_tickless()`) when no tasks are ready.
+- **Tickless Idle & Native Blocking**: Includes `PT_BLOCK_*` event blocking (`SYN_TASK_BLOCKED`) and low-power sleep (`syn_sched_run_tickless()`, or `syn_sched_run_tickless_ex()` when `SYN_Timer` deadlines must also wake the CPU) when no tasks are ready.
 
 ### 3. Ground-Up Non-Blocking Module Ecosystem
 Every driver and protocol module in SyntropicOS is written from scratch as a cooperative, non-blocking state machine. Modules expose `_poll()`, `_update()`, or `_process()` entry points (e.g. `syn_modbus_poll()`, `syn_button_update()`, `syn_ble_gatt_process_att_pdu()`) that do a bounded unit of work and return immediately. No module internally blocks, busy-waits, or calls `delay()`.
@@ -63,7 +64,7 @@ Every driver and protocol module in SyntropicOS is written from scratch as a coo
 | Property | Design Specification |
 |---|---|
 | **Concurrency** | Cooperative stackless coroutines (`syn_pt`). Continuation state costs **2 bytes RAM** per thread. |
-| **Scheduler** | Cooperative task runner (`syn_sched`). Task descriptors cost **~16–28 bytes RAM** per task. |
+| **Scheduler** | Cooperative task runner (`syn_sched`). Task descriptors (`SYN_Task`) cost **44 bytes RAM** per task on 32-bit targets (80 bytes on 64-bit targets; standalone `SYN_PT` is **2 bytes**). |
 | **Memory Allocation** | **100% Zero-Heap / Static Allocation**. No `malloc()` or dynamic pool fragmentation over long runtimes. |
 | **Execution Model** | All 70+ drivers & protocol stacks are written as **non-blocking state machines**. |
 | **Compatibility** | Standard **C99**. Compiles with GCC, Clang, IAR, Keil, STM32CubeIDE, and Arduino IDE. |
@@ -138,7 +139,7 @@ int main(void) {
     static SYN_Task tasks[1];
     static SYN_Sched sched;
     
-    syn_task_create(&tasks[0], "blink", blink_task, 0, NULL);
+    syn_task_create(&tasks[0], "blink", blink_task, SYN_PRIO_NORMAL, NULL);
     syn_sched_init(&sched, tasks, 1);
     syn_sched_run_forever(&sched);
 }

@@ -62,11 +62,18 @@ void syn_port_delay_ms(uint32_t ms)
 
 int mock_critical_depth = 0;
 int mock_critical_enter_count = 0;
+void (*mock_critical_enter_cb)(void) = NULL;
+static bool s_in_critical_cb = false;
 
 void syn_port_enter_critical(void)
 {
     mock_critical_depth++;
     mock_critical_enter_count++;
+    if (mock_critical_enter_cb != NULL && !s_in_critical_cb) {
+        s_in_critical_cb = true;
+        mock_critical_enter_cb();
+        s_in_critical_cb = false;
+    }
 }
 void syn_port_exit_critical(void)
 {
@@ -88,17 +95,17 @@ void syn_port_nvic_enable_irq(uint8_t irq_num)
 /* ── Random Port ────────────────────────────────────────────────────────── */
 
 bool mock_random_skip = false;
+static uint32_t s_mock_random_seed = 0x12345678U;
 
 SYN_Status syn_port_random_fill(void *buf, size_t len)
 {
     if (mock_random_skip || !buf) {
         return SYN_ERROR;
     }
-    static uint32_t seed = 0x12345678;
     uint8_t *p = (uint8_t *)buf;
     for (size_t i = 0; i < len; i++) {
-        seed = seed * 1103515245 + 12345;
-        p[i] = (uint8_t)(seed >> 16);
+        s_mock_random_seed = s_mock_random_seed * 1103515245U + 12345U;
+        p[i] = (uint8_t)(s_mock_random_seed >> 16);
     }
     return SYN_OK;
 }
@@ -364,6 +371,7 @@ SYN_NORETURN void syn_assert_failed(const char *file, int line)
 
 uint8_t mock_flash[MOCK_FLASH_SIZE];
 int32_t mock_flash_fail_at = -1;
+int32_t mock_flash_read_fail_after = -1;
 bool mock_flash_write_fail_next = false; /* fails the next write only (one-shot) */
 
 SYN_Status syn_port_flash_erase(uint32_t addr)
@@ -381,6 +389,13 @@ SYN_Status syn_port_flash_erase(uint32_t addr)
 
 SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
 {
+    if (mock_flash_read_fail_after >= 0) {
+        if (mock_flash_read_fail_after == 0) {
+            mock_flash_read_fail_after = -1;
+            return SYN_ERROR;
+        }
+        mock_flash_read_fail_after--;
+    }
     if (mock_flash_fail_at >= 0 && (uint32_t)mock_flash_fail_at >= addr &&
         (uint32_t)mock_flash_fail_at < addr + len) {
         mock_flash_fail_at = -1;
@@ -509,6 +524,7 @@ void syn_port_sleep_until(uint32_t wake_tick_ms)
     /* Advance mock tick to the wake time */
     if ((int32_t)(wake_tick_ms - mock_tick_ms) > 0) {
         mock_tick_ms = wake_tick_ms;
+        mock_tick_us = wake_tick_ms * 1000U;
     }
 }
 
@@ -613,6 +629,9 @@ SYN_Status syn_port_rtc_get(SYN_RTC_DateTime *dt)
 
 SYN_Status syn_port_rtc_set(const SYN_RTC_DateTime *dt)
 {
+    if (!mock_rtc_init_ok) {
+        return SYN_ERROR;
+    }
     if (dt == NULL)
         return SYN_INVALID_PARAM;
     mock_rtc_time = *dt;
@@ -690,6 +709,12 @@ size_t mock_spi_tx_len = 0;
 bool mock_spi_init_ok = true;
 bool mock_spi_infinite = false;
 uint8_t mock_spi_infinite_byte = 0xFF;
+static MockSpiTransferCallback s_spi_xfer_cb = NULL;
+
+void mock_spi_set_transfer_callback(MockSpiTransferCallback cb)
+{
+    s_spi_xfer_cb = cb;
+}
 
 void mock_spi_set_response(const void *data, size_t len)
 {
@@ -718,6 +743,9 @@ SYN_Status syn_port_spi_deinit(uint8_t bus)
 SYN_Status syn_port_spi_transfer(uint8_t bus, const uint8_t *tx_buf, uint8_t *rx_buf, size_t len)
 {
     size_t i;
+    if (s_spi_xfer_cb != NULL) {
+        return s_spi_xfer_cb(bus, tx_buf, rx_buf, len);
+    }
     (void)bus;
     for (i = 0; i < len; i++) {
         /* Capture transmitted bytes */
@@ -766,7 +794,10 @@ bool mock_sock_connected;
 bool mock_sock_eof_on_empty = false;
 bool mock_sock_connect_fail = false;
 bool mock_sock_send_fail = false;
+bool mock_sock_recv_fail = false;
 int mock_sock_send_fail_after_bytes = -1;
+int mock_sock_close_count = 0;
+SYN_Socket mock_sock_last_closed = SYN_SOCKET_INVALID;
 
 /* Server-side mock */
 bool mock_sock_listen_ok = true; /**< syn_port_sock_listen returns ok */
@@ -783,7 +814,13 @@ void mock_sock_set_response(const void *data, size_t len)
 
 void (*mock_sock_connect_cb)(const char *host, uint16_t port) = NULL;
 
-SYN_WEAK SYN_Socket syn_port_sock_connect(const SYN_SockAddr *addr)
+#ifdef SYN_POSIX_SOCKET_OVERRIDE
+#define MOCK_SOCK_WEAK SYN_WEAK
+#else
+#define MOCK_SOCK_WEAK
+#endif
+
+MOCK_SOCK_WEAK SYN_Socket syn_port_sock_connect(const SYN_SockAddr *addr)
 {
     if (mock_sock_connect_fail) {
         mock_sock_connected = false;
@@ -801,7 +838,7 @@ SYN_WEAK SYN_Socket syn_port_sock_connect(const SYN_SockAddr *addr)
     return 0;
 }
 
-SYN_WEAK SYN_Socket syn_port_sock_connect_host(const char *host, uint16_t port)
+MOCK_SOCK_WEAK SYN_Socket syn_port_sock_connect_host(const char *host, uint16_t port)
 {
     if (mock_sock_connect_fail) {
         mock_sock_connected = false;
@@ -816,7 +853,7 @@ SYN_WEAK SYN_Socket syn_port_sock_connect_host(const char *host, uint16_t port)
     return 0;
 }
 
-SYN_WEAK int syn_port_sock_send(SYN_Socket sock, const void *data, size_t len)
+MOCK_SOCK_WEAK int syn_port_sock_send(SYN_Socket sock, const void *data, size_t len)
 {
     (void)sock;
     if (!mock_sock_connected || mock_sock_send_fail)
@@ -841,7 +878,7 @@ SYN_WEAK int syn_port_sock_send(SYN_Socket sock, const void *data, size_t len)
     return (int)len;
 }
 
-SYN_WEAK int syn_port_sock_send_all(SYN_Socket sock, const void *data, size_t len)
+MOCK_SOCK_WEAK int syn_port_sock_send_all(SYN_Socket sock, const void *data, size_t len)
 {
     (void)sock;
     if (!mock_sock_connected || mock_sock_send_fail)
@@ -859,11 +896,12 @@ SYN_WEAK int syn_port_sock_send_all(SYN_Socket sock, const void *data, size_t le
     return (int)len;
 }
 
-SYN_WEAK int syn_port_sock_recv(SYN_Socket sock, void *buf, size_t max_len, uint32_t timeout_ms)
+MOCK_SOCK_WEAK int syn_port_sock_recv(SYN_Socket sock, void *buf, size_t max_len,
+                                      uint32_t timeout_ms)
 {
     (void)sock;
     (void)timeout_ms;
-    if (buf == NULL || !mock_sock_connected)
+    if (buf == NULL || !mock_sock_connected || mock_sock_recv_fail)
         return -1;
     if (mock_sock_rx_pos >= mock_sock_rx_len) {
         if (mock_sock_eof_on_empty)
@@ -878,17 +916,18 @@ SYN_WEAK int syn_port_sock_recv(SYN_Socket sock, void *buf, size_t max_len, uint
     return (int)max_len;
 }
 
-SYN_WEAK void syn_port_sock_close(SYN_Socket sock)
+MOCK_SOCK_WEAK void syn_port_sock_close(SYN_Socket sock)
 {
-    (void)sock;
+    mock_sock_close_count++;
+    mock_sock_last_closed = sock;
     mock_sock_connected = false;
 }
 
-SYN_WEAK bool syn_port_sock_readable(SYN_Socket sock)
+MOCK_SOCK_WEAK bool syn_port_sock_readable(SYN_Socket sock)
 {
     if (sock == SYN_SOCKET_INVALID || !mock_sock_connected)
         return false;
-    return (mock_sock_rx_len > mock_sock_rx_pos) || mock_sock_eof_on_empty;
+    return (mock_sock_rx_len > mock_sock_rx_pos) || mock_sock_eof_on_empty || mock_sock_recv_fail;
 }
 
 /* ── UDP port ───────────────────────────────────────────────────────────── */
@@ -900,6 +939,7 @@ SYN_SockAddr mock_udp_tx_to;
 bool mock_udp_open_ok = true;
 bool mock_udp_multicast_join_ok = true;
 bool mock_udp_sendto_fail = false;
+bool mock_udp_recv_fail = false;
 
 void mock_udp_set_response(const void *data, size_t len, const SYN_SockAddr *from)
 {
@@ -908,13 +948,14 @@ void mock_udp_set_response(const void *data, size_t len, const SYN_SockAddr *fro
     mock_udp_inject_packet(data, len, from);
 }
 
-SYN_Socket syn_port_udp_open(uint16_t port)
+MOCK_SOCK_WEAK SYN_Socket syn_port_udp_open(uint16_t port)
 {
     (void)port;
     return mock_udp_open_ok ? 20 : SYN_SOCKET_INVALID;
 }
 
-int syn_port_udp_sendto(SYN_Socket sock, const void *data, size_t len, const SYN_SockAddr *to)
+MOCK_SOCK_WEAK int syn_port_udp_sendto(SYN_Socket sock, const void *data, size_t len,
+                                       const SYN_SockAddr *to)
 {
     (void)sock;
     if (mock_udp_sendto_fail)
@@ -930,11 +971,14 @@ int syn_port_udp_sendto(SYN_Socket sock, const void *data, size_t len, const SYN
     return (int)len;
 }
 
-int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len, SYN_SockAddr *from,
-                          uint32_t timeout_ms)
+MOCK_SOCK_WEAK int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len,
+                                         SYN_SockAddr *from, uint32_t timeout_ms)
 {
     (void)sock;
     (void)timeout_ms;
+
+    if (mock_udp_recv_fail)
+        return -1;
 
     if (mock_udp_rx_pos >= mock_udp_rx_count)
         return 0;
@@ -949,28 +993,28 @@ int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len, SYN_SockAd
     return (int)to_copy;
 }
 
-bool syn_port_udp_readable(SYN_Socket sock)
+MOCK_SOCK_WEAK bool syn_port_udp_readable(SYN_Socket sock)
 {
     if (sock == SYN_SOCKET_INVALID)
         return false;
-    return (mock_udp_rx_pos < mock_udp_rx_count);
+    return (mock_udp_rx_pos < mock_udp_rx_count) || mock_udp_recv_fail;
 }
 
-SYN_Status syn_port_udp_join_multicast(SYN_Socket sock, const char *multicast_ip)
+MOCK_SOCK_WEAK SYN_Status syn_port_udp_join_multicast(SYN_Socket sock, const char *multicast_ip)
 {
     (void)sock;
     (void)multicast_ip;
     return mock_udp_multicast_join_ok ? SYN_OK : SYN_ERROR;
 }
 
-SYN_WEAK SYN_Socket syn_port_sock_listen(uint16_t port, int backlog)
+MOCK_SOCK_WEAK SYN_Socket syn_port_sock_listen(uint16_t port, int backlog)
 {
     (void)port;
     (void)backlog;
     return mock_sock_listen_ok ? 10 : SYN_SOCKET_INVALID;
 }
 
-SYN_WEAK SYN_Socket syn_port_sock_accept(SYN_Socket listener, uint32_t timeout_ms)
+MOCK_SOCK_WEAK SYN_Socket syn_port_sock_accept(SYN_Socket listener, uint32_t timeout_ms)
 {
     (void)listener;
     (void)timeout_ms;
@@ -984,11 +1028,25 @@ SYN_WEAK SYN_Socket syn_port_sock_accept(SYN_Socket listener, uint32_t timeout_m
 
 /* ── Reset all mock state ───────────────────────────────────────────────── */
 
+#if defined(SYN_USE_I2C_ASYNC) && SYN_USE_I2C_ASYNC
+static const SYN_I2C_Xfer *mock_i2c_last_xfer = NULL;
+#endif
+
+#if defined(SYN_USE_SPI_ASYNC) && SYN_USE_SPI_ASYNC
+static const SYN_SPI_Xfer *mock_spi_last_xfer = NULL;
+#endif
+
 void mock_port_reset(void)
 {
     mock_tick_ms = 0;
     mock_tick_us = 0;
     mock_hpclock_lsb = 0;
+    mock_hpclock_freq_hz = 16000000UL;
+    mock_random_skip = false;
+    s_mock_random_seed = 0x12345678U;
+    memset(mock_eth_tx_buf, 0, sizeof(mock_eth_tx_buf));
+    mock_eth_tx_len = 0;
+    mock_eth_tx_count = 0;
 
     memset(mock_gpio_states, 0, sizeof(mock_gpio_states));
     memset(mock_gpio_modes, 0, sizeof(mock_gpio_modes));
@@ -996,8 +1054,14 @@ void mock_port_reset(void)
         mock_gpio_read_overrides[i] = -1;
     }
     mock_adc_value = 2048;
+    mock_adc_resolution = 12;
+    mock_adc_init_ok = true;
+    mock_i2c_init_ok = true;
+    mock_comp_output_state = false;
     memset(mock_flash, 0xFF, sizeof(mock_flash));
     mock_flash_fail_at = -1;
+    mock_flash_read_fail_after = -1;
+    mock_flash_write_fail_next = false;
     mock_sleep_count = 0;
     mock_sleep_until_count = 0;
     mock_sleep_until_tick = 0;
@@ -1005,9 +1069,12 @@ void mock_port_reset(void)
     mock_sleep_until_critical_depth = -1;
     mock_critical_depth = 0;
     mock_critical_enter_count = 0;
+    mock_critical_enter_cb = NULL;
+    s_in_critical_cb = false;
     memset(&mock_can_rx, 0, sizeof(mock_can_rx));
     mock_can_rx_avail = false;
     mock_can_tx_ok = true;
+    mock_can_init_fail = false;
     s_gpio_write_cb = NULL;
     s_gpio_write_ctx = NULL;
 
@@ -1015,22 +1082,28 @@ void mock_port_reset(void)
     mock_aes_hw_enabled = false;
     mock_aes_encrypt_calls = 0;
     mock_aes_decrypt_calls = 0;
+    mock_usb_ep_stall_count = 0U;
+    mock_usb_last_stalled_ep = 0U;
+#if defined(SYN_USE_DMA) && SYN_USE_DMA
+    mock_cache_invalidate_count = 0U;
+#endif
     mock_ghash_calls = 0;
+    mock_usb_host_reset();
 
     /* SPI */
     memset(mock_spi_rx_buf, 0, sizeof(mock_spi_rx_buf));
     mock_spi_rx_len = 0;
-    mock_udp_rx_count = 0;
-    mock_udp_rx_pos = 0;
     mock_spi_rx_pos = 0;
     memset(mock_spi_tx_buf, 0, sizeof(mock_spi_tx_buf));
     mock_spi_tx_len = 0;
     mock_spi_init_ok = true;
     mock_spi_infinite = false;
     mock_spi_infinite_byte = 0xFF;
+    s_spi_xfer_cb = NULL;
 
     /* RTC */
     memset(&mock_rtc_time, 0, sizeof(mock_rtc_time));
+    memset(&mock_rtc_alarm_time, 0, sizeof(mock_rtc_alarm_time));
     mock_rtc_init_ok = true;
 
     /* Hardware Watchdog */
@@ -1056,9 +1129,13 @@ void mock_port_reset(void)
     mock_sock_eof_on_empty = false;
     mock_sock_connect_fail = false;
     mock_sock_send_fail = false;
+    mock_sock_recv_fail = false;
     mock_sock_send_fail_after_bytes = -1;
+    mock_sock_close_count = 0;
+    mock_sock_last_closed = SYN_SOCKET_INVALID;
 
     /* UDP Mock */
+    memset(mock_udp_rx_queue, 0, sizeof(mock_udp_rx_queue));
     mock_udp_rx_count = 0;
     mock_udp_rx_pos = 0;
     memset(mock_udp_tx_buf, 0, sizeof(mock_udp_tx_buf));
@@ -1067,6 +1144,7 @@ void mock_port_reset(void)
     mock_udp_open_ok = true;
     mock_udp_multicast_join_ok = true;
     mock_udp_sendto_fail = false;
+    mock_udp_recv_fail = false;
 
     /* UART Mock */
     memset(mock_uart_rx_buf, 0, sizeof(mock_uart_rx_buf));
@@ -1075,6 +1153,10 @@ void mock_port_reset(void)
     memset(mock_uart_tx_buf, 0, sizeof(mock_uart_tx_buf));
     mock_uart_tx_len = 0;
     mock_uart_init_fail = false;
+    mock_uart_txe_irq_enabled = false;
+    mock_uart_tc_set = true;
+    mock_uart_tc_cb = NULL;
+    mock_uart_tc_ctx = NULL;
 
     /* Console serial mock */
     memset(mock_serial_tx_buf, 0, sizeof(mock_serial_tx_buf));
@@ -1093,12 +1175,14 @@ void mock_port_reset(void)
     mock_i2c_async_count = 0;
     mock_i2c_async_busy = false;
     mock_i2c_async_result = SYN_OK;
+    mock_i2c_last_xfer = NULL;
 #endif
 
 #if defined(SYN_USE_SPI_ASYNC) && SYN_USE_SPI_ASYNC
     mock_spi_async_count = 0;
     mock_spi_async_busy = false;
     mock_spi_async_result = SYN_OK;
+    mock_spi_last_xfer = NULL;
 #endif
 
 #if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
@@ -1106,7 +1190,11 @@ void mock_port_reset(void)
     memset(mock_spinlock_acquire_count, 0, sizeof(mock_spinlock_acquire_count));
     mock_core_id = 0;
     mock_ipc_notify_count = 0;
+#if defined(__GNUC__) || defined(__clang__)
+    __atomic_store_n(&mock_barrier_count, 0U, __ATOMIC_RELAXED);
+#else
     mock_barrier_count = 0;
+#endif
 #endif
 }
 
@@ -1126,8 +1214,14 @@ SYN_Status syn_port_dma_start(const SYN_PortDmaTransfer *xfer)
     mock_dma[xfer->channel_id].busy = true;
     mock_dma[xfer->channel_id].remaining = xfer->count;
     if (xfer->src && xfer->dst && xfer->count > 0) {
-        size_t total_bytes = xfer->count * (size_t)xfer->data_size;
-        memcpy(xfer->dst, (const void *)xfer->src, total_bytes);
+        size_t elem_bytes = (size_t)xfer->data_size;
+        const uint8_t *s = (const uint8_t *)xfer->src;
+        uint8_t *d = (uint8_t *)xfer->dst;
+        for (size_t i = 0; i < xfer->count; i++) {
+            const uint8_t *sp = xfer->src_inc ? (s + (i * elem_bytes)) : s;
+            uint8_t *dp = xfer->dst_inc ? (d + (i * elem_bytes)) : d;
+            memcpy(dp, sp, elem_bytes);
+        }
     }
     return SYN_OK;
 }
@@ -1162,10 +1256,13 @@ void syn_port_cache_clean(const void *addr, size_t len)
     (void)len;
 }
 
+uint32_t mock_cache_invalidate_count = 0U;
+
 void syn_port_cache_invalidate(void *addr, size_t len)
 {
     (void)addr;
     (void)len;
+    mock_cache_invalidate_count++;
 }
 
 void mock_dma_complete(uint8_t channel, SYN_Status result)
@@ -1186,7 +1283,6 @@ void mock_dma_complete(uint8_t channel, SYN_Status result)
 int mock_i2c_async_count = 0;
 bool mock_i2c_async_busy = false;
 SYN_Status mock_i2c_async_result = SYN_OK;
-static const SYN_I2C_Xfer *mock_i2c_last_xfer = NULL;
 
 SYN_Status syn_port_i2c_xfer_async(const SYN_I2C_Xfer *xfer)
 {
@@ -1231,7 +1327,6 @@ void mock_i2c_async_complete(void)
 int mock_spi_async_count = 0;
 bool mock_spi_async_busy = false;
 SYN_Status mock_spi_async_result = SYN_OK;
-static const SYN_SPI_Xfer *mock_spi_last_xfer = NULL;
 
 SYN_Status syn_port_spi_xfer_async(const SYN_SPI_Xfer *xfer)
 {
@@ -1319,7 +1414,13 @@ void syn_port_ipc_notify(void)
 
 void syn_port_memory_barrier(void)
 {
+#if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
+#if defined(__GNUC__) || defined(__clang__)
+    (void)__atomic_fetch_add(&mock_barrier_count, 1U, __ATOMIC_RELAXED);
+#else
     mock_barrier_count++;
+#endif
+#endif
 }
 
 /* ── USB HAL Stubs ─────────────────────────────────────────────────────── */
@@ -1379,9 +1480,13 @@ SYN_WEAK SYN_Status syn_port_usb_ep_read(uint8_t ep_addr, void *buf, uint16_t ma
     return SYN_BUSY;
 }
 
+uint32_t mock_usb_ep_stall_count = 0U;
+uint8_t mock_usb_last_stalled_ep = 0U;
+
 SYN_WEAK SYN_Status syn_port_usb_ep_stall(uint8_t ep_addr)
 {
-    (void)ep_addr;
+    mock_usb_ep_stall_count++;
+    mock_usb_last_stalled_ep = ep_addr;
     return SYN_OK;
 }
 

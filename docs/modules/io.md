@@ -97,8 +97,9 @@ Quadrature rotary encoder decoding with velocity tracking and direction calculat
 |---|---|
 | `syn_encoder_init()` | Initialize phase A & B GPIO pins |
 | `syn_encoder_update()` | Sample phase pins and update step counter |
-| `syn_encoder_get_value()` | Read relative step count |
-| `syn_encoder_get_velocity()` | Read rotational velocity |
+| `syn_encoder_get_delta()` | Read and reset relative step delta since last call |
+| `syn_encoder_position()` | Read accumulated absolute position |
+| `syn_encoder_set_stats()` | Attach `SYN_Signal` window for velocity tracking |
 
 ---
 
@@ -131,9 +132,10 @@ Enables software PWM output on any arbitrary GPIO pin without requiring hardware
 
 | Function | Description |
 |---|---|
-| `syn_soft_pwm_init()` | Initialize pin and frequency |
-| `syn_soft_pwm_set_duty()` | Set duty cycle (0–255 or 0–100%) |
-| `syn_soft_pwm_update()` | Service software PWM toggle loop |
+| `syn_soft_pwm_init()` | Initialize GPIO pin and period step resolution |
+| `syn_soft_pwm_set_duty()` | Set raw duty cycle (`0` to `resolution`) |
+| `syn_soft_pwm_set_percent()` | Set duty cycle percentage (`0` to `100`) |
+| `syn_soft_pwm_tick()` | Advance PWM phase by one timer tick |
 
 ---
 
@@ -145,9 +147,18 @@ Scanning matrix keypads ($3\times4$, $4\times4$) and capacitive touch sensor inp
 #include <syntropic/input/syn_keypad.h>
 #include <syntropic/input/syn_touch.h>
 
+static SYN_Keypad kp;
+static const SYN_GPIO_Pin row_pins[4] = {0, 1, 2, 3};
+static const SYN_GPIO_Pin col_pins[4] = {4, 5, 6, 7};
+
+void keypad_setup(void) {
+    syn_keypad_init(&kp, row_pins, 4, col_pins, 4, "123A456B789C*0#D");
+}
+
 void keypad_demo(void) {
-    char key = syn_keypad_scan();
-    if (key) {
+    syn_keypad_scan(&kp);
+    char key = '\0';
+    if (syn_keypad_get_key(&kp, &key)) {
         printf("Key Pressed: %c\n", key);
     }
 }
@@ -169,13 +180,19 @@ Non-blocking piezo buzzer melody/beep generator and WS2812 (NeoPixel) RGB LED bi
 #include <syntropic/output/syn_buzzer.h>
 #include <syntropic/output/syn_smartled.h>
 
+static SYN_Buzzer buz;
+static SYN_SmartLED strip;
+static SYN_SmartLEDColor pixels[8];
+
 void audio_visual_demo(void) {
-    // Play 1kHz beep for 100ms
-    syn_buzzer_beep(1000, 100);
+    syn_buzzer_init(&buz, 8, true);
+    syn_smartled_init(&strip, 9, 8, pixels, SYN_SMARTLED_ORDER_GRB);
+
+    // Play 1 kHz beep for 100 ms
+    syn_buzzer_beep(&buz, 1000, 100);
 
     // Set WS2812 LED 0 to Red
-    SYN_RGB color = {255, 0, 0};
-    syn_smartled_set(0, color);
+    syn_smartled_set_pixel_rgb(&strip, 0, 255, 0, 0);
 }
 ```
 

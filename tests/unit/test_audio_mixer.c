@@ -142,6 +142,46 @@ void test_audio_mixer_looping_and_stop(void)
     TEST_ASSERT_FALSE(g_mixer.channels[0].active);
 }
 
+void test_r5_audio_mixer_overflow_and_immediate_deactivation(void)
+{
+    syn_audio_mixer_init(&g_mixer);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_audio_mixer_set_master_volume(&g_mixer, 65535U));
+
+    int16_t pos_pcm[4] = {32767, 32767, 32767, 32767};
+    int16_t neg_pcm[4] = {-32768, -32768, -32768, -32768};
+    int16_t out[4] = {0};
+
+    for (uint8_t i = 0U; i < 4U; i++) {
+        TEST_ASSERT_EQUAL(SYN_OK, syn_audio_mixer_play(&g_mixer, i, pos_pcm, 4U, 65535U, false));
+    }
+
+    /* Render exact 4 samples: no 32-bit overflow, immediate channel deactivation on sample 4 */
+    TEST_ASSERT_EQUAL(4U, syn_audio_mixer_render(&g_mixer, out, 4U));
+    for (size_t i = 0U; i < 4U; i++) {
+        TEST_ASSERT_EQUAL_INT16(32767, out[i]);
+    }
+    for (uint8_t i = 0U; i < 4U; i++) {
+        TEST_ASSERT_FALSE(g_mixer.channels[i].active);
+    }
+
+    /* Negative full-scale multi-channel gain without 32-bit signed overflow */
+    for (uint8_t i = 0U; i < 4U; i++) {
+        TEST_ASSERT_EQUAL(SYN_OK, syn_audio_mixer_play(&g_mixer, i, neg_pcm, 4U, 65535U, false));
+    }
+    TEST_ASSERT_EQUAL(4U, syn_audio_mixer_render(&g_mixer, out, 4U));
+    for (size_t i = 0U; i < 4U; i++) {
+        TEST_ASSERT_EQUAL_INT16(-32768, out[i]);
+    }
+
+    /* Defensive out-of-bounds pos guard coverage */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_audio_mixer_play(&g_mixer, 0U, pos_pcm, 4U, 32768U, false));
+    g_mixer.channels[0].pos = 99U;
+    memset(out, 0, sizeof(out));
+    TEST_ASSERT_EQUAL(1U, syn_audio_mixer_render(&g_mixer, out, 1U));
+    TEST_ASSERT_EQUAL_INT16(0, out[0]);
+    TEST_ASSERT_FALSE(g_mixer.channels[0].active);
+}
+
 void run_audio_mixer_tests(void)
 {
     RUN_TEST(test_audio_mixer_init_and_null_checks);
@@ -150,4 +190,5 @@ void run_audio_mixer_tests(void)
     RUN_TEST(test_audio_mixer_multi_channel_mixing_and_gain);
     RUN_TEST(test_audio_mixer_saturation_clipping);
     RUN_TEST(test_audio_mixer_looping_and_stop);
+    RUN_TEST(test_r5_audio_mixer_overflow_and_immediate_deactivation);
 }

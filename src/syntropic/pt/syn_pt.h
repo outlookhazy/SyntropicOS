@@ -54,11 +54,11 @@
  *       case 0:
  *           // On resume, switch(pt->lc) jumps directly to case 12:
  *           pt->lc = 12; case 12:
- *           if (!(flag == 1)) return PT_WAITING;
+ *           if (!(flag == 1)) return PT_IDLE;
  *       }
  *       _pt_yield_flag = 0;
  *       PT_INIT(pt);
- *       return PT_EXITED;
+ *       return PT_ENDED;
  *   }
  * @endcode
  * @ingroup syn_sched
@@ -67,12 +67,26 @@
 #ifndef SYN_PT_H
 #define SYN_PT_H
 
+#include "../common/syn_barrier.h"
 #include "../common/syn_compiler.h"
 #include "../common/syn_defs.h"
+#include "../port/syn_port_system.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** @cond INTERNAL */
+#if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
+#define SYN_PT_STATE_BARRIER()     \
+    do {                           \
+        SYN_COMPILER_BARRIER();    \
+        syn_port_memory_barrier(); \
+    } while (0)
+#else
+#define SYN_PT_STATE_BARRIER() SYN_COMPILER_BARRIER()
+#endif
+/** @endcond */
 
 /* ── Protothread continuation ───────────────────────────────────────────── */
 
@@ -92,10 +106,10 @@ typedef struct {
  * @brief Return value from a protothread function.
  */
 typedef enum {
-    PT_WAITING = 0, /**< Thread is blocked (condition not yet met)  */
-    PT_YIELDED = 1, /**< Thread voluntarily yielded — call again    */
-    PT_EXITED = 2,  /**< Thread ran to PT_END — normal completion   */
-    PT_ENDED = 3,   /**< Thread was explicitly ended via PT_EXIT    */
+    PT_IDLE = 0,   /**< Nothing to do right now — let others run this round */
+    PT_MORE = 1,   /**< Completed a chunk of work and more work is waiting  */
+    PT_EXITED = 2, /**< Thread aborted early via PT_EXIT                    */
+    PT_ENDED = 3,  /**< Thread ran to PT_END — normal completion            */
 } SYN_PT_Status;
 
 /* ── Core macros ────────────────────────────────────────────────────────── */
@@ -120,14 +134,14 @@ typedef enum {
         case 0:
 
 /**
- * @brief Close a protothread body. Returns PT_EXITED and resets the
+ * @brief Close a protothread body. Returns PT_ENDED and resets the
  *        continuation so the thread can be restarted if desired.
  */
 #define PT_END(pt)      \
     }                   \
     _pt_yield_flag = 0; \
     PT_INIT(pt);        \
-    return PT_EXITED;   \
+    return PT_ENDED;    \
     }                   \
     while (0)
 
@@ -135,7 +149,7 @@ typedef enum {
  * @brief Block until @p cond evaluates to true.
  *
  * Each time the protothread is polled and @p cond is false, it returns
- * PT_WAITING and resumes at this point on the next call.
+ * PT_IDLE and resumes at this point on the next call.
  */
 #define PT_WAIT_UNTIL(pt, cond)                          \
     do {                                                 \
@@ -143,7 +157,7 @@ typedef enum {
         SYN_FALLTHROUGH; /* intentional Duff's device */ \
     case __LINE__:                                       \
         if (!(cond)) {                                   \
-            return PT_WAITING;                           \
+            return PT_IDLE;                              \
         }                                                \
     } while (0)
 
@@ -153,66 +167,63 @@ typedef enum {
 #define PT_WAIT_WHILE(pt, cond) PT_WAIT_UNTIL(pt, !(cond))
 
 /**
- * @brief Yield control unconditionally. The protothread will resume at
- *        this point on the next call.
+ * @brief Pass the remainder of this scheduler round with PT_IDLE.
+ *
+ * Signals that the protothread has no immediate work right now so other
+ * ready tasks (including lower priorities) can run this round.
  */
-#define PT_YIELD(pt)               \
+#define PT_PASS(pt)                \
     do {                           \
         _pt_yield_flag = 0;        \
         (pt)->lc = __LINE__;       \
         SYN_FALLTHROUGH;           \
     case __LINE__:                 \
         if (_pt_yield_flag == 0) { \
-            return PT_YIELDED;     \
+            return PT_IDLE;        \
         }                          \
     } while (0)
 
 /**
- * @brief Yield while @p cond is true.
+ * @brief Yield after completing a work chunk with PT_MORE.
  *
- * Like PT_WAIT_WHILE, but returns PT_YIELDED instead of PT_WAITING,
- * signaling the scheduler that this thread actively wants to run.
- *
- * @warning Priority starvation hazard: A high-priority task using
- * PT_YIELD_UNTIL to wait for a resource held by a lower-priority task
- * will spin-yield every tick, starving the lower-priority task from
- * ever releasing the resource. Use PT_WAIT_UNTIL(pt, cond) for inter-task
- * resource contention, and reserve PT_YIELD_UNTIL for sub-tick hardware
- * polling only.
+ * Signals that the protothread actively has more work remaining and should
+ * remain in the scheduler's Work tier.
  */
-#define PT_YIELD_UNTIL(pt, cond)                \
-    do {                                        \
-        _pt_yield_flag = 0;                     \
-        (pt)->lc = __LINE__;                    \
-        SYN_FALLTHROUGH;                        \
-    case __LINE__:                              \
-        if ((_pt_yield_flag == 0) || !(cond)) { \
-            return PT_YIELDED;                  \
-        }                                       \
+#define PT_CONTINUE(pt)            \
+    do {                           \
+        _pt_yield_flag = 0;        \
+        (pt)->lc = __LINE__;       \
+        SYN_FALLTHROUGH;           \
+    case __LINE__:                 \
+        if (_pt_yield_flag == 0) { \
+            return PT_MORE;        \
+        }                          \
     } while (0)
 
 /**
- * @brief Terminate the protothread immediately.
+ * @brief Abort the protothread immediately and return PT_EXITED.
  */
-#define PT_EXIT(pt)      \
-    do {                 \
-        PT_INIT(pt);     \
-        return PT_ENDED; \
+#define PT_EXIT(pt)       \
+    do {                  \
+        PT_INIT(pt);      \
+        return PT_EXITED; \
     } while (0)
 
 /**
  * @brief Reset the protothread and restart from PT_BEGIN on next call.
  */
-#define PT_RESTART(pt)     \
-    do {                   \
-        PT_INIT(pt);       \
-        return PT_WAITING; \
+#define PT_RESTART(pt)  \
+    do {                \
+        PT_INIT(pt);    \
+        return PT_IDLE; \
     } while (0)
 
 /* ── Child / sub-protothread ────────────────────────────────────────────── */
 
 /**
  * @brief Spawn a child protothread and block until it exits.
+ *
+ * Propagates the child's PT_IDLE or PT_MORE status verbatim while running.
  *
  * @param pt      Parent protothread.
  * @param child   Child protothread (SYN_PT struct).
@@ -230,15 +241,17 @@ typedef enum {
  *   PT_SPAWN(pt, &child_pt, child_func(&child_pt));
  * @endcode
  */
-#define PT_SPAWN(pt, child, func) \
-    do {                          \
-        PT_INIT(child);           \
-        (pt)->lc = __LINE__;      \
-        SYN_FALLTHROUGH;          \
-    case __LINE__:                \
-        if ((func) < PT_EXITED) { \
-            return PT_WAITING;    \
-        }                         \
+#define PT_SPAWN(pt, child, func)            \
+    do {                                     \
+        PT_INIT(child);                      \
+        (pt)->lc = __LINE__;                 \
+        SYN_FALLTHROUGH;                     \
+    case __LINE__: {                         \
+        SYN_PT_Status _pt_child_st = (func); \
+        if (_pt_child_st < PT_EXITED) {      \
+            return _pt_child_st;             \
+        }                                    \
+    }                                        \
     } while (0)
 
 /* ── Timer-aware delay (requires task descriptor) ───────────────────────── */
@@ -251,6 +264,45 @@ typedef enum {
  */
 
 /**
+ * @brief Internal helper: single-evaluation, INT32_MAX-clamped millisecond deadline arming.
+ * @param target Pointer to deadline storage variable.
+ * @param now    Current millisecond tick counter.
+ * @param ms     Requested delay in milliseconds.
+ * @return true if a non-zero deadline was armed, false if @p ms is 0.
+ */
+static inline bool syn_pt_arm_ms_deadline(uint32_t *target, uint32_t now, uint32_t ms)
+{
+    if (ms == 0U) {
+        return false;
+    }
+    uint32_t clamped = (ms > 0x7FFFFFFFU) ? 0x7FFFFFFFU : ms;
+    uint32_t dl = now + clamped;
+    if (dl == 0U) {
+        /* Avoid 0 sentinel; nudge backward at INT32_MAX so (dl - now) stays positive */
+        dl = (clamped == 0x7FFFFFFFU) ? 0xFFFFFFFFU : 1U;
+    }
+    *target = dl;
+    return true;
+}
+
+/**
+ * @brief Internal helper: single-evaluation, INT32_MAX-clamped microsecond deadline arming.
+ * @param target Pointer to deadline storage variable.
+ * @param now    Current microsecond tick counter.
+ * @param us     Requested delay in microseconds.
+ * @return true if a non-zero deadline was armed, false if @p us is 0.
+ */
+static inline bool syn_pt_arm_us_deadline(uint32_t *target, uint32_t now, uint32_t us)
+{
+    if (us == 0U) {
+        return false;
+    }
+    uint32_t clamped = (us > 0x7FFFFFFFU) ? 0x7FFFFFFFU : us;
+    *target = now + clamped;
+    return true;
+}
+
+/**
  * @brief Non-blocking delay for @p ms milliseconds.
  *
  * Requires a `uint32_t` variable to store the deadline. When used with
@@ -261,21 +313,22 @@ typedef enum {
  *       sentinel) once the delay completes. A deadline left in place
  *       would read as "in the future" again after the tick counter
  *       advances 2^31 ms (~24.8 days) past it, freezing the task. A
- *       computed deadline of exactly 0 (tick wrap) is nudged to 1 so it
- *       cannot alias the sentinel.
+ *       computed deadline of exactly 0 (tick wrap) is nudged to 1 (or
+ *       0xFFFFFFFF when clamped == INT32_MAX) so it cannot alias the
+ *       sentinel while keeping `(int32_t)(dl - now) > 0`. Durations
+ *       exceeding INT32_MAX ms are clamped to INT32_MAX ms, and @p ms
+ *       is evaluated exactly once.
  *
  * @param pt       Protothread.
  * @param target   Pointer to a uint32_t that will hold the deadline tick.
  * @param ms       Delay duration in milliseconds.
  */
-#define PT_DELAY_MS(pt, target, ms)                                            \
-    do {                                                                       \
-        *(target) = syn_port_get_tick_ms() + (uint32_t)(ms);                   \
-        if (*(target) == 0) {                                                  \
-            *(target) = 1; /* 0 is the "no deadline" sentinel */               \
-        }                                                                      \
-        PT_WAIT_UNTIL(pt, (int32_t)(syn_port_get_tick_ms() - *(target)) >= 0); \
-        *(target) = 0; /* consume — stale deadlines wrap to "future" */        \
+#define PT_DELAY_MS(pt, target, ms)                                                     \
+    do {                                                                                \
+        if (syn_pt_arm_ms_deadline((target), syn_port_get_tick_ms(), (uint32_t)(ms))) { \
+            PT_WAIT_UNTIL(pt, (int32_t)(syn_port_get_tick_ms() - *(target)) >= 0);      \
+            *(target) = 0U; /* consume — stale deadlines wrap to "future" */            \
+        }                                                                               \
     } while (0)
 
 /**
@@ -297,30 +350,11 @@ typedef enum {
  * @param target   Pointer to a uint32_t variable holding the microsecond deadline.
  * @param us       Delay duration in microseconds.
  */
-#define PT_DELAY_US(pt, target, us)                                            \
-    do {                                                                       \
-        *(target) = syn_port_get_tick_us() + (uint32_t)(us);                   \
-        PT_WAIT_UNTIL(pt, (int32_t)(syn_port_get_tick_us() - *(target)) >= 0); \
-    } while (0)
-
-/**
- * @brief Defer to all ready tasks, regardless of priority.
- *
- * Unlike PT_YIELD (which only round-robins among equal-priority tasks),
- * this macro allows any lower-priority ready task to run before this
- * task is scheduled again. The task is skipped for exactly one
- * scheduler pass.
- *
- * Use this when a high-priority task has no immediate work but doesn't
- * want to commit to a timed delay.
- *
- * @param pt    Protothread.
- * @param task  Pointer to the SYN_Task struct.
- */
-#define PT_DEFER(pt, task)                          \
-    do {                                            \
-        (task)->state = (uint8_t)SYN_TASK_DEFERRED; \
-        PT_YIELD(pt);                               \
+#define PT_DELAY_US(pt, target, us)                                                     \
+    do {                                                                                \
+        if (syn_pt_arm_us_deadline((target), syn_port_get_tick_us(), (uint32_t)(us))) { \
+            PT_WAIT_UNTIL(pt, (int32_t)(syn_port_get_tick_us() - *(target)) >= 0);      \
+        }                                                                               \
     } while (0)
 
 /**
@@ -331,28 +365,31 @@ typedef enum {
  * entirely until the event fires, saving CPU and enabling proper
  * tickless sleep.
  *
- * Matched flags are auto-cleared after the task resumes.
- *
- * @note The clear runs after PT_YIELD returns (i.e. after the scheduler
- *       has already detected the flags during its scan), so it is safe
- *       for the scheduler to use the flags as a wakeup condition.
+ * Matched flags are atomically captured and auto-cleared when the scheduler
+ * dispatches the woken task.
  *
  * @param pt    Protothread.
  * @param task  Pointer to the SYN_Task struct.
  * @param grp   Pointer to SYN_EventGroup.
  * @param mask  Bitmask of event flags to wait for (any of them).
  */
-#define PT_BLOCK_EVENT(pt, task, grp, mask)                                   \
-    do {                                                                      \
-        (task)->wait_event = (SYN_EventFlags *)(grp);                         \
-        (task)->wait_mask = (mask);                                           \
-        (task)->state = (uint8_t)SYN_TASK_BLOCKED;                            \
-        PT_YIELD(pt);                                                         \
-        uint32_t _syn_evt_matched = (task)->wait_mask;                        \
-        if (_syn_evt_matched != 0) {                                          \
-            syn_event_flags_clear((SYN_EventFlags *)(grp), _syn_evt_matched); \
-        }                                                                     \
-        (task)->wait_mask = 0;                                                \
+#define PT_BLOCK_EVENT(pt, task, grp, mask)                 \
+    do {                                                    \
+        syn_port_enter_critical();                          \
+        (task)->wait_event = (SYN_EventFlags *)(grp);       \
+        (task)->wait_mask = (mask);                         \
+        SYN_PT_STATE_BARRIER();                             \
+        syn_port_exit_critical();                           \
+        while ((task)->wait_event != NULL) {                \
+            syn_port_enter_critical();                      \
+            if ((task)->state == (uint8_t)SYN_TASK_READY) { \
+                (task)->state = (uint8_t)SYN_TASK_BLOCKED;  \
+                SYN_PT_STATE_BARRIER();                     \
+            }                                               \
+            syn_port_exit_critical();                       \
+            PT_PASS(pt);                                    \
+        }                                                   \
+        (task)->wait_mask = 0U;                             \
     } while (0)
 
 /**
@@ -373,25 +410,44 @@ typedef enum {
  * @param timeout_ms  Timeout duration in milliseconds.
  * @param out_flags   Pointer to uint32_t receiving matched flags (or 0 on timeout).
  */
-#define PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, grp, mask, timeout_ms, out_flags) \
-    do {                                                                        \
-        (task)->wait_event = (SYN_EventFlags *)(grp);                           \
-        (task)->wait_mask = (mask);                                             \
-        (task)->delay_until = syn_port_get_tick_ms() + (uint32_t)(timeout_ms);  \
-        if ((task)->delay_until == 0) {                                         \
-            (task)->delay_until = 1; /* 0 is the no-deadline sentinel */        \
-        }                                                                       \
-        (task)->state = (uint8_t)SYN_TASK_BLOCKED;                              \
-        PT_YIELD(pt);                                                           \
-        (task)->delay_until = 0;                                                \
-        uint32_t _syn_evt_matched = (task)->wait_mask;                          \
-        if ((out_flags) != NULL) {                                              \
-            *(out_flags) = _syn_evt_matched;                                    \
-        }                                                                       \
-        if (_syn_evt_matched != 0) {                                            \
-            syn_event_flags_clear((SYN_EventFlags *)(grp), _syn_evt_matched);   \
-        }                                                                       \
-        (task)->wait_mask = 0;                                                  \
+#define PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, grp, mask, timeout_ms, out_flags)   \
+    do {                                                                          \
+        syn_port_enter_critical();                                                \
+        if (!syn_pt_arm_ms_deadline(&(task)->delay_until, syn_port_get_tick_ms(), \
+                                    (uint32_t)(timeout_ms))) {                    \
+            syn_port_exit_critical();                                             \
+            uint32_t _syn_evt_imm = 0U;                                           \
+            uint32_t *_syn_ef_out = (out_flags);                                  \
+            (void)syn_event_flags_wait((SYN_EventFlags *)(grp), (mask),           \
+                                       (uint32_t)SYN_EVENT_FLAGS_WAIT_ANY |       \
+                                           (uint32_t)SYN_EVENT_FLAGS_AUTO_CLEAR,  \
+                                       &_syn_evt_imm);                            \
+            if (_syn_ef_out != NULL) {                                            \
+                *_syn_ef_out = _syn_evt_imm;                                      \
+            }                                                                     \
+        } else {                                                                  \
+            (task)->wait_event = (SYN_EventFlags *)(grp);                         \
+            (task)->wait_mask = (mask);                                           \
+            SYN_PT_STATE_BARRIER();                                               \
+            syn_port_exit_critical();                                             \
+            while ((task)->wait_event != NULL) {                                  \
+                syn_port_enter_critical();                                        \
+                if ((task)->state == (uint8_t)SYN_TASK_READY) {                   \
+                    (task)->state = (uint8_t)SYN_TASK_BLOCKED;                    \
+                    SYN_PT_STATE_BARRIER();                                       \
+                }                                                                 \
+                syn_port_exit_critical();                                         \
+                PT_PASS(pt);                                                      \
+            }                                                                     \
+            (task)->delay_until = 0U;                                             \
+            {                                                                     \
+                uint32_t *_syn_ef_out = (out_flags);                              \
+                if (_syn_ef_out != NULL) {                                        \
+                    *_syn_ef_out = (task)->wait_mask;                             \
+                }                                                                 \
+            }                                                                     \
+            (task)->wait_mask = 0U;                                               \
+        }                                                                         \
     } while (0)
 
 /**
@@ -409,16 +465,25 @@ typedef enum {
  * @param task  Pointer to the SYN_Task struct.
  * @param cond  Boolean condition expression to evaluate.
  */
-#define PT_BLOCK_CONDITION(pt, task, cond)               \
-    do {                                                 \
-        while (1) {                                      \
-            (task)->state = (uint8_t)SYN_TASK_BLOCKED;   \
-            if (cond) {                                  \
-                (task)->state = (uint8_t)SYN_TASK_READY; \
-                break;                                   \
-            }                                            \
-            PT_YIELD(pt);                                \
-        }                                                \
+#define PT_BLOCK_CONDITION(pt, task, cond)                        \
+    do {                                                          \
+        while (1) {                                               \
+            syn_port_enter_critical();                            \
+            if ((task)->state == (uint8_t)SYN_TASK_READY) {       \
+                (task)->state = (uint8_t)SYN_TASK_BLOCKED;        \
+                SYN_PT_STATE_BARRIER();                           \
+            }                                                     \
+            syn_port_exit_critical();                             \
+            if (cond) {                                           \
+                syn_port_enter_critical();                        \
+                if ((task)->state == (uint8_t)SYN_TASK_BLOCKED) { \
+                    (task)->state = (uint8_t)SYN_TASK_READY;      \
+                }                                                 \
+                syn_port_exit_critical();                         \
+                break;                                            \
+            }                                                     \
+            PT_PASS(pt);                                          \
+        }                                                         \
     } while (0)
 
 /* ── Query macros ───────────────────────────────────────────────────────── */

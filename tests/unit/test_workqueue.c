@@ -103,10 +103,44 @@ static void test_workqueue_null_func_popped(void)
     TEST_ASSERT_EQUAL_size_t(0, syn_workqueue_process(&wq));
 }
 
+static int g_repost_exec_count = 0;
+
+static void wq_self_repost_handler(void *ctx)
+{
+    SYN_WorkQueue *wq = (SYN_WorkQueue *)ctx;
+    g_repost_exec_count++;
+    (void)syn_workqueue_post(wq, wq_self_repost_handler, wq);
+}
+
+static void test_workqueue_self_repost_bounded_budget(void)
+{
+    SYN_WorkItem items[4];
+    SYN_WorkQueue wq;
+    syn_workqueue_init(&wq, items, 4);
+
+    g_repost_exec_count = 0;
+    TEST_ASSERT_TRUE(syn_workqueue_post(&wq, wq_self_repost_handler, &wq));
+    TEST_ASSERT_TRUE(syn_workqueue_post(&wq, wq_self_repost_handler, &wq));
+    TEST_ASSERT_EQUAL_size_t(2U, syn_workqueue_pending(&wq));
+
+    /* Single process call executes only initial budget (2), preventing infinite self-repost loop */
+    size_t processed = syn_workqueue_process(&wq);
+    TEST_ASSERT_EQUAL_size_t(2U, processed);
+    TEST_ASSERT_EQUAL_INT(2, g_repost_exec_count);
+    TEST_ASSERT_EQUAL_size_t(2U, syn_workqueue_pending(&wq));
+
+    /* Second process call drains the 2 reposted items under a fresh budget of 2 */
+    processed = syn_workqueue_process(&wq);
+    TEST_ASSERT_EQUAL_size_t(2U, processed);
+    TEST_ASSERT_EQUAL_INT(4, g_repost_exec_count);
+    TEST_ASSERT_EQUAL_size_t(2U, syn_workqueue_pending(&wq));
+}
+
 void run_workqueue_tests(void)
 {
     RUN_TEST(test_workqueue);
     RUN_TEST(test_workqueue_null_params);
     RUN_TEST(test_workqueue_null_context);
     RUN_TEST(test_workqueue_null_func_popped);
+    RUN_TEST(test_workqueue_self_repost_bounded_budget);
 }

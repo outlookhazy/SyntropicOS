@@ -120,56 +120,123 @@ int32_t syn_signal_max(SYN_Signal *sig)
 
 /* ── Variance ───────────────────────────────────────────────────────────── */
 
+/**
+ * @brief Accumulate one unsigned squared magnitude into running (quotient, remainder) mod count.
+ * @param sq    Squared sample or deviation magnitude.
+ * @param n     Total sample count (must be > 0).
+ * @param q_io  [in,out] Running integer quotient of sum(sq) / n.
+ * @param r_io  [in,out] Running remainder of sum(sq) % n (always < n).
+ */
+static void signal_accum_mean_sq(uint64_t sq, uint64_t n, uint64_t *q_io, uint64_t *r_io)
+{
+    *q_io += sq / n;
+    uint64_t sq_rem = sq % n;
+    if ((n - *r_io) <= sq_rem) {
+        (*q_io)++;
+        *r_io = sq_rem - (n - *r_io);
+    } else {
+        *r_io += sq_rem;
+    }
+}
+
+/**
+ * @brief Convert exact (whole, rem) of sum_sq / count into clamped Q16.16 mean square value.
+ * @param whole Integer part of sum_sq / count.
+ * @param rem   Remainder part of sum_sq % count.
+ * @param n     Sample count (must be > 0).
+ * @return Mean square value in Q16.16 format, clamped to INT32_MAX.
+ */
+static int32_t signal_mean_sq_parts_to_q16(uint64_t whole, uint64_t rem, uint64_t n)
+{
+    if (whole >= 32768ULL) {
+        return INT32_MAX;
+    }
+    return (int32_t)((whole << 16U) + ((rem << 16U) / n));
+}
+
+/**
+ * @brief Compute exact (whole, rem) of mean squared samples across active window without overflow.
+ * @param sig       Signal instance (count > 0).
+ * @param out_whole Output integer part of mean square.
+ * @param out_rem   Output remainder part of mean square mod count.
+ */
+static void signal_mean_sq_parts(const SYN_Signal *sig, uint64_t *out_whole, uint64_t *out_rem)
+{
+    uint64_t q = 0ULL;
+    uint64_t r = 0ULL;
+    uint64_t n = (uint64_t)sig->count;
+    size_t start = (sig->count < sig->capacity) ? 0U : sig->head;
+
+    for (size_t i = 0U; i < sig->count; i++) {
+        size_t idx = (start + i) % sig->capacity;
+        int64_t v = (int64_t)sig->buf[idx];
+        uint64_t mag = (v < 0) ? (uint64_t)(-v) : (uint64_t)v;
+        signal_accum_mean_sq(mag * mag, n, &q, &r);
+    }
+    *out_whole = q;
+    *out_rem = r;
+}
+
+/**
+ * @brief Compute unsaturated RMS value of active window in unsigned Q16.16 format.
+ * @param sig Signal instance.
+ * @return Unsigned 64-bit Q16.16 RMS value, or 0 if window is empty.
+ */
+static uint64_t signal_rms_q16_u64(const SYN_Signal *sig)
+{
+    if (sig->count == 0U) {
+        return 0ULL;
+    }
+
+    uint64_t whole = 0ULL;
+    uint64_t rem = 0ULL;
+    uint64_t n = (uint64_t)sig->count;
+    signal_mean_sq_parts(sig, &whole, &rem);
+    if (whole >= (1ULL << 30U)) {
+        return syn_isqrt64(whole) << 16U;
+    }
+    uint64_t mean_sq_q32 = (whole << 32U) + ((rem << 32U) / n);
+    return syn_isqrt64(mean_sq_q32);
+}
+
 int32_t syn_signal_variance_q16(const SYN_Signal *sig)
 {
-    if (sig->count < 2)
+    if (sig->count < 2U) {
         return 0;
-
-    int32_t mean = (int32_t)(sig->sum / (int64_t)sig->count);
-
-    int64_t sum_sq = 0;
-    size_t start;
-    if (sig->count < sig->capacity) {
-        start = 0;
-    } else {
-        start = sig->head;
     }
 
-    size_t i;
-    for (i = 0; i < sig->count; i++) {
+    int64_t mean = sig->sum / (int64_t)sig->count;
+    uint64_t q = 0ULL;
+    uint64_t r = 0ULL;
+    uint64_t n = (uint64_t)sig->count;
+    size_t start = (sig->count < sig->capacity) ? 0U : sig->head;
+
+    for (size_t i = 0U; i < sig->count; i++) {
         size_t idx = (start + i) % sig->capacity;
         int64_t diff = (int64_t)sig->buf[idx] - mean;
-        sum_sq += diff * diff;
+        uint64_t mag = (diff < 0) ? (uint64_t)(-diff) : (uint64_t)diff;
+        signal_accum_mean_sq(mag * mag, n, &q, &r);
     }
 
-    /* Variance in Q16.16: (sum_sq << 16) / N */
-    int64_t var_q16 = (sum_sq << 16) / (int64_t)sig->count;
-
-    /* Clamp to int32_t range */
-    if (var_q16 > INT32_MAX)
-        return INT32_MAX; /* LCOV_EXCL_LINE: Q16 variance saturation guard for extreme signal values
-                           */
-    if (var_q16 < INT32_MIN)
-        return INT32_MIN; /* LCOV_EXCL_LINE: Q16 variance saturation guard for extreme negative
-                             values */
-
-    return (int32_t)var_q16;
+    return signal_mean_sq_parts_to_q16(q, r, n);
 }
 
 /* ── Access helpers ─────────────────────────────────────────────────────── */
 
 int32_t syn_signal_latest(const SYN_Signal *sig)
 {
-    if (sig->count == 0)
+    if (sig->count == 0) {
         return 0;
+    }
     size_t idx = (sig->head == 0) ? sig->capacity - 1 : sig->head - 1;
     return sig->buf[idx];
 }
 
 int32_t syn_signal_at(const SYN_Signal *sig, size_t index)
 {
-    if (index >= sig->count)
+    if (index >= sig->count) {
         return 0;
+    }
 
     size_t start;
     if (sig->count < sig->capacity) {
@@ -184,97 +251,72 @@ int32_t syn_signal_at(const SYN_Signal *sig, size_t index)
 
 int32_t syn_signal_delta(const SYN_Signal *sig)
 {
-    if (sig->count < 2)
+    if (sig->count < 2U) {
         return 0;
+    }
 
-    size_t latest_idx = (sig->head == 0) ? sig->capacity - 1 : sig->head - 1;
-    size_t prev_idx = (latest_idx == 0) ? sig->capacity - 1 : latest_idx - 1;
+    size_t latest_idx = (sig->head == 0U) ? sig->capacity - 1U : sig->head - 1U;
+    size_t prev_idx = (latest_idx == 0U) ? sig->capacity - 1U : latest_idx - 1U;
+    int64_t diff = (int64_t)sig->buf[latest_idx] - (int64_t)sig->buf[prev_idx];
 
-    return sig->buf[latest_idx] - sig->buf[prev_idx];
+    if (diff > (int64_t)INT32_MAX) {
+        return INT32_MAX;
+    }
+    if (diff < (int64_t)INT32_MIN) {
+        return INT32_MIN;
+    }
+    return (int32_t)diff;
 }
 
 /* ── RMS & Standard Deviation ──────────────────────────────────────────── */
 
 int32_t syn_signal_rms_q16(const SYN_Signal *sig)
 {
-    if (sig->count == 0)
-        return 0;
-
-    /* RMS = sqrt( sum(x^2) / N )
-     * Accumulate x^2 in 64-bit, then divide by N, shift to Q16, sqrt. */
-    int64_t sum_sq = 0;
-    size_t start;
-    if (sig->count < sig->capacity) {
-        start = 0;
-    } else {
-        start = sig->head;
+    uint64_t rms = signal_rms_q16_u64(sig);
+    if (rms > (uint64_t)INT32_MAX) {
+        return INT32_MAX;
     }
-
-    size_t i;
-    for (i = 0; i < sig->count; i++) {
-        size_t idx = (start + i) % sig->capacity;
-        int64_t v = (int64_t)sig->buf[idx];
-        sum_sq += v * v;
-    }
-
-    /* mean_sq = sum_sq / N, then convert to Q16.16 */
-    int64_t mean_sq_q16 = (sum_sq << 16) / (int64_t)sig->count;
-
-    /* Clamp to int32_t range for q16_sqrt input */
-    if (mean_sq_q16 > INT32_MAX)
-        mean_sq_q16 = INT32_MAX; /* LCOV_EXCL_LINE: Q16 RMS mean-square saturation guard */
-
-    return q16_sqrt((q16_t)mean_sq_q16);
+    return (int32_t)rms;
 }
 
 int32_t syn_signal_std_dev_q16(const SYN_Signal *sig)
 {
     int32_t var = syn_signal_variance_q16(sig);
-    if (var <= 0)
+    if (var <= 0) {
         return 0;
+    }
     return q16_sqrt(var);
 }
 
 int32_t syn_signal_power_q16(const SYN_Signal *sig)
 {
-    if (sig->count == 0)
+    if (sig->count == 0U) {
         return 0;
-
-    int64_t sum_sq = 0;
-    size_t start = (sig->count < sig->capacity) ? 0 : sig->head;
-
-    size_t i;
-    for (i = 0; i < sig->count; i++) {
-        size_t idx = (start + i) % sig->capacity;
-        int64_t v = (int64_t)sig->buf[idx];
-        sum_sq += v * v;
     }
 
-    int64_t mean_sq_q16 = (sum_sq << 16) / (int64_t)sig->count;
-    if (mean_sq_q16 > INT32_MAX)
-        return INT32_MAX; /* LCOV_EXCL_LINE: Q16 power mean-square saturation guard */
-
-    return (int32_t)mean_sq_q16;
+    uint64_t whole = 0ULL;
+    uint64_t rem = 0ULL;
+    signal_mean_sq_parts(sig, &whole, &rem);
+    return signal_mean_sq_parts_to_q16(whole, rem, (uint64_t)sig->count);
 }
 
 int32_t syn_signal_crest_factor_q16(SYN_Signal *sig)
 {
-    int32_t rms = syn_signal_rms_q16(sig);
-    if (rms <= 0)
+    uint64_t rms = signal_rms_q16_u64(sig);
+    if (rms == 0ULL) {
         return 0;
+    }
 
-    int32_t peak = syn_signal_max(sig);
-    int32_t min_v = syn_signal_min(sig);
-    if (-min_v > peak)
-        peak = -min_v;
+    int64_t max_v = (int64_t)syn_signal_max(sig);
+    int64_t min_v = (int64_t)syn_signal_min(sig);
+    uint64_t peak = (max_v > 0) ? (uint64_t)max_v : 0ULL;
+    uint64_t min_mag = (min_v < 0) ? (uint64_t)(-min_v) : 0ULL;
+    if (min_mag > peak) {
+        peak = min_mag;
+    }
 
-    int64_t peak_q16 = (int64_t)peak * 65536LL;
-    int64_t cf_q16 = (peak_q16 * 65536LL) / (int64_t)rms;
-
-    if (cf_q16 > INT32_MAX)
-        return INT32_MAX; /* LCOV_EXCL_LINE: Q16 crest factor saturation guard */
-
-    return (int32_t)cf_q16;
+    uint64_t cf_q16 = (peak << 32U) / rms;
+    return (cf_q16 > (uint64_t)INT32_MAX) ? INT32_MAX : (int32_t)cf_q16;
 }
 
 #endif /* SYN_USE_SIGNAL */

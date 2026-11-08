@@ -17,15 +17,15 @@
 #ifndef SYN_MSP_H
 #define SYN_MSP_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SYN_MSP_MAX_PAYLOAD 64U /**< Maximum MSP v1 payload byte length */
 #define SYN_MSP_HEADER_CHAR '$' /**< MSP preamble start character '$' */

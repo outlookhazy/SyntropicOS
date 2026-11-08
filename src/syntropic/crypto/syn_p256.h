@@ -12,6 +12,16 @@
 
 #include "../common/syn_defs.h"
 
+#if !defined(SYN_USE_P256) || SYN_USE_P256
+/** @brief Non-zero when NIST P-256 module is enabled. */
+#define SYN_P256_ENABLED 1
+#else
+/** @brief Non-zero when NIST P-256 module is enabled. */
+#define SYN_P256_ENABLED 0
+#endif
+
+#if SYN_P256_ENABLED
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -129,5 +139,7 @@ bool syn_p256_is_on_curve(const uint8_t px[SYN_P256_BYTE_LEN], const uint8_t py[
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* SYN_P256_ENABLED */
 
 #endif /* SYN_P256_H */

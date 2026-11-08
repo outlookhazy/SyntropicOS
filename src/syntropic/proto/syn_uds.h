@@ -10,6 +10,8 @@
 #ifndef SYN_UDS_H
 #define SYN_UDS_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -434,6 +436,7 @@ typedef struct {
     uint32_t security_delay_timer_ms; /**< Security delay penalty timer in ms */
     SYN_UDS_CommControlType comm_control_state;   /**< CommunicationControl state */
     uint8_t comm_type;                            /**< Communication type byte */
+    bool dtc_setting_enabled;                     /**< True when DTC status updates are enabled */
     SYN_UDS_CommControlHandler comm_control_cb;   /**< CommunicationControl callback */
     void *comm_control_ctx;                       /**< CommunicationControl context pointer */
     uint16_t p2_max_ms;                           /**< Default P2Server_max timing (ms). */

@@ -49,6 +49,46 @@ SYN_Status syn_ble_gap_set_adv_enable(SYN_BLE_GAP *gap, bool enable, uint8_t *tx
     return syn_ble_hci_encode_command(SYN_BLE_HCI_OP_LE_SET_ADV_ENABLE, &param, 1U, tx_buf, tx_len);
 }
 
+/**
+ * @brief Validate and dispatch LE Advertising Report subevent.
+ * @param gap GAP context handle.
+ * @param payload LE Meta event payload.
+ * @param len Total LE Meta event payload length.
+ * @return SYN_OK on success, SYN_ERROR on malformed report length.
+ */
+static SYN_Status gap_process_adv_report(SYN_BLE_GAP *gap, const uint8_t *payload, uint8_t len)
+{
+    if (len < 11U) {
+        return SYN_ERROR;
+    }
+
+    uint8_t num_reports = payload[1];
+    if (num_reports == 0U) {
+        return SYN_OK;
+    }
+
+    uint8_t data_len = payload[10];
+    if (data_len > 31U || (11U + (size_t)data_len) > (size_t)len) {
+        return SYN_ERROR;
+    }
+
+    if (gap->evt_cb != NULL) {
+        SYN_BLE_GAP_AdvReport report;
+        memset(&report, 0, sizeof(report));
+        report.evt_type = payload[2];
+        report.addr_type = payload[3];
+        memcpy(report.addr, &payload[4], 6U);
+        report.data_len = data_len;
+        report.data = (data_len > 0U) ? &payload[11] : NULL;
+        if ((11U + (size_t)data_len) < (size_t)len) {
+            report.rssi = (int8_t)payload[11U + (size_t)data_len];
+        }
+        gap->evt_cb(gap, SYN_BLE_GAP_EVT_ADV_REPORT, &report, gap->user_data);
+    }
+
+    return SYN_OK;
+}
+
 SYN_Status syn_ble_gap_process_hci_evt(SYN_BLE_GAP *gap, uint8_t evt_code, const uint8_t *payload,
                                        uint8_t len)
 {
@@ -58,7 +98,8 @@ SYN_Status syn_ble_gap_process_hci_evt(SYN_BLE_GAP *gap, uint8_t evt_code, const
 
     if (evt_code == SYN_BLE_HCI_EVT_DISCONN_COMPLETE && len >= 4U) {
         uint8_t status = payload[0];
-        uint16_t conn_handle = (uint16_t)(payload[1] | (payload[2] << 8U));
+        uint16_t conn_handle =
+            (uint16_t)((uint16_t)payload[1] | (uint16_t)((uint16_t)payload[2] << 8U));
 
         if (status == 0x00U && gap->evt_cb != NULL) {
             SYN_BLE_GAP_ConnInfo info;
@@ -72,30 +113,21 @@ SYN_Status syn_ble_gap_process_hci_evt(SYN_BLE_GAP *gap, uint8_t evt_code, const
             uint8_t status = payload[1];
             if (status == 0x00U && gap->evt_cb != NULL) {
                 SYN_BLE_GAP_ConnInfo info;
-                info.conn_handle = (uint16_t)(payload[2] | (payload[3] << 8U));
+                memset(&info, 0, sizeof(info));
+                info.conn_handle =
+                    (uint16_t)((uint16_t)payload[2] | (uint16_t)((uint16_t)payload[3] << 8U));
                 info.peer_addr_type = payload[5];
-                memcpy(info.peer_addr, &payload[6], 6);
-                info.conn_interval = (uint16_t)(payload[12] | (payload[13] << 8U));
-                info.conn_latency = (uint16_t)(payload[14] | (payload[15] << 8U));
-                info.supervision_timeout = (uint16_t)(payload[16] | (payload[17] << 8U));
+                memcpy(info.peer_addr, &payload[6], 6U);
+                info.conn_interval =
+                    (uint16_t)((uint16_t)payload[12] | (uint16_t)((uint16_t)payload[13] << 8U));
+                info.conn_latency =
+                    (uint16_t)((uint16_t)payload[14] | (uint16_t)((uint16_t)payload[15] << 8U));
+                info.supervision_timeout =
+                    (uint16_t)((uint16_t)payload[16] | (uint16_t)((uint16_t)payload[17] << 8U));
                 gap->evt_cb(gap, SYN_BLE_GAP_EVT_CONNECTED, &info, gap->user_data);
             }
-        } else if (subevt == SYN_BLE_HCI_LE_SUBEVT_ADV_REPORT && len >= 10U) {
-            uint8_t num_reports = payload[1];
-            if (num_reports > 0U && gap->evt_cb != NULL) {
-                SYN_BLE_GAP_AdvReport report;
-                report.evt_type = payload[2];
-                report.addr_type = payload[3];
-                memcpy(report.addr, &payload[4], 6);
-                report.data_len = payload[10];
-                report.data = &payload[11];
-                if ((uint16_t)11U + (uint16_t)report.data_len < (uint16_t)len) {
-                    report.rssi = (int8_t)payload[11U + report.data_len];
-                } else {
-                    report.rssi = 0;
-                }
-                gap->evt_cb(gap, SYN_BLE_GAP_EVT_ADV_REPORT, &report, gap->user_data);
-            }
+        } else if (subevt == SYN_BLE_HCI_LE_SUBEVT_ADV_REPORT) {
+            return gap_process_adv_report(gap, payload, len);
         }
     }
 

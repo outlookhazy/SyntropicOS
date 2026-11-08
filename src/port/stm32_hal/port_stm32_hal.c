@@ -57,19 +57,24 @@ SYN_WEAK SYN_NORETURN void syn_assert_failed(const char *file, int line)
 
 /* ── System Port ────────────────────────────────────────────────────────── */
 
-static volatile uint32_t critical_nesting = 0;
+static volatile uint32_t s_crit_depth = 0U;
+static volatile uint32_t s_saved_primask = 0U;
 
 void syn_port_enter_critical(void)
 {
+    uint32_t primask = __get_PRIMASK();
     __disable_irq();
-    critical_nesting++;
+    if (s_crit_depth == 0U) {
+        s_saved_primask = primask;
+    }
+    s_crit_depth++;
 }
 
 void syn_port_exit_critical(void)
 {
-    if (critical_nesting > 0) {
-        critical_nesting--;
-        if (critical_nesting == 0) {
+    if (s_crit_depth > 0U) {
+        s_crit_depth--;
+        if (s_crit_depth == 0U && (s_saved_primask & 1U) == 0U) {
             __enable_irq();
         }
     }
@@ -82,17 +87,31 @@ uint32_t syn_port_get_tick_ms(void)
 
 uint32_t syn_port_get_tick_us(void)
 {
-    uint32_t ms = HAL_GetTick();
     uint32_t load = SysTick->LOAD;
-    if (load > 0) {
-        uint32_t val = SysTick->VAL;
-        uint32_t elapsed_cycles = load - val;
-        uint32_t cycles_per_us = SystemCoreClock / 1000000U;
-        if (cycles_per_us > 0) {
-            return (ms * 1000U) + (elapsed_cycles / cycles_per_us);
-        }
+    uint32_t cycles_per_us = SystemCoreClock / 1000000U;
+    if (load == 0U || cycles_per_us == 0U) {
+        return HAL_GetTick() * 1000U;
     }
-    return ms * 1000U;
+
+    uint32_t ms1;
+    uint32_t ms2;
+    uint32_t val;
+    uint32_t pend1;
+    uint32_t pend2;
+    do {
+        ms1 = HAL_GetTick();
+        pend1 = (*(volatile uint32_t *)0xE000ED04UL) & (1UL << 26);
+        val = SysTick->VAL;
+        ms2 = HAL_GetTick();
+        pend2 = (*(volatile uint32_t *)0xE000ED04UL) & (1UL << 26);
+    } while (ms1 != ms2 || pend1 != pend2);
+
+    if (pend1 != 0U) {
+        ms1++;
+    }
+
+    uint32_t elapsed_cycles = (load >= val) ? (load - val) : 0U;
+    return (ms1 * 1000U) + (elapsed_cycles / cycles_per_us);
 }
 
 void syn_port_delay_ms(uint32_t ms)
@@ -100,11 +119,11 @@ void syn_port_delay_ms(uint32_t ms)
     HAL_Delay(ms);
 }
 
-void syn_port_system_reset(void)
+SYN_NORETURN void syn_port_system_reset(void)
 {
     NVIC_SystemReset();
-    for (;;)
-        ;
+    for (;;) {
+    }
 }
 
 /* ── GPIO Port ──────────────────────────────────────────────────────────── */
@@ -607,6 +626,67 @@ SYN_Status syn_port_aes_init(void)
 #endif
 }
 
+#if (defined(CRYP) || defined(AES)) && defined(HAL_CRYP_MODULE_ENABLED)
+/**
+ * @brief Zeroize temporary stack key material across all return paths.
+ */
+static void stm32_cryp_zero_words(uint32_t words[8])
+{
+    volatile uint32_t *vp = words;
+    for (size_t i = 0U; i < 8U; i++) {
+        vp[i] = 0U;
+    }
+}
+
+/**
+ * @brief Configure STM32 CRYP key size and key buffer prior to ECB operation.
+ */
+static SYN_Status stm32_cryp_configure_key(CRYP_HandleTypeDef *hcryp, const uint8_t *round_keys,
+                                           uint8_t nr, uint32_t key_buf[8])
+{
+    size_t key_bytes = (nr == 10U) ? 16U : ((nr == 12U) ? 24U : 32U);
+    memset(key_buf, 0, sizeof(uint32_t) * 8U);
+#if defined(CRYP_ALGORITHM_AES_ECB)
+    size_t word_count = key_bytes / 4U;
+    for (size_t i = 0U; i < word_count; i++) {
+        size_t off = i * 4U;
+        key_buf[i] = ((uint32_t)round_keys[off] << 24) | ((uint32_t)round_keys[off + 1U] << 16) |
+                     ((uint32_t)round_keys[off + 2U] << 8) | (uint32_t)round_keys[off + 3U];
+    }
+    hcryp->Init.Algorithm = CRYP_ALGORITHM_AES_ECB;
+#if defined(CRYP_DATAWIDTHUNIT_BYTE)
+    hcryp->Init.DataWidthUnit = CRYP_DATAWIDTHUNIT_BYTE;
+#endif
+#else
+    memcpy(key_buf, round_keys, key_bytes);
+#endif
+
+    if (nr == 10U) {
+        hcryp->Init.KeySize = CRYP_KEYSIZE_128B;
+    } else if (nr == 12U) {
+#if defined(CRYP_KEYSIZE_192B)
+        hcryp->Init.KeySize = CRYP_KEYSIZE_192B;
+#else
+        stm32_cryp_zero_words(key_buf);
+        return SYN_NOT_IMPLEMENTED;
+#endif
+    } else {
+        hcryp->Init.KeySize = CRYP_KEYSIZE_256B;
+    }
+#if defined(CRYP_ALGORITHM_AES_ECB)
+    hcryp->Init.pKey = key_buf;
+#else
+    hcryp->Init.pKey = (uint8_t *)key_buf;
+#endif
+    if (HAL_CRYP_Init(hcryp) != HAL_OK) {
+        hcryp->Init.pKey = NULL;
+        stm32_cryp_zero_words(key_buf);
+        return SYN_ERROR;
+    }
+    return SYN_OK;
+}
+#endif
+
 SYN_Status syn_port_aes_encrypt_block(const uint8_t *round_keys, uint8_t nr, const uint8_t in[16],
                                       uint8_t out[16])
 {
@@ -614,17 +694,34 @@ SYN_Status syn_port_aes_encrypt_block(const uint8_t *round_keys, uint8_t nr, con
     if (g_hcryp == NULL || round_keys == NULL || in == NULL || out == NULL) {
         return SYN_NOT_IMPLEMENTED;
     }
+    if (nr != 10U && nr != 12U && nr != 14U) {
+        return SYN_INVALID_PARAM;
+    }
 #if defined(HAL_CRYP_MODULE_ENABLED)
     CRYP_HandleTypeDef *hcryp = (CRYP_HandleTypeDef *)g_hcryp;
-    HAL_StatusTypeDef res = HAL_CRYP_AESECB_Encrypt(hcryp, (uint8_t *)in, 16U, out, 1000U);
+    uint32_t key_buf[8];
+    SYN_Status cfg_res = stm32_cryp_configure_key(hcryp, round_keys, nr, key_buf);
+    if (cfg_res != SYN_OK) {
+        return cfg_res;
+    }
+#if defined(CRYP_ALGORITHM_AES_ECB)
+    HAL_StatusTypeDef res =
+        HAL_CRYP_Encrypt(hcryp, (uint32_t *)(uintptr_t)in, 16U, (uint32_t *)(uintptr_t)out, 1000U);
+#else
+    HAL_StatusTypeDef res =
+        HAL_CRYP_AESECB_Encrypt(hcryp, (uint8_t *)(uintptr_t)in, 16U, out, 1000U);
+#endif
+    hcryp->Init.pKey = NULL;
+    stm32_cryp_zero_words(key_buf);
     return (res == HAL_OK) ? SYN_OK : SYN_ERROR;
 #else
-    (void)nr;
     return SYN_NOT_IMPLEMENTED;
 #endif
 #else
+    if (nr != 10U && nr != 12U && nr != 14U) {
+        return SYN_INVALID_PARAM;
+    }
     (void)round_keys;
-    (void)nr;
     (void)in;
     (void)out;
     return SYN_NOT_IMPLEMENTED;
@@ -638,17 +735,34 @@ SYN_Status syn_port_aes_decrypt_block(const uint8_t *round_keys, uint8_t nr, con
     if (g_hcryp == NULL || round_keys == NULL || in == NULL || out == NULL) {
         return SYN_NOT_IMPLEMENTED;
     }
+    if (nr != 10U && nr != 12U && nr != 14U) {
+        return SYN_INVALID_PARAM;
+    }
 #if defined(HAL_CRYP_MODULE_ENABLED)
     CRYP_HandleTypeDef *hcryp = (CRYP_HandleTypeDef *)g_hcryp;
-    HAL_StatusTypeDef res = HAL_CRYP_AESECB_Decrypt(hcryp, (uint8_t *)in, 16U, out, 1000U);
+    uint32_t key_buf[8];
+    SYN_Status cfg_res = stm32_cryp_configure_key(hcryp, round_keys, nr, key_buf);
+    if (cfg_res != SYN_OK) {
+        return cfg_res;
+    }
+#if defined(CRYP_ALGORITHM_AES_ECB)
+    HAL_StatusTypeDef res =
+        HAL_CRYP_Decrypt(hcryp, (uint32_t *)(uintptr_t)in, 16U, (uint32_t *)(uintptr_t)out, 1000U);
+#else
+    HAL_StatusTypeDef res =
+        HAL_CRYP_AESECB_Decrypt(hcryp, (uint8_t *)(uintptr_t)in, 16U, out, 1000U);
+#endif
+    hcryp->Init.pKey = NULL;
+    stm32_cryp_zero_words(key_buf);
     return (res == HAL_OK) ? SYN_OK : SYN_ERROR;
 #else
-    (void)nr;
     return SYN_NOT_IMPLEMENTED;
 #endif
 #else
+    if (nr != 10U && nr != 12U && nr != 14U) {
+        return SYN_INVALID_PARAM;
+    }
     (void)round_keys;
-    (void)nr;
     (void)in;
     (void)out;
     return SYN_NOT_IMPLEMENTED;

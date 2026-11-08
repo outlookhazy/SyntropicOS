@@ -35,15 +35,16 @@ typedef enum {
  * @brief Generic OLED Display Instance Context.
  */
 typedef struct {
-    SYN_OLEDType type;  /**< Controller IC type enum */
-    SYN_SoftI2C i2c;    /**< Software I2C bus context */
-    uint8_t i2c_addr;   /**< 7-bit I2C device address */
-    uint16_t width;     /**< Display width in pixels */
-    uint16_t height;    /**< Display height in pixels */
-    uint8_t col_offset; /**< Column start offset (0 for SSD1306, 2 for SH1106) */
-    bool inverted;      /**< True if display colors inverted */
-    bool display_on;    /**< True if display powered on */
-    uint8_t contrast;   /**< Contrast setting (0 to 255) */
+    SYN_OLEDType type;     /**< Controller IC type enum */
+    SYN_SoftI2C i2c;       /**< Software I2C bus context */
+    uint8_t i2c_addr;      /**< 7-bit I2C device address */
+    uint16_t width;        /**< Display width in pixels */
+    uint16_t height;       /**< Display height in pixels */
+    uint16_t flush_offset; /**< Incremental byte cursor for partial canvas flush */
+    uint8_t col_offset;    /**< Column start offset (0 for SSD1306, 2 for SH1106) */
+    bool inverted;         /**< True if display colors inverted */
+    bool display_on;       /**< True if display powered on */
+    uint8_t contrast;      /**< Contrast setting (0 to 255) */
 } SYN_OLED;
 
 /**

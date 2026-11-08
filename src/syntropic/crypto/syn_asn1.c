@@ -33,15 +33,19 @@ bool syn_asn1_parse_element(const uint8_t *buf, size_t len, SYN_ASN1_Element *el
         /* Short form length: 0..127 */
         elem_out->length = len_byte;
     } else {
-        /* Long form length: 0x80 | num_length_bytes */
+        /* Long form length: 0x80 | num_length_bytes (canonical DER) */
         uint8_t num_len_bytes = len_byte & 0x7FU;
-        if (num_len_bytes == 0 || num_len_bytes > sizeof(size_t) || (cur + num_len_bytes) > len) {
+        if (num_len_bytes == 0U || num_len_bytes > sizeof(size_t) || (cur + num_len_bytes) > len ||
+            buf[cur] == 0x00U) {
             return false;
         }
 
-        size_t parsed_len = 0;
-        for (uint8_t i = 0; i < num_len_bytes; i++) {
-            parsed_len = (parsed_len << 8) | buf[cur++];
+        size_t parsed_len = 0U;
+        for (uint8_t i = 0U; i < num_len_bytes; i++) {
+            parsed_len = (parsed_len << 8U) | buf[cur++];
+        }
+        if (parsed_len < 128U) {
+            return false;
         }
         elem_out->length = parsed_len;
     }
@@ -49,7 +53,7 @@ bool syn_asn1_parse_element(const uint8_t *buf, size_t len, SYN_ASN1_Element *el
     elem_out->header_len = cur;
     elem_out->value = buf + cur;
 
-    if (cur > len || elem_out->length > (len - cur)) {
+    if (elem_out->length > (len - cur)) {
         return false;
     }
 
@@ -137,16 +141,16 @@ bool syn_asn1_get_bit_string(const SYN_ASN1_Element *elem, const uint8_t **bits_
         return false;
     }
 
-    if (elem->length < 1) {
+    if (elem->length < 1U) {
         return false;
     }
 
     uint8_t unused_bits = elem->value[0];
-    if (unused_bits > 7) {
+    if (unused_bits > 7U || (unused_bits > 0U && elem->length <= 1U)) {
         return false;
     }
 
-    size_t total_payload_bytes = elem->length - 1;
+    size_t total_payload_bytes = elem->length - 1U;
     *bits_out = elem->value + 1;
     *bit_len_out = (total_payload_bytes * 8U) - unused_bits;
     return true;

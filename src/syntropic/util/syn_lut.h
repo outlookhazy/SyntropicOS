@@ -29,6 +29,8 @@
 #ifndef SYN_LUT_H
 #define SYN_LUT_H
 
+#include "../common/syn_defs.h"
+
 #include <stddef.h>
 #include <stdint.h>
 

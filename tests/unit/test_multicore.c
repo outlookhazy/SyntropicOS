@@ -447,8 +447,8 @@ void test_mbox_overflow_no_data_corruption(void)
 
     /* Drain — original values intact */
     for (uint32_t i = 0; i < 3; i++) {
-        TestMsg rx;
-        syn_mailbox_receive(&mb, &rx);
+        TestMsg rx = {0};
+        TEST_ASSERT_TRUE(syn_mailbox_receive(&mb, &rx));
         TEST_ASSERT_EQUAL(i + 100, rx.seq);
     }
 }
@@ -556,8 +556,8 @@ void test_mbox_interleaved_burst(void)
 
     /* Consume 2 */
     for (int i = 0; i < 2; i++) {
-        TestMsg rx;
-        syn_mailbox_receive(&mb, &rx);
+        TestMsg rx = {0};
+        TEST_ASSERT_TRUE(syn_mailbox_receive(&mb, &rx));
         TEST_ASSERT_EQUAL(consumed++, rx.seq);
     }
     TEST_ASSERT_EQUAL(1, syn_mailbox_pending(&mb));
@@ -571,8 +571,8 @@ void test_mbox_interleaved_burst(void)
 
     /* Drain all */
     while (!syn_mailbox_empty(&mb)) {
-        TestMsg rx;
-        syn_mailbox_receive(&mb, &rx);
+        TestMsg rx = {0};
+        TEST_ASSERT_TRUE(syn_mailbox_receive(&mb, &rx));
         TEST_ASSERT_EQUAL(consumed++, rx.seq);
     }
     TEST_ASSERT_EQUAL(produced, consumed);
@@ -646,8 +646,8 @@ void test_mbox_data_pattern_stress(void)
         memset(tx.data, (uint8_t)round, sizeof(tx.data));
         syn_mailbox_post(&mb, &tx);
 
-        TestMsg rx;
-        syn_mailbox_receive(&mb, &rx);
+        TestMsg rx = {0};
+        TEST_ASSERT_TRUE(syn_mailbox_receive(&mb, &rx));
         TEST_ASSERT_EQUAL((uint32_t)round, rx.seq);
         uint8_t expected[12];
         memset(expected, (uint8_t)round, 12);
@@ -696,8 +696,8 @@ void test_mbox_peek_then_receive(void)
     const TestMsg *p = (const TestMsg *)syn_mailbox_peek(&mb);
     TEST_ASSERT_EQUAL(88, p->seq);
 
-    TestMsg rx;
-    syn_mailbox_receive(&mb, &rx);
+    TestMsg rx = {0};
+    TEST_ASSERT_TRUE(syn_mailbox_receive(&mb, &rx));
     TEST_ASSERT_EQUAL(88, rx.seq);
     TEST_ASSERT_TRUE(syn_mailbox_empty(&mb));
 }
@@ -947,11 +947,11 @@ void test_mbox_two_independent(void)
     syn_mailbox_post(&mb_a, &tx_a);
     syn_mailbox_post(&mb_b, &tx_b);
 
-    TestMsg rx;
-    syn_mailbox_receive(&mb_a, &rx);
+    TestMsg rx = {0};
+    TEST_ASSERT_TRUE(syn_mailbox_receive(&mb_a, &rx));
     TEST_ASSERT_EQUAL(100, rx.seq);
 
-    syn_mailbox_receive(&mb_b, &rx);
+    TEST_ASSERT_TRUE(syn_mailbox_receive(&mb_b, &rx));
     TEST_ASSERT_EQUAL(200, rx.seq);
 }
 

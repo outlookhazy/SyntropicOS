@@ -93,6 +93,9 @@ void HAL_PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
  */
 static SYN_PT_Status usb_cdc_echo_task(SYN_PT *pt)
 {
+    static char echo_buf[64];
+    static size_t read_bytes;
+
     PT_BEGIN(pt);
 
     /* Wait until USB host connects and configures the device */
@@ -102,8 +105,7 @@ static SYN_PT_Status usb_cdc_echo_task(SYN_PT *pt)
         /* Block until CDC bytes arrive from host */
         PT_USB_CDC_WAIT_RX(pt, &usb_cdc);
 
-        char echo_buf[64];
-        size_t read_bytes = 0;
+        read_bytes = 0;
         syn_usb_cdc_read(&usb_cdc, echo_buf, sizeof(echo_buf), &read_bytes);
 
         if (read_bytes > 0) {

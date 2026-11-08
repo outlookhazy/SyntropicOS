@@ -20,6 +20,26 @@ static void dummy_link_callback(SYN_NETCFG *netcfg, SYN_NETCFG_LinkState state, 
     g_last_link_state = state;
 }
 
+static void test_netcfg_round4_mac_seeded_xid(void)
+{
+    const uint8_t mac_a[6] = {0x02, 0x11, 0x22, 0x33, 0x44, 0x55};
+    const uint8_t mac_b[6] = {0x02, 0x11, 0x22, 0x33, 0x44, 0x56};
+    const uint8_t mac_zero[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    SYN_NETCFG cfg_a;
+    SYN_NETCFG cfg_b;
+    SYN_NETCFG cfg_z;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_netcfg_init(&cfg_a, SYN_NETCFG_MODE_AUTO, mac_a));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_netcfg_init(&cfg_b, SYN_NETCFG_MODE_AUTO, mac_b));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_netcfg_init(&cfg_z, SYN_NETCFG_MODE_AUTO, mac_zero));
+
+    TEST_ASSERT_NOT_EQUAL(0U, cfg_a.dhcp.xid);
+    TEST_ASSERT_NOT_EQUAL(0U, cfg_b.dhcp.xid);
+    TEST_ASSERT_NOT_EQUAL(cfg_a.dhcp.xid, cfg_b.dhcp.xid);
+    TEST_ASSERT_EQUAL_UINT32(0x12345678UL, cfg_z.dhcp.xid);
+}
+
 void test_netcfg_init_static(void)
 {
     SYN_NETCFG netcfg;
@@ -34,6 +54,8 @@ void test_netcfg_init_static(void)
     TEST_ASSERT_EQUAL_UINT32(0xC0A80164, eth.ip_addr);
     TEST_ASSERT_EQUAL_UINT32(0xFFFFFF00, eth.netmask);
     TEST_ASSERT_EQUAL_UINT32(0xC0A80101, eth.gateway);
+
+    test_netcfg_round4_mac_seeded_xid();
 }
 
 void test_netcfg_autoip_fallback(void)
@@ -121,13 +143,13 @@ void test_netcfg_coroutine_pt(void)
     SYN_PT pt;
     PT_INIT(&pt);
 
-    /* First step: Netcfg is_bound == false -> coroutine yields (PT_WAITING) */
-    TEST_ASSERT_EQUAL_INT(PT_WAITING, netcfg_coroutine_task(&pt, &netcfg));
+    /* First step: Netcfg is_bound == false -> coroutine yields (PT_IDLE) */
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, netcfg_coroutine_task(&pt, &netcfg));
 
     netcfg.is_bound = true;
 
-    /* Second step: Netcfg is_bound == true -> coroutine completes (PT_EXITED) */
-    TEST_ASSERT_EQUAL_INT(PT_EXITED, netcfg_coroutine_task(&pt, &netcfg));
+    /* Second step: Netcfg is_bound == true -> coroutine completes (PT_ENDED) */
+    TEST_ASSERT_EQUAL_INT(PT_ENDED, netcfg_coroutine_task(&pt, &netcfg));
 }
 
 void test_netcfg_null_checks(void)
@@ -146,7 +168,7 @@ void test_netcfg_null_checks(void)
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
                           syn_netcfg_trigger_autoip_fallback(&netcfg, &eth, NULL));
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
-                          syn_netcfg_trigger_autoip_fallback(&netcfg, &eth, mac));
+                          syn_netcfg_trigger_autoip_fallback(&netcfg, NULL, mac));
 
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_netcfg_set_link_callback(NULL, NULL, NULL));
 

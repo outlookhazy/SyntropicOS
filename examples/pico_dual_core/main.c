@@ -59,9 +59,8 @@ typedef struct {
 
 SYN_MAILBOX_DEFINE(cross_core_mbox, DualCoreMsg, 8);
 
-/* Note: On multicore targets, syn_port_serial_write should acquire
- * a spinlock internally to protect against concurrent output from
- * both cores. See the RP2040 port for the implementation. */
+/* Guard cross-core console output with SYN_SPINLOCK_UART to prevent
+ * interleaved log lines from concurrent cores. */
 
 /* ======================================================================
  * CORE 0 -- Producer
@@ -86,6 +85,7 @@ static SYN_PT_Status producer_task(SYN_PT *pt, SYN_Task *task)
 
         producer_ok = syn_mailbox_post(&cross_core_mbox, &producer_msg);
 
+        syn_port_spinlock_acquire(SYN_SPINLOCK_UART);
         if (producer_ok) {
             SYN_LOG_I(TAG_C0, "POST seq=%lu val=%lu",
                       (unsigned long)producer_msg.seq,
@@ -94,6 +94,7 @@ static SYN_PT_Status producer_task(SYN_PT *pt, SYN_Task *task)
             SYN_LOG_W(TAG_C0, "MBOX FULL (overflow=%lu)",
                       (unsigned long)syn_mailbox_overflows(&cross_core_mbox));
         }
+        syn_port_spinlock_release(SYN_SPINLOCK_UART);
 
         PT_TASK_DELAY_MS(pt, task, 200);
     }
@@ -129,10 +130,14 @@ static SYN_PT_Status consumer_task(SYN_PT *pt, SYN_Task *task)
             led.on_ms  = consumer_rate;
             led.off_ms = consumer_rate;
 
+            syn_port_spinlock_acquire(SYN_SPINLOCK_UART);
             SYN_LOG_I(TAG_C1, "RECV seq=%lu val=%lu blink=%ums",
                       (unsigned long)consumer_rx.seq,
                       (unsigned long)consumer_rx.value,
                       (unsigned)consumer_rate);
+            syn_port_spinlock_release(SYN_SPINLOCK_UART);
+
+            PT_CONTINUE_IF_NEEDED(pt, task);
         }
 
         PT_TASK_DELAY_MS(pt, task, 50);
@@ -154,11 +159,13 @@ static SYN_PT_Status led_task(SYN_PT *pt, SYN_Task *task)
 
 static void core1_entry(void)
 {
-    syn_task_create(&tasks1[0], "consumer", consumer_task, 0, NULL);
-    syn_task_create(&tasks1[1], "led",      led_task,      1, NULL);
+    syn_task_create(&tasks1[0], "consumer", consumer_task, SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks1[1], "led",      led_task,      SYN_PRIO_HIGH,   NULL);
     syn_sched_init(&sched1, tasks1, 2);
 
+    syn_port_spinlock_acquire(SYN_SPINLOCK_UART);
     SYN_LOG_I(TAG_C1, "Core 1 scheduler started");
+    syn_port_spinlock_release(SYN_SPINLOCK_UART);
 
     syn_sched_run_forever(&sched1);
 }
@@ -216,12 +223,13 @@ int main(void)
     multicore_launch_core1(core1_entry);
 
     /* Core 0 scheduler setup */
-    syn_task_create(&tasks0[0], "producer", producer_task, 0, NULL);
+    syn_task_create(&tasks0[0], "producer", producer_task, SYN_PRIO_CRITICAL, NULL);
     syn_sched_init(&sched0, tasks0, 1);
 
+    syn_port_spinlock_acquire(SYN_SPINLOCK_UART);
     SYN_LOG_I(TAG_C0, "Core 0 scheduler started");
-
     syn_cli_print_prompt(&cli);
+    syn_port_spinlock_release(SYN_SPINLOCK_UART);
 
     for (;;) {
         /* Feed CLI from USB serial */

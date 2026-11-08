@@ -19,7 +19,7 @@ Step-by-step setup guides for integrating SyntropicOS into standard microcontrol
 4. **Set C Standard**:
    - In **MCU GCC Compiler** → **Miscellaneous**, set C Language Standard to `-std=c99`.
 5. **Configuration Header**:
-   - Copy `src/syntropic/common/syn_config_template.h` to your project's `Core/Inc/syn_config.h`.
+   - Copy `src/syntropic/syn_config_template.h` to your project's `Core/Inc/syn_config.h`.
 
 ---
 
@@ -87,7 +87,7 @@ lib_deps =
 1. **Add Group & Files**:
    - In the Project Workspace tree, right-click target → **Add Group...** → Name it `SyntropicOS`.
    - Right-click `SyntropicOS` group → **Add Existing Files to Group 'SyntropicOS'**.
-   - Select all `.c` files in `src/syntropic/` subdirectories (`common`, `kernel`, `drivers`, `input`, `output`, `protocol`, `system`).
+   - Select the `.c` files from `src/syntropic/` module subdirectories (`audio`, `ble`, `cli`, `control`, `crypto`, `debug`, `display`, `drivers`, `dsp`, `input`, `log`, `motor`, `net`, `output`, `proto`, `sched`, `sensor`, `storage`, `system`, `ui`, `util`, `vm`).
 2. **Set Include Paths**:
    - Click **Options for Target** (Alt+F7) → **C/C++** tab.
    - In **Include Paths**, add:
@@ -95,7 +95,7 @@ lib_deps =
      `..\Core\Inc;`
 3. **Compiler Options**:
    - Check **C99 Mode** in the C/C++ tab.
-   - Add preprocessor define `SYN_USE_CONFIG_HEADER=1`.
+   - `syntropic.h` automatically includes `syn_config.h` from your include path via `__has_include("syn_config.h")` (add `--preinclude=syn_config.h` if translation units include individual module headers directly without `syntropic.h`).
 4. **SysTick & Critical Sections**:
    - Ensure `SysTick_Handler` in `stm32f4xx_it.c` increments `HAL_IncTick()` or `syn_port_get_tick_ms()`.
 

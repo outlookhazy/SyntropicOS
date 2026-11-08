@@ -75,7 +75,8 @@ typedef struct {
 
     SYN_HB_Callback on_peer_lost;  /**< Called when peer goes dead      */
     SYN_HB_Callback on_peer_found; /**< Called when peer reappears      */
-    void *cb_ctx;                  /**< Context for callbacks           */
+    void *lost_ctx;                /**< Context for peer-lost callback  */
+    void *found_ctx;               /**< Context for peer-found callback */
 
     SYN_ErrLog *errlog; /**< Optional error logging          */
 } SYN_Heartbeat;

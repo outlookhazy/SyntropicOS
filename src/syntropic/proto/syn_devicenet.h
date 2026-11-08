@@ -11,6 +11,8 @@
 #ifndef SYN_DEVICENET_H
 #define SYN_DEVICENET_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

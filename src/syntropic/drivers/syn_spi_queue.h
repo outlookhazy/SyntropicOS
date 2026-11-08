@@ -54,10 +54,14 @@ typedef struct {
  */
 typedef struct {
     SYN_SPI_Transaction ring[SYN_SPI_QUEUE_MAX_DEPTH]; /**< Transaction ring buffer */
+    uint32_t configured_baud_hz;                       /**< Last configured clock in Hz */
     uint16_t head;                                     /**< Head index (pop position) */
     uint16_t tail;                                     /**< Tail index (push position) */
     uint16_t count;                                    /**< Current enqueued count */
     uint8_t bus;                                       /**< Target SPI bus index */
+    uint8_t configured_bus;                            /**< Last configured bus index */
+    uint8_t configured_mode;                           /**< Last configured SPI mode */
+    bool bus_configured;                               /**< True once bus initialized */
     bool active;                                       /**< Transaction in progress */
     bool initialized;                                  /**< Initialization flag */
 } SYN_SPI_Queue;

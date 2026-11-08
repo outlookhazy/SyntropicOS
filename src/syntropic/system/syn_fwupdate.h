@@ -60,6 +60,7 @@ extern "C" {
 typedef struct {
     uint32_t slot_addr;     /**< Flash base address of target slot     */
     uint32_t data_addr;     /**< Flash address for image data (after hdr) */
+    uint32_t erased_up_to;  /**< End address of erased flash region    */
     uint32_t max_size;      /**< Maximum image size (excl. header)     */
     uint32_t bytes_written; /**< Total bytes written so far            */
     uint32_t crc_state;     /**< Running CRC-32 state                  */
@@ -102,9 +103,9 @@ typedef struct {
 /**
  * @brief Begin a firmware update.
  *
- * Erases the first sector of the target slot and prepares for writing.
+ * Erases the header sector of the target slot and prepares for writing.
  * The image header is written at slot_addr; image data starts at
- * slot_addr + sizeof(SYN_FwImageHeader).
+ * slot_addr + syn_fwimage_data_offset(slot_addr).
  *
  * @param upd           Updater instance.
  * @param slot_addr     Flash base address of the target slot.

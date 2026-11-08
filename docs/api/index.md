@@ -35,7 +35,10 @@ Jump directly to module documentation guides and Doxygen API groups:
 
 ---
 
-## Global Indexes
+## Generating Doxygen HTML Reference
 
-- **[Browse All Source & Header Files](../syntropic/files.md)** — Complete file tree of the SyntropicOS kernel.
-- **[Browse All Data Structures](../syntropic/annotated.md)** — Alphabetical index of all C structs, enums, and typedefs.
+Generate full source-file trees (`files.html`), data structure indexes (`annotated.html`), and module API pages under `build/doxygen/html/`:
+
+```bash
+make container-dox
+```

@@ -15,7 +15,6 @@ add_executable(stm32f7_fbl
     ../../src/syntropic/proto/syn_isotp.c
     ../../src/syntropic/crypto/syn_aes.c
     ../../src/syntropic/util/syn_qmath.c
-    ../../src/syntropic/system/syn_boot.c
 )
 
 # 2. Build Application Binary (Bank A / Bank B)
@@ -25,7 +24,6 @@ add_executable(stm32f7_app
     ../../src/syntropic/proto/syn_isotp.c
     ../../src/syntropic/crypto/syn_aes.c
     ../../src/syntropic/util/syn_qmath.c
-    ../../src/syntropic/system/syn_boot.c
 )
 
 # 3. Post-Build Target to Automatically Patch App Binary Header

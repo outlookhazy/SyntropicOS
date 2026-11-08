@@ -304,6 +304,61 @@ static void test_dlt645_decoder_embedded_eof_and_null_cb(void)
     TEST_ASSERT_EQUAL_UINT8(0xE3, last_decoded_frame.payload[0]);
 }
 
+static void test_r5_dlt645_bad_checksum_resync(void)
+{
+    SYN_DLT645_Frame good_tx;
+    memset(&good_tx, 0, sizeof(good_tx));
+    good_tx.version = SYN_DLT645_VER_2007;
+    good_tx.control = SYN_DLT645_CMD_READ_DATA_RESP;
+    good_tx.data_id = 0x00020000U;
+    memset(good_tx.address, 0x44, SYN_DLT645_ADDR_LEN);
+    good_tx.payload[0] = 0xAAU;
+    good_tx.payload[1] = 0xBBU;
+    good_tx.payload_len = 2U;
+
+    uint8_t good_raw[64];
+    size_t good_len = syn_dlt645_encode(&good_tx, good_raw, sizeof(good_raw));
+    TEST_ASSERT_TRUE(good_len > 0U);
+
+    /* 1. Bad-checksum 16-byte frame (has inner 0x68 at index 7) followed by valid frame */
+    uint8_t bad_cs[] = {0x68U, 0x11U, 0x11U, 0x11U, 0x11U, 0x11U, 0x11U, 0x68U,
+                        0x11U, 0x04U, 0x33U, 0x33U, 0x33U, 0x33U, 0xFFU, 0x16U};
+    SYN_DLT645_Decoder dec;
+    syn_dlt645_decoder_init(&dec, SYN_DLT645_VER_2007, on_frame_decoded, NULL);
+    callback_count = 0;
+
+    for (size_t i = 0U; i < sizeof(bad_cs); i++) {
+        syn_dlt645_decoder_feed(&dec, bad_cs[i]);
+    }
+    TEST_ASSERT_EQUAL_INT(0, callback_count);
+
+    for (size_t i = 0U; i < good_len; i++) {
+        syn_dlt645_decoder_feed(&dec, good_raw[i]);
+    }
+    TEST_ASSERT_EQUAL_INT(1, callback_count);
+    TEST_ASSERT_EQUAL_UINT32(0x00020000U, last_decoded_frame.data_id);
+    TEST_ASSERT_EQUAL_UINT8(0xAAU, last_decoded_frame.payload[0]);
+
+    /* 2. Spurious 0x68 + garbage prefix immediately preceding valid frame */
+    callback_count = 0;
+    uint8_t spurious_prefix[] = {0x68U, 0x99U, 0x88U};
+    for (size_t i = 0U; i < sizeof(spurious_prefix); i++) {
+        syn_dlt645_decoder_feed(&dec, spurious_prefix[i]);
+    }
+    for (size_t i = 0U; i < good_len; i++) {
+        syn_dlt645_decoder_feed(&dec, good_raw[i]);
+    }
+    TEST_ASSERT_EQUAL_INT(1, callback_count);
+
+    /* 3. Corrupt 12-byte frame with NO second 0x68 -> resets rx_len to 0 */
+    uint8_t no_second_sof[12] = {0x68U, 0x11U, 0x11U, 0x11U, 0x11U, 0x11U,
+                                 0x11U, 0x00U, 0x11U, 0x04U, 0x33U, 0x16U};
+    for (size_t i = 0U; i < sizeof(no_second_sof); i++) {
+        syn_dlt645_decoder_feed(&dec, no_second_sof[i]);
+    }
+    TEST_ASSERT_EQUAL_INT(0, dec.rx_len);
+}
+
 void run_dlt645_tests(void)
 {
     RUN_TEST(test_dlt645_checksum);
@@ -313,4 +368,5 @@ void run_dlt645_tests(void)
     RUN_TEST(test_dlt645_error_handling);
     RUN_TEST(test_dlt645_frame_checksum_and_address_mismatch);
     RUN_TEST(test_dlt645_decoder_embedded_eof_and_null_cb);
+    RUN_TEST(test_r5_dlt645_bad_checksum_resync);
 }

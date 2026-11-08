@@ -112,9 +112,9 @@ int main(void)
     printf("===================================================================\r\n\r\n");
 
     /* 2. Create Scheduler Tasks with Protothread Functions */
-    syn_task_create(&g_tasks[0], "blink", task_blink_fn, 0, NULL);
-    syn_task_create(&g_tasks[1], "telemetry", task_telemetry_fn, 1, NULL);
-    syn_task_create(&g_tasks[2], "can_tx", task_can_fn, 1, NULL);
+    syn_task_create(&g_tasks[0], "blink", task_blink_fn, SYN_PRIO_LOW, NULL);
+    syn_task_create(&g_tasks[1], "telemetry", task_telemetry_fn, SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&g_tasks[2], "can_tx", task_can_fn, SYN_PRIO_HIGH, NULL);
 
     /* 3. Initialize Scheduler with Task Array */
     syn_sched_init(&g_sched, g_tasks, NUM_TASKS);

@@ -121,6 +121,8 @@ typedef struct {
     uint8_t total_packets;    /**< Total packet count */
     uint8_t next_seq;         /**< Next expected sequence number (1..255) */
     uint8_t received_packets; /**< Currently received packet count */
+    uint8_t cts_window;       /**< Max packets granted per CTS window */
+    uint8_t cts_remaining;    /**< Remaining packets in active CTS window */
     uint8_t data[1785];       /**< Maximum 1785-byte payload buffer */
 } SYN_J1939_TpRxSession;
 
@@ -132,6 +134,9 @@ typedef struct {
     SYN_J1939_Name name;          /**< 64-bit Device NAME */
     SYN_J1939_AddressState state; /**< Current address claim state */
     SYN_J1939_TpRxSession tp_rx;  /**< Multi-packet Transport Protocol RX session */
+    bool tx_pending;              /**< Pending Transport Protocol control response flag */
+    uint32_t tx_id;               /**< Pending 29-bit J1939 CAN identifier */
+    uint8_t tx_data[8];           /**< Pending 8-byte TP.CM payload (CTS or EoMAck) */
 } SYN_J1939_Node;
 
 /**
@@ -213,6 +218,41 @@ SYN_Status syn_j1939_build_request(uint8_t sa, uint8_t da, uint32_t requested_pg
  */
 SYN_Status syn_j1939_build_tp_bam(uint8_t sa, uint32_t pgn, uint16_t total_bytes,
                                   SYN_CAN_Frame *frame);
+
+/**
+ * @brief Build a unicast Transport Protocol Request to Send (TP.CM_RTS).
+ * @param sa Source address.
+ * @param da Destination address (0..253).
+ * @param pgn PGN of payload.
+ * @param total_bytes Total payload length in bytes (9 to 1785).
+ * @param max_packets Maximum packets per CTS window (1 to 255, or 0xFF for unlimited).
+ * @param frame Output CAN frame.
+ * @return SYN_OK on success.
+ */
+SYN_Status syn_j1939_build_tp_rts(uint8_t sa, uint8_t da, uint32_t pgn, uint16_t total_bytes,
+                                  uint8_t max_packets, SYN_CAN_Frame *frame);
+
+/**
+ * @brief Build a Transport Protocol Data Transfer packet (TP.DT) with explicit destination.
+ * @param sa Source address.
+ * @param da Destination address (0xFF for BAM, or peer SA for unicast RTS/CTS).
+ * @param sequence Packet sequence number (1 to 255).
+ * @param payload Pointer to payload chunk (up to 7 bytes).
+ * @param payload_len Length of chunk (1 to 7 bytes).
+ * @param frame Output CAN frame.
+ * @return SYN_OK on success.
+ */
+SYN_Status syn_j1939_build_tp_dt_da(uint8_t sa, uint8_t da, uint8_t sequence,
+                                    const uint8_t *payload, size_t payload_len,
+                                    SYN_CAN_Frame *frame);
+
+/**
+ * @brief Pop a pending Transport Protocol control frame (TP.CM_CTS or TP.CM_ACK).
+ * @param node Pointer to J1939 node instance.
+ * @param out_frame Output CAN frame receiving the queued TP.CM response.
+ * @return true if a pending frame was copied to out_frame, false otherwise.
+ */
+bool syn_j1939_get_tx(SYN_J1939_Node *node, SYN_CAN_Frame *out_frame);
 
 /**
  * @brief Build a Transport Protocol Data Transfer packet (TP.DT).

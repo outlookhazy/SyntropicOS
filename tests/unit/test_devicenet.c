@@ -295,6 +295,29 @@ static void test_devicenet_explicit_msg_fragmentation(void)
     TEST_ASSERT_EQUAL_HEX8(0x00, tx_data[3]);
 }
 
+static void test_r5_a18_devicenet_dup_mac_resp_collision(void)
+{
+    syn_devicenet_init(&g_dnet, 6U, SYN_DEVICENET_BAUD_500K);
+    TEST_ASSERT_EQUAL(SYN_DEVICENET_STATE_DUP_MAC_CHECK, g_dnet.state);
+    TEST_ASSERT_FALSE(g_dnet.dup_mac_failed);
+
+    /* Receiving Group 4 Duplicate MAC ID Check Response (msg_id == 6) forces OFFLINE */
+    uint32_t dup_resp_id = 0x7C0U | (6U << 3U) | 6U;
+    uint8_t rx_data[4] = {0x78U, 0x56U, 0x34U, 0x12U};
+    uint32_t tx_can_id = 0U;
+    uint8_t tx_data[8] = {0};
+    uint8_t tx_len = 0U;
+
+    TEST_ASSERT_FALSE(
+        syn_devicenet_on_can_rx(&g_dnet, dup_resp_id, rx_data, 4U, &tx_can_id, tx_data, &tx_len));
+    TEST_ASSERT_TRUE(g_dnet.dup_mac_failed);
+    TEST_ASSERT_EQUAL(SYN_DEVICENET_STATE_OFFLINE, g_dnet.state);
+
+    /* Subsequent poll must NOT transition node to ONLINE */
+    syn_devicenet_poll(&g_dnet, 2000U);
+    TEST_ASSERT_EQUAL(SYN_DEVICENET_STATE_OFFLINE, g_dnet.state);
+}
+
 void run_devicenet_tests(void)
 {
     RUN_TEST(test_devicenet_init_and_config);
@@ -304,4 +327,5 @@ void run_devicenet_tests(void)
     RUN_TEST(test_devicenet_error_branches_and_nulls);
     RUN_TEST(test_devicenet_polled_io_output_overflow);
     RUN_TEST(test_devicenet_explicit_msg_fragmentation);
+    RUN_TEST(test_r5_a18_devicenet_dup_mac_resp_collision);
 }

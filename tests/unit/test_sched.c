@@ -18,7 +18,7 @@ static SYN_PT_Status sched_task_a(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     sched_order[sched_order_idx++] = 1;
-    PT_YIELD(pt);
+    PT_CONTINUE(pt);
     sched_order[sched_order_idx++] = 1;
 
     PT_END(pt);
@@ -30,7 +30,7 @@ static SYN_PT_Status sched_task_b(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     sched_order[sched_order_idx++] = 2;
-    PT_YIELD(pt);
+    PT_CONTINUE(pt);
     sched_order[sched_order_idx++] = 2;
 
     PT_END(pt);
@@ -65,6 +65,10 @@ static void test_scheduler(void)
     alive = syn_sched_run(&sched);
     TEST_ASSERT_TRUE(alive);
     TEST_ASSERT_EQUAL_INT(4, sched_order_idx);
+    TEST_ASSERT_EQUAL_INT(1, sched_order[0]);
+    TEST_ASSERT_EQUAL_INT(2, sched_order[1]);
+    TEST_ASSERT_EQUAL_INT(1, sched_order[2]);
+    TEST_ASSERT_EQUAL_INT(2, sched_order[3]);
 
     alive = syn_sched_run(&sched);
     TEST_ASSERT_FALSE(alive);
@@ -80,7 +84,7 @@ static SYN_PT_Status suspend_task_func(SYN_PT *pt, SYN_Task *task)
 
     for (;;) {
         suspend_counter++;
-        PT_YIELD(pt);
+        PT_CONTINUE(pt);
     }
 
     PT_END(pt);
@@ -165,7 +169,7 @@ static void test_sched_alive_count(void)
 
     /* task_a should be DEAD now, task_b still alive */
     size_t alive = syn_sched_alive_count(&sched);
-    TEST_ASSERT_TRUE(alive >= 1);
+    TEST_ASSERT_EQUAL_size_t(1U, alive);
 }
 
 #include <setjmp.h>
@@ -194,9 +198,9 @@ static void test_sched_run_forever(void)
     }
 }
 
-/* ── PT_DEFER and per-priority round-robin tests ─────────────────────── */
+/* ── PT_PASS, PT_CONTINUE, and per-priority round-robin tests ───────────── */
 
-static int run_log[32];
+static int run_log[64];
 static int run_log_idx;
 
 static void log_reset(void)
@@ -205,35 +209,35 @@ static void log_reset(void)
     memset(run_log, 0, sizeof(run_log));
 }
 
-/* Task that logs its ID and defers every call */
-static SYN_PT_Status defer_task(SYN_PT *pt, SYN_Task *task)
+/* Task that logs its ID and passes (PT_IDLE) every call */
+static SYN_PT_Status pass_task(SYN_PT *pt, SYN_Task *task)
 {
     int id = *(int *)task->user_data;
     PT_BEGIN(pt);
     for (;;) {
         run_log[run_log_idx++] = id;
-        PT_DEFER(pt, task);
+        PT_PASS(pt);
     }
     PT_END(pt);
 }
 
-/* Task that logs its ID and yields every call */
-static SYN_PT_Status yield_task(SYN_PT *pt, SYN_Task *task)
+/* Task that logs its ID and continues (PT_MORE) every call */
+static SYN_PT_Status continue_task(SYN_PT *pt, SYN_Task *task)
 {
     int id = *(int *)task->user_data;
     PT_BEGIN(pt);
     for (;;) {
         run_log[run_log_idx++] = id;
-        PT_YIELD(pt);
+        PT_CONTINUE(pt);
     }
     PT_END(pt);
 }
 
 /**
- * Basic defer: A (pri 0, defers) should let B (pri 1) run every other pass.
- * Expected pattern: A, B, A, B, ...
+ * Basic pass: A (CRITICAL, passes) lets B (HIGH, passes) run every round.
+ * Expected pattern: A, B, A, B, A, B.
  */
-static void test_defer_basic(void)
+static void test_pass_basic(void)
 {
     mock_tick_ms = 0;
     log_reset();
@@ -242,8 +246,8 @@ static void test_defer_basic(void)
     SYN_Sched sched;
     static int id_a = 1, id_b = 2;
 
-    syn_task_create(&tasks[0], "a", defer_task, 0, &id_a);
-    syn_task_create(&tasks[1], "b", yield_task, 1, &id_b);
+    syn_task_create(&tasks[0], "a", pass_task, SYN_PRIO_CRITICAL, &id_a);
+    syn_task_create(&tasks[1], "b", pass_task, SYN_PRIO_HIGH, &id_b);
     syn_sched_init(&sched, tasks, 2);
 
     for (int i = 0; i < 6; i++) {
@@ -260,10 +264,11 @@ static void test_defer_basic(void)
 }
 
 /**
- * Per-priority round-robin: A (pri 0, defers) with B1, B2 (pri 1, yield).
- * B1 and B2 should alternate fairly: A, B1, A, B2, A, B1, ...
+ * Per-priority round-robin: A (CRITICAL, passes) with B1, B2 (HIGH, continue).
+ * While A has passed for the round, B1 and B2 alternate fairly; when 1 ms
+ * elapses, A wakes as overdue, polls once, and B1/B2 resume alternating.
  */
-static void test_defer_rr_fairness(void)
+static void test_pass_rr_fairness(void)
 {
     mock_tick_ms = 0;
     log_reset();
@@ -272,29 +277,33 @@ static void test_defer_rr_fairness(void)
     SYN_Sched sched;
     static int id_a = 1, id_b1 = 2, id_b2 = 3;
 
-    syn_task_create(&tasks[0], "a", defer_task, 0, &id_a);
-    syn_task_create(&tasks[1], "b1", yield_task, 1, &id_b1);
-    syn_task_create(&tasks[2], "b2", yield_task, 1, &id_b2);
+    syn_task_create(&tasks[0], "a", pass_task, SYN_PRIO_CRITICAL, &id_a);
+    syn_task_create(&tasks[1], "b1", continue_task, SYN_PRIO_HIGH, &id_b1);
+    syn_task_create(&tasks[2], "b2", continue_task, SYN_PRIO_HIGH, &id_b2);
     syn_sched_init(&sched, tasks, 3);
 
-    for (int i = 0; i < 8; i++) {
+    /* A passes, then B1 and B2 alternate for 4 dispatches within 0 ms */
+    for (int i = 0; i < 5; i++) {
+        syn_sched_run(&sched);
+    }
+    mock_tick_advance(1); /* A (1 ms max wait) becomes overdue */
+    for (int i = 0; i < 3; i++) {
         syn_sched_run(&sched);
     }
 
-    /* A, B1, A, B2, A, B1, A, B2 */
-    TEST_ASSERT_EQUAL_INT(1, run_log[0]); /* A */
-    TEST_ASSERT_EQUAL_INT(2, run_log[1]); /* B1 */
-    TEST_ASSERT_EQUAL_INT(1, run_log[2]); /* A */
-    TEST_ASSERT_EQUAL_INT(3, run_log[3]); /* B2 */
-    TEST_ASSERT_EQUAL_INT(1, run_log[4]); /* A */
-    TEST_ASSERT_EQUAL_INT(2, run_log[5]); /* B1 */
-    TEST_ASSERT_EQUAL_INT(1, run_log[6]); /* A */
-    TEST_ASSERT_EQUAL_INT(3, run_log[7]); /* B2 */
+    /* A, B1, B2, B1, B2, A, B1, B2 */
+    TEST_ASSERT_EQUAL_INT(1, run_log[0]);
+    TEST_ASSERT_EQUAL_INT(2, run_log[1]);
+    TEST_ASSERT_EQUAL_INT(3, run_log[2]);
+    TEST_ASSERT_EQUAL_INT(2, run_log[3]);
+    TEST_ASSERT_EQUAL_INT(3, run_log[4]);
+    TEST_ASSERT_EQUAL_INT(1, run_log[5]);
+    TEST_ASSERT_EQUAL_INT(2, run_log[6]);
+    TEST_ASSERT_EQUAL_INT(3, run_log[7]);
 }
 
 /**
- * Same-priority round-robin still works without defer.
- * Two pri-0 tasks that yield should alternate: A, B, A, B, ...
+ * Same-priority round-robin: two CRITICAL tasks that continue alternate A, B, A, B.
  */
 static void test_rr_same_priority(void)
 {
@@ -305,8 +314,8 @@ static void test_rr_same_priority(void)
     SYN_Sched sched;
     static int id_a = 1, id_b = 2;
 
-    syn_task_create(&tasks[0], "a", yield_task, 0, &id_a);
-    syn_task_create(&tasks[1], "b", yield_task, 0, &id_b);
+    syn_task_create(&tasks[0], "a", continue_task, SYN_PRIO_CRITICAL, &id_a);
+    syn_task_create(&tasks[1], "b", continue_task, SYN_PRIO_CRITICAL, &id_b);
     syn_sched_init(&sched, tasks, 2);
 
     for (int i = 0; i < 6; i++) {
@@ -322,10 +331,10 @@ static void test_rr_same_priority(void)
 }
 
 /**
- * Strict priority without defer: A (pri 0, yields) starves B (pri 1).
- * This verifies that defer is needed and that strict priority is preserved.
+ * Strict priority within work window: A (CRITICAL, continues) runs ahead of
+ * B (HIGH, continues) while B's starvation deadline has not elapsed.
  */
-static void test_strict_priority_no_defer(void)
+static void test_strict_priority_within_window(void)
 {
     mock_tick_ms = 0;
     log_reset();
@@ -334,15 +343,14 @@ static void test_strict_priority_no_defer(void)
     SYN_Sched sched;
     static int id_a = 1, id_b = 2;
 
-    syn_task_create(&tasks[0], "a", yield_task, 0, &id_a);
-    syn_task_create(&tasks[1], "b", yield_task, 1, &id_b);
+    syn_task_create(&tasks[0], "a", continue_task, SYN_PRIO_CRITICAL, &id_a);
+    syn_task_create(&tasks[1], "b", continue_task, SYN_PRIO_HIGH, &id_b);
     syn_sched_init(&sched, tasks, 2);
 
     for (int i = 0; i < 4; i++) {
         syn_sched_run(&sched);
     }
 
-    /* Only A runs — B starves (strict priority, no defer) */
     TEST_ASSERT_EQUAL_INT(1, run_log[0]);
     TEST_ASSERT_EQUAL_INT(1, run_log[1]);
     TEST_ASSERT_EQUAL_INT(1, run_log[2]);
@@ -350,10 +358,10 @@ static void test_strict_priority_no_defer(void)
 }
 
 /**
- * Defer with 3 lower-priority tasks: A (pri 0, defers), B1/B2/B3 (pri 1).
- * All three should get fair rotation: A, B1, A, B2, A, B3, A, B1, ...
+ * Pass with 3 lower-priority workers: A (CRITICAL, passes), B1/B2/B3 (HIGH, continue).
+ * All three get fair rotation while A is passed, and resume where RR left off after A polls.
  */
-static void test_defer_rr_three_lower(void)
+static void test_pass_rr_three_lower(void)
 {
     mock_tick_ms = 0;
     log_reset();
@@ -362,32 +370,36 @@ static void test_defer_rr_three_lower(void)
     SYN_Sched sched;
     static int id_a = 1, id_b1 = 2, id_b2 = 3, id_b3 = 4;
 
-    syn_task_create(&tasks[0], "a", defer_task, 0, &id_a);
-    syn_task_create(&tasks[1], "b1", yield_task, 1, &id_b1);
-    syn_task_create(&tasks[2], "b2", yield_task, 1, &id_b2);
-    syn_task_create(&tasks[3], "b3", yield_task, 1, &id_b3);
+    syn_task_create(&tasks[0], "a", pass_task, SYN_PRIO_CRITICAL, &id_a);
+    syn_task_create(&tasks[1], "b1", continue_task, SYN_PRIO_HIGH, &id_b1);
+    syn_task_create(&tasks[2], "b2", continue_task, SYN_PRIO_HIGH, &id_b2);
+    syn_task_create(&tasks[3], "b3", continue_task, SYN_PRIO_HIGH, &id_b3);
     syn_sched_init(&sched, tasks, 4);
 
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 5; i++) {
+        syn_sched_run(&sched);
+    }
+    mock_tick_advance(1);
+    for (int i = 0; i < 3; i++) {
         syn_sched_run(&sched);
     }
 
-    /* A, B1, A, B2, A, B3, A, B1 */
-    TEST_ASSERT_EQUAL_INT(1, run_log[0]); /* A */
-    TEST_ASSERT_EQUAL_INT(2, run_log[1]); /* B1 */
-    TEST_ASSERT_EQUAL_INT(1, run_log[2]); /* A */
-    TEST_ASSERT_EQUAL_INT(3, run_log[3]); /* B2 */
-    TEST_ASSERT_EQUAL_INT(1, run_log[4]); /* A */
-    TEST_ASSERT_EQUAL_INT(4, run_log[5]); /* B3 */
-    TEST_ASSERT_EQUAL_INT(1, run_log[6]); /* A */
-    TEST_ASSERT_EQUAL_INT(2, run_log[7]); /* B1 */
+    /* A, B1, B2, B3, B1, A, B2, B3 */
+    TEST_ASSERT_EQUAL_INT(1, run_log[0]);
+    TEST_ASSERT_EQUAL_INT(2, run_log[1]);
+    TEST_ASSERT_EQUAL_INT(3, run_log[2]);
+    TEST_ASSERT_EQUAL_INT(4, run_log[3]);
+    TEST_ASSERT_EQUAL_INT(2, run_log[4]);
+    TEST_ASSERT_EQUAL_INT(1, run_log[5]);
+    TEST_ASSERT_EQUAL_INT(3, run_log[6]);
+    TEST_ASSERT_EQUAL_INT(4, run_log[7]);
 }
 
 /**
- * DEFERRED state lifecycle: task defers → state = DEFERRED → skipped
- * one pass → cleared back to READY.
+ * PASSED round-flag lifecycle: task passes -> stays READY with PASSED flag ->
+ * once all pollers pass, next round clears PASSED.
  */
-static void test_defer_state_lifecycle(void)
+static void test_pass_flag_lifecycle(void)
 {
     mock_tick_ms = 0;
 
@@ -395,27 +407,33 @@ static void test_defer_state_lifecycle(void)
     SYN_Sched sched;
     static int id_a = 1, id_b = 2;
 
-    syn_task_create(&tasks[0], "a", defer_task, 0, &id_a);
-    syn_task_create(&tasks[1], "b", yield_task, 1, &id_b);
+    syn_task_create(&tasks[0], "a", pass_task, SYN_PRIO_CRITICAL, &id_a);
+    syn_task_create(&tasks[1], "b", pass_task, SYN_PRIO_HIGH, &id_b);
     syn_sched_init(&sched, tasks, 2);
 
-    /* Pass 1: A runs and defers */
+    /* Dispatch 1: A runs and passes */
     log_reset();
-    syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEFERRED, tasks[0].state);
-    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[1].state);
-
-    /* Pass 2: A skipped (DEFERRED), B runs, A cleared to READY */
     syn_sched_run(&sched);
     TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[0].state);
+    TEST_ASSERT_NOT_EQUAL(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_PASSED);
     TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[1].state);
+
+    /* Dispatch 2: B runs and passes */
+    syn_sched_run(&sched);
+    TEST_ASSERT_NOT_EQUAL(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_PASSED);
+    TEST_ASSERT_NOT_EQUAL(0U, tasks[1].sched_flags & SYN_SCHED_FLAG_PASSED);
+
+    /* Dispatch 3: new round clears PASSED on all tasks, then A runs and passes */
+    syn_sched_run(&sched);
+    TEST_ASSERT_NOT_EQUAL(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_PASSED);
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[1].sched_flags & SYN_SCHED_FLAG_PASSED);
 }
 
 /**
- * Defer is compatible with suspend: a deferred task can be suspended,
- * and when resumed it resumes as READY, not DEFERRED.
+ * Pass is compatible with suspend: a passed task can be suspended,
+ * and when resumed it wakes as READY with MORE work rank.
  */
-static void test_defer_then_suspend(void)
+static void test_pass_then_suspend(void)
 {
     mock_tick_ms = 0;
     log_reset();
@@ -424,25 +442,27 @@ static void test_defer_then_suspend(void)
     SYN_Sched sched;
     static int id_a = 1, id_b = 2;
 
-    syn_task_create(&tasks[0], "a", defer_task, 0, &id_a);
-    syn_task_create(&tasks[1], "b", yield_task, 1, &id_b);
+    syn_task_create(&tasks[0], "a", pass_task, SYN_PRIO_CRITICAL, &id_a);
+    syn_task_create(&tasks[1], "b", continue_task, SYN_PRIO_HIGH, &id_b);
     syn_sched_init(&sched, tasks, 2);
 
-    /* A runs and defers */
+    /* A runs and passes */
     syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEFERRED, tasks[0].state);
+    TEST_ASSERT_NOT_EQUAL(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_PASSED);
 
-    /* Suspend A while it's deferred */
+    /* Suspend A while it is passed */
     syn_task_suspend(&tasks[0]);
     TEST_ASSERT_EQUAL_UINT8(SYN_TASK_SUSPENDED, tasks[0].state);
 
-    /* B should run while A is suspended */
+    /* B runs while A is suspended */
     syn_sched_run(&sched);
     TEST_ASSERT_EQUAL_INT(2, run_log[1]);
 
-    /* Resume A — should come back as READY */
+    /* Resume A — comes back READY and preempts B immediately as waking Work */
     syn_task_resume(&tasks[0]);
     TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[0].state);
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(1, run_log[2]);
 }
 
 /* ── PT_BLOCK_EVENT tests ────────────────────────────────────────────────── */
@@ -518,7 +538,7 @@ static void test_block_event_skips_scan(void)
     static int id_b = 2;
 
     syn_task_create(&tasks[0], "blk", block_task_fn, 0, &evt);
-    syn_task_create(&tasks[1], "low", yield_task, 1, &id_b);
+    syn_task_create(&tasks[1], "low", continue_task, 1, &id_b);
     syn_sched_init(&sched, tasks, 2);
 
     /* Pass 1: high-pri task runs, blocks */
@@ -578,7 +598,7 @@ static void test_block_event_priority(void)
     static int id_b = 2;
 
     syn_task_create(&tasks[0], "blk", block_task_fn, 0, &evt);
-    syn_task_create(&tasks[1], "low", yield_task, 1, &id_b);
+    syn_task_create(&tasks[1], "low", continue_task, 1, &id_b);
     syn_sched_init(&sched, tasks, 2);
 
     /* Block high-pri */
@@ -667,7 +687,7 @@ static void test_block_event_suspend(void)
     TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[0].state);
 }
 
-/* ── PT_WAITING retry tests ──────────────────────────────────────────────── */
+/* ── PT_IDLE (PT_WAIT_UNTIL) round-pass tests ────────────────────────────── */
 
 static bool wait_cond_a;
 
@@ -680,14 +700,15 @@ static SYN_PT_Status wait_task(SYN_PT *pt, SYN_Task *task)
         PT_WAIT_UNTIL(pt, wait_cond_a);
         run_log[run_log_idx++] = id;
         wait_cond_a = false; /* consume the event */
-        PT_YIELD(pt);
+        PT_CONTINUE(pt);
     }
     PT_END(pt);
 }
 
 /**
  * Waiting high-pri task doesn't starve lower-pri task.
- * A (pri 0) waits on false condition. B (pri 1) should run.
+ * A (CRITICAL) waits on false condition (returns PT_IDLE -> PASSED).
+ * B (HIGH) runs on subsequent dispatches until A's poll window elapses.
  */
 static void test_waiting_doesnt_starve(void)
 {
@@ -699,32 +720,34 @@ static void test_waiting_doesnt_starve(void)
     SYN_Sched sched;
     static int id_a = 1, id_b = 2;
 
-    syn_task_create(&tasks[0], "w", wait_task, 0, &id_a);
-    syn_task_create(&tasks[1], "b", yield_task, 1, &id_b);
+    syn_task_create(&tasks[0], "w", wait_task, SYN_PRIO_CRITICAL, &id_a);
+    syn_task_create(&tasks[1], "b", continue_task, SYN_PRIO_HIGH, &id_b);
     syn_sched_init(&sched, tasks, 2);
 
-    /* Tick 1: A runs, hits PT_WAIT_UNTIL (false) → WAITING.
-     * Scheduler retries → B runs. */
+    /* Dispatch 1: A polls wait_cond_a (false) -> returns PT_IDLE (PASSED) */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(0, run_log_idx);
+
+    /* Dispatches 2 & 3: A is PASSED, so B runs continuously */
     syn_sched_run(&sched);
     TEST_ASSERT_EQUAL_INT(1, run_log_idx);
-    TEST_ASSERT_EQUAL_INT(2, run_log[0]); /* B ran, not A */
+    TEST_ASSERT_EQUAL_INT(2, run_log[0]);
 
-    /* Tick 2: same pattern — B keeps running */
     syn_sched_run(&sched);
     TEST_ASSERT_EQUAL_INT(2, run_log_idx);
-    TEST_ASSERT_EQUAL_INT(2, run_log[1]); /* B again */
+    TEST_ASSERT_EQUAL_INT(2, run_log[1]);
 
-    /* Tick 3: condition becomes true — A runs */
+    /* 1 ms elapses and condition becomes true — A wakes as overdue and runs */
     wait_cond_a = true;
+    mock_tick_advance(1);
     syn_sched_run(&sched);
     TEST_ASSERT_EQUAL_INT(3, run_log_idx);
-    TEST_ASSERT_EQUAL_INT(1, run_log[2]); /* A ran */
+    TEST_ASSERT_EQUAL_INT(1, run_log[2]);
 }
 
 /**
- * PT_DEFER + PT_WAITING don't interfere.
- * A (pri 0, defers) → B (pri 1, waits) → C (pri 2, yields).
- * Expected: A, C, A, C, ...  (B never does useful work)
+ * PT_PASS + PT_WAIT_UNTIL compose cleanly across priorities.
+ * A (CRITICAL, passes) -> B (HIGH, waits false) -> C (NORMAL, continues).
  */
 static void test_waiting_with_defer_no_inversion(void)
 {
@@ -736,33 +759,35 @@ static void test_waiting_with_defer_no_inversion(void)
     SYN_Sched sched;
     static int id_a = 1, id_b = 2, id_c = 3;
 
-    syn_task_create(&tasks[0], "a", defer_task, 0, &id_a);
-    syn_task_create(&tasks[1], "w", wait_task, 1, &id_b);
-    syn_task_create(&tasks[2], "c", yield_task, 2, &id_c);
+    syn_task_create(&tasks[0], "a", pass_task, SYN_PRIO_CRITICAL, &id_a);
+    syn_task_create(&tasks[1], "w", wait_task, SYN_PRIO_HIGH, &id_b);
+    syn_task_create(&tasks[2], "c", continue_task, SYN_PRIO_NORMAL, &id_c);
     syn_sched_init(&sched, tasks, 3);
 
-    /* Tick 1: A runs, defers */
+    /* Dispatch 1: A runs and passes */
     syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL_INT(1, run_log[0]); /* A */
-    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEFERRED, tasks[0].state);
+    TEST_ASSERT_EQUAL_INT(1, run_log[0]);
 
-    /* Tick 2: A deferred → skipped. B waits → WAITING. C runs.
-     * A cleared to READY at end of tick. */
+    /* Dispatch 2: B polls false and passes (no log) */
     syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL_INT(3, run_log[1]); /* C */
-    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[0].state);
+    TEST_ASSERT_EQUAL_INT(1, run_log_idx);
 
-    /* Tick 3: A is back — runs and defers again */
+    /* Dispatches 3 & 4: C has MORE work and runs */
     syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL_INT(1, run_log[2]); /* A */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(3, run_log[1]);
+    TEST_ASSERT_EQUAL_INT(3, run_log[2]);
 
-    /* Tick 4: A deferred, B waits, C runs */
+    /* 1 ms elapses: A (1 ms window) polls again, then C resumes (B's 5 ms not yet due) */
+    mock_tick_advance(1);
     syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL_INT(3, run_log[3]); /* C */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(1, run_log[3]);
+    TEST_ASSERT_EQUAL_INT(3, run_log[4]);
 }
 
 /**
- * All tasks waiting — no infinite loop, all cleared to READY.
+ * All tasks waiting — round resets cleanly, no hang, all stay READY.
  */
 static void test_all_tasks_waiting(void)
 {
@@ -774,24 +799,24 @@ static void test_all_tasks_waiting(void)
     SYN_Sched sched;
     static int id_a = 1, id_b = 2, id_c = 3;
 
-    syn_task_create(&tasks[0], "a", wait_task, 0, &id_a);
-    syn_task_create(&tasks[1], "b", wait_task, 1, &id_b);
-    syn_task_create(&tasks[2], "c", wait_task, 2, &id_c);
+    syn_task_create(&tasks[0], "a", wait_task, SYN_PRIO_CRITICAL, &id_a);
+    syn_task_create(&tasks[1], "b", wait_task, SYN_PRIO_HIGH, &id_b);
+    syn_task_create(&tasks[2], "c", wait_task, SYN_PRIO_NORMAL, &id_c);
     syn_sched_init(&sched, tasks, 3);
 
-    /* All tasks wait — should not hang, no log entries */
-    bool alive = syn_sched_run(&sched);
-    TEST_ASSERT_TRUE(alive);
+    for (int i = 0; i < 4; i++) {
+        bool alive = syn_sched_run(&sched);
+        TEST_ASSERT_TRUE(alive);
+    }
     TEST_ASSERT_EQUAL_INT(0, run_log_idx);
 
-    /* All should be READY again for next tick */
     TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[0].state);
     TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[1].state);
     TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[2].state);
 }
 
 /**
- * WAITING state lifecycle: set during tick, cleared at end.
+ * PT_IDLE state lifecycle: task stays READY with PASSED flag set.
  */
 static void test_waiting_state_lifecycle(void)
 {
@@ -802,17 +827,17 @@ static void test_waiting_state_lifecycle(void)
     SYN_Sched sched;
     static int id_a = 1;
 
-    syn_task_create(&tasks[0], "w", wait_task, 0, &id_a);
+    syn_task_create(&tasks[0], "w", wait_task, SYN_PRIO_CRITICAL, &id_a);
     syn_sched_init(&sched, tasks, 1);
 
-    /* After tick: task was WAITING during tick but cleared to READY */
     syn_sched_run(&sched);
     TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[0].state);
+    TEST_ASSERT_NOT_EQUAL(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_PASSED);
 }
 
 /**
- * Same-priority: one waits, the other works. They should alternate
- * fairly once the waiting condition clears.
+ * Same-priority: one waits, the other works. Once the poll window elapses
+ * and condition clears, A gets its turn.
  */
 static void test_waiting_same_priority_fairness(void)
 {
@@ -824,26 +849,28 @@ static void test_waiting_same_priority_fairness(void)
     SYN_Sched sched;
     static int id_a = 1, id_b = 2;
 
-    syn_task_create(&tasks[0], "w", wait_task, 0, &id_a);
-    syn_task_create(&tasks[1], "b", yield_task, 0, &id_b);
+    syn_task_create(&tasks[0], "w", wait_task, SYN_PRIO_CRITICAL, &id_a);
+    syn_task_create(&tasks[1], "b", continue_task, SYN_PRIO_CRITICAL, &id_b);
     syn_sched_init(&sched, tasks, 2);
 
-    /* While A waits, B should run every tick */
+    /* Dispatch 1: A polls false (PASSED). Dispatches 2 & 3: B runs */
     syn_sched_run(&sched);
     syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL_INT(2, run_log[0]); /* B */
-    TEST_ASSERT_EQUAL_INT(2, run_log[1]); /* B */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(2, run_log[0]);
+    TEST_ASSERT_EQUAL_INT(2, run_log[1]);
 
-    /* Condition true: A runs (RR should give it a turn) */
+    /* Condition true + 1 ms window elapsed: A runs */
     wait_cond_a = true;
+    mock_tick_advance(1);
     syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL_INT(1, run_log[2]); /* A */
+    TEST_ASSERT_EQUAL_INT(1, run_log[2]);
 }
 
 /**
- * Delayed prio-0 + waiting prio-1: no priority inversion.
- * A (pri 0) is delayed. B (pri 1) waits. C (pri 2) should run.
- * When A's delay expires, A runs first.
+ * Delayed CRITICAL + waiting HIGH: no priority inversion.
+ * A (CRITICAL) is delayed. B (HIGH) waits false. C (NORMAL) runs.
+ * When A's delay expires within B/C windows, A runs immediately.
  */
 static void test_waiting_delayed_no_inversion(void)
 {
@@ -855,34 +882,36 @@ static void test_waiting_delayed_no_inversion(void)
     SYN_Sched sched;
     static int id_a = 1, id_b = 2, id_c = 3;
 
-    syn_task_create(&tasks[0], "a", yield_task, 0, &id_a);
-    syn_task_create(&tasks[1], "w", wait_task, 1, &id_b);
-    syn_task_create(&tasks[2], "c", yield_task, 2, &id_c);
+    syn_task_create(&tasks[0], "a", continue_task, SYN_PRIO_CRITICAL, &id_a);
+    syn_task_create(&tasks[1], "w", wait_task, SYN_PRIO_HIGH, &id_b);
+    syn_task_create(&tasks[2], "c", continue_task, SYN_PRIO_NORMAL, &id_c);
     syn_sched_init(&sched, tasks, 3);
 
-    /* Delay A for 100ms */
-    tasks[0].delay_until = mock_tick_ms + 100;
+    /* Delay A for 3 ms */
+    tasks[0].delay_until = mock_tick_ms + 3;
 
-    /* Tick: A delayed, B waits, C runs */
+    /* Dispatch 1: A delayed, B polls false (PASSED). Dispatch 2: C runs */
     syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL_INT(3, run_log[0]); /* C, not B */
-
-    /* Advance past A's delay */
-    mock_tick_advance(150);
-
-    /* Tick: A is ready (pri 0) → runs first */
     syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL_INT(1, run_log[1]); /* A */
+    TEST_ASSERT_EQUAL_INT(3, run_log[0]);
+
+    /* Advance past A's 3 ms delay (within B's 5 ms and C's 15 ms windows) */
+    mock_tick_advance(4);
+
+    /* A wakes as Work at CRITICAL priority -> runs first */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(1, run_log[1]);
 }
 
 static void test_task_priority_boost_and_restore(void)
 {
+    mock_tick_ms = 0;
     SYN_Task tasks[2];
     SYN_Sched sched;
     static int id_a = 1, id_b = 2;
 
-    syn_task_create(&tasks[0], "a", yield_task, 3, &id_a); /* Low priority 3 */
-    syn_task_create(&tasks[1], "b", yield_task, 1, &id_b); /* High priority 1 */
+    syn_task_create(&tasks[0], "a", continue_task, SYN_PRIO_LOW, &id_a);
+    syn_task_create(&tasks[1], "b", continue_task, SYN_PRIO_HIGH, &id_b);
     syn_sched_init(&sched, tasks, 2);
 
     TEST_ASSERT_EQUAL_UINT8(3, tasks[0].priority);
@@ -893,17 +922,41 @@ static void test_task_priority_boost_and_restore(void)
     syn_sched_run(&sched);
     TEST_ASSERT_EQUAL_INT(2, run_log[0]); /* Task B (prio 1) runs first */
 
-    /* Boost Task A from prio 3 to prio 0 (highest) */
-    syn_task_boost_priority(&tasks[0], 0);
+    /* Attempt demotion within valid range (temp_prio 2 > base_priority 1) — rejected */
+    syn_task_boost_priority(&tasks[1], SYN_PRIO_NORMAL);
+    TEST_ASSERT_EQUAL_UINT8(1, tasks[1].priority);
+
+    /* Boost before first dispatch (DUE_VALID == 0) and on unbound task (sched == NULL) */
+    SYN_Task unbound;
+    syn_task_create(&unbound, "unbound", continue_task, SYN_PRIO_LOW, &id_a);
+    syn_task_boost_priority(&unbound, SYN_PRIO_HIGH);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, unbound.priority);
+
+    /* Boost Task A from prio 3 (due=50) to prio 1 (max_wait=5): tightens due_ms to 5 */
+    TEST_ASSERT_EQUAL_UINT32(50U, tasks[0].due_ms);
+    syn_task_boost_priority(&tasks[0], SYN_PRIO_HIGH);
+    TEST_ASSERT_EQUAL_UINT8(1, tasks[0].priority);
+    TEST_ASSERT_EQUAL_UINT32(5U, tasks[0].due_ms);
+
+    /* Advance tick to 10 so tasks[0].due_ms (5) is already earlier than boosted_due (10 + 1 = 11)
+     */
+    mock_tick_ms = 10U;
+    syn_task_boost_priority(&tasks[0], SYN_PRIO_CRITICAL);
     TEST_ASSERT_EQUAL_UINT8(0, tasks[0].priority);
+    TEST_ASSERT_EQUAL_UINT32(5U, tasks[0].due_ms);      /* Earlier deadline preserved */
     TEST_ASSERT_EQUAL_UINT8(3, tasks[0].base_priority); /* Base priority unchanged */
+    mock_tick_ms = 0U;
+
+    /* Re-boosting to same active priority 0 is a harmless no-op */
+    syn_task_boost_priority(&tasks[0], SYN_PRIO_CRITICAL);
+    TEST_ASSERT_EQUAL_UINT8(0, tasks[0].priority);
 
     log_reset();
     syn_sched_run(&sched);
     TEST_ASSERT_EQUAL_INT(1, run_log[0]); /* Task A now preempts Task B */
 
-    /* Attempt invalid boost (try to demote to prio 5) — should be rejected */
-    syn_task_boost_priority(&tasks[0], 5);
+    /* Attempt out-of-range boost (prio 5 >= SYN_SCHED_PRIO_LEVELS) — rejected */
+    syn_task_boost_priority(&tasks[0], (SYN_Prio)5);
     TEST_ASSERT_EQUAL_UINT8(0, tasks[0].priority); /* Stays at boosted 0 */
 
     /* Restore Task A back to base priority 3 */
@@ -915,16 +968,16 @@ static void test_task_priority_boost_and_restore(void)
     TEST_ASSERT_EQUAL_INT(2, run_log[0]); /* Task B runs again */
 
     /* Dynamically change base priority */
-    syn_task_set_base_priority(&tasks[0], 0);
+    syn_task_set_base_priority(&tasks[0], SYN_PRIO_CRITICAL);
     TEST_ASSERT_EQUAL_UINT8(0, tasks[0].priority);
     TEST_ASSERT_EQUAL_UINT8(0, tasks[0].base_priority);
 }
 
 /**
- * Two high-priority tasks (A1, A2 at pri 0) both deferring.
- * Tracing the ping-pong deferral behavior.
+ * Two CRITICAL pollers (A1, A2 passing) plus a LOW worker:
+ * round-pass semantics prevent ping-pong starvation, so LOW runs on dispatch 3!
  */
-static void test_two_deferring_high_pri_tasks_starve_lower(void)
+static void test_two_passing_high_pri_tasks_do_not_starve_lower(void)
 {
     mock_tick_ms = 0;
     log_reset();
@@ -933,22 +986,21 @@ static void test_two_deferring_high_pri_tasks_starve_lower(void)
     SYN_Sched sched;
     static int id_a1 = 1, id_a2 = 2, id_b = 3;
 
-    syn_task_create(&tasks[0], "a1", defer_task, 0, &id_a1);
-    syn_task_create(&tasks[1], "a2", defer_task, 0, &id_a2);
-    syn_task_create(&tasks[2], "b", yield_task, 1, &id_b);
+    syn_task_create(&tasks[0], "a1", pass_task, SYN_PRIO_CRITICAL, &id_a1);
+    syn_task_create(&tasks[1], "a2", pass_task, SYN_PRIO_CRITICAL, &id_a2);
+    syn_task_create(&tasks[2], "b", continue_task, SYN_PRIO_LOW, &id_b);
     syn_sched_init(&sched, tasks, 3);
 
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 5; i++) {
         syn_sched_run(&sched);
     }
 
-    /* A1 runs (defers A1), A2 runs (clears A1, defers A2), A1 runs (clears A2, defers A1)... */
-    /* Log: A1(1), A2(2), A1(1), A2(2), A1(1), A2(2) */
-    /* Task B (3) never runs! */
+    /* A1 passes, A2 passes, then LOW worker B runs without starving! */
     TEST_ASSERT_EQUAL_INT(1, run_log[0]);
     TEST_ASSERT_EQUAL_INT(2, run_log[1]);
-    TEST_ASSERT_EQUAL_INT(1, run_log[2]);
-    TEST_ASSERT_EQUAL_INT(2, run_log[3]);
+    TEST_ASSERT_EQUAL_INT(3, run_log[2]);
+    TEST_ASSERT_EQUAL_INT(3, run_log[3]);
+    TEST_ASSERT_EQUAL_INT(3, run_log[4]);
 }
 
 static SYN_PT_Status us_delay_task_func(SYN_PT *pt, SYN_Task *task)
@@ -973,12 +1025,12 @@ static void test_pt_delay_us(void)
     syn_task_create(&tasks[0], "us_task", us_delay_task_func, 0, NULL);
     syn_sched_init(&sched, tasks, 1);
 
-    /* Step 1: Task runs, logs 1, sets us_target = 50us, returns PT_WAITING */
+    /* Step 1: Task runs, logs 1, sets us_target = 50us, returns PT_IDLE */
     syn_sched_run(&sched);
     TEST_ASSERT_EQUAL_INT(1, run_log_idx);
     TEST_ASSERT_EQUAL_INT(1, run_log[0]);
 
-    /* Step 2: Advance by 20us (less than 50us) — task returns PT_WAITING */
+    /* Step 2: Advance by 20us (less than 50us) — task returns PT_IDLE */
     mock_tick_advance_us(20);
     syn_sched_run(&sched);
     TEST_ASSERT_EQUAL_INT(1, run_log_idx);
@@ -1154,7 +1206,7 @@ static SYN_PT_Status delay_once_task(SYN_PT *pt, SYN_Task *task)
     PT_TASK_DELAY_MS(pt, task, 10);
     for (;;) {
         stale_runs++;
-        PT_YIELD(pt);
+        PT_CONTINUE(pt);
     }
     PT_END(pt);
 }
@@ -1333,6 +1385,11 @@ static void test_block_event_with_timeout_expired(void)
     syn_sched_run(&sched);
     TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, task.state);
 
+    /* Mid-timeout pass (t = 1050 < 1100): stays BLOCKED */
+    mock_tick_ms = 1050;
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, task.state);
+
     /* Advance time past timeout without firing event */
     mock_tick_ms = 1105;
 
@@ -1451,6 +1508,1467 @@ static void test_sched_rr_uint16_rotation(void)
     }
 }
 
+/* ── Intent & starvation-bound redesign tests ───────────────────────────── */
+
+/**
+ * 1. Two CRITICAL pollers plus a LOW worker: LOW runs on dispatch 3.
+ */
+static void test_two_critical_pollers_plus_low_worker(void)
+{
+    mock_tick_ms = 0;
+    log_reset();
+
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+    static int id_c1 = 1, id_c2 = 2, id_low = 3;
+
+    syn_task_create(&tasks[0], "c1", pass_task, SYN_PRIO_CRITICAL, &id_c1);
+    syn_task_create(&tasks[1], "c2", pass_task, SYN_PRIO_CRITICAL, &id_c2);
+    syn_task_create(&tasks[2], "low", continue_task, SYN_PRIO_LOW, &id_low);
+    syn_sched_init(&sched, tasks, 3);
+
+    syn_sched_run(&sched);
+    syn_sched_run(&sched);
+    syn_sched_run(&sched);
+
+    TEST_ASSERT_EQUAL_INT(1, run_log[0]);
+    TEST_ASSERT_EQUAL_INT(2, run_log[1]);
+    TEST_ASSERT_EQUAL_INT(3, run_log[2]);
+}
+
+/**
+ * 2. HIGH MORE flood plus CRITICAL poller: poller runs at least once per 1 ms.
+ */
+static void test_high_more_flood_vs_critical_poller(void)
+{
+    mock_tick_ms = 0;
+
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    static int id_crit = 1, id_high = 2;
+
+    syn_task_create(&tasks[0], "crit", pass_task, SYN_PRIO_CRITICAL, &id_crit);
+    syn_task_create(&tasks[1], "high", continue_task, SYN_PRIO_HIGH, &id_high);
+    syn_sched_init(&sched, tasks, 2);
+
+    for (int ms = 0; ms < 10; ms++) {
+        log_reset();
+        for (int step = 0; step < 12; step++) {
+            syn_sched_run(&sched);
+        }
+
+        int crit_runs = 0;
+        int high_runs = 0;
+        for (int k = 0; k < run_log_idx; k++) {
+            if (run_log[k] == 1) {
+                crit_runs++;
+            } else if (run_log[k] == 2) {
+                high_runs++;
+            }
+        }
+        /* CRITICAL poller ran once this ms, HIGH worker got remaining dispatches */
+        TEST_ASSERT_EQUAL_INT(1, crit_runs);
+        TEST_ASSERT_EQUAL_INT(11, high_runs);
+
+        mock_tick_advance(1);
+    }
+}
+
+/**
+ * 3. HIGH MORE flood plus LOW MORE: LOW runs within 50 ms (SYN_SCHED_MAX_WAIT_LOW_MS).
+ */
+static int g_flood_high_cnt;
+static int g_flood_low_cnt;
+static uint32_t g_first_low_ms;
+
+static SYN_PT_Status flood_high_fn(SYN_PT *pt, SYN_Task *task)
+{
+    (void)task;
+    PT_BEGIN(pt);
+    for (;;) {
+        g_flood_high_cnt++;
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static SYN_PT_Status flood_low_fn(SYN_PT *pt, SYN_Task *task)
+{
+    (void)task;
+    PT_BEGIN(pt);
+    for (;;) {
+        if (g_flood_low_cnt == 0) {
+            g_first_low_ms = syn_port_get_tick_ms();
+        }
+        g_flood_low_cnt++;
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static void test_high_more_flood_vs_low_more(void)
+{
+    mock_tick_ms = 0;
+    g_flood_high_cnt = 0;
+    g_flood_low_cnt = 0;
+    g_first_low_ms = UINT32_MAX;
+
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+
+    syn_task_create(&tasks[0], "high", flood_high_fn, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&tasks[1], "low", flood_low_fn, SYN_PRIO_LOW, NULL);
+    syn_sched_init(&sched, tasks, 2);
+
+    /* Run 4 dispatches per ms across 200 ms */
+    for (uint32_t ms = 0; ms <= 200U; ms++) {
+        mock_tick_ms = ms;
+        for (int step = 0; step < 4; step++) {
+            syn_sched_run(&sched);
+        }
+        if (ms < SYN_SCHED_MAX_WAIT_LOW_MS) {
+            TEST_ASSERT_EQUAL_INT(0, g_flood_low_cnt);
+        }
+    }
+
+    TEST_ASSERT_EQUAL_UINT32(SYN_SCHED_MAX_WAIT_LOW_MS, g_first_low_ms);
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(4, g_flood_low_cnt);
+}
+
+/**
+ * 4. Simultaneous overdue tasks (CRITICAL and LOW both overdue after a long HIGH chunk,
+ * even when LOW's deadline is older than CRITICAL's): CRITICAL runs first, then LOW runs
+ * immediately on the next dispatch ahead of non-overdue HIGH work, then HIGH resumes.
+ */
+static uint32_t g_high_chunk_advance_ms;
+
+static SYN_PT_Status variable_chunk_high_fn(SYN_PT *pt, SYN_Task *task)
+{
+    int id = *(int *)task->user_data;
+    PT_BEGIN(pt);
+    for (;;) {
+        run_log[run_log_idx++] = id;
+        if (g_high_chunk_advance_ms > 0U) {
+            mock_tick_advance(g_high_chunk_advance_ms);
+            g_high_chunk_advance_ms = 0U;
+        }
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static void test_simultaneous_overdue_priority_order(void)
+{
+    mock_tick_ms = 0;
+    g_high_chunk_advance_ms = 0U;
+    log_reset();
+
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+    static int id_crit = 1, id_high = 2, id_low = 3;
+
+    /* Place LOW before CRITICAL in task array so priority comparison (< and >) is exercised */
+    syn_task_create(&tasks[0], "low", continue_task, SYN_PRIO_LOW, &id_low);
+    syn_task_create(&tasks[1], "crit", pass_task, SYN_PRIO_CRITICAL, &id_crit);
+    syn_task_create(&tasks[2], "high", variable_chunk_high_fn, SYN_PRIO_HIGH, &id_high);
+    syn_sched_init(&sched, tasks, 3);
+
+    syn_sched_set_max_wait(&sched, SYN_PRIO_CRITICAL, 4U);
+    syn_sched_set_max_wait(&sched, SYN_PRIO_HIGH, 20U);
+    syn_sched_set_max_wait(&sched, SYN_PRIO_LOW, 10U);
+
+    /* t = 0: crit runs (due = 4), low stamped due = 10, high runs (due = 20) */
+    syn_sched_run(&sched);
+    syn_sched_run(&sched);
+
+    /* t = 4: crit overdue -> runs (due = 8) */
+    mock_tick_ms = 4U;
+    syn_sched_run(&sched);
+
+    /* t = 8: crit overdue -> runs (due = 12); then high runs a 7 ms chunk -> t = 15 */
+    mock_tick_ms = 8U;
+    syn_sched_run(&sched);
+    g_high_chunk_advance_ms = 7U;
+    syn_sched_run(&sched);
+
+    /* At t = 15: low.due_ms == 10 (older!), crit.due_ms == 12 (newer), high.due_ms == 35 */
+    TEST_ASSERT_EQUAL_UINT32(15U, mock_tick_ms);
+    TEST_ASSERT_LESS_THAN_UINT32(tasks[1].due_ms, tasks[0].due_ms);
+
+    log_reset();
+    syn_sched_run(&sched); /* Overdue rank: CRITICAL wins over older LOW */
+    syn_sched_run(&sched); /* Overdue rank: LOW wins over non-overdue HIGH */
+    syn_sched_run(&sched); /* Work rank: HIGH resumes ahead of LOW */
+
+    TEST_ASSERT_EQUAL_INT(1, run_log[0]);
+    TEST_ASSERT_EQUAL_INT(3, run_log[1]);
+    TEST_ASSERT_EQUAL_INT(2, run_log[2]);
+}
+
+/**
+ * 5. N pollers across priorities: each runs exactly once per round.
+ */
+static void test_n_pollers_once_per_round(void)
+{
+    mock_tick_ms = 0;
+    log_reset();
+
+    SYN_Task tasks[5];
+    SYN_Sched sched;
+    static int ids[5] = {1, 2, 3, 4, 5};
+
+    syn_task_create(&tasks[0], "p_low", pass_task, SYN_PRIO_LOW, &ids[0]);
+    syn_task_create(&tasks[1], "p_crit", pass_task, SYN_PRIO_CRITICAL, &ids[1]);
+    syn_task_create(&tasks[2], "p_high1", pass_task, SYN_PRIO_HIGH, &ids[2]);
+    syn_task_create(&tasks[3], "p_norm", pass_task, SYN_PRIO_NORMAL, &ids[3]);
+    syn_task_create(&tasks[4], "p_high2", pass_task, SYN_PRIO_HIGH, &ids[4]);
+    syn_sched_init(&sched, tasks, 5);
+
+    /* Run 4 rounds of 5 pollers = 20 dispatches */
+    for (int round = 0; round < 4; round++) {
+        log_reset();
+        for (int i = 0; i < 5; i++) {
+            syn_sched_run(&sched);
+        }
+
+        /* Priority order within every round: crit(2), high1(3), high2(5), norm(4), low(1) */
+        TEST_ASSERT_EQUAL_INT(2, run_log[0]);
+        TEST_ASSERT_EQUAL_INT(3, run_log[1]);
+        TEST_ASSERT_EQUAL_INT(5, run_log[2]);
+        TEST_ASSERT_EQUAL_INT(4, run_log[3]);
+        TEST_ASSERT_EQUAL_INT(1, run_log[4]);
+    }
+}
+
+/**
+ * 6. syn_task_should_share and PT_CONTINUE_IF_NEEDED semantics.
+ */
+static bool g_share_observed;
+static bool g_share_null_observed;
+static bool g_share_peer_observed;
+static const SYN_Task *g_peer_probe;
+
+static SYN_PT_Status share_probe_fn(SYN_PT *pt, SYN_Task *task)
+{
+    PT_BEGIN(pt);
+    for (;;) {
+        g_share_null_observed = syn_task_should_share(NULL);
+        g_share_peer_observed = syn_task_should_share(g_peer_probe);
+        g_share_observed = syn_task_should_share(task);
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static int g_drain_iters;
+static uint32_t g_drain_advance_on_iter;
+
+static SYN_PT_Status drain_loop_fn(SYN_PT *pt, SYN_Task *task)
+{
+    PT_BEGIN(pt);
+    for (;;) {
+        g_drain_iters++;
+        if ((uint32_t)g_drain_iters == g_drain_advance_on_iter) {
+            mock_tick_advance(1);
+        }
+        PT_CONTINUE_IF_NEEDED(pt, task);
+    }
+    PT_END(pt);
+}
+
+static void test_task_should_share_and_continue_if_needed(void)
+{
+    mock_tick_ms = 0;
+
+    SYN_Task sole_task;
+    SYN_Task dummy_peer;
+    SYN_Sched sole_sched;
+    syn_task_create(&sole_task, "sole", share_probe_fn, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&dummy_peer, "peer", pass_task, SYN_PRIO_LOW, NULL);
+    syn_sched_init(&sole_sched, &sole_task, 1);
+    g_peer_probe = &dummy_peer;
+
+    /* Outside dispatch: false for NULL and valid task */
+    TEST_ASSERT_FALSE(syn_task_should_share(NULL));
+    TEST_ASSERT_FALSE(syn_task_should_share(&sole_task));
+
+    /* Sole ready task: false (no peer deadline, no contention) */
+    g_share_observed = true;
+    g_share_null_observed = true;
+    g_share_peer_observed = true;
+    syn_sched_run(&sole_sched);
+    TEST_ASSERT_FALSE(g_share_null_observed);
+    TEST_ASSERT_FALSE(g_share_peer_observed);
+    TEST_ASSERT_FALSE(g_share_observed);
+
+    /* Multi-peer scenario with PASSED, POLL, BLOCKED, SUSPENDED, DEAD, delayed READY,
+     * and lower-priority MORE peers (none overdue): should_share must be false. */
+    SYN_EventGroup evt;
+    syn_event_init(&evt);
+    SYN_Task peers[7];
+    SYN_Sched peer_sched;
+    static int ids[7] = {1, 2, 3, 4, 5, 6, 7};
+
+    syn_task_create(&peers[0], "crit_pass", pass_task, SYN_PRIO_CRITICAL, &ids[0]);
+    syn_task_create(&peers[1], "runner_hi", share_probe_fn, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&peers[2], "low_more", continue_task, SYN_PRIO_LOW, &ids[2]);
+    syn_task_create(&peers[3], "norm_more", continue_task, SYN_PRIO_NORMAL, &ids[3]);
+    syn_task_create(&peers[4], "blocked", block_task_fn, SYN_PRIO_CRITICAL, &evt);
+    syn_task_create(&peers[5], "susp", continue_task, SYN_PRIO_CRITICAL, &ids[5]);
+    syn_task_create(&peers[6], "delayed", continue_task, SYN_PRIO_CRITICAL, &ids[6]);
+    syn_sched_init(&peer_sched, peers, 7);
+    syn_sched_set_max_wait(&peer_sched, SYN_PRIO_CRITICAL, 10U);
+
+    syn_task_suspend(&peers[5]);
+    peers[6].delay_until = 50U;
+    g_peer_probe = &peers[0];
+
+    syn_sched_run(&peer_sched); /* peers[0] (crit_pass) runs and passes (due = 10) */
+    syn_sched_run(&peer_sched); /* peers[4] (blocked) runs and blocks */
+
+    /* Next dispatch runs peers[1] (runner_hi): peers[0] is PASSED (due=10),
+     * peers[2] is LOW MORE (due=50), peers[3] is NORMAL MORE (due=15 < 50),
+     * peers[4] is BLOCKED, peers[5] is SUSPENDED, peers[6] is READY+delayed (SLEEPING). */
+    g_share_observed = true;
+    syn_sched_run(&peer_sched);
+    TEST_ASSERT_FALSE(g_share_observed);
+
+    /* Equal-priority MORE peer -> should_share is true */
+    SYN_Task eq_tasks[2];
+    SYN_Sched eq_sched;
+    syn_task_create(&eq_tasks[0], "hi_probe", share_probe_fn, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&eq_tasks[1], "hi_more", continue_task, SYN_PRIO_HIGH, &ids[1]);
+    syn_sched_init(&eq_sched, eq_tasks, 2);
+    g_share_observed = false;
+    syn_sched_run(&eq_sched);
+    TEST_ASSERT_TRUE(g_share_observed);
+
+    /* Higher-priority MORE peer while overdue LOW runs -> should_share is true */
+    mock_tick_ms = 0;
+    SYN_Task hi_tasks[2];
+    SYN_Sched hi_sched;
+    syn_task_create(&hi_tasks[0], "hi_more", continue_task, SYN_PRIO_HIGH, &ids[0]);
+    syn_task_create(&hi_tasks[1], "low_probe", share_probe_fn, SYN_PRIO_LOW, NULL);
+    syn_sched_init(&hi_sched, hi_tasks, 2);
+    syn_sched_set_max_wait(&hi_sched, SYN_PRIO_LOW, 2U);
+    syn_sched_run(&hi_sched); /* hi_more runs at t=0 (due=5), low_probe stamped due=2 */
+    mock_tick_ms = 2U;        /* low_probe overdue (2 >= 2), hi_more not overdue (2 < 5, MORE) */
+    g_share_observed = false;
+    syn_sched_run(&hi_sched);
+    TEST_ASSERT_TRUE(g_share_observed);
+
+    /* Mid-loop overdue transition via PT_CONTINUE_IF_NEEDED:
+     * CRITICAL poller passes at t=0 (due=1), HIGH drain loop runs 3 iterations
+     * until iteration 3 advances tick to 1 ms -> yields immediately, CRITICAL runs next! */
+    mock_tick_ms = 0;
+    log_reset();
+    g_drain_iters = 0;
+    g_drain_advance_on_iter = 3U;
+
+    SYN_Task drain_tasks[2];
+    SYN_Sched drain_sched;
+    syn_task_create(&drain_tasks[0], "crit_poll", pass_task, SYN_PRIO_CRITICAL, &ids[0]);
+    syn_task_create(&drain_tasks[1], "hi_drain", drain_loop_fn, SYN_PRIO_HIGH, NULL);
+    syn_sched_init(&drain_sched, drain_tasks, 2);
+
+    syn_sched_run(&drain_sched); /* crit_poll runs (logs 1) and passes (due = 1) */
+    TEST_ASSERT_EQUAL_INT(1, run_log_idx);
+
+    syn_sched_run(&drain_sched); /* hi_drain runs 3 loop iterations, yields on iter 3 */
+    TEST_ASSERT_EQUAL_INT(3, g_drain_iters);
+
+    syn_sched_run(&drain_sched); /* crit_poll is now overdue and runs immediately! */
+    TEST_ASSERT_EQUAL_INT(2, run_log_idx);
+    TEST_ASSERT_EQUAL_INT(1, run_log[1]);
+}
+
+/**
+ * 7. PT_SPAWN passes child's PT_MORE and PT_IDLE up unchanged to syn_sched_run.
+ */
+static SYN_PT g_sched_child_pt;
+
+static SYN_PT_Status sched_child_coroutine(SYN_PT *pt)
+{
+    PT_BEGIN(pt);
+    run_log[run_log_idx++] = 10;
+    PT_CONTINUE(pt); /* child reports PT_MORE */
+    run_log[run_log_idx++] = 11;
+    PT_PASS(pt); /* child reports PT_IDLE */
+    run_log[run_log_idx++] = 12;
+    PT_END(pt);
+}
+
+static SYN_PT_Status sched_parent_task(SYN_PT *pt, SYN_Task *task)
+{
+    (void)task;
+    PT_BEGIN(pt);
+    PT_SPAWN(pt, &g_sched_child_pt, sched_child_coroutine(&g_sched_child_pt));
+    run_log[run_log_idx++] = 99;
+    PT_END(pt);
+}
+
+static void test_pt_spawn_propagates_child_intent(void)
+{
+    mock_tick_ms = 0;
+    log_reset();
+
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    static int id_low = 2;
+
+    syn_task_create(&tasks[0], "parent", sched_parent_task, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&tasks[1], "low_work", continue_task, SYN_PRIO_LOW, &id_low);
+    syn_sched_init(&sched, tasks, 2);
+
+    /* Dispatch 1: child yields PT_MORE -> parent keeps MORE flag and stays ahead of LOW */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(10, run_log[0]);
+    TEST_ASSERT_NOT_EQUAL(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_MORE);
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_PASSED);
+
+    /* Dispatch 2: parent runs again immediately (ahead of LOW), child yields PT_IDLE -> PASSED */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(11, run_log[1]);
+    TEST_ASSERT_NOT_EQUAL(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_PASSED);
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_MORE);
+
+    /* Dispatch 3: because PT_IDLE propagated, LOW worker now gets to run! */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(2, run_log[2]);
+
+    /* Advance past HIGH max_wait (5 ms): parent wakes, child finishes, parent exits */
+    mock_tick_advance(5);
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(12, run_log[3]);
+    TEST_ASSERT_EQUAL_INT(99, run_log[4]);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEAD, tasks[0].state);
+}
+
+/**
+ * 8. syn_sched_set_max_wait(..., 0) raises value to 1, and custom windows apply.
+ */
+static void test_sched_set_max_wait(void)
+{
+    mock_tick_ms = 0;
+    g_flood_high_cnt = 0;
+    g_flood_low_cnt = 0;
+    g_first_low_ms = UINT32_MAX;
+
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    syn_task_create(&tasks[0], "high", flood_high_fn, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&tasks[1], "low", flood_low_fn, SYN_PRIO_LOW, NULL);
+    syn_sched_init(&sched, tasks, 2);
+
+    syn_sched_set_max_wait(&sched, SYN_PRIO_CRITICAL, 0U);
+    TEST_ASSERT_EQUAL_UINT16(1U, sched.max_wait_ms[SYN_PRIO_CRITICAL]);
+
+    syn_sched_set_max_wait(&sched, SYN_PRIO_LOW, 25U);
+    TEST_ASSERT_EQUAL_UINT16(25U, sched.max_wait_ms[SYN_PRIO_LOW]);
+
+    for (uint32_t ms = 0; ms <= 30U; ms++) {
+        mock_tick_ms = ms;
+        syn_sched_run(&sched);
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_EQUAL_UINT32(25U, g_first_low_ms);
+}
+
+/**
+ * 9. A task waking from a delay ranks as Work (SCHED_RANK_WORK) and runs ahead
+ * of a higher-priority unpolled Poll task (SCHED_RANK_POLL, non-overdue).
+ */
+static SYN_PT_Status delayed_low_worker_fn(SYN_PT *pt, SYN_Task *task)
+{
+    int id = *(int *)task->user_data;
+    PT_BEGIN(pt);
+    PT_TASK_DELAY_MS(pt, task, 5);
+    run_log[run_log_idx++] = id;
+    PT_END(pt);
+}
+
+static void test_waking_delayed_task_ranks_as_work(void)
+{
+    mock_tick_ms = 0;
+    log_reset();
+
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+    static int id_p1 = 1, id_p2 = 2, id_w = 3;
+
+    syn_task_create(&tasks[0], "p1", pass_task, SYN_PRIO_HIGH, &id_p1);
+    syn_task_create(&tasks[1], "p2", pass_task, SYN_PRIO_HIGH, &id_p2);
+    syn_task_create(&tasks[2], "w", delayed_low_worker_fn, SYN_PRIO_LOW, &id_w);
+    syn_sched_init(&sched, tasks, 3);
+    syn_sched_set_max_wait(&sched, SYN_PRIO_HIGH, 20U);
+
+    /* t = 0: P1 passes, P2 passes, W enters 5 ms delay */
+    syn_sched_run(&sched);
+    syn_sched_run(&sched);
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(2, run_log_idx);
+
+    /* Dispatch 4 at t = 0: P1 and P2 both PASSED -> round resets, P1 runs & passes,
+     * leaving P2 (SYN_PRIO_HIGH) in SCHED_RANK_POLL (!MORE && !PASSED, due = 20). */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(3, run_log_idx);
+    TEST_ASSERT_EQUAL_UINT8(SYN_SCHED_FLAG_DUE_VALID, tasks[1].sched_flags);
+
+    /* Advance to t = 5: W (LOW) wakes from delay as SCHED_RANK_WORK (MORE),
+     * beating P2 (HIGH) in SCHED_RANK_POLL! */
+    mock_tick_ms = 5U;
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(3, run_log[3]);
+
+    /* Next dispatch runs P2 (HIGH, SCHED_RANK_POLL) */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(2, run_log[4]);
+}
+
+/* ── Regression tests: Multi-scheduler isolation & mid-chunk wakeups ───── */
+
+static SYN_Sched g_nested_sched;
+static SYN_Task g_nested_tasks[1];
+static bool g_nested_inner_share = true;
+static bool g_outer_share_before = false;
+static bool g_outer_share_after = false;
+static bool g_cross_sched_query = true;
+
+static SYN_PT_Status nested_inner_fn(SYN_PT *pt, SYN_Task *task)
+{
+    PT_BEGIN(pt);
+    g_nested_inner_share = syn_task_should_share(task);
+    PT_PASS(pt);
+    PT_END(pt);
+}
+
+static SYN_PT_Status nested_outer_fn(SYN_PT *pt, SYN_Task *task)
+{
+    PT_BEGIN(pt);
+    g_outer_share_before = syn_task_should_share(task);
+    syn_task_create(&g_nested_tasks[0], "inner", nested_inner_fn, SYN_PRIO_HIGH, NULL);
+    syn_sched_init(&g_nested_sched, g_nested_tasks, 1);
+    syn_sched_run(&g_nested_sched);
+    g_cross_sched_query = syn_task_should_share(&g_nested_tasks[0]);
+    g_outer_share_after = syn_task_should_share(task);
+    PT_PASS(pt);
+    PT_END(pt);
+}
+
+static void test_dual_sched_isolation_and_unbound_share(void)
+{
+    mock_tick_ms = 0;
+
+    SYN_Task unbound;
+    static int dummy_id = 1;
+    syn_task_create(&unbound, "unbound", pass_task, SYN_PRIO_LOW, &dummy_id);
+    TEST_ASSERT_FALSE(syn_task_should_share(&unbound));
+
+    SYN_Task outer_tasks[2];
+    SYN_Sched outer_sched;
+    syn_task_create(&outer_tasks[0], "outer_probe", nested_outer_fn, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&outer_tasks[1], "outer_peer", continue_task, SYN_PRIO_HIGH, &dummy_id);
+    syn_sched_init(&outer_sched, outer_tasks, 2);
+
+    g_nested_inner_share = true;
+    g_outer_share_before = false;
+    g_outer_share_after = false;
+    g_cross_sched_query = true;
+
+    syn_sched_run(&outer_sched);
+
+    TEST_ASSERT_TRUE(g_outer_share_before);
+    TEST_ASSERT_FALSE(g_nested_inner_share);
+    TEST_ASSERT_FALSE(g_cross_sched_query);
+    TEST_ASSERT_TRUE(g_outer_share_after);
+}
+
+typedef struct {
+    uint32_t iters;
+    uint32_t max_iters;
+    uint32_t tick_step;
+    SYN_EventGroup *wake_evt;
+    uint32_t wake_on_iter;
+    SYN_Task *resume_target;
+    uint32_t resume_on_iter;
+} BurstWakeCtx;
+
+static SYN_PT_Status burst_wake_driver_fn(SYN_PT *pt, SYN_Task *task)
+{
+    BurstWakeCtx *ctx = (BurstWakeCtx *)task->user_data;
+    PT_BEGIN(pt);
+    while (ctx->iters < ctx->max_iters) {
+        ctx->iters++;
+        mock_tick_ms += ctx->tick_step;
+        if (ctx->wake_evt != NULL && ctx->iters == ctx->wake_on_iter) {
+            syn_event_set(ctx->wake_evt, 0x01U);
+        }
+        if (ctx->resume_target != NULL && ctx->iters == ctx->resume_on_iter) {
+            syn_task_resume(ctx->resume_target);
+        }
+        PT_CONTINUE_IF_NEEDED(pt, task);
+    }
+    PT_PASS(pt);
+    PT_END(pt);
+}
+
+static SYN_PT_Status one_shot_exit_fn(SYN_PT *pt, SYN_Task *task)
+{
+    (void)task;
+    PT_BEGIN(pt);
+    PT_END(pt);
+}
+
+static SYN_PT_Status block_cond_never_fn(SYN_PT *pt, SYN_Task *task)
+{
+    PT_BEGIN(pt);
+    PT_BLOCK_CONDITION(pt, task, false);
+    PT_END(pt);
+}
+
+static void test_should_share_delayed_and_isr_wakeups(void)
+{
+    static int id_crit = 1;
+
+    /* (a) LOW burst task yields as soon as delayed CRITICAL peer's delay_until (5 ms) expires */
+    mock_tick_ms = 0;
+    log_reset();
+    BurstWakeCtx ctx_a = {0, 20U, 1U, NULL, 0U, NULL, 0U};
+    SYN_Task tasks_a[2];
+    SYN_Sched sched_a;
+    syn_task_create(&tasks_a[0], "crit_dly", delayed_low_worker_fn, SYN_PRIO_CRITICAL, &id_crit);
+    syn_task_create(&tasks_a[1], "low_burst", burst_wake_driver_fn, SYN_PRIO_LOW, &ctx_a);
+    syn_sched_init(&sched_a, tasks_a, 2);
+
+    syn_sched_run(&sched_a); /* crit_dly enters PT_TASK_DELAY_MS(5) */
+    syn_sched_run(&sched_a); /* low_burst advances 1 ms/iter, yields on iter 5 (t = 5) */
+    TEST_ASSERT_EQUAL_UINT32(5U, ctx_a.iters);
+    syn_sched_run(&sched_a); /* crit_dly runs immediately at t = 5! */
+    TEST_ASSERT_EQUAL_INT(1, run_log_idx);
+
+    /* (b) HIGH burst task with DEAD peer, BLOCKED-condition peer, BLOCKED-timeout peer,
+     * and delayed LOW peer (delay=5, max_wait=50 -> overdue at 55):
+     * must NOT yield at t=5 when LOW wakes, only when earliest peer deadline expires! */
+    mock_tick_ms = 0;
+    syn_event_flags_init(&test_evt_flags);
+    BurstWakeCtx ctx_b = {0, 100U, 5U, NULL, 0U, NULL, 0U};
+    SYN_Task tasks_b[5];
+    SYN_Sched sched_b;
+    syn_task_create(&tasks_b[0], "dead_peer", one_shot_exit_fn, SYN_PRIO_CRITICAL, NULL);
+    syn_task_create(&tasks_b[1], "cond_blk", block_cond_never_fn, SYN_PRIO_CRITICAL, NULL);
+    syn_task_create(&tasks_b[2], "tmo_blk", block_evt_timeout_task_func, SYN_PRIO_LOW, NULL);
+    syn_task_create(&tasks_b[3], "low_dly", delayed_low_worker_fn, SYN_PRIO_LOW, &id_crit);
+    syn_task_create(&tasks_b[4], "hi_burst", burst_wake_driver_fn, SYN_PRIO_HIGH, &ctx_b);
+    syn_sched_init(&sched_b, tasks_b, 5);
+
+    syn_task_suspend(&tasks_b[4]);
+    syn_sched_run(&sched_b); /* dead_peer exits -> SYN_TASK_DEAD */
+    syn_sched_run(&sched_b); /* cond_blk blocks with wait_event == NULL */
+    syn_sched_run(&sched_b); /* tmo_blk (LOW) blocks with delay_until = 100 (wake_due = 150) */
+    syn_sched_run(&sched_b); /* low_dly (LOW) delays with delay_until = 5 (wake_due = 55) */
+    syn_task_resume(&tasks_b[4]);
+    syn_sched_run(&sched_b); /* hi_burst runs 5 ms/iter: skips t=5, yields at t=55 (iter 11) */
+    TEST_ASSERT_EQUAL_UINT32(11U, ctx_b.iters);
+    TEST_ASSERT_EQUAL_UINT32(55U, mock_tick_ms);
+
+    /* (c) Mid-burst ISR syn_event_set wakes BLOCKED CRITICAL peer at same tick (t = 0) */
+    mock_tick_ms = 0;
+    log_reset();
+    SYN_EventGroup evt_c;
+    syn_event_init(&evt_c);
+    BurstWakeCtx ctx_c = {0, 20U, 0U, &evt_c, 3U, NULL, 0U};
+    SYN_Task tasks_c[2];
+    SYN_Sched sched_c;
+    syn_task_create(&tasks_c[0], "crit_evt", block_task_fn, SYN_PRIO_CRITICAL, &evt_c);
+    syn_task_create(&tasks_c[1], "low_burst", burst_wake_driver_fn, SYN_PRIO_LOW, &ctx_c);
+    syn_sched_init(&sched_c, tasks_c, 2);
+
+    syn_sched_run(&sched_c); /* crit_evt blocks on evt_c */
+    syn_sched_run(&sched_c); /* low_burst fires evt_c on iter 3 -> yields immediately on iter 3! */
+    TEST_ASSERT_EQUAL_UINT32(3U, ctx_c.iters);
+
+    /* (d) Mid-burst ISR syn_task_resume on SUSPENDED peer (unexpired delay vs immediate ready) */
+    mock_tick_ms = 0;
+    BurstWakeCtx ctx_d = {0, 10U, 1U, NULL, 0U, NULL, 2U};
+    SYN_Task tasks_d[2];
+    SYN_Sched sched_d;
+    syn_task_create(&tasks_d[0], "crit_susp", continue_task, SYN_PRIO_CRITICAL, &id_crit);
+    syn_task_create(&tasks_d[1], "low_burst", burst_wake_driver_fn, SYN_PRIO_LOW, &ctx_d);
+    syn_sched_init(&sched_d, tasks_d, 2);
+    ctx_d.resume_target = &tasks_d[0];
+
+    /* Suspend crit_susp while it also has delay_until = 5: resume on iter 2 (t=2) stays asleep
+     * until t=5! */
+    tasks_d[0].delay_until = 5U;
+    syn_task_suspend(&tasks_d[0]);
+    syn_sched_run(
+        &sched_d); /* low_burst resumes crit_susp at t=2, keeps running until t=5 (iter 5)! */
+    TEST_ASSERT_EQUAL_UINT32(5U, ctx_d.iters);
+
+    /* Suspend crit_susp with delay_until = 0: resume on iter 2 yields immediately on iter 2! */
+    mock_tick_ms = 0;
+    tasks_d[0].delay_until = 0U;
+    syn_task_suspend(&tasks_d[0]);
+    syn_task_restart(&tasks_d[1]);
+    ctx_d.iters = 0;
+    syn_sched_run(&sched_d);
+    TEST_ASSERT_EQUAL_UINT32(2U, ctx_d.iters);
+}
+
+static void test_overdue_rr_preservation_and_bounds(void)
+{
+    static int ids[4] = {10, 20, 30, 40};
+
+    /* Part 1: Out-of-bounds rr_per_prio[prio] >= task_count clamps to 0 during OVERDUE dispatch */
+    mock_tick_ms = 0U;
+    log_reset();
+    SYN_Task bounds_tasks[2];
+    SYN_Sched bounds_sched;
+    syn_task_create(&bounds_tasks[0], "hi_pass", pass_task, SYN_PRIO_HIGH, &ids[0]);
+    syn_task_create(&bounds_tasks[1], "hi_work", continue_task, SYN_PRIO_HIGH, &ids[1]);
+    syn_sched_init(&bounds_sched, bounds_tasks, 2);
+    syn_sched_set_max_wait(&bounds_sched, SYN_PRIO_HIGH, 10U);
+
+    syn_sched_run(&bounds_sched); /* hi_pass runs at t=0 (due=10), hi_work stamped due=10 */
+    mock_tick_ms = 8U;
+    bounds_tasks[0].due_ms = 20U; /* keep hi_pass non-overdue (PASSED) while hi_work hits overdue */
+    mock_tick_ms = 10U;
+    bounds_sched.rr_per_prio[SYN_PRIO_HIGH] = 99U;
+
+    log_reset();
+    syn_sched_run(&bounds_sched); /* hi_work (idx 1) wins OVERDUE, rr clamps 99->0 and advances */
+    TEST_ASSERT_EQUAL_INT(20, run_log[0]);
+    TEST_ASSERT_EQUAL_UINT16(0U, bounds_sched.rr_per_prio[SYN_PRIO_HIGH]);
+
+    /* Part 2: OVERDUE dispatch does NOT advance rr_per_prio past an earlier non-overdue MORE peer
+     */
+    mock_tick_ms = 0U;
+    log_reset();
+    SYN_Task tasks[4];
+    SYN_Sched sched;
+    syn_task_create(&tasks[0], "hi0", continue_task, SYN_PRIO_HIGH, &ids[0]);
+    syn_task_create(&tasks[1], "hi1", continue_task, SYN_PRIO_HIGH, &ids[1]);
+    syn_task_create(&tasks[2], "hi2", continue_task, SYN_PRIO_HIGH, &ids[2]);
+    syn_task_create(&tasks[3], "crit", continue_task, SYN_PRIO_CRITICAL, &ids[3]);
+    syn_sched_init(&sched, tasks, 4);
+    syn_sched_set_max_wait(&sched, SYN_PRIO_HIGH, 10U);
+
+    syn_task_suspend(&tasks[3]);
+    tasks[0].delay_until = 6U;
+
+    /* t = 0: hi1 and hi2 run (due_ms = 10), rr_per_prio[HIGH] advances to 3 */
+    syn_sched_run(&sched);
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT16(3U, sched.rr_per_prio[SYN_PRIO_HIGH]);
+
+    /* t = 6: wake crit so sched_prepare_task stamps hi0 awake (MORE, due_ms = 16) without running
+     * hi0 */
+    mock_tick_ms = 6U;
+    syn_task_resume(&tasks[3]);
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(16U, tasks[0].due_ms);
+    TEST_ASSERT_EQUAL_UINT16(3U, sched.rr_per_prio[SYN_PRIO_HIGH]);
+
+    /* t = 10: suspend crit; hi1 and hi2 are OVERDUE while hi0 (at wrap pos 0) is READY+MORE */
+    syn_task_suspend(&tasks[3]);
+    mock_tick_ms = 10U;
+    log_reset();
+
+    syn_sched_run(&sched); /* hi1 wins OVERDUE; rr_per_prio stays 3 to protect hi0 */
+    TEST_ASSERT_EQUAL_INT(20, run_log[0]);
+    TEST_ASSERT_EQUAL_UINT16(3U, sched.rr_per_prio[SYN_PRIO_HIGH]);
+
+    syn_sched_run(&sched); /* hi2 wins OVERDUE; rr_per_prio still stays 3 */
+    TEST_ASSERT_EQUAL_INT(30, run_log[1]);
+    TEST_ASSERT_EQUAL_UINT16(3U, sched.rr_per_prio[SYN_PRIO_HIGH]);
+
+    syn_sched_run(&sched); /* Work rank: hi0 runs next instead of being skipped! */
+    TEST_ASSERT_EQUAL_INT(10, run_log[2]);
+}
+
+static void test_task_restart_releases_recursive_contended_mutexes(void)
+{
+    SYN_Mutex m1;
+    SYN_Mutex m2;
+    SYN_Task owner = {0};
+    SYN_Task w_norm = {0};
+    SYN_Task w_crit = {0};
+    SYN_Task dead_task = {0};
+    SYN_Sched dead_sched;
+
+    PT_MUTEX_INIT(&m1);
+    PT_MUTEX_INIT(&m2);
+    syn_task_create(&owner, "owner", pass_task, SYN_PRIO_LOW, NULL);
+    syn_task_create(&w_norm, "w_norm", pass_task, SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&w_crit, "w_crit", pass_task, SYN_PRIO_CRITICAL, NULL);
+
+    /* Recursive acquisitions (lock_count > 1) on two mutexes */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_try_lock(&m1, &owner));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_try_lock(&m1, &owner));
+    TEST_ASSERT_EQUAL_UINT16(2U, m1.lock_count);
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_try_lock(&m2, &owner));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_try_lock(&m2, &owner));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_try_lock(&m2, &owner));
+    TEST_ASSERT_EQUAL_UINT16(3U, m2.lock_count);
+
+    /* Contend both mutexes from PASSED state, boosting owner to SYN_PRIO_CRITICAL */
+    w_norm.sched_flags = SYN_SCHED_FLAG_PASSED;
+    w_crit.sched_flags = SYN_SCHED_FLAG_PASSED;
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_mutex_try_lock(&m1, &w_norm));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_mutex_try_lock(&m2, &w_crit));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, owner.priority);
+
+    /* Restart owner (K-06): both recursive mutexes unlock, waiters wake, priority resets */
+    syn_task_restart(&owner);
+
+    TEST_ASSERT_FALSE(syn_mutex_is_locked(&m1));
+    TEST_ASSERT_FALSE(syn_mutex_is_locked(&m2));
+    TEST_ASSERT_NULL(owner.held_mutexes);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, owner.priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, owner.state);
+    TEST_ASSERT_TRUE((w_norm.sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
+    TEST_ASSERT_TRUE((w_crit.sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
+
+    /* Suspending a DEAD task is a no-op */
+    syn_task_create(&dead_task, "dead", one_shot_exit_fn, SYN_PRIO_LOW, NULL);
+    syn_sched_init(&dead_sched, &dead_task, 1);
+    syn_sched_run(&dead_sched);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEAD, dead_task.state);
+    syn_task_suspend(&dead_task);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEAD, dead_task.state);
+}
+
+static void test_priority_restore_and_set_base_preserve_mutex_boost(void)
+{
+    SYN_Mutex m1;
+    SYN_Mutex m2;
+    SYN_Task owner = {0};
+    SYN_Task w_high = {0};
+    SYN_Task w_susp_crit = {0};
+
+    PT_MUTEX_INIT(&m1);
+    PT_MUTEX_INIT(&m2);
+    syn_task_create(&owner, "owner", pass_task, SYN_PRIO_LOW, NULL);
+    syn_task_create(&w_high, "w_high", pass_task, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&w_susp_crit, "w_crit", pass_task, SYN_PRIO_CRITICAL, NULL);
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_try_lock(&m1, &owner));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_try_lock(&m2, &owner));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_mutex_try_lock(&m1, &w_high));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_mutex_try_lock(&m2, &w_susp_crit));
+
+    /* Suspend CRITICAL waiter so only READY HIGH waiter contributes active inheritance */
+    syn_task_suspend(&w_susp_crit);
+
+    /* Manual boost to CRITICAL, then restore: must drop only to HIGH (not LOW!) */
+    syn_task_boost_priority(&owner, SYN_PRIO_CRITICAL);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, owner.priority);
+    syn_task_restore_priority(&owner);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, owner.priority);
+
+    /* Changing base_priority to NORMAL while contended by HIGH keeps effective priority HIGH */
+    syn_task_set_base_priority(&owner, SYN_PRIO_NORMAL);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_NORMAL, owner.base_priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, owner.priority);
+
+    /* Unlocking m1 drops effective priority to the updated base_priority (NORMAL) */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_unlock(&m1, &owner));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_NORMAL, owner.priority);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_unlock(&m2, &owner));
+}
+
+typedef struct {
+    SYN_EventFlags *evt;
+    uint32_t mask;
+    uint32_t timeout_ms;
+    uint32_t *out_flags;
+    int completions;
+} EvtTimeoutCfg;
+
+static SYN_PT_Status evt_timeout_cfg_task_fn(SYN_PT *pt, SYN_Task *task)
+{
+    EvtTimeoutCfg *cfg = (EvtTimeoutCfg *)task->user_data;
+    PT_BEGIN(pt);
+    PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, cfg->evt, cfg->mask, cfg->timeout_ms, cfg->out_flags);
+    cfg->completions++;
+    PT_END(pt);
+}
+
+static SYN_PT_Status shared_evt_block_task_fn(SYN_PT *pt, SYN_Task *task)
+{
+    EvtTimeoutCfg *cfg = (EvtTimeoutCfg *)task->user_data;
+    PT_BEGIN(pt);
+    PT_BLOCK_EVENT(pt, task, cfg->evt, cfg->mask);
+    cfg->completions++;
+    PT_END(pt);
+}
+
+static void test_k02_event_blocking_edge_cases(void)
+{
+    mock_tick_ms = 100U;
+
+    /* 1. Spurious syn_task_resume on PT_BLOCK_EVENT task leaves state SYN_TASK_BLOCKED,
+     * and suspend -> resume -> syn_sched_run with event == 0 re-blocks without advancing! */
+    SYN_EventGroup evt1;
+    syn_event_init(&evt1);
+    EvtTimeoutCfg cfg1 = {&evt1, EVT_DATA, 0U, NULL, 0};
+    SYN_Task t1 = {0};
+    SYN_Sched s1;
+    syn_task_create(&t1, "blk1", shared_evt_block_task_fn, SYN_PRIO_HIGH, &cfg1);
+    syn_sched_init(&s1, &t1, 1);
+
+    syn_sched_run(&s1);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, t1.state);
+    TEST_ASSERT_EQUAL_INT(0, cfg1.completions);
+
+    /* Spurious resume ignored while wait_event != NULL */
+    syn_task_resume(&t1);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, t1.state);
+
+    /* Suspend then resume sets state READY while wait_event != NULL */
+    syn_task_suspend(&t1);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_SUSPENDED, t1.state);
+    syn_task_resume(&t1);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, t1.state);
+
+    /* Running scheduler with event == 0 transitions cleanly back to SYN_TASK_BLOCKED */
+    syn_sched_run(&s1);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, t1.state);
+    TEST_ASSERT_EQUAL_INT(0, cfg1.completions);
+
+    /* Direct coroutine step after another suspend/resume also re-blocks inside PT_BLOCK_EVENT */
+    syn_task_suspend(&t1);
+    syn_task_resume(&t1);
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, t1.func(&t1.pt, &t1));
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, t1.state);
+    TEST_ASSERT_EQUAL_INT(0, cfg1.completions);
+
+    /* Setting the event now wakes t1 and delivers completion */
+    syn_event_set(&evt1, EVT_DATA);
+    syn_sched_run(&s1);
+    TEST_ASSERT_EQUAL_INT(1, cfg1.completions);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEAD, t1.state);
+    TEST_ASSERT_FALSE(syn_event_check_any(&evt1, EVT_DATA));
+
+    /* 2. Two tasks blocked on same event bit (0x01): single set wakes only first/higher-prio task
+     */
+    SYN_EventGroup shared_evt;
+    syn_event_init(&shared_evt);
+    EvtTimeoutCfg hi_cfg = {&shared_evt, 0x01U, 0U, NULL, 0};
+    EvtTimeoutCfg lo_cfg = {&shared_evt, 0x01U, 0U, NULL, 0};
+    SYN_Task pair[2];
+    SYN_Sched pair_sched;
+    memset(pair, 0, sizeof(pair));
+    syn_task_create(&pair[0], "hi_wait", shared_evt_block_task_fn, SYN_PRIO_HIGH, &hi_cfg);
+    syn_task_create(&pair[1], "lo_wait", shared_evt_block_task_fn, SYN_PRIO_LOW, &lo_cfg);
+    syn_sched_init(&pair_sched, pair, 2);
+
+    syn_sched_run(&pair_sched);
+    syn_sched_run(&pair_sched);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, pair[0].state);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, pair[1].state);
+
+    syn_event_set(&shared_evt, 0x01U);
+    syn_sched_run(&pair_sched); /* hi_wait consumes & clears 0x01 */
+    syn_sched_run(&pair_sched); /* lo_wait sees 0x01 cleared and stays SYN_TASK_BLOCKED */
+    TEST_ASSERT_EQUAL_INT(1, hi_cfg.completions);
+    TEST_ASSERT_EQUAL_INT(0, lo_cfg.completions);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, pair[1].state);
+
+    /* 3. PT_BLOCK_EVENT_WITH_TIMEOUT with timeout_ms == 0U (matched, unmatched, NULL out_flags) */
+    SYN_EventGroup imm_evt;
+    syn_event_init(&imm_evt);
+    uint32_t out_flags = 0xDEADBEEFU;
+    EvtTimeoutCfg imm_cfg = {&imm_evt, 0x03U, 0U, &out_flags, 0};
+    SYN_Task imm_task = {0};
+    SYN_Sched imm_sched;
+    syn_task_create(&imm_task, "imm", evt_timeout_cfg_task_fn, SYN_PRIO_NORMAL, &imm_cfg);
+    syn_sched_init(&imm_sched, &imm_task, 1);
+
+    /* Unmatched immediate poll -> out_flags == 0, completes without blocking */
+    syn_sched_run(&imm_sched);
+    TEST_ASSERT_EQUAL_INT(1, imm_cfg.completions);
+    TEST_ASSERT_EQUAL_UINT32(0U, out_flags);
+
+    /* Matched immediate poll -> out_flags receives matched bit, preserves unrelated bit */
+    syn_event_set(&imm_evt, 0x05U);
+    out_flags = 0U;
+    syn_task_restart(&imm_task);
+    syn_sched_run(&imm_sched);
+    TEST_ASSERT_EQUAL_INT(2, imm_cfg.completions);
+    TEST_ASSERT_EQUAL_UINT32(0x01U, out_flags);
+    TEST_ASSERT_EQUAL_UINT32(0x04U, syn_event_flags_get(&imm_evt));
+
+    /* NULL out_flags variants (timeout_ms == 0U and non-zero timeout_ms) */
+    imm_cfg.out_flags = NULL;
+    syn_task_restart(&imm_task);
+    syn_sched_run(&imm_sched);
+    TEST_ASSERT_EQUAL_INT(3, imm_cfg.completions);
+
+    imm_cfg.timeout_ms = 10U;
+    syn_task_restart(&imm_task);
+    syn_sched_run(&imm_sched); /* blocks until 110 */
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, imm_task.state);
+    mock_tick_ms = 110U;
+    syn_sched_run(&imm_sched); /* expires cleanly with out_flags == NULL */
+    TEST_ASSERT_EQUAL_INT(4, imm_cfg.completions);
+}
+
+typedef struct {
+    SYN_Task *target;
+    bool isr_fired;
+    int woke_count;
+} IsrSelfWakeCtx;
+
+static bool isr_self_wake_cond(IsrSelfWakeCtx *ctx)
+{
+    if (!ctx->isr_fired) {
+        ctx->isr_fired = true;
+        syn_task_resume(ctx->target);
+        return false;
+    }
+    return true;
+}
+
+static SYN_PT_Status isr_self_wake_task_fn(SYN_PT *pt, SYN_Task *task)
+{
+    IsrSelfWakeCtx *ctx = (IsrSelfWakeCtx *)task->user_data;
+    PT_BEGIN(pt);
+    PT_BLOCK_CONDITION(pt, task, isr_self_wake_cond(ctx));
+    ctx->woke_count++;
+    PT_PASS(pt);
+    PT_END(pt);
+}
+
+static void test_k03_isr_wake_and_critical_burst_share(void)
+{
+    static int id_low = 7;
+    static int id_crit = 8;
+
+    /* 1. Task simulates ISR calling syn_task_resume(self) before returning PT_IDLE:
+     * SYN_SCHED_FLAG_ISR_WAKE must preserve SYN_SCHED_FLAG_MORE instead of PASSED! */
+    mock_tick_ms = 0U;
+    log_reset();
+    SYN_Task wake_tasks[2];
+    SYN_Sched wake_sched;
+    memset(wake_tasks, 0, sizeof(wake_tasks));
+    IsrSelfWakeCtx wake_ctx = {&wake_tasks[0], false, 0};
+
+    syn_task_create(&wake_tasks[0], "hi_self", isr_self_wake_task_fn, SYN_PRIO_HIGH, &wake_ctx);
+    syn_task_create(&wake_tasks[1], "lo_work", continue_task, SYN_PRIO_LOW, &id_low);
+    syn_sched_init(&wake_sched, wake_tasks, 2);
+
+    syn_sched_run(&wake_sched); /* hi_self returns PT_IDLE after simulated ISR syn_task_resume */
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, wake_tasks[0].state);
+    TEST_ASSERT_TRUE((wake_tasks[0].sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
+    TEST_ASSERT_TRUE((wake_tasks[0].sched_flags & SYN_SCHED_FLAG_PASSED) == 0U);
+
+    syn_sched_run(&wake_sched); /* hi_self runs immediately ahead of lo_work! */
+    TEST_ASSERT_EQUAL_INT(1, wake_ctx.woke_count);
+    TEST_ASSERT_EQUAL_INT(0, run_log_idx);
+
+    /* 2. CRITICAL burst task with PT_CONTINUE_IF_NEEDED:
+     * waking SYN_PRIO_LOW mid-slice does NOT preempt CRITICAL, whereas waking CRITICAL DOES yield!
+     */
+    mock_tick_ms = 0U;
+    BurstWakeCtx burst_ctx = {0U, 10U, 0U, NULL, 0U, NULL, 3U};
+    SYN_Task burst_tasks[4];
+    SYN_Sched burst_sched;
+    memset(burst_tasks, 0, sizeof(burst_tasks));
+
+    syn_task_create(&burst_tasks[0], "crit_idle", continue_task, SYN_PRIO_CRITICAL, &id_crit);
+    syn_task_create(&burst_tasks[1], "crit_burst", burst_wake_driver_fn, SYN_PRIO_CRITICAL,
+                    &burst_ctx);
+    syn_task_create(&burst_tasks[2], "low_wake", continue_task, SYN_PRIO_LOW, &id_low);
+    syn_task_create(&burst_tasks[3], "crit_wake", continue_task, SYN_PRIO_CRITICAL, &id_crit);
+    syn_sched_init(&burst_sched, burst_tasks, 4);
+
+    syn_task_suspend(&burst_tasks[0]); /* ensures share_watch_wakeups == true */
+    syn_task_suspend(&burst_tasks[2]);
+    syn_task_suspend(&burst_tasks[3]);
+
+    /* Waking LOW task on iter 3 does NOT cause CRITICAL burst to yield */
+    burst_ctx.resume_target = &burst_tasks[2];
+    syn_sched_run(&burst_sched);
+    TEST_ASSERT_EQUAL_UINT32(10U, burst_ctx.iters);
+
+    /* Waking equal-priority CRITICAL task on iter 4 DOES cause CRITICAL burst to yield */
+    syn_task_suspend(&burst_tasks[2]);
+    syn_task_suspend(&burst_tasks[3]);
+    syn_task_restart(&burst_tasks[1]);
+    burst_ctx.iters = 0U;
+    burst_ctx.resume_target = &burst_tasks[3];
+    burst_ctx.resume_on_iter = 4U;
+    syn_sched_run(&burst_sched);
+    TEST_ASSERT_EQUAL_UINT32(4U, burst_ctx.iters);
+}
+
+static SYN_PT_Status wrap_delay_task_fn(SYN_PT *pt, SYN_Task *task)
+{
+    int *done = (int *)task->user_data;
+    PT_BEGIN(pt);
+    PT_TASK_DELAY_MS(pt, task, 16U);
+    (*done)++;
+    PT_END(pt);
+}
+
+static void test_t03_tick_wraparound_sched_and_timeouts(void)
+{
+    /* 1. PT_TASK_DELAY_MS wraparound across 0xFFFFFFFAU -> 0x0000000AU */
+    mock_tick_ms = 0xFFFFFFFAU;
+    int delay_done = 0;
+    SYN_Task dly_task = {0};
+    SYN_Sched dly_sched;
+    syn_task_create(&dly_task, "wrap_dly", wrap_delay_task_fn, SYN_PRIO_HIGH, &delay_done);
+    syn_sched_init(&dly_sched, &dly_task, 1);
+
+    syn_sched_run(&dly_sched); /* arms delay_until = 0x0000000AU */
+    TEST_ASSERT_EQUAL_UINT32(0x0000000AU, dly_task.delay_until);
+
+    mock_tick_ms = 0xFFFFFFFEU;
+    syn_sched_run(&dly_sched);
+    TEST_ASSERT_EQUAL_INT(0, delay_done);
+
+    mock_tick_ms = 0x00000009U;
+    syn_sched_run(&dly_sched);
+    TEST_ASSERT_EQUAL_INT(0, delay_done);
+
+    mock_tick_ms = 0x0000000AU;
+    syn_sched_run(&dly_sched);
+    TEST_ASSERT_EQUAL_INT(1, delay_done);
+
+    /* 2. PT_BLOCK_EVENT_WITH_TIMEOUT wraparound across 0xFFFFFFFAU -> 0x00000010U */
+    mock_tick_ms = 0xFFFFFFFAU;
+    SYN_EventGroup evt;
+    syn_event_init(&evt);
+    uint32_t matched = 0xFFU;
+    EvtTimeoutCfg cfg = {&evt, 0x01U, 20U, &matched, 0};
+    SYN_Task tmo_task = {0};
+    SYN_Sched tmo_sched;
+    syn_task_create(&tmo_task, "wrap_tmo", evt_timeout_cfg_task_fn, SYN_PRIO_HIGH, &cfg);
+    syn_sched_init(&tmo_sched, &tmo_task, 1);
+
+    syn_sched_run(&tmo_sched); /* delay_until = 0x0000000EU */
+    TEST_ASSERT_EQUAL_UINT32(0x0000000EU, tmo_task.delay_until);
+
+    mock_tick_ms = 0x00000005U;
+    syn_sched_run(&tmo_sched);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, tmo_task.state);
+
+    mock_tick_ms = 0x00000010U;
+    syn_sched_run(&tmo_sched);
+    TEST_ASSERT_EQUAL_INT(1, cfg.completions);
+    TEST_ASSERT_EQUAL_UINT32(0U, matched);
+
+    /* 3. Starvation due_ms wraparound across 0xFFFFFFFAU -> 0x00000010U (+ max_rem sleep fold) */
+    mock_tick_ms = 0xFFFFFFFAU;
+    log_reset();
+    static int id_hi = 1;
+    static int id_lo = 2;
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+    memset(tasks, 0, sizeof(tasks));
+    syn_task_create(&tasks[0], "hi", continue_task, SYN_PRIO_HIGH, &id_hi);
+    syn_task_create(&tasks[1], "lo", continue_task, SYN_PRIO_LOW, &id_lo);
+    syn_task_create(&tasks[2], "far_sleep", continue_task, SYN_PRIO_LOW, &id_lo);
+    syn_sched_init(&sched, tasks, 3);
+    syn_sched_set_max_wait(&sched, SYN_PRIO_HIGH, 5U);
+    syn_sched_set_max_wait(&sched, SYN_PRIO_LOW, 16U);
+    tasks[2].delay_until = mock_tick_ms + (uint32_t)INT32_MAX;
+
+    syn_sched_run(&sched); /* hi runs, lo stamped due_ms = 0x0000000AU */
+    TEST_ASSERT_EQUAL_UINT32(0x0000000AU, tasks[1].due_ms);
+
+    mock_tick_ms = 0x00000005U;
+    log_reset();
+    syn_sched_run(&sched); /* hi overdue (due=0xFFFFFFFF), lo not yet overdue -> hi runs */
+    TEST_ASSERT_EQUAL_INT(1, run_log[0]);
+
+    mock_tick_ms = 0x00000010U;
+    log_reset();
+    syn_sched_run(&sched); /* both overdue at 0x10: hi runs first */
+    syn_sched_run(&sched); /* lo still overdue at 0x10: lo preempts hi! */
+    TEST_ASSERT_EQUAL_INT(1, run_log[0]);
+    TEST_ASSERT_EQUAL_INT(2, run_log[1]);
+}
+
+/** R3-K01: Overdue lower-prio ready peer + max-clamped sleeper must not wrap share_deadline_ms. */
+static void test_r3_k01_overdue_peer_with_max_clamped_sleeper(void)
+{
+    static int id_low = 3;
+    BurstWakeCtx burst_ctx = {0U, 10U, 0U, NULL, 0U, NULL, 0U};
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+
+    memset(tasks, 0, sizeof(tasks));
+    mock_tick_ms = 1000U;
+
+    syn_task_create(&tasks[0], "hi_burst", burst_wake_driver_fn, SYN_PRIO_HIGH, &burst_ctx);
+    syn_task_create(&tasks[1], "lo_overdue", continue_task, SYN_PRIO_LOW, &id_low);
+    syn_task_create(&tasks[2], "lo_max_sleep", continue_task, SYN_PRIO_LOW, &id_low);
+    syn_sched_init(&sched, tasks, 3);
+
+    /* Both tasks[0] (HIGH) and tasks[1] (LOW) are overdue; HIGH wins selection by priority.
+     * tasks[2] sleeps for 0x7FFFFFFF ms (candidate = 1000 + 0x7FFFFFFF = 0x800003E7).
+     * Clamping tasks[1].due_ms (999) to now (1000) prevents signed subtraction wraparound! */
+    tasks[0].due_ms = 998U;
+    tasks[0].sched_flags = (uint8_t)(SYN_SCHED_FLAG_MORE | SYN_SCHED_FLAG_DUE_VALID);
+    tasks[1].due_ms = 999U;
+    tasks[1].sched_flags = (uint8_t)(SYN_SCHED_FLAG_MORE | SYN_SCHED_FLAG_DUE_VALID);
+    tasks[2].delay_until = 1000U + (uint32_t)INT32_MAX;
+
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(1000U, sched.share_deadline_ms);
+    TEST_ASSERT_EQUAL_UINT32(1U, burst_ctx.iters);
+}
+
+/** R3-K12: Post-init syn_task_create() binds task->sched in sched_prepare_task before dispatch. */
+static void test_r3_k12_post_init_task_create_binds_sched_before_dispatch(void)
+{
+    static int id_hi = 1;
+    static int id_lo = 2;
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+
+    memset(tasks, 0, sizeof(tasks));
+    mock_tick_ms = 100U;
+
+    syn_task_create(&tasks[0], "hi_runner", continue_task, SYN_PRIO_HIGH, &id_hi);
+    tasks[1].state = (uint8_t)SYN_TASK_DEAD;
+    syn_sched_init(&sched, tasks, 2);
+
+    /* Slot 1 starts DEAD; sched_prepare_task still binds tasks[1].sched */
+    tasks[1].sched = NULL;
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_PTR(&sched, tasks[1].sched);
+
+    /* Post-init syn_task_create resets tasks[1].sched = NULL */
+    syn_task_create(&tasks[1], "late_low", continue_task, SYN_PRIO_LOW, &id_lo);
+    TEST_ASSERT_NULL(tasks[1].sched);
+
+    /* Tick at t=100: tasks[0] (HIGH) wins dispatch, while sched_prepare_task binds tasks[1].sched
+     * and stamps tasks[1].due_ms = 100 + 50 = 150 before tasks[1] ever dispatches! */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_PTR(&sched, tasks[1].sched);
+    TEST_ASSERT_EQUAL_UINT32(150U, tasks[1].due_ms);
+
+    /* Boosting tasks[1] before its first dispatch tightens due_ms to CRITICAL window (100 + 1) */
+    syn_task_boost_priority(&tasks[1], SYN_PRIO_CRITICAL);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[1].priority);
+    TEST_ASSERT_EQUAL_UINT32(101U, tasks[1].due_ms);
+
+    /* Monotonic ratchet: boosting to lower priority (HIGH > CRITICAL) is ignored */
+    syn_task_boost_priority(&tasks[1], SYN_PRIO_HIGH);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[1].priority);
+}
+
+typedef struct {
+    SYN_Mutex *m1;
+    SYN_Mutex *m2;
+    SYN_Task *peer_target;
+    int action;
+    int yielded_early;
+} R4SchedMutexCtx;
+
+static SYN_PT_Status r4_trylock_then_delay_fn(SYN_PT *pt, SYN_Task *task)
+{
+    R4SchedMutexCtx *ctx = (R4SchedMutexCtx *)task->user_data;
+    PT_BEGIN(pt);
+    (void)syn_mutex_try_lock(ctx->m1, task);
+    PT_TASK_DELAY_MS(pt, task, 25U);
+    PT_END(pt);
+}
+
+static SYN_PT_Status r4_share_mutation_runner_fn(SYN_PT *pt, SYN_Task *task)
+{
+    R4SchedMutexCtx *ctx = (R4SchedMutexCtx *)task->user_data;
+    PT_BEGIN(pt);
+    if (ctx->action == 1) {
+        syn_task_boost_priority(ctx->peer_target, SYN_PRIO_CRITICAL);
+    } else if (ctx->action == 2) {
+        syn_task_set_base_priority(ctx->peer_target, SYN_PRIO_HIGH);
+    } else if (ctx->action == 3) {
+        syn_task_restart(ctx->peer_target);
+    } else if (ctx->action == 4) {
+        syn_task_restore_priority(task);
+    }
+    PT_CONTINUE_IF_NEEDED(pt, task);
+    ctx->yielded_early = 0;
+    PT_END(pt);
+}
+
+/** R4-K01, R4-K03, R4-K04: Task size invariant, stale waiter drop, and share refresh. */
+static void test_r4_sched_mutex_wait_lifecycle_and_share_refresh(void)
+{
+    const size_t expected_task_size = (sizeof(void *) == 8U) ? 80U : 44U;
+    TEST_ASSERT_EQUAL_UINT32((uint32_t)expected_task_size, (uint32_t)sizeof(SYN_Task));
+
+    /* 1. Bound CRITICAL task fails PT_MUTEX_TRYLOCK then calls PT_TASK_DELAY_MS:
+     * sched_finish_dispatch clears MUTEX_WAIT and drops stale boost back to HIGH. */
+    SYN_Mutex m1;
+    SYN_Mutex m2;
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+    R4SchedMutexCtx ctx = {&m1, &m2, NULL, 0, 1};
+
+    PT_MUTEX_INIT(&m1);
+    PT_MUTEX_INIT(&m2);
+    mock_tick_ms = 0U;
+    syn_task_create(&tasks[0], "crit_dly", r4_trylock_then_delay_fn, SYN_PRIO_CRITICAL, &ctx);
+    syn_task_create(&tasks[1], "high_w", pass_task, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&tasks[2], "low_own", pass_task, SYN_PRIO_LOW, NULL);
+    syn_sched_init(&sched, tasks, 3);
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_try_lock(&m1, &tasks[2]));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_mutex_try_lock(&m1, &tasks[1]));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, tasks[2].priority);
+
+    /* Run crit_dly: fails trylock then delays -> drops owner boost back to HIGH */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, tasks[2].priority);
+    TEST_ASSERT_NULL(m1.waiters[1]);
+
+    /* Bound suspend and restart on contended waiters immediately recompute owner */
+    syn_task_restart(&tasks[0]);
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_mutex_try_lock(&m1, &tasks[0]));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[2].priority);
+    syn_task_restart(&tasks[0]);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, tasks[2].priority);
+
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_mutex_try_lock(&m1, &tasks[0]));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[2].priority);
+    syn_task_suspend(&tasks[0]);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, tasks[2].priority);
+
+    /* Acquiring unlocked m2 while tasks[1] had MUTEX_WAIT on m1 drops low_own to LOW */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_try_lock(&m2, &tasks[1]));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[2].priority);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_unlock(&m2, &tasks[1]));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_unlock(&m1, &tasks[2]));
+
+    /* 2. Mid-dispatch boost, set_base_priority, restart, and restore refresh share */
+    for (int act = 1; act <= 4; act++) {
+        SYN_Task s_tasks[2];
+        SYN_Sched s_sched;
+        R4SchedMutexCtx s_ctx = {NULL, NULL, &s_tasks[1], act, 1};
+        SYN_Prio peer_prio = (act == 4) ? SYN_PRIO_HIGH : SYN_PRIO_LOW;
+        mock_tick_ms = 0U;
+        syn_task_create(&s_tasks[0], "runner", r4_share_mutation_runner_fn, SYN_PRIO_NORMAL,
+                        &s_ctx);
+        syn_task_create(&s_tasks[1], "peer", pass_task, peer_prio, NULL);
+        syn_sched_init(&s_sched, s_tasks, 2);
+        if (act == 3) {
+            syn_task_suspend(&s_tasks[1]);
+            s_tasks[1].base_priority = SYN_PRIO_HIGH;
+        } else if (act == 4) {
+            syn_task_boost_priority(&s_tasks[0], SYN_PRIO_CRITICAL);
+        }
+        syn_sched_run(&s_sched);
+        TEST_ASSERT_EQUAL_INT(1, s_ctx.yielded_early);
+    }
+}
+
+typedef struct {
+    SYN_Task *low_cond_peer;
+    SYN_EventGroup *low_evt;
+    volatile int cond_ready;
+    uint32_t crit_iters;
+    int low_cond_runs;
+    int low_evt_runs;
+} LowIsrWakeCtx;
+
+static SYN_PT_Status low_cond_woken_fn(SYN_PT *pt, SYN_Task *task)
+{
+    LowIsrWakeCtx *ctx = (LowIsrWakeCtx *)task->user_data;
+    PT_BEGIN(pt);
+    PT_BLOCK_CONDITION(pt, task, ctx->cond_ready != 0);
+    ctx->low_cond_runs++;
+    PT_END(pt);
+}
+
+static SYN_PT_Status low_evt_woken_fn(SYN_PT *pt, SYN_Task *task)
+{
+    LowIsrWakeCtx *ctx = (LowIsrWakeCtx *)task->user_data;
+    PT_BEGIN(pt);
+    PT_BLOCK_EVENT(pt, task, ctx->low_evt, 0x01U);
+    ctx->low_evt_runs++;
+    PT_END(pt);
+}
+
+static SYN_PT_Status crit_share_vs_low_isr_fn(SYN_PT *pt, SYN_Task *task)
+{
+    LowIsrWakeCtx *ctx = (LowIsrWakeCtx *)task->user_data;
+    PT_BEGIN(pt);
+    while (ctx->low_cond_runs == 0 || ctx->low_evt_runs == 0) {
+        ctx->crit_iters++;
+        mock_tick_ms += 1U;
+        if (ctx->crit_iters == 3U) {
+            ctx->cond_ready = 1;
+            syn_task_resume(ctx->low_cond_peer);
+        } else if (ctx->crit_iters == 60U) {
+            syn_event_set(ctx->low_evt, 0x01U);
+        }
+        TEST_ASSERT_TRUE(ctx->crit_iters < 200U);
+        PT_CONTINUE_IF_NEEDED(pt, task);
+    }
+    PT_END(pt);
+}
+
+/** Verify lower-priority ISR/event wakeups and boosted round-robin fairness. */
+static void test_low_prio_isr_wakeup_and_boosted_rr_fairness(void)
+{
+    /* 1. CRITICAL PT_CONTINUE_IF_NEEDED task notices ISR-woken and event-woken LOW peers,
+     * stamps their due_ms, and dispatches each within max_wait_ms[LOW] (50 ms). */
+    SYN_EventGroup evt;
+    syn_event_init(&evt);
+    LowIsrWakeCtx ctx = {NULL, &evt, 0, 0U, 0, 0};
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+
+    mock_tick_ms = 0U;
+    syn_task_create(&tasks[0], "crit_loop", crit_share_vs_low_isr_fn, SYN_PRIO_CRITICAL, &ctx);
+    syn_task_create(&tasks[1], "low_cond", low_cond_woken_fn, SYN_PRIO_LOW, &ctx);
+    syn_task_create(&tasks[2], "low_evt", low_evt_woken_fn, SYN_PRIO_LOW, &ctx);
+    ctx.low_cond_peer = &tasks[1];
+    syn_sched_init(&sched, tasks, 3);
+
+    syn_task_suspend(&tasks[0]);
+    syn_sched_run(&sched); /* low_cond parks in SYN_TASK_BLOCKED */
+    syn_sched_run(&sched); /* low_evt parks in SYN_TASK_BLOCKED */
+    syn_task_resume(&tasks[0]);
+
+    int guard = 0;
+    while ((ctx.low_cond_runs == 0 || ctx.low_evt_runs == 0) && guard++ < 20) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_EQUAL_INT(1, ctx.low_cond_runs);
+    TEST_ASSERT_EQUAL_INT(1, ctx.low_evt_runs);
+    TEST_ASSERT_TRUE(mock_tick_ms <= 115U);
+
+    /* 2. Boosted LOW task running at CRITICAL advances rr_per_prio[CRITICAL] fairly */
+    static int id0 = 100, id1 = 200, id2 = 300;
+    SYN_Task rr_tasks[3];
+    SYN_Sched rr_sched;
+    mock_tick_ms = 0U;
+    log_reset();
+    syn_task_create(&rr_tasks[0], "c0", continue_task, SYN_PRIO_CRITICAL, &id0);
+    syn_task_create(&rr_tasks[1], "c1", continue_task, SYN_PRIO_CRITICAL, &id1);
+    syn_task_create(&rr_tasks[2], "boosted", continue_task, SYN_PRIO_LOW, &id2);
+    syn_sched_init(&rr_sched, rr_tasks, 3);
+    syn_task_boost_priority(&rr_tasks[2], SYN_PRIO_CRITICAL);
+
+    for (int step = 0; step < 6; step++) {
+        syn_sched_run(&rr_sched);
+    }
+    TEST_ASSERT_EQUAL_INT(100, run_log[0]);
+    TEST_ASSERT_EQUAL_INT(200, run_log[1]);
+    TEST_ASSERT_EQUAL_INT(300, run_log[2]);
+    TEST_ASSERT_EQUAL_INT(100, run_log[3]);
+    TEST_ASSERT_EQUAL_INT(200, run_log[4]);
+    TEST_ASSERT_EQUAL_INT(300, run_log[5]);
+}
+
 void run_sched_tests(void)
 {
     RUN_TEST(test_scheduler);
@@ -1459,13 +2977,13 @@ void run_sched_tests(void)
     RUN_TEST(test_sched_delayed_task);
     RUN_TEST(test_sched_alive_count);
     RUN_TEST(test_sched_run_forever);
-    RUN_TEST(test_defer_basic);
-    RUN_TEST(test_defer_rr_fairness);
+    RUN_TEST(test_pass_basic);
+    RUN_TEST(test_pass_rr_fairness);
     RUN_TEST(test_rr_same_priority);
-    RUN_TEST(test_strict_priority_no_defer);
-    RUN_TEST(test_defer_rr_three_lower);
-    RUN_TEST(test_defer_state_lifecycle);
-    RUN_TEST(test_defer_then_suspend);
+    RUN_TEST(test_strict_priority_within_window);
+    RUN_TEST(test_pass_rr_three_lower);
+    RUN_TEST(test_pass_flag_lifecycle);
+    RUN_TEST(test_pass_then_suspend);
     RUN_TEST(test_block_event_basic);
     RUN_TEST(test_block_event_skips_scan);
     RUN_TEST(test_block_event_auto_clear);
@@ -1479,7 +2997,7 @@ void run_sched_tests(void)
     RUN_TEST(test_waiting_same_priority_fairness);
     RUN_TEST(test_waiting_delayed_no_inversion);
     RUN_TEST(test_task_priority_boost_and_restore);
-    RUN_TEST(test_two_deferring_high_pri_tasks_starve_lower);
+    RUN_TEST(test_two_passing_high_pri_tasks_do_not_starve_lower);
     RUN_TEST(test_pt_delay_us);
     RUN_TEST(test_block_condition_and_primitives);
     RUN_TEST(test_block_condition_isr_wakeup_not_lost);
@@ -1494,4 +3012,25 @@ void run_sched_tests(void)
     RUN_TEST(test_sched_next_wakeup_blocked_timeout);
     RUN_TEST(test_block_event_with_timeout_isr_race_post_timeout);
     RUN_TEST(test_sched_rr_uint16_rotation);
+    RUN_TEST(test_two_critical_pollers_plus_low_worker);
+    RUN_TEST(test_high_more_flood_vs_critical_poller);
+    RUN_TEST(test_high_more_flood_vs_low_more);
+    RUN_TEST(test_simultaneous_overdue_priority_order);
+    RUN_TEST(test_n_pollers_once_per_round);
+    RUN_TEST(test_task_should_share_and_continue_if_needed);
+    RUN_TEST(test_pt_spawn_propagates_child_intent);
+    RUN_TEST(test_sched_set_max_wait);
+    RUN_TEST(test_waking_delayed_task_ranks_as_work);
+    RUN_TEST(test_dual_sched_isolation_and_unbound_share);
+    RUN_TEST(test_should_share_delayed_and_isr_wakeups);
+    RUN_TEST(test_overdue_rr_preservation_and_bounds);
+    RUN_TEST(test_task_restart_releases_recursive_contended_mutexes);
+    RUN_TEST(test_priority_restore_and_set_base_preserve_mutex_boost);
+    RUN_TEST(test_k02_event_blocking_edge_cases);
+    RUN_TEST(test_k03_isr_wake_and_critical_burst_share);
+    RUN_TEST(test_t03_tick_wraparound_sched_and_timeouts);
+    RUN_TEST(test_r3_k01_overdue_peer_with_max_clamped_sleeper);
+    RUN_TEST(test_r3_k12_post_init_task_create_binds_sched_before_dispatch);
+    RUN_TEST(test_r4_sched_mutex_wait_lifecycle_and_share_refresh);
+    RUN_TEST(test_low_prio_isr_wakeup_and_boosted_rr_fairness);
 }

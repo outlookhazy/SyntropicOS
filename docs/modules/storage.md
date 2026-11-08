@@ -134,7 +134,7 @@ Each slot consists of a 16-byte metadata header followed by the caller's paramet
    - On boot, `syn_param_init()` scans all slots across all configured sectors.
    - Sequence comparisons use signed 16-bit modular arithmetic:
      $$\text{is\_newer} = ((\text{int16\_t})(\text{hdr.seq} - \text{best\_seq}) > 0)$$
-   - This handles 16-bit sequence number rollover ($65535 \rightarrow 0$) seamlessly without data loss.
+   - This handles 16-bit sequence number rollover ($65535 \rightarrow 0$) without data loss.
 
 5. **Power-Loss Fault Recovery Matrix**:
 

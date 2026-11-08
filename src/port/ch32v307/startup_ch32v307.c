@@ -25,12 +25,22 @@ extern uint32_t _estack;
 extern int main(void);
 
 /**
+ * @brief Platform system initialization hook invoked before main().
+ */
+void syn_port_system_init(void) __attribute__((weak));
+
+/**
+ * @brief Naked hardware reset entry and QingKe V4F vector table root.
+ */
+void _start(void);
+
+/**
  * @brief MCU Reset handler — initializes memory sections and jumps to main().
  */
 void Reset_Handler(void);
 
 #if defined(__riscv)
-#define SYN_ISR_ATTR __attribute__((interrupt("WCH-Interrupt-fast")))
+#define SYN_ISR_ATTR __attribute__((interrupt("machine")))
 #else
 #define SYN_ISR_ATTR
 #endif
@@ -65,44 +75,76 @@ SYN_ISR_ATTR void USART1_IRQHandler(void) __attribute__((weak, alias("Default_Ha
  */
 SYN_ISR_ATTR void CAN1_RX0_IRQHandler(void) __attribute__((weak, alias("Default_Handler")));
 
+#if defined(__riscv)
+__attribute__((naked, section(".vector_table"), aligned(4), used)) void _start(void)
+{
+    __asm__ volatile(".option push\n\t"
+                     ".option norvc\n\t"
+                     "j Reset_Handler\n\t"
+                     ".word 0\n\t"
+                     ".word NMI_Handler\n\t"
+                     ".word HardFault_Handler\n\t"
+                     ".rept 8\n\t"
+                     ".word 0\n\t"
+                     ".endr\n\t"
+                     ".word SysTick_Handler\n\t"
+                     ".rept 23\n\t"
+                     ".word 0\n\t"
+                     ".endr\n\t"
+                     ".word CAN1_RX0_IRQHandler\n\t"
+                     ".rept 16\n\t"
+                     ".word 0\n\t"
+                     ".endr\n\t"
+                     ".word USART1_IRQHandler\n\t"
+                     ".option pop\n\t");
+}
+#else
 /**
- * @brief CH32V307 interrupt vector table allocated in .vector_table section.
+ * @brief Host analysis fallback vector table matching QingKe V4F slot indices.
  */
-__attribute__((section(".vector_table"), used)) void (*const vector_table[])(void) = {
-    Reset_Handler,
-    NMI_Handler,
-    HardFault_Handler,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    SysTick_Handler,
-    0,
-    0,
-    USART1_IRQHandler,
-    CAN1_RX0_IRQHandler};
+__attribute__((section(".vector_table"), used)) void (*const vector_table[54])(void) = {
+    [0] = Reset_Handler,    [2] = NMI_Handler,          [3] = HardFault_Handler,
+    [12] = SysTick_Handler, [36] = CAN1_RX0_IRQHandler, [53] = USART1_IRQHandler,
+};
+
+void _start(void)
+{
+    Reset_Handler();
+}
+#endif
+
+void syn_port_system_init(void)
+{
+}
 
 void Reset_Handler(void)
 {
-    /* Initialize Stack Pointer sp */
-    __asm__ volatile("la sp, _estack");
+#if defined(__riscv)
+    /* Initialize stack pointer and vectored mtvec (MODE = 0b11) */
+    __asm__ volatile("la sp, _estack\n\t"
+                     "la t0, _start\n\t"
+                     "ori t0, t0, 3\n\t"
+                     "csrw mtvec, t0"
+                     :
+                     :
+                     : "t0", "memory");
+#endif
 
     /* Copy .data section from Flash to RAM */
-    uint32_t *src = &_sidata;
+    const uint32_t *src = &_sidata;
     uint32_t *dst = &_sdata;
-    while (dst < &_edata) {
+    while ((uintptr_t)dst < (uintptr_t)&_edata) {
         *dst++ = *src++;
     }
 
     /* Clear .bss section in RAM */
     dst = &_sbss;
-    while (dst < &_ebss) {
+    while ((uintptr_t)dst < (uintptr_t)&_ebss) {
         *dst++ = 0U;
     }
+
+    /* Initialize platform tick timer */
+    syn_port_system_init();
 
     /* Call application main */
     (void)main();

@@ -10,6 +10,7 @@
 #if !defined(SYN_USE_MQTTSN) || SYN_USE_MQTTSN
 
 #include "../port/syn_port_system.h"
+#include "../sched/syn_sched.h"
 #include "syn_mqttsn.h"
 
 #include <string.h>
@@ -112,6 +113,7 @@ static SYN_MQTTSN_TopicEntry *mqttsn_find_or_add_topic(SYN_MQTTSN_Client *client
     (void)strncpy(entry->name, topic_name, sizeof(entry->name) - 1U);
     entry->name[sizeof(entry->name) - 1U] = '\0';
     entry->topic_id = 0U;
+    entry->pending_msg_id = 0U;
     entry->active = true;
     return entry;
 }
@@ -244,6 +246,7 @@ SYN_Status syn_mqttsn_client_register_topic(SYN_MQTTSN_Client *client, const cha
         return SYN_ERROR;
     }
 
+    entry->pending_msg_id = msg_id;
     if (out_msg_id != NULL) {
         *out_msg_id = msg_id;
     }
@@ -534,6 +537,30 @@ SYN_Status syn_mqttsn_client_disconnect(SYN_MQTTSN_Client *client)
 }
 
 /**
+ * @brief Match incoming REGACK message ID to its pending topic registration entry.
+ * @param client Client instance pointer.
+ * @param payload Pointer to REGACK payload buffer.
+ * @param payload_len Length of REGACK payload in bytes.
+ */
+static void mqttsn_handle_regack(SYN_MQTTSN_Client *client, const uint8_t *payload,
+                                 size_t payload_len)
+{
+    if (payload_len >= 5U && payload[4] == SYN_MQTTSN_RC_ACCEPTED) {
+        uint16_t topic_id = ((uint16_t)payload[0] << 8U) | payload[1];
+        uint16_t msg_id = ((uint16_t)payload[2] << 8U) | payload[3];
+        if (msg_id != 0U) {
+            for (size_t i = 0U; i < client->topic_count; i++) {
+                if (client->topics[i].active && client->topics[i].pending_msg_id == msg_id) {
+                    client->topics[i].topic_id = topic_id;
+                    client->topics[i].pending_msg_id = 0U;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+/**
  * @brief Handle incoming decoded MQTT-SN message frame.
  * @param client Client instance pointer.
  * @param msg_type Decoded MQTT-SN message type.
@@ -561,13 +588,7 @@ static void mqttsn_process_rx_frame(SYN_MQTTSN_Client *client, uint8_t msg_type,
         break;
 
     case SYN_MQTTSN_MSG_REGACK:
-        if (payload_len >= 5U && payload[4] == SYN_MQTTSN_RC_ACCEPTED) {
-            uint16_t topic_id = ((uint16_t)payload[0] << 8U) | payload[1];
-            /* Update registered topic entry */
-            if (client->topic_count > 0U) {
-                client->topics[client->topic_count - 1U].topic_id = topic_id;
-            }
-        }
+        mqttsn_handle_regack(client, payload, payload_len);
         break;
 
     case SYN_MQTTSN_MSG_PUBLISH:
@@ -610,8 +631,19 @@ static void mqttsn_process_rx_frame(SYN_MQTTSN_Client *client, uint8_t msg_type,
     }
 }
 
-SYN_Status syn_mqttsn_client_step(SYN_MQTTSN_Client *client, uint32_t now_ms)
+/**
+ * @brief Step the MQTT-SN client once and report whether an inbound packet was consumed.
+ * @param client          MQTT-SN client instance.
+ * @param now_ms          Current system timestamp in milliseconds.
+ * @param out_rx_consumed [out] Optional flag set true if a non-empty packet was read.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on NULL client or transport.
+ */
+static SYN_Status mqttsn_client_step_ex(SYN_MQTTSN_Client *client, uint32_t now_ms,
+                                        bool *out_rx_consumed)
 {
+    if (out_rx_consumed != NULL) {
+        *out_rx_consumed = false;
+    }
     if (client == NULL || client->cfg.transport == NULL) {
         return SYN_INVALID_PARAM;
     }
@@ -620,6 +652,9 @@ SYN_Status syn_mqttsn_client_step(SYN_MQTTSN_Client *client, uint32_t now_ms)
     if (syn_transport_recv(client->cfg.transport, client->cfg.rx_buf, client->cfg.rx_buf_size,
                            &rx_len) &&
         rx_len > 0U) {
+        if (out_rx_consumed != NULL) {
+            *out_rx_consumed = true;
+        }
         client->last_activity_ms = now_ms;
         uint8_t msg_type = 0U;
         size_t payload_offset = 0U;
@@ -649,21 +684,33 @@ SYN_Status syn_mqttsn_client_step(SYN_MQTTSN_Client *client, uint32_t now_ms)
     return SYN_OK;
 }
 
+SYN_Status syn_mqttsn_client_step(SYN_MQTTSN_Client *client, uint32_t now_ms)
+{
+    return mqttsn_client_step_ex(client, now_ms, NULL);
+}
+
 SYN_PT_Status syn_mqttsn_client_pt(SYN_PT *pt, SYN_Task *task)
 {
     if (pt == NULL || task == NULL || task->user_data == NULL) {
-        return PT_ENDED;
+        return PT_EXITED;
     }
     SYN_MQTTSN_Client *client = (SYN_MQTTSN_Client *)task->user_data;
 
     PT_BEGIN(pt);
 
     for (;;) {
+        bool rx_consumed = false;
         uint32_t now = syn_port_get_tick_ms();
-        if (syn_mqttsn_client_step(client, now) != SYN_OK) {
+        if (mqttsn_client_step_ex(client, now, &rx_consumed) != SYN_OK) {
             break;
         }
-        PT_YIELD(pt);
+        if (rx_consumed && client->cfg.transport != NULL &&
+            client->cfg.transport->has_data != NULL &&
+            syn_transport_has_data(client->cfg.transport)) {
+            PT_CONTINUE_IF_NEEDED(pt, task);
+        } else {
+            PT_PASS(pt);
+        }
     }
 
     PT_END(pt);

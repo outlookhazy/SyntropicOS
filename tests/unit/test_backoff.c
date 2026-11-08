@@ -95,6 +95,36 @@ static void test_backoff_null_checks(void)
     /* Test min_ms = 1 where jitter_max = 1 / 2 = 0 */
     uint32_t d = syn_backoff_next_ms(&b);
     TEST_ASSERT_EQUAL_UINT32(1, d);
+
+    /* R4-K10: min_ms > max_ms clamps min_ms down to max_ms */
+    syn_backoff_init(&b, 5000U, 200U, 2U, 4U);
+    TEST_ASSERT_EQUAL_UINT32(200U, b.min_ms);
+    TEST_ASSERT_EQUAL_UINT32(200U, b.max_ms);
+    TEST_ASSERT_EQUAL_UINT32(200U, b.current_ms);
+    uint32_t clamped_d = syn_backoff_next_ms(&b);
+    TEST_ASSERT_TRUE(clamped_d >= 200U && clamped_d <= 300U);
+}
+
+/** R3-K10: attempts saturates at UINT8_MAX and jittered delay saturates at UINT32_MAX. */
+static void test_backoff_attempts_and_jitter_saturation(void)
+{
+    SYN_Backoff b;
+    syn_backoff_init(&b, 10U, 100U, 2U, UINT8_MAX);
+
+    for (uint32_t i = 0U; i < 265U; i++) {
+        (void)syn_backoff_next_ms(&b);
+    }
+    TEST_ASSERT_EQUAL_UINT8(UINT8_MAX, b.attempts);
+    TEST_ASSERT_TRUE(syn_backoff_exhausted(&b));
+
+    syn_backoff_init(&b, 0xF0000000U, UINT32_MAX, 2U, 10U);
+    for (uint32_t i = 0U; i < 16U; i++) {
+        uint32_t d = syn_backoff_next_ms(&b);
+        TEST_ASSERT_TRUE(d >= 0xF0000000U);
+        if (i >= 1U) {
+            TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, d);
+        }
+    }
 }
 
 void run_backoff_tests(void)
@@ -105,4 +135,5 @@ void run_backoff_tests(void)
     RUN_TEST(test_backoff_exhaustion);
     RUN_TEST(test_backoff_reset);
     RUN_TEST(test_backoff_null_checks);
+    RUN_TEST(test_backoff_attempts_and_jitter_saturation);
 }

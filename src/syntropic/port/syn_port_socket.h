@@ -140,7 +140,7 @@ SYN_Socket syn_port_sock_listen(uint16_t port, int backlog);
  * Blocks until a connection arrives or the timeout expires.
  *
  * @param listener   Listener socket from syn_port_sock_listen().
- * @param timeout_ms Timeout in milliseconds (0 = block indefinitely).
+ * @param timeout_ms Timeout in milliseconds (0 = non-blocking poll).
  * @return Connected socket handle, or SYN_SOCKET_INVALID on timeout/error.
  */
 SYN_Socket syn_port_sock_accept(SYN_Socket listener, uint32_t timeout_ms);

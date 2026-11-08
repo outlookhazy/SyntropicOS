@@ -235,6 +235,70 @@ static void test_rtc_schedule_alarm_fail(void)
     mock_rtc_init_ok = true;
 }
 
+static void test_r5_rtc_drift_epoch_anchor(void)
+{
+    mock_rtc_init_ok = true;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_init());
+
+    /* NULL and hardware-fail paths */
+    TEST_ASSERT_FALSE(syn_rtc_is_valid(NULL));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_rtc_set(NULL));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_rtc_get(NULL));
+
+    SYN_RTC_DateTime dt2026 = {
+        .year = 2026u, .month = 7u, .day = 25u, .hour = 12u, .minute = 0u, .second = 0u};
+    uint32_t epoch_2026 = syn_rtc_to_epoch(&dt2026);
+
+    mock_rtc_init_ok = false;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_rtc_set(&dt2026));
+    /* Lazy anchor path when drift_ppm set before valid RTC read */
+    syn_rtc_set_drift_ppm(2);
+    mock_rtc_init_ok = true;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_port_rtc_set(&dt2026));
+
+    SYN_RTC_DateTime got;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_get(&got));
+    TEST_ASSERT_EQUAL_UINT32(epoch_2026, syn_rtc_to_epoch(&got));
+
+    /* R5-S13: Explicit syn_rtc_set + +2 ppm must NOT jump 56.5 years of drift at t=0 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_init());
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_set(&dt2026));
+    syn_rtc_set_drift_ppm(2);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_get(&got));
+    TEST_ASSERT_EQUAL_UINT32(epoch_2026, syn_rtc_to_epoch(&got));
+
+    /* Simulate 1,000,002 raw hardware ticks (+2 ppm fast over 1,000,000 real seconds) */
+    SYN_RTC_DateTime raw_advanced;
+    syn_rtc_from_epoch(epoch_2026 + 1000002U, &raw_advanced);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_port_rtc_set(&raw_advanced));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_get(&got));
+    TEST_ASSERT_EQUAL_UINT32(epoch_2026 + 1000000U, syn_rtc_to_epoch(&got));
+
+    /* Clamp to 0 when raw hardware time precedes anchor near Unix origin */
+    SYN_RTC_DateTime dt_origin_plus5 = {
+        .year = 1970u, .month = 1u, .day = 1u, .hour = 0u, .minute = 0u, .second = 5u};
+    SYN_RTC_DateTime dt_origin = {
+        .year = 1970u, .month = 1u, .day = 1u, .hour = 0u, .minute = 0u, .second = 0u};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_set(&dt_origin_plus5));
+    syn_rtc_set_drift_ppm(-500000);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_port_rtc_set(&dt_origin));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_get(&got));
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_rtc_to_epoch(&got));
+
+    /* Schedule alarm with NULL alarm_dt output pointer */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_init());
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_set(&dt2026));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_schedule_alarm_seconds(120U, NULL));
+
+    /* Hardware RTC already valid before syn_rtc_init -> syn_rtc_set_drift_ppm snapshots anchor */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_port_rtc_set(&dt2026));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_init());
+    syn_rtc_set_drift_ppm(5);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_get(&got));
+    TEST_ASSERT_EQUAL_UINT32(epoch_2026, syn_rtc_to_epoch(&got));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_init());
+}
+
 void run_rtc_tests(void)
 {
     RUN_TEST(test_rtc_init_ok);
@@ -253,4 +317,5 @@ void run_rtc_tests(void)
     RUN_TEST(test_rtc_from_epoch_zero);
     RUN_TEST(test_rtc_schedule_alarm);
     RUN_TEST(test_rtc_schedule_alarm_fail);
+    RUN_TEST(test_r5_rtc_drift_epoch_anchor);
 }

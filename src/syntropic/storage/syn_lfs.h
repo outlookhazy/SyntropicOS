@@ -7,6 +7,11 @@
 #ifndef SYN_LFS_H
 #define SYN_LFS_H
 
+#if defined(__has_include)
+#if __has_include("lfs.h")
+#include "lfs.h"
+#endif
+#endif
 #include "syn_vfs.h"
 
 #ifdef __cplusplus
@@ -29,7 +34,6 @@ typedef struct {
 const SYN_VfsOps *syn_lfs_get_ops(void);
 
 #if __has_include("lfs.h")
-#include "lfs.h"
 
 /**
  * @brief Initialize a littlefs config structure with callbacks pointing to syn_port_flash.

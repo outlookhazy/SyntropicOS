@@ -66,6 +66,12 @@ extern "C" {
 #define SYN_BLE_ATT_MTU_DEFAULT 23U /**< Default minimum ATT MTU size */
 #endif
 
+/** @name Find Information Response Format Codes */
+/**@{*/
+#define SYN_BLE_ATT_FIND_INFO_FMT_UUID16 0x01U  /**< 16-bit UUID handle-type pairs (4 bytes) */
+#define SYN_BLE_ATT_FIND_INFO_FMT_UUID128 0x02U /**< 128-bit UUID handle-type pairs (18 bytes) */
+/**@}*/
+
 /**
  * @brief Encode ATT Error Response.
  * @param req_opcode Request Opcode.
@@ -117,6 +123,42 @@ SYN_Status syn_ble_att_encode_write_rsp(uint8_t *buf, uint16_t *len);
  */
 SYN_Status syn_ble_att_encode_notification(uint16_t handle, const uint8_t *val, uint16_t val_len,
                                            uint8_t *buf, uint16_t *len);
+
+/**
+ * @brief Encode ATT Find Information Response (0x05).
+ * @param format Format code (SYN_BLE_ATT_FIND_INFO_FMT_UUID16 or UUID128).
+ * @param info_data Packed handle-UUID pair list.
+ * @param info_len Byte length of info_data.
+ * @param buf Output buffer.
+ * @param len Output length pointer.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on invalid arguments.
+ */
+SYN_Status syn_ble_att_encode_find_info_rsp(uint8_t format, const uint8_t *info_data,
+                                            uint16_t info_len, uint8_t *buf, uint16_t *len);
+
+/**
+ * @brief Encode ATT Read By Type Response (0x09).
+ * @param pair_len Length of each handle-value pair in bytes (minimum 3).
+ * @param data_list Packed handle-value pairs.
+ * @param list_len Total byte length of data_list.
+ * @param buf Output buffer.
+ * @param len Output length pointer.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on invalid arguments.
+ */
+SYN_Status syn_ble_att_encode_read_by_type_rsp(uint8_t pair_len, const uint8_t *data_list,
+                                               uint16_t list_len, uint8_t *buf, uint16_t *len);
+
+/**
+ * @brief Encode ATT Read By Group Type Response (0x11).
+ * @param data_len Length of each attribute data element in bytes (minimum 5).
+ * @param data_list Packed attribute data elements.
+ * @param list_len Total byte length of data_list.
+ * @param buf Output buffer.
+ * @param len Output length pointer.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on invalid arguments.
+ */
+SYN_Status syn_ble_att_encode_read_by_group_rsp(uint8_t data_len, const uint8_t *data_list,
+                                                uint16_t list_len, uint8_t *buf, uint16_t *len);
 
 #ifdef __cplusplus
 }

@@ -10,16 +10,17 @@
 #ifndef SYN_USB_CDC_H
 #define SYN_USB_CDC_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/drivers/syn_usb.h"
+#include "syntropic/pt/syn_pt.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SYN_USB_CDC_SET_LINE_CODING 0x20U        /**< CDC Request Set Line Coding (0x20) */
 #define SYN_USB_CDC_GET_LINE_CODING 0x21U        /**< CDC Request Get Line Coding (0x21) */
@@ -38,6 +39,7 @@ typedef struct {
     uint8_t ep_in;                      /**< Bulk IN Endpoint address */
     uint8_t ep_out;                     /**< Bulk OUT Endpoint address */
     uint8_t ep_cmd;                     /**< Interrupt Command Endpoint address */
+    uint8_t iface_num;                  /**< First assigned USB interface index */
     uint8_t dev_address;                /**< Assigned USB device bus address */
     bool configured;                    /**< True if USB device is in Configured state */
     SYN_USB_CDC_LineCoding line_coding; /**< Active CDC line coding configuration */
@@ -114,7 +116,6 @@ bool syn_usb_cdc_rx_available(const SYN_USB_CDC *cdc);
 bool syn_usb_cdc_tx_ready(const SYN_USB_CDC *cdc);
 
 /* ── Protothread Coroutine Integration ──────────────────────────────────── */
-#include "syntropic/pt/syn_pt.h"
 
 /**
  * @brief Block a protothread coroutine until CDC RX data is available.

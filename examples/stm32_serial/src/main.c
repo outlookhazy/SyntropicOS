@@ -181,28 +181,31 @@ static SYN_PT_Status blink_task(SYN_PT *pt, SYN_Task *task)
     PT_END(pt);
 }
 
+static bool uart0_read_byte(uint8_t *ch)
+{
+    size_t received = 0;
+    return (syn_port_uart_receive(0, ch, 1, &received, 0) == SYN_OK) && (received > 0);
+}
+
 /**
  * Task 2: Serial CLI — polls USART1 for incoming characters and feeds
  * them to the CLI line editor one byte at a time.
  *
  * Each call to syn_port_uart_receive attempts to read a single byte
- * with a short timeout (1 ms).  If no byte is available, the task
- * yields to let other tasks run.
+ * non-blockingly (0 ms).  While bytes remain, the task yields only if
+ * another task needs CPU time; once drained, it passes the turn.
  */
 static SYN_PT_Status cli_task(SYN_PT *pt, SYN_Task *task)
 {
     uint8_t ch;
-    size_t  received;
-    (void)task;
 
     PT_BEGIN(pt);
     for (;;) {
-        received = 0;
-        syn_port_uart_receive(0, &ch, 1, &received, 1);
-        if (received > 0) {
+        while (uart0_read_byte(&ch)) {
             syn_cli_process_char(&cli, (char)ch);
+            PT_CONTINUE_IF_NEEDED(pt, task);
         }
-        PT_YIELD(pt);
+        PT_PASS(pt);
     }
     PT_END(pt);
 }
@@ -233,8 +236,8 @@ void setup(void)
     syn_cli_print_prompt(&cli);
 
     /* 5. Create cooperative tasks and start the scheduler */
-    syn_task_create(&tasks[0], "blink", blink_task, 1, NULL);
-    syn_task_create(&tasks[1], "cli",   cli_task,   1, NULL);
+    syn_task_create(&tasks[0], "blink", blink_task, SYN_PRIO_LOW,  NULL);
+    syn_task_create(&tasks[1], "cli",   cli_task,   SYN_PRIO_HIGH, NULL);
     syn_sched_init(&sched, tasks, 2);
 }
 

@@ -26,16 +26,16 @@ static const char *TAG = "syn_port";
 
 /* ── System Port ────────────────────────────────────────────────────────── */
 
-static portMUX_TYPE critical_mux = portMUX_INITIALIZER_UNLOCKED;
+static portMUX_TYPE s_crit_mux = portMUX_INITIALIZER_UNLOCKED;
 
 void syn_port_enter_critical(void)
 {
-    portENTER_CRITICAL(&critical_mux);
+    portENTER_CRITICAL_SAFE(&s_crit_mux);
 }
 
 void syn_port_exit_critical(void)
 {
-    portEXIT_CRITICAL(&critical_mux);
+    portEXIT_CRITICAL_SAFE(&s_crit_mux);
 }
 
 uint32_t syn_port_get_tick_ms(void)
@@ -55,11 +55,11 @@ void syn_port_delay_ms(uint32_t ms)
     vTaskDelay(pdMS_TO_TICKS(ms));
 }
 
-void syn_port_system_reset(void)
+SYN_NORETURN void syn_port_system_reset(void)
 {
     esp_restart();
-    for (;;)
-        ;
+    for (;;) {
+    }
 }
 
 SYN_NORETURN void syn_assert_failed(const char *file, int line)
@@ -265,13 +265,15 @@ SYN_WEAK int syn_port_serial_write(const uint8_t *data, size_t len)
 
 SYN_WEAK int syn_port_serial_read(uint8_t *buf, size_t max_len)
 {
-    size_t received = 0;
-    SYN_Status s = syn_port_uart_receive(SYN_SERIAL_UART_INSTANCE, buf, max_len, &received, 0);
-    if (s == SYN_TIMEOUT)
-        return (int)received; /* got some bytes before timeout */
-    if (s != SYN_OK)
+    uart_port_t port = get_uart_port(SYN_SERIAL_UART_INSTANCE);
+    if (port == UART_NUM_MAX || buf == NULL) {
         return -1;
-    return (int)received;
+    }
+    if (max_len == 0U) {
+        return 0;
+    }
+    int n = uart_read_bytes(port, buf, max_len, 0);
+    return (n < 0) ? -1 : n;
 }
 
 /* ── Hardware Crypto Port (ESP32 AES) ──────────────────────────────────── */
@@ -303,6 +305,9 @@ SYN_Status syn_port_aes_encrypt_block(const uint8_t *round_keys, uint8_t nr, con
     if (round_keys == NULL || in == NULL || out == NULL) {
         return SYN_NOT_IMPLEMENTED;
     }
+    if (nr != 10U && nr != 12U && nr != 14U) {
+        return SYN_INVALID_PARAM;
+    }
     esp_aes_context ctx;
     esp_aes_init(&ctx);
     uint32_t key_bits = (nr == 10U) ? 128U : ((nr == 12U) ? 192U : 256U);
@@ -330,6 +335,9 @@ SYN_Status syn_port_aes_decrypt_block(const uint8_t *round_keys, uint8_t nr, con
     defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32C6)
     if (round_keys == NULL || in == NULL || out == NULL) {
         return SYN_NOT_IMPLEMENTED;
+    }
+    if (nr != 10U && nr != 12U && nr != 14U) {
+        return SYN_INVALID_PARAM;
     }
     esp_aes_context ctx;
     esp_aes_init(&ctx);

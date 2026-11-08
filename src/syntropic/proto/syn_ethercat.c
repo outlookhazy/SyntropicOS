@@ -74,58 +74,62 @@ void syn_ecat_frame_begin(uint8_t *buf, size_t buf_size)
 size_t syn_ecat_frame_add_datagram(uint8_t *buf, size_t buf_size, SYN_EcatCmd cmd, uint8_t idx,
                                    uint32_t addr, const uint8_t *data, uint16_t data_len, bool circ)
 {
-    if (buf == NULL || buf_size < 14) {
+    if (buf == NULL || buf_size < 14U || data_len > SYN_ECAT_MAX_DGRAM_BYTES) {
         return 0;
     }
 
     uint16_t cur_hdr = load16_le(buf);
-    size_t cur_dg_bytes = (size_t)(cur_hdr & 0x07FF);
-    size_t offset = 2 + cur_dg_bytes;
-    size_t dg_total = 12 + (size_t)data_len;
+    size_t cur_dg_bytes = (size_t)(cur_hdr & SYN_ECAT_MAX_DGRAM_BYTES);
+    size_t offset = 2U + cur_dg_bytes;
+    size_t dg_total = 12U + (size_t)data_len;
 
-    if (offset + dg_total > buf_size) {
+    if ((cur_dg_bytes + dg_total) > SYN_ECAT_MAX_DGRAM_BYTES || (offset + dg_total) > buf_size) {
         return 0;
     }
 
     /* If there is a preceding datagram, set its 'm' (more datagrams) bit */
-    if (cur_dg_bytes > 0) {
-        size_t pos = 2;
+    if (cur_dg_bytes > 0U) {
+        size_t pos = 2U;
         while (pos < offset) {
-            uint16_t d_len = load16_le(&buf[pos + 6]) & 0x07FF;
-            size_t d_size = 12 + (size_t)d_len;
+            uint16_t d_len = load16_le(&buf[pos + 6U]) & SYN_ECAT_MAX_DGRAM_BYTES;
+            size_t d_size = 12U + (size_t)d_len;
             if (pos + d_size == offset) {
-                uint16_t prev_flags = load16_le(&buf[pos + 6]);
+                uint16_t prev_flags = load16_le(&buf[pos + 6U]);
                 prev_flags |= (1U << 15);
-                store16_le(&buf[pos + 6], prev_flags);
+                store16_le(&buf[pos + 6U], prev_flags);
                 break;
             }
             pos += d_size;
         }
     }
 
-    buf[offset + 0] = (uint8_t)cmd;
-    buf[offset + 1] = idx;
-    store32_le(&buf[offset + 2], addr);
+    buf[offset + 0U] = (uint8_t)cmd;
+    buf[offset + 1U] = idx;
+    store32_le(&buf[offset + 2U], addr);
 
-    uint16_t len_flags = (uint16_t)(data_len & 0x07FF);
+    uint16_t len_flags = (uint16_t)(data_len & SYN_ECAT_MAX_DGRAM_BYTES);
     if (circ) {
         len_flags |= (1U << 14);
     }
-    store16_le(&buf[offset + 6], len_flags);
-    store16_le(&buf[offset + 8], 0); /* irq */
+    store16_le(&buf[offset + 6U], len_flags);
+    store16_le(&buf[offset + 8U], 0U); /* irq */
 
-    if (data_len > 0 && data != NULL) {
-        memcpy(&buf[offset + 10], data, data_len);
+    if (data_len > 0U) {
+        if (data != NULL) {
+            memcpy(&buf[offset + 10U], data, data_len);
+        } else {
+            memset(&buf[offset + 10U], 0, data_len);
+        }
     }
 
-    store16_le(&buf[offset + 10 + data_len], 0); /* WKC = 0 on transmit */
+    store16_le(&buf[offset + 10U + data_len], 0U); /* WKC = 0 on transmit */
 
     size_t new_dg_bytes = cur_dg_bytes + dg_total;
-    uint16_t new_hdr = (uint16_t)(new_dg_bytes & 0x07FF);
-    new_hdr |= (uint16_t)((SYN_ETHERCAT_TYPE_DATAGRAM & 0x0F) << 12);
+    uint16_t new_hdr = (uint16_t)(new_dg_bytes & SYN_ECAT_MAX_DGRAM_BYTES);
+    new_hdr |= (uint16_t)((SYN_ETHERCAT_TYPE_DATAGRAM & 0x0FU) << 12);
     store16_le(buf, new_hdr);
 
-    return 2 + new_dg_bytes;
+    return 2U + new_dg_bytes;
 }
 
 size_t syn_ecat_frame_finalize(uint8_t *buf)
@@ -198,13 +202,15 @@ size_t syn_ecat_build_datagram_frame(uint8_t *buf, size_t buf_len, const SYN_Eca
     SYN_ASSERT(buf != NULL && dg != NULL);
 
     /* Total = 2 (EtherCAT Header) + 10 (Datagram Header) + data_len + 2 (WKC) */
-    size_t total_len = 2 + 10 + data_len + 2;
-    if (buf_len < total_len)
+    size_t dg_bytes = 12U + (size_t)data_len;
+    size_t total_len = 2U + dg_bytes;
+    if (dg_bytes > SYN_ECAT_MAX_DGRAM_BYTES || buf_len < total_len) {
         return 0;
+    }
 
     /* 1. Pack 2-byte EtherCAT Header */
-    uint16_t ecat_hdr = (uint16_t)((10 + data_len + 2) & 0x07FF);
-    ecat_hdr |= (uint16_t)((SYN_ETHERCAT_TYPE_DATAGRAM & 0x0F) << 12);
+    uint16_t ecat_hdr = (uint16_t)(dg_bytes & SYN_ECAT_MAX_DGRAM_BYTES);
+    ecat_hdr |= (uint16_t)((SYN_ETHERCAT_TYPE_DATAGRAM & 0x0FU) << 12);
     store16_le(buf, ecat_hdr);
 
     /* 2. Pack 10-byte Datagram Header */
@@ -212,57 +218,487 @@ size_t syn_ecat_build_datagram_frame(uint8_t *buf, size_t buf_len, const SYN_Eca
     buf[3] = dg->idx;
     store32_le(&buf[4], dg->addr);
 
-    uint16_t len_flags = (uint16_t)(data_len & 0x07FF);
-    if (dg->m)
+    uint16_t len_flags = (uint16_t)(data_len & SYN_ECAT_MAX_DGRAM_BYTES);
+    if (dg->m) {
         len_flags |= (1U << 15);
-    if (dg->circ)
+    }
+    if (dg->circ) {
         len_flags |= (1U << 14);
+    }
     store16_le(&buf[8], len_flags);
 
     store16_le(&buf[10], dg->irq);
 
-    /* 3. Copy Data */
-    if (data_len > 0 && data != NULL) {
-        memcpy(&buf[12], data, data_len);
+    /* 3. Copy or zero-fill Data */
+    if (data_len > 0U) {
+        if (data != NULL) {
+            memcpy(&buf[12], data, data_len);
+        } else {
+            memset(&buf[12], 0, data_len);
+        }
     }
 
     /* 4. Pack Working Counter (WKC = 0 on transmit) */
-    store16_le(&buf[12 + data_len], 0);
+    store16_le(&buf[12U + data_len], 0U);
 
     return total_len;
+}
+
+/**
+ * @brief Read low ESC control/status register byte.
+ * @param node EtherCAT slave node instance.
+ * @param reg Physical ESC register offset.
+ * @return Register byte value.
+ */
+static uint8_t ecat_slave_read_low_reg(const SYN_EcatNode *node, uint16_t reg)
+{
+    switch (reg) {
+    case 0x0000U:
+    case 0x0001U:
+        return 0x01U;
+    case 0x0010U:
+        return (uint8_t)(node->station_addr & 0xFFU);
+    case 0x0011U:
+        return (uint8_t)((node->station_addr >> 8U) & 0xFFU);
+    case 0x0120U:
+        return (uint8_t)node->target_state;
+    case 0x0130U:
+        return (uint8_t)node->state;
+    case 0x0134U:
+        return (uint8_t)(node->al_status & 0xFFU);
+    case 0x0135U:
+        return (uint8_t)((node->al_status >> 8U) & 0xFFU);
+    case 0x0502U:
+        return (uint8_t)(node->sii_ctrl & 0xFFU);
+    case 0x0503U:
+        return (uint8_t)((node->sii_ctrl >> 8U) & 0x7FU);
+    default:
+        return 0x00U;
+    }
+}
+
+/**
+ * @brief Read slave SII data, SyncManager status, mailbox, or PDO DPRAM byte.
+ * @param node EtherCAT slave node instance.
+ * @param reg Physical ESC register or DPRAM offset.
+ * @return Byte value at requested ESC address.
+ */
+static uint8_t ecat_slave_read_esc_byte(const SYN_EcatNode *node, uint16_t reg)
+{
+    if (reg < 0x0508U) {
+        return ecat_slave_read_low_reg(node, reg);
+    }
+    if (reg <= 0x050BU) {
+        uint32_t w = node->sii_words[node->sii_addr & (SYN_ECAT_SII_WORDS - 1U)];
+        uint8_t shift = (uint8_t)((reg - 0x0508U) * 8U);
+        return (uint8_t)((w >> shift) & 0xFFU);
+    }
+    if (reg == 0x080DU) {
+        return node->mbox_in_full ? 0x08U : 0x00U;
+    }
+    if (reg >= 0x1080U && reg < (0x1080U + SYN_ECAT_MBOX_SIZE)) {
+        return node->mbox_in[reg - 0x1080U];
+    }
+    if (reg >= 0x1100U && reg < (0x1100U + SYN_ECAT_PDO_BUF_SIZE)) {
+        return node->pdo_out[reg - 0x1100U];
+    }
+    if (reg >= 0x1140U && reg < (0x1140U + SYN_ECAT_PDO_BUF_SIZE)) {
+        return node->pdo_in[reg - 0x1140U];
+    }
+    return 0x00U;
+}
+
+/**
+ * @brief Process CoE SDO request written into slave SM0 mailbox (0x1000).
+ * @param node EtherCAT slave node instance.
+ */
+static void ecat_slave_handle_coe_sdo(SYN_EcatNode *node)
+{
+    uint16_t coe_hdr = load16_le(&node->mbox_out[6]);
+    uint8_t coe_type = (uint8_t)((coe_hdr >> 12U) & 0x0FU);
+    if ((node->mbox_out[5] & 0x0FU) != 0x03U || coe_type != SYN_ECAT_COE_TYPE_SDO_REQ) {
+        return;
+    }
+
+    uint8_t sdo_cmd = node->mbox_out[8];
+    uint16_t idx = load16_le(&node->mbox_out[9]);
+    uint8_t sub = node->mbox_out[11];
+
+    memset(node->mbox_in, 0, sizeof(node->mbox_in));
+    store16_le(&node->mbox_in[0], 10U);
+    store16_le(&node->mbox_in[2], node->station_addr);
+    node->mbox_in[5] = 0x03U;
+    store16_le(&node->mbox_in[6], (uint16_t)((SYN_ECAT_COE_TYPE_SDO_RESP & 0x0FU) << 12U));
+    store16_le(&node->mbox_in[9], idx);
+    node->mbox_in[11] = sub;
+
+#if SYN_ECAT_COE_OD_ENABLED
+    if ((sdo_cmd & 0xE0U) == 0x20U && node->od != NULL) {
+        size_t dlen = ((sdo_cmd & 0x01U) != 0U) ? (size_t)(4U - ((sdo_cmd >> 2U) & 0x03U)) : 4U;
+        if (syn_canopen_od_write(node->od, idx, sub, &node->mbox_out[12], dlen) == SYN_OK) {
+            node->mbox_in[8] = 0x60U;
+            node->mbox_in_full = true;
+            return;
+        }
+    } else if ((sdo_cmd & 0xE0U) == 0x40U && node->od != NULL) {
+        uint8_t rbuf[4] = {0};
+        size_t rlen = 0U;
+        if (syn_canopen_od_read(node->od, idx, sub, rbuf, sizeof(rbuf), &rlen) == SYN_OK &&
+            rlen >= 1U) {
+            node->mbox_in[8] = (uint8_t)(0x43U | (((4U - rlen) & 0x03U) << 2U));
+            memcpy(&node->mbox_in[12], rbuf, rlen);
+            node->mbox_in_full = true;
+            return;
+        }
+    }
+#else
+    (void)sdo_cmd;
+#endif
+
+    node->mbox_in[8] = 0x80U;
+    store32_le(&node->mbox_in[12], 0x06020000UL);
+    node->mbox_in_full = true;
+}
+
+/**
+ * @brief Write slave FMMU (0x0600..0x063F) or SyncManager (0x0800..0x081F) register block.
+ * @param node EtherCAT slave node instance.
+ * @param phys_addr Physical ESC register start address.
+ * @param src Source data bytes.
+ * @param len Number of bytes to write.
+ */
+static void ecat_slave_write_fmmu_sm(SYN_EcatNode *node, uint16_t phys_addr, const uint8_t *src,
+                                     uint16_t len)
+{
+    if (phys_addr >= SYN_ESC_REG_FMMU0 && phys_addr < (SYN_ESC_REG_FMMU0 + 64U) && len == 16U) {
+        uint8_t idx = (uint8_t)((phys_addr - SYN_ESC_REG_FMMU0) / 16U);
+        SYN_EcatFMMUConfig *f = &node->fmmu[idx];
+        f->logical_start = load32_le(&src[0]);
+        f->length = load16_le(&src[4]);
+        f->logical_start_bit = src[6];
+        f->logical_end_bit = src[7];
+        f->phys_start_addr = load16_le(&src[8]);
+        f->phys_start_bit = src[10];
+        f->type = src[11];
+        f->enable = (src[12] != 0U);
+        return;
+    }
+    if (phys_addr >= SYN_ESC_REG_SM0 && phys_addr < (SYN_ESC_REG_SM0 + 32U) && len == 8U) {
+        uint8_t idx = (uint8_t)((phys_addr - SYN_ESC_REG_SM0) / 8U);
+        SYN_EcatSMConfig *sm = &node->sm[idx];
+        sm->start_addr = load16_le(&src[0]);
+        sm->length = load16_le(&src[2]);
+        sm->control = src[4];
+        sm->enable = src[6];
+    }
+}
+
+/**
+ * @brief Write slave mailbox DPRAM, output PDO buffer, or FMMU/SM configuration registers.
+ * @param node EtherCAT slave node instance.
+ * @param phys_addr Physical ESC address.
+ * @param src Source data bytes.
+ * @param len Number of bytes to write.
+ */
+static void ecat_slave_write_dpram(SYN_EcatNode *node, uint16_t phys_addr, const uint8_t *src,
+                                   uint16_t len)
+{
+    if (phys_addr == 0x1000U && len >= 12U) {
+        uint16_t copy_len = (len > SYN_ECAT_MBOX_SIZE) ? SYN_ECAT_MBOX_SIZE : len;
+        memcpy(node->mbox_out, src, copy_len);
+        ecat_slave_handle_coe_sdo(node);
+        return;
+    }
+    if (phys_addr >= 0x1100U && phys_addr < (0x1100U + SYN_ECAT_PDO_BUF_SIZE)) {
+        uint16_t off = (uint16_t)(phys_addr - 0x1100U);
+        uint16_t avail = (uint16_t)(SYN_ECAT_PDO_BUF_SIZE - off);
+        uint16_t copy_len = (len > avail) ? avail : len;
+        memcpy(&node->pdo_out[off], src, copy_len);
+        node->rx_pdos++;
+        return;
+    }
+    ecat_slave_write_fmmu_sm(node, phys_addr, src, len);
+}
+
+/**
+ * @brief Write bytes to slave ESC physical register or DPRAM space.
+ * @param node EtherCAT slave node instance.
+ * @param phys_addr Physical ESC start address.
+ * @param src Source data bytes.
+ * @param len Number of bytes to write.
+ */
+static void ecat_slave_phys_write(SYN_EcatNode *node, uint16_t phys_addr, const uint8_t *src,
+                                  uint16_t len)
+{
+    if (phys_addr == SYN_ESC_REG_STATION_ADDR && len >= 2U) {
+        node->station_addr = load16_le(src);
+        return;
+    }
+    if (phys_addr == SYN_ESC_REG_AL_CONTROL && len >= 1U) {
+        (void)syn_ecat_set_state(node, (SYN_EcatState)(src[0] & 0x0FU));
+        syn_ecat_update(node);
+        return;
+    }
+    if (phys_addr == SYN_ESC_REG_SII_EEPROM_CTRL && len >= 2U) {
+        node->sii_ctrl = (uint16_t)(load16_le(src) & 0x7FFFU);
+        if (len >= 6U) {
+            node->sii_addr = load32_le(&src[2]);
+        }
+        return;
+    }
+    if (phys_addr == 0x0504U && len >= 4U) {
+        node->sii_addr = load32_le(src);
+        return;
+    }
+    ecat_slave_write_dpram(node, phys_addr, src, len);
+}
+
+/**
+ * @brief Read bytes from slave ESC physical register or DPRAM space.
+ * @param node EtherCAT slave node instance.
+ * @param phys_addr Physical ESC start address.
+ * @param dst Destination buffer.
+ * @param len Number of bytes to read.
+ */
+static void ecat_slave_phys_read(SYN_EcatNode *node, uint16_t phys_addr, uint8_t *dst, uint16_t len)
+{
+    for (uint16_t i = 0U; i < len; i++) {
+        dst[i] = ecat_slave_read_esc_byte(node, (uint16_t)(phys_addr + i));
+    }
+    if (phys_addr == 0x1080U && len > 0U) {
+        node->mbox_in_full = false;
+    }
+    if (phys_addr >= 0x1140U && phys_addr < (0x1140U + SYN_ECAT_PDO_BUF_SIZE) && len > 0U) {
+        node->tx_pdos++;
+    }
+}
+
+/**
+ * @brief Execute physical Read (1), Write (2), or ReadWrite (3) and return WKC delta.
+ * @param node EtherCAT slave node instance.
+ * @param mode Access mode (1 = read, 2 = write, 3 = read-write).
+ * @param reg Physical ESC start address.
+ * @param data In-place datagram payload buffer.
+ * @param len Payload length in bytes.
+ * @return Working counter increment for the operation.
+ */
+static uint16_t ecat_slave_exec_phys_rw(SYN_EcatNode *node, uint8_t mode, uint16_t reg,
+                                        uint8_t *data, uint16_t len)
+{
+    if (mode == 1U) {
+        ecat_slave_phys_read(node, reg, data, len);
+        return 1U;
+    }
+    if (mode == 2U) {
+        ecat_slave_phys_write(node, reg, data, len);
+        return 1U;
+    }
+    uint8_t prev[SYN_ECAT_PDO_BUF_SIZE];
+    uint16_t cp = (len > SYN_ECAT_PDO_BUF_SIZE) ? SYN_ECAT_PDO_BUF_SIZE : len;
+    ecat_slave_phys_read(node, reg, prev, cp);
+    ecat_slave_phys_write(node, reg, data, cp);
+    memcpy(data, prev, cp);
+    return 3U;
+}
+
+/**
+ * @brief Map overlapping FMMU region for LRD/LWR/LRW datagrams.
+ * @param node EtherCAT slave node instance.
+ * @param f FMMU entry configuration.
+ * @param cmd EtherCAT logical datagram command code.
+ * @param log_addr Logical start address of datagram.
+ * @param data In-place datagram payload buffer.
+ * @param len Datagram payload length in bytes.
+ * @param did_rd Set true if a logical read occurred.
+ * @param did_wr Set true if a logical write occurred.
+ */
+static void ecat_slave_apply_fmmu(SYN_EcatNode *node, const SYN_EcatFMMUConfig *f, uint8_t cmd,
+                                  uint32_t log_addr, uint8_t *data, uint16_t len, bool *did_rd,
+                                  bool *did_wr)
+{
+    uint32_t dg_end = log_addr + (uint32_t)len;
+    uint32_t fm_end = f->logical_start + (uint32_t)f->length;
+    uint32_t ov_start = (log_addr > f->logical_start) ? log_addr : f->logical_start;
+    uint32_t ov_end = (dg_end < fm_end) ? dg_end : fm_end;
+    if (ov_start >= ov_end) {
+        return;
+    }
+
+    uint16_t slice_len = (uint16_t)(ov_end - ov_start);
+    uint16_t dg_off = (uint16_t)(ov_start - log_addr);
+    uint16_t phys = (uint16_t)(f->phys_start_addr + (uint16_t)(ov_start - f->logical_start));
+    uint8_t wr_buf[SYN_ECAT_PDO_BUF_SIZE];
+
+    bool do_wr = (cmd != SYN_ECAT_CMD_LRD) && ((f->type & 0x02U) != 0U);
+    bool do_rd = (cmd != SYN_ECAT_CMD_LWR) && ((f->type & 0x01U) != 0U);
+
+    if (do_wr) {
+        uint16_t cp = (slice_len > SYN_ECAT_PDO_BUF_SIZE) ? SYN_ECAT_PDO_BUF_SIZE : slice_len;
+        memcpy(wr_buf, &data[dg_off], cp);
+        *did_wr = true;
+    }
+    if (do_rd) {
+        ecat_slave_phys_read(node, phys, &data[dg_off], slice_len);
+        *did_rd = true;
+    }
+    if (do_wr) {
+        uint16_t cp = (slice_len > SYN_ECAT_PDO_BUF_SIZE) ? SYN_ECAT_PDO_BUF_SIZE : slice_len;
+        ecat_slave_phys_write(node, phys, wr_buf, cp);
+    }
+}
+
+/**
+ * @brief Process logical datagram (LRD/LWR/LRW) across all enabled FMMUs.
+ * @param node EtherCAT slave node instance.
+ * @param cmd EtherCAT logical datagram command code.
+ * @param log_addr Logical start address of datagram.
+ * @param data In-place datagram payload buffer.
+ * @param len Datagram payload length in bytes.
+ * @return Working counter increment for logical access.
+ */
+static uint16_t ecat_slave_process_logical(SYN_EcatNode *node, uint8_t cmd, uint32_t log_addr,
+                                           uint8_t *data, uint16_t len)
+{
+    bool did_rd = false;
+    bool did_wr = false;
+    for (uint8_t i = 0U; i < 4U; i++) {
+        if (node->fmmu[i].enable && node->fmmu[i].length > 0U) {
+            ecat_slave_apply_fmmu(node, &node->fmmu[i], cmd, log_addr, data, len, &did_rd, &did_wr);
+        }
+    }
+    if (cmd == SYN_ECAT_CMD_LRW) {
+        return (uint16_t)((did_rd ? 1U : 0U) + (did_wr ? 2U : 0U));
+    }
+    return (did_rd || did_wr) ? 1U : 0U;
+}
+
+/**
+ * @brief Dispatch one slave datagram in-place and return updated datagram WKC.
+ * @param node EtherCAT slave node instance.
+ * @param dg Pointer to start of datagram header in EtherCAT frame.
+ * @param d_len Datagram payload length in bytes.
+ * @return Updated working counter stored in datagram trailer.
+ */
+static uint16_t ecat_slave_process_datagram(SYN_EcatNode *node, uint8_t *dg, uint16_t d_len)
+{
+    uint8_t cmd = dg[0];
+    uint32_t addr = load32_le(&dg[2]);
+    uint16_t reg = (uint16_t)(addr & 0xFFFFU);
+    uint8_t *payload = &dg[10];
+    uint16_t dg_wkc = load16_le(&dg[10U + d_len]);
+    uint16_t delta = 0U;
+
+    if (cmd >= SYN_ECAT_CMD_APRD && cmd <= SYN_ECAT_CMD_APRW) {
+        int16_t pos = (int16_t)(uint16_t)(addr >> 16U);
+        store16_le(&dg[4], (uint16_t)(pos + 1));
+        if (pos == 0) {
+            delta = ecat_slave_exec_phys_rw(node, (uint8_t)(cmd - SYN_ECAT_CMD_APRD + 1U), reg,
+                                            payload, d_len);
+        }
+    } else if (cmd >= SYN_ECAT_CMD_FPRD && cmd <= SYN_ECAT_CMD_FPRW) {
+        if (node->station_addr != 0U && (uint16_t)(addr >> 16U) == node->station_addr) {
+            delta = ecat_slave_exec_phys_rw(node, (uint8_t)(cmd - SYN_ECAT_CMD_FPRD + 1U), reg,
+                                            payload, d_len);
+        }
+    } else if (cmd >= SYN_ECAT_CMD_BRD && cmd <= SYN_ECAT_CMD_BRW) {
+        delta = ecat_slave_exec_phys_rw(node, (uint8_t)(cmd - SYN_ECAT_CMD_BRD + 1U), reg, payload,
+                                        d_len);
+    } else if (cmd >= SYN_ECAT_CMD_LRD && cmd <= SYN_ECAT_CMD_LRW) {
+        delta = ecat_slave_process_logical(node, cmd, addr, payload, d_len);
+    }
+
+    dg_wkc = (uint16_t)(dg_wkc + delta);
+    store16_le(&dg[10U + d_len], dg_wkc);
+    return dg_wkc;
+}
+
+/**
+ * @brief Validate EtherCAT datagram frame header and return payload end offset.
+ * @param frame Raw EtherCAT frame buffer.
+ * @param len Frame length in bytes.
+ * @param out_end Output end offset of nested datagrams.
+ * @return true if frame header is valid, false otherwise.
+ */
+static bool ecat_validate_frame_hdr(const uint8_t *frame, size_t len, size_t *out_end)
+{
+    if (len < 14U) {
+        return false;
+    }
+
+    uint16_t ecat_hdr = load16_le(frame);
+    uint16_t frame_type = (uint16_t)((ecat_hdr >> 12U) & 0x0FU);
+    uint16_t dg_len = (uint16_t)(ecat_hdr & SYN_ECAT_MAX_DGRAM_BYTES);
+    if (frame_type != SYN_ETHERCAT_TYPE_DATAGRAM || dg_len < 12U || len < (size_t)(2U + dg_len)) {
+        return false;
+    }
+
+    *out_end = 2U + (size_t)dg_len;
+    return true;
 }
 
 SYN_Status syn_ecat_parse_frame(SYN_EcatNode *node, const uint8_t *frame, size_t len, uint16_t *wkc)
 {
     SYN_ASSERT(node != NULL && frame != NULL);
 
-    if (len < 14) /* 2 byte header + 10 byte dg header + 2 byte WKC */
+    size_t end = 0U;
+    if (!ecat_validate_frame_hdr(frame, len, &end)) {
         return SYN_ERROR;
+    }
 
-    uint16_t ecat_hdr = load16_le(frame);
-    uint16_t frame_type = (ecat_hdr >> 12) & 0x0F;
-    if (frame_type != SYN_ETHERCAT_TYPE_DATAGRAM)
-        return SYN_ERROR;
+    size_t pos = 2U;
+    uint16_t total_wkc = 0U;
 
-    uint16_t dg_len = ecat_hdr & 0x07FF;
-    if (dg_len < 12 || len < (size_t)(2 + dg_len))
-        return SYN_ERROR;
+    while (pos < end) {
+        if ((pos + 12U) > end) {
+            return SYN_ERROR;
+        }
+        uint16_t d_len = (uint16_t)(load16_le(&frame[pos + 6U]) & SYN_ECAT_MAX_DGRAM_BYTES);
+        if ((pos + 12U + (size_t)d_len) > end) {
+            return SYN_ERROR;
+        }
+        total_wkc = (uint16_t)(total_wkc + load16_le(&frame[pos + 10U + d_len]));
+        pos += 12U + (size_t)d_len;
+    }
 
-    /* Extract Datagram WKC from the end of the first datagram */
-    size_t wkc_offset = 2 + dg_len - 2;
-    uint16_t received_wkc = load16_le(&frame[wkc_offset]);
     if (wkc != NULL) {
-        *wkc = received_wkc;
+        *wkc = total_wkc;
     }
+    node->wkc_last = total_wkc;
 
-    node->wkc_last = received_wkc;
+    return (total_wkc < node->wkc_expected) ? SYN_ERROR : SYN_OK;
+}
 
-    /* Check if WKC matches expected */
-    if (received_wkc < node->wkc_expected) {
+SYN_Status syn_ecat_slave_process_frame(SYN_EcatNode *node, uint8_t *frame, size_t len,
+                                        uint16_t *wkc)
+{
+    SYN_ASSERT(node != NULL && frame != NULL);
+
+    size_t end = 0U;
+    if (!ecat_validate_frame_hdr(frame, len, &end)) {
         return SYN_ERROR;
     }
 
-    return SYN_OK;
+    size_t pos = 2U;
+    uint16_t total_wkc = 0U;
+
+    while (pos < end) {
+        if ((pos + 12U) > end) {
+            return SYN_ERROR;
+        }
+        uint16_t d_len = (uint16_t)(load16_le(&frame[pos + 6U]) & SYN_ECAT_MAX_DGRAM_BYTES);
+        if ((pos + 12U + (size_t)d_len) > end) {
+            return SYN_ERROR;
+        }
+        total_wkc = (uint16_t)(total_wkc + ecat_slave_process_datagram(node, &frame[pos], d_len));
+        pos += 12U + (size_t)d_len;
+    }
+
+    if (wkc != NULL) {
+        *wkc = total_wkc;
+    }
+    node->wkc_last = total_wkc;
+
+    return (total_wkc < node->wkc_expected) ? SYN_ERROR : SYN_OK;
 }
 
 SYN_Status syn_ecat_set_state(SYN_EcatNode *node, SYN_EcatState new_state)
@@ -298,26 +734,25 @@ size_t syn_ecat_coe_encode_sdo_download(uint8_t *buf, size_t buf_len, uint16_t i
 {
     SYN_ASSERT(buf != NULL);
 
-    if (data_len > 4 || buf_len < 10) /* 2 byte Mailbox + 8 byte SDO */
+    if (data == NULL || data_len == 0U || data_len > 4U || buf_len < 10U) {
         return 0;
+    }
 
-    /* CoE Mailbox Header: Type 3 (SDO Request) */
-    uint16_t coe_hdr = (uint16_t)((SYN_ECAT_COE_TYPE_SDO_REQ & 0x0F) << 12);
+    /* CoE Mailbox Header: Type 2 (SDO Request) */
+    uint16_t coe_hdr = (uint16_t)((SYN_ECAT_COE_TYPE_SDO_REQ & 0x0FU) << 12);
     store16_le(buf, coe_hdr);
 
-    /* SDO Download Command Header: Expedited SDO Download Request (0x22 / 0x23 / etc) */
-    uint8_t sdo_hdr = 0x22 | (uint8_t)(((4 - data_len) & 0x03) << 2) | 0x02; /* e=1, s=1 */
+    /* SDO Download Command Header: Expedited SDO Download Request (e=1, s=1) */
+    uint8_t sdo_hdr = 0x22U | (uint8_t)(((4U - data_len) & 0x03U) << 2) | 0x01U;
     buf[2] = sdo_hdr;
     store16_le(&buf[3], index);
     buf[5] = subindex;
 
     /* SDO Data */
-    memset(&buf[6], 0, 4);
-    if (data != NULL && data_len > 0) {
-        memcpy(&buf[6], data, data_len);
-    }
+    memset(&buf[6], 0, 4U);
+    memcpy(&buf[6], data, data_len);
 
-    return 10;
+    return 10U;
 }
 
 size_t syn_ecat_coe_encode_sdo_upload(uint8_t *buf, size_t buf_len, uint16_t index,
@@ -325,20 +760,21 @@ size_t syn_ecat_coe_encode_sdo_upload(uint8_t *buf, size_t buf_len, uint16_t ind
 {
     SYN_ASSERT(buf != NULL);
 
-    if (buf_len < 10)
+    if (buf_len < 10U) {
         return 0;
+    }
 
-    /* CoE Mailbox Header: Type 3 (SDO Request) */
-    uint16_t coe_hdr = (uint16_t)((SYN_ECAT_COE_TYPE_SDO_REQ & 0x0F) << 12);
+    /* CoE Mailbox Header: Type 2 (SDO Request) */
+    uint16_t coe_hdr = (uint16_t)((SYN_ECAT_COE_TYPE_SDO_REQ & 0x0FU) << 12);
     store16_le(buf, coe_hdr);
 
     /* SDO Upload Request Command Header: 0x40 */
-    buf[2] = 0x40;
+    buf[2] = 0x40U;
     store16_le(&buf[3], index);
     buf[5] = subindex;
-    memset(&buf[6], 0, 4);
+    memset(&buf[6], 0, 4U);
 
-    return 10;
+    return 10U;
 }
 
 /* ── EtherCAT Master API Implementation ─────────────────────────────────── */
@@ -430,14 +866,14 @@ size_t syn_ecat_encode_read_sii(SYN_EcatMaster *m, uint16_t station_addr, uint16
 
 SYN_Status syn_ecat_decode_read_sii(SYN_EcatMaster *m, size_t rx_len, uint32_t *out_val)
 {
-    if (m == NULL || m->rx_buf == NULL || out_val == NULL || rx_len < 14) {
+    if (m == NULL || m->rx_buf == NULL || out_val == NULL || rx_len < 14U) {
         return SYN_INVALID_PARAM;
     }
 
-    size_t offset = 2;
+    size_t offset = 2U;
     SYN_EcatDatagramResult res;
     if (syn_ecat_frame_parse_next(m->rx_buf, rx_len, &offset, &res)) {
-        if (res.data_len >= 4) {
+        if (res.wkc >= 1U && res.data_len >= 4U) {
             *out_val = load32_le(res.data);
             return SYN_OK;
         }
@@ -507,15 +943,15 @@ size_t syn_ecat_encode_read_al_status(SYN_EcatMaster *m, uint16_t station_addr)
 SYN_Status syn_ecat_decode_read_al_status(SYN_EcatMaster *m, size_t rx_len, SYN_EcatState *state,
                                           uint16_t *status_code)
 {
-    if (m == NULL || m->rx_buf == NULL || state == NULL || status_code == NULL || rx_len < 14) {
+    if (m == NULL || m->rx_buf == NULL || state == NULL || status_code == NULL || rx_len < 14U) {
         return SYN_INVALID_PARAM;
     }
 
-    size_t offset = 2;
+    size_t offset = 2U;
     SYN_EcatDatagramResult res;
     if (syn_ecat_frame_parse_next(m->rx_buf, rx_len, &offset, &res)) {
-        if (res.data_len >= 4) {
-            *state = (SYN_EcatState)(res.data[0] & 0x0F);
+        if (res.wkc >= 1U && res.data_len >= 4U) {
+            *state = (SYN_EcatState)(res.data[0] & 0x0FU);
             *status_code = load16_le(&res.data[2]);
             return SYN_OK;
         }
@@ -529,38 +965,35 @@ SYN_Status syn_ecat_decode_read_al_status(SYN_EcatMaster *m, size_t rx_len, SYN_
 size_t syn_ecat_encode_coe_sdo_write(SYN_EcatMaster *m, uint16_t station_addr, uint16_t index,
                                      uint8_t subindex, const void *data, size_t data_len)
 {
-    if (m == NULL || m->tx_buf == NULL || data_len > 4) {
+    if (m == NULL || m->tx_buf == NULL || data == NULL || data_len == 0U || data_len > 4U) {
         return 0;
     }
 
     syn_ecat_frame_begin(m->tx_buf, m->tx_buf_size);
 
-    /* 6B Mailbox Header + 2B CoE Header + 8B SDO = 16B payload */
-    uint8_t payload[16] = {0};
+    /* Pad full SM0 mailbox buffer so ESC triggers MBX_FULL on last byte write */
+    uint8_t payload[SYN_ECAT_MBOX_SIZE] = {0};
 
     /* Mailbox Header */
-    store16_le(&payload[0], 10);           /* Mailbox payload length (CoE 2B + SDO 8B) */
+    store16_le(&payload[0], 10U);          /* Mailbox payload length (CoE 2B + SDO 8B) */
     store16_le(&payload[2], station_addr); /* Target station address */
-    payload[4] = 0x00;                     /* Channel 0, Priority 0 */
-    payload[5] = 0x03;                     /* Mailbox Type 3 = CoE */
+    payload[4] = 0x00U;                    /* Channel 0, Priority 0 */
+    payload[5] = 0x03U;                    /* Mailbox Type 3 = CoE */
 
     /* CoE Header */
-    uint16_t coe_hdr = (uint16_t)((SYN_ECAT_COE_TYPE_SDO_REQ & 0x0F) << 12);
+    uint16_t coe_hdr = (uint16_t)((SYN_ECAT_COE_TYPE_SDO_REQ & 0x0FU) << 12);
     store16_le(&payload[6], coe_hdr);
 
-    /* SDO Download Command Header (expedited) */
-    uint8_t sdo_hdr = 0x22 | (uint8_t)(((4 - data_len) & 0x03) << 2) | 0x02;
+    /* SDO Download Command Header (expedited, e=1, s=1) */
+    uint8_t sdo_hdr = 0x22U | (uint8_t)(((4U - data_len) & 0x03U) << 2) | 0x01U;
     payload[8] = sdo_hdr;
     store16_le(&payload[9], index);
     payload[11] = subindex;
-
-    if (data != NULL && data_len > 0) {
-        memcpy(&payload[12], data, data_len);
-    }
+    memcpy(&payload[12], data, data_len);
 
     uint32_t addr = ((uint32_t)station_addr << 16) | 0x1000U; /* Default Mailbox Out DPRAM */
-    return syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_FPWR, 0x06, addr,
-                                       payload, 16, false);
+    return syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_FPWR, 0x06U, addr,
+                                       payload, SYN_ECAT_MBOX_SIZE, false);
 }
 
 size_t syn_ecat_encode_coe_sdo_read(SYN_EcatMaster *m, uint16_t station_addr, uint16_t index,
@@ -572,58 +1005,72 @@ size_t syn_ecat_encode_coe_sdo_read(SYN_EcatMaster *m, uint16_t station_addr, ui
 
     syn_ecat_frame_begin(m->tx_buf, m->tx_buf_size);
 
-    uint8_t payload[16] = {0};
+    uint8_t payload[SYN_ECAT_MBOX_SIZE] = {0};
 
     /* Mailbox Header */
-    store16_le(&payload[0], 10);
+    store16_le(&payload[0], 10U);
     store16_le(&payload[2], station_addr);
-    payload[4] = 0x00;
-    payload[5] = 0x03; /* CoE */
+    payload[4] = 0x00U;
+    payload[5] = 0x03U; /* CoE */
 
     /* CoE Header */
-    uint16_t coe_hdr = (uint16_t)((SYN_ECAT_COE_TYPE_SDO_REQ & 0x0F) << 12);
+    uint16_t coe_hdr = (uint16_t)((SYN_ECAT_COE_TYPE_SDO_REQ & 0x0FU) << 12);
     store16_le(&payload[6], coe_hdr);
 
     /* SDO Upload Command Header (0x40) */
-    payload[8] = 0x40;
+    payload[8] = 0x40U;
     store16_le(&payload[9], index);
     payload[11] = subindex;
 
     uint32_t addr = ((uint32_t)station_addr << 16) | 0x1000U;
-    return syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_FPWR, 0x07, addr,
-                                       payload, 16, false);
+    return syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_FPWR, 0x07U, addr,
+                                       payload, SYN_ECAT_MBOX_SIZE, false);
+}
+
+/**
+ * @brief Validate and extract CoE SDO expedited upload response payload from mailbox data.
+ * @param mbox_data Received SM1 mailbox buffer bytes.
+ * @param out_data Destination buffer for extracted SDO payload.
+ * @param max_len Capacity of out_data in bytes.
+ * @param out_len Output extracted payload length in bytes.
+ * @return SYN_OK on valid expedited SDO upload response, SYN_ERROR otherwise.
+ */
+static SYN_Status ecat_parse_coe_sdo_payload(const uint8_t *mbox_data, void *out_data,
+                                             size_t max_len, size_t *out_len)
+{
+    uint8_t mbox_type = mbox_data[5] & 0x0FU;
+    uint16_t coe_hdr = load16_le(&mbox_data[6]);
+    uint8_t coe_type = (uint8_t)((coe_hdr >> 12U) & 0x0FU);
+    if (mbox_type != 0x03U || coe_type != SYN_ECAT_COE_TYPE_SDO_RESP) {
+        return SYN_ERROR;
+    }
+
+    uint8_t sdo_hdr = mbox_data[8];
+    if ((sdo_hdr & 0xE0U) != 0x40U || (sdo_hdr & 0x02U) == 0U) {
+        return SYN_ERROR;
+    }
+
+    size_t payload_len = ((sdo_hdr & 0x01U) != 0U) ? (size_t)(4U - ((sdo_hdr >> 2U) & 0x03U)) : 4U;
+    if (payload_len > max_len) {
+        payload_len = max_len;
+    }
+    memcpy(out_data, &mbox_data[12], payload_len);
+    *out_len = payload_len;
+    return SYN_OK;
 }
 
 SYN_Status syn_ecat_decode_coe_sdo_response(SYN_EcatMaster *m, size_t rx_len, void *out_data,
                                             size_t max_len, size_t *out_len)
 {
-    if (m == NULL || m->rx_buf == NULL || out_data == NULL || out_len == NULL || rx_len < 14) {
+    if (m == NULL || m->rx_buf == NULL || out_data == NULL || out_len == NULL || rx_len < 14U) {
         return SYN_INVALID_PARAM;
     }
 
-    size_t offset = 2;
+    size_t offset = 2U;
     SYN_EcatDatagramResult res;
     if (syn_ecat_frame_parse_next(m->rx_buf, rx_len, &offset, &res)) {
-        if (res.data_len >= 16) {
-            /* Check Mailbox Type (byte 5 & 0x0F == 3) */
-            uint8_t mbox_type = res.data[5] & 0x0F;
-            if (mbox_type != 3) {
-                return SYN_ERROR;
-            }
-
-            /* SDO Header at offset 8 */
-            uint8_t sdo_hdr = res.data[8];
-            /* Expedited upload response header matches 0x40 (0x4F, 0x4B, 0x47, 0x43) */
-            if ((sdo_hdr & 0xE0) == 0x40) {
-                uint8_t n = (sdo_hdr >> 2) & 0x03;
-                size_t payload_len = 4 - n;
-                if (payload_len > max_len) {
-                    payload_len = max_len;
-                }
-                memcpy(out_data, &res.data[12], payload_len);
-                *out_len = payload_len;
-                return SYN_OK;
-            }
+        if (res.wkc >= 1U && res.data_len >= 16U) {
+            return ecat_parse_coe_sdo_payload(res.data, out_data, max_len, out_len);
         }
     }
 
@@ -634,35 +1081,34 @@ SYN_Status syn_ecat_decode_coe_sdo_response(SYN_EcatMaster *m, size_t rx_len, vo
 
 size_t syn_ecat_encode_cyclic(SYN_EcatMaster *m)
 {
-    if (m == NULL || m->tx_buf == NULL || m->output_size == 0) {
+    if (m == NULL || m->tx_buf == NULL || m->output_size == 0U) {
         return 0;
     }
 
     syn_ecat_frame_begin(m->tx_buf, m->tx_buf_size);
-    return syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_LRW, 0x10,
+    return syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_LRW, 0x10U,
                                        m->logical_addr, m->output_image, m->output_size, false);
 }
 
 SYN_Status syn_ecat_decode_cyclic(SYN_EcatMaster *m, size_t rx_len)
 {
-    if (m == NULL || m->rx_buf == NULL || rx_len < 14) {
+    if (m == NULL || m->rx_buf == NULL || rx_len < 14U) {
         return SYN_INVALID_PARAM;
     }
 
-    size_t offset = 2;
+    size_t offset = 2U;
     SYN_EcatDatagramResult res;
     if (syn_ecat_frame_parse_next(m->rx_buf, rx_len, &offset, &res)) {
         m->wkc_last = res.wkc;
-        if (res.wkc >= m->wkc_expected) {
-            if (m->input_image != NULL && m->input_size > 0 && res.data_len >= m->input_size) {
+        if (res.wkc >= 1U && res.wkc >= m->wkc_expected) {
+            if (m->input_image != NULL && m->input_size > 0U && res.data_len >= m->input_size) {
                 memcpy(m->input_image, res.data, m->input_size);
             }
             m->cycle_count++;
             return SYN_OK;
-        } else {
-            m->wkc_errors++;
-            return SYN_ERROR;
         }
+        m->wkc_errors++;
+        return SYN_ERROR;
     }
 
     return SYN_ERROR;
@@ -743,13 +1189,16 @@ bool syn_ecat_master_pop_tx_frame(SYN_EcatMaster *m, const uint8_t **out_frame, 
 SYN_PT_Status syn_ecat_master_scan_task(SYN_PT *pt, SYN_EcatMaster *m)
 {
     if (pt == NULL || m == NULL) {
-        return PT_ENDED;
+        return PT_EXITED;
     }
 
     PT_BEGIN(pt);
 
     /* 1. Send scan bus BRD */
     m->tx_frame_len = (uint16_t)syn_ecat_encode_scan_bus(m);
+    if (m->tx_frame_len == 0U) {
+        PT_EXIT(pt);
+    }
     m->frame_tx_pending = true;
     m->frame_rx_ready = false;
     PT_WAIT_UNTIL(pt, m->frame_rx_ready);
@@ -762,6 +1211,9 @@ SYN_PT_Status syn_ecat_master_scan_task(SYN_PT *pt, SYN_EcatMaster *m)
         m->slaves[m->current_slave_idx].station_addr = (uint16_t)(0x1001 + m->current_slave_idx);
         m->tx_frame_len = (uint16_t)syn_ecat_encode_assign_addr(
             m, m->current_slave_idx, m->slaves[m->current_slave_idx].station_addr);
+        if (m->tx_frame_len == 0U) {
+            PT_EXIT(pt);
+        }
         m->frame_tx_pending = true;
         m->frame_rx_ready = false;
         PT_WAIT_UNTIL(pt, m->frame_rx_ready);
@@ -794,7 +1246,7 @@ SYN_PT_Status syn_ecat_master_transition_task(SYN_PT *pt, SYN_EcatMaster *m,
                                               SYN_EcatState target_state)
 {
     if (pt == NULL || m == NULL) {
-        return PT_ENDED;
+        return PT_EXITED;
     }
 
     PT_BEGIN(pt);
@@ -806,18 +1258,28 @@ SYN_PT_Status syn_ecat_master_transition_task(SYN_PT *pt, SYN_EcatMaster *m,
 
         /* If moving to PREOP, write SyncManager 0 & 1 default mailbox settings */
         if (target_state == SYN_ECAT_STATE_PREOP) {
-            static SYN_EcatSMConfig sm0 = {
-                .start_addr = 0x1000, .length = 128, .control = 0x26, .enable = 0x01};
-            static SYN_EcatSMConfig sm1 = {
-                .start_addr = 0x1080, .length = 128, .control = 0x22, .enable = 0x01};
+            static SYN_EcatSMConfig sm0 = {.start_addr = 0x1000U,
+                                           .length = SYN_ECAT_MBOX_SIZE,
+                                           .control = 0x26U,
+                                           .enable = 0x01U};
+            static SYN_EcatSMConfig sm1 = {.start_addr = 0x1080U,
+                                           .length = SYN_ECAT_MBOX_SIZE,
+                                           .control = 0x22U,
+                                           .enable = 0x01U};
 
             m->tx_frame_len = (uint16_t)syn_ecat_encode_write_sm(m, st_addr, 0, &sm0);
+            if (m->tx_frame_len == 0U) {
+                PT_EXIT(pt);
+            }
             m->frame_tx_pending = true;
             m->frame_rx_ready = false;
             PT_WAIT_UNTIL(pt, m->frame_rx_ready);
 
             st_addr = syn_ecat_get_slave_station_addr(m, m->current_slave_idx);
             m->tx_frame_len = (uint16_t)syn_ecat_encode_write_sm(m, st_addr, 1, &sm1);
+            if (m->tx_frame_len == 0U) {
+                PT_EXIT(pt);
+            }
             m->frame_tx_pending = true;
             m->frame_rx_ready = false;
             PT_WAIT_UNTIL(pt, m->frame_rx_ready);
@@ -826,6 +1288,9 @@ SYN_PT_Status syn_ecat_master_transition_task(SYN_PT *pt, SYN_EcatMaster *m,
         /* Request AL Control state change */
         st_addr = syn_ecat_get_slave_station_addr(m, m->current_slave_idx);
         m->tx_frame_len = (uint16_t)syn_ecat_encode_set_al_control(m, st_addr, target_state);
+        if (m->tx_frame_len == 0U) {
+            PT_EXIT(pt);
+        }
         m->frame_tx_pending = true;
         m->frame_rx_ready = false;
         PT_WAIT_UNTIL(pt, m->frame_rx_ready);
@@ -833,6 +1298,9 @@ SYN_PT_Status syn_ecat_master_transition_task(SYN_PT *pt, SYN_EcatMaster *m,
         /* Read AL Status */
         st_addr = syn_ecat_get_slave_station_addr(m, m->current_slave_idx);
         m->tx_frame_len = (uint16_t)syn_ecat_encode_read_al_status(m, st_addr);
+        if (m->tx_frame_len == 0U) {
+            PT_EXIT(pt);
+        }
         m->frame_tx_pending = true;
         m->frame_rx_ready = false;
         PT_WAIT_UNTIL(pt, m->frame_rx_ready);
@@ -847,12 +1315,15 @@ SYN_PT_Status syn_ecat_master_transition_task(SYN_PT *pt, SYN_EcatMaster *m,
 SYN_PT_Status syn_ecat_master_cyclic_task(SYN_PT *pt, SYN_EcatMaster *m)
 {
     if (pt == NULL || m == NULL) {
-        return PT_ENDED;
+        return PT_EXITED;
     }
 
     PT_BEGIN(pt);
 
     m->tx_frame_len = (uint16_t)syn_ecat_encode_cyclic(m);
+    if (m->tx_frame_len == 0U) {
+        PT_EXIT(pt);
+    }
     m->frame_tx_pending = true;
     m->frame_rx_ready = false;
     PT_WAIT_UNTIL(pt, m->frame_rx_ready);
@@ -865,16 +1336,14 @@ SYN_PT_Status syn_ecat_master_cyclic_task(SYN_PT *pt, SYN_EcatMaster *m)
 size_t syn_ecat_encode_read_reg(SYN_EcatMaster *m, uint16_t station_addr, uint16_t reg_addr,
                                 uint16_t len)
 {
-    if (m == NULL || m->tx_buf == NULL || len == 0) {
+    if (m == NULL || m->tx_buf == NULL || len == 0U) {
         return 0;
     }
 
     syn_ecat_frame_begin(m->tx_buf, m->tx_buf_size);
     uint32_t addr = ((uint32_t)station_addr << 16) | (uint32_t)reg_addr;
-    uint8_t dummy[16] = {0};
-    uint16_t datagram_len = (len > sizeof(dummy)) ? (uint16_t)sizeof(dummy) : len;
-    return syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_FPRD, 0x01, addr,
-                                       dummy, datagram_len, false);
+    return syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_FPRD, 0x01U, addr,
+                                       NULL, len, false);
 }
 
 size_t syn_ecat_encode_write_reg(SYN_EcatMaster *m, uint16_t station_addr, uint16_t reg_addr,
@@ -907,19 +1376,52 @@ SYN_Status syn_ecat_decode_read_reg(SYN_EcatMaster *m, size_t rx_len, void *out_
     return SYN_ERROR;
 }
 
+/**
+ * @brief Check whether the last SII EEPROM status poll response indicates idle.
+ * @param m Pointer to EtherCAT master instance.
+ * @return true when SII busy bit is cleared.
+ */
+static bool ecat_sii_poll_done(SYN_EcatMaster *m)
+{
+    uint8_t status_buf[2] = {0};
+    if (syn_ecat_decode_read_reg(m, m->rx_frame_len, status_buf, 2U) != SYN_OK) {
+        return false;
+    }
+    return (load16_le(status_buf) & 0x8000U) == 0U;
+}
+
+/**
+ * @brief Check whether the last SM1 status poll response indicates a queued mailbox frame.
+ * @param m Pointer to EtherCAT master instance.
+ * @return true when SM1 mailbox-full flag (bit 3) is set.
+ */
+static bool ecat_sm1_poll_ready(SYN_EcatMaster *m)
+{
+    uint8_t sm1_status = 0U;
+    if (syn_ecat_decode_read_reg(m, m->rx_frame_len, &sm1_status, 1U) != SYN_OK) {
+        return false;
+    }
+    return (sm1_status & 0x08U) != 0U;
+}
+
 SYN_PT_Status syn_ecat_master_read_sii_task(SYN_PT *pt, SYN_EcatMaster *m, uint16_t station_addr,
                                             uint16_t word_offset, uint32_t *out_data)
 {
     if (pt == NULL || m == NULL || out_data == NULL) {
-        return PT_ENDED;
+        return PT_EXITED;
     }
 
     PT_BEGIN(pt);
+
+    m->sdo_ok = false;
 
     /* 1. Write word offset to SII Address reg 0x0504 */
     uint8_t addr_bytes[4];
     store32_le(addr_bytes, (uint32_t)word_offset);
     m->tx_frame_len = (uint16_t)syn_ecat_encode_write_reg(m, station_addr, 0x0504, addr_bytes, 4);
+    if (m->tx_frame_len == 0U) {
+        PT_EXIT(pt);
+    }
     m->frame_tx_pending = true;
     m->frame_rx_ready = false;
     PT_WAIT_UNTIL(pt, m->frame_rx_ready);
@@ -928,6 +1430,9 @@ SYN_PT_Status syn_ecat_master_read_sii_task(SYN_PT *pt, SYN_EcatMaster *m, uint1
     uint8_t cmd_bytes[2];
     store16_le(cmd_bytes, 0x0100U);
     m->tx_frame_len = (uint16_t)syn_ecat_encode_write_reg(m, station_addr, 0x0502, cmd_bytes, 2);
+    if (m->tx_frame_len == 0U) {
+        PT_EXIT(pt);
+    }
     m->frame_tx_pending = true;
     m->frame_rx_ready = false;
     PT_WAIT_UNTIL(pt, m->frame_rx_ready);
@@ -936,27 +1441,27 @@ SYN_PT_Status syn_ecat_master_read_sii_task(SYN_PT *pt, SYN_EcatMaster *m, uint1
     m->poll_retries = 1000U;
     do {
         m->tx_frame_len = (uint16_t)syn_ecat_encode_read_reg(m, station_addr, 0x0502, 2);
+        if (m->tx_frame_len == 0U) {
+            PT_EXIT(pt);
+        }
         m->frame_tx_pending = true;
         m->frame_rx_ready = false;
         PT_WAIT_UNTIL(pt, m->frame_rx_ready);
 
-        uint8_t status_buf[2] = {0};
-        if (syn_ecat_decode_read_reg(m, m->rx_frame_len, status_buf, 2) == SYN_OK) {
-            uint16_t ctrl = load16_le(status_buf);
-            if ((ctrl & 0x8000U) == 0) {
-                break; /* EEPROM operation complete */
-            }
+        if (ecat_sii_poll_done(m)) {
+            break; /* EEPROM operation complete */
         }
-        if (m->poll_retries > 0) {
-            m->poll_retries--;
-        }
-        if (m->poll_retries == 0) {
+        m->poll_retries--;
+        if (m->poll_retries == 0U) {
             PT_EXIT(pt);
         }
-    } while (m->poll_retries > 0);
+    } while (m->poll_retries > 0U);
 
     /* 4. Read 32-bit EEPROM data from reg 0x0508 */
     m->tx_frame_len = (uint16_t)syn_ecat_encode_read_reg(m, station_addr, 0x0508, 4);
+    if (m->tx_frame_len == 0U) {
+        PT_EXIT(pt);
+    }
     m->frame_tx_pending = true;
     m->frame_rx_ready = false;
     PT_WAIT_UNTIL(pt, m->frame_rx_ready);
@@ -964,6 +1469,10 @@ SYN_PT_Status syn_ecat_master_read_sii_task(SYN_PT *pt, SYN_EcatMaster *m, uint1
     uint8_t data_buf[4] = {0};
     if (syn_ecat_decode_read_reg(m, m->rx_frame_len, data_buf, 4) == SYN_OK) {
         *out_data = load32_le(data_buf);
+        m->sdo_ok = true;
+    }
+    if (!m->sdo_ok) {
+        PT_EXIT(pt);
     }
 
     PT_END(pt);
@@ -974,13 +1483,18 @@ SYN_PT_Status syn_ecat_master_sdo_read_task(SYN_PT *pt, SYN_EcatMaster *m, uint1
                                             size_t max_len, size_t *out_len)
 {
     if (pt == NULL || m == NULL || out_data == NULL || out_len == NULL) {
-        return PT_ENDED;
+        return PT_EXITED;
     }
 
     PT_BEGIN(pt);
 
+    m->sdo_ok = false;
+
     /* 1. Send SDO Read request to SM0 Mailbox */
     m->tx_frame_len = (uint16_t)syn_ecat_encode_coe_sdo_read(m, station_addr, index, subindex);
+    if (m->tx_frame_len == 0U) {
+        PT_EXIT(pt);
+    }
     m->frame_tx_pending = true;
     m->frame_rx_ready = false;
     PT_WAIT_UNTIL(pt, m->frame_rx_ready);
@@ -989,38 +1503,97 @@ SYN_PT_Status syn_ecat_master_sdo_read_task(SYN_PT *pt, SYN_EcatMaster *m, uint1
     m->poll_retries = 1000U;
     do {
         m->tx_frame_len = (uint16_t)syn_ecat_encode_read_reg(m, station_addr, 0x080D, 1);
+        if (m->tx_frame_len == 0U) {
+            PT_EXIT(pt);
+        }
         m->frame_tx_pending = true;
         m->frame_rx_ready = false;
         PT_WAIT_UNTIL(pt, m->frame_rx_ready);
 
-        uint8_t sm1_status = 0;
-        if (syn_ecat_decode_read_reg(m, m->rx_frame_len, &sm1_status, 1) == SYN_OK) {
-            if ((sm1_status & 0x08U) != 0) {
-                break; /* Mailbox response ready */
-            }
+        if (ecat_sm1_poll_ready(m)) {
+            break; /* Mailbox response ready */
         }
-        if (m->poll_retries > 0) {
-            m->poll_retries--;
-        }
-        if (m->poll_retries == 0) {
+        m->poll_retries--;
+        if (m->poll_retries == 0U) {
             PT_EXIT(pt);
         }
-    } while (m->poll_retries > 0);
+    } while (m->poll_retries > 0U);
 
-    /* 3. Read SDO response from SM1 Mailbox buffer (address 0x1080) */
-    m->tx_frame_len = (uint16_t)syn_ecat_encode_read_reg(m, station_addr, 0x1080, 16);
+    /* 3. Read full SM1 Mailbox buffer (address 0x1080) to trigger ESC mailbox empty */
+    m->tx_frame_len =
+        (uint16_t)syn_ecat_encode_read_reg(m, station_addr, 0x1080U, SYN_ECAT_MBOX_SIZE);
+    if (m->tx_frame_len == 0U) {
+        PT_EXIT(pt);
+    }
     m->frame_tx_pending = true;
     m->frame_rx_ready = false;
     PT_WAIT_UNTIL(pt, m->frame_rx_ready);
 
-    uint32_t val = 0;
-    if (syn_ecat_decode_coe_sdo_response(m, m->rx_frame_len, &val, max_len, out_len) == SYN_OK) {
-        if (max_len >= 4) {
-            store32_le((uint8_t *)out_data, val);
-        } else if (max_len >= 2) {
-            store16_le((uint8_t *)out_data, (uint16_t)val);
-        } else if (max_len >= 1) {
-            ((uint8_t *)out_data)[0] = (uint8_t)val;
+    if (syn_ecat_decode_coe_sdo_response(m, m->rx_frame_len, out_data, max_len, out_len) ==
+        SYN_OK) {
+        m->sdo_ok = true;
+    }
+    if (!m->sdo_ok) {
+        PT_EXIT(pt);
+    }
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Discover total mapped PDO bit length for one SyncManager assignment object.
+ * @param pt           Protothread instance for this direction scan.
+ * @param m            EtherCAT master context.
+ * @param station_addr Target slave configured station address.
+ * @param assign_idx   PDO assignment CoE index (e.g. 0x1C12 or 0x1C13).
+ * @param out_bits     Accumulated bit count output.
+ * @return Protothread execution status.
+ */
+static SYN_PT_Status ecat_discover_pdo_dir_task(SYN_PT *pt, SYN_EcatMaster *m,
+                                                uint16_t station_addr, uint16_t assign_idx,
+                                                uint32_t *out_bits)
+{
+    PT_BEGIN(pt);
+
+    m->pdo_count = 0;
+    m->pdo_sdo_val = 0;
+    PT_SPAWN(pt, &m->sub_pt,
+             syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, assign_idx, 0,
+                                           &m->pdo_sdo_val, 1, &m->pdo_read_len));
+    if (!m->sdo_ok) {
+        PT_EXIT(pt);
+    }
+    m->pdo_count = (uint8_t)m->pdo_sdo_val;
+
+    if (m->pdo_count > 0U) {
+        m->pdo_sdo_val = 0;
+        PT_SPAWN(pt, &m->sub_pt,
+                 syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, assign_idx, 1,
+                                               &m->pdo_sdo_val, 2, &m->pdo_read_len));
+        if (!m->sdo_ok) {
+            PT_EXIT(pt);
+        }
+        m->pdo_map_idx = (uint16_t)m->pdo_sdo_val;
+        if (m->pdo_map_idx != 0U) {
+            m->pdo_sdo_val = 0;
+            PT_SPAWN(pt, &m->sub_pt,
+                     syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, m->pdo_map_idx, 0,
+                                                   &m->pdo_sdo_val, 1, &m->pdo_read_len));
+            if (!m->sdo_ok) {
+                PT_EXIT(pt);
+            }
+            m->pdo_count = (uint8_t)m->pdo_sdo_val;
+            for (m->pdo_entry_idx = 1U; m->pdo_entry_idx <= m->pdo_count; m->pdo_entry_idx++) {
+                m->pdo_sdo_val = 0;
+                PT_SPAWN(pt, &m->sub_pt,
+                         syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, m->pdo_map_idx,
+                                                       (uint8_t)m->pdo_entry_idx, &m->pdo_sdo_val,
+                                                       4, &m->pdo_read_len));
+                if (!m->sdo_ok) {
+                    PT_EXIT(pt);
+                }
+                *out_bits += (m->pdo_sdo_val & 0xFFU);
+            }
         }
     }
 
@@ -1033,78 +1606,26 @@ SYN_PT_Status syn_ecat_master_discover_pdo_mapping_task(SYN_PT *pt, SYN_EcatMast
                                                         uint16_t *out_tx_bytes)
 {
     if (pt == NULL || m == NULL || out_rx_bytes == NULL || out_tx_bytes == NULL) {
-        return PT_ENDED;
+        return PT_EXITED;
     }
 
     PT_BEGIN(pt);
 
-    m->total_rx_bits = 0;
-    m->total_tx_bits = 0;
+    *out_rx_bytes = 0U;
+    *out_tx_bytes = 0U;
+    m->total_rx_bits = 0U;
+    m->total_tx_bits = 0U;
 
-    /* Read 0x1C12:00 (RxPDO Assign Count) */
-    m->pdo_count = 0;
-    m->pdo_sdo_val = 0;
-    PT_SPAWN(pt, &m->sub_pt,
-             syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, 0x1C12, 0, &m->pdo_sdo_val,
-                                           1, &m->pdo_read_len));
-    m->pdo_count = (uint8_t)m->pdo_sdo_val;
-
-    if (m->pdo_count > 0) {
-        /* Read first RxPDO assignment (0x1C12:01) */
-        m->pdo_sdo_val = 0;
-        PT_SPAWN(pt, &m->sub_pt,
-                 syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, 0x1C12, 1,
-                                               &m->pdo_sdo_val, 2, &m->pdo_read_len));
-        m->pdo_map_idx = (uint16_t)m->pdo_sdo_val;
-        if (m->pdo_map_idx != 0) {
-            /* Read RxPDO mapping entry count (e.g. 0x1600:00) */
-            m->pdo_sdo_val = 0;
-            PT_SPAWN(pt, &m->sub_pt,
-                     syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, m->pdo_map_idx, 0,
-                                                   &m->pdo_sdo_val, 1, &m->pdo_read_len));
-            m->pdo_count = (uint8_t)m->pdo_sdo_val;
-            for (m->pdo_entry_idx = 1; m->pdo_entry_idx <= m->pdo_count; m->pdo_entry_idx++) {
-                m->pdo_sdo_val = 0;
-                PT_SPAWN(pt, &m->sub_pt,
-                         syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, m->pdo_map_idx,
-                                                       m->pdo_entry_idx, &m->pdo_sdo_val, 4,
-                                                       &m->pdo_read_len));
-                m->total_rx_bits += (m->pdo_sdo_val & 0xFFU);
-            }
-        }
+    PT_SPAWN(pt, &m->dir_pt,
+             ecat_discover_pdo_dir_task(&m->dir_pt, m, station_addr, 0x1C12U, &m->total_rx_bits));
+    if (!m->sdo_ok) {
+        PT_EXIT(pt);
     }
 
-    /* Read 0x1C13:00 (TxPDO Assign Count) */
-    m->pdo_count = 0;
-    m->pdo_sdo_val = 0;
-    PT_SPAWN(pt, &m->sub_pt,
-             syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, 0x1C13, 0, &m->pdo_sdo_val,
-                                           1, &m->pdo_read_len));
-    m->pdo_count = (uint8_t)m->pdo_sdo_val;
-
-    if (m->pdo_count > 0) {
-        /* Read first TxPDO assignment (0x1C13:01) */
-        m->pdo_sdo_val = 0;
-        PT_SPAWN(pt, &m->sub_pt,
-                 syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, 0x1C13, 1,
-                                               &m->pdo_sdo_val, 2, &m->pdo_read_len));
-        m->pdo_map_idx = (uint16_t)m->pdo_sdo_val;
-        if (m->pdo_map_idx != 0) {
-            /* Read TxPDO mapping entry count (e.g. 0x1A00:00) */
-            m->pdo_sdo_val = 0;
-            PT_SPAWN(pt, &m->sub_pt,
-                     syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, m->pdo_map_idx, 0,
-                                                   &m->pdo_sdo_val, 1, &m->pdo_read_len));
-            m->pdo_count = (uint8_t)m->pdo_sdo_val;
-            for (m->pdo_entry_idx = 1; m->pdo_entry_idx <= m->pdo_count; m->pdo_entry_idx++) {
-                m->pdo_sdo_val = 0;
-                PT_SPAWN(pt, &m->sub_pt,
-                         syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, m->pdo_map_idx,
-                                                       m->pdo_entry_idx, &m->pdo_sdo_val, 4,
-                                                       &m->pdo_read_len));
-                m->total_tx_bits += (m->pdo_sdo_val & 0xFFU);
-            }
-        }
+    PT_SPAWN(pt, &m->dir_pt,
+             ecat_discover_pdo_dir_task(&m->dir_pt, m, station_addr, 0x1C13U, &m->total_tx_bits));
+    if (!m->sdo_ok) {
+        PT_EXIT(pt);
     }
 
     *out_rx_bytes = (uint16_t)((m->total_rx_bits + 7U) / 8U);

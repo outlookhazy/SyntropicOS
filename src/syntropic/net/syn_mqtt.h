@@ -119,6 +119,8 @@ typedef struct {
     uint32_t pending_puback_ms;  /**< Timeout timer for pending puback confirmation */
     uint8_t retransmit_buf[128]; /**< Buffer for storing unacknowledged QoS 1 packet */
     size_t retransmit_len;       /**< Length of packet in retransmit_buf */
+    bool ping_pending;           /**< True while awaiting PINGRESP for an in-flight PINGREQ */
+    uint32_t ping_sent_ms;       /**< Timestamp when in-flight PINGREQ was transmitted */
 
     /* ── Non-blocking RX State Machine ─────────────────────────────────── */
     SYN_MqttRxPhase rx_phase; /**< Current RX state machine phase */
@@ -211,7 +213,7 @@ void syn_mqtt_disconnect(SYN_MqttClient *client);
  *
  * @param pt   Cooperative protothread handle.
  * @param task Corresponding task control block.
- * @return PT_WAITING or PT_EXITED status.
+ * @return PT_IDLE while waiting, PT_ENDED when complete, or PT_EXITED on abort.
  */
 SYN_PT_Status syn_mqtt_task(SYN_PT *pt, SYN_Task *task);
 

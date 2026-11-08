@@ -11,6 +11,14 @@
 #ifndef SYN_COMPILER_H
 #define SYN_COMPILER_H
 
+#ifdef SYN_CONFIG_FILE
+#include SYN_CONFIG_FILE
+#elif defined(__has_include)
+#if __has_include("syn_config.h")
+#include "syn_config.h"
+#endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

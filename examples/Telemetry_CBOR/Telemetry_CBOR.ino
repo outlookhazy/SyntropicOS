@@ -110,12 +110,59 @@ static SYN_PT_Status producer_task(SYN_PT *pt, SYN_Task *task)
     PT_END(pt);
 }
 
+static void process_cobs_frame(const uint8_t *frame_buf, size_t frame_len)
+{
+    uint8_t decoded_cbor[48];
+    if (frame_len <= 2) {
+        return;
+    }
+
+    size_t raw_len = syn_cobs_decode(frame_buf, frame_len, decoded_cbor);
+    if (raw_len <= 2) {
+        return;
+    }
+
+    size_t cbor_len = raw_len - 2;
+    uint16_t rx_crc = ((uint16_t)decoded_cbor[cbor_len] << 8) | decoded_cbor[cbor_len + 1];
+    uint16_t calc_crc = syn_crc16_ccitt(decoded_cbor, cbor_len);
+    if (rx_crc != calc_crc) {
+        syn_cli_printf(&cli, "[FAIL] CRC Mismatch\r\n");
+        return;
+    }
+
+    /* Parse CBOR map */
+    SYN_CborReader r;
+    syn_cbor_reader_init(&r, decoded_cbor, cbor_len);
+    size_t pairs = syn_cbor_read_map_begin(&r);
+
+    int16_t rx_temp = 0;
+    uint8_t rx_hum = 0;
+    uint16_t rx_bat = 0;
+    uint32_t rx_cnt = 0;
+
+    for (size_t i = 0; i < pairs; i++) {
+        uint64_t key = syn_cbor_read_uint(&r);
+        switch (key) {
+        case 1: rx_temp = (int16_t)syn_cbor_read_int(&r);   break;
+        case 2: rx_hum  = (uint8_t)syn_cbor_read_uint(&r);  break;
+        case 3: rx_bat  = (uint16_t)syn_cbor_read_uint(&r); break;
+        case 4: rx_cnt  = (uint32_t)syn_cbor_read_uint(&r); break;
+        default: syn_cbor_skip(&r);                         break;
+        }
+    }
+
+    if (syn_cbor_reader_ok(&r)) {
+        syn_cli_printf(&cli, "[PASS] CBOR Telemetry packet decoded: #%ld temp=%d.%dC hum=%u%% bat=%umV\r\n",
+                       rx_cnt, rx_temp / 10, abs(rx_temp % 10), rx_hum, rx_bat);
+        syn_led_flash(&led, 50, 50, 1);
+    }
+}
+
 /* Consumer Task — decodes COBS + CBOR packets from ring buffer */
 static SYN_PT_Status consumer_task(SYN_PT *pt, SYN_Task *task)
 {
     static uint8_t frame_buf[64];
     static size_t frame_len = 0;
-    static uint8_t decoded_cbor[48];
 
     PT_BEGIN(pt);
     for (;;) {
@@ -123,52 +170,14 @@ static SYN_PT_Status consumer_task(SYN_PT *pt, SYN_Task *task)
         uint8_t byte;
         while (syn_ringbuf_get(&ringbuf, &byte)) {
             if (byte == 0x00) {
-                if (frame_len > 2) {
-                    /* COBS Decode */
-                    size_t raw_len = syn_cobs_decode(frame_buf, frame_len, decoded_cbor);
-                    if (raw_len > 2) {
-                        size_t cbor_len = raw_len - 2;
-                        uint16_t rx_crc = ((uint16_t)decoded_cbor[cbor_len] << 8) | decoded_cbor[cbor_len + 1];
-                        uint16_t calc_crc = syn_crc16_ccitt(decoded_cbor, cbor_len);
-
-                        if (rx_crc == calc_crc) {
-                            /* Parse CBOR map */
-                            SYN_CborReader r;
-                            syn_cbor_reader_init(&r, decoded_cbor, cbor_len);
-                            size_t pairs = syn_cbor_read_map_begin(&r);
-
-                            int16_t rx_temp = 0;
-                            uint8_t rx_hum = 0;
-                            uint16_t rx_bat = 0;
-                            uint32_t rx_cnt = 0;
-
-                            for (size_t i = 0; i < pairs; i++) {
-                                uint64_t key = syn_cbor_read_uint(&r);
-                                if      (key == 1) rx_temp = (int16_t)syn_cbor_read_int(&r);
-                                else if (key == 2) rx_hum  = (uint8_t)syn_cbor_read_uint(&r);
-                                else if (key == 3) rx_bat  = (uint16_t)syn_cbor_read_uint(&r);
-                                else if (key == 4) rx_cnt  = (uint32_t)syn_cbor_read_uint(&r);
-                                else syn_cbor_skip(&r);
-                            }
-
-                            if (syn_cbor_reader_ok(&r)) {
-                                syn_cli_printf(&cli, "[PASS] CBOR Telemetry packet decoded: #%ld temp=%d.%dC hum=%u%% bat=%umV\r\n",
-                                               rx_cnt, rx_temp / 10, abs(rx_temp % 10), rx_hum, rx_bat);
-                                syn_led_flash(&led, 50, 50, 1);
-                            }
-                        } else {
-                            syn_cli_printf(&cli, "[FAIL] CRC Mismatch\r\n");
-                        }
-                    }
-                }
+                process_cobs_frame(frame_buf, frame_len);
                 frame_len = 0;
+            } else if (frame_len < sizeof(frame_buf)) {
+                frame_buf[frame_len++] = byte;
             } else {
-                if (frame_len < sizeof(frame_buf)) {
-                    frame_buf[frame_len++] = byte;
-                } else {
-                    frame_len = 0; /* Overflow, reset frame */
-                }
+                frame_len = 0; /* Overflow, reset frame */
             }
+            PT_CONTINUE_IF_NEEDED(pt, task);
         }
 
         PT_TASK_DELAY_MS(pt, task, 50);
@@ -192,9 +201,9 @@ void setup()
     syn_cli_init(&cli, NULL, 0, "> ");
     syn_cli_printf(&cli, "\r\n--- SyntropicOS Telemetry CBOR Demo ---\r\n");
 
-    syn_task_create(&tasks[0], "blink",    blink_task,    2, NULL);
-    syn_task_create(&tasks[1], "producer", producer_task, 1, NULL);
-    syn_task_create(&tasks[2], "consumer", consumer_task, 0, NULL);
+    syn_task_create(&tasks[0], "blink",    blink_task,    SYN_PRIO_NORMAL,   NULL);
+    syn_task_create(&tasks[1], "producer", producer_task, SYN_PRIO_HIGH,     NULL);
+    syn_task_create(&tasks[2], "consumer", consumer_task, SYN_PRIO_CRITICAL, NULL);
     syn_sched_init(&sched, tasks, 3);
 }
 

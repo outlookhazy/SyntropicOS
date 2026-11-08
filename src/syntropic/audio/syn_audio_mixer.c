@@ -9,16 +9,16 @@
 #include <string.h>
 
 /**
- * @brief Clamp signed 32-bit value into signed 16-bit range.
- * @param val Input 32-bit sample value.
+ * @brief Clamp signed 64-bit value into signed 16-bit range.
+ * @param val Input 64-bit sample value.
  * @return Clamped 16-bit sample value.
  */
-static inline int16_t saturate_i32_to_i16(int32_t val)
+static inline int16_t saturate_i64_to_i16(int64_t val)
 {
-    if (val > 32767) {
+    if (val > 32767LL) {
         return 32767;
     }
-    if (val < -32768) {
+    if (val < -32768LL) {
         return -32768;
     }
     return (int16_t)val;
@@ -101,6 +101,41 @@ SYN_Status syn_audio_mixer_set_master_volume(SYN_Audio_Mixer *mixer, uint16_t vo
     return SYN_OK;
 }
 
+/**
+ * @brief Accumulate one scaled PCM sample frame across all active channels.
+ * @param mixer Audio mixer instance.
+ * @return Sum of scaled channel samples for the current frame.
+ */
+static int32_t mixer_accum_frame(SYN_Audio_Mixer *mixer)
+{
+    int32_t acc = 0;
+
+    for (uint8_t i = 0U; i < SYN_AUDIO_MIXER_MAX_CHANNELS; i++) {
+        SYN_Audio_Mixer_Channel *ch = &mixer->channels[i];
+        if (!ch->active || (ch->buf == NULL)) {
+            continue;
+        }
+        if (ch->pos >= ch->sample_count) {
+            ch->active = false;
+            continue;
+        }
+
+        int32_t sample = ch->buf[ch->pos++];
+        int32_t scaled = (int32_t)(((int64_t)sample * (int64_t)ch->volume_q15) >> 15);
+        acc += scaled;
+
+        if (ch->pos >= ch->sample_count) {
+            if (ch->loop) {
+                ch->pos = 0U;
+            } else {
+                ch->active = false;
+            }
+        }
+    }
+
+    return acc;
+}
+
 size_t syn_audio_mixer_render(SYN_Audio_Mixer *mixer, int16_t *out_pcm, size_t sample_count)
 {
     if ((mixer == NULL) || (out_pcm == NULL) || (sample_count == 0U)) {
@@ -108,31 +143,9 @@ size_t syn_audio_mixer_render(SYN_Audio_Mixer *mixer, int16_t *out_pcm, size_t s
     }
 
     for (size_t s = 0U; s < sample_count; s++) {
-        int32_t acc = 0;
-
-        for (uint8_t i = 0U; i < SYN_AUDIO_MIXER_MAX_CHANNELS; i++) {
-            SYN_Audio_Mixer_Channel *ch = &mixer->channels[i];
-            if (!ch->active || (ch->buf == NULL)) {
-                continue;
-            }
-
-            if (ch->pos >= ch->sample_count) {
-                if (ch->loop) {
-                    ch->pos = 0U;
-                } else {
-                    ch->active = false;
-                    continue;
-                }
-            }
-
-            int32_t sample = ch->buf[ch->pos++];
-            int32_t scaled = (sample * (int32_t)ch->volume_q15) >> 15;
-            acc += scaled;
-        }
-
-        /* Apply master volume scaling */
-        int32_t master_scaled = (acc * (int32_t)mixer->master_volume_q15) >> 15;
-        out_pcm[s] = saturate_i32_to_i16(master_scaled);
+        int32_t acc = mixer_accum_frame(mixer);
+        int64_t master_scaled = ((int64_t)acc * (int64_t)mixer->master_volume_q15) >> 15;
+        out_pcm[s] = saturate_i64_to_i16(master_scaled);
     }
 
     return sample_count;

@@ -17,6 +17,10 @@
 extern "C" {
 #endif
 
+#ifndef SYN_WS_PENDING_RX_SIZE
+#define SYN_WS_PENDING_RX_SIZE 64U /**< Max buffered post-upgrade pipelined bytes */
+#endif
+
 /**
  * @brief WebSocket connection states.
  */
@@ -37,7 +41,11 @@ typedef struct {
     uint32_t bytes_read;      /**< Accumulated payload bytes read so far */
     uint8_t mask_key[4];      /**< Client-to-server frame masking key */
     bool masked;              /**< True if the incoming frame is masked */
-    uint8_t opcode;           /**< WebSocket opcode (e.g. text, binary, close, ping) */
+    bool is_server;           /**< True if upgraded server-side (requires masked client frames) */
+    uint8_t opcode;           /**< WebSocket opcode (e.g. text, binary, close) */
+    uint8_t pending_rx[SYN_WS_PENDING_RX_SIZE]; /**< Buffered post-upgrade pipelined bytes */
+    uint16_t pending_rx_len;                    /**< Valid byte count in pending_rx */
+    uint16_t pending_rx_pos;                    /**< Read offset within pending_rx */
 
     /**
      * @brief User callback invoked when a complete frame is received.
@@ -85,9 +93,16 @@ SYN_Status syn_websocket_send(SYN_WebsocketSession *ws, uint8_t opcode, const vo
  *
  * @param pt   Cooperative protothread state tracker.
  * @param task Scheduler task control block.
- * @return PT_WAITING or PT_EXITED status.
+ * @return PT_IDLE while waiting, PT_MORE when draining queued frames, or PT_EXITED on invalid args.
  */
 SYN_PT_Status syn_websocket_task(SYN_PT *pt, SYN_Task *task);
+
+/**
+ * @brief Close an active WebSocket session socket and reset parser state.
+ *
+ * @param ws WebSocket session context (safe if NULL or already closed).
+ */
+void syn_websocket_close(SYN_WebsocketSession *ws);
 
 #ifdef __cplusplus
 }

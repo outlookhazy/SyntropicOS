@@ -425,6 +425,7 @@ void test_x509_ecdsa_p256_verification_and_chain(void)
     cert.signature_len = 64;
     cert.sig_algo = SYN_X509_ALGO_ECDSA_P256;
     strncpy(cert.subject_cn, "test.syntropic.io", sizeof(cert.subject_cn));
+    strncpy(cert.issuer_cn, "SyntropicOS EC Root CA", sizeof(cert.issuer_cn));
 
     /* 65-byte uncompressed pubkey (0x04 || X || Y) */
     uint8_t pubkey_65[65];
@@ -455,6 +456,8 @@ void test_x509_ecdsa_p256_verification_and_chain(void)
     memcpy(ca_cert.pubkey, pubkey_65, 65);
     ca_cert.pubkey_len = 65;
     ca_cert.pubkey_algo = SYN_X509_ALGO_ECDSA_P256;
+    strncpy(ca_cert.subject_cn, "SyntropicOS EC Root CA", sizeof(ca_cert.subject_cn));
+    ca_cert.is_ca = true;
 
     TEST_ASSERT_TRUE(syn_x509_validate_chain(&cert, &ca_cert, "test.syntropic.io"));
     TEST_ASSERT_TRUE(syn_x509_validate_chain(&cert, &ca_cert, NULL)); /* Ignore CN */
@@ -465,23 +468,23 @@ void test_x509_ecdsa_p256_verification_and_chain(void)
 
 void test_x509_parse_ecdsa_cert(void)
 {
-    /* Valid X.509 cert DER with OID_EC_PUBKEY in SPKI */
+    /* Valid X.509 cert DER with OID_EC_PUBKEY + OID_PRIME256V1 in SPKI and ecdsa-with-SHA256 sig */
     static const uint8_t ec_cert_der[] = {
-        0x30, 0x81, 0x98,                         /* SEQUENCE length 152 */
-        0x30, 0x56,                               /* TBSCertificate length 86 */
-        0xA0, 0x03, 0x02, 0x01, 0x02,             /* [0] Version 3 */
-        0x02, 0x01, 0x01,                         /* Serial Number 1 */
-        0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70, /* Sig Algo */
+        0x30, 0x81, 0xAC,             /* SEQUENCE length 172 */
+        0x30, 0x65,                   /* TBSCertificate 101 */
+        0xA0, 0x03, 0x02, 0x01, 0x02, /* [0] Version 3 */
+        0x02, 0x01, 0x01,             /* Serial Number 1 */
+        0x30, 0x0A, 0x06, 0x08, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04, 0x03, 0x02, /* ecdsa-SHA256 */
         0x30, 0x12, 0x31, 0x10, 0x30, 0x0E, 0x06, 0x03, 0x55, 0x04, 0x03, 0x13, 0x07, 'T',
         'e',  's',  't',  ' ',  'C',  'A', /* Issuer CN "Test CA" */
         0x30, 0x00,                        /* Validity empty */
         0x30, 0x16, 0x31, 0x14, 0x30, 0x12, 0x06, 0x03, 0x55, 0x04, 0x03, 0x13, 0x0B, 'T',
         'e',  's',  't',  ' ',  'S',  'e',  'r',  'v',  'e',  'r', /* Subject CN "Test Server" */
-        0x30, 0x17,                                                /* SPKI (23 bytes) */
-        0x30, 0x09, 0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01, /* SPKI Algo ecPublicKey
-                                                                           */
+        0x30, 0x21,                                                /* SPKI (33 bytes) */
+        0x30, 0x13, 0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01,       /* id-ecPublicKey */
+        0x06, 0x08, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07,             /* prime256v1 */
         0x03, 0x0A, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, /* Pubkey bits */
-        0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70,                               /* Outer Sig Algo */
+        0x30, 0x0A, 0x06, 0x08, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04, 0x03, 0x02, /* Outer Sig Algo */
         0x03, 0x37, 0x00, /* Outer Sig bits (54 bytes) */
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D,
         0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B,
@@ -492,6 +495,41 @@ void test_x509_parse_ecdsa_cert(void)
     TEST_ASSERT_TRUE(syn_x509_parse(ec_cert_der, sizeof(ec_cert_der), &parsed_ec_cert));
     TEST_ASSERT_EQUAL(SYN_X509_ALGO_ECDSA_P256, parsed_ec_cert.pubkey_algo);
     TEST_ASSERT_EQUAL(SYN_X509_ALGO_ECDSA_P256, parsed_ec_cert.sig_algo);
+
+    /* Non-P256 curve OID in SPKI (last byte 0x08 instead of 0x07) -> ALGO_UNKNOWN */
+    uint8_t wrong_curve_der[sizeof(ec_cert_der)];
+    memcpy(wrong_curve_der, ec_cert_der, sizeof(ec_cert_der));
+    wrong_curve_der[92] = 0x08U;
+    TEST_ASSERT_TRUE(syn_x509_parse(wrong_curve_der, sizeof(wrong_curve_der), &parsed_ec_cert));
+    TEST_ASSERT_EQUAL(SYN_X509_ALGO_UNKNOWN, parsed_ec_cert.pubkey_algo);
+
+    /* Missing curve parameter OID after OID_EC_PUBKEY -> ALGO_UNKNOWN */
+    static const uint8_t ec_no_curve_der[] = {
+        0x30, 0x81, 0xA2, 0x30, 0x5B, 0xA0, 0x03, 0x02, 0x01, 0x02, 0x02, 0x01, 0x01, 0x30, 0x0A,
+        0x06, 0x08, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04, 0x03, 0x02, 0x30, 0x12, 0x31, 0x10, 0x30,
+        0x0E, 0x06, 0x03, 0x55, 0x04, 0x03, 0x13, 0x07, 'T',  'e',  's',  't',  ' ',  'C',  'A',
+        0x30, 0x00, 0x30, 0x16, 0x31, 0x14, 0x30, 0x12, 0x06, 0x03, 0x55, 0x04, 0x03, 0x13, 0x0B,
+        'T',  'e',  's',  't',  ' ',  'S',  'e',  'r',  'v',  'e',  'r',  0x30, 0x17, 0x30, 0x09,
+        0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01, 0x03, 0x0A, 0x00, 0x01, 0x02, 0x03,
+        0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x30, 0x0A, 0x06, 0x08, 0x2A, 0x86, 0x48, 0xCE, 0x3D,
+        0x04, 0x03, 0x02, 0x03, 0x37, 0x00, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+        0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+        0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26,
+        0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35};
+    TEST_ASSERT_TRUE(syn_x509_parse(ec_no_curve_der, sizeof(ec_no_curve_der), &parsed_ec_cert));
+    TEST_ASSERT_EQUAL(SYN_X509_ALGO_UNKNOWN, parsed_ec_cert.pubkey_algo);
+
+    /* Primitive / empty SPKI algo_seq -> ALGO_UNKNOWN */
+    uint8_t prim_algo_der[sizeof(ec_no_curve_der)];
+    memcpy(prim_algo_der, ec_no_curve_der, sizeof(ec_no_curve_der));
+    prim_algo_der[73] = 0x04U;
+    TEST_ASSERT_TRUE(syn_x509_parse(prim_algo_der, sizeof(prim_algo_der), &parsed_ec_cert));
+    TEST_ASSERT_EQUAL(SYN_X509_ALGO_UNKNOWN, parsed_ec_cert.pubkey_algo);
+
+    memcpy(prim_algo_der, ec_no_curve_der, sizeof(ec_no_curve_der));
+    prim_algo_der[75] = 0x1FU;
+    TEST_ASSERT_TRUE(syn_x509_parse(prim_algo_der, sizeof(prim_algo_der), &parsed_ec_cert));
+    TEST_ASSERT_EQUAL(SYN_X509_ALGO_UNKNOWN, parsed_ec_cert.pubkey_algo);
 
     /* Test SPKI with OID_ECDSA_SHA256 (1.2.840.10045.4.3.2) */
     static const uint8_t ecdsa_sha256_cert_der[] = {
@@ -539,6 +577,21 @@ void test_x509_edge_cases_and_corrupt_structures(void)
                                               0x01, 0x01, /* OCTET STRING 1 instead of INTEGER */
                                               0x30, 0x03, 0x01, 0x01, 0x00};
     TEST_ASSERT_FALSE(syn_x509_parse(bad_serial_cert, sizeof(bad_serial_cert), &cert));
+
+    /* Cert with truncated SPKI (algo SEQUENCE only, missing subjectPublicKey BIT STRING) */
+    static const uint8_t trunc_spki_cert[] = {
+        0x30, 0x1F,                               /* Outer Certificate SEQUENCE (31B) */
+        0x30, 0x14,                               /* TBSCertificate SEQUENCE (20B) */
+        0x02, 0x01, 0x01,                         /* Serial 1 */
+        0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70, /* Signature Algorithm Ed25519 */
+        0x30, 0x00,                               /* Issuer */
+        0x30, 0x00,                               /* Validity */
+        0x30, 0x00,                               /* Subject */
+        0x30, 0x02, 0x30, 0x00,                   /* SPKI with 1 child (missing pubkey bits) */
+        0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70, /* Outer Sig Algo */
+        0x03, 0x00                                /* Empty signature BIT STRING */
+    };
+    TEST_ASSERT_FALSE(syn_x509_parse(trunc_spki_cert, sizeof(trunc_spki_cert), &cert));
 }
 
 void test_x509_ed25519_live_keypair_verification_and_chain(void)
@@ -591,6 +644,429 @@ void test_x509_ed25519_live_keypair_verification_and_chain(void)
     TEST_ASSERT_FALSE(syn_x509_validate_chain(&srv_cert, &ca_cert, "wrong.domain.org"));
 }
 
+static size_t encode_der_ecdsa_sig(const uint8_t r[32], const uint8_t s[32], uint8_t *out)
+{
+    size_t r_off = 0U;
+    while (r_off < 31U && r[r_off] == 0x00U) {
+        r_off++;
+    }
+    bool r_pad = (r[r_off] & 0x80U) != 0U;
+    size_t r_len = (32U - r_off) + (r_pad ? 1U : 0U);
+
+    size_t s_off = 0U;
+    while (s_off < 31U && s[s_off] == 0x00U) {
+        s_off++;
+    }
+    bool s_pad = (s[s_off] & 0x80U) != 0U;
+    size_t s_len = (32U - s_off) + (s_pad ? 1U : 0U);
+
+    size_t pos = 0U;
+    out[pos++] = 0x30U;
+    out[pos++] = (uint8_t)(2U + r_len + 2U + s_len);
+    out[pos++] = 0x02U;
+    out[pos++] = (uint8_t)r_len;
+    if (r_pad) {
+        out[pos++] = 0x00U;
+    }
+    (void)memcpy(&out[pos], &r[r_off], 32U - r_off);
+    pos += (32U - r_off);
+    out[pos++] = 0x02U;
+    out[pos++] = (uint8_t)s_len;
+    if (s_pad) {
+        out[pos++] = 0x00U;
+    }
+    (void)memcpy(&out[pos], &s[s_off], 32U - s_off);
+    pos += (32U - s_off);
+    return pos;
+}
+
+void test_r5_n03_n04_asn1_der_and_x509_constraints_ecdsa_der(void)
+{
+    SYN_ASN1_Element elem;
+    const uint8_t *bits = NULL;
+    size_t bit_len = 0U;
+
+    /* R5-N03: BIT STRING {0x03, 0x01, 0x01} underflow guard vs valid 0-bit {0x03, 0x01, 0x00} */
+    static const uint8_t bit_underflow[] = {0x03, 0x01, 0x01};
+    TEST_ASSERT_TRUE(syn_asn1_parse_element(bit_underflow, sizeof(bit_underflow), &elem));
+    TEST_ASSERT_FALSE(syn_asn1_get_bit_string(&elem, &bits, &bit_len));
+
+    static const uint8_t bit_zero_ok[] = {0x03, 0x01, 0x00};
+    TEST_ASSERT_TRUE(syn_asn1_parse_element(bit_zero_ok, sizeof(bit_zero_ok), &elem));
+    TEST_ASSERT_TRUE(syn_asn1_get_bit_string(&elem, &bits, &bit_len));
+    TEST_ASSERT_EQUAL(0U, bit_len);
+
+    /* R5-N03: Reject non-minimal BER lengths: indefinite 0x80, leading 0x00, and 0x81 < 128 */
+    static const uint8_t ber_indef[] = {0x04, 0x80, 0x00, 0x00};
+    static const uint8_t ber_lead_zero[] = {0x04, 0x82, 0x00, 0x80};
+    static const uint8_t ber_short_81[] = {0x04, 0x81, 0x05, 1, 2, 3, 4, 5};
+    TEST_ASSERT_FALSE(syn_asn1_parse_element(ber_indef, sizeof(ber_indef), &elem));
+    TEST_ASSERT_FALSE(syn_asn1_parse_element(ber_lead_zero, sizeof(ber_lead_zero), &elem));
+    TEST_ASSERT_FALSE(syn_asn1_parse_element(ber_short_81, sizeof(ber_short_81), &elem));
+
+    /* Canonical 2-byte length >= 256 */
+    uint8_t canon_256[260];
+    (void)memset(canon_256, 0xAA, sizeof(canon_256));
+    canon_256[0] = 0x04U;
+    canon_256[1] = 0x82U;
+    canon_256[2] = 0x01U;
+    canon_256[3] = 0x00U;
+    TEST_ASSERT_TRUE(syn_asn1_parse_element(canon_256, sizeof(canon_256), &elem));
+    TEST_ASSERT_EQUAL(256U, elem.length);
+
+    /* R5-N04: X.509v3 [3] EXPLICIT BasicConstraints cA=TRUE + KeyUsage + [1] uniqueID */
+    static const uint8_t ca_v3_der[] = {
+        0x30, 0x81, 0xBD,                         /* SEQUENCE 189 */
+        0x30, 0x7B,                               /* TBSCertificate 123 */
+        0xA0, 0x03, 0x02, 0x01, 0x02,             /* [0] Version 3 */
+        0x02, 0x01, 0x01,                         /* Serial 1 */
+        0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70, /* tbs.signature ed25519 */
+        0x30, 0x12, 0x31, 0x10, 0x30, 0x0E, 0x06, 0x03, 0x55, 0x04, 0x03, 0x13, 0x07, 'T',  'e',
+        's',  't',  ' ',  'C',  'A', /* Issuer "Test CA" */
+        0x30, 0x00,                  /* Validity */
+        0x30, 0x16, 0x31, 0x14, 0x30, 0x12, 0x06, 0x03, 0x55, 0x04, 0x03, 0x13, 0x0B, 'T',  'e',
+        's',  't',  ' ',  'S',  'e',  'r',  'v',  'e',  'r', /* Subject "Test Server" */
+        0x30, 0x13, 0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70, 0x03, 0x0A, 0x00, 0x01, 0x02, 0x03,
+        0x04, 0x05, 0x06, 0x07, 0x08, 0x09, /* SPKI */
+        0x81, 0x02, 0x00, 0xAA,             /* [1] issuerUniqueID */
+        0xA3, 0x23, 0x30, 0x21,             /* [3] EXPLICIT Extensions SEQUENCE */
+        0x30, 0x0E, 0x06, 0x03, 0x55, 0x1D, 0x0F, 0x01, 0x01, 0xFF, 0x04, 0x04, 0x03, 0x02, 0x01,
+        0x06, /* KeyUsage (critical) */
+        0x30, 0x0F, 0x06, 0x03, 0x55, 0x1D, 0x13, 0x01, 0x01, 0xFF, 0x04, 0x05, 0x30, 0x03, 0x01,
+        0x01, 0xFF,                               /* BasicConstraints cA=TRUE */
+        0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70, /* outer signatureAlgorithm ed25519 */
+        0x03, 0x37, 0x00, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B,
+        0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A,
+        0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29,
+        0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35};
+
+    SYN_X509_Cert ca_parsed;
+    TEST_ASSERT_TRUE(syn_x509_parse(ca_v3_der, sizeof(ca_v3_der), &ca_parsed));
+    TEST_ASSERT_TRUE(ca_parsed.is_ca);
+    TEST_ASSERT_EQUAL(SYN_X509_ALGO_ED25519, ca_parsed.sig_algo);
+
+    /* Mutate BasicConstraints cA=FALSE (byte 127 == 0xFF) */
+    uint8_t mut[sizeof(ca_v3_der)];
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[127] = 0x00U;
+    TEST_ASSERT_TRUE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+    TEST_ASSERT_FALSE(ca_parsed.is_ca);
+
+    /* BasicConstraints starting with INTEGER pathLen (0x02 0x01 0x00) instead of BOOLEAN */
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[125] = 0x02U;
+    mut[127] = 0x00U;
+    TEST_ASSERT_TRUE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+    TEST_ASSERT_FALSE(ca_parsed.is_ca);
+
+    /* BasicConstraints empty SEQUENCE 30 00 (non-critical extension) */
+    static const uint8_t empty_bc_der[] = {
+        0x30, 0x81, 0xA3,                         /* SEQUENCE 163 */
+        0x30, 0x61,                               /* TBSCertificate 97 */
+        0xA0, 0x03, 0x02, 0x01, 0x02,             /* [0] Version 3 */
+        0x02, 0x01, 0x01,                         /* Serial 1 */
+        0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70, /* Sig Algo ed25519 */
+        0x30, 0x12, 0x31, 0x10, 0x30, 0x0E, 0x06, 0x03, 0x55, 0x04, 0x03, 0x13,
+        0x07, 'T',  'e',  's',  't',  ' ',  'C',  'A', /* Issuer CN */
+        0x30, 0x00,                                    /* Validity */
+        0x30, 0x16, 0x31, 0x14, 0x30, 0x12, 0x06, 0x03, 0x55, 0x04, 0x03, 0x13,
+        0x0B, 'T',  'e',  's',  't',  ' ',  'S',  'e',  'r',  'v',  'e',  'r', /* Subject CN */
+        0x30, 0x13, 0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70, 0x03, 0x0A, 0x00,
+        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, /* SPKI */
+        0xA3, 0x0D, 0x30, 0x0B, 0x30, 0x09, 0x06, 0x03, 0x55, 0x1D, 0x13, 0x04,
+        0x02, 0x30, 0x00,                         /* BasicConstraints {} */
+        0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70, /* Outer Sig Algo */
+        0x03, 0x37, 0x00, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+        0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14,
+        0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20,
+        0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C,
+        0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35};
+    TEST_ASSERT_TRUE(syn_x509_parse(empty_bc_der, sizeof(empty_bc_der), &ca_parsed));
+    TEST_ASSERT_FALSE(ca_parsed.is_ca);
+
+    /* Extension & signature error guards */
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[91] = 0x83U; /* non-constructed [3] */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[93] = 0x04U; /* non-SEQUENCE inside [3] */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[95] = 0x04U; /* non-SEQUENCE extension */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[105] = 0x02U; /* non-OCTET_STRING extension value */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[121] = 0x02U; /* BasicConstraints extnValue not OCTET_STRING */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[123] = 0x04U; /* BasicConstraints inner not SEQUENCE */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[124] = 0x06U; /* BasicConstraints bc_seq step truncated */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[126] = 0x05U; /* BasicConstraints inner elem step truncated */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[124] = 0x02U;
+    mut[126] = 0x00U; /* BOOLEAN length 0 != 1 */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    /* Truncated critical extension (oid + BOOLEAN critical, no extnValue) */
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[96] = 0x08U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    /* Truncated extension sequence (< 2 children) */
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[96] = 0x05U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    /* Truncated optional TBS field */
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[88] = 0x50U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    /* Truncated exts_seq inside [3] and truncated ext_seq inside exts_seq */
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[94] = 0x40U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[96] = 0x40U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    /* Sig alg non-SEQUENCE, invalid inner OID, unknown OID, and outer != inner sig alg */
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[13] = 0x31U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[15] = 0x1FU;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[19] = 0x71U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    static const uint8_t outer_ecdsa_alg[] = {0x30, 0x0A, 0x06, 0x08, 0x2A, 0x86,
+                                              0x48, 0xCE, 0x3D, 0x04, 0x03, 0x02};
+    (void)memcpy(&mut[128], outer_ecdsa_alg, sizeof(outer_ecdsa_alg));
+    mut[140] = 0x03U;
+    mut[141] = 0x32U;
+    mut[142] = 0x00U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    /* Non-byte-aligned outer signature BIT STRING (unused_bits = 3) */
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[137] = 0x03U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    /* SPKI malformed guard (primitive SPKI) */
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[66] = 0x04U;
+    TEST_ASSERT_TRUE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+    TEST_ASSERT_EQUAL(0U, ca_parsed.pubkey_len);
+
+    /* R5-N04: DER ECDSA SEQUENCE { INTEGER r, INTEGER s } verification & chain checks */
+    static const uint8_t PRIV[32] = {0xC9, 0xAF, 0xA9, 0xD8, 0x45, 0xBA, 0x75, 0x16,
+                                     0x6B, 0x5C, 0x21, 0x57, 0x67, 0xB1, 0xD6, 0x93,
+                                     0x4E, 0x50, 0xC3, 0xDB, 0x36, 0xE8, 0x9B, 0x12,
+                                     0x7B, 0x8A, 0x62, 0x2B, 0x12, 0x0F, 0x67, 0x21};
+    static const uint8_t NONCE_K[32] = {0xA6, 0xE3, 0xC5, 0x7D, 0xD0, 0x1A, 0xBE, 0x90,
+                                        0x08, 0x65, 0x38, 0x39, 0x83, 0x55, 0xDD, 0x4C,
+                                        0x3B, 0x17, 0xAA, 0x87, 0x33, 0x82, 0xB0, 0xF2,
+                                        0x4D, 0x61, 0x29, 0x49, 0x3D, 0x8A, 0xAD, 0x60};
+    uint8_t pub_x[32], pub_y[32];
+    TEST_ASSERT_TRUE(syn_p256_base_mul(PRIV, pub_x, pub_y));
+
+    static const uint8_t tbs_msg[] = "DER ECDSA Certificate TBS";
+    uint8_t hash[32], sig_r[32], sig_s[32];
+    syn_sha256(tbs_msg, sizeof(tbs_msg) - 1U, hash);
+    TEST_ASSERT_TRUE(syn_p256_sign_ecdsa(PRIV, NONCE_K, hash, sig_r, sig_s));
+
+    uint8_t pub65[65];
+    pub65[0] = 0x04U;
+    (void)memcpy(&pub65[1], pub_x, 32U);
+    (void)memcpy(&pub65[33], pub_y, 32U);
+
+    SYN_X509_Cert der_leaf;
+    (void)memset(&der_leaf, 0, sizeof(der_leaf));
+    der_leaf.tbs_bytes = tbs_msg;
+    der_leaf.tbs_len = sizeof(tbs_msg) - 1U;
+    der_leaf.sig_algo = SYN_X509_ALGO_ECDSA_P256;
+    der_leaf.signature_len = encode_der_ecdsa_sig(sig_r, sig_s, der_leaf.signature);
+    (void)strncpy(der_leaf.subject_cn, "leaf.syntropic.io", sizeof(der_leaf.subject_cn) - 1U);
+    (void)strncpy(der_leaf.issuer_cn, "Root CA", sizeof(der_leaf.issuer_cn) - 1U);
+
+    SYN_X509_Cert root_ca;
+    (void)memset(&root_ca, 0, sizeof(root_ca));
+    (void)memcpy(root_ca.pubkey, pub65, 65U);
+    root_ca.pubkey_len = 65U;
+    root_ca.pubkey_algo = SYN_X509_ALGO_ECDSA_P256;
+    (void)strncpy(root_ca.subject_cn, "Root CA", sizeof(root_ca.subject_cn) - 1U);
+    root_ca.is_ca = true;
+
+    TEST_ASSERT_TRUE(syn_x509_validate_chain(&der_leaf, &root_ca, "leaf.syntropic.io"));
+
+    /* Chain validation negative guards: !is_ca, empty CA CN, issuer!=subject, sig_algo!=pubkey */
+    root_ca.is_ca = false;
+    TEST_ASSERT_FALSE(syn_x509_validate_chain(&der_leaf, &root_ca, NULL));
+    root_ca.is_ca = true;
+
+    root_ca.subject_cn[0] = '\0';
+    TEST_ASSERT_FALSE(syn_x509_validate_chain(&der_leaf, &root_ca, NULL));
+    (void)strncpy(root_ca.subject_cn, "Other CA", sizeof(root_ca.subject_cn) - 1U);
+    TEST_ASSERT_FALSE(syn_x509_validate_chain(&der_leaf, &root_ca, NULL));
+    (void)strncpy(root_ca.subject_cn, "Root CA", sizeof(root_ca.subject_cn) - 1U);
+
+    der_leaf.sig_algo = SYN_X509_ALGO_UNKNOWN;
+    TEST_ASSERT_FALSE(syn_x509_validate_chain(&der_leaf, &root_ca, NULL));
+    der_leaf.sig_algo = SYN_X509_ALGO_ED25519;
+    TEST_ASSERT_FALSE(syn_x509_validate_chain(&der_leaf, &root_ca, NULL));
+    der_leaf.sig_algo = SYN_X509_ALGO_ECDSA_P256;
+
+    /* DER ECDSA malformed signatures */
+    uint8_t saved_sig[SYN_X509_SIG_MAX_LEN];
+    size_t saved_len = der_leaf.signature_len;
+    (void)memcpy(saved_sig, der_leaf.signature, saved_len);
+
+    /* Trailing byte after SEQUENCE */
+    der_leaf.signature[saved_len] = 0x00U;
+    der_leaf.signature_len = saved_len + 1U;
+    TEST_ASSERT_FALSE(syn_x509_verify_signature(&der_leaf, pub65, 65U, SYN_X509_ALGO_ECDSA_P256));
+
+    /* Truncated SEQUENCE header */
+    der_leaf.signature[0] = 0x30U;
+    der_leaf.signature[1] = 0x7FU;
+    der_leaf.signature_len = 4U;
+    TEST_ASSERT_FALSE(syn_x509_verify_signature(&der_leaf, pub65, 65U, SYN_X509_ALGO_ECDSA_P256));
+
+    /* Only 1 INTEGER inside SEQUENCE */
+    static const uint8_t one_int_seq[] = {0x30, 0x03, 0x02, 0x01, 0x01};
+    (void)memcpy(der_leaf.signature, one_int_seq, sizeof(one_int_seq));
+    der_leaf.signature_len = sizeof(one_int_seq);
+    TEST_ASSERT_FALSE(syn_x509_verify_signature(&der_leaf, pub65, 65U, SYN_X509_ALGO_ECDSA_P256));
+
+    /* Extra element inside SEQUENCE (rem != 0) */
+    static const uint8_t three_int_seq[] = {0x30, 0x09, 0x02, 0x01, 0x01, 0x02,
+                                            0x01, 0x01, 0x02, 0x01, 0x01};
+    (void)memcpy(der_leaf.signature, three_int_seq, sizeof(three_int_seq));
+    der_leaf.signature_len = sizeof(three_int_seq);
+    TEST_ASSERT_FALSE(syn_x509_verify_signature(&der_leaf, pub65, 65U, SYN_X509_ALGO_ECDSA_P256));
+
+    /* Non-INTEGER tag, negative INTEGER, non-minimal 0x00 0x01, and >32B INTEGER */
+    static const uint8_t non_int_r[] = {0x30, 0x06, 0x04, 0x01, 0x01, 0x02, 0x01, 0x01};
+    (void)memcpy(der_leaf.signature, non_int_r, sizeof(non_int_r));
+    der_leaf.signature_len = sizeof(non_int_r);
+    TEST_ASSERT_FALSE(syn_x509_verify_signature(&der_leaf, pub65, 65U, SYN_X509_ALGO_ECDSA_P256));
+
+    static const uint8_t neg_int_r[] = {0x30, 0x06, 0x02, 0x01, 0x80, 0x02, 0x01, 0x01};
+    (void)memcpy(der_leaf.signature, neg_int_r, sizeof(neg_int_r));
+    der_leaf.signature_len = sizeof(neg_int_r);
+    TEST_ASSERT_FALSE(syn_x509_verify_signature(&der_leaf, pub65, 65U, SYN_X509_ALGO_ECDSA_P256));
+
+    static const uint8_t nonmin_int_r[] = {0x30, 0x07, 0x02, 0x02, 0x00, 0x01, 0x02, 0x01, 0x01};
+    (void)memcpy(der_leaf.signature, nonmin_int_r, sizeof(nonmin_int_r));
+    der_leaf.signature_len = sizeof(nonmin_int_r);
+    TEST_ASSERT_FALSE(syn_x509_verify_signature(&der_leaf, pub65, 65U, SYN_X509_ALGO_ECDSA_P256));
+
+    uint8_t big_int_seq[40];
+    (void)memset(big_int_seq, 0x11, sizeof(big_int_seq));
+    big_int_seq[0] = 0x30U;
+    big_int_seq[1] = 38U;
+    big_int_seq[2] = 0x02U;
+    big_int_seq[3] = 33U; /* 33B positive integer > 32B */
+    big_int_seq[37] = 0x02U;
+    big_int_seq[38] = 0x01U;
+    big_int_seq[39] = 0x01U;
+    (void)memcpy(der_leaf.signature, big_int_seq, sizeof(big_int_seq));
+    der_leaf.signature_len = sizeof(big_int_seq);
+    TEST_ASSERT_FALSE(syn_x509_verify_signature(&der_leaf, pub65, 65U, SYN_X509_ALGO_ECDSA_P256));
+
+    /* Short integer s failing decode_ecdsa_der_int */
+    static const uint8_t bad_int_s[] = {0x30, 0x06, 0x02, 0x01, 0x01, 0x02, 0x01, 0x80};
+    (void)memcpy(der_leaf.signature, bad_int_s, sizeof(bad_int_s));
+    der_leaf.signature_len = sizeof(bad_int_s);
+    TEST_ASSERT_FALSE(syn_x509_verify_signature(&der_leaf, pub65, 65U, SYN_X509_ALGO_ECDSA_P256));
+
+    /* Raw 64-byte (r || s) ECDSA signature whose r[0] == 0x30 (nonce k = 31) MUST verify */
+    uint8_t nonce_r30[32] = {0};
+    nonce_r30[31] = 0x1FU;
+    uint8_t r30[32], s30[32];
+    TEST_ASSERT_TRUE(syn_p256_sign_ecdsa(PRIV, nonce_r30, hash, r30, s30));
+    TEST_ASSERT_EQUAL_HEX8(0x30U, r30[0]);
+    (void)memcpy(der_leaf.signature, r30, 32U);
+    (void)memcpy(der_leaf.signature + 32U, s30, 32U);
+    der_leaf.signature_len = 64U;
+    TEST_ASSERT_TRUE(syn_x509_verify_signature(&der_leaf, pub65, 65U, SYN_X509_ALGO_ECDSA_P256));
+
+    /* RFC 5280 §4.2: Unrecognized critical=TRUE extension rejected; critical=FALSE accepted */
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[101] = 0x7FU; /* Unrecognized OID 2.5.29.127 with critical=TRUE */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+    mut[104] = 0x00U; /* critical=FALSE -> accepted */
+    TEST_ASSERT_TRUE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    /* Malformed critical BOOLEAN length (0) & malformed KeyUsage inner BIT STRING */
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[103] = 0x00U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[106] = 0x00U; /* Empty KeyUsage OCTET STRING */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[107] = 0x04U; /* Non-BIT_STRING inside KeyUsage OCTET STRING */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    /* Empty extension sequence (0 children) */
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[96] = 0x00U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    /* Malformed [0] version containers: primitive, empty, non-INTEGER, >2, trailing byte */
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[5] = 0x80U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[6] = 0x00U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[7] = 0x04U;
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[9] = 0x03U; /* version value 3 > v3(2) */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    (void)memcpy(mut, ca_v3_der, sizeof(ca_v3_der));
+    mut[7] = 0x02U;
+    mut[8] = 0x02U; /* 2-byte version integer inside 3-byte container -> step fails / len != 1 */
+    TEST_ASSERT_FALSE(syn_x509_parse(mut, sizeof(mut), &ca_parsed));
+
+    static const uint8_t two_byte_ver_der[] = {0x30, 0x0B, 0x30, 0x09, 0xA0, 0x04, 0x02,
+                                               0x02, 0x01, 0x01, 0x02, 0x01, 0x01};
+    TEST_ASSERT_FALSE(syn_x509_parse(two_byte_ver_der, sizeof(two_byte_ver_der), &ca_parsed));
+
+    static const uint8_t trailing_ver_der[] = {0x30, 0x0C, 0x30, 0x0A, 0xA0, 0x05, 0x02,
+                                               0x01, 0x02, 0x05, 0x00, 0x02, 0x01, 0x01};
+    TEST_ASSERT_FALSE(syn_x509_parse(trailing_ver_der, sizeof(trailing_ver_der), &ca_parsed));
+}
+
 void run_asn1_x509_tests(void)
 {
     RUN_TEST(test_asn1_basic_tlv_parse);
@@ -601,4 +1077,5 @@ void run_asn1_x509_tests(void)
     RUN_TEST(test_x509_ed25519_live_keypair_verification_and_chain);
     RUN_TEST(test_x509_parse_ecdsa_cert);
     RUN_TEST(test_x509_edge_cases_and_corrupt_structures);
+    RUN_TEST(test_r5_n03_n04_asn1_der_and_x509_constraints_ecdsa_der);
 }

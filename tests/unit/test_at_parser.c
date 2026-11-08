@@ -229,7 +229,9 @@ static void test_at_parser_cmd_formatting_and_overflow(void)
 
     /* 4. Empty parameter in string/int parsing */
     int val = 0;
-    TEST_ASSERT_TRUE(syn_at_parser_get_param_int("+CSQ: ,1", 0, &val));
+    TEST_ASSERT_FALSE(syn_at_parser_get_param_int("+CSQ: ,1", 0, &val));
+    TEST_ASSERT_TRUE(syn_at_parser_get_param_int("+CSQ: ,1", 1, &val));
+    TEST_ASSERT_EQUAL_INT(1, val);
     TEST_ASSERT_FALSE(syn_at_parser_get_param_int("+CSQ: 1", 5, &val));
     TEST_ASSERT_FALSE(syn_at_parser_get_param_int("", 0, &val));
 }
@@ -249,6 +251,36 @@ static void test_at_parser_response_delimiter_handling(void)
     TEST_ASSERT_FALSE(syn_at_parser_get_param_str("VAL1, VAL2", 5, str_buf, sizeof(str_buf)));
 }
 
+static void test_r5_at_parser_quoted_delims_and_strtol(void)
+{
+    char str_buf[64];
+    int val = 0;
+
+    /* 1. Quoted string containing both ',' and ':' after header prefix */
+    const char *cclk = "+CCLK: \"26/11/07,13:40:00+00\",1";
+    TEST_ASSERT_TRUE(syn_at_parser_get_param_str(cclk, 0U, str_buf, sizeof(str_buf)));
+    TEST_ASSERT_EQUAL_STRING("26/11/07,13:40:00+00", str_buf);
+    TEST_ASSERT_TRUE(syn_at_parser_get_param_int(cclk, 1U, &val));
+    TEST_ASSERT_EQUAL_INT(1, val);
+
+    /* 2. Quoted string containing ':' and ',' with NO header prefix */
+    const char *raw_quoted = "\"http://host:8080/a,b\", 443";
+    TEST_ASSERT_TRUE(syn_at_parser_get_param_str(raw_quoted, 0U, str_buf, sizeof(str_buf)));
+    TEST_ASSERT_EQUAL_STRING("http://host:8080/a,b", str_buf);
+    TEST_ASSERT_TRUE(syn_at_parser_get_param_int(raw_quoted, 1U, &val));
+    TEST_ASSERT_EQUAL_INT(443, val);
+
+    /* 3. Strict strtol validation: non-digits, trailing garbage, overflow, whitespace */
+    TEST_ASSERT_FALSE(syn_at_parser_get_param_int("+CSQ: abc,1", 0U, &val));
+    TEST_ASSERT_FALSE(syn_at_parser_get_param_int("+CSQ: 12abc,1", 0U, &val));
+    TEST_ASSERT_FALSE(syn_at_parser_get_param_int("+CSQ: 3000000000,1", 0U, &val));
+    TEST_ASSERT_FALSE(syn_at_parser_get_param_int("+CSQ: 99999999999999999999999,1", 0U, &val));
+    TEST_ASSERT_TRUE(syn_at_parser_get_param_int("+CSQ: \t-42\t , 7\r\n", 0U, &val));
+    TEST_ASSERT_EQUAL_INT(-42, val);
+    TEST_ASSERT_TRUE(syn_at_parser_get_param_int("+CSQ: \t-42\t , 7\r\n", 1U, &val));
+    TEST_ASSERT_EQUAL_INT(7, val);
+}
+
 void run_at_parser_tests(void)
 {
     RUN_TEST(test_at_parser_init);
@@ -262,4 +294,5 @@ void run_at_parser_tests(void)
     RUN_TEST(test_at_parser_overflow);
     RUN_TEST(test_at_parser_cmd_formatting_and_overflow);
     RUN_TEST(test_at_parser_response_delimiter_handling);
+    RUN_TEST(test_r5_at_parser_quoted_delims_and_strtol);
 }

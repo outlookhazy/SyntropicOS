@@ -145,18 +145,23 @@ SYN_Status syn_igmp_process_packet(SYN_IGMP *igmp, SYN_ETH *eth, const uint8_t *
     }
 
     /* Verify EtherType == IPv4 */
-    uint16_t ethertype = ((uint16_t)ip_pkt[12] << 8) | ip_pkt[13];
+    uint16_t ethertype = ((uint16_t)ip_pkt[12] << 8U) | ip_pkt[13];
     if (ethertype != SYN_ETHTYPE_IPV4) {
         return SYN_OK;
     }
 
+    size_t ihl = (size_t)(ip_pkt[14] & 0x0FU) * 4U;
+    if (ihl < 20U || (14U + ihl + 8U) > len) {
+        return SYN_INVALID_PARAM;
+    }
+
     /* Verify Protocol == 2 (IGMP) */
     uint8_t proto = ip_pkt[23];
-    if (proto != 2) {
+    if (proto != 2U) {
         return SYN_OK;
     }
 
-    uint8_t type = ip_pkt[34];
+    uint8_t type = ip_pkt[14U + ihl];
     if (type == SYN_IGMP_TYPE_MEMBERSHIP_QUERY) {
         igmp->queries_received++;
 

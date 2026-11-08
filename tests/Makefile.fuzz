@@ -2,19 +2,20 @@
 # Usage: make -f tests/Makefile.fuzz [fuzz-cobs|fuzz-modbus|clean]
 
 CC      := clang
-CFLAGS  := -std=c99 -g -O1 -fsanitize=fuzzer,address,undefined -I. -Isrc -Itests -Wall -Wextra
+CFLAGS  := -std=c99 -g -O1 -fsanitize=fuzzer,address,undefined -I. -Isrc -Itests -Itests/unit -Itests/unit/mocks -DSYN_USE_MULTICORE=1 -Wall -Wextra
 
 # Modules required for COBS
 COBS_SRCS := \
 	src/syntropic/proto/syn_cobs.c \
-	tests/mocks/mock_port.c \
+	tests/unit/mocks/mock_port.c \
 	tests/fuzz/fuzz_cobs.c
 
 # Modules required for Modbus
 MODBUS_SRCS := \
 	src/syntropic/proto/syn_modbus.c \
+	src/syntropic/proto/syn_modbus_tcp.c \
 	src/syntropic/util/syn_crc.c \
-	tests/mocks/mock_port.c \
+	tests/unit/mocks/mock_port.c \
 	tests/fuzz/fuzz_modbus.c
 
 .PHONY: fuzz-cobs fuzz-modbus clean

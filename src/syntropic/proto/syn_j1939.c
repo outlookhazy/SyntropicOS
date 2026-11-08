@@ -175,22 +175,67 @@ SYN_Status syn_j1939_build_tp_bam(uint8_t sa, uint32_t pgn, uint16_t total_bytes
     return SYN_OK;
 }
 
-SYN_Status syn_j1939_build_tp_dt(uint8_t sa, uint8_t sequence, const uint8_t *payload,
-                                 size_t payload_len, SYN_CAN_Frame *frame)
+SYN_Status syn_j1939_build_tp_rts(uint8_t sa, uint8_t da, uint32_t pgn, uint16_t total_bytes,
+                                  uint8_t max_packets, SYN_CAN_Frame *frame)
 {
-    if (!frame || !payload || sequence == 0 || payload_len == 0 || payload_len > 7) {
+    if (!frame || da >= SYN_J1939_ADDR_NULL || max_packets == 0U || total_bytes < 9U ||
+        total_bytes > 1785U) {
         return SYN_INVALID_PARAM;
     }
 
-    frame->id = syn_j1939_id_pack(6, SYN_J1939_PGN_TP_DT, sa, SYN_J1939_ADDR_GLOBAL);
-    frame->dlc = 8;
+    frame->id = syn_j1939_id_pack(7U, SYN_J1939_PGN_TP_CM, sa, da);
+    frame->dlc = 8U;
+    frame->extended = true;
+
+    uint8_t total_packets = (uint8_t)((total_bytes + 6U) / 7U);
+    frame->data[0] = SYN_J1939_TP_CTRL_RTS;
+    syn_poke_u16_le(total_bytes, frame->data, 1U);
+    frame->data[3] = total_packets;
+    frame->data[4] = max_packets;
+    frame->data[5] = (uint8_t)(pgn & 0xFFU);
+    frame->data[6] = (uint8_t)((pgn >> 8U) & 0xFFU);
+    frame->data[7] = (uint8_t)((pgn >> 16U) & 0xFFU);
+    return SYN_OK;
+}
+
+SYN_Status syn_j1939_build_tp_dt_da(uint8_t sa, uint8_t da, uint8_t sequence,
+                                    const uint8_t *payload, size_t payload_len,
+                                    SYN_CAN_Frame *frame)
+{
+    if (!frame || !payload || sequence == 0U || payload_len == 0U || payload_len > 7U) {
+        return SYN_INVALID_PARAM;
+    }
+
+    frame->id = syn_j1939_id_pack(7U, SYN_J1939_PGN_TP_DT, sa, da);
+    frame->dlc = 8U;
     frame->extended = true;
 
     frame->data[0] = sequence;
-    memset(&frame->data[1], 0xFF, 7);
+    memset(&frame->data[1], 0xFF, 7U);
     memcpy(&frame->data[1], payload, payload_len);
 
     return SYN_OK;
+}
+
+SYN_Status syn_j1939_build_tp_dt(uint8_t sa, uint8_t sequence, const uint8_t *payload,
+                                 size_t payload_len, SYN_CAN_Frame *frame)
+{
+    return syn_j1939_build_tp_dt_da(sa, SYN_J1939_ADDR_GLOBAL, sequence, payload, payload_len,
+                                    frame);
+}
+
+bool syn_j1939_get_tx(SYN_J1939_Node *node, SYN_CAN_Frame *out_frame)
+{
+    if (!node || !out_frame || !node->tx_pending) {
+        return false;
+    }
+    memset(out_frame, 0, sizeof(*out_frame));
+    out_frame->id = node->tx_id;
+    out_frame->dlc = 8U;
+    out_frame->extended = true;
+    memcpy(out_frame->data, node->tx_data, 8U);
+    node->tx_pending = false;
+    return true;
 }
 
 size_t syn_j1939_encode_dm1(uint8_t *buf, size_t buf_size, const SYN_J1939_DTC *dtc_list,
@@ -230,6 +275,185 @@ size_t syn_j1939_encode_dm1(uint8_t *buf, size_t buf_size, const SYN_J1939_DTC *
     return offset;
 }
 
+/**
+ * @brief Queue a J1939 TP.CM Clear-To-Send (CTS) frame on the node transmit slot.
+ * @param node J1939 node instance.
+ * @param da Destination CAN node address.
+ * @param num_pkts Number of TP.DT packets permitted in this CTS window.
+ * @param next_seq Next expected 1-based packet sequence number.
+ * @param pgn Target multi-packet parameter group number.
+ */
+static void j1939_queue_tp_cts(SYN_J1939_Node *node, uint8_t da, uint8_t num_pkts, uint8_t next_seq,
+                               uint32_t pgn)
+{
+    node->tx_id = syn_j1939_id_pack(7U, SYN_J1939_PGN_TP_CM, node->sa, da);
+    node->tx_data[0] = SYN_J1939_TP_CTRL_CTS;
+    node->tx_data[1] = num_pkts;
+    node->tx_data[2] = next_seq;
+    node->tx_data[3] = 0xFFU;
+    node->tx_data[4] = 0xFFU;
+    node->tx_data[5] = (uint8_t)(pgn & 0xFFU);
+    node->tx_data[6] = (uint8_t)((pgn >> 8U) & 0xFFU);
+    node->tx_data[7] = (uint8_t)((pgn >> 16U) & 0xFFU);
+    node->tx_pending = true;
+}
+
+/**
+ * @brief Queue a J1939 TP.CM End-of-Message Acknowledgment (ACK) frame on the node transmit slot.
+ * @param node J1939 node instance.
+ * @param da Destination CAN node address.
+ * @param total_bytes Total reassembled payload byte count.
+ * @param total_pkts Total received TP.DT packet count.
+ * @param pgn Completed multi-packet parameter group number.
+ */
+static void j1939_queue_tp_ack(SYN_J1939_Node *node, uint8_t da, uint16_t total_bytes,
+                               uint8_t total_pkts, uint32_t pgn)
+{
+    node->tx_id = syn_j1939_id_pack(7U, SYN_J1939_PGN_TP_CM, node->sa, da);
+    node->tx_data[0] = SYN_J1939_TP_CTRL_ACK;
+    syn_poke_u16_le(total_bytes, node->tx_data, 1U);
+    node->tx_data[3] = total_pkts;
+    node->tx_data[4] = 0xFFU;
+    node->tx_data[5] = (uint8_t)(pgn & 0xFFU);
+    node->tx_data[6] = (uint8_t)((pgn >> 8U) & 0xFFU);
+    node->tx_data[7] = (uint8_t)((pgn >> 16U) & 0xFFU);
+    node->tx_pending = true;
+}
+
+/**
+ * @brief Validate inbound TP.CM BAM or RTS addressing, session precedence, and window parameters.
+ * @param node J1939 node instance.
+ * @param hdr Unpacked J1939 CAN identifier header.
+ * @param frame Received 8-byte TP.CM CAN frame.
+ * @return true if control frame is accepted to start an RX session.
+ */
+static bool j1939_tp_cm_accept(const SYN_J1939_Node *node, const SYN_J1939_Header *hdr,
+                               const SYN_CAN_Frame *frame)
+{
+    uint8_t ctrl = frame->data[0];
+    if (ctrl == SYN_J1939_TP_CTRL_BAM) {
+        return (hdr->da == SYN_J1939_ADDR_GLOBAL) && (!node->tp_rx.active || node->tp_rx.is_bam);
+    }
+    if (ctrl == SYN_J1939_TP_CTRL_RTS) {
+        return (node->sa < SYN_J1939_ADDR_NULL) && (hdr->da == node->sa) && (frame->data[4] > 0U);
+    }
+    return false;
+}
+
+/**
+ * @brief Handle inbound J1939 TP.CM connection management frame (BAM, RTS, or Abort).
+ * @param node J1939 node instance.
+ * @param hdr Unpacked J1939 CAN identifier header.
+ * @param frame Received CAN frame.
+ * @return SYN_BUSY while multi-packet session is in progress, SYN_INVALID_PARAM on bad DLC.
+ */
+static SYN_Status j1939_handle_tp_cm(SYN_J1939_Node *node, const SYN_J1939_Header *hdr,
+                                     const SYN_CAN_Frame *frame)
+{
+    if (frame->dlc != 8U) {
+        return SYN_INVALID_PARAM;
+    }
+
+    uint8_t ctrl = frame->data[0];
+    if (ctrl == SYN_J1939_TP_CTRL_ABORT) {
+        if (node->tp_rx.active && hdr->sa == node->tp_rx.sa && hdr->da == node->tp_rx.da) {
+            node->tp_rx.active = false;
+        }
+        return SYN_BUSY;
+    }
+
+    if (!j1939_tp_cm_accept(node, hdr, frame)) {
+        return SYN_BUSY;
+    }
+
+    uint16_t total_bytes = syn_peek_u16_le(frame->data, 1U);
+    uint8_t total_packets = frame->data[3];
+    uint32_t pgn = (uint32_t)syn_peek_u16_le(frame->data, 5U) | ((uint32_t)frame->data[7] << 16U);
+    uint8_t expected_packets = (uint8_t)((total_bytes + 6U) / 7U);
+
+    if (total_bytes >= 9U && total_bytes <= sizeof(node->tp_rx.data) &&
+        total_packets == expected_packets) {
+        node->tp_rx.active = true;
+        node->tp_rx.is_bam = (ctrl == SYN_J1939_TP_CTRL_BAM);
+        node->tp_rx.sa = hdr->sa;
+        node->tp_rx.da = hdr->da;
+        node->tp_rx.pgn = pgn;
+        node->tp_rx.total_bytes = total_bytes;
+        node->tp_rx.total_packets = total_packets;
+        node->tp_rx.next_seq = 1U;
+        node->tp_rx.received_packets = 0U;
+
+        if (!node->tp_rx.is_bam) {
+            uint8_t max_cts = frame->data[4];
+            uint8_t window = (max_cts < total_packets) ? max_cts : total_packets;
+            node->tp_rx.cts_window = window;
+            node->tp_rx.cts_remaining = window;
+            j1939_queue_tp_cts(node, hdr->sa, window, 1U, pgn);
+        }
+    }
+    return SYN_BUSY;
+}
+
+/**
+ * @brief Handle inbound J1939 TP.DT data transfer packet and reassemble multi-packet payload.
+ * @param node J1939 node instance.
+ * @param hdr Unpacked J1939 CAN identifier header.
+ * @param frame Received CAN frame.
+ * @param out_pgn Output reassembled PGN when transfer completes.
+ * @param out_data Output pointer to reassembled payload buffer when complete.
+ * @param out_len Output reassembled payload byte length when complete.
+ * @return SYN_OK on final packet completion, SYN_BUSY if incomplete, SYN_INVALID_PARAM on bad DLC.
+ */
+static SYN_Status j1939_handle_tp_dt(SYN_J1939_Node *node, const SYN_J1939_Header *hdr,
+                                     const SYN_CAN_Frame *frame, uint32_t *out_pgn,
+                                     const uint8_t **out_data, size_t *out_len)
+{
+    if (frame->dlc != 8U) {
+        return SYN_INVALID_PARAM;
+    }
+    if (!node->tp_rx.active || hdr->sa != node->tp_rx.sa || hdr->da != node->tp_rx.da) {
+        return SYN_BUSY;
+    }
+
+    uint8_t seq = frame->data[0];
+    if (seq != node->tp_rx.next_seq) {
+        return SYN_BUSY;
+    }
+
+    size_t offset = (size_t)(seq - 1U) * 7U;
+    size_t rem = (size_t)node->tp_rx.total_bytes - offset;
+    size_t copy_len = (rem < 7U) ? rem : 7U;
+
+    memcpy(&node->tp_rx.data[offset], &frame->data[1], copy_len);
+    node->tp_rx.next_seq++;
+    node->tp_rx.received_packets++;
+
+    if (node->tp_rx.received_packets >= node->tp_rx.total_packets) {
+        if (!node->tp_rx.is_bam) {
+            j1939_queue_tp_ack(node, node->tp_rx.sa, node->tp_rx.total_bytes,
+                               node->tp_rx.total_packets, node->tp_rx.pgn);
+        }
+        *out_pgn = node->tp_rx.pgn;
+        *out_data = node->tp_rx.data;
+        *out_len = node->tp_rx.total_bytes;
+        node->tp_rx.active = false;
+        return SYN_OK;
+    }
+
+    if (!node->tp_rx.is_bam) {
+        node->tp_rx.cts_remaining--;
+        if (node->tp_rx.cts_remaining == 0U) {
+            uint8_t left = (uint8_t)(node->tp_rx.total_packets - node->tp_rx.received_packets);
+            uint8_t next_win = (node->tp_rx.cts_window < left) ? node->tp_rx.cts_window : left;
+            node->tp_rx.cts_remaining = next_win;
+            j1939_queue_tp_cts(node, node->tp_rx.sa, next_win, node->tp_rx.next_seq,
+                               node->tp_rx.pgn);
+        }
+    }
+
+    return SYN_BUSY;
+}
+
 SYN_Status syn_j1939_process_frame(SYN_J1939_Node *node, const SYN_CAN_Frame *frame,
                                    uint32_t *out_pgn, const uint8_t **out_data, size_t *out_len)
 {
@@ -238,61 +462,14 @@ SYN_Status syn_j1939_process_frame(SYN_J1939_Node *node, const SYN_CAN_Frame *fr
     }
 
     SYN_J1939_Header hdr;
-    if (syn_j1939_id_unpack(frame->id, &hdr) != SYN_OK) {
-        return SYN_INVALID_PARAM; /* LCOV_EXCL_LINE: Unreachable guard; syn_j1939_id_unpack always
-                                     returns SYN_OK for non-NULL header */
+    (void)syn_j1939_id_unpack(frame->id, &hdr);
+
+    if (hdr.pgn == SYN_J1939_PGN_TP_CM) {
+        return j1939_handle_tp_cm(node, &hdr, frame);
     }
 
-    /* Handle Multi-Packet Transport Protocol Connection Management (TP.CM) */
-    if (hdr.pgn == SYN_J1939_PGN_TP_CM && frame->dlc == 8) {
-        uint8_t ctrl = frame->data[0];
-        if (ctrl == SYN_J1939_TP_CTRL_BAM || ctrl == SYN_J1939_TP_CTRL_RTS) {
-            uint16_t total_bytes = syn_peek_u16_le(frame->data, 1);
-            uint8_t total_packets = frame->data[3];
-            uint32_t pgn =
-                (uint32_t)syn_peek_u16_le(frame->data, 5) | ((uint32_t)frame->data[7] << 16);
-
-            uint8_t expected_packets = (uint8_t)((total_bytes + 6U) / 7U);
-            if (total_bytes <= sizeof(node->tp_rx.data) && total_packets > 0 &&
-                total_packets == expected_packets) {
-                node->tp_rx.active = true;
-                node->tp_rx.is_bam = (ctrl == SYN_J1939_TP_CTRL_BAM);
-                node->tp_rx.sa = hdr.sa;
-                node->tp_rx.da = hdr.da;
-                node->tp_rx.pgn = pgn;
-                node->tp_rx.total_bytes = total_bytes;
-                node->tp_rx.total_packets = total_packets;
-                node->tp_rx.next_seq = 1;
-                node->tp_rx.received_packets = 0;
-            }
-        }
-        return SYN_BUSY;
-    }
-
-    /* Handle Multi-Packet Transport Protocol Data Transfer (TP.DT) */
-    if (hdr.pgn == SYN_J1939_PGN_TP_DT && node->tp_rx.active && hdr.sa == node->tp_rx.sa) {
-        uint8_t seq = frame->data[0];
-        if (seq == node->tp_rx.next_seq) {
-            size_t offset = (size_t)(seq - 1) * 7U;
-            size_t copy_len = 7U;
-            if (offset + copy_len > node->tp_rx.total_bytes) {
-                copy_len = node->tp_rx.total_bytes - offset;
-            }
-            if (offset + copy_len <= sizeof(node->tp_rx.data)) {
-                memcpy(&node->tp_rx.data[offset], &frame->data[1], copy_len);
-                node->tp_rx.next_seq++;
-                node->tp_rx.received_packets++;
-
-                if (node->tp_rx.received_packets >= node->tp_rx.total_packets) {
-                    *out_pgn = node->tp_rx.pgn;
-                    *out_data = node->tp_rx.data;
-                    *out_len = node->tp_rx.total_bytes;
-                    node->tp_rx.active = false;
-                    return SYN_OK;
-                }
-            }
-        }
-        return SYN_BUSY;
+    if (hdr.pgn == SYN_J1939_PGN_TP_DT) {
+        return j1939_handle_tp_dt(node, &hdr, frame, out_pgn, out_data, out_len);
     }
 
     /* Single-frame packet handling */

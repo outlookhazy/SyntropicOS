@@ -10,6 +10,8 @@
 #ifndef SYN_CONTROL_STATS_H
 #define SYN_CONTROL_STATS_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 

@@ -30,6 +30,8 @@
 #ifndef SYN_PACK_H
 #define SYN_PACK_H
 
+#include "../common/syn_defs.h"
+
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>

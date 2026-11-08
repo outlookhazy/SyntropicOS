@@ -32,6 +32,7 @@ static void clear_output(void)
 static int led_handler_called = 0;
 static int led_handler_argc = 0;
 static char led_handler_arg1[32];
+static int status_handler_called = 0;
 
 static int cmd_led(int argc, char *argv[])
 {
@@ -48,6 +49,7 @@ static int cmd_status(int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
+    status_handler_called++;
     return 0;
 }
 
@@ -513,15 +515,18 @@ static void test_cli_builtin_tasks_with_sched(void)
     SYN_CLI cli;
     syn_cli_init(&cli, test_commands, 4, "> ");
 
-    SYN_Task tasks[3];
+    SYN_Task tasks[4];
     SYN_Sched sched;
 
-    syn_task_create(&tasks[0], "blink", dummy_task_fn, 0, NULL);
-    syn_task_create(&tasks[1], "serial", dummy_task_fn, 1, NULL);
-    syn_task_create(&tasks[2], NULL, dummy_task_fn, 2, NULL); /* unnamed */
+    syn_task_create(&tasks[0], "blink", dummy_task_fn, SYN_PRIO_CRITICAL, NULL);
+    syn_task_create(&tasks[1], "serial", dummy_task_fn, SYN_PRIO_HIGH, NULL);
+    tasks[1].state = SYN_TASK_DEAD;
+    syn_task_create(&tasks[2], NULL, dummy_task_fn, SYN_PRIO_NORMAL, NULL); /* unnamed */
     tasks[2].state = SYN_TASK_SUSPENDED;
+    syn_task_create(&tasks[3], "evt", dummy_task_fn, SYN_PRIO_LOW, NULL);
+    tasks[3].state = SYN_TASK_BLOCKED;
 
-    syn_sched_init(&sched, tasks, 3);
+    syn_sched_init(&sched, tasks, 4);
     syn_cli_set_scheduler(&sched);
 
     clear_output();
@@ -529,6 +534,12 @@ static void test_cli_builtin_tasks_with_sched(void)
     TEST_ASSERT_NOT_NULL(strstr(cli_output_buf, "Tasks:"));
     TEST_ASSERT_NOT_NULL(strstr(cli_output_buf, "blink"));
     TEST_ASSERT_NOT_NULL(strstr(cli_output_buf, "(unnamed)"));
+    TEST_ASSERT_NOT_NULL(strstr(cli_output_buf, "  READY"));
+    TEST_ASSERT_NOT_NULL(strstr(cli_output_buf, "  DEAD"));
+    TEST_ASSERT_NOT_NULL(strstr(cli_output_buf, "  SUSPENDED"));
+    TEST_ASSERT_NOT_NULL(strstr(cli_output_buf, "  BLOCKED"));
+    TEST_ASSERT_NULL(strstr(cli_output_buf, "DEFERRED"));
+    TEST_ASSERT_NULL(strstr(cli_output_buf, "WAITING"));
 
     syn_cli_set_scheduler(NULL);
 }
@@ -668,7 +679,7 @@ static void test_cli_tasks_unknown_state(void)
     SYN_Task tasks[1];
     SYN_Sched sched;
 
-    syn_task_create(&tasks[0], "weird", dummy_task_fn, 0, NULL);
+    syn_task_create(&tasks[0], "weird", dummy_task_fn, SYN_PRIO_CRITICAL, NULL);
     tasks[0].state = 99; /* invalid state → "  ???" */
 
     syn_sched_init(&sched, tasks, 1);
@@ -700,7 +711,7 @@ static void test_cli_command_history_and_autocompletion(void)
 
     SYN_Task tasks[1];
     SYN_Sched sched;
-    syn_task_create(&tasks[0], "t1", dummy_task_fn, 0, NULL);
+    syn_task_create(&tasks[0], "t1", dummy_task_fn, SYN_PRIO_CRITICAL, NULL);
     syn_sched_init(&sched, tasks, 1);
     syn_cli_set_scheduler(&sched);
 
@@ -723,6 +734,111 @@ static void test_cli_command_history_and_autocompletion(void)
     syn_cli_init(&cli_null, cmds_null, 1, "test> ");
     clear_output();
     syn_cli_process_line(&cli_null, "help");
+}
+
+/** R4-K08: NULL command names in command lookup, NULL commands array, and public NULL guards. */
+static void test_r4_cli_null_guards_and_null_command_name(void)
+{
+    static const SYN_CLI_Command sparse_cmds[] = {
+        {NULL, "sentinel without name", cmd_fail},
+        {"led", "led <on|off>", cmd_led},
+    };
+    SYN_CLI cli;
+
+    /* 1. Public API NULL guards */
+    syn_cli_init(NULL, sparse_cmds, 2U, "> ");
+    syn_cli_set_echo(NULL, false);
+    syn_cli_process_char(NULL, 'x');
+    syn_cli_process_line(NULL, "led");
+    syn_cli_print_prompt(NULL);
+    syn_cli_refresh_prompt(NULL);
+    syn_cli_printf(NULL, "ignored %d", 1);
+
+    syn_cli_init(&cli, sparse_cmds, 2U, NULL);
+    syn_cli_process_line(&cli, NULL);
+    syn_cli_printf(&cli, NULL);
+
+    /* 2. Lookup skips .name == NULL entry without strcmp(argv[0], NULL) crash */
+    led_handler_called = 0;
+    led_handler_arg1[0] = '\0';
+    syn_cli_process_line(&cli, "led on");
+    TEST_ASSERT_EQUAL_INT(1, led_handler_called);
+    TEST_ASSERT_EQUAL_STRING("on", led_handler_arg1);
+
+    clear_output();
+    syn_cli_process_line(&cli, "nonexistent");
+    TEST_ASSERT_NOT_NULL(strstr(cli_output_buf, "Unknown command"));
+
+    /* 3. NULL commands table with non-zero cmd_count in both help and command lookup */
+    SYN_CLI cli_no_cmds;
+    syn_cli_init(&cli_no_cmds, NULL, 4U, "> ");
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)cli_no_cmds.command_count);
+    cli_no_cmds.command_count = 2U; /* defensive corrupt state with commands == NULL */
+    clear_output();
+    syn_cli_process_line(&cli_no_cmds, "help");
+    TEST_ASSERT_NOT_NULL(strstr(cli_output_buf, "Available commands"));
+    clear_output();
+    syn_cli_process_line(&cli_no_cmds, "led");
+    TEST_ASSERT_NOT_NULL(strstr(cli_output_buf, "Unknown command"));
+}
+
+static void test_r5_cli_crlf_and_history_bounds(void)
+{
+    SYN_CLI cli;
+    syn_cli_init(&cli, test_commands, 4U, "> ");
+
+    /* 1. CRLF ('\r\n') executes once and emits prompt once (no double prompt) */
+    status_handler_called = 0;
+    clear_output();
+    const char *crlf_cmd = "status\r\n";
+    for (const char *p = crlf_cmd; *p != '\0'; p++) {
+        syn_cli_process_char(&cli, *p);
+    }
+    TEST_ASSERT_EQUAL_INT(1, status_handler_called);
+    const char *first_prompt = strstr(cli_output_buf, "> ");
+    TEST_ASSERT_NOT_NULL(first_prompt);
+    TEST_ASSERT_NULL(strstr(first_prompt + 2, "> "));
+
+    /* Two consecutive '\r\r' still emits two prompts */
+    clear_output();
+    syn_cli_process_char(&cli, '\r');
+    syn_cli_process_char(&cli, '\r');
+    first_prompt = strstr(cli_output_buf, "> ");
+    TEST_ASSERT_NOT_NULL(first_prompt);
+    TEST_ASSERT_NOT_NULL(strstr(first_prompt + 2, "> "));
+
+#if SYN_CLI_HISTORY_DEPTH > 0
+    /* 2. Partial history clamping: 2 entries, 4 Up presses stays at oldest entry */
+    SYN_CLI hcli;
+    syn_cli_init(&hcli, test_commands, 4U, "> ");
+    syn_cli_process_line(&hcli, "led on");
+    syn_cli_process_line(&hcli, "status");
+
+    syn_cli_process_char(&hcli, 0x10); /* newest: "status" */
+    TEST_ASSERT_EQUAL_STRING("status", hcli.line_buf);
+    syn_cli_process_char(&hcli, 0x10); /* oldest: "led on" */
+    TEST_ASSERT_EQUAL_STRING("led on", hcli.line_buf);
+    syn_cli_process_char(&hcli, 0x10); /* clamped at oldest: "led on" */
+    TEST_ASSERT_EQUAL_STRING("led on", hcli.line_buf);
+
+    /* 3. Wrapped ring history clamping (push > SYN_CLI_HISTORY_DEPTH commands) */
+    syn_cli_process_line(&hcli, "led off");
+    syn_cli_process_line(&hcli, "status");
+    syn_cli_process_line(&hcli, "help");
+    syn_cli_process_line(&hcli, "led on");
+
+    for (size_t i = 0U; i < (size_t)SYN_CLI_HISTORY_DEPTH + 3U; i++) {
+        syn_cli_process_char(&hcli, 0x10);
+    }
+    /* Oldest retained entry in depth-4 ring of [led off, status, help, led on] is "led off" */
+    TEST_ASSERT_EQUAL_STRING("led off", hcli.line_buf);
+
+    /* Recall with echo disabled also works */
+    syn_cli_set_echo(&hcli, false);
+    hcli.history_read = 0U;
+    syn_cli_process_char(&hcli, 0x10);
+    TEST_ASSERT_EQUAL_STRING("led on", hcli.line_buf);
+#endif
 }
 
 /* ── Test runner ─────────────────────────────────────────────────────── */
@@ -761,4 +877,6 @@ void run_cli_tests(void)
     RUN_TEST(test_cli_tasks_unknown_state);
     RUN_TEST(test_cli_refresh_prompt);
     RUN_TEST(test_cli_command_history_and_autocompletion);
+    RUN_TEST(test_r4_cli_null_guards_and_null_command_name);
+    RUN_TEST(test_r5_cli_crlf_and_history_bounds);
 }

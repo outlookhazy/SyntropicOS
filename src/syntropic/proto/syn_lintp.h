@@ -81,7 +81,8 @@ typedef struct {
 
     /* TX State */
     SYN_LINTP_State tx_state; /**< TX state machine state */
-    const uint8_t *tx_buf;    /**< Pointer to active TX payload */
+    uint8_t *tx_buf;          /**< Pointer to user TX payload buffer */
+    size_t tx_size;           /**< Capacity of user TX buffer */
     size_t tx_total_len;      /**< Total payload size to transmit */
     size_t tx_offset;         /**< Payload bytes transmitted so far */
     uint8_t tx_sn;            /**< Sequence number for next CF (1..15, mod 16) */

@@ -6,6 +6,7 @@
 #include "syntropic/proto/syn_ocpp.h"
 #include "unity/unity.h"
 
+#include <stdio.h>
 #include <string.h>
 
 static SYN_OCPP_Client g_ocpp_client;
@@ -173,14 +174,22 @@ void test_ocpp_process_call_result(void)
 {
     syn_ocpp_init(&g_ocpp_client);
     g_reg_cb_called = false;
+    g_auth_cb_called = false;
     syn_ocpp_set_callbacks(&g_ocpp_client, on_ocpp_reg, on_ocpp_auth, on_ocpp_start_tx,
                            on_ocpp_remote_start, on_ocpp_remote_stop, NULL);
+
+    char tx_buf[256];
+    size_t tx_len = 0U;
+    SYN_OCPP_ChargePointInfo info = {"Vendor", "Model", "SN", "1.0"};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_format_boot_notification(&g_ocpp_client, &info, tx_buf,
+                                                                sizeof(tx_buf), &tx_len));
 
     const char *resp_json = "[3,\"1\",{\"status\":\"Accepted\",\"interval\":60}]";
     TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, resp_json, strlen(resp_json),
                                                        NULL, 0, NULL));
     TEST_ASSERT_EQUAL(SYN_OCPP_REGISTRATION_ACCEPTED, g_ocpp_client.registration_status);
     TEST_ASSERT_TRUE(g_reg_cb_called);
+    TEST_ASSERT_FALSE(g_auth_cb_called);
 
     const char *resp_status_json = "[3,\"2\",{\"status\":\"Accepted\"}]";
     TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, resp_status_json,
@@ -305,9 +314,18 @@ void test_ocpp_all_status_enums_and_small_buffers(void)
 void test_ocpp_process_message_extended(void)
 {
     syn_ocpp_init(&g_ocpp_client);
+    g_reg_cb_called = false;
+    g_auth_cb_called = false;
     g_start_tx_cb_called = false;
     syn_ocpp_set_callbacks(&g_ocpp_client, on_ocpp_reg, on_ocpp_auth, on_ocpp_start_tx, NULL, NULL,
                            NULL);
+
+    char tx_buf[256];
+    size_t tx_len = 0U;
+    g_ocpp_client.message_counter = 99U;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_format_start_transaction(&g_ocpp_client, 1U, "RFID-100", 500U,
+                                                        tx_buf, sizeof(tx_buf), &tx_len));
 
     const char *resp_tx =
         "[3,\"100\",{\"idTagInfo\":{\"status\":\"Accepted\"},\"transactionId\":1001}]";
@@ -315,6 +333,8 @@ void test_ocpp_process_message_extended(void)
         SYN_OK, syn_ocpp_process_message(&g_ocpp_client, resp_tx, strlen(resp_tx), NULL, 0, NULL));
     TEST_ASSERT_EQUAL(1001, g_ocpp_client.active_transaction_id);
     TEST_ASSERT_TRUE(g_start_tx_cb_called);
+    TEST_ASSERT_FALSE(g_reg_cb_called);
+    TEST_ASSERT_FALSE(g_auth_cb_called);
 
     const char *cmd_unknown = "[2,\"200\",\"DataTransfer\",{\"vendorId\":\"Vendor\"}]";
     char resp[128];
@@ -490,6 +510,332 @@ void test_ocpp_21_features(void)
                                      &g_ocpp_client, SYN_OCPP_V2G_DYNAMIC, -5000, buf, 35, &len));
 }
 
+static uint32_t g_r5_conn_id = 0U;
+static char g_r5_tag[32];
+static int32_t g_r5_tx_id = 0;
+static uint32_t g_r5_meter_start = 0U;
+static char g_r5_boot_vendor[32];
+static char g_r5_boot_model[32];
+static SYN_OCPP_AuthorizationStatus g_r5_auth_status = SYN_OCPP_AUTH_INVALID;
+static SYN_OCPP_RegistrationStatus g_r5_reg_status = SYN_OCPP_REGISTRATION_ACCEPTED;
+
+static bool on_r5_remote_start(uint32_t conn_id, const char *id_tag, void *ctx)
+{
+    (void)ctx;
+    g_r5_conn_id = conn_id;
+    (void)snprintf(g_r5_tag, sizeof(g_r5_tag), "%s", id_tag);
+    return true;
+}
+
+static bool on_r5_remote_stop(int32_t tx_id, void *ctx)
+{
+    (void)ctx;
+    g_r5_tx_id = tx_id;
+    return (tx_id == 777);
+}
+
+static void on_r5_reg_cb(SYN_OCPP_RegistrationStatus status, uint32_t interval, void *ctx)
+{
+    (void)interval;
+    (void)ctx;
+    g_r5_reg_status = status;
+    g_reg_cb_called = true;
+}
+
+static void on_r5_auth_cb(const char *id_tag, SYN_OCPP_AuthorizationStatus status, void *ctx)
+{
+    (void)ctx;
+    (void)snprintf(g_r5_tag, sizeof(g_r5_tag), "%s", id_tag);
+    g_r5_auth_status = status;
+    g_auth_cb_called = true;
+}
+
+static SYN_OCPP_RegistrationStatus on_r5_srv_boot(const SYN_OCPP_ChargePointInfo *info,
+                                                  uint32_t *hb_sec, void *ctx)
+{
+    (void)hb_sec;
+    int mode = ctx ? *(const int *)ctx : 0;
+    (void)snprintf(g_r5_boot_vendor, sizeof(g_r5_boot_vendor), "%s", info->charge_point_vendor);
+    (void)snprintf(g_r5_boot_model, sizeof(g_r5_boot_model), "%s", info->charge_point_model);
+    if (mode == 1) {
+        return SYN_OCPP_REGISTRATION_PENDING;
+    }
+    return SYN_OCPP_REGISTRATION_REJECTED;
+}
+
+static SYN_OCPP_AuthorizationStatus on_r5_srv_auth(const char *id_tag, void *ctx)
+{
+    (void)ctx;
+    (void)snprintf(g_r5_tag, sizeof(g_r5_tag), "%s", id_tag);
+    if (strcmp(id_tag, "BLOCKED") == 0) {
+        return SYN_OCPP_AUTH_BLOCKED;
+    }
+    if (strcmp(id_tag, "EXPIRED") == 0) {
+        return SYN_OCPP_AUTH_EXPIRED;
+    }
+    if (strcmp(id_tag, "OK") == 0) {
+        return SYN_OCPP_AUTH_ACCEPTED;
+    }
+    return SYN_OCPP_AUTH_INVALID;
+}
+
+static int32_t on_r5_srv_start_tx(uint32_t conn_id, const char *id_tag, uint32_t meter_start,
+                                  void *ctx)
+{
+    (void)ctx;
+    g_r5_conn_id = conn_id;
+    (void)snprintf(g_r5_tag, sizeof(g_r5_tag), "%s", id_tag);
+    g_r5_meter_start = meter_start;
+    return 0; /* Exercise default server->next_transaction_id fallback */
+}
+
+void test_r5_a16_bounded_parse_pending_dispatch_and_deciamp(void)
+{
+    char tx_buf[256];
+    char resp_buf[256];
+    size_t tx_len = 0U;
+    size_t resp_len = 0U;
+
+    syn_ocpp_init(&g_ocpp_client);
+    syn_ocpp_set_callbacks(&g_ocpp_client, on_r5_reg_cb, on_r5_auth_cb, on_ocpp_start_tx,
+                           on_r5_remote_start, on_r5_remote_stop, NULL);
+
+    /* 1. Heartbeat exact truncation boundary (22 bytes) without LCOV_EXCL */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ocpp_format_heartbeat(&g_ocpp_client, tx_buf, 22U, &tx_len));
+
+    /* 2. MeterValues formats current_a = 165 (16.5A) as "16.5" with unit "A" */
+    SYN_OCPP_MeterValues mv = {5000U, 230U, 165U, 3795U, 80U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_format_meter_values(&g_ocpp_client, 2U, &mv, tx_buf,
+                                                           sizeof(tx_buf), &tx_len));
+    TEST_ASSERT_NOT_NULL(strstr(tx_buf, "{\"value\":\"16.5\",\"unit\":\"A\"}"));
+
+    /* 3. Bounded scan: trailing poison past in_len must NEVER be read or matched */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_format_authorize(&g_ocpp_client, "TAG-AUTH-99", tx_buf,
+                                                        sizeof(tx_buf), &tx_len));
+    char non_nul_buf[128];
+    const char *valid_prefix = "[3,\"3\",{\"idTagInfo\":{\"status\":\"Blocked\"}}]";
+    size_t prefix_len = strlen(valid_prefix);
+    memcpy(non_nul_buf, valid_prefix, prefix_len);
+    /* Append bait after prefix_len without NUL terminator */
+    const char *bait = "\"Accepted\",\"transactionId\":9999";
+    memcpy(non_nul_buf + prefix_len, bait, strlen(bait));
+
+    g_reg_cb_called = false;
+    g_auth_cb_called = false;
+    g_start_tx_cb_called = false;
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_ocpp_process_message(&g_ocpp_client, non_nul_buf, prefix_len, NULL, 0U, NULL));
+    TEST_ASSERT_TRUE(g_auth_cb_called);
+    TEST_ASSERT_FALSE(g_reg_cb_called);
+    TEST_ASSERT_FALSE(g_start_tx_cb_called);
+    TEST_ASSERT_EQUAL_STRING("TAG-AUTH-99", g_r5_tag);
+    TEST_ASSERT_EQUAL(SYN_OCPP_AUTH_BLOCKED, g_r5_auth_status);
+
+    /* Test Expired & Invalid & Pending/Rejected statuses + CALLERROR clearing pending */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_format_authorize(&g_ocpp_client, "TAG-EXP", tx_buf,
+                                                        sizeof(tx_buf), &tx_len));
+    const char *exp_resp = "[3,\"4\",{\"idTagInfo\":{\"status\":\"Expired\"}}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, exp_resp, strlen(exp_resp),
+                                                       NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL(SYN_OCPP_AUTH_EXPIRED, g_r5_auth_status);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_format_authorize(&g_ocpp_client, "TAG-INV", tx_buf,
+                                                        sizeof(tx_buf), &tx_len));
+    const char *inv_resp = "[3,\"5\",{\"idTagInfo\":{\"status\":123}}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, inv_resp, strlen(inv_resp),
+                                                       NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL(SYN_OCPP_AUTH_INVALID, g_r5_auth_status);
+
+    SYN_OCPP_ChargePointInfo info = {"RealVendor", "RealModel", "SN-42", "2.1"};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_format_boot_notification(&g_ocpp_client, &info, tx_buf,
+                                                                sizeof(tx_buf), &tx_len));
+    const char *pend_resp = "[3,\"6\",{\"status\": \"Pending\",\"interval\": -5}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, pend_resp, strlen(pend_resp),
+                                                       NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL(SYN_OCPP_REGISTRATION_PENDING, g_r5_reg_status);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_format_boot_notification(&g_ocpp_client, &info, tx_buf,
+                                                                sizeof(tx_buf), &tx_len));
+    const char *rej_resp = "[3,\"7\",{\"status\":\"Rejected\",\"interval\":\"bad\"}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, rej_resp, strlen(rej_resp),
+                                                       NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL(SYN_OCPP_REGISTRATION_REJECTED, g_r5_reg_status);
+
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_format_heartbeat(&g_ocpp_client, tx_buf, sizeof(tx_buf), &tx_len));
+    const char *hb_resp = "[3,\"8\",{}]";
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_ocpp_process_message(&g_ocpp_client, hb_resp, strlen(hb_resp), NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL(SYN_OCPP_ACTION_NONE, g_ocpp_client.pending_action);
+
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_format_heartbeat(&g_ocpp_client, tx_buf, sizeof(tx_buf), &tx_len));
+    const char *call_err = "[4,\"9\",\"InternalError\",\"err\",{}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, call_err, strlen(call_err),
+                                                       NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL(SYN_OCPP_ACTION_NONE, g_ocpp_client.pending_action);
+
+    /* 4. Client RemoteStart / RemoteStop real JSON field parsing + malformed rejections */
+    const char *rem_start =
+        "[2,\"50\",\"RemoteStartTransaction\",{\"connectorId\": 3,\"idTag\": \"USER-BADGE-7\"}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, rem_start, strlen(rem_start),
+                                                       resp_buf, sizeof(resp_buf), &resp_len));
+    TEST_ASSERT_EQUAL_UINT32(3U, g_r5_conn_id);
+    TEST_ASSERT_EQUAL_STRING("USER-BADGE-7", g_r5_tag);
+    TEST_ASSERT_NOT_NULL(strstr(resp_buf, "Accepted"));
+
+    const char *rem_start_bad = "[2,\"51\",\"RemoteStartTransaction\",{\"connectorId\":1}]";
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_process_message(&g_ocpp_client, rem_start_bad, strlen(rem_start_bad),
+                                               resp_buf, sizeof(resp_buf), &resp_len));
+    TEST_ASSERT_NOT_NULL(strstr(resp_buf, "Rejected"));
+
+    const char *rem_stop_ok = "[2,\"52\",\"RemoteStopTransaction\",{\"transactionId\": 777}]";
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_process_message(&g_ocpp_client, rem_stop_ok, strlen(rem_stop_ok),
+                                               resp_buf, sizeof(resp_buf), &resp_len));
+    TEST_ASSERT_EQUAL_INT32(777, g_r5_tx_id);
+    TEST_ASSERT_NOT_NULL(strstr(resp_buf, "Accepted"));
+
+    const char *rem_stop_rej = "[2,\"53\",\"RemoteStopTransaction\",{}]";
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_process_message(&g_ocpp_client, rem_stop_rej, strlen(rem_stop_rej),
+                                               resp_buf, sizeof(resp_buf), &resp_len));
+    TEST_ASSERT_NOT_NULL(strstr(resp_buf, "Rejected"));
+
+    /* Malformed msg_id quotes / overlong string value exercises parser guards */
+    const char *no_quote_call = "[2,99,{}]";
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_process_message(&g_ocpp_client, no_quote_call, strlen(no_quote_call),
+                                               resp_buf, sizeof(resp_buf), &resp_len));
+    const char *unclosed_id = "[2,\"99";
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_process_message(&g_ocpp_client, unclosed_id, strlen(unclosed_id),
+                                               resp_buf, sizeof(resp_buf), &resp_len));
+
+    /* 5. CSMS Server parses real BootNotification, Authorize, and StartTransaction fields */
+    int srv_mode = 1;
+    syn_ocpp_server_init(&g_ocpp_server);
+    syn_ocpp_server_set_callbacks(&g_ocpp_server, on_r5_srv_boot, on_r5_srv_auth,
+                                  on_r5_srv_start_tx, &srv_mode);
+
+    const char *srv_boot = "[2,\"1\",\"BootNotification\",{\"chargePointVendor\":\"ABB\","
+                           "\"chargePointModel\":\"TerraAC\"}]";
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_server_process_message(&g_ocpp_server, srv_boot, strlen(srv_boot),
+                                                      resp_buf, sizeof(resp_buf), &resp_len));
+    TEST_ASSERT_EQUAL_STRING("ABB", g_r5_boot_vendor);
+    TEST_ASSERT_EQUAL_STRING("TerraAC", g_r5_boot_model);
+    TEST_ASSERT_NOT_NULL(strstr(resp_buf, "Pending"));
+
+    srv_mode = 2;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_server_process_message(&g_ocpp_server, srv_boot, strlen(srv_boot),
+                                                      resp_buf, sizeof(resp_buf), &resp_len));
+    TEST_ASSERT_NOT_NULL(strstr(resp_buf, "Rejected"));
+
+    const char *srv_auth_blk = "[2,\"2\",\"Authorize\",{\"idTag\":\"BLOCKED\"}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_server_process_message(&g_ocpp_server, srv_auth_blk,
+                                                              strlen(srv_auth_blk), resp_buf,
+                                                              sizeof(resp_buf), &resp_len));
+    TEST_ASSERT_NOT_NULL(strstr(resp_buf, "Blocked"));
+
+    const char *srv_auth_exp = "[2,\"3\",\"Authorize\",{\"idTag\":\"EXPIRED\"}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_server_process_message(&g_ocpp_server, srv_auth_exp,
+                                                              strlen(srv_auth_exp), resp_buf,
+                                                              sizeof(resp_buf), &resp_len));
+    TEST_ASSERT_NOT_NULL(strstr(resp_buf, "Expired"));
+
+    const char *srv_auth_bad = "[2,\"4\",\"Authorize\",{}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_server_process_message(&g_ocpp_server, srv_auth_bad,
+                                                              strlen(srv_auth_bad), resp_buf,
+                                                              sizeof(resp_buf), &resp_len));
+    TEST_ASSERT_NOT_NULL(strstr(resp_buf, "Invalid"));
+
+    const char *srv_tx_req = "[2,\"5\",\"StartTransaction\",{\"connectorId\":2,\"idTag\":"
+                             "\"SUPERLONGIDENTIFIERSTRING0123456789\",\"meterStart\":4321}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_server_process_message(&g_ocpp_server, srv_tx_req,
+                                                              strlen(srv_tx_req), resp_buf,
+                                                              sizeof(resp_buf), &resp_len));
+    TEST_ASSERT_EQUAL_UINT32(2U, g_r5_conn_id);
+    TEST_ASSERT_EQUAL_UINT32(4321U, g_r5_meter_start);
+    TEST_ASSERT_EQUAL(31U, strlen(g_r5_tag));
+
+    const char *srv_tx_bad = "[2,\"6\",\"StartTransaction\",{\"connectorId\":-1}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_server_process_message(&g_ocpp_server, srv_tx_bad,
+                                                              strlen(srv_tx_bad), resp_buf,
+                                                              sizeof(resp_buf), &resp_len));
+    TEST_ASSERT_NOT_NULL(strstr(resp_buf, "Invalid"));
+
+    const char *srv_unterm_str = "[2,7,\"Authorize\",{\"idTag\":\"UNTERM}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_server_process_message(&g_ocpp_server, srv_unterm_str,
+                                                              strlen(srv_unterm_str), resp_buf,
+                                                              sizeof(resp_buf), &resp_len));
+
+    /* Whitespace before ':' in JSON string/int fields, unknown client msg_type, and unquoted
+     * server msg_id */
+    const char *ws_start =
+        "[2,\"60\",\"RemoteStartTransaction\",{\"connectorId\" : 5, \"idTag\" : \"WS-TAG\"}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, ws_start, strlen(ws_start),
+                                                       resp_buf, sizeof(resp_buf), &resp_len));
+    TEST_ASSERT_EQUAL_UINT32(5U, g_r5_conn_id);
+    TEST_ASSERT_EQUAL_STRING("WS-TAG", g_r5_tag);
+
+    const char *unk_type = "[9,\"61\",{}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, unk_type, strlen(unk_type),
+                                                       resp_buf, sizeof(resp_buf), &resp_len));
+
+    const char *srv_empty_id_hb = "[2,\"\",\"Heartbeat\",{}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_server_process_message(&g_ocpp_server, srv_empty_id_hb,
+                                                              strlen(srv_empty_id_hb), resp_buf,
+                                                              sizeof(resp_buf), &resp_len));
+    TEST_ASSERT_NOT_NULL(strstr(resp_buf, "[3,\"1\""));
+
+    /* 6. Concurrent BootNotification + StartTransaction + periodic Heartbeat must not clobber
+     * pending confirmations */
+    syn_ocpp_init(&g_ocpp_client);
+    syn_ocpp_set_callbacks(&g_ocpp_client, on_r5_reg_cb, on_r5_auth_cb, on_ocpp_start_tx,
+                           on_r5_remote_start, on_r5_remote_stop, NULL);
+    g_reg_cb_called = false;
+    g_start_tx_cb_called = false;
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_format_boot_notification(&g_ocpp_client, &info, tx_buf,
+                                                                sizeof(tx_buf), &tx_len));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_format_start_transaction(&g_ocpp_client, 1U, "TAG-CONC", 100U,
+                                                        tx_buf, sizeof(tx_buf), &tx_len));
+    g_ocpp_client.heartbeat_timer_ms = 10U;
+    syn_ocpp_tick(&g_ocpp_client, 20U, tx_buf, sizeof(tx_buf), &tx_len);
+    TEST_ASSERT_NOT_NULL(strstr(tx_buf, "Heartbeat"));
+
+    /* Malformed unquoted CallResult msg_id ignored safely */
+    const char *bad_res_id = "[3,99,{}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, bad_res_id,
+                                                       strlen(bad_res_id), NULL, 0U, NULL));
+
+    /* Heartbeat.conf ("3") arrives first while "1" and "2" remain pending */
+    const char *conc_hb = "[3,\"3\",{}]";
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_ocpp_process_message(&g_ocpp_client, conc_hb, strlen(conc_hb), NULL, 0U, NULL));
+    TEST_ASSERT_NOT_EQUAL(SYN_OCPP_ACTION_NONE, g_ocpp_client.pending_action);
+
+    /* BootNotification.conf ("1") and StartTransaction.conf ("2") still dispatch cleanly */
+    const char *conc_boot = "[3,\"1\",{\"status\":\"Accepted\",\"interval\":45}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, conc_boot, strlen(conc_boot),
+                                                       NULL, 0U, NULL));
+    TEST_ASSERT_TRUE(g_reg_cb_called);
+    TEST_ASSERT_EQUAL(SYN_OCPP_REGISTRATION_ACCEPTED, g_ocpp_client.registration_status);
+    TEST_ASSERT_EQUAL_UINT32(45U, g_ocpp_client.heartbeat_interval_sec);
+
+    const char *conc_tx =
+        "[3,\"2\",{\"idTagInfo\":{\"status\":\"Accepted\"},\"transactionId\":4242}]";
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_ocpp_process_message(&g_ocpp_client, conc_tx, strlen(conc_tx), NULL, 0U, NULL));
+    TEST_ASSERT_TRUE(g_start_tx_cb_called);
+    TEST_ASSERT_EQUAL_INT32(4242, g_ocpp_client.active_transaction_id);
+    TEST_ASSERT_EQUAL(SYN_OCPP_ACTION_NONE, g_ocpp_client.pending_action);
+}
+
 void run_ocpp_tests(void)
 {
     RUN_TEST(test_ocpp_init_and_null_checks);
@@ -505,4 +851,5 @@ void run_ocpp_tests(void)
     RUN_TEST(test_ocpp_server_role);
     RUN_TEST(test_ocpp_call_error_formatting);
     RUN_TEST(test_ocpp_21_features);
+    RUN_TEST(test_r5_a16_bounded_parse_pending_dispatch_and_deciamp);
 }

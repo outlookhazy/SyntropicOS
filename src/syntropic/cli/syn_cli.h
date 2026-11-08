@@ -29,7 +29,7 @@
  *
  *   // Initialize
  *   static SYN_CLI cli;
- *   syn_cli_init(&cli, commands, 2, my_putchar, "> ");
+ *   syn_cli_init(&cli, commands, 2, "> ");
  *
  *   // In main loop or UART RX ISR:
  *   syn_cli_process_char(&cli, received_byte);
@@ -39,6 +39,10 @@
 
 #ifndef SYN_CLI_H
 #define SYN_CLI_H
+
+#if __has_include("syn_config.h")
+#include "syn_config.h"
+#endif
 
 #include "../common/syn_defs.h"
 #include "../port/syn_port_serial.h"
@@ -103,6 +107,7 @@ typedef struct {
     const char *prompt;   /**< Prompt string               */
     bool echo;            /**< Echo enabled                */
     bool prompt_visible;  /**< Prompt currently visible on screen */
+    bool last_was_cr;     /**< True if previous character was CR (0x0D) */
     uint8_t escape_state; /**< ANSI escape sequence state  */
 
     /* History */
@@ -217,8 +222,13 @@ void syn_cli_printf(SYN_CLI *cli, const char *fmt, ...);
 #define SYN_CLI_CMD_UPTIME 1
 #endif
 #ifndef SYN_CLI_CMD_ERRORS
+#if !defined(SYN_USE_ERRLOG) || SYN_USE_ERRLOG
 /** @brief Enable built-in 'errors' command. */
 #define SYN_CLI_CMD_ERRORS 1
+#else
+/** @brief Enable built-in 'errors' command. */
+#define SYN_CLI_CMD_ERRORS 0
+#endif
 #endif
 #ifndef SYN_CLI_CMD_TASKS
 /** @brief Enable built-in 'tasks' command. */

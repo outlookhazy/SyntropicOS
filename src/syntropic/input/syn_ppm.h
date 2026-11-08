@@ -11,15 +11,15 @@
 #ifndef SYN_PPM_H
 #define SYN_PPM_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SYN_PPM_MAX_CHANNELS 12   /**< Maximum supported PPM channels (12) */
 #define SYN_PPM_SYNC_MIN_US 2700U /**< Minimum sync pulse gap in microseconds (2700 us) */

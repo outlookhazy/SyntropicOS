@@ -397,7 +397,7 @@ static void test_button_combo(void)
     syn_button_on_repeat(&btn1, btn_on_repeat, 100, NULL);
     syn_button_on_repeat(&btn2, btn_on_repeat, 100, NULL);
 
-    const SYN_Button *combo_btns[2] = {&btn1, &btn2};
+    SYN_Button *combo_btns[2] = {&btn1, &btn2};
     SYN_ButtonCombo combo;
     syn_button_combo_init(&combo, combo_btns, 2, combo_on_fire, NULL);
 
@@ -476,7 +476,7 @@ static void test_button_combo_3_buttons(void)
     syn_button_on_long_press(&b2, btn_on_long, 200, NULL);
     syn_button_on_long_press(&b3, btn_on_long, 200, NULL);
 
-    const SYN_Button *trio[3] = {&b1, &b2, &b3};
+    SYN_Button *trio[3] = {&b1, &b2, &b3};
     SYN_ButtonCombo combo3;
     syn_button_combo_init(&combo3, trio, 3, combo_on_fire, NULL);
 
@@ -511,13 +511,13 @@ static void test_button_combo_3_buttons(void)
     syn_button_combo_update(&combo3);
     TEST_ASSERT_EQUAL_INT(0, btn_long_count);
 
-    /* Release b1 first while b2 and b3 remain held */
+    /* Release b1 first while b2 and b3 remain held: combo stays latched until all release */
     mock_gpio_states[10] = 0;
     syn_button_update(&b1);
     syn_button_update(&b2);
     syn_button_update(&b3);
     syn_button_combo_update(&combo3);
-    TEST_ASSERT_FALSE(syn_button_combo_is_active(&combo3));
+    TEST_ASSERT_TRUE(syn_button_combo_is_active(&combo3));
 
     /* Release b2 and b3 */
     mock_gpio_states[11] = 0;
@@ -526,6 +526,7 @@ static void test_button_combo_3_buttons(void)
     syn_button_update(&b2);
     syn_button_update(&b3);
     syn_button_combo_update(&combo3);
+    TEST_ASSERT_FALSE(syn_button_combo_is_active(&combo3));
 
     mock_tick_advance(250);
     syn_button_update(&b1);
@@ -552,7 +553,7 @@ static void test_button_queries_and_null_checks(void)
     syn_button_combo_update(&empty_combo);
     TEST_ASSERT_FALSE(syn_button_combo_is_active(&empty_combo));
 
-    const SYN_Button *null_btn_list[2] = {NULL, NULL};
+    SYN_Button *null_btn_list[2] = {NULL, NULL};
     SYN_ButtonCombo null_combo;
     syn_button_combo_init(&null_combo, null_btn_list, 2, NULL, NULL);
     syn_button_combo_update(&null_combo);
@@ -798,7 +799,7 @@ static void test_button_behavior_combo_reactivation_cycle(void)
     syn_button_init(&b1, 20, SYN_BUTTON_ACTIVE_HIGH, 20);
     syn_button_init(&b2, 21, SYN_BUTTON_ACTIVE_HIGH, 20);
 
-    const SYN_Button *pair[2] = {&b1, &b2};
+    SYN_Button *pair[2] = {&b1, &b2};
     SYN_ButtonCombo combo;
     syn_button_combo_init(&combo, pair, 2, combo_on_fire, NULL);
 
@@ -813,14 +814,14 @@ static void test_button_behavior_combo_reactivation_cycle(void)
     syn_button_combo_update(&combo);
     TEST_ASSERT_EQUAL_INT(1, combo_fired_count);
 
-    /* Release b1 while b2 is held */
+    /* Release b1 while b2 is held: combo remains latched */
     mock_gpio_states[20] = 0;
     syn_button_update(&b1);
     syn_button_update(&b2);
     syn_button_combo_update(&combo);
-    TEST_ASSERT_FALSE(syn_button_combo_is_active(&combo));
+    TEST_ASSERT_TRUE(syn_button_combo_is_active(&combo));
 
-    /* Re-press b1 while b2 is still held */
+    /* Re-press b1 while b2 is still held: must NOT double-fire */
     mock_gpio_states[20] = 1;
     syn_button_update(&b1);
     syn_button_update(&b2);
@@ -828,10 +829,301 @@ static void test_button_behavior_combo_reactivation_cycle(void)
     syn_button_update(&b1);
     syn_button_update(&b2);
     syn_button_combo_update(&combo);
+    TEST_ASSERT_EQUAL_INT(1, combo_fired_count);
 
-    /* Combo should reactivate and fire 2nd time! */
+    /* Release BOTH buttons to clear latch */
+    mock_gpio_states[20] = 0;
+    mock_gpio_states[21] = 0;
+    syn_button_update(&b1);
+    syn_button_update(&b2);
+    syn_button_combo_update(&combo);
+    TEST_ASSERT_FALSE(syn_button_combo_is_active(&combo));
+
+    /* Full 2nd chord press reactivates and fires 2nd time */
+    mock_gpio_states[20] = 1;
+    mock_gpio_states[21] = 1;
+    syn_button_update(&b1);
+    syn_button_update(&b2);
+    mock_tick_advance(25);
+    syn_button_update(&b1);
+    syn_button_update(&b2);
+    syn_button_combo_update(&combo);
     TEST_ASSERT_EQUAL_INT(2, combo_fired_count);
     TEST_ASSERT_TRUE(syn_button_combo_is_active(&combo));
+}
+
+/* ── R3-K07: Atomic button event consumption & PT macros ───────────────── */
+
+static SYN_Button g_pt_btn;
+static int g_btn_ptr_evals = 0;
+static int g_btn_pt_stage = 0;
+
+static SYN_Button *next_btn_ptr(void)
+{
+    g_btn_ptr_evals++;
+    return &g_pt_btn;
+}
+
+static SYN_PT_Status pt_btn_wait_fn(SYN_PT *pt)
+{
+    PT_BEGIN(pt);
+    PT_WAIT_BUTTON_PRESS(pt, next_btn_ptr());
+    g_btn_pt_stage = 1;
+    PT_WAIT_BUTTON_RELEASE(pt, next_btn_ptr());
+    g_btn_pt_stage = 2;
+    PT_END(pt);
+}
+
+static SYN_PT_Status pt_btn_block_fn(SYN_PT *pt, SYN_Task *task)
+{
+    PT_BEGIN(pt);
+    PT_BUTTON_BLOCK_PRESS(pt, task, &g_pt_btn);
+    g_btn_pt_stage = 1;
+    PT_BUTTON_BLOCK_RELEASE(pt, task, &g_pt_btn);
+    g_btn_pt_stage = 2;
+    PT_END(pt);
+}
+
+static void test_button_consume_event_and_pt_macros(void)
+{
+    mock_tick_ms = 0U;
+    mock_critical_depth = 0;
+
+    /* 1. NULL guards */
+    TEST_ASSERT_EQUAL_UINT8(0U, syn_button_poll_events(NULL));
+    TEST_ASSERT_FALSE(syn_button_consume_event(NULL, SYN_BUTTON_EVT_PRESS));
+
+    /* 2. Atomic selective bit consumption & critical section balance */
+    mock_gpio_states[22] = 0;
+    syn_button_init(&g_pt_btn, 22, SYN_BUTTON_ACTIVE_HIGH, 20U);
+
+    int enters_before = mock_critical_enter_count;
+    TEST_ASSERT_FALSE(syn_button_consume_event(&g_pt_btn, SYN_BUTTON_EVT_PRESS));
+    TEST_ASSERT_EQUAL_INT(enters_before + 1, mock_critical_enter_count);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    /* Generate press + release so multiple bits are pending simultaneously */
+    mock_gpio_states[22] = 1;
+    syn_button_update(&g_pt_btn);
+    mock_tick_advance(25U);
+    syn_button_update(&g_pt_btn);
+    mock_gpio_states[22] = 0;
+    syn_button_update(&g_pt_btn);
+
+    TEST_ASSERT_TRUE(syn_button_consume_event(&g_pt_btn, SYN_BUTTON_EVT_PRESS));
+    TEST_ASSERT_FALSE(syn_button_consume_event(&g_pt_btn, SYN_BUTTON_EVT_PRESS));
+    /* Release bit was preserved when consuming press bit */
+    enters_before = mock_critical_enter_count;
+    TEST_ASSERT_EQUAL_UINT8(SYN_BUTTON_EVT_RELEASE, syn_button_poll_events(&g_pt_btn));
+    TEST_ASSERT_EQUAL_INT(enters_before + 1, mock_critical_enter_count);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+    TEST_ASSERT_EQUAL_UINT8(0U, syn_button_poll_events(&g_pt_btn));
+
+    /* 3. PT_WAIT_BUTTON_PRESS / PT_WAIT_BUTTON_RELEASE single evaluation */
+    SYN_PT pt;
+    PT_INIT(&pt);
+    g_btn_ptr_evals = 0;
+    g_btn_pt_stage = 0;
+    TEST_ASSERT_EQUAL(PT_IDLE, pt_btn_wait_fn(&pt));
+    TEST_ASSERT_EQUAL_INT(1, g_btn_ptr_evals);
+
+    g_pt_btn.events = (uint8_t)(SYN_BUTTON_EVT_PRESS | SYN_BUTTON_EVT_LONG_PRESS);
+    TEST_ASSERT_EQUAL(PT_IDLE, pt_btn_wait_fn(&pt));
+    TEST_ASSERT_EQUAL_INT(1, g_btn_pt_stage);
+    /* 1 eval for PRESS consume + 1 eval checking RELEASE (false) */
+    TEST_ASSERT_EQUAL_INT(3, g_btn_ptr_evals);
+    TEST_ASSERT_EQUAL_UINT8(SYN_BUTTON_EVT_LONG_PRESS, g_pt_btn.events);
+
+    g_pt_btn.events |= SYN_BUTTON_EVT_RELEASE;
+    TEST_ASSERT_EQUAL(PT_ENDED, pt_btn_wait_fn(&pt));
+    TEST_ASSERT_EQUAL_INT(2, g_btn_pt_stage);
+    TEST_ASSERT_EQUAL_UINT8(SYN_BUTTON_EVT_LONG_PRESS, g_pt_btn.events);
+    (void)syn_button_poll_events(&g_pt_btn);
+
+    /* 4. PT_BUTTON_BLOCK_PRESS / PT_BUTTON_BLOCK_RELEASE with scheduler */
+    SYN_Task task = {0};
+    SYN_Sched sched;
+    g_btn_pt_stage = 0;
+    syn_task_create(&task, "btn_blk", pt_btn_block_fn, SYN_PRIO_HIGH, NULL);
+    syn_sched_init(&sched, &task, 1);
+
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, task.state);
+    TEST_ASSERT_EQUAL_INT(0, g_btn_pt_stage);
+
+    g_pt_btn.events |= SYN_BUTTON_EVT_PRESS;
+    syn_task_resume(&task);
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(1, g_btn_pt_stage);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, task.state);
+
+    g_pt_btn.events |= SYN_BUTTON_EVT_RELEASE;
+    syn_task_resume(&task);
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(2, g_btn_pt_stage);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEAD, task.state);
+}
+
+static void r4_advance_tick_on_critical_cb(void)
+{
+    mock_tick_ms += 5U;
+}
+
+/** R4-K02: Single tick snapshot per update, HELD/repeat else-if, and NULL guards. */
+static void test_r4_button_tick_snapshot_and_null_guards(void)
+{
+    /* 1. Exercise all public & inline NULL guards */
+    syn_button_init(NULL, 0, SYN_BUTTON_ACTIVE_HIGH, 20U);
+    syn_button_set_click_window(NULL, 200U);
+    syn_button_on_press(NULL, btn_on_press, NULL);
+    syn_button_on_release(NULL, btn_on_release, NULL);
+    syn_button_on_long_press(NULL, btn_on_long, 300U, NULL);
+    syn_button_on_repeat(NULL, btn_on_repeat, 100U, NULL);
+    syn_button_on_single_click(NULL, btn_on_single_click, NULL);
+    syn_button_on_double_click(NULL, btn_on_double_click, NULL);
+    syn_button_on_triple_click(NULL, btn_on_triple_click, NULL);
+    syn_button_on_multi_click(NULL, btn_on_multi_click, NULL);
+    syn_button_combo_init(NULL, NULL, 2U, combo_on_fire, NULL);
+    syn_button_combo_update(NULL);
+    syn_button_update(NULL);
+    syn_button_service(NULL, 2U);
+    TEST_ASSERT_FALSE(syn_button_is_pressed(NULL));
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_button_held_ms(NULL));
+    TEST_ASSERT_EQUAL_UINT8(0U, syn_button_clicks(NULL));
+
+    SYN_ButtonCombo bad_combo;
+    syn_button_combo_init(&bad_combo, NULL, 2U, combo_on_fire, NULL);
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)bad_combo.count);
+
+    /* 2. Mid-update tick skew + coinciding long_press_ms == repeat_ms threshold */
+    reset_counts();
+    mock_tick_ms = 100U;
+    mock_gpio_states[23] = 0;
+
+    SYN_Button btn;
+    syn_button_init(&btn, 23, SYN_BUTTON_ACTIVE_HIGH, 20U);
+    syn_button_set_click_window(&btn, 200U);
+    syn_button_on_press(&btn, btn_on_press, NULL);
+    syn_button_on_release(&btn, btn_on_release, NULL);
+    syn_button_on_long_press(&btn, btn_on_long, 150U, NULL);
+    syn_button_on_repeat(&btn, btn_on_repeat, 150U, NULL);
+    syn_button_on_single_click(&btn, btn_on_single_click, NULL);
+
+    mock_critical_enter_cb = r4_advance_tick_on_critical_cb;
+
+    /* Start debounce at t=100, confirm press at t=120 (cb advances mock_tick_ms to 125) */
+    mock_gpio_states[23] = 1;
+    syn_button_update(&btn);
+    TEST_ASSERT_EQUAL_UINT32(100U, btn.state_tick);
+
+    mock_tick_ms = 120U;
+    syn_button_update(&btn);
+    TEST_ASSERT_EQUAL_UINT32(120U, btn.state_tick);
+    TEST_ASSERT_EQUAL_UINT32(120U, btn.repeat_tick);
+    TEST_ASSERT_EQUAL_INT(1, btn_press_count);
+
+    /* Release at t=130 (cb advances mock_tick_ms to 135): click_tick == 130, no underflow! */
+    mock_tick_ms = 130U;
+    mock_gpio_states[23] = 0;
+    syn_button_update(&btn);
+    TEST_ASSERT_EQUAL_UINT32(130U, btn.click_tick);
+    TEST_ASSERT_EQUAL_INT(0, btn_single_click_count);
+
+    /* Re-press and hold to exact long_press_ms == repeat_ms == 150ms boundary:
+     * else-if ensures ONLY long_press fires on transition tick (zero repeat double-fire) */
+    mock_tick_ms = 140U;
+    mock_gpio_states[23] = 1;
+    syn_button_update(&btn);
+    mock_tick_ms = 160U;
+    syn_button_update(&btn);
+
+    mock_tick_ms = 310U;
+    syn_button_update(&btn);
+    TEST_ASSERT_EQUAL_INT(1, btn_long_count);
+    TEST_ASSERT_EQUAL_INT(0, btn_repeat_count);
+    TEST_ASSERT_EQUAL_UINT32(310U, btn.state_tick);
+    TEST_ASSERT_EQUAL_UINT32(310U, btn.repeat_tick);
+
+    mock_critical_enter_cb = NULL;
+}
+
+static void test_r5_button_combo_latch_until_all_released(void)
+{
+    mock_tick_ms = 0U;
+    reset_counts();
+
+    /* Initialize const-free mutable button descriptors */
+    mock_gpio_states[24] = 0;
+    mock_gpio_states[25] = 0;
+
+    SYN_Button b1;
+    SYN_Button b2;
+    syn_button_init(&b1, 24, SYN_BUTTON_ACTIVE_HIGH, 20U);
+    syn_button_init(&b2, 25, SYN_BUTTON_ACTIVE_HIGH, 20U);
+    syn_button_set_click_window(&b1, 200U);
+    syn_button_set_click_window(&b2, 200U);
+    syn_button_on_single_click(&b1, btn_on_single_click, NULL);
+    syn_button_on_single_click(&b2, btn_on_single_click, NULL);
+
+    SYN_Button *pair[2] = {&b1, &b2};
+    SYN_ButtonCombo combo;
+    syn_button_combo_init(&combo, pair, 2U, combo_on_fire, NULL);
+
+    /* Press both -> fires combo once */
+    mock_gpio_states[24] = 1;
+    mock_gpio_states[25] = 1;
+    syn_button_update(&b1);
+    syn_button_update(&b2);
+    mock_tick_advance(25U);
+    syn_button_update(&b1);
+    syn_button_update(&b2);
+    syn_button_combo_update(&combo);
+    TEST_ASSERT_EQUAL_INT(1, combo_fired_count);
+    TEST_ASSERT_TRUE(syn_button_combo_is_active(&combo));
+
+    /* Bounce b1 (release + re-press + release) while b2 stays held */
+    mock_gpio_states[24] = 0;
+    syn_button_update(&b1);
+    syn_button_update(&b2);
+    syn_button_combo_update(&combo);
+    TEST_ASSERT_TRUE(syn_button_combo_is_active(&combo));
+
+    mock_gpio_states[24] = 1;
+    syn_button_update(&b1);
+    syn_button_update(&b2);
+    mock_tick_advance(25U);
+    syn_button_update(&b1);
+    syn_button_update(&b2);
+    syn_button_combo_update(&combo);
+    TEST_ASSERT_EQUAL_INT(1, combo_fired_count);
+    TEST_ASSERT_TRUE(b1.in_combo);
+    TEST_ASSERT_EQUAL_UINT8(0U, b1.click_count);
+
+    /* Release both -> latch clears and zero spurious single clicks fire */
+    mock_gpio_states[24] = 0;
+    mock_gpio_states[25] = 0;
+    syn_button_update(&b1);
+    syn_button_update(&b2);
+    syn_button_combo_update(&combo);
+    TEST_ASSERT_FALSE(syn_button_combo_is_active(&combo));
+
+    mock_tick_advance(250U);
+    syn_button_update(&b1);
+    syn_button_update(&b2);
+    TEST_ASSERT_EQUAL_INT(0, btn_single_click_count);
+
+    /* Also exercise combo activation with NULL callback */
+    SYN_ButtonCombo silent_combo;
+    syn_button_combo_init(&silent_combo, pair, 2U, NULL, NULL);
+    mock_gpio_states[24] = 1;
+    mock_gpio_states[25] = 1;
+    syn_button_update(&b1);
+    syn_button_update(&b2);
+    mock_tick_advance(25U);
+    syn_button_update(&b1);
+    syn_button_update(&b2);
+    syn_button_combo_update(&silent_combo);
+    TEST_ASSERT_TRUE(syn_button_combo_is_active(&silent_combo));
 }
 
 void run_button_tests(void)
@@ -851,4 +1143,7 @@ void run_button_tests(void)
     RUN_TEST(test_button_behavior_double_tap_and_hold);
     RUN_TEST(test_button_behavior_overlapping_independent_buttons);
     RUN_TEST(test_button_behavior_combo_reactivation_cycle);
+    RUN_TEST(test_button_consume_event_and_pt_macros);
+    RUN_TEST(test_r4_button_tick_snapshot_and_null_guards);
+    RUN_TEST(test_r5_button_combo_latch_until_all_released);
 }

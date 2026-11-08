@@ -123,12 +123,125 @@ void syn_devicenet_poll(SYN_DeviceNet_Node *node, uint32_t dt_ms)
 }
 
 /**
- * @brief Process an explicit DeviceNet message payload.
- * @param node Target DeviceNet node instance.
- * @param data Received message payload buffer.
- * @param len Byte length of received payload.
+ * @brief Encode a CIP Identity Object (Class 0x01) attribute into the response buffer.
+ * @param node    Target DeviceNet node instance.
+ * @param attr_id Requested Identity attribute identifier.
  * @param tx_data Response message payload output buffer.
- * @param tx_len Pointer to output byte length variable.
+ * @param out_idx In/out write offset within tx_data.
+ * @return true if attribute exists and was encoded, false otherwise.
+ */
+static bool dnet_get_identity_attr(const SYN_DeviceNet_Node *node, uint8_t attr_id,
+                                   uint8_t *tx_data, uint8_t *out_idx)
+{
+    switch (attr_id) {
+    case 1U:
+        syn_poke_u16_le(node->identity.vendor_id, tx_data, *out_idx);
+        *out_idx += 2U;
+        return true;
+    case 2U:
+        syn_poke_u16_le(node->identity.device_type, tx_data, *out_idx);
+        *out_idx += 2U;
+        return true;
+    case 3U:
+        syn_poke_u16_le(node->identity.product_code, tx_data, *out_idx);
+        *out_idx += 2U;
+        return true;
+    case 4U:
+        tx_data[(*out_idx)++] = node->identity.rev_major;
+        tx_data[(*out_idx)++] = node->identity.rev_minor;
+        return true;
+    case 6U:
+        syn_poke_u32_le(node->identity.serial_number, tx_data, *out_idx);
+        *out_idx += 4U;
+        return true;
+    case 9U:
+        tx_data[(*out_idx)++] = node->identity.quick_connect_enabled ? 1U : 0U;
+        return true;
+    default:
+        return false;
+    }
+}
+
+/**
+ * @brief Handle CIP Get_Attribute_Single (0x0E) service across supported classes.
+ * @param node     Target DeviceNet node instance.
+ * @param class_id Requested CIP class identifier.
+ * @param attr_id  Requested CIP attribute identifier.
+ * @param tx_data  Response message payload output buffer.
+ * @param out_idx  In/out write offset within tx_data.
+ */
+static void dnet_get_attr_single(const SYN_DeviceNet_Node *node, uint8_t class_id, uint8_t attr_id,
+                                 uint8_t *tx_data, uint8_t *out_idx)
+{
+    if (class_id == 0x01U) {
+        if (!dnet_get_identity_attr(node, attr_id, tx_data, out_idx)) {
+            tx_data[1] = 0x94U;
+            tx_data[2] = 0x14U;
+            *out_idx = 3U;
+        }
+        return;
+    }
+    if (class_id == 0x03U) {
+        if (attr_id == 1U) {
+            tx_data[(*out_idx)++] = node->devicenet_obj.mac_id;
+        } else if (attr_id == 2U) {
+            tx_data[(*out_idx)++] = (uint8_t)node->devicenet_obj.baud_rate;
+        } else {
+            tx_data[1] = 0x94U;
+            tx_data[2] = 0x14U;
+            *out_idx = 3U;
+        }
+        return;
+    }
+    if (class_id == 0x04U) {
+        if ((node->assembly.input_buf != NULL) && (node->assembly.input_len > 0U)) {
+            uint8_t max_rem = (uint8_t)(8U - *out_idx);
+            uint8_t copy_len =
+                (node->assembly.input_len > max_rem) ? max_rem : node->assembly.input_len;
+            memcpy(&tx_data[*out_idx], node->assembly.input_buf, copy_len);
+            *out_idx += copy_len;
+        }
+        return;
+    }
+    tx_data[1] = 0x94U;
+    tx_data[2] = 0x05U;
+    *out_idx = 3U;
+}
+
+/**
+ * @brief Handle CIP Set_Attribute_Single (0x10) service for writable attributes.
+ * @param node     Target DeviceNet node instance.
+ * @param class_id Requested CIP class identifier.
+ * @param attr_id  Requested CIP attribute identifier.
+ * @param data     Received explicit request payload.
+ * @param len      Byte length of received payload.
+ * @param tx_data  Response message payload output buffer.
+ * @param out_idx  In/out write offset within tx_data.
+ */
+static void dnet_set_attr_single(SYN_DeviceNet_Node *node, uint8_t class_id, uint8_t attr_id,
+                                 const uint8_t *data, uint8_t len, uint8_t *tx_data,
+                                 uint8_t *out_idx)
+{
+    if (len < 5U) {
+        tx_data[1] = 0x94U;
+        tx_data[2] = 0x13U;
+        *out_idx = 3U;
+        return;
+    }
+    if ((class_id == 0x01U) && (attr_id == 9U)) {
+        node->identity.quick_connect_enabled = (data[4] != 0U);
+    } else if ((class_id == 0x03U) && (attr_id == 1U) && (data[4] <= SYN_DEVICENET_MAX_MAC_ID)) {
+        node->devicenet_obj.mac_id = data[4];
+    }
+}
+
+/**
+ * @brief Process an explicit DeviceNet message payload.
+ * @param node    Target DeviceNet node instance.
+ * @param data    Received message payload buffer.
+ * @param len     Byte length of received payload.
+ * @param tx_data Response message payload output buffer.
+ * @param tx_len  Pointer to output byte length variable.
  * @return true if response frame was constructed, false on error.
  */
 static bool handle_explicit_message(SYN_DeviceNet_Node *node, const uint8_t *data, uint8_t len,
@@ -138,97 +251,58 @@ static bool handle_explicit_message(SYN_DeviceNet_Node *node, const uint8_t *dat
         return false;
     }
 
-    uint8_t mac = data[0] & 0x3FU;
     uint8_t service = data[1] & 0x7FU;
     uint8_t class_id = data[2];
     uint8_t attr_id = data[3];
 
-    (void)mac;
-
-    /* Single Fragment Response Header */
     tx_data[0] = node->devicenet_obj.mac_id;
-    tx_data[1] = service | 0x80U; /* Success Response Service Code */
+    tx_data[1] = service | 0x80U;
 
     uint8_t out_idx = 2U;
 
-    if (service == 0x0EU) {      /* Get_Attribute_Single */
-        if (class_id == 0x01U) { /* Identity Object */
-            switch (attr_id) {
-            case 1U: /* Vendor ID */
-                syn_poke_u16_le(node->identity.vendor_id, tx_data, out_idx);
-                out_idx += 2U;
-                break;
-            case 2U: /* Device Type */
-                syn_poke_u16_le(node->identity.device_type, tx_data, out_idx);
-                out_idx += 2U;
-                break;
-            case 3U: /* Product Code */
-                syn_poke_u16_le(node->identity.product_code, tx_data, out_idx);
-                out_idx += 2U;
-                break;
-            case 4U: /* Revision */
-                tx_data[out_idx++] = node->identity.rev_major;
-                tx_data[out_idx++] = node->identity.rev_minor;
-                break;
-            case 6U: /* Serial Number */
-                syn_poke_u32_le(node->identity.serial_number, tx_data, out_idx);
-                out_idx += 4U;
-                break;
-            case 9U: /* QuickConnect attribute */
-                tx_data[out_idx++] = node->identity.quick_connect_enabled ? 1U : 0U;
-                break;
-            default:
-                tx_data[1] = 0x94U; /* Error response */
-                tx_data[2] = 0x14U; /* Attribute not supported */
-                out_idx = 3U;
-                break;
-            }
-        } else if (class_id == 0x03U) { /* DeviceNet Object */
-            switch (attr_id) {
-            case 1U: /* MAC ID */
-                tx_data[out_idx++] = node->devicenet_obj.mac_id;
-                break;
-            case 2U: /* Baud Rate */
-                tx_data[out_idx++] = (uint8_t)node->devicenet_obj.baud_rate;
-                break;
-            default:
-                tx_data[1] = 0x94U;
-                tx_data[2] = 0x14U;
-                out_idx = 3U;
-                break;
-            }
-        } else if (class_id == 0x04U) { /* Assembly Object */
-            if ((node->assembly.input_buf != NULL) && (node->assembly.input_len > 0U)) {
-                uint8_t copy_len = (node->assembly.input_len > (8U - out_idx))
-                                       ? (8U - out_idx)
-                                       : node->assembly.input_len;
-                memcpy(&tx_data[out_idx], node->assembly.input_buf, copy_len);
-                out_idx += copy_len;
-            }
-        } else {
-            tx_data[1] = 0x94U;
-            tx_data[2] = 0x05U; /* Class not supported */
-            out_idx = 3U;
-        }
-    } else if (service == 0x10U) { /* Set_Attribute_Single */
-        if (len < 5U) {
-            tx_data[1] = 0x94U;
-            tx_data[2] = 0x13U; /* Too little data */
-            out_idx = 3U;
-        } else if ((class_id == 0x01U) && (attr_id == 9U)) {
-            node->identity.quick_connect_enabled = (data[4] != 0U);
-        } else if ((class_id == 0x03U) && (attr_id == 1U)) {
-            if (data[4] <= SYN_DEVICENET_MAX_MAC_ID) {
-                node->devicenet_obj.mac_id = data[4];
-            }
-        }
+    if (service == 0x0EU) {
+        dnet_get_attr_single(node, class_id, attr_id, tx_data, &out_idx);
+    } else if (service == 0x10U) {
+        dnet_set_attr_single(node, class_id, attr_id, data, len, tx_data, &out_idx);
     } else {
         tx_data[1] = 0x94U;
-        tx_data[2] = 0x08U; /* Service not supported */
+        tx_data[2] = 0x08U;
         out_idx = 3U;
     }
 
     *tx_len = out_idx;
+    return true;
+}
+
+/**
+ * @brief Process a Group 2 Polled I/O command and populate input assembly response.
+ * @param node      Target DeviceNet node instance.
+ * @param mac       Node MAC identifier.
+ * @param data      Received output assembly payload.
+ * @param len       Byte length of received payload.
+ * @param tx_can_id Output CAN identifier for polled I/O response.
+ * @param tx_data   Output response payload buffer.
+ * @param tx_len    Output byte length of response payload.
+ * @return true when polled I/O response is ready to transmit.
+ */
+static bool dnet_handle_polled_io(SYN_DeviceNet_Node *node, uint8_t mac, const uint8_t *data,
+                                  uint8_t len, uint32_t *tx_can_id, uint8_t *tx_data,
+                                  uint8_t *tx_len)
+{
+    node->polled_connected = true;
+
+    if ((node->assembly.output_buf != NULL) && (len > 0U)) {
+        uint8_t copy_len = len > node->assembly.output_len ? node->assembly.output_len : len;
+        memcpy(node->assembly.output_buf, data, copy_len);
+    }
+
+    *tx_can_id = make_group2_can_id(mac, GROUP2_POLLED_RESP_MSG_ID);
+    if ((node->assembly.input_buf != NULL) && (node->assembly.input_len > 0U)) {
+        memcpy(tx_data, node->assembly.input_buf, node->assembly.input_len);
+        *tx_len = node->assembly.input_len;
+    } else {
+        *tx_len = 0U;
+    }
     return true;
 }
 
@@ -242,17 +316,22 @@ bool syn_devicenet_on_can_rx(SYN_DeviceNet_Node *node, uint32_t can_id, const ui
 
     uint8_t mac = node->devicenet_obj.mac_id;
 
-    /* 1. Group 4 Duplicate MAC ID Check Request */
+    /* 1. Group 4 Duplicate MAC ID Check Request & Response */
     uint32_t dup_req_id = make_group4_can_id(mac, GROUP4_DUP_MAC_REQ_MSG_ID);
+    uint32_t dup_resp_id = make_group4_can_id(mac, GROUP4_DUP_MAC_RESP_MSG_ID);
+    if (can_id == dup_resp_id) {
+        node->dup_mac_failed = true;
+        node->state = SYN_DEVICENET_STATE_OFFLINE;
+        return false;
+    }
     if (can_id == dup_req_id) {
         if (node->state == SYN_DEVICENET_STATE_ONLINE) {
-            /* Respond to defend MAC ID */
-            *tx_can_id = make_group4_can_id(mac, GROUP4_DUP_MAC_RESP_MSG_ID);
+            *tx_can_id = dup_resp_id;
             syn_poke_u32_le(node->identity.serial_number, tx_data, 0);
             *tx_len = 4U;
             return true;
-        } else if (node->state == SYN_DEVICENET_STATE_DUP_MAC_CHECK) {
-            /* Duplicate MAC ID collision detected during startup! */
+        }
+        if (node->state == SYN_DEVICENET_STATE_DUP_MAC_CHECK) {
             node->dup_mac_failed = true;
             node->state = SYN_DEVICENET_STATE_OFFLINE;
             return false;
@@ -272,25 +351,8 @@ bool syn_devicenet_on_can_rx(SYN_DeviceNet_Node *node, uint32_t can_id, const ui
     }
 
     /* 3. Group 2 Polled I/O Command */
-    uint32_t poll_cmd_id = make_group2_can_id(mac, GROUP2_POLLED_CMD_MSG_ID);
-    if (can_id == poll_cmd_id) {
-        node->polled_connected = true;
-
-        /* Write Master outputs to local assembly output buffer */
-        if ((node->assembly.output_buf != NULL) && (len > 0U)) {
-            uint8_t copy_len = len > node->assembly.output_len ? node->assembly.output_len : len;
-            memcpy(node->assembly.output_buf, data, copy_len);
-        }
-
-        /* Build Polled I/O Response frame with local assembly inputs */
-        *tx_can_id = make_group2_can_id(mac, GROUP2_POLLED_RESP_MSG_ID);
-        if ((node->assembly.input_buf != NULL) && (node->assembly.input_len > 0U)) {
-            memcpy(tx_data, node->assembly.input_buf, node->assembly.input_len);
-            *tx_len = node->assembly.input_len;
-        } else {
-            *tx_len = 0U;
-        }
-        return true;
+    if (can_id == make_group2_can_id(mac, GROUP2_POLLED_CMD_MSG_ID)) {
+        return dnet_handle_polled_io(node, mac, data, len, tx_can_id, tx_data, tx_len);
     }
 
     return false;

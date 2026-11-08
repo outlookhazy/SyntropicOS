@@ -10,6 +10,8 @@
 #ifndef SYN_XCP_H
 #define SYN_XCP_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -30,6 +32,10 @@ extern "C" {
 
 #ifndef SYN_XCP_MAX_ENTRIES_PER_ODT
 #define SYN_XCP_MAX_ENTRIES_PER_ODT 7U /**< Maximum entries per ODT */
+#endif
+
+#ifndef SYN_XCP_MAX_MEM_REGIONS
+#define SYN_XCP_MAX_MEM_REGIONS 4U /**< Maximum registered memory regions */
 #endif
 /**@}*/
 
@@ -71,6 +77,7 @@ extern "C" {
 #define SYN_XCP_ERR_OUT_OF_RANGE 0x22U    /**< Parameter out of range */
 #define SYN_XCP_ERR_WRITE_PROTECTED 0x23U /**< Memory write protected */
 #define SYN_XCP_ERR_ACCESS_DENIED 0x24U   /**< Access denied */
+#define SYN_XCP_ERR_ACCESS_LOCKED 0x25U   /**< Resource locked */
 #define SYN_XCP_ERR_NOT_CONNECTED 0x28U   /**< Station not connected */
 #define SYN_XCP_ERR_CMD_UNKNOWN 0x30U     /**< Command unknown */
 /**@}*/
@@ -89,7 +96,28 @@ extern "C" {
 typedef struct {
     uintptr_t address; /**< Target memory address */
     uint8_t size;      /**< Byte count (1, 2, 4 bytes) */
+    bool host_valid;   /**< True if address was set via trusted host pointer */
 } SYN_XCP_ODTEntry;
+
+/**
+ * @brief Registered memory region descriptor for bounds-checked XCP access.
+ */
+typedef struct {
+    uint32_t base_addr; /**< 32-bit XCP protocol base address */
+    uint32_t size;      /**< Region byte length */
+    uint8_t *host_ptr;  /**< Backing host memory pointer */
+    bool writable;      /**< True if calibration/download writes allowed */
+} SYN_XCP_MemRegion;
+
+/**
+ * @brief XCP Security Seed Generator callback.
+ */
+typedef uint8_t (*SYN_XCP_SeedFn)(uint8_t resource, uint8_t seed_out[6], void *ctx);
+
+/**
+ * @brief XCP Security Unlock Key verification callback.
+ */
+typedef bool (*SYN_XCP_UnlockFn)(uint8_t resource, const uint8_t *key, uint8_t key_len, void *ctx);
 
 /**
  * @brief ODT (Object Descriptor Table) structure.
@@ -108,6 +136,7 @@ typedef struct {
     uint8_t current_odt_idx;                   /**< Current ODT index */
     uint8_t current_entry_idx;                 /**< Current entry index */
     bool running;                              /**< DAQ list running state */
+    bool pending_tx;                           /**< Pending ODT transmission for active event */
     uint8_t mode;                              /**< DAQ list mode byte */
     uint8_t event_channel;                     /**< Event channel assignment */
     uint16_t prescaler;                        /**< Transmission prescaler */
@@ -118,15 +147,26 @@ typedef struct {
  * @brief XCP Slave instance context.
  */
 typedef struct {
-    uint16_t station_id;                              /**< XCP station ID */
-    bool connected;                                   /**< Connection state */
-    uint8_t unlocked_resources;                       /**< Unlocked resources bitmask */
-    uint8_t mta_ext;                                  /**< Memory transfer address extension */
-    uintptr_t mta_addr;                               /**< Memory transfer target address */
-    uint8_t current_daq_ptr_list;                     /**< Active DAQ pointer list index */
-    uint8_t current_daq_ptr_odt;                      /**< Active DAQ pointer ODT index */
-    uint8_t current_daq_ptr_idx;                      /**< Active DAQ pointer entry index */
-    SYN_XCP_DAQList daq_lists[SYN_XCP_MAX_DAQ_LISTS]; /**< Configured DAQ lists array */
+    uint16_t station_id;             /**< XCP station ID */
+    bool connected;                  /**< Connection state */
+    uint8_t unlocked_resources;      /**< Unlocked resources bitmask */
+    uint8_t pending_unlock_resource; /**< Resource requested in last GET_SEED */
+    uint8_t mta_ext;                 /**< Memory transfer address extension */
+    uintptr_t mta_addr;              /**< Memory transfer target address */
+    bool mta_host_valid;             /**< True if MTA holds host pointer */
+    uint8_t rr_daq_idx;              /**< Round-robin DAQ list cursor */
+    bool daq_tick_drained;           /**< True once current event tick ODTs drained */
+    uint8_t daq_tick_ch;             /**< Event channel of completed tick drain */
+    uint8_t current_daq_ptr_list;    /**< Active DAQ pointer list index */
+    uint8_t current_daq_ptr_odt;     /**< Active DAQ pointer ODT index */
+    uint8_t current_daq_ptr_idx;     /**< Active DAQ pointer entry index */
+    SYN_XCP_SeedFn seed_cb;          /**< Optional seed generator callback */
+    void *seed_ctx;                  /**< Seed callback context */
+    SYN_XCP_UnlockFn unlock_cb;      /**< Optional key verification callback */
+    void *unlock_ctx;                /**< Unlock callback context */
+    SYN_XCP_MemRegion mem_regions[SYN_XCP_MAX_MEM_REGIONS]; /**< Registered memory regions */
+    uint8_t region_count;                                   /**< Active memory region count */
+    SYN_XCP_DAQList daq_lists[SYN_XCP_MAX_DAQ_LISTS];       /**< Configured DAQ lists array */
 } SYN_XCP_Slave;
 
 /**
@@ -149,6 +189,19 @@ bool syn_xcp_init(SYN_XCP_Slave *slave, uint16_t station_id);
 bool syn_xcp_set_mta(SYN_XCP_Slave *slave, uint8_t ext, uintptr_t addr);
 
 /**
+ * @brief Register a bounds-checked memory region for XCP MTA and DAQ accesses.
+ *
+ * @param slave Pointer to XCP slave structure.
+ * @param base_addr 32-bit XCP protocol base address.
+ * @param host_ptr Backing host memory buffer.
+ * @param size Size of region in bytes.
+ * @param writable True if calibration/download writes are allowed.
+ * @return true on success, false on invalid arguments or full table.
+ */
+bool syn_xcp_register_mem_region(SYN_XCP_Slave *slave, uint32_t base_addr, void *host_ptr,
+                                 uint32_t size, bool writable);
+
+/**
  * @brief Process incoming XCP CTO command packet and prepare response.
  *
  * @param slave Pointer to XCP slave structure.
@@ -157,6 +210,14 @@ bool syn_xcp_set_mta(SYN_XCP_Slave *slave, uint8_t ext, uintptr_t addr);
  * @return true if response frame populated, false on invalid parameters.
  */
 bool syn_xcp_process_cto(SYN_XCP_Slave *slave, const uint8_t cto[8], uint8_t dto_out[8]);
+
+/**
+ * @brief Advance XCP DAQ prescalers once for an event channel tick prior to ODT drain.
+ *
+ * @param slave Pointer to XCP slave structure.
+ * @param event_channel Event channel index triggered.
+ */
+void syn_xcp_daq_event(SYN_XCP_Slave *slave, uint8_t event_channel);
 
 /**
  * @brief Service periodic XCP DAQ sampling event channel tick.

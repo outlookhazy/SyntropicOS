@@ -51,7 +51,7 @@ inline void sys_init(SysBgTaskFn bg_fn)
     syn_log_init(SYN_LOG_INFO);
     g_bg_fn = bg_fn;
 
-    syn_task_create(&sys_tasks[0], "sys_bg", sys_bg_pt, 0, NULL);
+    syn_task_create(&sys_tasks[0], "sys_bg", sys_bg_pt, SYN_PRIO_CRITICAL, NULL);
     syn_sched_init(&sys_sched, sys_tasks, 1);
 }
 

@@ -160,6 +160,42 @@ void test_quaternion_extended_edge_cases(void)
     TEST_ASSERT_TRUE(syn_quat_norm(&q_out) > 0);
 }
 
+static void test_r5_quaternion_norm_asin_slerp(void)
+{
+    /* 1. Large quaternion norm (>= 181.02) and INT32_MIN / sum saturation */
+    SYN_Quaternion q_large;
+    syn_quat_init(&q_large, Q16_FROM_INT(200), Q16_FROM_INT(-200), Q16_FROM_INT(100), 0);
+    TEST_ASSERT_INT32_WITHIN(4, Q16_FROM_INT(300), syn_quat_norm(&q_large));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_quat_normalize(&q_large));
+    TEST_ASSERT_INT32_WITHIN(10, Q16_ONE, syn_quat_norm(&q_large));
+
+    SYN_Quaternion q_min = {INT32_MIN, 0, 0, 0};
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_quat_norm(&q_min));
+
+    SYN_Quaternion q_sum_sat = {Q16_FROM_INT(25000), Q16_FROM_INT(25000), 0, 0};
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_quat_norm(&q_sum_sat));
+
+    /* 2. High-pitch Euler roundtrip near +-90 deg (85 deg = 1.48353 rad = 97224 in Q16) */
+    q16_t pitch_85 = 97224;
+    SYN_Quaternion q_pitch;
+    syn_quat_from_euler(&q_pitch, 0, pitch_85, 0);
+    q16_t r_out = 0;
+    q16_t p_out = 0;
+    q16_t y_out = 0;
+    syn_quat_to_euler(&q_pitch, &r_out, &p_out, &y_out);
+    ASSERT_Q16_NEAR(pitch_85, p_out, 250);
+
+    /* 3. Small-angle spherical slerp (dot ~ 0.9986, just below 0.999 linear threshold)
+     * and verify slerp output is normalized */
+    SYN_Quaternion q_a, q_b, q_mid;
+    syn_quat_identity(&q_a);
+    syn_quat_from_euler(&q_b, 0, 0, 6863); /* ~6 deg yaw -> half-angle 3 deg, cos(3 deg)=0.9986 */
+    syn_quat_slerp(&q_a, &q_b, Q16_HALF, &q_mid);
+    ASSERT_Q16_NEAR(Q16_ONE, syn_quat_norm(&q_mid), 10);
+    syn_quat_to_euler(&q_mid, &r_out, &p_out, &y_out);
+    ASSERT_Q16_NEAR(3431, y_out, 100);
+}
+
 void run_quaternion_tests(void)
 {
     RUN_TEST(test_quaternion_identity_and_init);
@@ -168,4 +204,5 @@ void run_quaternion_tests(void)
     RUN_TEST(test_quaternion_slerp);
     RUN_TEST(test_quaternion_matrix_and_inverse);
     RUN_TEST(test_quaternion_extended_edge_cases);
+    RUN_TEST(test_r5_quaternion_norm_asin_slerp);
 }

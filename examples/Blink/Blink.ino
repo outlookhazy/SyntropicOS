@@ -42,7 +42,7 @@ void setup()
     syn_led_init(&led, LED_BUILTIN, SYN_LED_ACTIVE_HIGH);
     syn_led_blink(&led, 500, 500);
 
-    syn_task_create(&tasks[0], "blink", blink_task, 0, NULL);
+    syn_task_create(&tasks[0], "blink", blink_task, SYN_PRIO_CRITICAL, NULL);
     syn_sched_init(&sched, tasks, 1);
 }
 

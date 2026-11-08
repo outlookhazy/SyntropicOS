@@ -218,14 +218,16 @@ void syn_imgui_progress_bar(SYN_IMGUI_Context *ctx, int32_t value, int32_t min, 
 
     if (max > min) {
         int32_t val = value;
-        if (val < min)
+        if (val < min) {
             val = min;
-        if (val > max)
+        }
+        if (val > max) {
             val = max;
+        }
 
-        int32_t range = max - min;
-        int32_t current = val - min;
-        int16_t fill_w = (int16_t)((current * (w - 4)) / range);
+        int64_t range = (int64_t)max - (int64_t)min;
+        int64_t current = (int64_t)val - (int64_t)min;
+        int16_t fill_w = (int16_t)((current * (int64_t)(w - 4)) / range);
         if (fill_w > 0) {
             syn_gfx_rect_fill(ctx->gfx, x + 2, y + 2, fill_w, h - 4, fg);
         }
@@ -270,13 +272,10 @@ bool syn_imgui_slider(SYN_IMGUI_Context *ctx, const char *label, int32_t *value,
         is_active = true;
 
         /* Calculate absolute value position if touch fell inside slider bar bounds */
-        if (ctx->touch_x >= bar_x && ctx->touch_x <= bar_x + bar_w && max > min) {
-            int16_t relative_x = ctx->touch_x - bar_x;
-            int32_t new_val = min + (relative_x * (max - min)) / bar_w;
-            if (new_val < min)
-                new_val = min; /* LCOV_EXCL_LINE: defensive lower bound clamp after range check */
-            if (new_val > max)
-                new_val = max; /* LCOV_EXCL_LINE: defensive upper bound clamp after range check */
+        if (ctx->touch_x >= bar_x && ctx->touch_x <= bar_x + bar_w && max > min && bar_w > 0) {
+            int64_t relative_x = (int64_t)(ctx->touch_x - bar_x);
+            int64_t range = (int64_t)max - (int64_t)min;
+            int32_t new_val = (int32_t)((int64_t)min + (relative_x * range) / (int64_t)bar_w);
             if (new_val != *value) {
                 *value = new_val;
                 changed = true;
@@ -287,11 +286,14 @@ bool syn_imgui_slider(SYN_IMGUI_Context *ctx, const char *label, int32_t *value,
     if (is_active) {
         /* If we are actively editing, encoder delta adjusts values */
         if (ctx->disabled_depth == 0 && !touch_clicked && ctx->enc_delta != 0) {
-            int32_t new_val = *value + ctx->enc_delta;
-            if (new_val < min)
-                new_val = min;
-            if (new_val > max)
-                new_val = max;
+            int64_t cand = (int64_t)(*value) + (int64_t)ctx->enc_delta;
+            if (cand < (int64_t)min) {
+                cand = (int64_t)min;
+            }
+            if (cand > (int64_t)max) {
+                cand = (int64_t)max;
+            }
+            int32_t new_val = (int32_t)cand;
             if (new_val != *value) {
                 *value = new_val;
                 changed = true;
@@ -542,9 +544,10 @@ void syn_imgui_graph(SYN_IMGUI_Context *ctx, const char *title, const int32_t *d
         return;
     /* LCOV_EXCL_STOP */
 
-    int32_t range = max_val - min_val;
-    if (range <= 0)
+    int64_t range = (int64_t)max_val - (int64_t)min_val;
+    if (range <= 0) {
         range = 1;
+    }
 
     int16_t prev_x = 0;
     int16_t prev_y = 0;
@@ -558,12 +561,14 @@ void syn_imgui_graph(SYN_IMGUI_Context *ctx, const char *title, const int32_t *d
 
         /* Y position calculation */
         int32_t val = data[i];
-        if (val < min_val)
+        if (val < min_val) {
             val = min_val;
-        if (val > max_val)
+        }
+        if (val > max_val) {
             val = max_val;
-        int16_t y_pos =
-            (int16_t)(plot_y + plot_h - 1 - (int16_t)(((val - min_val) * (plot_h - 1)) / range));
+        }
+        int64_t dy = (((int64_t)val - (int64_t)min_val) * (int64_t)(plot_h - 1)) / range;
+        int16_t y_pos = (int16_t)(plot_y + plot_h - 1 - (int16_t)dy);
 
         if (i > 0) {
             syn_gfx_line(ctx->gfx, prev_x, prev_y, x_pos, y_pos, fg);
@@ -636,8 +641,9 @@ void syn_imgui_gauge(SYN_IMGUI_Context *ctx, const char *label, int32_t value, i
     if (val > max)
         val = max;
 
-    int32_t range = max - min;
-    int32_t val_percent = (range > 0) ? ((val - min) * 1000) / range : 0;
+    int64_t range = (int64_t)max - (int64_t)min;
+    int32_t val_percent =
+        (range > 0) ? (int32_t)((((int64_t)val - (int64_t)min) * 1000LL) / range) : 0;
 
     /* Map to table index and interpolation remainder */
     int32_t temp = (1000 - val_percent) * 8;
@@ -806,6 +812,9 @@ void syn_imgui_layout_begin(SYN_IMGUI_Context *ctx, int16_t x, int16_t y, int16_
     ctx->layout.row_x = x;
     ctx->layout.row_y = y;
     ctx->layout.prev_row_h = 0;
+    ctx->layout.row_items = 0;
+    ctx->layout.row_item_idx = 0;
+    ctx->layout.row_height = 0;
 }
 
 void syn_imgui_layout_end(SYN_IMGUI_Context *ctx)
@@ -836,6 +845,65 @@ void syn_imgui_spacing(SYN_IMGUI_Context *ctx, int16_t pixels)
 }
 
 /**
+ * @brief Compute pixel width of a column in the active layout row.
+ * @param ctx     IMGUI context.
+ * @param col_idx Zero-based column index within the current row.
+ * @return Resolved column width in pixels.
+ */
+static int16_t layout_col_width(const SYN_IMGUI_Context *ctx, int col_idx)
+{
+    int16_t spec_w = ctx->layout.row_widths[col_idx];
+    if (spec_w > 0) {
+        return spec_w;
+    }
+    if (spec_w < 0) {
+        int16_t rem = (int16_t)(ctx->layout.origin_x + ctx->layout.width - ctx->layout.cx);
+        return (rem > 1) ? rem : 1;
+    }
+    int16_t total_gap = (int16_t)((ctx->layout.row_items - 1) * ctx->style.spacing);
+    int16_t avail = (int16_t)(ctx->layout.width - total_gap);
+    return (avail > (int16_t)ctx->layout.row_items) ? (int16_t)(avail / ctx->layout.row_items) : 1;
+}
+
+/**
+ * @brief Resolve widget rectangle and advance multi-column row cursor.
+ * @param ctx       IMGUI context.
+ * @param x         In/out widget X coordinate.
+ * @param y         In/out widget Y coordinate.
+ * @param w         In/out widget width.
+ * @param h         In/out widget height.
+ * @param default_h Default widget height when row height is unspecified.
+ */
+static void layout_resolve_row_col(SYN_IMGUI_Context *ctx, int16_t *x, int16_t *y, int16_t *w,
+                                   int16_t *h, int16_t default_h)
+{
+    if (*x == 0 && *y == 0 && *w == 0 && *h == 0) {
+        *x = ctx->layout.cx;
+        *y = ctx->layout.cy;
+        *w = layout_col_width(ctx, ctx->layout.row_item_idx);
+        *h = (ctx->layout.row_height > 0) ? ctx->layout.row_height : default_h;
+    }
+
+    if (*h > ctx->layout.row_h) {
+        ctx->layout.row_h = *h;
+    }
+
+    ctx->layout.row_x = (int16_t)(*x + *w + ctx->style.spacing);
+    ctx->layout.row_y = *y;
+    ctx->layout.prev_row_h = ctx->layout.row_h;
+
+    ctx->layout.row_item_idx++;
+    if (ctx->layout.row_item_idx < ctx->layout.row_items) {
+        ctx->layout.cx = ctx->layout.row_x;
+    } else {
+        ctx->layout.cy = (int16_t)(ctx->layout.row_y + ctx->layout.row_h + ctx->style.spacing);
+        ctx->layout.cx = ctx->layout.origin_x;
+        ctx->layout.row_h = 0;
+        ctx->layout.row_item_idx = 0;
+    }
+}
+
+/**
  * @brief Resolve widget geometry from the layout cursor.
  *
  * If the widget is inside a layout region AND all four geometry params
@@ -851,8 +919,14 @@ void syn_imgui_spacing(SYN_IMGUI_Context *ctx, int16_t pixels)
 static void layout_resolve(SYN_IMGUI_Context *ctx, int16_t *x, int16_t *y, int16_t *w, int16_t *h,
                            int16_t default_h)
 {
-    if (ctx == NULL || !ctx->layout.in_layout)
+    if (ctx == NULL || !ctx->layout.in_layout) {
         return;
+    }
+
+    if (ctx->layout.row_items > 0 && !ctx->layout.same_line) {
+        layout_resolve_row_col(ctx, x, y, w, h, default_h);
+        return;
+    }
 
     if (ctx->layout.same_line) {
         /* consumed by syn_imgui_same_line cursor restoration */
@@ -944,6 +1018,33 @@ void syn_imgui_separator(SYN_IMGUI_Context *ctx, int16_t x, int16_t y, int16_t w
  * Spinner
  * ═══════════════════════════════════════════════════════════════════════════ */
 
+/**
+ * @brief Format a signed 32-bit integer as a NUL-terminated decimal string.
+ * @param value Signed 32-bit value to format.
+ * @param buf   Output character buffer (at least 16 bytes).
+ */
+static void format_i32_dec(int32_t value, char buf[16])
+{
+    uint32_t uv;
+    uint8_t i = 0;
+    if (value < 0) {
+        buf[i++] = '-';
+        uv = (uint32_t)(-(int64_t)value);
+    } else {
+        uv = (uint32_t)value;
+    }
+    char tmp[12];
+    uint8_t j = 0;
+    do {
+        tmp[j++] = (char)('0' + (uv % 10U));
+        uv /= 10U;
+    } while (uv > 0U && j < 11U);
+    while (j > 0U) {
+        buf[i++] = tmp[--j];
+    }
+    buf[i] = '\0';
+}
+
 bool syn_imgui_spinner(SYN_IMGUI_Context *ctx, const char *label, int32_t *value, int32_t min,
                        int32_t max, int32_t step, int16_t x, int16_t y, int16_t w, int16_t h)
 {
@@ -970,11 +1071,14 @@ bool syn_imgui_spinner(SYN_IMGUI_Context *ctx, const char *label, int32_t *value
 
     /* Encoder changes value when this widget is focused and not disabled */
     if (ctx->disabled_depth == 0 && is_focused && ctx->enc_delta != 0) {
-        int32_t new_val = *value + ctx->enc_delta * step;
-        if (new_val > max)
-            new_val = min; /* wrap */
-        if (new_val < min)
-            new_val = max;
+        int64_t cand = (int64_t)(*value) + (int64_t)ctx->enc_delta * (int64_t)step;
+        if (cand > (int64_t)max) {
+            cand = (int64_t)min; /* wrap */
+        }
+        if (cand < (int64_t)min) {
+            cand = (int64_t)max;
+        }
+        int32_t new_val = (int32_t)cand;
         if (new_val != *value) {
             *value = new_val;
             changed = true;
@@ -995,24 +1099,7 @@ bool syn_imgui_spinner(SYN_IMGUI_Context *ctx, const char *label, int32_t *value
 
     /* Value box on the right: "< 42 >" */
     char val_str[16];
-    {
-        int32_t v = *value;
-        uint8_t i = 0;
-        if (v < 0) {
-            val_str[i++] = '-';
-            v = -v;
-        }
-        char tmp[12];
-        uint8_t j = 0;
-        do {
-            tmp[j++] = (char)('0' + (v % 10));
-            v /= 10;
-        } while (v > 0 && j < 11u);
-        while (j > 0u) {
-            val_str[i++] = tmp[--j];
-        }
-        val_str[i] = '\0';
-    }
+    format_i32_dec(*value, val_str);
     int16_t val_w = (int16_t)syn_gfx_text_width(ctx->gfx, val_str);
     int16_t arr_w = (int16_t)syn_gfx_font_width(ctx->gfx);
     int16_t box_w = (int16_t)(arr_w + ctx->style.padding + val_w + ctx->style.padding + arr_w);
@@ -1430,28 +1517,34 @@ void syn_imgui_bar_chart(SYN_IMGUI_Context *ctx, const char *title, const int32_
     int16_t plot_x = (int16_t)(x + 2);
     int16_t plot_w = (int16_t)(w - 4);
 
-    if (count == 0 || plot_h <= 0 || plot_w <= 0)
+    if (count == 0 || plot_h <= 0 || plot_w <= 0) {
         return;
+    }
 
-    int32_t range = max_val - min_val;
-    if (range <= 0)
+    int64_t range = (int64_t)max_val - (int64_t)min_val;
+    if (range <= 0) {
         range = 1;
+    }
 
     int16_t bar_w = (int16_t)(plot_w / (int16_t)count);
-    if (bar_w < 1)
+    if (bar_w < 1) {
         bar_w = 1;
+    }
     int16_t gap = (bar_w > 2) ? 1 : 0;
 
     for (size_t i = 0; i < count; i++) {
         int32_t val = data[i];
-        if (val < min_val)
+        if (val < min_val) {
             val = min_val;
-        if (val > max_val)
+        }
+        if (val > max_val) {
             val = max_val;
+        }
 
-        int16_t bar_h = (int16_t)((int32_t)(val - min_val) * plot_h / range);
-        if (bar_h < 1 && val > min_val)
+        int16_t bar_h = (int16_t)((((int64_t)val - (int64_t)min_val) * (int64_t)plot_h) / range);
+        if (bar_h < 1 && val > min_val) {
             bar_h = 1;
+        }
 
         int16_t bx = (int16_t)(plot_x + (int16_t)i * bar_w + gap);
         int16_t by = (int16_t)(plot_y + plot_h - bar_h);
@@ -1625,22 +1718,7 @@ void syn_imgui_value_int(SYN_IMGUI_Context *ctx, const char *label, int32_t valu
 
     /* Format value */
     char buf[16];
-    int32_t v = value;
-    uint8_t i = 0;
-    if (v < 0) {
-        buf[i++] = '-';
-        v = -v;
-    }
-    char tmp[12];
-    uint8_t j = 0;
-    do {
-        tmp[j++] = (char)('0' + (v % 10));
-        v /= 10;
-    } while (v > 0 && j < 11u);
-    while (j > 0u) {
-        buf[i++] = tmp[--j];
-    }
-    buf[i] = '\0';
+    format_i32_dec(value, buf);
 
     /* Draw ": value" */
     int16_t colon_x = (int16_t)(x + label_w);
@@ -1677,12 +1755,12 @@ void syn_imgui_progress_bar_ex(SYN_IMGUI_Context *ctx, int32_t value, int32_t mi
         int16_t inner_w = (int16_t)(w - 4);
         if (indeterminate && inner_w > 0) {
             /* Bouncing 20% wide bar based on low bits of value */
-            int32_t phase = (value < 0 ? -value : value) % (inner_w * 2);
+            uint64_t mag = (value < 0) ? (uint64_t)(-(int64_t)value) : (uint64_t)value;
+            int32_t phase = (int32_t)(mag % (uint64_t)(inner_w * 2));
             int16_t bar_w = (int16_t)(inner_w / 5);
-            /* LCOV_EXCL_START: Indeterminate progress bar min width clamp */
-            if (bar_w < 2)
+            if (bar_w < 2) {
                 bar_w = 2;
-            /* LCOV_EXCL_STOP */
+            }
             int16_t bar_x;
             if (phase < inner_w) {
                 bar_x = (int16_t)(x + 2 + phase);
@@ -1690,23 +1768,18 @@ void syn_imgui_progress_bar_ex(SYN_IMGUI_Context *ctx, int32_t value, int32_t mi
                 bar_x = (int16_t)(x + 2 + (inner_w * 2 - phase));
             }
             /* Clamp to bounds */
-            if (bar_x + bar_w > x + w - 2)
+            if (bar_x + bar_w > x + w - 2) {
                 bar_w = (int16_t)(x + w - 2 - bar_x);
+            }
             if (bar_w > 0) {
                 syn_gfx_rect_fill(ctx->gfx, bar_x, (int16_t)(y + 2), bar_w, (int16_t)(h - 4), fg);
             }
-        } else {
+        } else if (!indeterminate && inner_w > 0) {
             /* Normal fill */
-            int32_t val = value;
-            /* LCOV_EXCL_START: Progress bar min value lower bound clamp */
-            if (val < min)
-                val = min;
-            /* LCOV_EXCL_STOP */
-            if (val > max)
-                val = max;
-            int32_t range = max - min;
-            int32_t current = val - min;
-            int16_t fill_w = (int16_t)((current * inner_w) / range);
+            int32_t val = (value > max) ? max : value;
+            int64_t range = (int64_t)max - (int64_t)min;
+            int64_t current = (int64_t)val - (int64_t)min;
+            int16_t fill_w = (int16_t)((current * (int64_t)inner_w) / range);
             if (fill_w > 0) {
                 syn_gfx_rect_fill(ctx->gfx, (int16_t)(x + 2), (int16_t)(y + 2), fill_w,
                                   (int16_t)(h - 4), fg);
@@ -1720,7 +1793,9 @@ void syn_imgui_progress_bar_ex(SYN_IMGUI_Context *ctx, int32_t value, int32_t mi
         const char *text = overlay;
         if (text == NULL && max > min) {
             /* Auto-generate "XX%" */
-            int32_t pct = SYN_CLAMP(((value - min) * 100) / (max - min), 0, 100);
+            int64_t range = (int64_t)max - (int64_t)min;
+            int64_t raw_pct = (((int64_t)value - (int64_t)min) * 100LL) / range;
+            int32_t pct = (int32_t)SYN_CLAMP(raw_pct, 0LL, 100LL);
             size_t len = syn_fmt_int(auto_buf, sizeof(auto_buf) - 2, pct);
             auto_buf[len++] = '%';
             auto_buf[len] = '\0';
@@ -1935,19 +2010,22 @@ void syn_imgui_layout_row(SYN_IMGUI_Context *ctx, int items, const int16_t *widt
         ctx->layout.row_h = 0;
     }
     ctx->layout.cx = ctx->layout.origin_x;
+    ctx->layout.row_y = ctx->layout.cy;
     ctx->layout.same_line = false;
 
-    /* Store row params in layout for widgets to consume */
-    ctx->layout.row_items = items;
+    if (items <= 0) {
+        ctx->layout.row_items = 0;
+        ctx->layout.row_item_idx = 0;
+        ctx->layout.row_height = 0;
+        return;
+    }
+
+    int clamped_items = (items > SYN_IMGUI_MAX_ROW_COLS) ? SYN_IMGUI_MAX_ROW_COLS : items;
+    ctx->layout.row_items = clamped_items;
     ctx->layout.row_item_idx = 0;
     ctx->layout.row_height = height;
-    if (widths != NULL && items > 0) {
-        int max = items;
-        if (max > SYN_IMGUI_MAX_ROW_COLS)
-            max = SYN_IMGUI_MAX_ROW_COLS;
-        for (int i = 0; i < max; i++) {
-            ctx->layout.row_widths[i] = widths[i];
-        }
+    for (int i = 0; i < clamped_items; i++) {
+        ctx->layout.row_widths[i] = (widths != NULL) ? widths[i] : 0;
     }
 }
 

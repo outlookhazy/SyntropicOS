@@ -1,64 +1,118 @@
-#if __has_include("syn_config.h")
-#include "syn_config.h"
-#endif
-
-#if !defined(SYN_USE_OTA) || SYN_USE_OTA
-
 /**
  * @file syn_ota.c
  * @brief Secure Streaming OTA Orchestrator implementation.
  */
 
-#include "../util/syn_assert.h"
 #include "syn_ota.h"
+
+#if SYN_OTA_ENABLED
+
+#include "../proto/syn_lwm2m.h"
+#include "../util/syn_assert.h"
 
 #include <string.h>
 
-/* ── LwM2M Object 5 Forward Types (if bound) ─────────────────────────────── */
+/* ── Helpers ─────────────────────────────────────────────────────────────── */
 
 /**
- * @brief LwM2M Firmware State enumeration (Object 5 Resource 3).
+ * @brief Check whether OTA configuration or session start is allowed in @p st.
+ * @param st  Current OTA manager state.
+ * @return true when state is IDLE, ERROR, or APPLIED.
  */
-typedef enum {
-    LWM2M_FW_STATE_IDLE = 0,        /**< Idle state. */
-    LWM2M_FW_STATE_DOWNLOADING = 1, /**< Downloading state. */
-    LWM2M_FW_STATE_DOWNLOADED = 2,  /**< Download complete state. */
-    LWM2M_FW_STATE_UPDATING = 3,    /**< Applying update state. */
-} LwM2M_FwState;
+static bool ota_can_configure(SYN_OTA_State st)
+{
+    return (st == SYN_OTA_STATE_IDLE || st == SYN_OTA_STATE_ERROR || st == SYN_OTA_STATE_APPLIED);
+}
 
 /**
- * @brief LwM2M Firmware Update Result enumeration (Object 5 Resource 5).
+ * @brief Validate signature/tag presence and exact length for active crypto mode.
+ * @param mgr      OTA manager instance.
+ * @param sig      Expected signature, HMAC, or GCM tag buffer.
+ * @param sig_len  Length of @p sig in bytes.
+ * @return SYN_OK on valid parameters, SYN_INVALID_PARAM otherwise.
  */
-typedef enum {
-    LWM2M_FW_RES_DEFAULT = 0,        /**< Default / in progress. */
-    LWM2M_FW_RES_SUCCESS = 1,        /**< Firmware update successful. */
-    LWM2M_FW_RES_NO_FLASH = 2,       /**< Insufficient flash space. */
-    LWM2M_FW_RES_OUT_OF_RAM = 3,     /**< Out of RAM error. */
-    LWM2M_FW_RES_CONN_LOST = 4,      /**< Connection lost during download. */
-    LWM2M_FW_RES_INTEGRITY_FAIL = 5, /**< Integrity check failed. */
-    LWM2M_FW_RES_BAD_PKG_TYPE = 6,   /**< Unsupported package type. */
-    LWM2M_FW_RES_INVALID_URI = 7,    /**< Invalid package URI. */
-} LwM2M_FwResult;
+static SYN_Status ota_validate_finish_sig(const SYN_OTA_Manager *mgr, const uint8_t *sig,
+                                          size_t sig_len)
+{
+    switch (mgr->crypto_mode) {
+    case SYN_OTA_CRYPTO_AES_GCM:
+        return (sig != NULL && sig_len == 16U) ? SYN_OK : SYN_INVALID_PARAM;
+    case SYN_OTA_CRYPTO_HMAC_SHA256:
+        return (sig != NULL && sig_len == 32U) ? SYN_OK : SYN_INVALID_PARAM;
+    case SYN_OTA_CRYPTO_ED25519:
+        return (sig != NULL && sig_len == 64U) ? SYN_OK : SYN_INVALID_PARAM;
+    default:
+        (void)sig;
+        (void)sig_len;
+        return SYN_OK;
+    }
+}
+
+#if SYN_LWM2M_ENABLED
+/**
+ * @brief Map SYN_OTA_State to OMA LwM2M Object 5 state.
+ * @param state  OTA state.
+ * @return Corresponding SYN_LwM2M_FirmwareState.
+ */
+static SYN_LwM2M_FirmwareState ota_map_lwm2m_state(SYN_OTA_State state)
+{
+    switch (state) {
+    case SYN_OTA_STATE_IDLE:
+        return SYN_LWM2M_FW_STATE_IDLE;
+    case SYN_OTA_STATE_DOWNLOADING:
+        return SYN_LWM2M_FW_STATE_DOWNLOADING;
+    case SYN_OTA_STATE_DOWNLOADED:
+    case SYN_OTA_STATE_VERIFYING:
+    case SYN_OTA_STATE_READY_TO_APPLY:
+        return SYN_LWM2M_FW_STATE_DOWNLOADED;
+    case SYN_OTA_STATE_APPLIED:
+        return SYN_LWM2M_FW_STATE_UPDATING;
+    case SYN_OTA_STATE_ERROR:
+    default:
+        return SYN_LWM2M_FW_STATE_IDLE;
+    }
+}
 
 /**
- * @brief LwM2M Firmware object internal layout for state synchronization.
+ * @brief Map SYN_OTA_ErrorCode and state to OMA LwM2M Object 5 update result.
+ * @param state  OTA state.
+ * @param err    Last OTA error code.
+ * @return Corresponding SYN_LwM2M_FirmwareResult.
  */
-typedef struct {
-    LwM2M_FwState state;   /**< Firmware object state. */
-    LwM2M_FwResult result; /**< Firmware update result code. */
-    char package_uri[128]; /**< Package download URI. */
-    char pkg_name[32];     /**< Package name. */
-    char pkg_version[32];  /**< Package version string. */
-    bool update_requested; /**< Update execution flag. */
-} LwM2M_FwCtx;
+static SYN_LwM2M_FirmwareResult ota_map_lwm2m_result(SYN_OTA_State state, SYN_OTA_ErrorCode err)
+{
+    switch (err) {
+    case SYN_OTA_ERR_NONE:
+        return (state == SYN_OTA_STATE_APPLIED) ? SYN_LWM2M_FW_RESULT_SUCCESS
+                                                : SYN_LWM2M_FW_RESULT_DEFAULT;
+    case SYN_OTA_ERR_OUT_OF_SPACE:
+    case SYN_OTA_ERR_FLASH_ERASE:
+    case SYN_OTA_ERR_FLASH_WRITE:
+        return SYN_LWM2M_FW_RESULT_NO_FLASH;
+    case SYN_OTA_ERR_INTEGRITY_CHECK:
+        return SYN_LWM2M_FW_RESULT_INTEGRITY_FAIL;
+    case SYN_OTA_ERR_UNSUPPORTED_CRYPTO:
+    case SYN_OTA_ERR_INVALID_PARAM:
+        return SYN_LWM2M_FW_RESULT_BAD_PKG_TYPE;
+    default:
+        return SYN_LWM2M_FW_RESULT_DEFAULT;
+    }
+}
+#endif
 
 /* ── API Implementation ─────────────────────────────────────────────────── */
 
 SYN_Status syn_ota_init(SYN_OTA_Manager *mgr, SYN_FwBootManager *boot_mgr, uint32_t slot_size,
                         uint8_t *page_buf, size_t page_buf_sz)
 {
-    if (mgr == NULL || boot_mgr == NULL || page_buf == NULL || page_buf_sz < 16U ||
-        slot_size <= sizeof(SYN_FwImageHeader)) {
+    if (mgr == NULL || boot_mgr == NULL || page_buf == NULL || page_buf_sz < 16U) {
+        return SYN_INVALID_PARAM;
+    }
+
+    uint32_t hdr_off_a = syn_fwimage_data_offset(boot_mgr->slot_addr[0]);
+    uint32_t hdr_off_b = syn_fwimage_data_offset(boot_mgr->slot_addr[1]);
+    uint32_t hdr_off = (hdr_off_a >= hdr_off_b) ? hdr_off_a : hdr_off_b;
+    if (slot_size <= hdr_off) {
         return SYN_INVALID_PARAM;
     }
 
@@ -80,7 +134,7 @@ SYN_Status syn_ota_set_target_slot(SYN_OTA_Manager *mgr, uint8_t slot_idx)
     if (mgr == NULL) {
         return SYN_INVALID_PARAM;
     }
-    if (mgr->state != SYN_OTA_STATE_IDLE && mgr->state != SYN_OTA_STATE_ERROR) {
+    if (!ota_can_configure(mgr->state)) {
         return SYN_ERROR;
     }
     if (slot_idx != SYN_FW_SLOT_A && slot_idx != SYN_FW_SLOT_B && slot_idx != SYN_OTA_SLOT_AUTO) {
@@ -97,7 +151,7 @@ SYN_Status syn_ota_set_verification_key(SYN_OTA_Manager *mgr, SYN_OTA_CryptoMode
     if (mgr == NULL) {
         return SYN_INVALID_PARAM;
     }
-    if (mgr->state != SYN_OTA_STATE_IDLE && mgr->state != SYN_OTA_STATE_ERROR) {
+    if (!ota_can_configure(mgr->state)) {
         return SYN_ERROR;
     }
 
@@ -146,7 +200,7 @@ SYN_Status syn_ota_set_aes_gcm_params(SYN_OTA_Manager *mgr, const uint8_t *key, 
     if (mgr == NULL || key == NULL || iv == NULL) {
         return SYN_INVALID_PARAM;
     }
-    if (mgr->state != SYN_OTA_STATE_IDLE && mgr->state != SYN_OTA_STATE_ERROR) {
+    if (!ota_can_configure(mgr->state)) {
         return SYN_ERROR;
     }
 
@@ -173,11 +227,10 @@ SYN_Status syn_ota_begin(SYN_OTA_Manager *mgr, uint32_t expected_total_sz, uint3
     if (mgr == NULL || mgr->boot_mgr == NULL) {
         return SYN_INVALID_PARAM;
     }
-    if (mgr->state != SYN_OTA_STATE_IDLE && mgr->state != SYN_OTA_STATE_ERROR) {
+    if (!ota_can_configure(mgr->state)) {
         return SYN_ERROR;
     }
-    if (expected_total_sz == 0U ||
-        (expected_total_sz + sizeof(SYN_FwImageHeader)) > mgr->slot_size) {
+    if (expected_total_sz == 0U) {
         mgr->last_error = SYN_OTA_ERR_OUT_OF_SPACE;
         return SYN_INVALID_PARAM;
     }
@@ -196,12 +249,19 @@ SYN_Status syn_ota_begin(SYN_OTA_Manager *mgr, uint32_t expected_total_sz, uint3
         return SYN_ERROR;
     }
 
-    mgr->target_slot_addr = mgr->boot_mgr->slot_addr[slot];
+    uint32_t target_addr = mgr->boot_mgr->slot_addr[slot];
+    uint32_t hdr_offset = syn_fwimage_data_offset(target_addr);
+    uint32_t max_img_sz = (mgr->slot_size > hdr_offset) ? (mgr->slot_size - hdr_offset) : 0U;
+    if (expected_total_sz > max_img_sz) {
+        mgr->last_error = SYN_OTA_ERR_OUT_OF_SPACE;
+        return SYN_INVALID_PARAM;
+    }
+
+    mgr->target_slot_addr = target_addr;
     mgr->expected_total_sz = expected_total_sz;
     mgr->target_version = target_version;
     mgr->expected_crc = expected_crc;
 
-    uint32_t max_img_sz = mgr->slot_size - (uint32_t)sizeof(SYN_FwImageHeader);
     SYN_Status st = syn_fwupdate_begin(&mgr->fw_upd, mgr->target_slot_addr, max_img_sz,
                                        mgr->page_buf, (uint16_t)mgr->page_buf_sz);
     if (st != SYN_OK) {
@@ -213,19 +273,19 @@ SYN_Status syn_ota_begin(SYN_OTA_Manager *mgr, uint32_t expected_total_sz, uint3
 
     /* Configure cryptographic verification hooks */
 #if defined(SYN_FW_USE_HMAC) && SYN_FW_USE_HMAC
-    if (mgr->crypto_mode == SYN_OTA_CRYPTO_HMAC_SHA256 && mgr->hmac_key_set) {
+    if (mgr->crypto_mode == SYN_OTA_CRYPTO_HMAC_SHA256) {
         syn_fwupdate_set_key(&mgr->fw_upd, mgr->hmac_key, mgr->hmac_key_len);
     }
 #endif
 
 #if defined(SYN_FW_USE_ED25519) && SYN_FW_USE_ED25519
-    if (mgr->crypto_mode == SYN_OTA_CRYPTO_ED25519 && mgr->ed25519_key_set) {
+    if (mgr->crypto_mode == SYN_OTA_CRYPTO_ED25519) {
         syn_fwupdate_set_public_key(&mgr->fw_upd, mgr->ed25519_pubkey);
     }
 #endif
 
 #if defined(SYN_FW_USE_AES_GCM) && SYN_FW_USE_AES_GCM
-    if (mgr->crypto_mode == SYN_OTA_CRYPTO_AES_GCM && mgr->gcm_key_set) {
+    if (mgr->crypto_mode == SYN_OTA_CRYPTO_AES_GCM) {
         (void)syn_fwupdate_set_aes_gcm_key(&mgr->fw_upd, mgr->gcm_key, mgr->gcm_key_len,
                                            mgr->gcm_iv, sizeof(mgr->gcm_iv));
     }
@@ -289,14 +349,10 @@ SYN_Status syn_ota_finish(SYN_OTA_Manager *mgr, const uint8_t *expected_sig_or_t
     if (mgr->state != SYN_OTA_STATE_DOWNLOADING && mgr->state != SYN_OTA_STATE_DOWNLOADED) {
         return SYN_ERROR;
     }
-#if defined(SYN_FW_USE_AES_GCM) && SYN_FW_USE_AES_GCM
-    if (mgr->crypto_mode == SYN_OTA_CRYPTO_AES_GCM) {
-        if (expected_sig_or_tag == NULL || sig_len != 16U) {
-            syn_ota_abort(mgr, SYN_OTA_ERR_INVALID_PARAM);
-            return SYN_INVALID_PARAM;
-        }
+    if (ota_validate_finish_sig(mgr, expected_sig_or_tag, sig_len) != SYN_OK) {
+        syn_ota_abort(mgr, SYN_OTA_ERR_INVALID_PARAM);
+        return SYN_INVALID_PARAM;
     }
-#endif
     if (syn_ota_bytes_ingested(mgr) != mgr->expected_total_sz) {
         syn_ota_abort(mgr, SYN_OTA_ERR_INTEGRITY_CHECK);
         return SYN_ERROR;
@@ -312,7 +368,6 @@ SYN_Status syn_ota_finish(SYN_OTA_Manager *mgr, const uint8_t *expected_sig_or_t
     } else
 #endif
     {
-        (void)sig_len;
 #if defined(SYN_FW_USE_HMAC) && SYN_FW_USE_HMAC
         const uint8_t *hmac_ptr =
             (mgr->crypto_mode == SYN_OTA_CRYPTO_HMAC_SHA256) ? expected_sig_or_tag : NULL;
@@ -432,60 +487,17 @@ SYN_Status syn_ota_bind_lwm2m(SYN_OTA_Manager *mgr, void *lwm2m_fw_ctx)
 
 void syn_ota_sync_lwm2m(SYN_OTA_Manager *mgr)
 {
+#if SYN_LWM2M_ENABLED
     if (mgr == NULL || mgr->lwm2m_fw_ctx == NULL) {
         return;
     }
 
-    LwM2M_FwCtx *ctx = (LwM2M_FwCtx *)mgr->lwm2m_fw_ctx;
-
-    switch (mgr->state) {
-    case SYN_OTA_STATE_IDLE:
-        ctx->state = LWM2M_FW_STATE_IDLE;
-        break;
-    case SYN_OTA_STATE_DOWNLOADING:
-        ctx->state = LWM2M_FW_STATE_DOWNLOADING;
-        break;
-    case SYN_OTA_STATE_DOWNLOADED:
-    case SYN_OTA_STATE_VERIFYING:
-    case SYN_OTA_STATE_READY_TO_APPLY:
-        ctx->state = LWM2M_FW_STATE_DOWNLOADED;
-        break;
-    case SYN_OTA_STATE_APPLIED:
-        ctx->state = LWM2M_FW_STATE_UPDATING;
-        ctx->result = LWM2M_FW_RES_SUCCESS;
-        break;
-    case SYN_OTA_STATE_ERROR:
-    default:
-        ctx->state = LWM2M_FW_STATE_IDLE;
-        break;
-    }
-
-    switch (mgr->last_error) {
-    case SYN_OTA_ERR_NONE:
-        if (mgr->state == SYN_OTA_STATE_APPLIED) {
-            ctx->result = LWM2M_FW_RES_SUCCESS;
-        } else {
-            ctx->result = LWM2M_FW_RES_DEFAULT;
-        }
-        break;
-    case SYN_OTA_ERR_OUT_OF_SPACE:
-    case SYN_OTA_ERR_FLASH_ERASE:
-    case SYN_OTA_ERR_FLASH_WRITE:
-        ctx->result = LWM2M_FW_RES_NO_FLASH;
-        break;
-    case SYN_OTA_ERR_INTEGRITY_CHECK:
-        ctx->result = LWM2M_FW_RES_INTEGRITY_FAIL;
-        break;
-    case SYN_OTA_ERR_UNSUPPORTED_CRYPTO:
-    case SYN_OTA_ERR_INVALID_PARAM:
-        ctx->result = LWM2M_FW_RES_BAD_PKG_TYPE;
-        break;
-    default:
-        ctx->result = LWM2M_FW_RES_DEFAULT;
-        break;
-    }
+    SYN_LwM2M_FirmwareContext *ctx = (SYN_LwM2M_FirmwareContext *)mgr->lwm2m_fw_ctx;
+    ctx->state = ota_map_lwm2m_state(mgr->state);
+    ctx->result = ota_map_lwm2m_result(mgr->state, mgr->last_error);
+#else
+    (void)mgr;
+#endif
 }
 
-#else
-typedef int syn_ota_dummy_t;
-#endif /* SYN_USE_OTA */
+#endif /* SYN_OTA_ENABLED */

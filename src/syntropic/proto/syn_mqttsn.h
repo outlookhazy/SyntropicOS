@@ -130,6 +130,7 @@ typedef void (*SYN_MQTTSN_MessageCb)(struct SYN_MQTTSN_Client *client, uint16_t 
 typedef struct {
     char name[SYN_MQTTSN_MAX_TOPIC_NAME]; /**< Topic name string */
     uint16_t topic_id;                    /**< Gateway-assigned Topic ID */
+    uint16_t pending_msg_id;              /**< Pending REGISTER message ID (0 if none) */
     bool active;                          /**< Entry active flag */
 } SYN_MQTTSN_TopicEntry;
 

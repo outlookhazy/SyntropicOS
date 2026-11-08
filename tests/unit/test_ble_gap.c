@@ -139,26 +139,26 @@ void test_ble_gap_process_events(void)
     TEST_ASSERT_TRUE(gap_evt_called);
     TEST_ASSERT_EQUAL_INT8(-50, last_rssi);
 
-    /* Truncated Advertising Report (missing RSSI byte -> triggers fallback rssi=0) */
+    /* Advertising Report without trailing RSSI byte -> triggers fallback rssi=0 */
     gap_evt_called = false;
     last_rssi = -50;
-    uint8_t trunc_adv_report[] = {SYN_BLE_HCI_LE_SUBEVT_ADV_REPORT,
-                                  0x01,
-                                  0x00,
-                                  0x00,
-                                  0x11,
-                                  0x22,
-                                  0x33,
-                                  0x44,
-                                  0x55,
-                                  0x66,
-                                  0x03, /* data_len = 3 (claims 3B payload, but total len only 13B
-                                           -> 11 + 3 = 14 > 13 -> rssi=0) */
-                                  0x02,
-                                  0x01};
+    uint8_t no_rssi_adv_report[] = {SYN_BLE_HCI_LE_SUBEVT_ADV_REPORT,
+                                    0x01,
+                                    0x00,
+                                    0x00,
+                                    0x11,
+                                    0x22,
+                                    0x33,
+                                    0x44,
+                                    0x55,
+                                    0x66,
+                                    0x03, /* data_len = 3, len = 14 (exact AD payload, no RSSI) */
+                                    0x02,
+                                    0x01,
+                                    0x06};
     TEST_ASSERT_EQUAL(SYN_OK,
-                      syn_ble_gap_process_hci_evt(&gap, SYN_BLE_HCI_EVT_LE_META, trunc_adv_report,
-                                                  sizeof(trunc_adv_report)));
+                      syn_ble_gap_process_hci_evt(&gap, SYN_BLE_HCI_EVT_LE_META, no_rssi_adv_report,
+                                                  sizeof(no_rssi_adv_report)));
     TEST_ASSERT_TRUE(gap_evt_called);
     TEST_ASSERT_EQUAL_INT8(0, last_rssi);
 
@@ -228,4 +228,73 @@ void test_ble_gap_process_events(void)
                                                   conn_complete_evt, sizeof(conn_complete_evt)));
     TEST_ASSERT_EQUAL(SYN_OK, syn_ble_gap_process_hci_evt(&gap_nocb, SYN_BLE_HCI_EVT_LE_META,
                                                           adv_report_evt, sizeof(adv_report_evt)));
+}
+
+void test_r5_ble_gap_regressions(void)
+{
+    SYN_BLE_HCI hci;
+    syn_ble_hci_init(&hci, NULL);
+    SYN_BLE_GAP gap;
+    syn_ble_gap_init(&gap, &hci, test_gap_cb, NULL);
+
+    /* len == 10 (< 11 minimum to read data_len at payload[10]) -> rejected without OOB read */
+    gap_evt_called = false;
+    uint8_t short_10b[10] = {SYN_BLE_HCI_LE_SUBEVT_ADV_REPORT,
+                             0x01U,
+                             0x00U,
+                             0x00U,
+                             0x11U,
+                             0x22U,
+                             0x33U,
+                             0x44U,
+                             0x55U,
+                             0x66U};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_gap_process_hci_evt(&gap, SYN_BLE_HCI_EVT_LE_META,
+                                                             short_10b, sizeof(short_10b)));
+    TEST_ASSERT_FALSE(gap_evt_called);
+
+    /* 11 + data_len > len -> rejected without OOB read */
+    uint8_t trunc_payload[13] = {SYN_BLE_HCI_LE_SUBEVT_ADV_REPORT,
+                                 0x01U,
+                                 0x00U,
+                                 0x00U,
+                                 0x11U,
+                                 0x22U,
+                                 0x33U,
+                                 0x44U,
+                                 0x55U,
+                                 0x66U,
+                                 0x03U,
+                                 0x02U,
+                                 0x01U};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_gap_process_hci_evt(&gap, SYN_BLE_HCI_EVT_LE_META,
+                                                             trunc_payload, sizeof(trunc_payload)));
+    TEST_ASSERT_FALSE(gap_evt_called);
+
+    /* data_len > 31 (legacy BLE AD limit) -> rejected */
+    uint8_t over_ad[44];
+    memset(over_ad, 0, sizeof(over_ad));
+    over_ad[0] = SYN_BLE_HCI_LE_SUBEVT_ADV_REPORT;
+    over_ad[1] = 0x01U;
+    over_ad[10] = 32U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_gap_process_hci_evt(&gap, SYN_BLE_HCI_EVT_LE_META, over_ad,
+                                                             sizeof(over_ad)));
+    TEST_ASSERT_FALSE(gap_evt_called);
+
+    /* Exact 11-byte empty-data advertisement (data_len == 0, no RSSI byte) */
+    uint8_t empty_ad[11] = {SYN_BLE_HCI_LE_SUBEVT_ADV_REPORT,
+                            0x01U,
+                            0x00U,
+                            0x00U,
+                            0x11U,
+                            0x22U,
+                            0x33U,
+                            0x44U,
+                            0x55U,
+                            0x66U,
+                            0x00U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ble_gap_process_hci_evt(&gap, SYN_BLE_HCI_EVT_LE_META, empty_ad,
+                                                          sizeof(empty_ad)));
+    TEST_ASSERT_TRUE(gap_evt_called);
+    TEST_ASSERT_EQUAL_INT8(0, last_rssi);
 }

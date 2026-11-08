@@ -46,7 +46,7 @@ The SyntropicOS Audio Subsystem provides lightweight, zero-heap, integer-only au
   - Zero-Crossing Rate (ZCR)
   - High-Frequency Differential Energy (HFDE)
 - **Noise Tracking**: Adaptive background noise floor tracking via Exponential Moving Average (EMA).
-- **Hysteresis**: Configurable attack frame threshold (`attack_frames`) and hangover hangover release timing (`hangover_frames`).
+- **Hysteresis**: Configurable attack frame threshold (`attack_frames`) and hangover release timing (`hangover_frames`).
 - **Presets**: `SYN_VAD_SENSITIVITY_SENSITIVE`, `SYN_VAD_SENSITIVITY_NORMAL`, `SYN_VAD_SENSITIVITY_AGGRESSIVE`.
 
 ```c
@@ -57,7 +57,7 @@ static SYN_VAD vad;
 void vad_setup(void) {
     SYN_VAD_Config cfg = {
         .sample_rate_hz = 16000U,
-        .frame_size_samples = 160U, /* 10 ms frame */
+        .frame_length = 160U, /* 10 ms frame */
         .sensitivity = SYN_VAD_SENSITIVITY_NORMAL,
         .attack_frames = 2U,
         .hangover_frames = 10U,
@@ -66,8 +66,8 @@ void vad_setup(void) {
 }
 
 void process_audio_frame(const int16_t *pcm_samples, size_t count) {
-    bool is_speech = syn_vad_process_frame(&vad, pcm_samples, count);
-    if (is_speech) {
+    SYN_VAD_State state = syn_vad_process_frame(&vad, pcm_samples, count, NULL);
+    if (state == SYN_VAD_STATE_SPEECH) {
         /* Wake wake-word detector or stream to ASR / cloud */
     }
 }

@@ -186,6 +186,36 @@ static void test_profiler_dump_peak_padding(void)
     TEST_ASSERT_NOT_NULL(strstr(prof_out, "t"));
 }
 
+static void test_r5_profiler_update_preserves_runs_in_dump(void)
+{
+    mock_tick_ms = 0U;
+
+    SYN_ProfileEntry entries[2];
+    SYN_Profiler prof;
+    syn_profiler_init(&prof, entries, 2U);
+    syn_profiler_register(&prof, 0U, "worker");
+
+    for (int i = 0; i < 3; i++) {
+        syn_profiler_task_begin(&prof, 0U);
+        mock_tick_advance(2U);
+        syn_profiler_task_end(&prof, 0U);
+    }
+
+    mock_tick_advance(4U);
+    syn_profiler_update(&prof);
+
+    const SYN_ProfileEntry *e0 = syn_profiler_get(&prof, 0U);
+    TEST_ASSERT_NOT_NULL(e0);
+    TEST_ASSERT_EQUAL_UINT32(3U, e0->last_run_count);
+    TEST_ASSERT_EQUAL_UINT32(0U, e0->run_count);
+
+    prof_out_clear();
+    syn_profiler_dump(&prof, prof_print);
+    /* Verify non-zero Runs column ("       3\n") is printed after update + dump */
+    TEST_ASSERT_NOT_NULL(strstr(prof_out, "worker"));
+    TEST_ASSERT_NOT_NULL(strstr(prof_out, "       3\n"));
+}
+
 /* ── Test runner ─────────────────────────────────────────────────────── */
 
 void run_profiler_tests(void)
@@ -196,4 +226,5 @@ void run_profiler_tests(void)
     RUN_TEST(test_profiler_oob_guards);
     RUN_TEST(test_profiler_update_period_zero);
     RUN_TEST(test_profiler_dump_peak_padding);
+    RUN_TEST(test_r5_profiler_update_preserves_runs_in_dump);
 }

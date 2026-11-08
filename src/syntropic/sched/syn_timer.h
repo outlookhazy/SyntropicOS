@@ -152,14 +152,16 @@ uint32_t syn_timer_remaining(const SYN_Timer *timer);
 /**
  * @brief Get the earliest expiry tick among a set of active timers.
  *
- * Scans the timer array and returns the minimum target_tick of any
- * active timer whose deadline is in the future. Used by the tickless
- * scheduler to account for software timer wakeups.
+ * Scans the timer array and returns the current tick (`now`) if any active
+ * timer has already expired, or the minimum `target_tick` among active timers
+ * whose deadline is in the future (clamping `UINT32_MAX` to `UINT32_MAX - 1`
+ * to avoid sentinel aliasing). Returns `UINT32_MAX` only when no timers are
+ * active.
  *
  * @param timers  Array of timers to scan.
  * @param count   Number of timers in the array.
- * @return Earliest expiry tick, or UINT32_MAX if no timers are active
- *         or all have already expired.
+ * @return Current tick if any timer is due now, earliest future expiry tick,
+ *         or UINT32_MAX if no timers are active.
  */
 uint32_t syn_timer_next_expiry(const SYN_Timer *timers, size_t count);
 

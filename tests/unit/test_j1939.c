@@ -315,6 +315,157 @@ static void test_j1939_pgn_filter_and_claim_conflict(void)
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_j1939_dtc_clear_active(&log, 99999, 1));
 }
 
+static void test_r5_a15_unicast_rts_cts_eomack_and_da_dlc_filters(void)
+{
+    SYN_J1939_Node ecu;
+    SYN_J1939_Name name = {.identity_number = 42U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_node_init(&ecu, 0x25U, &name));
+
+    SYN_CAN_Frame tx_resp;
+    TEST_ASSERT_FALSE(syn_j1939_get_tx(NULL, &tx_resp));
+    TEST_ASSERT_FALSE(syn_j1939_get_tx(&ecu, NULL));
+    TEST_ASSERT_FALSE(syn_j1939_get_tx(&ecu, &tx_resp));
+
+    /* Builder parameter validation */
+    SYN_CAN_Frame rts;
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_j1939_build_tp_rts(0x10U, 0x25U, SYN_J1939_PGN_DM1, 16U, 0xFFU, NULL));
+    TEST_ASSERT_EQUAL(
+        SYN_INVALID_PARAM,
+        syn_j1939_build_tp_rts(0x10U, SYN_J1939_ADDR_GLOBAL, SYN_J1939_PGN_DM1, 16U, 0xFFU, &rts));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_j1939_build_tp_rts(0x10U, 0x25U, SYN_J1939_PGN_DM1, 16U, 0U, &rts));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_j1939_build_tp_rts(0x10U, 0x25U, SYN_J1939_PGN_DM1, 8U, 0xFFU, &rts));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_j1939_build_tp_rts(0x10U, 0x25U, SYN_J1939_PGN_DM1, 1800U, 0xFFU, &rts));
+
+    uint32_t out_pgn = 0U;
+    const uint8_t *out_data = NULL;
+    size_t out_len = 0U;
+
+    /* 1. Reject RTS addressed to another ECU (DA=0x30 != ecu.sa=0x25) */
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_j1939_build_tp_rts(0x10U, 0x30U, SYN_J1939_PGN_DM1, 16U, 0xFFU, &rts));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_j1939_process_frame(&ecu, &rts, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_FALSE(ecu.tp_rx.active);
+    TEST_ASSERT_FALSE(syn_j1939_get_tx(&ecu, &tx_resp));
+
+    /* Reject BAM with unicast DA != 0xFF, unknown ctrl byte, and short DLC < 8 */
+    SYN_CAN_Frame bad_cm = rts;
+    bad_cm.data[0] = SYN_J1939_TP_CTRL_BAM;
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &bad_cm, &out_pgn, &out_data, &out_len));
+    bad_cm.data[0] = 99U;
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &bad_cm, &out_pgn, &out_data, &out_len));
+    bad_cm.dlc = 4U;
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_j1939_process_frame(&ecu, &bad_cm, &out_pgn, &out_data, &out_len));
+
+    /* Reject RTS with mismatched packet count or reserved max_packets == 0 */
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_j1939_build_tp_rts(0x10U, 0x25U, SYN_J1939_PGN_DM1, 16U, 0xFFU, &rts));
+    rts.data[3] = 9U;
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_j1939_process_frame(&ecu, &rts, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_FALSE(ecu.tp_rx.active);
+
+    rts.data[3] = 3U;
+    rts.data[4] = 0U;
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_j1939_process_frame(&ecu, &rts, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_FALSE(ecu.tp_rx.active);
+
+    /* 2. Accept unicast RTS (16 bytes = 3 packets, windowed max_packets = 2) -> emits TP.CM_CTS */
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_j1939_build_tp_rts(0x10U, 0x25U, SYN_J1939_PGN_DM1, 16U, 2U, &rts));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_j1939_process_frame(&ecu, &rts, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_TRUE(ecu.tp_rx.active);
+    TEST_ASSERT_TRUE(syn_j1939_get_tx(&ecu, &tx_resp));
+
+    /* Broadcast BAM from another peer must NOT overwrite an active unicast RTS/CTS session */
+    SYN_CAN_Frame stray_bam;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_build_tp_bam(0x88U, SYN_J1939_PGN_ET1, 14U, &stray_bam));
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &stray_bam, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_FALSE(ecu.tp_rx.is_bam);
+    TEST_ASSERT_EQUAL_UINT8(0x10U, ecu.tp_rx.sa);
+
+    SYN_J1939_Header resp_hdr;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_id_unpack(tx_resp.id, &resp_hdr));
+    TEST_ASSERT_EQUAL_UINT32(SYN_J1939_PGN_TP_CM, resp_hdr.pgn);
+    TEST_ASSERT_EQUAL_UINT8(0x25U, resp_hdr.sa);
+    TEST_ASSERT_EQUAL_UINT8(0x10U, resp_hdr.da);
+    TEST_ASSERT_EQUAL_UINT8(SYN_J1939_TP_CTRL_CTS, tx_resp.data[0]);
+    TEST_ASSERT_EQUAL_UINT8(2U, tx_resp.data[1]); /* 2 packets granted */
+    TEST_ASSERT_EQUAL_UINT8(1U, tx_resp.data[2]); /* Next seq = 1 */
+
+    /* 3. Filter TP.DT: reject short DLC < 8, wrong DA, and out-of-order seq */
+    SYN_CAN_Frame dt;
+    uint8_t p1[7] = {'0', '1', '2', '3', '4', '5', '6'};
+    uint8_t p2[7] = {'7', '8', '9', 'A', 'B', 'C', 'D'};
+    uint8_t p3[2] = {'E', 'F'};
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_build_tp_dt_da(0x10U, 0x30U, 1U, p1, 7U, &dt));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_j1939_process_frame(&ecu, &dt, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_EQUAL_UINT8(1U, ecu.tp_rx.next_seq);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_build_tp_dt_da(0x10U, 0x25U, 1U, p1, 7U, &dt));
+    dt.dlc = 5U;
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_j1939_process_frame(&ecu, &dt, &out_pgn, &out_data, &out_len));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_build_tp_dt_da(0x10U, 0x25U, 2U, p2, 7U, &dt));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_j1939_process_frame(&ecu, &dt, &out_pgn, &out_data, &out_len));
+
+    /* Deliver seq 1 & seq 2 -> completes first 2-packet CTS window and emits CTS for seq 3 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_build_tp_dt_da(0x10U, 0x25U, 1U, p1, 7U, &dt));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_j1939_process_frame(&ecu, &dt, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_FALSE(syn_j1939_get_tx(&ecu, &tx_resp));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_build_tp_dt_da(0x10U, 0x25U, 2U, p2, 7U, &dt));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_j1939_process_frame(&ecu, &dt, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_TRUE(syn_j1939_get_tx(&ecu, &tx_resp));
+    TEST_ASSERT_EQUAL_UINT8(SYN_J1939_TP_CTRL_CTS, tx_resp.data[0]);
+    TEST_ASSERT_EQUAL_UINT8(1U, tx_resp.data[1]); /* 1 packet left */
+    TEST_ASSERT_EQUAL_UINT8(3U, tx_resp.data[2]); /* Next seq = 3 */
+
+    /* Deliver final seq 3 -> returns SYN_OK AND queues TP.CM_ACK (EoMAck = 19) */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_build_tp_dt_da(0x10U, 0x25U, 3U, p3, 2U, &dt));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_process_frame(&ecu, &dt, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_EQUAL_UINT32(SYN_J1939_PGN_DM1, out_pgn);
+    TEST_ASSERT_EQUAL_UINT32(16U, out_len);
+    TEST_ASSERT_EQUAL_MEMORY("0123456789ABCDEF", out_data, 16U);
+
+    TEST_ASSERT_TRUE(syn_j1939_get_tx(&ecu, &tx_resp));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_id_unpack(tx_resp.id, &resp_hdr));
+    TEST_ASSERT_EQUAL_UINT8(0x25U, resp_hdr.sa);
+    TEST_ASSERT_EQUAL_UINT8(0x10U, resp_hdr.da);
+    TEST_ASSERT_EQUAL_UINT8(SYN_J1939_TP_CTRL_ACK, tx_resp.data[0]);
+    TEST_ASSERT_EQUAL_UINT8(16U, tx_resp.data[1]);
+    TEST_ASSERT_EQUAL_UINT8(0U, tx_resp.data[2]);
+    TEST_ASSERT_EQUAL_UINT8(3U, tx_resp.data[3]);
+
+    /* Also verify single-window RTS (max_packets = 0xFF) and TP.CM_ABORT */
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_j1939_build_tp_rts(0x10U, 0x25U, SYN_J1939_PGN_DM1, 10U, 0xFFU, &rts));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_j1939_process_frame(&ecu, &rts, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_TRUE(syn_j1939_get_tx(&ecu, &tx_resp));
+    TEST_ASSERT_EQUAL_UINT8(2U, tx_resp.data[1]);
+
+    /* Connection Abort from unrelated SA is ignored; from active peer closes session */
+    SYN_CAN_Frame abort_frame = rts;
+    abort_frame.data[0] = SYN_J1939_TP_CTRL_ABORT;
+    abort_frame.id = syn_j1939_id_pack(7U, SYN_J1939_PGN_TP_CM, 0x99U, 0x25U);
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &abort_frame, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_TRUE(ecu.tp_rx.active);
+
+    abort_frame.id = syn_j1939_id_pack(7U, SYN_J1939_PGN_TP_CM, 0x10U, 0x25U);
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &abort_frame, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_FALSE(ecu.tp_rx.active);
+}
+
 void run_j1939_tests(void)
 {
     RUN_TEST(test_j1939_id_pack_unpack_pdu1_pdu2);
@@ -327,4 +478,5 @@ void run_j1939_tests(void)
     RUN_TEST(test_j1939_dtc_log_null_checks_and_multi_packet_short_last_frame);
     RUN_TEST(test_j1939_single_frame_rx_and_dm2_encoding);
     RUN_TEST(test_j1939_pgn_filter_and_claim_conflict);
+    RUN_TEST(test_r5_a15_unicast_rts_cts_eomack_and_da_dlc_filters);
 }

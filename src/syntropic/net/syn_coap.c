@@ -10,6 +10,7 @@
  */
 
 #include "../port/syn_port_system.h"
+#include "../sched/syn_sched.h"
 #include "../util/syn_assert.h"
 #include "../util/syn_pack.h"
 #include "syn_coap.h"
@@ -18,27 +19,25 @@
 
 size_t syn_coap_encode_block_opt(const SYN_CoapBlock *block, uint8_t buf[3])
 {
-    if (block == NULL || buf == NULL || block->szx > 6) {
-        return 0;
+    if (block == NULL || buf == NULL || block->szx > 6U || block->num > 0xFFFFFU) {
+        return 0U;
     }
 
     uint32_t val = (block->num << 4U) | ((block->more ? 1U : 0U) << 3U) | (block->szx & 0x07U);
 
     if (val <= 0xFFU) {
         buf[0] = (uint8_t)val;
-        return 1;
-    } else if (val <= 0xFFFFU) {
+        return 1U;
+    }
+    if (val <= 0xFFFFU) {
         buf[0] = (uint8_t)(val >> 8U);
         buf[1] = (uint8_t)(val & 0xFFU);
-        return 2;
-    } else if (val <= 0xFFFFFFU) {
-        buf[0] = (uint8_t)(val >> 16U);
-        buf[1] = (uint8_t)(val >> 8U);
-        buf[2] = (uint8_t)(val & 0xFFU);
-        return 3;
+        return 2U;
     }
-
-    return 0;
+    buf[0] = (uint8_t)(val >> 16U);
+    buf[1] = (uint8_t)(val >> 8U);
+    buf[2] = (uint8_t)(val & 0xFFU);
+    return 3U;
 }
 
 bool syn_coap_decode_block_opt(const uint8_t *opt_val, size_t opt_len, SYN_CoapBlock *block)
@@ -72,116 +71,214 @@ bool syn_coap_decode_block_opt(const uint8_t *opt_val, size_t opt_len, SYN_CoapB
     return true;
 }
 
+/**
+ * @brief Copy and sort up to 16 CoAP options by ascending option number.
+ * @param sorted  [out] Destination option array (capacity 16).
+ * @param options Source options array.
+ * @param count   Number of options to copy and sort (<= 16).
+ */
+static void coap_sort_options(SYN_CoapOption *sorted, const SYN_CoapOption *options, size_t count)
+{
+    if (count > 0U) {
+        memcpy(sorted, options, count * sizeof(SYN_CoapOption));
+    }
+    for (size_t i = 1U; i < count; i++) {
+        SYN_CoapOption tmp = sorted[i];
+        size_t j = i;
+        while (j > 0U && sorted[j - 1U].num > tmp.num) {
+            sorted[j] = sorted[j - 1U];
+            j--;
+        }
+        sorted[j] = tmp;
+    }
+}
+
+/**
+ * @brief Encode a CoAP option delta or length into base nibble and extended value.
+ * @param val     Raw option delta or length.
+ * @param nibble  [out] 4-bit header nibble (0..14).
+ * @param ext_len [out] Extended byte count (0, 1, or 2).
+ * @param ext_val [out] Extended integer value.
+ */
+static void coap_encode_nibble(size_t val, uint8_t *nibble, uint8_t *ext_len, uint16_t *ext_val)
+{
+    if (val < 13U) {
+        *nibble = (uint8_t)val;
+        *ext_len = 0U;
+        *ext_val = 0U;
+    } else if (val < 269U) {
+        *nibble = 13U;
+        *ext_len = 1U;
+        *ext_val = (uint16_t)(val - 13U);
+    } else {
+        *nibble = 14U;
+        *ext_len = 2U;
+        *ext_val = (uint16_t)(val - 269U);
+    }
+}
+
+/**
+ * @brief Append 0, 1, or 2 extended option header bytes.
+ * @param buf     Destination packet buffer.
+ * @param pos     [in,out] Write cursor.
+ * @param ext_len Extended byte count (0, 1, or 2).
+ * @param ext_val Extended value to write.
+ */
+static void coap_write_ext(uint8_t *buf, size_t *pos, uint8_t ext_len, uint16_t ext_val)
+{
+    if (ext_len == 1U) {
+        buf[(*pos)++] = (uint8_t)ext_val;
+    } else if (ext_len == 2U) {
+        buf[(*pos)++] = (uint8_t)(ext_val >> 8U);
+        buf[(*pos)++] = (uint8_t)(ext_val & 0xFFU);
+    }
+}
+
+/**
+ * @brief Validate inputs to syn_coap_serialize before writing packet bytes.
+ * @param msg          Message header and payload descriptor.
+ * @param options      Option array (may be NULL when option_count == 0).
+ * @param option_count Number of options.
+ * @param buf          Output buffer.
+ * @param max_buf_len  Output buffer capacity.
+ * @return true if all pointers, counts, and header bounds are valid.
+ */
+static bool coap_serialize_args_ok(const SYN_CoapMsg *msg, const SYN_CoapOption *options,
+                                   size_t option_count, const uint8_t *buf, size_t max_buf_len)
+{
+    if (msg == NULL || buf == NULL || option_count > 16U) {
+        return false;
+    }
+    if ((option_count > 0U && options == NULL) || (msg->payload_len > 0U && msg->payload == NULL)) {
+        return false;
+    }
+    return (msg->token_len <= 8U) && (max_buf_len >= (size_t)(4U + msg->token_len));
+}
+
 size_t syn_coap_serialize(const SYN_CoapMsg *msg, const SYN_CoapOption *options,
                           size_t option_count, uint8_t *buf, size_t max_buf_len)
 {
-    SYN_ASSERT(msg != NULL);
-    SYN_ASSERT(buf != NULL);
-
-    if (msg->token_len > 8 || max_buf_len < (size_t)(4 + msg->token_len)) {
-        return 0;
+    if (!coap_serialize_args_ok(msg, options, option_count, buf, max_buf_len)) {
+        return 0U;
     }
 
-    /* Copy and sort options in ascending order of option numbers (CoAP spec requirement) */
     SYN_CoapOption sorted[16];
-    size_t count = option_count > 16 ? 16 : option_count;
-    if (count > 0) {
-        memcpy(sorted, options, count * sizeof(SYN_CoapOption));
-    }
+    coap_sort_options(sorted, options, option_count);
 
-    for (size_t i = 0; i < count; i++) {
-        for (size_t j = i + 1; j < count; j++) {
-            if (sorted[i].num > sorted[j].num) {
-                SYN_CoapOption tmp = sorted[i];
-                sorted[i] = sorted[j];
-                sorted[j] = tmp;
-            }
-        }
-    }
-
-    /* Encode 4-byte header */
-    buf[0] = (uint8_t)((COAP_VERSION << 6) | ((msg->type & 0x03) << 4) | (msg->token_len & 0x0F));
+    buf[0] =
+        (uint8_t)((COAP_VERSION << 6U) | ((msg->type & 0x03U) << 4U) | (msg->token_len & 0x0FU));
     buf[1] = msg->code;
-    syn_poke_u16(msg->msg_id, buf, 2);
+    syn_poke_u16(msg->msg_id, buf, 2U);
 
-    size_t pos = 4;
-    for (size_t i = 0; i < msg->token_len; i++) {
+    size_t pos = 4U;
+    for (size_t i = 0U; i < msg->token_len; i++) {
         buf[pos++] = msg->token[i];
     }
 
-    /* Encode options */
-    uint16_t prev_num = 0;
-    for (size_t i = 0; i < count; i++) {
-        uint16_t delta = sorted[i].num - prev_num;
+    uint16_t prev_num = 0U;
+    for (size_t i = 0U; i < option_count; i++) {
+        size_t opt_len = sorted[i].len;
+        if (opt_len > 65804U || (opt_len > 0U && sorted[i].val == NULL)) {
+            return 0U;
+        }
+
+        uint16_t delta = (uint16_t)(sorted[i].num - prev_num);
         prev_num = sorted[i].num;
 
-        uint8_t delta_val = 0;
-        uint8_t delta_ext_len = 0;
-        uint16_t delta_ext = 0;
-        if (delta < 13) {
-            delta_val = (uint8_t)delta;
-        } else if (delta < 269) {
-            delta_val = 13;
-            delta_ext_len = 1;
-            delta_ext = delta - 13;
-        } else {
-            delta_val = 14;
-            delta_ext_len = 2;
-            delta_ext = delta - 269;
+        uint8_t delta_val = 0U;
+        uint8_t delta_ext_len = 0U;
+        uint16_t delta_ext = 0U;
+        coap_encode_nibble(delta, &delta_val, &delta_ext_len, &delta_ext);
+
+        uint8_t len_val = 0U;
+        uint8_t len_ext_len = 0U;
+        uint16_t len_ext = 0U;
+        coap_encode_nibble(opt_len, &len_val, &len_ext_len, &len_ext);
+
+        size_t opt_header_len = (size_t)(1U + delta_ext_len + len_ext_len);
+        if (opt_header_len > max_buf_len - pos || opt_len > max_buf_len - pos - opt_header_len) {
+            return 0U;
         }
 
-        uint8_t len_val = 0;
-        uint8_t len_ext_len = 0;
-        uint16_t len_ext = 0;
-        size_t opt_len = sorted[i].len;
-        if (opt_len < 13) {
-            len_val = (uint8_t)opt_len;
-        } else if (opt_len < 269) {
-            len_val = 13;
-            len_ext_len = 1;
-            len_ext = (uint16_t)(opt_len - 13);
-        } else {
-            len_val = 14;
-            len_ext_len = 2;
-            len_ext = (uint16_t)(opt_len - 269);
+        buf[pos++] = (uint8_t)((delta_val << 4U) | len_val);
+        coap_write_ext(buf, &pos, delta_ext_len, delta_ext);
+        coap_write_ext(buf, &pos, len_ext_len, len_ext);
+
+        if (opt_len > 0U) {
+            memcpy(buf + pos, sorted[i].val, opt_len);
+            pos += opt_len;
         }
-
-        size_t opt_header_len = (size_t)(1 + delta_ext_len + len_ext_len);
-        if (pos + opt_header_len + opt_len > max_buf_len) {
-            return 0;
-        }
-
-        buf[pos++] = (uint8_t)((delta_val << 4) | len_val);
-
-        if (delta_ext_len == 1) {
-            buf[pos++] = (uint8_t)delta_ext;
-        } else if (delta_ext_len == 2) {
-            buf[pos++] = (uint8_t)(delta_ext >> 8);
-            buf[pos++] = (uint8_t)(delta_ext & 0xFF);
-        }
-
-        if (len_ext_len == 1) {
-            buf[pos++] = (uint8_t)len_ext;
-        } else if (len_ext_len == 2) {
-            buf[pos++] = (uint8_t)(len_ext >> 8);
-            buf[pos++] = (uint8_t)(len_ext & 0xFF);
-        }
-
-        memcpy(buf + pos, sorted[i].val, opt_len);
-        pos += opt_len;
     }
 
-    /* Encode payload */
-    if (msg->payload_len > 0) {
-        if (pos + 1 + msg->payload_len > max_buf_len) {
-            return 0;
+    if (msg->payload_len > 0U) {
+        if (msg->payload_len >= max_buf_len - pos) {
+            return 0U;
         }
-        buf[pos++] = 0xFF; /* Payload marker */
+        buf[pos++] = 0xFFU;
         memcpy(buf + pos, msg->payload, msg->payload_len);
         pos += msg->payload_len;
     }
 
     return pos;
+}
+
+/**
+ * @brief Decode a 4-bit CoAP option delta or length nibble and any extended bytes.
+ * @param nibble  4-bit option nibble.
+ * @param buf     Packet buffer.
+ * @param buf_len Total packet length.
+ * @param pos     [in,out] Read cursor.
+ * @param out     [out] Decoded option delta or length.
+ * @return true on valid encoding within buffer bounds, false otherwise.
+ */
+static bool coap_decode_nibble(uint8_t nibble, const uint8_t *buf, size_t buf_len, size_t *pos,
+                               size_t *out)
+{
+    if (nibble < 13U) {
+        *out = nibble;
+        return true;
+    }
+    if (nibble == 13U) {
+        if (buf_len - *pos < 1U) {
+            return false;
+        }
+        *out = 13U + (size_t)buf[(*pos)++];
+        return true;
+    }
+    if (nibble == 14U) {
+        if (buf_len - *pos < 2U) {
+            return false;
+        }
+        *out = 269U + (((size_t)buf[*pos] << 8U) | (size_t)buf[*pos + 1U]);
+        *pos += 2U;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief Parse one CoAP option header and validate 16-bit option-number delta and buffer bounds.
+ * @param buf      Packet buffer.
+ * @param buf_len  Total packet length.
+ * @param pos      [in,out] Read cursor (initially at option header byte).
+ * @param prev_num [in,out] Running option number accumulator.
+ * @param len_out  [out] Decoded option value length.
+ * @return true if option header and bounds are valid, false otherwise.
+ */
+static bool coap_parse_opt_hdr(const uint8_t *buf, size_t buf_len, size_t *pos, uint16_t *prev_num,
+                               size_t *len_out)
+{
+    uint8_t hdr = buf[(*pos)++];
+    size_t delta = 0U;
+    size_t len = 0U;
+    if (!coap_decode_nibble((hdr >> 4U) & 0x0FU, buf, buf_len, pos, &delta) ||
+        delta > (size_t)(UINT16_MAX - *prev_num) ||
+        !coap_decode_nibble(hdr & 0x0FU, buf, buf_len, pos, &len) || len > buf_len - *pos) {
+        return false;
+    }
+    *prev_num = (uint16_t)(*prev_num + (uint16_t)delta);
+    *len_out = len;
+    return true;
 }
 
 SYN_Status syn_coap_parse(SYN_CoapMsg *msg, SYN_CoapOption *options, size_t max_options,
@@ -191,87 +288,49 @@ SYN_Status syn_coap_parse(SYN_CoapMsg *msg, SYN_CoapOption *options, size_t max_
     SYN_ASSERT(buf != NULL);
     SYN_ASSERT(option_count != NULL);
 
-    if (buf_len < 4) {
+    if (buf_len < 4U) {
         return SYN_ERROR;
     }
 
-    uint8_t ver = (buf[0] >> 6) & 0x03;
+    uint8_t ver = (buf[0] >> 6U) & 0x03U;
     if (ver != COAP_VERSION) {
         return SYN_ERROR;
     }
-    msg->type = (buf[0] >> 4) & 0x03;
-    msg->token_len = buf[0] & 0x0F;
+    msg->type = (buf[0] >> 4U) & 0x03U;
+    msg->token_len = buf[0] & 0x0FU;
     msg->code = buf[1];
-    msg->msg_id = syn_peek_u16(buf, 2);
+    msg->msg_id = syn_peek_u16(buf, 2U);
 
-    if (msg->token_len > 8) {
-        return SYN_ERROR;
-    }
-    if (buf_len < (size_t)(4 + msg->token_len)) {
+    if (msg->token_len > 8U || buf_len < (size_t)(4U + msg->token_len)) {
         return SYN_ERROR;
     }
 
-    memcpy(msg->token, buf + 4, msg->token_len);
+    memcpy(msg->token, buf + 4U, msg->token_len);
 
-    size_t pos = 4 + msg->token_len;
-    size_t opt_idx = 0;
-    uint16_t prev_num = 0;
+    size_t pos = 4U + msg->token_len;
+    size_t opt_idx = 0U;
+    uint16_t prev_num = 0U;
     msg->payload = NULL;
-    msg->payload_len = 0;
+    msg->payload_len = 0U;
 
     while (pos < buf_len) {
-        if (buf[pos] == 0xFF) {
+        if (buf[pos] == 0xFFU) {
             pos++;
+            if (pos >= buf_len) {
+                return SYN_ERROR;
+            }
             msg->payload = buf + pos;
             msg->payload_len = buf_len - pos;
             break;
         }
 
-        uint8_t delta_val = (buf[pos] >> 4) & 0x0F;
-        uint8_t len_val = buf[pos] & 0x0F;
-        pos++;
-
-        uint16_t delta = 0;
-        if (delta_val < 13) {
-            delta = delta_val;
-        } else if (delta_val == 13) {
-            if (pos >= buf_len)
-                return SYN_ERROR;
-            delta = 13 + buf[pos++];
-        } else if (delta_val == 14) {
-            if (pos + 1 >= buf_len)
-                return SYN_ERROR;
-            delta = (uint16_t)(269 + (((uint16_t)buf[pos] << 8) | buf[pos + 1]));
-            pos += 2;
-        } else {
+        size_t len = 0U;
+        if (!coap_parse_opt_hdr(buf, buf_len, &pos, &prev_num, &len)) {
             return SYN_ERROR;
         }
-
-        size_t len = 0;
-        if (len_val < 13) {
-            len = len_val;
-        } else if (len_val == 13) {
-            if (pos >= buf_len)
-                return SYN_ERROR;
-            len = 13 + buf[pos++];
-        } else if (len_val == 14) {
-            if (pos + 1 >= buf_len)
-                return SYN_ERROR;
-            len = (size_t)(269 + (((uint16_t)buf[pos] << 8) | buf[pos + 1]));
-            pos += 2;
-        } else {
-            return SYN_ERROR;
-        }
-
-        if (pos + len > buf_len) {
-            return SYN_ERROR;
-        }
-
-        uint16_t num = prev_num + delta;
-        prev_num = num;
 
         if (options != NULL && opt_idx < max_options) {
-            options[opt_idx].num = num;
+            options[opt_idx].num = prev_num;
             options[opt_idx].val = buf + pos;
             options[opt_idx].len = len;
             opt_idx++;
@@ -282,26 +341,110 @@ SYN_Status syn_coap_parse(SYN_CoapMsg *msg, SYN_CoapOption *options, size_t max_
     return SYN_OK;
 }
 
+/**
+ * @brief Initialize exponential retransmit backoff without shift UB or uint8_t wraparound.
+ * @param b          [out] Backoff state.
+ * @param timeout_ms Initial retransmit timeout in milliseconds.
+ * @param retries    Maximum retransmission count.
+ */
+static void coap_init_backoff(SYN_Backoff *b, uint32_t timeout_ms, uint8_t retries)
+{
+    uint8_t shift = (retries > 16U) ? 16U : retries;
+    uint64_t scaled = (uint64_t)timeout_ms << shift;
+    uint32_t max_ms = (scaled > 0x7FFFFFFFULL) ? 0x7FFFFFFFU : (uint32_t)scaled;
+    uint8_t max_attempts = (retries == UINT8_MAX) ? UINT8_MAX : (uint8_t)(retries + 1U);
+    syn_backoff_init(b, timeout_ms, max_ms, 2U, max_attempts);
+}
+
+/**
+ * @brief Close and invalidate a CoAP UDP request socket if currently open.
+ * @param r CoAP request context.
+ */
+static void coap_close_sock(SYN_CoapRequest *r)
+{
+    if (r->sock != SYN_SOCKET_INVALID) {
+        syn_port_sock_close(r->sock);
+        r->sock = SYN_SOCKET_INVALID;
+    }
+}
+
+/**
+ * @brief Check whether a parsed CoAP response token matches the active request token.
+ * @param req  Request message header.
+ * @param resp Parsed response message header.
+ * @return true if token lengths and bytes match.
+ */
+static bool coap_response_matches(const SYN_CoapMsg *req, const SYN_CoapMsg *resp)
+{
+    if (resp->type == COAP_TYPE_RST || resp->code < 64U) {
+        return false;
+    }
+    return (resp->token_len == req->token_len) &&
+           (memcmp(resp->token, req->token, resp->token_len) == 0);
+}
+
+/**
+ * @brief Check whether the UDP CoAP receive wait condition is satisfied.
+ * @param r CoAP UDP request context.
+ * @return true if socket closed, readable, or attempt deadline elapsed.
+ */
+static bool coap_udp_wait_done(const SYN_CoapRequest *r)
+{
+    return (r->sock == SYN_SOCKET_INVALID) || syn_port_udp_readable(r->sock) ||
+           ((syn_port_get_tick_ms() - r->start_ms) >= r->attempt_delay);
+}
+
+/**
+ * @brief Check whether the generic-transport CoAP receive wait condition is satisfied.
+ * @param r CoAP transport request context.
+ * @return true if transport is NULL, has pending data, or attempt deadline elapsed.
+ */
+static bool coap_tr_wait_done(const SYN_CoapTransportRequest *r)
+{
+    return (r->transport == NULL) || syn_transport_has_data(r->transport) ||
+           ((syn_port_get_tick_ms() - r->start_ms) >= r->attempt_delay);
+}
+
 void syn_coap_request_init(SYN_CoapRequest *r, const SYN_SockAddr *server_addr,
                            const SYN_CoapMsg *msg, uint32_t timeout_ms, uint8_t retries)
 {
     SYN_ASSERT(r != NULL);
     (void)memset(r, 0, sizeof(*r));
+    r->sock = SYN_SOCKET_INVALID;
     r->server_addr = *server_addr;
     r->req_msg = msg;
-    r->start_ms = 0;
-    /* Initialize backoff: factor 2 for binary exponential.
-     * max_attempts = retries + 1 (original + retransmissions) */
-    syn_backoff_init(&r->backoff, timeout_ms, timeout_ms << retries, 2, retries + 1);
+    r->start_ms = 0U;
+    coap_init_backoff(&r->backoff, timeout_ms, retries);
+}
+
+/**
+ * @brief Parse a received UDP CoAP datagram and check whether it matches the request.
+ * @param r Request context.
+ * @param n Received byte count (> 0).
+ * @return true if parsed CoAP message matches r->req_msg.
+ */
+static bool coap_udp_consume_rx(SYN_CoapRequest *r, size_t n)
+{
+    r->resp_len = n;
+    SYN_Status st =
+        syn_coap_parse(&r->resp_msg, r->resp_options, 8U, &r->resp_option_count, r->resp_buf, n);
+    return (st == SYN_OK) && coap_response_matches(r->req_msg, &r->resp_msg);
 }
 
 SYN_PT_Status syn_coap_request_task(SYN_PT *pt, SYN_Task *task)
 {
+    if (pt == NULL || task == NULL || task->user_data == NULL) {
+        return PT_EXITED;
+    }
     SYN_CoapRequest *r = (SYN_CoapRequest *)task->user_data;
-    SYN_ASSERT(r != NULL);
-    uint32_t attempt_delay = 0;
 
     PT_BEGIN(pt);
+
+    coap_close_sock(r);
+    if (r->req_msg == NULL) {
+        r->status = SYN_ERROR;
+        PT_EXIT(pt);
+    }
 
     r->status = SYN_TIMEOUT;
     r->sock = syn_port_udp_open(0);
@@ -313,57 +456,48 @@ SYN_PT_Status syn_coap_request_task(SYN_PT *pt, SYN_Task *task)
     /* Serialize once into struct-owned buffer (survives across yields) */
     r->tx_len = syn_coap_serialize(r->req_msg, r->req_options, r->req_option_count, r->tx_buf,
                                    sizeof(r->tx_buf));
-    if (r->tx_len == 0) {
-        syn_port_sock_close(r->sock);
-        r->sock = SYN_SOCKET_INVALID;
+    if (r->tx_len == 0U) {
+        coap_close_sock(r);
         r->status = SYN_ERROR;
         PT_EXIT(pt);
     }
 
     r->start_ms = syn_port_get_tick_ms();
-
     syn_backoff_reset(&r->backoff);
 
     while (!syn_backoff_exhausted(&r->backoff)) {
-        /* Send request */
         if (syn_port_udp_sendto(r->sock, r->tx_buf, r->tx_len, &r->server_addr) != (int)r->tx_len) {
             r->status = SYN_ERROR;
             break;
         }
 
-        /* Calculate delay for THIS attempt (including jitter) */
-        attempt_delay = syn_backoff_next_ms(&r->backoff);
+        r->attempt_delay = syn_backoff_next_ms(&r->backoff);
         r->start_ms = syn_port_get_tick_ms();
 
-        /* Wait for response */
-        while ((syn_port_get_tick_ms() - r->start_ms) < attempt_delay) {
+        while ((syn_port_get_tick_ms() - r->start_ms) < r->attempt_delay) {
             SYN_SockAddr from;
             int n = syn_port_udp_recvfrom(r->sock, r->resp_buf, sizeof(r->resp_buf), &from, 0);
             if (n > 0) {
-                r->resp_len = (size_t)n;
-                SYN_Status st = syn_coap_parse(&r->resp_msg, r->resp_options, 8,
-                                               &r->resp_option_count, r->resp_buf, r->resp_len);
-                if (st == SYN_OK && r->resp_msg.token_len == r->req_msg->token_len &&
-                    memcmp(r->resp_msg.token, r->req_msg->token, r->resp_msg.token_len) == 0) {
+                if (coap_udp_consume_rx(r, (size_t)n)) {
                     r->status = SYN_OK;
                     break;
                 }
+                PT_CONTINUE_IF_NEEDED(pt, task);
+                continue;
             }
-            PT_WAIT_UNTIL(pt, r->sock == SYN_SOCKET_INVALID || syn_port_udp_readable(r->sock) ||
-                                  (syn_port_get_tick_ms() - r->start_ms) >= attempt_delay);
+            if (syn_port_udp_readable(r->sock)) {
+                PT_PASS(pt);
+                continue;
+            }
+            PT_WAIT_UNTIL(pt, coap_udp_wait_done(r));
         }
 
-        if (r->status == SYN_OK)
+        if (r->status == SYN_OK) {
             break;
+        }
     }
 
-    /* LCOV_EXCL_START: Defensive COAP timeout status fallback */
-    if (r->status == SYN_BUSY)
-        r->status = SYN_TIMEOUT;
-    /* LCOV_EXCL_STOP */
-
-    syn_port_sock_close(r->sock);
-    r->sock = SYN_SOCKET_INVALID;
+    coap_close_sock(r);
 
     PT_END(pt);
 }
@@ -379,21 +513,37 @@ void syn_coap_transport_request_init(SYN_CoapTransportRequest *r, SYN_Transport 
     (void)memset(r, 0, sizeof(*r));
     r->transport = transport;
     r->req_msg = msg;
-    r->start_ms = 0;
-    syn_backoff_init(&r->backoff, timeout_ms, timeout_ms << retries, 2, retries + 1);
+    r->start_ms = 0U;
+    coap_init_backoff(&r->backoff, timeout_ms, retries);
+}
+
+/**
+ * @brief Poll transport once and check whether a matching CoAP response arrived.
+ * @param r           Transport request context.
+ * @param matched_out [out] Set true when matching response parsed into r->resp_msg.
+ * @return true if a non-empty frame was read from transport, false otherwise.
+ */
+static bool coap_tr_poll_rx(SYN_CoapTransportRequest *r, bool *matched_out)
+{
+    *matched_out = false;
+    size_t rx_len = 0U;
+    if (!syn_transport_recv(r->transport, r->resp_buf, sizeof(r->resp_buf), &rx_len) ||
+        rx_len == 0U) {
+        return false;
+    }
+    r->resp_len = rx_len;
+    SYN_Status st = syn_coap_parse(&r->resp_msg, r->resp_options, 8U, &r->resp_option_count,
+                                   r->resp_buf, r->resp_len);
+    *matched_out = (st == SYN_OK) && coap_response_matches(r->req_msg, &r->resp_msg);
+    return true;
 }
 
 SYN_PT_Status syn_coap_transport_request_task(SYN_PT *pt, SYN_Task *task)
 {
-    if (task == NULL || pt == NULL) {
+    if (task == NULL || pt == NULL || task->user_data == NULL) {
         return PT_EXITED;
     }
     SYN_CoapTransportRequest *r = (SYN_CoapTransportRequest *)task->user_data;
-    if (r == NULL) {
-        return PT_EXITED;
-    }
-
-    uint32_t attempt_delay = 0;
 
     PT_BEGIN(pt);
 
@@ -405,7 +555,7 @@ SYN_PT_Status syn_coap_transport_request_task(SYN_PT *pt, SYN_Task *task)
 
     r->tx_len = syn_coap_serialize(r->req_msg, r->req_options, r->req_option_count, r->tx_buf,
                                    sizeof(r->tx_buf));
-    if (r->tx_len == 0) {
+    if (r->tx_len == 0U) {
         r->status = SYN_ERROR;
         PT_EXIT(pt);
     }
@@ -419,23 +569,23 @@ SYN_PT_Status syn_coap_transport_request_task(SYN_PT *pt, SYN_Task *task)
             break;
         }
 
-        attempt_delay = syn_backoff_next_ms(&r->backoff);
+        r->attempt_delay = syn_backoff_next_ms(&r->backoff);
         r->start_ms = syn_port_get_tick_ms();
 
-        while ((syn_port_get_tick_ms() - r->start_ms) < attempt_delay) {
-            size_t rx_len = 0;
-            if (syn_transport_recv(r->transport, r->resp_buf, sizeof(r->resp_buf), &rx_len) &&
-                rx_len > 0) {
-                r->resp_len = rx_len;
-                SYN_Status st = syn_coap_parse(&r->resp_msg, r->resp_options, 8,
-                                               &r->resp_option_count, r->resp_buf, r->resp_len);
-                if (st == SYN_OK && r->resp_msg.token_len == r->req_msg->token_len &&
-                    memcmp(r->resp_msg.token, r->req_msg->token, r->resp_msg.token_len) == 0) {
+        while ((syn_port_get_tick_ms() - r->start_ms) < r->attempt_delay) {
+            bool matched = false;
+            if (coap_tr_poll_rx(r, &matched)) {
+                if (matched) {
                     r->status = SYN_OK;
                     break;
                 }
+                PT_CONTINUE_IF_NEEDED(pt, task);
+                continue;
             }
-            PT_YIELD(pt);
+            PT_PASS(pt);
+            if (r->transport->has_data != NULL) {
+                PT_WAIT_UNTIL(pt, coap_tr_wait_done(r));
+            }
         }
 
         if (r->status == SYN_OK) {
@@ -478,7 +628,7 @@ SYN_Status syn_coap_transport_send_request(SYN_Transport *transport, const SYN_C
         return st;
     }
 
-    if (resp->token_len != req->token_len || memcmp(resp->token, req->token, req->token_len) != 0) {
+    if (!coap_response_matches(req, resp)) {
         return SYN_ERROR;
     }
 
@@ -486,6 +636,8 @@ SYN_Status syn_coap_transport_send_request(SYN_Transport *transport, const SYN_C
 }
 
 /* ── CoAP over DTLS 1.3 (coaps://) ───────────────────────────────────────── */
+
+#if SYN_DTLS_ENABLED
 
 bool syn_coaps_client_init(SYN_CoapsClient *client, const SYN_DTLS_Config *config,
                            SYN_Transport *underlying_transport, uint8_t *rx_buf, size_t rx_buf_size,
@@ -523,7 +675,8 @@ SYN_Status syn_coaps_client_send_request(SYN_CoapsClient *client, const SYN_Coap
     }
 
     if (client->dtls.state != SYN_DTLS_STATE_ESTABLISHED) {
-        if (!syn_coaps_client_handshake(client)) {
+        if (!syn_coaps_client_handshake(client) ||
+            client->dtls.state != SYN_DTLS_STATE_ESTABLISHED) {
             return SYN_ERROR;
         }
     }
@@ -532,5 +685,7 @@ SYN_Status syn_coaps_client_send_request(SYN_CoapsClient *client, const SYN_Coap
                                            resp, resp_opts, max_resp_opts, resp_opt_cnt, resp_buf,
                                            resp_buf_sz);
 }
+
+#endif /* SYN_DTLS_ENABLED */
 
 #endif /* SYN_USE_COAP */

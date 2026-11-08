@@ -8,6 +8,8 @@
 
 #include "syn_ed25519.h"
 
+#if SYN_ED25519_ENABLED
+
 #include <string.h>
 
 /** @cond INTERNAL */
@@ -260,6 +262,19 @@ static void scalarmult(gf p[4], gf q[4], const uint8_t *s)
     }
 }
 
+/**
+ * @brief Zeroize sensitive stack buffers without compiler dead-store elimination.
+ * @param v Buffer pointer.
+ * @param n Number of bytes to zeroize.
+ */
+static void syn_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
+
 static void scalarbase(gf p[4], const uint8_t *s)
 {
     gf q[4];
@@ -268,6 +283,7 @@ static void scalarbase(gf p[4], const uint8_t *s)
     set25519(q[2], gf1);
     M(q[3], X, Y);
     scalarmult(p, q, s);
+    syn_secure_zero(q, sizeof(q));
 }
 
 static int unpackneg(gf r[4], const uint8_t p[32])
@@ -356,6 +372,7 @@ static void reduce(uint8_t *r)
         r[i] = 0;
     }
     modL(r, x);
+    syn_secure_zero(x, sizeof(x));
 }
 
 /** @endcond */
@@ -384,10 +401,9 @@ bool syn_ed25519_publickey(const uint8_t secret_key[SYN_ED25519_SECRET_KEY_SIZE]
     scalarbase(p, d);
     pack(public_key, p);
 
-    volatile uint8_t *vp = (volatile uint8_t *)d;
-    for (size_t i = 0; i < sizeof(d); i++) {
-        vp[i] = 0U;
-    }
+    syn_secure_zero(d, sizeof(d));
+    syn_secure_zero(p, sizeof(p));
+    syn_secure_zero(&hash_ctx, sizeof(hash_ctx));
     return true;
 }
 
@@ -470,14 +486,13 @@ bool syn_ed25519_sign(const uint8_t *msg, size_t msg_len,
     }
     modL(sig + 32, x);
 
-    volatile uint8_t *vp = (volatile uint8_t *)d;
-    for (size_t i = 0; i < sizeof(d); i++) {
-        vp[i] = 0U;
-    }
-    vp = (volatile uint8_t *)r;
-    for (size_t i = 0; i < sizeof(r); i++) {
-        vp[i] = 0U;
-    }
+    syn_secure_zero(d, sizeof(d));
+    syn_secure_zero(r, sizeof(r));
+    syn_secure_zero(h, sizeof(h));
+    syn_secure_zero(x, sizeof(x));
+    syn_secure_zero(p, sizeof(p));
+    syn_secure_zero(pk_buf, sizeof(pk_buf));
+    syn_secure_zero(&hash_ctx, sizeof(hash_ctx));
     return true;
 }
 
@@ -533,3 +548,5 @@ bool syn_ed25519_verify(const uint8_t sig[SYN_ED25519_SIGNATURE_SIZE], const uin
 
     return syn_ed25519_verify_hash(sig, h, public_key);
 }
+
+#endif /* SYN_ED25519_ENABLED */

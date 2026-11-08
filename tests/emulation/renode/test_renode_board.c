@@ -76,8 +76,8 @@ void test_renode_usb_device_stack(void)
     TEST_ASSERT_EQUAL_INT(SYN_OK,
                           syn_usb_hid_register(&dev, &hid, report_desc, sizeof(report_desc)));
 
-    /* Verify configuration descriptor auto-assembly */
-    TEST_ASSERT_EQUAL_UINT16(9 + 67 + 25, dev.config_desc_len);
+    /* Verify configuration descriptor auto-assembly (Config 9 + CDC 66 + HID 25 = 100 bytes) */
+    TEST_ASSERT_EQUAL_UINT16(9 + 66 + 25, dev.config_desc_len);
 
     /* Simulate host SET_ADDRESS & SET_CONFIGURATION */
     SYN_USB_SetupPacket pkt = {.bmRequestType = 0x00,

@@ -7,30 +7,30 @@
 
 #include <string.h>
 
-/** Standard CDC Interface Descriptor Assembly (2 interfaces, 3 endpoints, 67 bytes) */
-static const uint8_t CDC_INTERFACE_DESC[67] = {
+/** Standard CDC Interface Descriptor Assembly (2 interfaces, 3 endpoints, 66 bytes) */
+static const uint8_t CDC_INTERFACE_DESC[66] = {
     /* Interface Association Descriptor (IAD) */
-    0x08, 0x0B, 0x00, 0x02, 0x02, 0x02, 0x01, 0x00,
+    0x08U, 0x0BU, 0x00U, 0x02U, 0x02U, 0x02U, 0x01U, 0x00U,
 
     /* Interface 0: Communication Interface Class */
-    0x09, 0x04, 0x00, 0x00, 0x01, 0x02, 0x02, 0x01, 0x00,
+    0x09U, 0x04U, 0x00U, 0x00U, 0x01U, 0x02U, 0x02U, 0x01U, 0x00U,
     /* Header Functional Descriptor */
-    0x05, 0x24, 0x00, 0x10, 0x01,
+    0x05U, 0x24U, 0x00U, 0x10U, 0x01U,
     /* Call Management Functional Descriptor */
-    0x05, 0x24, 0x01, 0x00, 0x01,
+    0x05U, 0x24U, 0x01U, 0x00U, 0x01U,
     /* ACM Functional Descriptor */
-    0x04, 0x24, 0x02, 0x02,
+    0x04U, 0x24U, 0x02U, 0x02U,
     /* Union Functional Descriptor */
-    0x05, 0x24, 0x06, 0x00, 0x01,
+    0x05U, 0x24U, 0x06U, 0x00U, 0x01U,
     /* Endpoint 0x82: Interrupt IN */
-    0x07, 0x05, 0x82, 0x03, 0x08, 0x00, 0x10,
+    0x07U, 0x05U, 0x82U, 0x03U, 0x08U, 0x00U, 0x10U,
 
     /* Interface 1: Data Interface Class */
-    0x09, 0x04, 0x01, 0x00, 0x02, 0x0A, 0x00, 0x00, 0x00,
+    0x09U, 0x04U, 0x01U, 0x00U, 0x02U, 0x0AU, 0x00U, 0x00U, 0x00U,
     /* Endpoint 0x01: Bulk OUT */
-    0x07, 0x05, 0x01, 0x02, 0x40, 0x00, 0x00,
+    0x07U, 0x05U, 0x01U, 0x02U, 0x40U, 0x00U, 0x00U,
     /* Endpoint 0x81: Bulk IN */
-    0x07, 0x05, 0x81, 0x02, 0x40, 0x00, 0x00};
+    0x07U, 0x05U, 0x81U, 0x02U, 0x40U, 0x00U, 0x00U};
 
 /**
  * @brief Setup request callback wrapper for CDC class requests.
@@ -45,10 +45,46 @@ static SYN_Status cdc_class_setup(void *ctx, const SYN_USB_SetupPacket *pkt, uin
                                   uint16_t *rlen)
 {
     SYN_USB_CDC *cdc = (SYN_USB_CDC *)ctx;
-    size_t size_rlen = 0;
+    size_t size_rlen = 0U;
     SYN_Status st = syn_usb_cdc_handle_setup(cdc, pkt, resp, &size_rlen);
-    *rlen = (uint16_t)size_rlen;
+    if (rlen != NULL) {
+        *rlen = (uint16_t)size_rlen;
+    }
     return st;
+}
+
+/**
+ * @brief Data OUT handler callback for CDC Bulk OUT endpoint.
+ *
+ * @param ctx  Pointer to SYN_USB_CDC instance.
+ * @param ep   Endpoint address.
+ * @param data Received payload bytes.
+ * @param len  Byte length of received payload.
+ */
+static void cdc_class_data_out(void *ctx, uint8_t ep, const uint8_t *data, uint16_t len)
+{
+    SYN_USB_CDC *cdc = (SYN_USB_CDC *)ctx;
+    if ((cdc == NULL) || (data == NULL) || (len == 0U) || (ep != cdc->ep_out)) {
+        return;
+    }
+    uint16_t space = (uint16_t)(sizeof(cdc->rx_buf) - cdc->rx_len);
+    uint16_t copy = (len < space) ? len : space;
+    memcpy(&cdc->rx_buf[cdc->rx_len], data, copy);
+    cdc->rx_len = (uint16_t)(cdc->rx_len + copy);
+}
+
+/**
+ * @brief Data IN completion callback for CDC Bulk IN endpoint.
+ *
+ * @param ctx Pointer to SYN_USB_CDC instance.
+ * @param ep  Endpoint address.
+ */
+static void cdc_class_data_in(void *ctx, uint8_t ep)
+{
+    SYN_USB_CDC *cdc = (SYN_USB_CDC *)ctx;
+    if ((cdc != NULL) && (ep == cdc->ep_in)) {
+        cdc->tx_len = 0U;
+    }
 }
 
 /**
@@ -61,80 +97,98 @@ static SYN_Status cdc_class_setup(void *ctx, const SYN_USB_SetupPacket *pkt, uin
 static SYN_Status cdc_class_configured(void *ctx, uint8_t config)
 {
     SYN_USB_CDC *cdc = (SYN_USB_CDC *)ctx;
-    if (cdc) {
+    if (cdc != NULL) {
         cdc->configured = (config != 0U);
+        cdc->tx_len = 0U;
     }
     return SYN_OK;
 }
 
 SYN_Status syn_usb_cdc_init(SYN_USB_CDC *cdc)
 {
-    if (!cdc) {
+    if (cdc == NULL) {
         return SYN_INVALID_PARAM;
     }
     memset(cdc, 0, sizeof(*cdc));
 
-    cdc->ep_in = 0x81;
-    cdc->ep_out = 0x01;
-    cdc->ep_cmd = 0x82;
+    cdc->ep_in = 0x81U;
+    cdc->ep_out = 0x01U;
+    cdc->ep_cmd = 0x82U;
     cdc->configured = false;
 
-    cdc->line_coding.baudrate = 115200;
-    cdc->line_coding.stop_bits = 0; /* 1 Stop Bit */
-    cdc->line_coding.parity = 0;    /* None */
-    cdc->line_coding.data_bits = 8;
+    cdc->line_coding.baudrate = 115200U;
+    cdc->line_coding.stop_bits = 0U;
+    cdc->line_coding.parity = 0U;
+    cdc->line_coding.data_bits = 8U;
 
     return SYN_OK;
 }
 
 SYN_Status syn_usb_cdc_register(SYN_USB_Device *dev, SYN_USB_CDC *cdc)
 {
-    if (!dev || !cdc) {
+    if ((dev == NULL) || (cdc == NULL)) {
         return SYN_INVALID_PARAM;
     }
 
+    uint8_t desc_buf[sizeof(CDC_INTERFACE_DESC)];
+    memcpy(desc_buf, CDC_INTERFACE_DESC, sizeof(CDC_INTERFACE_DESC));
+    desc_buf[38] = cdc->ep_cmd;
+    desc_buf[54] = cdc->ep_out;
+    desc_buf[61] = cdc->ep_in;
+
     SYN_USB_ClassDriver cls;
     memset(&cls, 0, sizeof(cls));
-    cls.iface_start = 0U;
+    cls.iface_start = cdc->iface_num;
     cls.iface_count = 2U;
     cls.ctx = cdc;
     cls.setup = cdc_class_setup;
+    cls.data_out = cdc_class_data_out;
+    cls.data_in = cdc_class_data_in;
     cls.configured = cdc_class_configured;
 
-    return syn_usb_register_class(dev, &cls, CDC_INTERFACE_DESC, sizeof(CDC_INTERFACE_DESC));
+    SYN_Status st = syn_usb_register_class(dev, &cls, desc_buf, (uint16_t)sizeof(desc_buf));
+    if (st == SYN_OK) {
+        cdc->iface_num = dev->classes[dev->class_count - 1U].iface_start;
+        if (!dev->raw_config_override) {
+            uint16_t base = (uint16_t)(dev->config_buf_used - sizeof(desc_buf));
+            cdc->ep_cmd = dev->config_buf[base + 38U];
+            cdc->ep_out = dev->config_buf[base + 54U];
+            cdc->ep_in = dev->config_buf[base + 61U];
+        }
+    }
+    return st;
 }
 
 SYN_Status syn_usb_cdc_handle_setup(SYN_USB_CDC *cdc, const SYN_USB_SetupPacket *setup,
                                     uint8_t *resp, size_t *rlen)
 {
-    if (!cdc || !setup || !resp || !rlen) {
+    if ((cdc == NULL) || (setup == NULL) || (resp == NULL) || (rlen == NULL)) {
         return SYN_INVALID_PARAM;
     }
 
-    *rlen = 0;
+    *rlen = 0U;
 
     switch (setup->bRequest) {
     case SYN_USB_REQ_SET_ADDRESS:
-        cdc->dev_address = (uint8_t)(setup->wValue & 0x7F);
+        cdc->dev_address = (uint8_t)(setup->wValue & 0x7FU);
         return SYN_OK;
 
     case SYN_USB_REQ_SET_CONFIGURATION:
-        cdc->configured = (setup->wValue != 0);
+        cdc->configured = (setup->wValue != 0U);
         return SYN_OK;
 
     case SYN_USB_CDC_SET_LINE_CODING:
-        /* Line coding data stage handler can update active parameters */
         return SYN_OK;
 
     case SYN_USB_CDC_GET_LINE_CODING:
-        resp[0] = (uint8_t)(cdc->line_coding.baudrate & 0xFF);
-        resp[1] = (uint8_t)((cdc->line_coding.baudrate >> 8) & 0xFF);
-        resp[2] = (uint8_t)((cdc->line_coding.baudrate >> 16) & 0xFF);
-        resp[3] = (uint8_t)((cdc->line_coding.baudrate >> 24) & 0xFF);
+        resp[0] = (uint8_t)(cdc->line_coding.baudrate & 0xFFU);
+        resp[1] = (uint8_t)((cdc->line_coding.baudrate >> 8) & 0xFFU);
+        resp[2] = (uint8_t)((cdc->line_coding.baudrate >> 16) & 0xFFU);
+        resp[3] = (uint8_t)((cdc->line_coding.baudrate >> 24) & 0xFFU);
         resp[4] = cdc->line_coding.stop_bits;
         resp[5] = cdc->line_coding.parity;
         resp[6] = cdc->line_coding.data_bits;
-        *rlen = 7;
+        *rlen = 7U;
         return SYN_OK;
 
     case SYN_USB_CDC_SET_CONTROL_LINE_STATE:
@@ -147,8 +201,12 @@ SYN_Status syn_usb_cdc_handle_setup(SYN_USB_CDC *cdc, const SYN_USB_SetupPacket 
 
 SYN_Status syn_usb_cdc_write(SYN_USB_CDC *cdc, const void *data, size_t len)
 {
-    if (!cdc || !data || len == 0) {
+    if ((cdc == NULL) || (data == NULL) || (len == 0U)) {
         return SYN_INVALID_PARAM;
+    }
+
+    if (cdc->tx_len > 0U) {
+        return SYN_BUSY;
     }
 
     if (len > sizeof(cdc->tx_buf)) {
@@ -163,13 +221,13 @@ SYN_Status syn_usb_cdc_write(SYN_USB_CDC *cdc, const void *data, size_t len)
 
 SYN_Status syn_usb_cdc_read(SYN_USB_CDC *cdc, void *buf, size_t max_len, size_t *out_len)
 {
-    if (!cdc || !buf || !out_len) {
+    if ((cdc == NULL) || (buf == NULL) || (out_len == NULL)) {
         return SYN_INVALID_PARAM;
     }
 
     uint16_t available = cdc->rx_len;
-    if (available == 0) {
-        *out_len = 0;
+    if (available == 0U) {
+        *out_len = 0U;
         return SYN_OK;
     }
 
@@ -181,10 +239,10 @@ SYN_Status syn_usb_cdc_read(SYN_USB_CDC *cdc, void *buf, size_t max_len, size_t 
     *out_len = available;
 
     if (available < cdc->rx_len) {
-        memmove(cdc->rx_buf, &cdc->rx_buf[available], cdc->rx_len - available);
-        cdc->rx_len -= available;
+        memmove(cdc->rx_buf, &cdc->rx_buf[available], (size_t)(cdc->rx_len - available));
+        cdc->rx_len = (uint16_t)(cdc->rx_len - available);
     } else {
-        cdc->rx_len = 0;
+        cdc->rx_len = 0U;
     }
 
     return SYN_OK;

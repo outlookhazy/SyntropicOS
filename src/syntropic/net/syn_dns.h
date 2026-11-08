@@ -31,6 +31,7 @@ typedef struct {
 
     /* Internal State */
     SYN_Socket sock;          /**< UDP socket                */
+    bool sock_open;           /**< Active socket ownership   */
     SYN_SockAddr server_addr; /**< Server address            */
     uint32_t start_ms;        /**< Start timestamp           */
     size_t query_len;         /**< Sent query length         */
@@ -39,15 +40,24 @@ typedef struct {
 } SYN_DnsResolver;
 
 /**
+ * @brief Initialize a DNS resolver context to safe defaults.
+ *
+ * Clears the structure and marks the internal UDP socket descriptor invalid.
+ *
+ * @param resolver DNS resolver context to initialize.
+ */
+void syn_dns_init(SYN_DnsResolver *resolver);
+
+/**
  * @brief Cooperative task for resolving a hostname via DNS.
  *
  * Register this as a SYN_TaskFunc with user_data pointing to a
  * SYN_DnsResolver instance. The task runs non-blocking UDP queries,
- * yielding via PT_YIELD until resolution completes or times out.
+ * yielding until resolution completes or times out.
  *
  * @param pt    Protothread pointer.
  * @param task  Task structure whose user_data points to a SYN_DnsResolver.
- * @return PT_WAITING while running, PT_EXITED when done, or PT_ENDED on early exit.
+ * @return PT_IDLE while waiting, PT_ENDED when done, or PT_EXITED on early abort.
  */
 SYN_PT_Status syn_dns_resolve_task(SYN_PT *pt, SYN_Task *task);
 
@@ -71,7 +81,7 @@ SYN_Status syn_mdns_init(SYN_Mdns *mdns, const char *hostname, const uint8_t ip[
  * @brief Cooperative task for responding to local mDNS queries.
  * @param pt    Protothread pointer.
  * @param task  Task structure whose user_data points to a SYN_Mdns.
- * @return PT_WAITING while running, PT_EXITED when done.
+ * @return PT_IDLE while running, PT_ENDED/PT_EXITED when done.
  */
 SYN_PT_Status syn_mdns_task(SYN_PT *pt, SYN_Task *task);
 

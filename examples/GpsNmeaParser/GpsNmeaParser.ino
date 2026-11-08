@@ -96,8 +96,9 @@ static SYN_PT_Status gps_task(SYN_PT *pt, SYN_Task *task)
             if (syn_nmea_parser_feed(&nmea_parser, ch, sentence_buf)) {
                 process_nmea_sentence(sentence_buf);
             }
+            PT_CONTINUE_IF_NEEDED(pt, task);
         }
-        PT_DEFER(pt, task);
+        PT_PASS(pt);
     }
     PT_END(pt);
 }
@@ -119,8 +120,8 @@ void setup()
     syn_led_blink(&status_led, 200, 200);
 
     /* 3. Register Scheduler Tasks */
-    syn_task_create(&tasks[0], "gps",   gps_task,   1, NULL);
-    syn_task_create(&tasks[1], "blink", blink_task, 2, NULL);
+    syn_task_create(&tasks[0], "gps",   gps_task,   SYN_PRIO_HIGH,   NULL);
+    syn_task_create(&tasks[1], "blink", blink_task, SYN_PRIO_NORMAL, NULL);
 
     syn_sched_init(&sched, tasks, 2);
 

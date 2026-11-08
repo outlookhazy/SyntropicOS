@@ -51,6 +51,8 @@
 #ifndef SYN_PORT_HPCLOCK_H
 #define SYN_PORT_HPCLOCK_H
 
+#include "../common/syn_defs.h"
+
 #include <stdint.h>
 
 #ifdef __cplusplus

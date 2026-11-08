@@ -58,9 +58,15 @@ SYN_Status syn_goertzel_process_sample(SYN_Goertzel *g, int16_t sample)
         return SYN_INVALID_PARAM;
     }
 
-    int32_t s0 = (int32_t)sample + (((int64_t)g->coeff_q15 * g->s1) >> 14) - g->s2;
+    int64_t fb = ((int64_t)g->coeff_q15 * (int64_t)g->s1) >> 14;
+    int64_t s0 = (int64_t)sample + fb - (int64_t)g->s2;
+    if (s0 > 2147483647LL) {
+        s0 = 2147483647LL;
+    } else if (s0 < -2147483647LL) {
+        s0 = -2147483647LL;
+    }
     g->s2 = g->s1;
-    g->s1 = s0;
+    g->s1 = (int32_t)s0;
     g->n_count++;
 
     return SYN_OK;
@@ -88,14 +94,17 @@ uint64_t syn_goertzel_get_magnitude_sq(const SYN_Goertzel *g)
         return 0ULL;
     }
 
-    int64_t s1 = g->s1;
-    int64_t s2 = g->s2;
-    int64_t prod = ((int64_t)g->coeff_q15 * s1 * s2) >> 14;
+    int64_t s1 = (g->s1 == INT32_MIN) ? -2147483647LL : (int64_t)g->s1;
+    int64_t s2 = (g->s2 == INT32_MIN) ? -2147483647LL : (int64_t)g->s2;
+    int64_t scaled_s1 = ((int64_t)g->coeff_q15 * s1) >> 14;
+    int64_t prod = scaled_s1 * s2;
+    uint64_t sq_sum = (uint64_t)(s1 * s1) + (uint64_t)(s2 * s2);
 
-    int64_t mag_sq = (s1 * s1) + (s2 * s2) - prod;
-    if (mag_sq < 0) {
-        mag_sq = 0; /* LCOV_EXCL_LINE: Defensive guard for fixed-point rounding */
+    if (prod < 0) {
+        return sq_sum + (uint64_t)(-prod);
     }
-
-    return (uint64_t)mag_sq;
+    if ((uint64_t)prod >= sq_sum) {
+        return 0ULL;
+    }
+    return sq_sum - (uint64_t)prod;
 }

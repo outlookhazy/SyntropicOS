@@ -85,6 +85,24 @@ services:
       - NET_ADMIN
     ports:
       - "51820:51820/udp"
+    volumes:
+      - ../..:/workspace:z
+    command:
+      - /bin/bash
+      - -c
+      - |
+        printf '\x02%.0s' {1..32} | base64 -w0 > /tmp/srv.key
+        printf '\x01%.0s' {1..32} | base64 -w0 | wg pubkey > /tmp/cli.pub
+        if ip link add dev wg0 type wireguard 2>/dev/null; then
+          ip address add 10.0.0.1/24 dev wg0
+          wg set wg0 listen-port 51820 private-key /tmp/srv.key peer "`cat /tmp/cli.pub`" allowed-ips 10.0.0.2/32
+          ip link set mtu 1420 up dev wg0
+          echo "[WireGuard Server] Kernel wg0 online on 51820/udp."
+          exec tail -f /dev/null
+        fi
+        echo "[WireGuard Server] Kernel wg0 unavailable in userns; awaiting container wg_daemon..."
+        while [ ! -x /workspace/build/tests/wg_daemon ]; do sleep 0.1; done
+        exec /workspace/build/tests/wg_daemon
     networks:
       syn_net:
         ipv4_address: 172.28.0.80
@@ -112,6 +130,11 @@ services:
       - NET_RAW
     ports:
       - "10884:10884"
+    command:
+      - python3
+      - -u
+      - -c
+      - "exec(open('/app/pysoem_daemon.py').read().replace('127.0.0.1', '0.0.0.0'))"
     networks:
       syn_net:
         ipv4_address: 172.28.0.100
@@ -172,6 +195,8 @@ services:
 
   # 14. SyntropicOS Integration Test Runner Container
   test-runner:
+    profiles:
+      - compose-only
     build:
       context: ../..
       dockerfile: tools/containers/Containerfile
@@ -184,6 +209,7 @@ services:
       - http
       - ws
       - dns
+      - wireguard
       - modbus
       - ethercat-soem
       - ethercat-soes
@@ -196,6 +222,7 @@ services:
       - HTTP_HOST=http
       - WS_HOST=ws
       - DNS_HOST=dns
+      - WG_HOST=wireguard
       - MODBUS_HOST=modbus
       - ETHERCAT_HOST=ethercat-soem
       - ETHERCAT_SOES_HOST=ethercat-soes

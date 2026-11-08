@@ -15,6 +15,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -90,9 +91,12 @@ typedef struct SYN_TcpConn {
 /* ── TCP Stack Container ───────────────────────────────────────────────── */
 
 /** @brief Top-level TCP stack instance container. */
-typedef struct {
-    SYN_ETH *eth;                         /**< Associated Ethernet interface instance. */
-    SYN_TcpConn conns[SYN_TCP_MAX_CONNS]; /**< Array of managed TCP connections. */
+typedef struct SYN_TCP {
+    SYN_ETH *eth;                             /**< Associated Ethernet interface instance. */
+    SYN_TcpConn conns[SYN_TCP_MAX_CONNS];     /**< Array of managed TCP connections. */
+    uint16_t listen_ports[SYN_TCP_MAX_CONNS]; /**< Per-slot passive listener ports. */
+    bool listening;                           /**< True if passive listener is active. */
+    uint16_t listen_port; /**< Most recently configured passive listener port. */
 } SYN_TCP;
 
 /* ── Functions ─────────────────────────────────────────────────────────── */
@@ -112,6 +116,14 @@ SYN_Status syn_tcp_init(SYN_TCP *tcp, SYN_ETH *eth);
  * @return SYN_OK on success.
  */
 SYN_Status syn_tcp_listen(SYN_TCP *tcp, uint16_t port);
+
+/**
+ * @brief Close a TCP connection and re-arm passive listener if configured.
+ * @param tcp  Pointer to TCP stack container.
+ * @param conn Pointer to TCP connection slot.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on NULL pointer.
+ */
+SYN_Status syn_tcp_close(SYN_TCP *tcp, SYN_TcpConn *conn);
 
 /**
  * @brief Process incoming TCP IPv4 segment.
@@ -138,6 +150,27 @@ uint16_t syn_tcp_checksum(uint32_t src_ip, uint32_t dst_ip, const uint8_t *tcp_s
 /* ── Task Blocking Macros ───────────────────────────────────────────────── */
 
 /**
+ * @brief Validate pointer arguments for PT_TCP_BLOCK_READ without triggering -Waddress.
+ * @param pt         Protothread state pointer.
+ * @param task       Task instance pointer.
+ * @param conn       TCP connection pointer.
+ * @param buf        Destination read buffer pointer.
+ * @param bytes_read Output byte count pointer.
+ * @return true if all pointers are non-NULL, false otherwise (reinitializing pt if non-NULL).
+ */
+static inline bool syn_tcp_pt_args_valid(SYN_PT *pt, const SYN_Task *task, const SYN_TcpConn *conn,
+                                         const void *buf, const size_t *bytes_read)
+{
+    if (pt == NULL || task == NULL || conn == NULL || buf == NULL || bytes_read == NULL) {
+        if (pt != NULL) {
+            PT_INIT(pt);
+        }
+        return false;
+    }
+    return true;
+}
+
+/**
  * @brief Protothread helper macro to block task until TCP data is available.
  * @param pt         Protothread state.
  * @param task       Task instance.
@@ -146,19 +179,41 @@ uint16_t syn_tcp_checksum(uint32_t src_ip, uint32_t dst_ip, const uint8_t *tcp_s
  * @param max_len    Maximum bytes to read.
  * @param bytes_read Output variable receiving count of read bytes.
  */
-#define PT_TCP_BLOCK_READ(pt, task, conn, buf, max_len, bytes_read)                               \
-    do {                                                                                          \
-        (conn)->blocked_task = (task);                                                            \
-        PT_BLOCK_CONDITION(pt, task, (conn)->rx_len > 0 || (conn)->state != SYN_TCP_ESTABLISHED); \
-        if ((conn)->rx_len > 0) {                                                                 \
-            size_t _n = ((conn)->rx_len < (max_len)) ? (conn)->rx_len : (max_len);                \
-            memcpy((buf), (conn)->rx_buf, _n);                                                    \
-            memmove((conn)->rx_buf, (conn)->rx_buf + _n, (conn)->rx_len - _n);                    \
-            (conn)->rx_len -= _n;                                                                 \
-            *(bytes_read) = _n;                                                                   \
-        } else {                                                                                  \
-            *(bytes_read) = 0;                                                                    \
-        }                                                                                         \
+#define PT_TCP_BLOCK_READ(pt, task, conn, buf, max_len, bytes_read)                  \
+    do {                                                                             \
+        while (1) {                                                                  \
+            if (!syn_tcp_pt_args_valid((pt), (task), (conn), (buf), (bytes_read))) { \
+                return PT_EXITED;                                                    \
+            }                                                                        \
+            (conn)->blocked_task = (task);                                           \
+            syn_port_enter_critical();                                               \
+            if ((task)->state == (uint8_t)SYN_TASK_READY) {                          \
+                (task)->state = (uint8_t)SYN_TASK_BLOCKED;                           \
+                SYN_PT_STATE_BARRIER();                                              \
+            }                                                                        \
+            syn_port_exit_critical();                                                \
+            if ((conn)->rx_len > 0U || (conn)->state != SYN_TCP_ESTABLISHED) {       \
+                syn_port_enter_critical();                                           \
+                if ((task)->state == (uint8_t)SYN_TASK_BLOCKED) {                    \
+                    (task)->state = (uint8_t)SYN_TASK_READY;                         \
+                }                                                                    \
+                syn_port_exit_critical();                                            \
+                break;                                                               \
+            }                                                                        \
+            PT_PASS(pt);                                                             \
+        }                                                                            \
+        (conn)->blocked_task = NULL;                                                 \
+        if ((conn)->rx_len > 0U) {                                                   \
+            size_t _n = ((conn)->rx_len < (max_len)) ? (conn)->rx_len : (max_len);   \
+            if (_n > 0U) {                                                           \
+                memcpy((buf), (conn)->rx_buf, _n);                                   \
+                memmove((conn)->rx_buf, (conn)->rx_buf + _n, (conn)->rx_len - _n);   \
+                (conn)->rx_len -= (uint16_t)_n;                                      \
+            }                                                                        \
+            *(bytes_read) = _n;                                                      \
+        } else {                                                                     \
+            *(bytes_read) = 0U;                                                      \
+        }                                                                            \
     } while (0)
 
 #ifdef __cplusplus

@@ -40,14 +40,15 @@ SyntropicOS is not the first system to use stackless coroutines — Contiki OS (
 
 ### 1. Stackless Protothreads (`syn_pt`)
 Protothreads provide sequential, non-blocking flow control inside standard C functions without requiring separate stacks.
-- **Continuation via Duff's Device**: `PT_BEGIN()` expands to a `switch(pt->lc)` statement. When yielding (`PT_WAIT_UNTIL` or `PT_TASK_DELAY_MS`), `pt->lc` records `__LINE__` and returns `PT_WAITING`. Upon re-invocation, the switch jumps directly to the saved line.
+- **Continuation & Explicit Yield Intent**: `PT_BEGIN()` expands to a `switch(pt->lc)` jump table. Yield macros record `__LINE__` in `pt->lc` and return explicit scheduling intent: `PT_PASS()` / `PT_WAIT_UNTIL()` return `PT_IDLE` (no immediate work left this round), while `PT_CONTINUE()` / `PT_CONTINUE_IF_NEEDED()` return `PT_MORE` (chunk finished, more work waiting).
 - **RAM Footprint**: Stores only a `uint16_t` continuation variable (2 bytes RAM).
 - **Variable Lifetime**: Local variables inside a protothread function do not persist across yields. Persistent state must be stored in `static` variables, global contexts, or a struct passed via `user_data`.
 
 ### 2. Cooperative Task Scheduler (`syn_sched`)
-The scheduler runs an array of `SYN_Task` descriptors. On each tick, it executes the highest-priority ready task (priority `0` highest). Equal-priority tasks execute round-robin.
+The scheduler dispatches one eligible `SYN_Task` per `syn_sched_run()` call using ranked selection (`Overdue -> Work -> Poll -> Round Reset`) ordered by `SYN_Prio` (`SYN_PRIO_CRITICAL = 0` .. `SYN_PRIO_LOW = 3`) and per-priority round-robin.
+- **Bounded Starvation Windows**: Configurable per-priority wait bounds (`1 / 5 / 15 / 50 ms` defaults via `syn_sched_set_max_wait()`) prevent active high-priority work from starving lower-priority tasks indefinitely.
 - **Zero Dynamic Allocation**: The application owns and allocates the `SYN_Task` array statically.
-- **Tickless Idle**: Includes low-power sleep support (`syn_sched_run_tickless()`) when no tasks are ready.
+- **Tickless Idle & Native Blocking**: Includes `PT_BLOCK_*` event blocking (`SYN_TASK_BLOCKED`) and low-power sleep (`syn_sched_run_tickless()`, or `syn_sched_run_tickless_ex()` when `SYN_Timer` deadlines must also wake the CPU) when no tasks are ready.
 
 ### 3. Ground-Up Non-Blocking Module Ecosystem
 Every driver and protocol module in SyntropicOS is written from scratch as a cooperative, non-blocking state machine. Modules expose `_poll()`, `_update()`, or `_process()` entry points (e.g. `syn_modbus_poll()`, `syn_button_update()`, `syn_ble_gatt_process_att_pdu()`) that do a bounded unit of work and return immediately. No module internally blocks, busy-waits, or calls `delay()`.
@@ -59,7 +60,7 @@ Every driver and protocol module in SyntropicOS is written from scratch as a coo
 | Feature | Design Specification |
 |---|---|
 | **Concurrency** | Cooperative protothreads (`syn_pt`). Continuation state costs **2 bytes RAM** per thread. |
-| **Task Scheduler** | Cooperative task runner (`syn_sched`). Task descriptors cost **~16–28 bytes RAM** per task. |
+| **Task Scheduler** | Cooperative task runner (`syn_sched`). Task descriptors (`SYN_Task`) cost **44 bytes RAM** per task on 32-bit targets (80 bytes on 64-bit targets; standalone `SYN_PT` is **2 bytes**). |
 | **Memory Allocation** | **100% Zero-Heap / Static Allocation**. No `malloc()` or dynamic pool fragmentation over long runtimes. |
 | **Execution Model** | All 70+ drivers & protocol stacks are written as **non-blocking state machines**. |
 | **Compatibility** | Standard **C99**. Compiles with GCC, Clang, IAR, Keil, STM32CubeIDE, and Arduino IDE. |
@@ -71,48 +72,48 @@ Every driver and protocol module in SyntropicOS is written from scratch as a coo
 Quick-jump to specific feature guides and API references:
 
 ### ⚡ Core & Multitasking ([Read Core Docs →](modules/multitasking.md))
-- **[Protothreads (`syn_pt`)](modules/multitasking.md#1-protothreads)**: Stackless coroutines for non-blocking task execution.
-- **[Task Scheduler (`syn_sched`)](modules/multitasking.md#2-cooperative-scheduler)**: Cooperative task runner with priority & delay timers.
-- **[Active Objects (`syn_ao`)](modules/integration.md#2-active-object-pattern)**: FSM state machine + SPSC queue + task runner actor model.
+- **[Protothreads (`syn_pt`)](modules/multitasking.md#protothreads)**: Stackless coroutines for non-blocking task execution.
+- **[Task Scheduler (`syn_sched`)](modules/multitasking.md#scheduler)**: Cooperative task runner with priority & delay timers.
+- **[Active Objects (`syn_ao`)](modules/integration.md#2-active-object-pattern-syn_ao--syn_fsm)**: FSM state machine + mailbox + task runner actor model.
 - **[Event Flags & Mailboxes](modules/core.md)**: Thread-safe inter-task messaging and synchronization.
 
 ### 🎛️ Input / Output Drivers ([Read I/O Docs →](modules/io.md))
-- **[Buttons (`syn_button`)](modules/io.md#1-button-driver)**: Debounced buttons, multi-click tap gestures, long-press, auto-repeat, and combos.
-- **[Rotary Encoder (`syn_encoder`)](modules/io.md#2-rotary-encoder-driver)**: Quadrature rotary decoding and velocity tracking.
-- **[LED Controller (`syn_led`)](modules/io.md#3-non-blocking-led-driver)**: Pattern blinking, flash sequences, and Morse sequences.
-- **[Software PWM (`syn_soft_pwm`)](modules/io.md#4-software-pwm-driver)**: Timerless PWM generation on arbitrary GPIO pins.
+- **[Buttons (`syn_button`)](modules/io.md#1-button-driver-syn_buttonh)**: Debounced buttons, multi-click tap gestures, long-press, auto-repeat, and combos.
+- **[Rotary Encoder (`syn_encoder`)](modules/io.md#2-rotary-encoder-driver-syn_encoderh)**: Quadrature rotary decoding and velocity tracking.
+- **[LED Controller (`syn_led`)](modules/io.md#3-non-blocking-led-driver-syn_ledh)**: Pattern blinking, flash sequences, and Morse sequences.
+- **[Software PWM (`syn_soft_pwm`)](modules/io.md#4-software-pwm-driver-syn_soft_pwmh)**: Timerless PWM generation on arbitrary GPIO pins.
 
 ### 📡 Communications & Protocol Stacks ([Read Comm Docs →](modules/communication.md))
 - **[Ethernet & IP Protocol Suite (`syn_eth` / `syn_dhcp` / `syn_icmp` / `syn_autoip` / `syn_netcfg`)](modules/communication.md#6-zero-heap-ethernet--ip-protocol-suite-syn_eth-syn_dhcp-syn_icmp-syn_autoip-syn_netcfg)**: Zero-heap Ethernet II, ARP, DHCP client, ICMP Echo ping, RFC 3927 AutoIP fallback, and Link Up/Down state machine.
-- **[COBS Framing (`syn_cobs`)](modules/communication.md#1-cobs--packet-router-pipeline)**: Zero-overhead `0x00`-delimited packet framing.
-- **[Packet Router (`syn_router`)](modules/communication.md#1-cobs--packet-router-pipeline)**: Addressed packet dispatch (Master/Slave Node IDs) with ACKs.
+- **[COBS Framing (`syn_cobs`)](modules/communication.md#1-cobs--packet-router-pipeline-syn_cobs--syn_router)**: Zero-overhead `0x00`-delimited packet framing.
+- **[Packet Router (`syn_router`)](modules/communication.md#1-cobs--packet-router-pipeline-syn_cobs--syn_router)**: Addressed packet dispatch (Master/Slave Node IDs) with ACKs.
 - **[Industrial Modbus (`syn_modbus`)](modules/communication.md)**: Modbus RTU & Modbus TCP Master/Slave stacks.
 - **[Building Automation (`syn_bacnet` / `syn_dali`)](modules/communication.md)**: BACnet MS/TP (ISO 16484-5) & DALI Lighting (IEC 62386) protocol engines.
-- **[M-Bus Metering (`syn_mbus`)](modules/communication.md#2-m-bus-protocol)**: EN 13757 European utility meter bus decoder.
+- **[M-Bus Metering (`syn_mbus`)](modules/communication.md#2-m-bus-protocol-syn_mbush)**: EN 13757 European utility meter bus decoder.
 - **[Automotive ISO-TP & J1939](modules/communication.md)**: CAN bus multi-frame transport and heavy vehicle PGN/SPN decoder.
-- **[USB 2.0 Device & Host Core (`syn_usb` / `syn_usb_host` / `syn_usb_cdc` / `syn_usb_hid`)](modules/drivers.md#9-usb-20-device-core--class-drivers-driversusb_h-usb_cdch-usb_hidh)**: Zero-heap USB 2.0 device & host core engines, CDC ACM, HID class drivers, and protothread coroutines.
+- **[USB 2.0 Device & Host Core (`syn_usb` / `syn_usb_host` / `syn_usb_cdc` / `syn_usb_hid`)](modules/drivers.md#9-usb-20-device-core--class-drivers-driverssyn_usbh-syn_usb_cdch-syn_usb_hidh)**: Zero-heap USB 2.0 device & host core engines, CDC ACM, HID class drivers, and protothread coroutines.
 
 
 
 ### 💾 Storage & Filesystems ([Read Storage Docs →](modules/storage.md))
-- **[Persistent Settings (`syn_settings`)](modules/storage.md#1-persistent-settings-manager)**: High-level configuration manager with load-or-default, change-detection & CRC-16.
+- **[Persistent Settings (`syn_settings`)](modules/storage.md#1-persistent-settings-manager-syn_settingsh)**: High-level configuration manager with load-or-default, change-detection & CRC-16.
 - **[Flash Wear-Leveling Engine (`syn_param`)](modules/storage.md#2-flash-wear-leveling-engine-syn_paramh)**: Raw sector/page wear leveling with two-phase power-fail safety.
 - **[Virtual File System (`syn_vfs`)](modules/storage.md#3-virtual-file-system-syn_vfsh)**: POSIX-like VFS abstraction for LittleFS and FAT.
 
 ### 🖥️ Display & Embedded UI ([Read Display Docs →](modules/display.md))
-- **[Display Canvas (`syn_canvas`)](modules/display.md#1-framebuffer-display-canvas)**: Hardware-independent 1bpp/16bpp framebuffer & 2D graphics.
-- **[Immediate-Mode GUI (`syn_imgui`)](modules/display.md#2-immediate-mode-gui)**: Zero-heap UI widgets (buttons, sliders, gauges, graphs).
+- **[Display Canvas (`syn_canvas`)](modules/display.md#1-framebuffer-display-canvas-displaysyn_canvash)**: Hardware-independent 1bpp/16bpp framebuffer & 2D graphics.
+- **[Immediate-Mode GUI (`syn_imgui`)](modules/display.md#2-immediate-mode-gui-uisyn_imguih)**: Zero-heap UI widgets (buttons, sliders, gauges, graphs).
 
 ### 📈 DSP & TinyML Neural Networks ([Read DSP & TinyML Docs →](modules/dsp.md))
-- **[Fixed-Point Filters (`syn_filter`)](modules/dsp.md#1-digital-filters)**: Biquad lowpass/highpass, EMA, and median spike rejection.
-- **[Spectral Analysis (`syn_fft` / `syn_dsp`)](modules/dsp.md#3-fast-fourier-transform--peak-detection)**: Radix-2 FFT, DCT-II, windowing, and peak tracking.
+- **[Fixed-Point Filters (`syn_filter`)](modules/dsp.md#1-digital-filters-dspsyn_filterh--dspsyn_biquadh)**: Biquad lowpass/highpass, EMA, and median spike rejection.
+- **[Spectral Analysis (`syn_fft` / `syn_dsp`)](modules/dsp.md#3-fast-fourier-transform--peak-detection-dspsyn_ffth)**: Radix-2 FFT, DCT-II, windowing, and peak tracking.
 - **[TinyML Neural Networks (`syn_nn`)](modules/dsp.md#4-tinyml--fixed-point-neural-networks-utilsyn_nnh)**: Quantized 1D-CNNs, 1D Pooling, Dense layers, Self-Attention, and Protothread inference.
 
 ### 🔬 Diagnostics & System Services ([Read Debug Docs →](modules/debug.md))
-- **[Lightweight Event Tracer (`syn_trace`)](modules/debug.md#1-lightweight-event-tracer)**: Timestamped circular event recorder for ISRs & tasks.
-- **[Task CPU Profiler (`syn_profiler`)](modules/debug.md#2-task-cpu-profiler)**: Task CPU percentage, peak execution time, and run metrics.
-- **[Serial CLI (`syn_cli`)](modules/services.md#1-interactive-serial-cli)**: Zero-allocation interactive shell with command auto-help.
-- **[Software Watchdog (`syn_watchdog`)](modules/services.md#2-multi-task-software-watchdog)**: Multi-task heartbeat monitor and deadlock prevention.
+- **[Lightweight Event Tracer (`syn_trace`)](modules/debug.md#1-lightweight-event-tracer-syn_traceh)**: Timestamped circular event recorder for ISRs & tasks.
+- **[Task CPU Profiler (`syn_profiler`)](modules/debug.md#2-task-cpu-profiler-syn_profilerh)**: Task CPU percentage, peak execution time, and run metrics.
+- **[Serial CLI (`syn_cli`)](modules/services.md#1-interactive-serial-cli-clisyn_clih)**: Zero-allocation interactive shell with command auto-help.
+- **[Software Watchdog (`syn_watchdog`)](modules/services.md#2-multi-task-software-watchdog-schedsyn_watchdogh)**: Multi-task heartbeat monitor and deadlock prevention.
 
 ---
 

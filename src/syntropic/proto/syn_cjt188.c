@@ -187,9 +187,20 @@ bool syn_cjt188_parse_frame(const uint8_t *buf, size_t len, SYN_CJT188_Frame *ou
     return true;
 }
 
+/**
+ * @brief Reset streaming decoder state without wiping payload buffer.
+ * @param decoder Decoder instance.
+ */
+static void cjt188_reset_state(SYN_CJT188_Decoder *decoder)
+{
+    decoder->in_frame = false;
+    decoder->index = 0U;
+    decoder->expected_len = 0U;
+}
+
 void syn_cjt188_decoder_init(SYN_CJT188_Decoder *decoder)
 {
-    if (decoder) {
+    if (decoder != NULL) {
         memset(decoder, 0, sizeof(SYN_CJT188_Decoder));
     }
 }
@@ -207,9 +218,9 @@ bool syn_cjt188_decoder_feed(SYN_CJT188_Decoder *decoder, uint8_t byte, SYN_CJT1
         }
         if (byte == SYN_CJT188_START_BYTE) {
             decoder->in_frame = true;
-            decoder->index = 0;
+            decoder->index = 0U;
             decoder->buf[decoder->index++] = byte;
-            decoder->expected_len = 0;
+            decoder->expected_len = 0U;
             return false;
         }
         return false;
@@ -219,25 +230,25 @@ bool syn_cjt188_decoder_feed(SYN_CJT188_Decoder *decoder, uint8_t byte, SYN_CJT1
     if (decoder->index < SYN_CJT188_MAX_FRAME_SIZE) {
         decoder->buf[decoder->index++] = byte;
     } else {
-        /* Buffer overflow, reset decoder */
-        syn_cjt188_decoder_init(decoder);
+        /* Buffer overflow, reset decoder state */
+        cjt188_reset_state(decoder);
         return false;
     }
 
     /* Read length byte once offset 10 is reached */
-    if (decoder->index == 11) {
+    if (decoder->index == 11U) {
         uint8_t data_len = decoder->buf[10];
-        decoder->expected_len = 11 + data_len + 2; /* 11 header + L + CS + 0x16 */
+        decoder->expected_len = 11U + (size_t)data_len + 2U; /* 11 header + L + CS + 0x16 */
         if (decoder->expected_len > SYN_CJT188_MAX_FRAME_SIZE) {
-            syn_cjt188_decoder_init(decoder);
+            cjt188_reset_state(decoder);
             return false;
         }
     }
 
-    /* When expected total length reached, attempt parsing */
-    if (decoder->expected_len > 0 && decoder->index >= decoder->expected_len) {
+    /* When expected total length reached, attempt parsing without zeroing decoder->buf */
+    if (decoder->expected_len > 0U && decoder->index >= decoder->expected_len) {
         bool ok = syn_cjt188_parse_frame(decoder->buf, decoder->index, out_frame);
-        syn_cjt188_decoder_init(decoder);
+        cjt188_reset_state(decoder);
         return ok;
     }
 

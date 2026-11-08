@@ -49,7 +49,7 @@
 #include "../common/syn_defs.h"
 #include "syn_hpclock.h"
 
-#if defined(SYN_USE_RTC) && SYN_USE_RTC
+#if !defined(SYN_USE_RTC) || SYN_USE_RTC
 #include "syn_rtc.h"
 #define SYN_TIMESYNC_HAS_RTC 1 /**< RTC driver presence flag (1) */
 #else

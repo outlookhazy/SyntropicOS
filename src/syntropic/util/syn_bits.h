@@ -9,6 +9,8 @@
 #ifndef SYN_BITS_H
 #define SYN_BITS_H
 
+#include "../common/syn_defs.h"
+
 #include <stdint.h>
 
 #ifdef __cplusplus

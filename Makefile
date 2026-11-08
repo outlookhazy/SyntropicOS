@@ -1,7 +1,7 @@
 # SyntropicOS Top-Level Convenience Makefile
 # Forwards targets to tools/containers/Makefile
 
-.PHONY: help clean test format lint misra stack size complexity san qemu renode fuzz cov static dox integration examples install-hooks container-build container-test container-format container-lint container-misra container-stack container-size container-complexity container-san container-qemu container-renode container-fuzz container-cov container-static container-dox container-integration container-examples
+.PHONY: help clean test format lint misra stack size complexity san tsan qemu renode fuzz cov static dox integration examples install-hooks container-build container-test container-format container-lint container-misra container-stack container-size container-complexity container-san container-tsan container-qemu container-renode container-fuzz container-cov container-static container-dox container-integration container-examples
 
 install-hooks:
 	@git config core.hooksPath .githooks
@@ -42,6 +42,9 @@ complexity:
 
 san:
 	@make -C tools/containers san
+
+tsan:
+	@make -C tools/containers tsan
 
 qemu:
 	@make -C tools/containers qemu
@@ -108,6 +111,9 @@ container-complexity:
 
 container-san:
 	@make -C tools/containers container-san
+
+container-tsan:
+	@make -C tools/containers container-tsan
 
 container-qemu:
 	@make -C tools/containers container-qemu

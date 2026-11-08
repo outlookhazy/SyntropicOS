@@ -6,7 +6,7 @@ SyntropicOS includes lightweight, zero-overhead diagnostic tools designed specif
 
 ## 1. Lightweight Event Tracer (`syn_trace.h`)
 
-The `syn_trace` module is a high-speed, timestamped circular event recorder. It allows ISRs and tasks to record events in real-time with microsecond timestamps without delaying time-critical execution.
+The `syn_trace` module is a high-speed, timestamped circular event recorder. It allows ISRs and tasks to record events in real-time with millisecond timestamps (`syn_port_get_tick_ms()`) without string-formatting overhead.
 
 ### Features
 - Fixed-size caller-owned circular buffer (`SYN_TraceEntry`).
@@ -49,7 +49,7 @@ void app_init(void) {
 }
 
 void on_uart_packet_received(uint16_t length) {
-    // Record event ID + length payload in < 1µs
+    // Record event ID + length payload (millisecond timestamp via syn_port_get_tick_ms())
     SYN_TRACE(&trace, EVT_PACKET_RX, length);
 }
 
@@ -63,38 +63,39 @@ void dump_trace_log(void) {
 
 ## 2. Task CPU Profiler (`syn_profiler.h`)
 
-The `syn_profiler` module hooks directly into the cooperative scheduler (`syn_sched`) to measure CPU usage per task, peak single-run execution times, and task execution counts.
+The `syn_profiler` module measures per-task execution duration, CPU share, peak single-run time, and execution counts when wrapped around task dispatches (`syn_profiler_task_begin()` / `syn_profiler_task_end()`). It does not hook into `syn_sched` automatically; wrap the task bodies or custom dispatch calls you want to instrument. (For microsecond-granularity yield-latency tracking via `syn_port_get_tick_us()`, see `syntropic/debug/syn_task_profile.h`.)
 
 ### Features
-- Measures task execution time in microseconds (`µs`).
+- Tracks task execution time via `syn_port_get_tick_ms()` (reported in `µs`).
 - Calculates CPU percentage with 0.1% resolution (`cpu_percent_x10`).
-- Tracks peak run time (`peak_us`) to identify task latency spikes.
-- Periodically outputs formatted diagnostic tables over CLI.
+- Retains high-watermark peak run time (`peak_us`) across evaluation periods.
+- Outputs formatted diagnostic tables via callback (`syn_profiler_dump()`).
 
 ### Complete Code Example
 
 ```c
+#include <stdio.h>
 #include <syntropic/debug/syn_profiler.h>
 
 static SYN_ProfileEntry prof_entries[3];
 static SYN_Profiler profiler;
+static uint32_t last_dump_ms;
 
 void cli_print_line(const char *line) {
     printf("%s", line);
 }
 
 void app_setup_profiler(void) {
-    // Initialize profiler for 3 tasks over a 1000ms evaluation window
-    syn_profiler_init(&profiler, prof_entries, 3, 1000);
-    
-    syn_profiler_set_name(&profiler, 0, "SensorTask");
-    syn_profiler_set_name(&profiler, 1, "CommTask");
-    syn_profiler_set_name(&profiler, 2, "DisplayTask");
+    // Initialize profiler with 3 caller-owned profile entries
+    syn_profiler_init(&profiler, prof_entries, 3);
+
+    syn_profiler_register(&profiler, 0, "SensorTask");
+    syn_profiler_register(&profiler, 1, "CommTask");
+    syn_profiler_register(&profiler, 2, "DisplayTask");
+    last_dump_ms = syn_port_get_tick_ms();
 }
 
 void scheduler_loop(void) {
-    uint32_t now = syn_port_get_tick_ms();
-
     // 1. Profile Task 0 (SensorTask)
     syn_profiler_task_begin(&profiler, 0);
     run_sensor_task();
@@ -105,8 +106,10 @@ void scheduler_loop(void) {
     run_comm_task();
     syn_profiler_task_end(&profiler, 1);
 
-    // 3. Periodically evaluate & dump CPU profiling stats (every 1 second)
-    if (syn_profiler_update(&profiler)) {
+    // 3. Periodically update percentages & dump stats (every 1000 ms)
+    if ((syn_port_get_tick_ms() - last_dump_ms) >= 1000U) {
+        last_dump_ms = syn_port_get_tick_ms();
+        syn_profiler_update(&profiler);
         syn_profiler_dump(&profiler, cli_print_line);
     }
 }

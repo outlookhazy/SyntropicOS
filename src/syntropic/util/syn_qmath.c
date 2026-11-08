@@ -1,9 +1,3 @@
-#if __has_include("syn_config.h")
-#include "syn_config.h"
-#endif
-
-#if !defined(SYN_USE_QMATH) || SYN_USE_QMATH
-
 /**
  * @file syn_qmath.c
  * @brief Q16.16 fixed-point transcendental functions and string I/O.
@@ -14,19 +8,34 @@
  */
 
 #include "../common/syn_defs.h"
+
+#if !defined(SYN_USE_QMATH) || SYN_USE_QMATH
+
 #include "syn_qmath.h"
 
 /* ════════════════════════════════════════════════════════════════════════ */
 /*  Trigonometric — sin, cos, tan                                          */
 /* ════════════════════════════════════════════════════════════════════════ */
 
+/**
+ * @brief Wrap a 64-bit Q16 angle into [-Q16_PI, Q16_PI] in O(1) without overflow.
+ * @param x64 Input angle in 64-bit Q16.16 format.
+ * @return Wrapped angle in [-Q16_PI, Q16_PI] (Q16.16).
+ */
+static q16_t wrap_angle_pi(int64_t x64)
+{
+    x64 %= (int64_t)Q16_2_PI;
+    if (x64 > (int64_t)Q16_PI) {
+        x64 -= (int64_t)Q16_2_PI;
+    } else if (x64 < -(int64_t)Q16_PI) {
+        x64 += (int64_t)Q16_2_PI;
+    }
+    return (q16_t)x64;
+}
+
 q16_t q16_sin(q16_t x)
 {
-    /* Normalize x to [-PI, PI] */
-    while (x > Q16_PI)
-        x -= Q16_2_PI;
-    while (x < -Q16_PI)
-        x += Q16_2_PI;
+    x = wrap_angle_pi((int64_t)x);
 
     /* Map to [-PI/2, PI/2] */
     if (x > Q16_PI_2) {
@@ -50,16 +59,13 @@ q16_t q16_sin(q16_t x)
 
 q16_t q16_cos(q16_t x)
 {
-    return q16_sin(x + Q16_PI_2);
+    return q16_sin(wrap_angle_pi((int64_t)x + (int64_t)Q16_PI_2));
 }
 
 q16_t q16_sin_fast(q16_t x)
 {
     /* Parabolic approximation: sin(x) ≈ B*x + C*x*|x| for x in [-PI, PI] */
-    while (x > Q16_PI)
-        x -= Q16_2_PI;
-    while (x < -Q16_PI)
-        x += Q16_2_PI;
+    x = wrap_angle_pi((int64_t)x);
 
     /* B = 4/PI = 1.2732395447 (83443 in Q16)
        C = -4/PI^2 = -0.4052847346 (-26560 in Q16) */
@@ -81,7 +87,7 @@ q16_t q16_sin_fast(q16_t x)
 
 q16_t q16_cos_fast(q16_t x)
 {
-    return q16_sin_fast(x + Q16_PI_2);
+    return q16_sin_fast(wrap_angle_pi((int64_t)x + (int64_t)Q16_PI_2));
 }
 
 void q16_sincos_fast(q16_t x, q16_t *sin_out, q16_t *cos_out)
@@ -164,36 +170,57 @@ q16_t q16_atan2(q16_t y, q16_t x)
     return angle;
 }
 
+/**
+ * @brief 9th-order Taylor approximation for asin(u) on u in [0, Q16_HALF].
+ * @param u Input value in [0, Q16_HALF] (Q16.16).
+ * @return Arcsine approximation in Q16.16.
+ */
+static q16_t asin_poly_half(q16_t u)
+{
+    static const int64_t c3 = 10923; /* round(65536 / 6)         */
+    static const int64_t c5 = 4915;  /* round(65536 * 3 / 40)    */
+    static const int64_t c7 = 2926;  /* round(65536 * 5 / 112)   */
+    static const int64_t c9 = 1991;  /* round(65536 * 35 / 1152) */
+
+    int64_t u2 = (((int64_t)u * u) + 32768LL) >> 16;
+    int64_t u3 = ((u2 * u) + 32768LL) >> 16;
+    int64_t u5 = ((u3 * u2) + 32768LL) >> 16;
+    int64_t u7 = ((u5 * u2) + 32768LL) >> 16;
+    int64_t u9 = ((u7 * u2) + 32768LL) >> 16;
+
+    int64_t res = (int64_t)u;
+    res += ((c3 * u3) + 32768LL) >> 16;
+    res += ((c5 * u5) + 32768LL) >> 16;
+    res += ((c7 * u7) + 32768LL) >> 16;
+    res += ((c9 * u9) + 32768LL) >> 16;
+    return (q16_t)res;
+}
+
 q16_t q16_asin(q16_t x)
 {
     /* Clamp to [-1, 1] */
-    if (x >= Q16_ONE)
+    if (x >= Q16_ONE) {
         return Q16_PI_2;
-    if (x <= -Q16_ONE)
+    }
+    if (x <= -Q16_ONE) {
         return -Q16_PI_2;
+    }
 
-    /*
-     * 5th-order Chebyshev approximation for asin(x), |x| <= 1:
-     *   asin(x) ≈ c1*x + c3*x³ + c5*x⁵
-     *
-     * Coefficients (Q16.16):
-     *   c1 ≈ 1.0             = 65536
-     *   c3 ≈ 1/6             = 10923
-     *   c5 ≈ 3/40            = 4915
-     */
-    static const q16_t c1 = 65536; /* 1.0      */
-    static const q16_t c3 = 10923; /* 0.16667  */
-    static const q16_t c5 = 4915;  /* 0.07500  */
+    bool neg = (x < 0);
+    q16_t ax = neg ? -x : x;
+    q16_t angle;
 
-    int64_t x2 = ((int64_t)x * x) / 65536LL;
-    int64_t x3 = (x2 * x) / 65536LL;
-    int64_t x5 = ((x3 * x) / 65536LL) * x / 65536LL;
+    if (ax > Q16_HALF) {
+        /* Range reduction: asin(ax) = pi/2 - 2 * asin(sqrt((1 - ax) / 2)).
+         * Shift (Q16_ONE - ax) left by 15 to form Q32.32 ((1 - ax)/2) without losing odd LSBs. */
+        uint64_t half_rem_q32 = (uint64_t)(uint32_t)(Q16_ONE - ax) << 15;
+        q16_t t = (q16_t)syn_isqrt64(half_rem_q32);
+        angle = Q16_PI_2 - (2 * asin_poly_half(t));
+    } else {
+        angle = asin_poly_half(ax);
+    }
 
-    int64_t result = ((int64_t)c1 * x) / 65536LL;
-    result += ((int64_t)c3 * x3) / 65536LL;
-    result += ((int64_t)c5 * x5) / 65536LL;
-
-    return (q16_t)result;
+    return neg ? -angle : angle;
 }
 
 q16_t q16_acos(q16_t x)
@@ -277,42 +304,14 @@ q16_t q16_rsqrt(q16_t x)
 
 q16_t q16_hypot(q16_t x, q16_t y)
 {
-    /*
-     * Overflow-safe magnitude: sqrt(x² + y²).
-     *
-     * If either |x| or |y| exceeds ~181 (Q16), then x*x could overflow
-     * int64_t accumulation. Pre-shift both values right by 1 in that case,
-     * then shift the result left by 1.
-     */
-    q16_t ax = q16_abs(x);
-    q16_t ay = q16_abs(y);
-
-    /* 181.0 in Q16 = 11862016. If either exceeds this, we risk overflow
-     * in the x*x + y*y sum (each product is ~62 bits). */
-    int shift = 0;
-    if (ax > 11862016 || ay > 11862016) {
-        ax >>= 1;
-        ay >>= 1;
-        shift = 1;
-    }
-
-    int64_t sum = ((int64_t)ax * ax) + ((int64_t)ay * ay);
-
-    /* sum is in Q32.32 (two Q16 values multiplied). We need sqrt in Q16.
-     * q16_sqrt expects Q16.16 input, but sum is Q32.32.
-     * Convert: sum >> 16 gives Q16.16, then sqrt gives Q16.16 result. */
-    if (sum >> 16 > INT32_MAX) {
-        /* Very large — clamp */
+    uint64_t ux = (x < 0) ? (uint64_t)(-(int64_t)x) : (uint64_t)(uint32_t)x;
+    uint64_t uy = (y < 0) ? (uint64_t)(-(int64_t)y) : (uint64_t)(uint32_t)y;
+    uint64_t sum = (ux * ux) + (uy * uy);
+    uint64_t root = syn_isqrt64(sum);
+    if (root > (uint64_t)INT32_MAX) {
         return INT32_MAX;
     }
-
-    q16_t result = q16_sqrt((q16_t)(sum >> 16));
-
-    if (shift) {
-        result <<= 1;
-    }
-
-    return result;
+    return (q16_t)root;
 }
 
 /* ════════════════════════════════════════════════════════════════════════ */
@@ -522,12 +521,19 @@ q16_t q16_floor(q16_t x)
 
 q16_t q16_ceil(q16_t x)
 {
+    if (x > (q16_t)0x7FFF0000) {
+        return INT32_MAX;
+    }
     return (q16_t)(((uint32_t)x + 0x0000FFFFu) & 0xFFFF0000u);
 }
 
 q16_t q16_round(q16_t x)
 {
-    return q16_floor(x + Q16_HALF);
+    int64_t shifted = (int64_t)x + (int64_t)Q16_HALF;
+    if (shifted > (int64_t)INT32_MAX) {
+        return INT32_MAX;
+    }
+    return q16_floor((q16_t)shifted);
 }
 
 q16_t q16_poly_eval(const q16_t *coeffs, uint8_t n, q16_t x)
@@ -645,15 +651,17 @@ size_t q16_from_str(const char *str, q16_t *out)
     if (*p < '0' || *p > '9')
         return 0;
 
-    /* Integer part */
-    int32_t int_part = 0;
+    /* Integer part (capped above Q16 max integer range to prevent uint64_t overflow) */
+    uint64_t int_part = 0U;
     while (*p >= '0' && *p <= '9') {
-        int_part = int_part * 10 + (*p - '0');
+        if (int_part <= 40000ULL) {
+            int_part = (int_part * 10ULL) + (uint64_t)(*p - '0');
+        }
         p++;
     }
 
     /* Fractional part */
-    uint32_t frac_q16 = 0;
+    uint32_t frac_q16 = 0U;
     if (*p == '.') {
         p++;
         /*
@@ -662,21 +670,27 @@ size_t q16_from_str(const char *str, q16_t *out)
          * multiplying the running total by 10 and adding the digit, then
          * dividing at the end.
          */
-        uint32_t frac_num = 0;
-        uint32_t frac_den = 1;
+        uint32_t frac_num = 0U;
+        uint32_t frac_den = 1U;
         while (*p >= '0' && *p <= '9') {
-            frac_num = frac_num * 10 + (uint32_t)(*p - '0');
-            frac_den *= 10;
+            if (frac_den < 100000U) {
+                frac_num = (frac_num * 10U) + (uint32_t)(*p - '0');
+                frac_den *= 10U;
+            }
             p++;
-            if (frac_den >= 100000)
-                break; /* Limit precision to avoid overflow */
         }
-        if (frac_den > 0) {
-            frac_q16 = (uint32_t)(((uint64_t)frac_num << 16) / frac_den);
-        }
+        frac_q16 = (uint32_t)(((uint64_t)frac_num << 16) / frac_den);
     }
 
-    *out = sign * (q16_t)((int32_t)(int_part << 16) | (int32_t)frac_q16);
+    uint64_t mag_q16 = (int_part << 16) + (uint64_t)frac_q16;
+    int64_t signed_val = (sign < 0) ? -(int64_t)mag_q16 : (int64_t)mag_q16;
+    if (signed_val > (int64_t)INT32_MAX) {
+        *out = INT32_MAX;
+    } else if (signed_val < (int64_t)INT32_MIN) {
+        *out = INT32_MIN;
+    } else {
+        *out = (q16_t)signed_val;
+    }
     return (size_t)(p - str);
 }
 

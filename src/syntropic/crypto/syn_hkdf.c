@@ -5,7 +5,22 @@
 
 #include "syn_hkdf.h"
 
+#if SYN_HKDF_ENABLED
+
 #include <string.h>
+
+/**
+ * @brief Zeroize sensitive stack buffers without compiler dead-store elimination.
+ * @param v Buffer pointer.
+ * @param n Number of bytes to zeroize.
+ */
+static void syn_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
 
 void syn_hkdf_extract(const uint8_t *salt, size_t salt_len, const uint8_t *ikm, size_t ikm_len,
                       uint8_t prk_out[SYN_SHA256_DIGEST_SIZE])
@@ -43,13 +58,13 @@ bool syn_hkdf_expand(const uint8_t *prk, size_t prk_len, const uint8_t *info, si
         info_len = 0;
     }
 
-    uint8_t t[SYN_SHA256_DIGEST_SIZE];
+    uint8_t t[SYN_SHA256_DIGEST_SIZE] = {0};
+    SYN_HMAC_SHA256 hmac;
     size_t t_len = 0;
     size_t written = 0;
     uint8_t counter = 1;
 
     while (written < okm_len) {
-        SYN_HMAC_SHA256 hmac;
         syn_hmac_sha256_init(&hmac, prk, prk_len);
 
         if (counter > 1) {
@@ -74,6 +89,8 @@ bool syn_hkdf_expand(const uint8_t *prk, size_t prk_len, const uint8_t *info, si
         counter++;
     }
 
+    syn_secure_zero(t, sizeof(t));
+    syn_secure_zero(&hmac, sizeof(hmac));
     return true;
 }
 
@@ -82,7 +99,9 @@ bool syn_hkdf(const uint8_t *salt, size_t salt_len, const uint8_t *ikm, size_t i
 {
     uint8_t prk[SYN_SHA256_DIGEST_SIZE];
     syn_hkdf_extract(salt, salt_len, ikm, ikm_len, prk);
-    return syn_hkdf_expand(prk, sizeof(prk), info, info_len, okm_out, okm_len);
+    bool ok = syn_hkdf_expand(prk, sizeof(prk), info, info_len, okm_out, okm_len);
+    syn_secure_zero(prk, sizeof(prk));
+    return ok;
 }
 
 bool syn_hkdf_expand_label(const uint8_t *secret, size_t secret_len, const char *label,
@@ -131,8 +150,12 @@ bool syn_hkdf_expand_label(const uint8_t *secret, size_t secret_len, const char 
         offset += context_len;
     }
 
-    return syn_hkdf_expand(secret, secret_len, hkdf_label, offset, out, out_len);
+    bool ok = syn_hkdf_expand(secret, secret_len, hkdf_label, offset, out, out_len);
+    syn_secure_zero(hkdf_label, sizeof(hkdf_label));
+    return ok;
 }
+
+#if SYN_HKDF_SHA512_ENABLED
 
 /* ── HKDF-SHA384 ─────────────────────────────────────────────────────────── */
 
@@ -172,13 +195,13 @@ bool syn_hkdf_sha384_expand(const uint8_t *prk, size_t prk_len, const uint8_t *i
         info_len = 0U;
     }
 
-    uint8_t t[SYN_SHA384_DIGEST_SIZE];
+    uint8_t t[SYN_SHA384_DIGEST_SIZE] = {0};
+    SYN_HMAC_SHA384 hmac;
     size_t t_len = 0U;
     size_t written = 0U;
     uint8_t counter = 1U;
 
     while (written < okm_len) {
-        SYN_HMAC_SHA384 hmac;
         syn_hmac_sha384_init(&hmac, prk, prk_len);
 
         if (counter > 1U) {
@@ -203,6 +226,8 @@ bool syn_hkdf_sha384_expand(const uint8_t *prk, size_t prk_len, const uint8_t *i
         counter++;
     }
 
+    syn_secure_zero(t, sizeof(t));
+    syn_secure_zero(&hmac, sizeof(hmac));
     return true;
 }
 
@@ -211,7 +236,9 @@ bool syn_hkdf_sha384(const uint8_t *salt, size_t salt_len, const uint8_t *ikm, s
 {
     uint8_t prk[SYN_SHA384_DIGEST_SIZE];
     syn_hkdf_sha384_extract(salt, salt_len, ikm, ikm_len, prk);
-    return syn_hkdf_sha384_expand(prk, sizeof(prk), info, info_len, okm_out, okm_len);
+    bool ok = syn_hkdf_sha384_expand(prk, sizeof(prk), info, info_len, okm_out, okm_len);
+    syn_secure_zero(prk, sizeof(prk));
+    return ok;
 }
 
 bool syn_hkdf_sha384_expand_label(const uint8_t *secret, size_t secret_len, const char *label,
@@ -256,7 +283,9 @@ bool syn_hkdf_sha384_expand_label(const uint8_t *secret, size_t secret_len, cons
         offset += context_len;
     }
 
-    return syn_hkdf_sha384_expand(secret, secret_len, hkdf_label, offset, out, out_len);
+    bool ok = syn_hkdf_sha384_expand(secret, secret_len, hkdf_label, offset, out, out_len);
+    syn_secure_zero(hkdf_label, sizeof(hkdf_label));
+    return ok;
 }
 
 /* ── HKDF-SHA512 ─────────────────────────────────────────────────────────── */
@@ -297,13 +326,13 @@ bool syn_hkdf_sha512_expand(const uint8_t *prk, size_t prk_len, const uint8_t *i
         info_len = 0U;
     }
 
-    uint8_t t[SYN_SHA512_DIGEST_SIZE];
+    uint8_t t[SYN_SHA512_DIGEST_SIZE] = {0};
+    SYN_HMAC_SHA512 hmac;
     size_t t_len = 0U;
     size_t written = 0U;
     uint8_t counter = 1U;
 
     while (written < okm_len) {
-        SYN_HMAC_SHA512 hmac;
         syn_hmac_sha512_init(&hmac, prk, prk_len);
 
         if (counter > 1U) {
@@ -328,6 +357,8 @@ bool syn_hkdf_sha512_expand(const uint8_t *prk, size_t prk_len, const uint8_t *i
         counter++;
     }
 
+    syn_secure_zero(t, sizeof(t));
+    syn_secure_zero(&hmac, sizeof(hmac));
     return true;
 }
 
@@ -336,7 +367,9 @@ bool syn_hkdf_sha512(const uint8_t *salt, size_t salt_len, const uint8_t *ikm, s
 {
     uint8_t prk[SYN_SHA512_DIGEST_SIZE];
     syn_hkdf_sha512_extract(salt, salt_len, ikm, ikm_len, prk);
-    return syn_hkdf_sha512_expand(prk, sizeof(prk), info, info_len, okm_out, okm_len);
+    bool ok = syn_hkdf_sha512_expand(prk, sizeof(prk), info, info_len, okm_out, okm_len);
+    syn_secure_zero(prk, sizeof(prk));
+    return ok;
 }
 
 bool syn_hkdf_sha512_expand_label(const uint8_t *secret, size_t secret_len, const char *label,
@@ -381,5 +414,11 @@ bool syn_hkdf_sha512_expand_label(const uint8_t *secret, size_t secret_len, cons
         offset += context_len;
     }
 
-    return syn_hkdf_sha512_expand(secret, secret_len, hkdf_label, offset, out, out_len);
+    bool ok = syn_hkdf_sha512_expand(secret, secret_len, hkdf_label, offset, out, out_len);
+    syn_secure_zero(hkdf_label, sizeof(hkdf_label));
+    return ok;
 }
+
+#endif /* SYN_HKDF_SHA512_ENABLED */
+
+#endif /* SYN_HKDF_ENABLED */

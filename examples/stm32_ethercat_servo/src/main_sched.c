@@ -38,7 +38,8 @@ int main_sched(void)
 {
     ethercat_app_init();
 
-    syn_task_create(&s_tasks[TASK_ETHERCAT_1KHZ], "EtherCAT1kHz", task_ethercat_1khz_func, 1, NULL);
+    syn_task_create(&s_tasks[TASK_ETHERCAT_1KHZ], "EtherCAT1kHz", task_ethercat_1khz_func,
+                    SYN_PRIO_CRITICAL, NULL);
     syn_sched_init(&s_sched, s_tasks, TASK_COUNT);
 
     while (1) {

@@ -14,15 +14,15 @@
 #ifndef SYN_DSHOT_H
 #define SYN_DSHOT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** DShot Speed Variant. */
 typedef enum {

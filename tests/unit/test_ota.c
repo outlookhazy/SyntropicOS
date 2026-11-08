@@ -404,7 +404,8 @@ void test_ota_aes_gcm_encrypted_flow(void)
 
     /* Verify plaintext was decrypted in flash slot */
     uint8_t readback[128];
-    uint32_t data_addr = s_ota_mgr.target_slot_addr + (uint32_t)sizeof(SYN_FwImageHeader);
+    uint32_t data_addr =
+        s_ota_mgr.target_slot_addr + syn_fwimage_data_offset(s_ota_mgr.target_slot_addr);
     (void)syn_port_flash_read(data_addr, readback, sizeof(readback));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(plaintext, readback, sizeof(plaintext));
 }
@@ -501,6 +502,69 @@ void test_ota_flash_faults_and_coverage(void)
     mock_flash_write_fail_next = false;
 }
 
+static void test_r5_ota_regressions(void)
+{
+    ota_test_setup();
+
+    /* 1. R5-S01: slot_size <= sector size rejected by syn_ota_init; payload > slot - sector
+     * rejected */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_ota_init(&s_ota_mgr, &s_boot_mgr, MOCK_FLASH_SECTOR,
+                                                      s_page_buf, sizeof(s_page_buf)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_init(&s_ota_mgr, &s_boot_mgr, TEST_SLOT_SIZE, s_page_buf,
+                                           sizeof(s_page_buf)));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_ota_begin(&s_ota_mgr, (TEST_SLOT_SIZE - MOCK_FLASH_SECTOR) + 1U, 1U, 0U));
+    TEST_ASSERT_EQUAL(SYN_OTA_ERR_OUT_OF_SPACE, syn_ota_get_last_error(&s_ota_mgr));
+
+    /* 2. R5-S03: HMAC & Ed25519 fail closed on NULL or truncated sig_len in syn_ota_finish */
+    uint8_t key32[32] = {0x11, 0x22, 0x33, 0x44};
+    uint8_t fw[64];
+    memset(fw, 0x7A, sizeof(fw));
+    uint32_t fw_crc = syn_crc32(fw, sizeof(fw));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_set_verification_key(&s_ota_mgr, SYN_OTA_CRYPTO_HMAC_SHA256,
+                                                           key32, sizeof(key32)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_begin(&s_ota_mgr, sizeof(fw), 2U, fw_crc));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_write_chunk(&s_ota_mgr, fw, sizeof(fw)));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_ota_finish(&s_ota_mgr, NULL, 32U));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_begin(&s_ota_mgr, sizeof(fw), 2U, fw_crc));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_write_chunk(&s_ota_mgr, fw, sizeof(fw)));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_ota_finish(&s_ota_mgr, key32, 16U));
+
+    uint8_t pubkey[32], privkey[32];
+    TEST_ASSERT_TRUE(syn_ed25519_create_keypair(pubkey, privkey, key32));
+    uint8_t sig[64];
+    TEST_ASSERT_TRUE(syn_ed25519_sign(fw, sizeof(fw), privkey, pubkey, sig));
+
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_ota_set_verification_key(&s_ota_mgr, SYN_OTA_CRYPTO_ED25519, pubkey, 32U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_begin(&s_ota_mgr, sizeof(fw), 3U, fw_crc));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_write_chunk(&s_ota_mgr, fw, sizeof(fw)));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_ota_finish(&s_ota_mgr, NULL, 64U));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_begin(&s_ota_mgr, sizeof(fw), 3U, fw_crc));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_write_chunk(&s_ota_mgr, fw, sizeof(fw)));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_ota_finish(&s_ota_mgr, sig, 32U));
+
+    /* 3. Complete valid Ed25519 OTA -> APPLIED, then start second OTA directly from APPLIED! */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_begin(&s_ota_mgr, sizeof(fw), 3U, fw_crc));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_write_chunk(&s_ota_mgr, fw, sizeof(fw)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_finish(&s_ota_mgr, sig, sizeof(sig)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_apply(&s_ota_mgr));
+    TEST_ASSERT_EQUAL(SYN_OTA_STATE_APPLIED, syn_ota_get_state(&s_ota_mgr));
+
+    uint8_t iv[12] = {0};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_set_target_slot(&s_ota_mgr, SYN_FW_SLOT_A));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ota_set_aes_gcm_params(&s_ota_mgr, key32, sizeof(key32), iv, sizeof(iv)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ota_set_verification_key(&s_ota_mgr, SYN_OTA_CRYPTO_NONE, NULL, 0U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_begin(&s_ota_mgr, sizeof(fw), 4U, fw_crc));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_write_chunk(&s_ota_mgr, fw, sizeof(fw)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_finish(&s_ota_mgr, NULL, 0U));
+}
+
 void run_ota_tests(void)
 {
     RUN_TEST(test_ota_init_and_param_validation);
@@ -511,4 +575,5 @@ void run_ota_tests(void)
     RUN_TEST(test_ota_aes_gcm_encrypted_flow);
     RUN_TEST(test_ota_lwm2m_integration);
     RUN_TEST(test_ota_flash_faults_and_coverage);
+    RUN_TEST(test_r5_ota_regressions);
 }

@@ -143,8 +143,111 @@ void test_timer_wheel_exact_bucket_multiple(void)
     TEST_ASSERT_EQUAL_INT(1, s_timer2_fired);
 }
 
+typedef struct {
+    SYN_TimerWheel *wheel;
+    SYN_TimerWheelNode a;
+    SYN_TimerWheelNode b;
+    SYN_TimerWheelNode c;
+    int a_count;
+    int b_count;
+    int c_count;
+    uint32_t readd_self_delay;
+    uint32_t readd_peer_delay;
+} WheelCbCtx;
+
+static void cb_cancel_peer_b(void *arg)
+{
+    WheelCbCtx *ctx = (WheelCbCtx *)arg;
+    ctx->a_count++;
+    (void)syn_timer_wheel_cancel(ctx->wheel, &ctx->b);
+    if (ctx->readd_self_delay > 0U) {
+        (void)syn_timer_wheel_add(ctx->wheel, &ctx->a, ctx->readd_self_delay, cb_cancel_peer_b,
+                                  ctx);
+        ctx->readd_self_delay = 0U;
+    }
+    if (ctx->readd_peer_delay > 0U) {
+        (void)syn_timer_wheel_add(ctx->wheel, &ctx->b, ctx->readd_peer_delay, timer2_cb, NULL);
+        ctx->readd_peer_delay = 0U;
+    }
+}
+
+static void cb_count_b(void *arg)
+{
+    WheelCbCtx *ctx = (WheelCbCtx *)arg;
+    ctx->b_count++;
+}
+
+static void cb_count_c(void *arg)
+{
+    WheelCbCtx *ctx = (WheelCbCtx *)arg;
+    ctx->c_count++;
+}
+
+static void test_r5_timer_wheel_callback_cancel_and_readd(void)
+{
+    SYN_TimerWheel wheel;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&wheel));
+
+    /* Parameter validation edge cases */
+    SYN_TimerWheelNode dummy;
+    memset(&dummy, 0, sizeof(dummy));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_timer_wheel_add(&wheel, NULL, 1U, timer1_cb, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_timer_wheel_add(&wheel, &dummy, 1U, NULL, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_timer_wheel_cancel(&wheel, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_timer_wheel_cancel(&wheel, &dummy));
+
+    /* Multiple multi-rotation nodes in the same bucket preserve rotation & order */
+    SYN_TimerWheelNode rot1;
+    SYN_TimerWheelNode rot2;
+    memset(&rot1, 0, sizeof(rot1));
+    memset(&rot2, 0, sizeof(rot2));
+    s_timer1_fired = 0;
+    s_timer2_fired = 0;
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_timer_wheel_add(&wheel, &rot1, SYN_TIMER_WHEEL_BUCKETS + 1U, timer1_cb, NULL));
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK,
+        syn_timer_wheel_add(&wheel, &rot2, (2U * SYN_TIMER_WHEEL_BUCKETS) + 1U, timer2_cb, NULL));
+    TEST_ASSERT_EQUAL_size_t(0U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_cancel(&wheel, &rot1));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_cancel(&wheel, &rot2));
+
+    /* Case 1: Same-bucket C -> B -> A (added C, B, A so head order is A -> B -> C).
+     * A cancels B AND re-adds A to the SAME bucket (delay = 64) AND re-adds B to delay = 2!
+     * Expected on tick 1: A fires, cancelled B does NOT fire, C is NOT orphaned and fires! */
+    WheelCbCtx ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.wheel = &wheel;
+    ctx.readd_self_delay = SYN_TIMER_WHEEL_BUCKETS;
+    ctx.readd_peer_delay = 2U;
+    s_timer2_fired = 0;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &ctx.c, 1U, cb_count_c, &ctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &ctx.b, 1U, cb_count_b, &ctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &ctx.a, 1U, cb_cancel_peer_b, &ctx));
+
+    TEST_ASSERT_EQUAL_size_t(2U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_INT(1, ctx.a_count);
+    TEST_ASSERT_EQUAL_INT(0, ctx.b_count);
+    TEST_ASSERT_EQUAL_INT(1, ctx.c_count);
+
+    /* Re-added B fires 2 ticks later without cross-linking */
+    TEST_ASSERT_EQUAL_size_t(0U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_size_t(1U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_INT(1, s_timer2_fired);
+
+    /* Re-added A fires on tick 64 after its re-add (62 more steps) */
+    for (uint32_t i = 0U; i < SYN_TIMER_WHEEL_BUCKETS - 3U; i++) {
+        TEST_ASSERT_EQUAL_size_t(0U, syn_timer_wheel_step(&wheel));
+    }
+    TEST_ASSERT_EQUAL_size_t(1U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_INT(2, ctx.a_count);
+}
+
 void run_timer_wheel_tests(void)
 {
     RUN_TEST(test_timer_wheel_add_step_cancel);
     RUN_TEST(test_timer_wheel_exact_bucket_multiple);
+    RUN_TEST(test_r5_timer_wheel_callback_cancel_and_readd);
 }

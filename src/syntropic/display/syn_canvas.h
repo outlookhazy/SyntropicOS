@@ -342,7 +342,7 @@ void syn_canvas_flush(SYN_Canvas *c);
  *           chunk = canvas.buf_size - flush_pos;
  *       syn_canvas_flush_partial(&canvas, flush_pos, chunk);
  *       flush_pos += chunk;
- *       PT_YIELD(pt);   // other tasks run here
+ *       PT_CONTINUE(pt);   // other tasks run here if needed
  *   }
  * @endcode
  *

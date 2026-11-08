@@ -791,6 +791,68 @@ static void test_cbor_peek_at_eof_and_write_already_overflowed(void)
     TEST_ASSERT_TRUE(writer.overflow);
 }
 
+static void test_r5_n01_cbor_collection_bounds_and_skip(void)
+{
+    /* R5-N01: Oversized map count (0xBA FF FF FF FF -> 4.29B pairs in 5-byte buffer) */
+    static const uint8_t huge_map[] = {0xBAu, 0xFFu, 0xFFu, 0xFFu, 0xFFu};
+    syn_cbor_reader_init(&r, huge_map, sizeof(huge_map));
+    TEST_ASSERT_EQUAL_size_t(0u, syn_cbor_read_map_begin(&r));
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+
+    /* Map declaring 1 pair (needs >= 2 bytes) with only 1 byte remaining */
+    static const uint8_t short_map[] = {0xA1u, 0x01u};
+    syn_cbor_reader_init(&r, short_map, sizeof(short_map));
+    TEST_ASSERT_EQUAL_size_t(0u, syn_cbor_read_map_begin(&r));
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+
+    /* Oversized array count (0x9A FF FF FF FF) and 2-item array with 1 byte remaining */
+    static const uint8_t huge_arr[] = {0x9Au, 0xFFu, 0xFFu, 0xFFu, 0xFFu};
+    syn_cbor_reader_init(&r, huge_arr, sizeof(huge_arr));
+    TEST_ASSERT_EQUAL_size_t(0u, syn_cbor_read_array_begin(&r));
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+
+    static const uint8_t short_arr[] = {0x82u, 0x01u};
+    syn_cbor_reader_init(&r, short_arr, sizeof(short_arr));
+    TEST_ASSERT_EQUAL_size_t(0u, syn_cbor_read_array_begin(&r));
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+
+    /* syn_cbor_skip on empty buffer, mid-array EOF, reserved scalar, and huge map */
+    syn_cbor_reader_init(&r, buf, 0u);
+    syn_cbor_skip(&r);
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+
+    static const uint8_t mid_eof_arr[] = {0x82u, 0x42u, 0x61u, 0x62u};
+    syn_cbor_reader_init(&r, mid_eof_arr, sizeof(mid_eof_arr));
+    syn_cbor_skip(&r);
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+
+    static const uint8_t reserved_scalar[] = {0x1Cu};
+    syn_cbor_reader_init(&r, reserved_scalar, sizeof(reserved_scalar));
+    syn_cbor_skip(&r);
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+
+    syn_cbor_reader_init(&r, huge_map, sizeof(huge_map));
+    syn_cbor_skip(&r);
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+
+    /* 64-bit text/bytes length (0x0000000100000002) must NOT truncate to 2 on 32-bit targets */
+    static const uint8_t u64_text[] = {0x7Bu, 0x00u, 0x00u, 0x00u, 0x01u, 0x00u,
+                                       0x00u, 0x00u, 0x02u, 'a',   'b',   0x01u};
+    char tbuf[8] = {0};
+    syn_cbor_reader_init(&r, u64_text, sizeof(u64_text));
+    (void)syn_cbor_read_text(&r, tbuf, sizeof(tbuf));
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+    TEST_ASSERT_EQUAL_size_t(sizeof(u64_text), r.pos);
+
+    static const uint8_t u64_bytes[] = {0x5Bu, 0x00u, 0x00u, 0x00u, 0x01u, 0x00u,
+                                        0x00u, 0x00u, 0x02u, 0xAAu, 0xBBu, 0x01u};
+    uint8_t bbuf[8] = {0};
+    syn_cbor_reader_init(&r, u64_bytes, sizeof(u64_bytes));
+    (void)syn_cbor_read_bytes(&r, bbuf, sizeof(bbuf));
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+    TEST_ASSERT_EQUAL_size_t(sizeof(u64_bytes), r.pos);
+}
+
 void run_cbor_tests(void)
 {
     /* Encoder */
@@ -845,4 +907,5 @@ void run_cbor_tests(void)
     RUN_TEST(test_cbor_read_bool_and_float_underrun);
     RUN_TEST(test_cbor_write_text_cstr);
     RUN_TEST(test_cbor_peek_at_eof_and_write_already_overflowed);
+    RUN_TEST(test_r5_n01_cbor_collection_bounds_and_skip);
 }

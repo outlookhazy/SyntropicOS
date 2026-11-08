@@ -55,9 +55,34 @@ void test_cia401_analog_delta(void)
     TEST_ASSERT_EQUAL(0, ch);
 }
 
+void test_r5_a18_cia401_wide_analog_delta_no_i16_overflow(void)
+{
+    /* Exercise max channel clamping in init as well */
+    syn_cia401_init(&g_cia401_dev, 10U, 10U, 12U, 12U);
+    TEST_ASSERT_EQUAL_UINT8(SYN_CIA401_MAX_DIGITAL_8BIT, g_cia401_dev.digital_in_count);
+    TEST_ASSERT_EQUAL_UINT8(SYN_CIA401_MAX_ANALOG_16BIT, g_cia401_dev.analog_in_count);
+
+    /* Full-scale swing (-32768 -> +32767 = 65535 > INT16_MAX) must trigger cleanly */
+    g_cia401_dev.analog_delta[0] = 0; /* Disabled delta on ch 0 */
+    g_cia401_dev.analog_delta[1] = 1000;
+    g_cia401_dev.prev_analog_in[1] = -32768;
+    g_cia401_dev.analog_in[1] = 32767;
+
+    uint8_t ch = 0xFFU;
+    TEST_ASSERT_TRUE(syn_cia401_check_analog_delta(&g_cia401_dev, &ch));
+    TEST_ASSERT_EQUAL_UINT8(1U, ch);
+    TEST_ASSERT_EQUAL_INT16(32767, g_cia401_dev.prev_analog_in[1]);
+
+    /* Reverse full-scale swing (+32767 -> -32768) */
+    g_cia401_dev.analog_in[1] = -32768;
+    TEST_ASSERT_TRUE(syn_cia401_check_analog_delta(&g_cia401_dev, &ch));
+    TEST_ASSERT_EQUAL_UINT8(1U, ch);
+}
+
 void run_cia401_tests(void)
 {
     RUN_TEST(test_cia401_init);
     RUN_TEST(test_cia401_populate_od);
     RUN_TEST(test_cia401_analog_delta);
+    RUN_TEST(test_r5_a18_cia401_wide_analog_delta_no_i16_overflow);
 }

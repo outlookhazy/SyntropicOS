@@ -5,9 +5,25 @@
 
 #include "syn_dds.h"
 
-#include "../util/syn_random.h"
-
 #include <string.h>
+
+/**
+ * @brief Advance 32-bit xorshift PRNG state for noise waveform generation.
+ * @param dds DDS synthesizer instance.
+ * @return Next 32-bit pseudo-random value.
+ */
+static uint32_t dds_xorshift32(SYN_DDS *dds)
+{
+    uint32_t x = dds->rand_state;
+    if (x == 0U) {
+        x = 0xA5A5A5A5U;
+    }
+    x ^= x << 13U;
+    x ^= x >> 17U;
+    x ^= x << 5U;
+    dds->rand_state = x;
+    return x;
+}
 
 SYN_Status syn_dds_init(SYN_DDS *dds, SYN_DDS_Waveform type, uint32_t freq_hz,
                         uint32_t sample_rate_hz)
@@ -109,13 +125,13 @@ q16_t syn_dds_step(SYN_DDS *dds)
         break;
     }
     case SYN_DDS_NOISE: {
-        uint32_t rnd = syn_random_u32();
+        uint32_t rnd = dds_xorshift32(dds);
         int32_t signed_val = (int32_t)(rnd & 0xFFFFU) - 32768;
         raw_sample = (q16_t)(signed_val * 2);
         break;
     }
     default:
-        break; /* LCOV_EXCL_LINE: Defensive default branch for enum state machine */
+        break;
     }
 
     dds->phase += dds->phase_step;

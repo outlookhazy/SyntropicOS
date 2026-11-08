@@ -5,6 +5,8 @@
 
 #include "syntropic/proto/syn_doip.h"
 
+#if SYN_DOIP_ENABLED
+
 #include <string.h>
 
 /**
@@ -134,6 +136,212 @@ static bool build_generic_nack(uint8_t nack_code, uint8_t *tx_buf, uint16_t max_
     return true;
 }
 
+/**
+ * @brief Build DoIP Diagnostic Message NACK response.
+ * @param server DoIP server instance.
+ * @param sa Tester source logical address.
+ * @param nack_code Diagnostic NACK code.
+ * @param tx_buf Target output buffer.
+ * @param max_tx_len Capacity of tx_buf in bytes.
+ * @param tx_len Output frame length in bytes.
+ * @return true on success, false if tx_buf is too small.
+ */
+static bool build_diag_nack(const SYN_DoIP_Server *server, uint16_t sa, uint8_t nack_code,
+                            uint8_t *tx_buf, uint16_t max_tx_len, uint16_t *tx_len)
+{
+    uint32_t payload_len = 5U;
+    if (max_tx_len < SYN_DOIP_HEADER_SIZE + payload_len) {
+        return false;
+    }
+    SYN_DoIP_Header resp_hdr = {.protocol_version = SYN_DOIP_PROTOCOL_VERSION,
+                                .inverse_protocol_version = SYN_DOIP_INVERSE_PROTOCOL_VERSION,
+                                .payload_type = SYN_DOIP_TYPE_DIAGNOSTIC_MSG_NACK,
+                                .payload_length = payload_len};
+    syn_doip_encode_header(&resp_hdr, tx_buf, max_tx_len);
+    uint8_t *p = &tx_buf[SYN_DOIP_HEADER_SIZE];
+    poke_u16_be(server->logical_address, &p[0]);
+    poke_u16_be(sa, &p[2]);
+    p[4] = nack_code;
+    *tx_len = (uint16_t)(SYN_DOIP_HEADER_SIZE + payload_len);
+    return true;
+}
+
+/**
+ * @brief Handle DoIP Vehicle Identification Request (generic, EID, or VIN).
+ * @param server DoIP server instance.
+ * @param hdr Parsed DoIP request header.
+ * @param payload Request payload bytes after DoIP header.
+ * @param tx_buf Target output buffer.
+ * @param max_tx_len Capacity of tx_buf in bytes.
+ * @param tx_len Output frame length in bytes.
+ * @return true on success, false if tx_buf is too small.
+ */
+static bool handle_vehicle_id_req(const SYN_DoIP_Server *server, const SYN_DoIP_Header *hdr,
+                                  const uint8_t *payload, uint8_t *tx_buf, uint16_t max_tx_len,
+                                  uint16_t *tx_len)
+{
+    if (hdr->payload_type == SYN_DOIP_TYPE_VEHICLE_ID_REQ) {
+        if (hdr->payload_length != 0U) {
+            return build_generic_nack(SYN_DOIP_NACK_INVALID_PAYLOAD_LENGTH, tx_buf, max_tx_len,
+                                      tx_len);
+        }
+    } else if (hdr->payload_type == SYN_DOIP_TYPE_VEHICLE_ID_REQ_EID) {
+        if (hdr->payload_length != 6U) {
+            return build_generic_nack(SYN_DOIP_NACK_INVALID_PAYLOAD_LENGTH, tx_buf, max_tx_len,
+                                      tx_len);
+        }
+        if (memcmp(payload, server->eid, 6U) != 0) {
+            *tx_len = 0U;
+            return true;
+        }
+    } else {
+        if (hdr->payload_length != 17U) {
+            return build_generic_nack(SYN_DOIP_NACK_INVALID_PAYLOAD_LENGTH, tx_buf, max_tx_len,
+                                      tx_len);
+        }
+        if (memcmp(payload, server->vin, 17U) != 0) {
+            *tx_len = 0U;
+            return true;
+        }
+    }
+
+    uint32_t payload_len = 33U;
+    if (max_tx_len < SYN_DOIP_HEADER_SIZE + payload_len) {
+        return false;
+    }
+    SYN_DoIP_Header resp_hdr = {.protocol_version = SYN_DOIP_PROTOCOL_VERSION,
+                                .inverse_protocol_version = SYN_DOIP_INVERSE_PROTOCOL_VERSION,
+                                .payload_type = SYN_DOIP_TYPE_VEHICLE_ANNOUNCEMENT,
+                                .payload_length = payload_len};
+    syn_doip_encode_header(&resp_hdr, tx_buf, max_tx_len);
+
+    uint8_t *p = &tx_buf[SYN_DOIP_HEADER_SIZE];
+    memcpy(p, server->vin, 17U);
+    poke_u16_be(server->logical_address, &p[17]);
+    memcpy(&p[19], server->eid, 6U);
+    memcpy(&p[25], server->gid, 6U);
+    p[31] = 0x00U;
+    p[32] = 0x00U;
+
+    *tx_len = (uint16_t)(SYN_DOIP_HEADER_SIZE + payload_len);
+    return true;
+}
+
+/**
+ * @brief Handle DoIP Routing Activation Request and encode response.
+ * @param server DoIP server instance.
+ * @param hdr Parsed DoIP request header.
+ * @param payload Request payload bytes after DoIP header.
+ * @param tx_buf Target output buffer.
+ * @param max_tx_len Capacity of tx_buf in bytes.
+ * @param tx_len Output frame length in bytes.
+ * @return true on success, false if tx_buf is too small.
+ */
+static bool handle_routing_activation(SYN_DoIP_Server *server, const SYN_DoIP_Header *hdr,
+                                      const uint8_t *payload, uint8_t *tx_buf, uint16_t max_tx_len,
+                                      uint16_t *tx_len)
+{
+    if (hdr->payload_length < 7U) {
+        return build_generic_nack(SYN_DOIP_NACK_INVALID_PAYLOAD_LENGTH, tx_buf, max_tx_len, tx_len);
+    }
+    uint16_t tester_addr = peek_u16_be(&payload[0]);
+    server->active_tester_address = tester_addr;
+    server->routing_activated = true;
+
+    uint32_t payload_len = 9U;
+    if (max_tx_len < SYN_DOIP_HEADER_SIZE + payload_len) {
+        return false;
+    }
+    SYN_DoIP_Header resp_hdr = {.protocol_version = SYN_DOIP_PROTOCOL_VERSION,
+                                .inverse_protocol_version = SYN_DOIP_INVERSE_PROTOCOL_VERSION,
+                                .payload_type = SYN_DOIP_TYPE_ROUTING_ACTIVATION_RESP,
+                                .payload_length = payload_len};
+    syn_doip_encode_header(&resp_hdr, tx_buf, max_tx_len);
+
+    uint8_t *p = &tx_buf[SYN_DOIP_HEADER_SIZE];
+    poke_u16_be(tester_addr, &p[0]);
+    poke_u16_be(server->logical_address, &p[2]);
+    p[4] = SYN_DOIP_ROUTING_SUCCESS;
+    poke_u32_be(0x00000000U, &p[5]);
+
+    *tx_len = (uint16_t)(SYN_DOIP_HEADER_SIZE + payload_len);
+    return true;
+}
+
+/**
+ * @brief Handle DoIP Diagnostic Message, dispatch UDS payload, and encode ACK plus response.
+ * @param server DoIP server instance.
+ * @param uds Optional UDS server instance.
+ * @param hdr Parsed DoIP request header.
+ * @param payload Request payload bytes after DoIP header.
+ * @param tx_buf Target output buffer.
+ * @param max_tx_len Capacity of tx_buf in bytes.
+ * @param tx_len Output frame length in bytes.
+ * @return true on success, false if tx_buf is too small.
+ */
+static bool handle_diagnostic_msg(SYN_DoIP_Server *server, SYN_UDS_Server *uds,
+                                  const SYN_DoIP_Header *hdr, const uint8_t *payload,
+                                  uint8_t *tx_buf, uint16_t max_tx_len, uint16_t *tx_len)
+{
+    if (hdr->payload_length < 4U) {
+        return build_generic_nack(SYN_DOIP_NACK_INVALID_PAYLOAD_LENGTH, tx_buf, max_tx_len, tx_len);
+    }
+    uint16_t sa = peek_u16_be(&payload[0]);
+    uint16_t ta = peek_u16_be(&payload[2]);
+
+    if (!server->routing_activated || sa != server->active_tester_address) {
+        return build_diag_nack(server, sa, SYN_DOIP_DIAG_NACK_INVALID_SA, tx_buf, max_tx_len,
+                               tx_len);
+    }
+    if (ta != server->logical_address && ta != 0xFFFFU) {
+        return build_diag_nack(server, sa, SYN_DOIP_DIAG_NACK_UNKNOWN_TA, tx_buf, max_tx_len,
+                               tx_len);
+    }
+
+    const uint8_t *uds_req = &payload[4];
+    uint16_t uds_req_len = (uint16_t)(hdr->payload_length - 4U);
+    uint8_t uds_resp[512];
+    uint16_t uds_resp_len = 0U;
+
+    if (uds != NULL && uds_req_len > 0U) {
+        SYN_UDS_AddrMode addr_type =
+            (ta == 0xFFFFU) ? SYN_UDS_ADDR_FUNCTIONAL : SYN_UDS_ADDR_PHYSICAL;
+        syn_uds_process_request(uds, uds_req, uds_req_len, uds_resp, (uint16_t)sizeof(uds_resp),
+                                &uds_resp_len, addr_type);
+    }
+
+    uint32_t ack_frame_len = SYN_DOIP_HEADER_SIZE + 5U;
+    uint32_t diag_frame_len =
+        (uds_resp_len > 0U) ? (uint32_t)(SYN_DOIP_HEADER_SIZE + 4U + uds_resp_len) : 0U;
+    if ((uint32_t)max_tx_len < ack_frame_len + diag_frame_len) {
+        return false;
+    }
+
+    SYN_DoIP_Header ack_hdr = {.protocol_version = SYN_DOIP_PROTOCOL_VERSION,
+                               .inverse_protocol_version = SYN_DOIP_INVERSE_PROTOCOL_VERSION,
+                               .payload_type = SYN_DOIP_TYPE_DIAGNOSTIC_MSG_ACK,
+                               .payload_length = 5U};
+    syn_doip_encode_header(&ack_hdr, tx_buf, max_tx_len);
+    poke_u16_be(server->logical_address, &tx_buf[8]);
+    poke_u16_be(sa, &tx_buf[10]);
+    tx_buf[12] = SYN_DOIP_DIAG_ACK_OK;
+
+    if (uds_resp_len > 0U) {
+        uint8_t *diag_out = &tx_buf[ack_frame_len];
+        SYN_DoIP_Header resp_hdr = {.protocol_version = SYN_DOIP_PROTOCOL_VERSION,
+                                    .inverse_protocol_version = SYN_DOIP_INVERSE_PROTOCOL_VERSION,
+                                    .payload_type = SYN_DOIP_TYPE_DIAGNOSTIC_MSG,
+                                    .payload_length = 4U + (uint32_t)uds_resp_len};
+        syn_doip_encode_header(&resp_hdr, diag_out, (uint16_t)(max_tx_len - ack_frame_len));
+        poke_u16_be(server->logical_address, &diag_out[8]);
+        poke_u16_be(sa, &diag_out[10]);
+        memcpy(&diag_out[12], uds_resp, uds_resp_len);
+    }
+
+    *tx_len = (uint16_t)(ack_frame_len + diag_frame_len);
+    return true;
+}
+
 bool syn_doip_process_msg(SYN_DoIP_Server *server, SYN_UDS_Server *uds, const uint8_t *rx_buf,
                           uint16_t rx_len, uint8_t *tx_buf, uint16_t max_tx_len, uint16_t *tx_len)
 {
@@ -147,8 +355,7 @@ bool syn_doip_process_msg(SYN_DoIP_Server *server, SYN_UDS_Server *uds, const ui
         return build_generic_nack(SYN_DOIP_NACK_INCORRECT_PATTERN, tx_buf, max_tx_len, tx_len);
     }
 
-    if ((size_t)rx_len < SYN_DOIP_HEADER_SIZE ||
-        (size_t)hdr.payload_length > (size_t)(rx_len - SYN_DOIP_HEADER_SIZE)) {
+    if ((size_t)hdr.payload_length > (size_t)(rx_len - SYN_DOIP_HEADER_SIZE)) {
         return build_generic_nack(SYN_DOIP_NACK_INVALID_PAYLOAD_LENGTH, tx_buf, max_tx_len, tx_len);
     }
 
@@ -157,127 +364,15 @@ bool syn_doip_process_msg(SYN_DoIP_Server *server, SYN_UDS_Server *uds, const ui
     switch (hdr.payload_type) {
     case SYN_DOIP_TYPE_VEHICLE_ID_REQ:
     case SYN_DOIP_TYPE_VEHICLE_ID_REQ_EID:
-    case SYN_DOIP_TYPE_VEHICLE_ID_REQ_VIN: {
-        /* Vehicle Announcement Response (33 bytes payload) */
-        uint32_t payload_len = 33U;
-        if (max_tx_len < SYN_DOIP_HEADER_SIZE + payload_len) {
-            return false;
-        }
-        SYN_DoIP_Header resp_hdr = {.protocol_version = SYN_DOIP_PROTOCOL_VERSION,
-                                    .inverse_protocol_version = SYN_DOIP_INVERSE_PROTOCOL_VERSION,
-                                    .payload_type = SYN_DOIP_TYPE_VEHICLE_ANNOUNCEMENT,
-                                    .payload_length = payload_len};
-        syn_doip_encode_header(&resp_hdr, tx_buf, max_tx_len);
-
-        uint8_t *p = &tx_buf[SYN_DOIP_HEADER_SIZE];
-        memcpy(p, server->vin, 17);                   /* VIN 17 bytes */
-        poke_u16_be(server->logical_address, &p[17]); /* Logical Address 2 bytes */
-        memcpy(&p[19], server->eid, 6);               /* EID 6 bytes */
-        memcpy(&p[25], server->gid, 6);               /* GID 6 bytes */
-        p[31] = 0x00U;                                /* Further action required: none */
-        p[32] = 0x00U;                                /* VIN/GID sync status: synced */
-
-        *tx_len = (uint16_t)(SYN_DOIP_HEADER_SIZE + payload_len);
-        return true;
-    }
-
-    case SYN_DOIP_TYPE_ROUTING_ACTIVATION_REQ: {
-        if (hdr.payload_length < 7U) {
-            return build_generic_nack(SYN_DOIP_NACK_INVALID_PAYLOAD_LENGTH, tx_buf, max_tx_len,
-                                      tx_len);
-        }
-        uint16_t tester_addr = peek_u16_be(&payload[0]);
-        uint8_t act_type = payload[2];
-        (void)act_type;
-
-        server->active_tester_address = tester_addr;
-        server->routing_activated = true;
-
-        /* Routing Activation Response (9 bytes payload) */
-        uint32_t payload_len = 9U;
-        if (max_tx_len < SYN_DOIP_HEADER_SIZE + payload_len) {
-            return false;
-        }
-        SYN_DoIP_Header resp_hdr = {.protocol_version = SYN_DOIP_PROTOCOL_VERSION,
-                                    .inverse_protocol_version = SYN_DOIP_INVERSE_PROTOCOL_VERSION,
-                                    .payload_type = SYN_DOIP_TYPE_ROUTING_ACTIVATION_RESP,
-                                    .payload_length = payload_len};
-        syn_doip_encode_header(&resp_hdr, tx_buf, max_tx_len);
-
-        uint8_t *p = &tx_buf[SYN_DOIP_HEADER_SIZE];
-        poke_u16_be(tester_addr, &p[0]);             /* Tester logical address (2B) */
-        poke_u16_be(server->logical_address, &p[2]); /* Server logical address (2B) */
-        p[4] = SYN_DOIP_ROUTING_SUCCESS;             /* Response code (0x00) */
-        poke_u32_be(0x00000000U, &p[5]);             /* Reserved (4B) */
-
-        *tx_len = (uint16_t)(SYN_DOIP_HEADER_SIZE + payload_len);
-        return true;
-    }
-
-    case SYN_DOIP_TYPE_DIAGNOSTIC_MSG: {
-        if (hdr.payload_length < 4U) {
-            return build_generic_nack(SYN_DOIP_NACK_INVALID_PAYLOAD_LENGTH, tx_buf, max_tx_len,
-                                      tx_len);
-        }
-        uint16_t sa = peek_u16_be(&payload[0]);
-        uint16_t ta = peek_u16_be(&payload[2]);
-        (void)sa;
-
-        if (ta != server->logical_address && ta != 0xFFFFU) {
-            /* Diagnostic Message NACK (5 bytes payload) */
-            uint32_t payload_len = 5U;
-            if (max_tx_len < SYN_DOIP_HEADER_SIZE + payload_len) {
-                return false;
-            }
-            SYN_DoIP_Header resp_hdr = {.protocol_version = SYN_DOIP_PROTOCOL_VERSION,
-                                        .inverse_protocol_version =
-                                            SYN_DOIP_INVERSE_PROTOCOL_VERSION,
-                                        .payload_type = SYN_DOIP_TYPE_DIAGNOSTIC_MSG_NACK,
-                                        .payload_length = payload_len};
-            syn_doip_encode_header(&resp_hdr, tx_buf, max_tx_len);
-            uint8_t *p = &tx_buf[SYN_DOIP_HEADER_SIZE];
-            poke_u16_be(server->logical_address, &p[0]);
-            poke_u16_be(sa, &p[2]);
-            p[4] = 0x02U; /* NACK code: Unknown target address */
-            *tx_len = (uint16_t)(SYN_DOIP_HEADER_SIZE + payload_len);
-            return true;
-        }
-
-        const uint8_t *uds_req = &payload[4];
-        uint16_t uds_req_len = (uint16_t)(hdr.payload_length - 4U);
-
-        /* Diagnostic Message Positive ACK + UDS Response payload */
-        uint8_t uds_resp[512];
-        uint16_t uds_resp_len = 0U;
-
-        if (uds != NULL && uds_req_len > 0U) {
-            syn_uds_process_request(uds, uds_req, uds_req_len, uds_resp, sizeof(uds_resp),
-                                    &uds_resp_len, SYN_UDS_ADDR_PHYSICAL);
-        }
-
-        uint32_t payload_len = 4U + uds_resp_len;
-        if (max_tx_len < SYN_DOIP_HEADER_SIZE + payload_len) {
-            return false;
-        }
-
-        SYN_DoIP_Header resp_hdr = {.protocol_version = SYN_DOIP_PROTOCOL_VERSION,
-                                    .inverse_protocol_version = SYN_DOIP_INVERSE_PROTOCOL_VERSION,
-                                    .payload_type = SYN_DOIP_TYPE_DIAGNOSTIC_MSG,
-                                    .payload_length = payload_len};
-        syn_doip_encode_header(&resp_hdr, tx_buf, max_tx_len);
-
-        uint8_t *p = &tx_buf[SYN_DOIP_HEADER_SIZE];
-        poke_u16_be(server->logical_address, &p[0]); /* Source address = ECU (2B) */
-        poke_u16_be(sa, &p[2]);                      /* Target address = Tester (2B) */
-        if (uds_resp_len > 0U) {
-            memcpy(&p[4], uds_resp, uds_resp_len);
-        }
-
-        *tx_len = (uint16_t)(SYN_DOIP_HEADER_SIZE + payload_len);
-        return true;
-    }
-
+    case SYN_DOIP_TYPE_VEHICLE_ID_REQ_VIN:
+        return handle_vehicle_id_req(server, &hdr, payload, tx_buf, max_tx_len, tx_len);
+    case SYN_DOIP_TYPE_ROUTING_ACTIVATION_REQ:
+        return handle_routing_activation(server, &hdr, payload, tx_buf, max_tx_len, tx_len);
+    case SYN_DOIP_TYPE_DIAGNOSTIC_MSG:
+        return handle_diagnostic_msg(server, uds, &hdr, payload, tx_buf, max_tx_len, tx_len);
     default:
         return build_generic_nack(SYN_DOIP_NACK_UNKNOWN_PAYLOAD_TYPE, tx_buf, max_tx_len, tx_len);
     }
 }
+
+#endif /* SYN_DOIP_ENABLED */

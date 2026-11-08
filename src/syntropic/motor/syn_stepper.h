@@ -74,7 +74,9 @@ typedef struct {
     int32_t target;          /**< Target position                            */
     uint32_t speed;          /**< Current speed (steps/sec, fixed-point Q16) */
     uint32_t step_interval;  /**< Current step interval (µs)                 */
-    uint32_t last_step_tick; /**< Tick (µs) of last step                     */
+    uint32_t last_step_tick; /**< Tick (ms) of last step                     */
+    uint32_t last_tick_ms;   /**< Tick (ms) of last velocity integration     */
+    uint32_t speed_rem;      /**< Fractional speed accumulator (milli-sps)   */
     int32_t steps_to_go;     /**< Remaining steps in current move            */
     int32_t decel_start;     /**< Step count at which to start decelerating  */
     bool step_state;         /**< Current step pin level (for pulse gen)     */

@@ -103,10 +103,34 @@ void test_dds_buffer_fill(void)
     TEST_ASSERT_EQUAL(3276800, syn_dds_step(&dds));
 }
 
+static void test_r5_dds_deterministic_xorshift_noise(void)
+{
+    SYN_DDS d1;
+    SYN_DDS d2;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dds_init(&d1, SYN_DDS_NOISE, 1000U, 10000U));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dds_init(&d2, SYN_DDS_NOISE, 1000U, 10000U));
+
+    /* Per-instance rand_state produces reproducible independent sequences */
+    for (int i = 0; i < 16; i++) {
+        q16_t s1 = syn_dds_step(&d1);
+        q16_t s2 = syn_dds_step(&d2);
+        TEST_ASSERT_EQUAL_INT32(s1, s2);
+    }
+    TEST_ASSERT_NOT_EQUAL(0x12345678U, d1.rand_state);
+
+    /* Zero seed fallback avoids xorshift32 lockup */
+    d1.rand_state = 0U;
+    q16_t z1 = syn_dds_step(&d1);
+    q16_t z2 = syn_dds_step(&d1);
+    TEST_ASSERT_NOT_EQUAL(0U, d1.rand_state);
+    TEST_ASSERT_NOT_EQUAL(z1, z2);
+}
+
 void run_dds_tests(void)
 {
     RUN_TEST(test_dds_sine_wave);
     RUN_TEST(test_dds_triangle_and_sawtooth);
     RUN_TEST(test_dds_square_pwm_and_noise);
     RUN_TEST(test_dds_buffer_fill);
+    RUN_TEST(test_r5_dds_deterministic_xorshift_noise);
 }

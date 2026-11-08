@@ -6,16 +6,17 @@
 #ifndef SYN_USB_HID_H
 #define SYN_USB_HID_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/drivers/syn_usb.h"
+#include "syntropic/pt/syn_pt.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SYN_USB_HID_MAX_REPORT_SIZE 64U /**< Maximum HID report size */
 
@@ -101,7 +102,6 @@ bool syn_usb_hid_report_available(const SYN_USB_HID *hid);
 bool syn_usb_hid_tx_ready(const SYN_USB_HID *hid);
 
 /* ── Protothread Coroutine Integration ──────────────────────────────────── */
-#include "syntropic/pt/syn_pt.h"
 
 /**
  * @brief Block a protothread coroutine until an OUT report is available.

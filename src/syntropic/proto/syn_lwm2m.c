@@ -6,7 +6,7 @@
 
 #include "syn_lwm2m.h"
 
-#if !defined(SYN_USE_LWM2M) || SYN_USE_LWM2M
+#if SYN_LWM2M_ENABLED
 
 #include "syntropic/port/syn_port_system.h"
 #include "syntropic/util/syn_assert.h"
@@ -467,7 +467,7 @@ bool syn_lwm2m_register_object(SYN_LwM2M_Client *client, const SYN_LwM2M_Object 
     return true;
 }
 
-size_t syn_lwm2m_build_register_request(const SYN_LwM2M_Client *client, uint16_t msg_id,
+size_t syn_lwm2m_build_register_request(SYN_LwM2M_Client *client, uint16_t msg_id,
                                         const uint8_t *token, uint8_t token_len, SYN_CoapMsg *req,
                                         SYN_CoapOption *req_opts, size_t max_req_opts,
                                         size_t *req_opt_cnt, uint8_t *payload_buf,
@@ -495,10 +495,8 @@ size_t syn_lwm2m_build_register_request(const SYN_LwM2M_Client *client, uint16_t
 
     /* Options: Uri-Path: "rd", Uri-Query: "ep=...", Uri-Query: "lt=...", Uri-Query: "lwm2m=1.1",
      * Uri-Query: "b=U", Content-Format: 40 */
-    static char query_ep[64];
-    static char query_lt[32];
-    (void)snprintf(query_ep, sizeof(query_ep), "ep=%s", client->endpoint_name);
-    (void)snprintf(query_lt, sizeof(query_lt), "lt=%u", client->lifetime_s);
+    (void)snprintf(client->query_ep, sizeof(client->query_ep), "ep=%s", client->endpoint_name);
+    (void)snprintf(client->query_lt, sizeof(client->query_lt), "lt=%u", client->lifetime_s);
 
     static const uint8_t fmt_link = SYN_LWM2M_FORMAT_LINK_FORMAT;
 
@@ -511,12 +509,12 @@ size_t syn_lwm2m_build_register_request(const SYN_LwM2M_Client *client, uint16_t
     req_opts[1].len = 1U;
 
     req_opts[2].num = COAP_OPT_URI_QUERY;
-    req_opts[2].val = (const uint8_t *)query_ep;
-    req_opts[2].len = strlen(query_ep);
+    req_opts[2].val = (const uint8_t *)client->query_ep;
+    req_opts[2].len = strlen(client->query_ep);
 
     req_opts[3].num = COAP_OPT_URI_QUERY;
-    req_opts[3].val = (const uint8_t *)query_lt;
-    req_opts[3].len = strlen(query_lt);
+    req_opts[3].val = (const uint8_t *)client->query_lt;
+    req_opts[3].len = strlen(client->query_lt);
 
     req_opts[4].num = COAP_OPT_URI_QUERY;
     req_opts[4].val = (const uint8_t *)"lwm2m=1.1";
@@ -530,7 +528,7 @@ size_t syn_lwm2m_build_register_request(const SYN_LwM2M_Client *client, uint16_t
     return link_len;
 }
 
-size_t syn_lwm2m_build_update_request(const SYN_LwM2M_Client *client, uint16_t msg_id,
+size_t syn_lwm2m_build_update_request(SYN_LwM2M_Client *client, uint16_t msg_id,
                                       const uint8_t *token, uint8_t token_len, uint32_t lifetime_s,
                                       SYN_CoapMsg *req, SYN_CoapOption *req_opts,
                                       size_t max_req_opts, size_t *req_opt_cnt,
@@ -539,8 +537,13 @@ size_t syn_lwm2m_build_update_request(const SYN_LwM2M_Client *client, uint16_t m
     (void)payload_buf;
     (void)payload_buf_sz;
 
-    if (client == NULL || req == NULL || req_opts == NULL || req_opt_cnt == NULL ||
-        max_req_opts < 3U || token_len > 8U || client->location_path[0] == '\0') {
+    if (req == NULL) {
+        return 0U;
+    }
+    (void)memset(req, 0, sizeof(*req));
+
+    if (client == NULL || req_opts == NULL || req_opt_cnt == NULL || max_req_opts < 3U ||
+        token_len > 8U || client->location_path[0] == '\0') {
         return 0U;
     }
 
@@ -570,16 +573,15 @@ size_t syn_lwm2m_build_update_request(const SYN_LwM2M_Client *client, uint16_t m
     req_opts[1].val = (const uint8_t *)id_part;
     req_opts[1].len = strlen(id_part);
 
-    static char query_lt[32];
     uint32_t lt = (lifetime_s > 0U) ? lifetime_s : client->lifetime_s;
-    (void)snprintf(query_lt, sizeof(query_lt), "lt=%u", lt);
+    (void)snprintf(client->query_lt, sizeof(client->query_lt), "lt=%u", lt);
 
     req_opts[2].num = COAP_OPT_URI_QUERY;
-    req_opts[2].val = (const uint8_t *)query_lt;
-    req_opts[2].len = strlen(query_lt);
+    req_opts[2].val = (const uint8_t *)client->query_lt;
+    req_opts[2].len = strlen(client->query_lt);
 
     *req_opt_cnt = 3U;
-    return 1U;
+    return 0U;
 }
 
 size_t syn_lwm2m_build_deregister_request(const SYN_LwM2M_Client *client, uint16_t msg_id,
@@ -702,7 +704,7 @@ bool syn_lwm2m_observe_add(SYN_LwM2M_Client *client, uint16_t obj_id, uint16_t i
         (void)memcpy(obs->token, token, token_len);
     }
     obs->pmin = pmin;
-    obs->pmax = (pmax > 0U) ? pmax : 60000U;
+    obs->pmax = (pmax > 0U) ? pmax : 60U;
     obs->last_notify_ms = syn_port_get_tick_ms();
     obs->seq = 0U;
 
@@ -726,87 +728,6 @@ bool syn_lwm2m_observe_remove(SYN_LwM2M_Client *client, const uint8_t *token, ui
 
     return false;
 }
-
-size_t syn_lwm2m_build_notify(SYN_LwM2M_Client *client, uint16_t obj_id, uint16_t inst_id,
-                              int32_t res_id, uint16_t msg_id, SYN_CoapMsg *resp,
-                              SYN_CoapOption *resp_opts, size_t max_resp_opts, size_t *resp_opt_cnt,
-                              uint8_t *resp_buf, size_t resp_buf_sz)
-{
-    if (client == NULL || resp == NULL || resp_opts == NULL || resp_opt_cnt == NULL ||
-        resp_buf == NULL || max_resp_opts < 2U || resp_buf_sz == 0U) {
-        return 0U;
-    }
-
-    /* Find matching observation */
-    SYN_LwM2M_Observation *obs = NULL;
-    for (size_t i = 0U; i < SYN_LWM2M_MAX_OBSERVERS; i++) {
-        if (client->observations[i].active && client->observations[i].obj_id == obj_id &&
-            client->observations[i].inst_id == inst_id &&
-            client->observations[i].res_id == res_id) {
-            obs = &client->observations[i];
-            break;
-        }
-    }
-
-    if (obs == NULL) {
-        return 0U;
-    }
-
-    /* Find target object and resource */
-    const SYN_LwM2M_Object *obj = NULL;
-    for (size_t i = 0U; i < client->object_count; i++) {
-        if (client->objects[i] != NULL && client->objects[i]->id == obj_id) {
-            obj = client->objects[i];
-            break;
-        }
-    }
-
-    if (obj == NULL || obj->read == NULL || res_id < 0) {
-        return 0U;
-    }
-
-    SYN_LwM2M_Value val = {0};
-    if (obj->read(inst_id, (uint16_t)res_id, &val, obj->user_ctx) != SYN_OK) {
-        return 0U;
-    }
-
-    size_t payload_len = syn_lwm2m_tlv_encode_value((uint16_t)res_id, &val, resp_buf, resp_buf_sz);
-    if (payload_len == 0U) {
-        return 0U;
-    }
-
-    resp->type = COAP_TYPE_NON;
-    resp->code = COAP_RESP_CONTENT;
-    resp->msg_id = msg_id;
-    resp->token_len = obs->token_len;
-    (void)memcpy(resp->token, obs->token, obs->token_len);
-    resp->payload = resp_buf;
-    resp->payload_len = payload_len;
-
-    static uint8_t obs_seq_buf[3];
-    obs->seq++;
-    obs_seq_buf[0] = (uint8_t)((obs->seq >> 16) & 0xFF);
-    obs_seq_buf[1] = (uint8_t)((obs->seq >> 8) & 0xFF);
-    obs_seq_buf[2] = (uint8_t)(obs->seq & 0xFF);
-
-    static const uint8_t fmt_tlv[2] = {(uint8_t)(SYN_LWM2M_FORMAT_TLV >> 8),
-                                       (uint8_t)(SYN_LWM2M_FORMAT_TLV & 0xFF)};
-
-    resp_opts[0].num = COAP_OPT_OBSERVE;
-    resp_opts[0].val = obs_seq_buf;
-    resp_opts[0].len = 3U;
-
-    resp_opts[1].num = COAP_OPT_CONTENT_FORMAT;
-    resp_opts[1].val = fmt_tlv;
-    resp_opts[1].len = 2U;
-
-    *resp_opt_cnt = 2U;
-    obs->last_notify_ms = syn_port_get_tick_ms();
-
-    return payload_len;
-}
-
-/* ── Request Dispatcher ──────────────────────────────────────────────────── */
 
 /**
  * @brief Search client object registry for object matching ID.
@@ -846,6 +767,129 @@ static bool validate_instance(const SYN_LwM2M_Object *obj, uint16_t inst_id)
 }
 
 /**
+ * @brief Locate active observation entry matching object, instance, and resource ID.
+ *
+ * @param client  LwM2M client context.
+ * @param obj_id  Object ID.
+ * @param inst_id Instance ID.
+ * @param res_id  Resource ID (-1 for whole instance).
+ * @return Matching observation slot or NULL.
+ */
+static SYN_LwM2M_Observation *find_observation(SYN_LwM2M_Client *client, uint16_t obj_id,
+                                               uint16_t inst_id, int32_t res_id)
+{
+    for (size_t i = 0U; i < SYN_LWM2M_MAX_OBSERVERS; i++) {
+        if (client->observations[i].active && client->observations[i].obj_id == obj_id &&
+            client->observations[i].inst_id == inst_id &&
+            client->observations[i].res_id == res_id) {
+            return &client->observations[i];
+        }
+    }
+    return NULL;
+}
+
+/**
+ * @brief Encode single-resource or whole-instance TLV notification payload.
+ *
+ * @param obj         Target object descriptor.
+ * @param inst_id     Instance ID.
+ * @param res_id      Resource ID (-1 for whole object instance).
+ * @param resp_buf    [out] Destination TLV payload buffer.
+ * @param resp_buf_sz Destination buffer capacity.
+ * @return Encoded payload length in bytes, or 0 on error or buffer overflow.
+ */
+static size_t lwm2m_encode_notify_payload(const SYN_LwM2M_Object *obj, uint16_t inst_id,
+                                          int32_t res_id, uint8_t *resp_buf, size_t resp_buf_sz)
+{
+    if (obj == NULL || obj->read == NULL) {
+        return 0U;
+    }
+
+    if (res_id >= 0) {
+        SYN_LwM2M_Value val = {0};
+        if (obj->read(inst_id, (uint16_t)res_id, &val, obj->user_ctx) != SYN_OK) {
+            return 0U;
+        }
+        return syn_lwm2m_tlv_encode_value((uint16_t)res_id, &val, resp_buf, resp_buf_sz);
+    }
+
+    if (obj->resources == NULL || !validate_instance(obj, inst_id)) {
+        return 0U;
+    }
+
+    size_t total_written = 0U;
+    for (size_t i = 0U; i < obj->resource_count; i++) {
+        const SYN_LwM2M_ResourceDesc *r_desc = &obj->resources[i];
+        if ((r_desc->operations & SYN_LWM2M_OP_R) != 0U) {
+            SYN_LwM2M_Value r_val = {0};
+            if (obj->read(inst_id, r_desc->id, &r_val, obj->user_ctx) == SYN_OK) {
+                size_t enc = syn_lwm2m_tlv_encode_value(
+                    r_desc->id, &r_val, resp_buf + total_written, resp_buf_sz - total_written);
+                if (enc == 0U) {
+                    return 0U;
+                }
+                total_written += enc;
+            }
+        }
+    }
+
+    return total_written;
+}
+
+size_t syn_lwm2m_build_notify(SYN_LwM2M_Client *client, uint16_t obj_id, uint16_t inst_id,
+                              int32_t res_id, uint16_t msg_id, SYN_CoapMsg *resp,
+                              SYN_CoapOption *resp_opts, size_t max_resp_opts, size_t *resp_opt_cnt,
+                              uint8_t *resp_buf, size_t resp_buf_sz)
+{
+    if (client == NULL || resp == NULL || resp_opts == NULL || resp_opt_cnt == NULL ||
+        resp_buf == NULL || max_resp_opts < 2U || resp_buf_sz == 0U) {
+        return 0U;
+    }
+
+    SYN_LwM2M_Observation *obs = find_observation(client, obj_id, inst_id, res_id);
+    if (obs == NULL) {
+        return 0U;
+    }
+
+    const SYN_LwM2M_Object *obj = find_object(client, obj_id);
+    size_t payload_len = lwm2m_encode_notify_payload(obj, inst_id, res_id, resp_buf, resp_buf_sz);
+    if (payload_len == 0U) {
+        return 0U;
+    }
+
+    resp->type = COAP_TYPE_NON;
+    resp->code = COAP_RESP_CONTENT;
+    resp->msg_id = msg_id;
+    resp->token_len = obs->token_len;
+    (void)memcpy(resp->token, obs->token, obs->token_len);
+    resp->payload = resp_buf;
+    resp->payload_len = payload_len;
+
+    obs->seq++;
+    client->obs_seq_buf[0] = (uint8_t)((obs->seq >> 16) & 0xFF);
+    client->obs_seq_buf[1] = (uint8_t)((obs->seq >> 8) & 0xFF);
+    client->obs_seq_buf[2] = (uint8_t)(obs->seq & 0xFF);
+
+    static const uint8_t fmt_tlv[2] = {(uint8_t)(SYN_LWM2M_FORMAT_TLV >> 8),
+                                       (uint8_t)(SYN_LWM2M_FORMAT_TLV & 0xFF)};
+
+    resp_opts[0].num = COAP_OPT_OBSERVE;
+    resp_opts[0].val = client->obs_seq_buf;
+    resp_opts[0].len = 3U;
+
+    resp_opts[1].num = COAP_OPT_CONTENT_FORMAT;
+    resp_opts[1].val = fmt_tlv;
+    resp_opts[1].len = 2U;
+
+    *resp_opt_cnt = 2U;
+    obs->last_notify_ms = syn_port_get_tick_ms();
+
+    return payload_len;
+}
+
+/* ── Request Dispatcher ──────────────────────────────────────────────────── */
+
+/**
  * @brief Find resource descriptor matching resource ID within an object.
  *
  * @param obj    Object descriptor.
@@ -865,18 +909,412 @@ static const SYN_LwM2M_ResourceDesc *find_resource(const SYN_LwM2M_Object *obj, 
     return NULL;
 }
 
-SYN_Status syn_lwm2m_process_request(SYN_LwM2M_Client *client, const SYN_CoapMsg *req,
-                                     const SYN_CoapOption *req_opts, size_t req_opt_cnt,
-                                     SYN_CoapMsg *resp, SYN_CoapOption *resp_opts,
-                                     size_t max_resp_opts, size_t *resp_opt_cnt, uint8_t *resp_buf,
-                                     size_t resp_buf_sz)
+/**
+ * @brief Parsed CoAP request metadata for LwM2M routing and payload decoding.
+ */
+typedef struct {
+    size_t path_segs;        /**< Number of Uri-Path segments */
+    uint16_t obj_id;         /**< Target Object ID */
+    uint16_t inst_id;        /**< Target Instance ID */
+    uint16_t res_id;         /**< Target Resource ID */
+    bool has_observe;        /**< Observe option present */
+    uint32_t observe_val;    /**< Decoded Observe option value (0=register, 1=deregister) */
+    bool has_content_format; /**< Content-Format option present */
+    uint16_t content_format; /**< CoAP Content-Format identifier */
+} SYN_LwM2M_ReqMeta;
+
+/**
+ * @brief Decode a CoAP unsigned integer option value (up to 4 bytes).
+ *
+ * @param val Option value buffer.
+ * @param len Option value length.
+ * @return Decoded 32-bit unsigned value.
+ */
+static uint32_t lwm2m_decode_coap_uint(const uint8_t *val, size_t len)
+{
+    uint32_t out = 0U;
+    if (val == NULL) {
+        return 0U;
+    }
+    for (size_t i = 0U; i < len && i < 4U; i++) {
+        out = (out << 8U) | (uint32_t)val[i];
+    }
+    return out;
+}
+
+/**
+ * @brief Parse a single CoAP Uri-Path segment into object/instance/resource IDs.
+ *
+ * @param meta [in,out] Parsed request metadata.
+ * @param opt  Uri-Path option descriptor.
+ */
+static void lwm2m_parse_uri_segment(SYN_LwM2M_ReqMeta *meta, const SYN_CoapOption *opt)
+{
+    char seg[16] = {0};
+    size_t c_len = (opt->len < sizeof(seg) - 1U) ? opt->len : sizeof(seg) - 1U;
+    (void)memcpy(seg, opt->val, c_len);
+    seg[c_len] = '\0';
+    unsigned int num = (unsigned int)strtoul(seg, NULL, 10);
+
+    if (meta->path_segs == 0U) {
+        meta->obj_id = (uint16_t)num;
+    } else if (meta->path_segs == 1U) {
+        meta->inst_id = (uint16_t)num;
+    } else if (meta->path_segs == 2U) {
+        meta->res_id = (uint16_t)num;
+    }
+    meta->path_segs++;
+}
+
+/**
+ * @brief Extract LwM2M routing and format options from an inbound CoAP option list.
+ *
+ * @param req_opts    Array of CoAP options.
+ * @param req_opt_cnt Number of options.
+ * @param meta        [out] Populated request metadata.
+ */
+static void lwm2m_parse_req_opts(const SYN_CoapOption *req_opts, size_t req_opt_cnt,
+                                 SYN_LwM2M_ReqMeta *meta)
+{
+    (void)memset(meta, 0, sizeof(*meta));
+    if (req_opts == NULL) {
+        return;
+    }
+
+    for (size_t i = 0U; i < req_opt_cnt; i++) {
+        if (req_opts[i].num == COAP_OPT_URI_PATH && req_opts[i].val != NULL) {
+            lwm2m_parse_uri_segment(meta, &req_opts[i]);
+        } else if (req_opts[i].num == COAP_OPT_OBSERVE) {
+            meta->has_observe = true;
+            meta->observe_val = lwm2m_decode_coap_uint(req_opts[i].val, req_opts[i].len);
+        } else if (req_opts[i].num == COAP_OPT_CONTENT_FORMAT) {
+            size_t cf_len = (req_opts[i].len > 2U) ? 2U : req_opts[i].len;
+            meta->has_content_format = true;
+            meta->content_format = (uint16_t)lwm2m_decode_coap_uint(req_opts[i].val, cf_len);
+        }
+    }
+}
+
+/**
+ * @brief Populate CoAP response options (Observe if accepted + TLV Content-Format) for GET.
+ *
+ * @param client       LwM2M client context.
+ * @param req          Inbound CoAP request.
+ * @param meta         Parsed request metadata.
+ * @param res_id       Resource ID (-1 for whole instance).
+ * @param resp_opts    [out] Response options array.
+ * @param resp_opt_cnt [out] Populated option count.
+ */
+static void lwm2m_populate_get_opts(SYN_LwM2M_Client *client, const SYN_CoapMsg *req,
+                                    const SYN_LwM2M_ReqMeta *meta, int32_t res_id,
+                                    SYN_CoapOption *resp_opts, size_t *resp_opt_cnt)
+{
+    static const uint8_t fmt_tlv[2] = {(uint8_t)(SYN_LWM2M_FORMAT_TLV >> 8),
+                                       (uint8_t)(SYN_LWM2M_FORMAT_TLV & 0xFF)};
+    static const uint8_t obs_val = 0U;
+    size_t opt_i = 0U;
+
+    if (meta->has_observe) {
+        if (meta->observe_val == 0U &&
+            syn_lwm2m_observe_add(client, meta->obj_id, meta->inst_id, res_id, req->token,
+                                  req->token_len, 0U, 60U)) {
+            resp_opts[opt_i].num = COAP_OPT_OBSERVE;
+            resp_opts[opt_i].val = &obs_val;
+            resp_opts[opt_i].len = 1U;
+            opt_i++;
+        } else if (meta->observe_val == 1U) {
+            (void)syn_lwm2m_observe_remove(client, req->token, req->token_len);
+        }
+    }
+
+    resp_opts[opt_i].num = COAP_OPT_CONTENT_FORMAT;
+    resp_opts[opt_i].val = fmt_tlv;
+    resp_opts[opt_i].len = 2U;
+    opt_i++;
+    *resp_opt_cnt = opt_i;
+}
+
+/**
+ * @brief Handle CoAP GET (single resource or whole object instance read/observe).
+ *
+ * @param client       LwM2M client context.
+ * @param obj          Target object descriptor.
+ * @param req          Inbound CoAP request.
+ * @param meta         Parsed request metadata.
+ * @param resp         [out] Prepared CoAP response.
+ * @param resp_opts    [out] Response options array.
+ * @param resp_opt_cnt [out] Populated option count.
+ * @param resp_buf     [out] Response payload buffer.
+ * @param resp_buf_sz  Capacity of response buffer.
+ */
+static void lwm2m_handle_get(SYN_LwM2M_Client *client, const SYN_LwM2M_Object *obj,
+                             const SYN_CoapMsg *req, const SYN_LwM2M_ReqMeta *meta,
+                             SYN_CoapMsg *resp, SYN_CoapOption *resp_opts, size_t *resp_opt_cnt,
+                             uint8_t *resp_buf, size_t resp_buf_sz)
+{
+    if (meta->path_segs == 3U) {
+        const SYN_LwM2M_ResourceDesc *desc = find_resource(obj, meta->res_id);
+        if (desc == NULL) {
+            resp->code = COAP_RESP_NOT_FOUND;
+            return;
+        }
+        if ((desc->operations & SYN_LWM2M_OP_R) == 0U || obj->read == NULL) {
+            resp->code = COAP_RESP_METHOD_NA;
+            return;
+        }
+
+        SYN_LwM2M_Value val = {0};
+        if (obj->read(meta->inst_id, meta->res_id, &val, obj->user_ctx) != SYN_OK) {
+            resp->code = COAP_RESP_INTERNAL;
+            return;
+        }
+
+        size_t enc_len = syn_lwm2m_tlv_encode_value(meta->res_id, &val, resp_buf, resp_buf_sz);
+        if (enc_len == 0U) {
+            resp->code = COAP_RESP_INTERNAL;
+            return;
+        }
+
+        resp->code = COAP_RESP_CONTENT;
+        resp->payload = resp_buf;
+        resp->payload_len = enc_len;
+        lwm2m_populate_get_opts(client, req, meta, (int32_t)meta->res_id, resp_opts, resp_opt_cnt);
+        return;
+    }
+
+    if (meta->path_segs == 2U) {
+        if (obj->read == NULL || obj->resources == NULL) {
+            resp->code = COAP_RESP_NOT_FOUND;
+            return;
+        }
+
+        size_t total_written = 0U;
+        for (size_t i = 0U; i < obj->resource_count; i++) {
+            const SYN_LwM2M_ResourceDesc *r_desc = &obj->resources[i];
+            if ((r_desc->operations & SYN_LWM2M_OP_R) != 0U) {
+                SYN_LwM2M_Value r_val = {0};
+                if (obj->read(meta->inst_id, r_desc->id, &r_val, obj->user_ctx) == SYN_OK) {
+                    size_t enc = syn_lwm2m_tlv_encode_value(
+                        r_desc->id, &r_val, resp_buf + total_written, resp_buf_sz - total_written);
+                    if (enc == 0U) {
+                        resp->code = COAP_RESP_INTERNAL;
+                        return;
+                    }
+                    total_written += enc;
+                }
+            }
+        }
+
+        resp->code = COAP_RESP_CONTENT;
+        resp->payload = resp_buf;
+        resp->payload_len = total_written;
+        lwm2m_populate_get_opts(client, req, meta, -1, resp_opts, resp_opt_cnt);
+        return;
+    }
+
+    resp->code = COAP_RESP_BAD_REQ;
+}
+
+/**
+ * @brief Decode plain-text boolean token ("1"/"0" or "true"/"false").
+ *
+ * @param s       NUL-terminated token string.
+ * @param out_val [out] Decoded boolean value container.
+ * @return true on valid boolean token, false otherwise.
+ */
+static bool lwm2m_decode_plain_bool(const char *s, SYN_LwM2M_Value *out_val)
+{
+    if (strcmp(s, "1") == 0 || strcmp(s, "true") == 0) {
+        out_val->type = SYN_LWM2M_TYPE_BOOL;
+        out_val->val.boolean = true;
+        return true;
+    }
+    if (strcmp(s, "0") == 0 || strcmp(s, "false") == 0) {
+        out_val->type = SYN_LWM2M_TYPE_BOOL;
+        out_val->val.boolean = false;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief Decode plain-text or opaque payload into a typed LwM2M value container.
+ *
+ * @param payload     Raw payload bytes (not necessarily NUL-terminated).
+ * @param payload_len Payload byte length.
+ * @param type        Expected resource value type.
+ * @param str_buf     Caller-owned scratch buffer for string values.
+ * @param str_buf_sz  Capacity of @p str_buf.
+ * @param out_val     [out] Decoded value container.
+ * @return true on successful decode, false otherwise.
+ */
+static bool lwm2m_decode_plain_payload(const uint8_t *payload, size_t payload_len,
+                                       SYN_LwM2M_ValType type, char *str_buf, size_t str_buf_sz,
+                                       SYN_LwM2M_Value *out_val)
+{
+    if (type == SYN_LWM2M_TYPE_STRING) {
+        size_t c_len = (payload_len < str_buf_sz - 1U) ? payload_len : (str_buf_sz - 1U);
+        (void)memcpy(str_buf, payload, c_len);
+        str_buf[c_len] = '\0';
+        out_val->type = SYN_LWM2M_TYPE_STRING;
+        out_val->val.str = str_buf;
+        return true;
+    }
+
+    if (type == SYN_LWM2M_TYPE_OPAQUE) {
+        out_val->type = SYN_LWM2M_TYPE_OPAQUE;
+        out_val->val.opaque.data = payload;
+        out_val->val.opaque.len = payload_len;
+        return true;
+    }
+
+    char num_buf[32];
+    size_t n_len = (payload_len < sizeof(num_buf) - 1U) ? payload_len : (sizeof(num_buf) - 1U);
+    (void)memcpy(num_buf, payload, n_len);
+    num_buf[n_len] = '\0';
+    char *endptr = NULL;
+
+    if (type == SYN_LWM2M_TYPE_INT || type == SYN_LWM2M_TYPE_TIME) {
+        int64_t iv = (int64_t)strtoll(num_buf, &endptr, 10);
+        if (endptr != num_buf && *endptr == '\0') {
+            out_val->type = type;
+            out_val->val.integer = iv;
+            return true;
+        }
+        return false;
+    }
+
+    if (type == SYN_LWM2M_TYPE_FLOAT) {
+        double dv = strtod(num_buf, &endptr);
+        if (endptr != num_buf && *endptr == '\0') {
+            out_val->type = SYN_LWM2M_TYPE_FLOAT;
+            out_val->val.floating = dv;
+            return true;
+        }
+        return false;
+    }
+
+    if (type == SYN_LWM2M_TYPE_BOOL) {
+        return lwm2m_decode_plain_bool(num_buf, out_val);
+    }
+
+    return false;
+}
+
+/**
+ * @brief Decode write request payload using TLV or plain-text fallback per Content-Format.
+ *
+ * @param req        Inbound CoAP request.
+ * @param meta       Parsed request metadata.
+ * @param type       Expected resource value type.
+ * @param str_buf    Caller-owned scratch buffer for string values.
+ * @param str_buf_sz Capacity of @p str_buf.
+ * @param out_val    [out] Decoded value container.
+ * @return true on successful decode, false otherwise.
+ */
+static bool lwm2m_decode_write_payload(const SYN_CoapMsg *req, const SYN_LwM2M_ReqMeta *meta,
+                                       SYN_LwM2M_ValType type, char *str_buf, size_t str_buf_sz,
+                                       SYN_LwM2M_Value *out_val)
+{
+    if (req->payload_len == 0U || req->payload == NULL) {
+        return false;
+    }
+
+    bool allow_tlv = !meta->has_content_format || (meta->content_format == SYN_LWM2M_FORMAT_TLV);
+    bool allow_plain = !meta->has_content_format || (meta->content_format != SYN_LWM2M_FORMAT_TLV);
+
+    if (allow_tlv) {
+        SYN_LwM2M_TLV tlv;
+        size_t consumed = 0U;
+        if (syn_lwm2m_tlv_decode(req->payload, req->payload_len, &tlv, &consumed) &&
+            consumed == req->payload_len && tlv.type == SYN_LWM2M_TLV_RESOURCE &&
+            tlv.id == meta->res_id) {
+            if (type == SYN_LWM2M_TYPE_STRING) {
+                if (syn_lwm2m_tlv_decode_string(&tlv, str_buf, str_buf_sz)) {
+                    out_val->type = SYN_LWM2M_TYPE_STRING;
+                    out_val->val.str = str_buf;
+                    return true;
+                }
+            } else if (syn_lwm2m_tlv_decode_value(&tlv, type, out_val)) {
+                return true;
+            }
+        }
+    }
+
+    if (allow_plain) {
+        return lwm2m_decode_plain_payload(req->payload, req->payload_len, type, str_buf, str_buf_sz,
+                                          out_val);
+    }
+
+    return false;
+}
+
+/**
+ * @brief Handle CoAP PUT/POST resource Write or Execute operations.
+ *
+ * @param obj  Target object descriptor.
+ * @param req  Inbound CoAP request.
+ * @param meta Parsed request metadata.
+ * @param resp [out] Prepared CoAP response.
+ */
+static void lwm2m_handle_write_or_exec(const SYN_LwM2M_Object *obj, const SYN_CoapMsg *req,
+                                       const SYN_LwM2M_ReqMeta *meta, SYN_CoapMsg *resp)
+{
+    const SYN_LwM2M_ResourceDesc *desc = find_resource(obj, meta->res_id);
+    if (desc == NULL) {
+        resp->code = COAP_RESP_NOT_FOUND;
+        return;
+    }
+
+    if ((desc->operations & SYN_LWM2M_OP_E) != 0U && (desc->operations & SYN_LWM2M_OP_W) == 0U) {
+        if (obj->exec == NULL) {
+            resp->code = COAP_RESP_METHOD_NA;
+            return;
+        }
+        SYN_Status ex_st =
+            obj->exec(meta->inst_id, meta->res_id, req->payload, req->payload_len, obj->user_ctx);
+        resp->code = (ex_st == SYN_OK) ? COAP_RESP_CHANGED : COAP_RESP_INTERNAL;
+        return;
+    }
+
+    if ((desc->operations & SYN_LWM2M_OP_W) == 0U || obj->write == NULL) {
+        resp->code = COAP_RESP_METHOD_NA;
+        return;
+    }
+
+    char str_buf[128];
+    SYN_LwM2M_Value in_val = {0};
+    if (!lwm2m_decode_write_payload(req, meta, desc->type, str_buf, sizeof(str_buf), &in_val)) {
+        resp->code = COAP_RESP_BAD_REQ;
+        return;
+    }
+
+    SYN_Status wr_st = obj->write(meta->inst_id, meta->res_id, &in_val, obj->user_ctx);
+    resp->code = (wr_st == SYN_OK) ? COAP_RESP_CHANGED : COAP_RESP_INTERNAL;
+}
+
+/**
+ * @brief Validate request-processing buffer parameters and initialize response header.
+ * @param client        LwM2M client context.
+ * @param req           Incoming CoAP request.
+ * @param resp          Outgoing CoAP response.
+ * @param resp_opts     Outgoing CoAP options array.
+ * @param max_resp_opts Maximum outgoing CoAP options capacity.
+ * @param resp_opt_cnt  Output option counter.
+ * @param resp_buf      Outgoing payload buffer.
+ * @param resp_buf_sz   Outgoing payload buffer capacity.
+ * @return true if parameters are valid, false otherwise.
+ */
+static bool lwm2m_prepare_response(const SYN_LwM2M_Client *client, const SYN_CoapMsg *req,
+                                   SYN_CoapMsg *resp, const SYN_CoapOption *resp_opts,
+                                   size_t max_resp_opts, size_t *resp_opt_cnt,
+                                   const uint8_t *resp_buf, size_t resp_buf_sz)
 {
     if (client == NULL || req == NULL || resp == NULL || resp_opts == NULL ||
         resp_opt_cnt == NULL || resp_buf == NULL || max_resp_opts < 2U || resp_buf_sz == 0U) {
-        return SYN_ERROR;
+        return false;
     }
 
-    /* Initialize response */
     resp->type = (req->type == COAP_TYPE_CON) ? COAP_TYPE_ACK : COAP_TYPE_NON;
     resp->msg_id = req->msg_id;
     resp->token_len = req->token_len;
@@ -886,232 +1324,44 @@ SYN_Status syn_lwm2m_process_request(SYN_LwM2M_Client *client, const SYN_CoapMsg
     resp->payload = NULL;
     resp->payload_len = 0U;
     *resp_opt_cnt = 0U;
+    return true;
+}
 
-    /* Parse URI Path segments (1, 2, or 3 segments) */
-    size_t path_segs = 0U;
-    uint16_t obj_id = 0U;
-    uint16_t inst_id = 0U;
-    uint16_t res_id = 0U;
-    bool has_observe = false;
-
-    if (req_opts != NULL) {
-        for (size_t i = 0U; i < req_opt_cnt; i++) {
-            if (req_opts[i].num == COAP_OPT_URI_PATH && req_opts[i].val != NULL) {
-                char seg[16] = {0};
-                size_t c_len =
-                    (req_opts[i].len < sizeof(seg) - 1U) ? req_opts[i].len : sizeof(seg) - 1U;
-                (void)memcpy(seg, req_opts[i].val, c_len);
-                seg[c_len] = '\0';
-                unsigned int num = (unsigned int)strtoul(seg, NULL, 10);
-
-                if (path_segs == 0U) {
-                    obj_id = (uint16_t)num;
-                } else if (path_segs == 1U) {
-                    inst_id = (uint16_t)num;
-                } else if (path_segs == 2U) {
-                    res_id = (uint16_t)num;
-                }
-                path_segs++;
-            } else if (req_opts[i].num == COAP_OPT_OBSERVE) {
-                has_observe = true;
-            }
-        }
+SYN_Status syn_lwm2m_process_request(SYN_LwM2M_Client *client, const SYN_CoapMsg *req,
+                                     const SYN_CoapOption *req_opts, size_t req_opt_cnt,
+                                     SYN_CoapMsg *resp, SYN_CoapOption *resp_opts,
+                                     size_t max_resp_opts, size_t *resp_opt_cnt, uint8_t *resp_buf,
+                                     size_t resp_buf_sz)
+{
+    if (!lwm2m_prepare_response(client, req, resp, resp_opts, max_resp_opts, resp_opt_cnt, resp_buf,
+                                resp_buf_sz)) {
+        return SYN_ERROR;
     }
 
-    if (path_segs == 0U) {
+    SYN_LwM2M_ReqMeta meta;
+    lwm2m_parse_req_opts(req_opts, req_opt_cnt, &meta);
+    if (meta.path_segs == 0U) {
         resp->code = COAP_RESP_BAD_REQ;
         return SYN_OK;
     }
 
-    const SYN_LwM2M_Object *obj = find_object(client, obj_id);
-    if (obj == NULL) {
+    const SYN_LwM2M_Object *obj = find_object(client, meta.obj_id);
+    if (obj == NULL || (meta.path_segs >= 2U && !validate_instance(obj, meta.inst_id))) {
         resp->code = COAP_RESP_NOT_FOUND;
         return SYN_OK;
     }
 
-    if (path_segs >= 2U && !validate_instance(obj, inst_id)) {
-        resp->code = COAP_RESP_NOT_FOUND;
-        return SYN_OK;
-    }
-
-    static const uint8_t fmt_tlv[2] = {(uint8_t)(SYN_LWM2M_FORMAT_TLV >> 8),
-                                       (uint8_t)(SYN_LWM2M_FORMAT_TLV & 0xFF)};
-
-    /* ── GET (Read / Observe / Discover) ─────────────────────────────────── */
     if (req->code == COAP_CODE_GET) {
-        /* Single resource read */
-        if (path_segs == 3U) {
-            const SYN_LwM2M_ResourceDesc *desc = find_resource(obj, res_id);
-            if (desc == NULL) {
-                resp->code = COAP_RESP_NOT_FOUND;
-                return SYN_OK;
-            }
-            if ((desc->operations & SYN_LWM2M_OP_R) == 0U || obj->read == NULL) {
-                resp->code = COAP_RESP_METHOD_NA;
-                return SYN_OK;
-            }
-
-            SYN_LwM2M_Value val = {0};
-            if (obj->read(inst_id, res_id, &val, obj->user_ctx) != SYN_OK) {
-                resp->code = COAP_RESP_INTERNAL;
-                return SYN_OK;
-            }
-
-            size_t enc_len = syn_lwm2m_tlv_encode_value(res_id, &val, resp_buf, resp_buf_sz);
-            if (enc_len == 0U) {
-                resp->code = COAP_RESP_INTERNAL;
-                return SYN_OK;
-            }
-
-            resp->code = COAP_RESP_CONTENT;
-            resp->payload = resp_buf;
-            resp->payload_len = enc_len;
-
-            size_t opt_i = 0U;
-            if (has_observe) {
-                syn_lwm2m_observe_add(client, obj_id, inst_id, (int32_t)res_id, req->token,
-                                      req->token_len, 0U, 60000U);
-                static const uint8_t obs_val = 0U;
-                resp_opts[opt_i].num = COAP_OPT_OBSERVE;
-                resp_opts[opt_i].val = &obs_val;
-                resp_opts[opt_i].len = 1U;
-                opt_i++;
-            }
-
-            resp_opts[opt_i].num = COAP_OPT_CONTENT_FORMAT;
-            resp_opts[opt_i].val = fmt_tlv;
-            resp_opts[opt_i].len = 2U;
-            opt_i++;
-            *resp_opt_cnt = opt_i;
-            return SYN_OK;
-        }
-
-        /* Object instance read (whole instance) */
-        if (path_segs == 2U) {
-            if (obj->read == NULL || obj->resources == NULL) {
-                resp->code = COAP_RESP_NOT_FOUND;
-                return SYN_OK;
-            }
-
-            size_t total_written = 0U;
-            for (size_t i = 0U; i < obj->resource_count; i++) {
-                const SYN_LwM2M_ResourceDesc *r_desc = &obj->resources[i];
-                if ((r_desc->operations & SYN_LWM2M_OP_R) != 0U) {
-                    SYN_LwM2M_Value r_val = {0};
-                    if (obj->read(inst_id, r_desc->id, &r_val, obj->user_ctx) == SYN_OK) {
-                        size_t w =
-                            syn_lwm2m_tlv_encode_value(r_desc->id, &r_val, resp_buf + total_written,
-                                                       resp_buf_sz - total_written);
-                        total_written += w;
-                    }
-                }
-            }
-
-            resp->code = COAP_RESP_CONTENT;
-            resp->payload = resp_buf;
-            resp->payload_len = total_written;
-
-            size_t opt_i = 0U;
-            if (has_observe) {
-                syn_lwm2m_observe_add(client, obj_id, inst_id, -1, req->token, req->token_len, 0U,
-                                      60000U);
-                static const uint8_t obs_val = 0U;
-                resp_opts[opt_i].num = COAP_OPT_OBSERVE;
-                resp_opts[opt_i].val = &obs_val;
-                resp_opts[opt_i].len = 1U;
-                opt_i++;
-            }
-
-            resp_opts[opt_i].num = COAP_OPT_CONTENT_FORMAT;
-            resp_opts[opt_i].val = fmt_tlv;
-            resp_opts[opt_i].len = 2U;
-            opt_i++;
-            *resp_opt_cnt = opt_i;
-            return SYN_OK;
-        }
-
-        resp->code = COAP_RESP_BAD_REQ;
+        lwm2m_handle_get(client, obj, req, &meta, resp, resp_opts, resp_opt_cnt, resp_buf,
+                         resp_buf_sz);
         return SYN_OK;
     }
 
-    /* ── PUT / POST (Write) ──────────────────────────────────────────────── */
-    if (req->code == COAP_CODE_PUT || (req->code == COAP_CODE_POST && path_segs == 3U)) {
-        const SYN_LwM2M_ResourceDesc *desc = find_resource(obj, res_id);
-        if (desc == NULL) {
-            resp->code = COAP_RESP_NOT_FOUND;
-            return SYN_OK;
-        }
-
-        /* Check if this is an Execute call on an executable-only resource */
-        if ((desc->operations & SYN_LWM2M_OP_E) != 0U &&
-            (desc->operations & SYN_LWM2M_OP_W) == 0U) {
-            if (obj->exec == NULL) {
-                resp->code = COAP_RESP_METHOD_NA;
-                return SYN_OK;
-            }
-            if (obj->exec(inst_id, res_id, req->payload, req->payload_len, obj->user_ctx) ==
-                SYN_OK) {
-                resp->code = COAP_RESP_CHANGED;
-            } else {
-                resp->code = COAP_RESP_INTERNAL;
-            }
-            return SYN_OK;
-        }
-
-        if ((desc->operations & SYN_LWM2M_OP_W) == 0U || obj->write == NULL) {
-            resp->code = COAP_RESP_METHOD_NA;
-            return SYN_OK;
-        }
-
-        /* Decode value from payload (supports TLV or plain text) */
-        SYN_LwM2M_Value in_val = {0};
-        bool decoded = false;
-
-        if (req->payload_len > 0U && req->payload != NULL) {
-            SYN_LwM2M_TLV tlv;
-            size_t consumed = 0U;
-            if (syn_lwm2m_tlv_decode(req->payload, req->payload_len, &tlv, &consumed)) {
-                decoded = syn_lwm2m_tlv_decode_value(&tlv, desc->type, &in_val);
-            }
-
-            if (!decoded) {
-                /* Text fallback */
-                if (desc->type == SYN_LWM2M_TYPE_STRING) {
-                    char str_buf[64] = {0};
-                    size_t c_len = (req->payload_len < sizeof(str_buf) - 1U) ? req->payload_len
-                                                                             : sizeof(str_buf) - 1U;
-                    (void)memcpy(str_buf, req->payload, c_len);
-                    str_buf[c_len] = '\0';
-                    in_val.type = SYN_LWM2M_TYPE_STRING;
-                    in_val.val.str = str_buf;
-                    decoded = true;
-                } else if (desc->type == SYN_LWM2M_TYPE_INT || desc->type == SYN_LWM2M_TYPE_TIME) {
-                    in_val.type = desc->type;
-                    in_val.val.integer = (int64_t)strtoll((const char *)req->payload, NULL, 10);
-                    decoded = true;
-                } else if (desc->type == SYN_LWM2M_TYPE_OPAQUE) {
-                    in_val.type = SYN_LWM2M_TYPE_OPAQUE;
-                    in_val.val.opaque.data = req->payload;
-                    in_val.val.opaque.len = req->payload_len;
-                    decoded = true;
-                }
-            }
-        }
-
-        if (!decoded) {
-            resp->code = COAP_RESP_BAD_REQ;
-            return SYN_OK;
-        }
-
-        if (obj->write(inst_id, res_id, &in_val, obj->user_ctx) == SYN_OK) {
-            resp->code = COAP_RESP_CHANGED;
-        } else {
-            resp->code = COAP_RESP_INTERNAL;
-        }
+    if (req->code == COAP_CODE_PUT || (req->code == COAP_CODE_POST && meta.path_segs == 3U)) {
+        lwm2m_handle_write_or_exec(obj, req, &meta, resp);
         return SYN_OK;
     }
 
-    /* ── DELETE ─────────────────────────────────────────────────────────── */
     if (req->code == COAP_CODE_DELETE) {
         resp->code = COAP_RESP_DELETED;
         return SYN_OK;
@@ -1366,7 +1616,9 @@ static SYN_Status fw_write_cb(uint16_t instance_id, uint16_t resource_id,
 
     if (resource_id == 1U && in_val->type == SYN_LWM2M_TYPE_STRING && in_val->val.str != NULL) {
         (void)strncpy(ctx->package_uri, in_val->val.str, sizeof(ctx->package_uri) - 1U);
-        ctx->state = SYN_LWM2M_FW_STATE_DOWNLOADED;
+        ctx->package_uri[sizeof(ctx->package_uri) - 1U] = '\0';
+        ctx->state = (ctx->package_uri[0] == '\0') ? SYN_LWM2M_FW_STATE_IDLE
+                                                   : SYN_LWM2M_FW_STATE_DOWNLOADING;
         return SYN_OK;
     }
 
@@ -1488,4 +1740,4 @@ SYN_LwM2M_Object syn_lwm2m_make_temperature_object(SYN_LwM2M_SensorContext *ctx)
     return obj;
 }
 
-#endif /* SYN_USE_LWM2M */
+#endif /* SYN_LWM2M_ENABLED */

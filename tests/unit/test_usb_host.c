@@ -304,7 +304,7 @@ void test_usb_host_cdc_transport_bridge(void)
 
     uint8_t rx_buf[16];
     size_t rlen = 0;
-    TEST_ASSERT_TRUE(syn_transport_recv(&tr, rx_buf, sizeof(rx_buf), &rlen));
+    TEST_ASSERT_FALSE(syn_transport_recv(&tr, rx_buf, sizeof(rx_buf), &rlen));
     TEST_ASSERT_EQUAL(0, rlen);
 
     /* Test NULL hcdc (lines 47-50 in syn_transport_usb_host_cdc.c) */
@@ -404,6 +404,111 @@ void test_usb_host_subordinate_descriptor_overflow(void)
     TEST_ASSERT_TRUE(probe_called);
 }
 
+static void test_r5_usb_host_regressions(void)
+{
+    /* 1. Enumerate actual syn_usb_cdc 2-interface descriptor with actual=0 on SET_CFG */
+    SYN_USB_Device dev;
+    SYN_USB_CDC cdc_dev;
+    syn_usb_init(&dev, MOCK_DEV_DESC);
+    syn_usb_cdc_init(&cdc_dev);
+    syn_usb_cdc_register(&dev, &cdc_dev);
+
+    mock_usb_host_reset();
+    SYN_USB_Host host;
+    SYN_USB_HostCDC hcdc;
+    syn_usb_host_init(&host);
+    syn_usb_host_cdc_init(&hcdc);
+    syn_usb_host_cdc_register(&host, &hcdc);
+
+    mock_usb_host_attached = true;
+    syn_usb_host_process(&host); /* DISCONNECTED -> ATTACHED */
+    syn_usb_host_process(&host); /* ATTACHED -> ENUMERATING */
+
+    memcpy(mock_usb_host_xfer_buf, MOCK_DEV_DESC, 8U);
+    mock_usb_host_xfer_len = 8U;
+    syn_usb_host_process(&host); /* GET_DEV8 submit */
+    syn_usb_host_process(&host); /* GET_DEV8 done -> SET_ADDR submit */
+
+    mock_usb_host_xfer_len = 0U; /* Zero-length status on SET_ADDRESS */
+    memcpy(mock_usb_host_xfer_buf, MOCK_DEV_DESC, 18U);
+    syn_usb_host_process(&host); /* SET_ADDR done -> GET_DEV_FULL (submits before xfer_len set) */
+    memcpy(host.enum_buf, MOCK_DEV_DESC, 18U);
+    mock_usb_host_xfer_len = 18U;
+    syn_usb_host_process(&host); /* GET_DEV_FULL done -> GET_CFG submit */
+
+    memcpy(host.enum_buf, dev.config_desc, dev.config_desc_len);
+    mock_usb_host_xfer_len = dev.config_desc_len;
+    syn_usb_host_process(&host); /* GET_CFG done -> SET_CFG submit */
+
+    /* Zero-length status on SET_CONFIGURATION must NOT wipe host.enum_buf_len! */
+    mock_usb_host_xfer_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_host_process(&host));
+    TEST_ASSERT_EQUAL_UINT16(dev.config_desc_len, host.enum_buf_len);
+    TEST_ASSERT_TRUE(hcdc.connected);
+    TEST_ASSERT_EQUAL_HEX8(0x81U, hcdc.ep_bulk_in);
+    TEST_ASSERT_EQUAL_HEX8(0x01U, hcdc.ep_bulk_out);
+    TEST_ASSERT_EQUAL_UINT8(1U, hcdc.pipe_bulk_in);
+    TEST_ASSERT_EQUAL_UINT8(2U, hcdc.pipe_bulk_out);
+
+    /* Polling class process while rx_len != 0 skips RX refill cleanly (line 152) */
+    hcdc.rx_len = 2U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_host_process(&host));
+    hcdc.rx_len = 0U;
+
+    /* 2. Non-adjacent CDC Comm + Vendor + CDC Data fallback & partial/missing pipe cleanup */
+    static const uint8_t non_adj_cfg[] = {
+        0x09U, 0x04U, 0x00U, 0x00U, 0x00U, 0x02U, 0x02U, 0x01U, 0x00U, /* Comm */
+        0x09U, 0x04U, 0x01U, 0x00U, 0x00U, 0xFFU, 0x00U, 0x00U, 0x00U, /* Vendor */
+        0x09U, 0x04U, 0x02U, 0x00U, 0x02U, 0x0AU, 0x00U, 0x00U, 0x00U, /* CDC Data */
+        0x07U, 0x05U, 0x02U, 0x02U, 0x40U, 0x00U, 0x00U,               /* Bulk OUT */
+        0x07U, 0x05U, 0x82U, 0x02U, 0x40U, 0x00U, 0x00U,               /* Bulk IN */
+        0x01U, 0x00U                                                   /* Truncated tail */
+    };
+    syn_usb_host_init(&host);
+    syn_usb_host_cdc_init(&hcdc);
+    syn_usb_host_cdc_register(&host, &hcdc);
+    memcpy(host.enum_buf, non_adj_cfg, sizeof(non_adj_cfg));
+    host.enum_buf_len = sizeof(non_adj_cfg);
+    host.state = SYN_USB_HOST_STATE_ENUMERATING;
+    host.enum_step = SYN_USB_HOST_ENUM_CLASS_PROBE;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_host_process(&host));
+    TEST_ASSERT_TRUE(hcdc.connected);
+    TEST_ASSERT_EQUAL_HEX8(0x82U, hcdc.ep_bulk_in);
+    TEST_ASSERT_EQUAL_HEX8(0x02U, hcdc.ep_bulk_out);
+
+    /* Only Bulk IN present -> closes pipe 1 and fails probe */
+    uint8_t only_in_desc[] = {0x09U, 0x04U, 0x00U, 0x00U, 0x01U, 0x0AU, 0x00U, 0x00U, 0x00U,
+                              0x07U, 0x05U, 0x81U, 0x02U, 0x40U, 0x00U, 0x00U, 0x01U, 0x00U};
+    hcdc.host = NULL;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          host.classes[0].probe(&hcdc, 1U, only_in_desc, sizeof(only_in_desc)));
+    TEST_ASSERT_FALSE(hcdc.connected);
+
+    /* Only Bulk OUT present -> closes pipe 2 and fails probe */
+    uint8_t only_out_desc[] = {0x09U, 0x04U, 0x00U, 0x00U, 0x01U, 0x0AU, 0x00U, 0x00U,
+                               0x00U, 0x07U, 0x05U, 0x01U, 0x02U, 0x40U, 0x00U, 0x00U};
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          host.classes[0].probe(&hcdc, 1U, only_out_desc, sizeof(only_out_desc)));
+
+    /* 3. Dirty stack SYN_Transport initialization + has_data + non-empty recv */
+    SYN_Transport tr;
+    memset(&tr, 0xAA, sizeof(tr));
+    syn_transport_from_usb_host_cdc(&tr, &hcdc);
+    TEST_ASSERT_NOT_NULL(tr.has_data);
+    TEST_ASSERT_FALSE(syn_transport_has_data(&tr));
+
+    memcpy(hcdc.rx_buf, "HOST!", 5U);
+    hcdc.rx_len = 5U;
+    TEST_ASSERT_TRUE(syn_transport_has_data(&tr));
+
+    uint8_t out[16] = {0};
+    size_t out_len = 0U;
+    TEST_ASSERT_TRUE(syn_transport_recv(&tr, out, sizeof(out), &out_len));
+    TEST_ASSERT_EQUAL_UINT32(5U, (uint32_t)out_len);
+    TEST_ASSERT_EQUAL_MEMORY("HOST!", out, 5U);
+    TEST_ASSERT_FALSE(syn_transport_has_data(&tr));
+}
+
 void run_usb_host_tests(void)
 {
     RUN_TEST(test_usb_host_init_and_state);
@@ -413,4 +518,5 @@ void run_usb_host_tests(void)
     RUN_TEST(test_usb_host_cdc_transport_bridge);
     RUN_TEST(test_usb_host_null_checks);
     RUN_TEST(test_usb_host_subordinate_descriptor_overflow);
+    RUN_TEST(test_r5_usb_host_regressions);
 }

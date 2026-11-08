@@ -17,6 +17,7 @@ static uint8_t slave_buf[256];
 
 static void loopback_transaction(SYN_ModbusMaster *m, SYN_Modbus *slave)
 {
+    uint32_t req_tick = m->request_tick_ms;
     mock_port_reset();
 
     /* Feed Master TX buffer into Slave RX */
@@ -32,7 +33,7 @@ static void loopback_transaction(SYN_ModbusMaster *m, SYN_Modbus *slave)
     }
 
     /* Process Master state machine */
-    syn_modbus_master_process(m, 100);
+    syn_modbus_master_process(m, req_tick + 100U);
 }
 
 static void test_modbus_master_read_holding(void)
@@ -621,6 +622,99 @@ static void test_modbus_master_exception_response_handling(void)
     TEST_ASSERT_EQUAL_HEX16(0xAA, m_coils.read_data[199]);
 }
 
+static void test_r5_a08_master_builders_and_tick_stamping(void)
+{
+    mock_port_reset();
+    uint8_t coils[2] = {0x05U, 0x00U};
+    uint8_t disc[2] = {0xA2U, 0x01U};
+    uint16_t holding[4] = {0x1234U, 0x0000U, 0x0000U, 0x0000U};
+    uint16_t fifo[2] = {0x0101U, 0x0202U};
+
+    SYN_Modbus slave;
+    SYN_Modbus_Config cfg = {
+        .slave_addr = 1U,
+        .holding_regs = holding,
+        .holding_count = 4U,
+        .coils = coils,
+        .coils_count = 16U,
+        .discrete_inputs = disc,
+        .discrete_count = 16U,
+        .fifo_queue = fifo,
+        .fifo_count = 2U,
+    };
+    syn_modbus_init(&slave, &cfg, slave_buf, sizeof(slave_buf));
+
+    SYN_ModbusMaster m;
+    syn_modbus_master_init(&m, 200U);
+
+    /* 1. FC 0x01 Read Coils builds full 8-byte RTU request and round-trips against Slave */
+    mock_tick_ms = 100U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_read_coils(&m, 1U, 0U, 8U));
+    TEST_ASSERT_EQUAL_UINT16(8U, m.tx_len);
+    TEST_ASSERT_EQUAL_UINT32(100U, m.request_tick_ms);
+    loopback_transaction(&m, &slave);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, m.state);
+    TEST_ASSERT_EQUAL_HEX16(0x05U, m.read_data[0]);
+
+    /* 2. FC 0x02 Read Discrete Inputs builds full 8-byte RTU request */
+    mock_tick_ms = 200U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_read_discrete_inputs(&m, 1U, 0U, 8U));
+    TEST_ASSERT_EQUAL_UINT16(8U, m.tx_len);
+    TEST_ASSERT_EQUAL_UINT32(200U, m.request_tick_ms);
+    loopback_transaction(&m, &slave);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, m.state);
+    TEST_ASSERT_EQUAL_HEX16(0xA2U, m.read_data[0]);
+
+    /* 3. FC 0x05 Write Single Coil (ON then OFF) builds full 8-byte RTU request */
+    mock_tick_ms = 300U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_write_single_coil(&m, 1U, 1U, true));
+    TEST_ASSERT_EQUAL_UINT16(8U, m.tx_len);
+    loopback_transaction(&m, &slave);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, m.state);
+    TEST_ASSERT_EQUAL_HEX8(0x07U, coils[0]);
+
+    mock_tick_ms = 400U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_write_single_coil(&m, 1U, 1U, false));
+    TEST_ASSERT_EQUAL_UINT16(8U, m.tx_len);
+    loopback_transaction(&m, &slave);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, m.state);
+    TEST_ASSERT_EQUAL_HEX8(0x05U, coils[0]);
+
+    /* 4. FC 0x0F, 0x16, 0x18, 0x11 refresh request_tick_ms so later calls do NOT instant-timeout */
+    mock_tick_ms = 1000U;
+    uint8_t wr_coils[1] = {0xF0U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_write_multiple_coils(&m, 1U, 0U, 8U, wr_coils));
+    TEST_ASSERT_EQUAL_UINT32(1000U, m.request_tick_ms);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_WAITING_RESPONSE, syn_modbus_master_process(&m, 1050U));
+    loopback_transaction(&m, &slave);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, m.state);
+
+    mock_tick_ms = 2000U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_mask_write_register(&m, 1U, 0U, 0xFF00U, 0x00CDU));
+    TEST_ASSERT_EQUAL_UINT32(2000U, m.request_tick_ms);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_WAITING_RESPONSE, syn_modbus_master_process(&m, 2050U));
+    loopback_transaction(&m, &slave);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, m.state);
+    TEST_ASSERT_EQUAL_HEX16(0x12CDU, holding[0]);
+
+    mock_tick_ms = 3000U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_read_fifo_queue(&m, 1U, 0U));
+    TEST_ASSERT_EQUAL_UINT32(3000U, m.request_tick_ms);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_WAITING_RESPONSE, syn_modbus_master_process(&m, 3050U));
+    loopback_transaction(&m, &slave);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, m.state);
+    TEST_ASSERT_EQUAL_UINT16(2U, m.read_count);
+
+    mock_tick_ms = 4000U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_report_server_id(&m, 1U));
+    TEST_ASSERT_EQUAL_UINT32(4000U, m.request_tick_ms);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_WAITING_RESPONSE, syn_modbus_master_process(&m, 4050U));
+    loopback_transaction(&m, &slave);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, m.state);
+
+    mock_port_reset();
+}
+
 void run_modbus_master_tests(void)
 {
     RUN_TEST(test_modbus_master_read_holding);
@@ -636,4 +730,5 @@ void run_modbus_master_tests(void)
     RUN_TEST(test_modbus_master_queue_null_and_full_checks);
     RUN_TEST(test_modbus_master_busy_state_checks);
     RUN_TEST(test_modbus_master_exception_response_handling);
+    RUN_TEST(test_r5_a08_master_builders_and_tick_stamping);
 }

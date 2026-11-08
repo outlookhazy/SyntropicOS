@@ -126,8 +126,8 @@ void setup()
     syn_led_blink(&status_led, app_config.blink_rate_ms, app_config.blink_rate_ms);
 
     /* 4. Register Scheduler Tasks */
-    syn_task_create(&tasks[0], "config", config_task, 1, NULL);
-    syn_task_create(&tasks[1], "blink",  blink_task,  2, NULL);
+    syn_task_create(&tasks[0], "config", config_task, SYN_PRIO_HIGH,   NULL);
+    syn_task_create(&tasks[1], "blink",  blink_task,  SYN_PRIO_NORMAL, NULL);
 
     syn_sched_init(&sched, tasks, 2);
 

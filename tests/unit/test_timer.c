@@ -178,6 +178,97 @@ static void test_timer_next_expiry(void)
     TEST_ASSERT_EQUAL_UINT32(1250, syn_timer_next_expiry(timers, 3));
 }
 
+static void test_timer_next_expiry_uint32_max_clamp_and_edges(void)
+{
+    SYN_Timer timers[3];
+
+    /* Empty timer list */
+    mock_tick_ms = 500U;
+    syn_timer_service(NULL, 0U);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, syn_timer_next_expiry(NULL, 0U));
+
+    /* target_tick == UINT32_MAX (0xFFFFFFF0 + 15) must clamp to UINT32_MAX - 1 */
+    mock_tick_ms = 0xFFFFFFF0U;
+    syn_timer_init(&timers[0], 15U, false, NULL, NULL);
+    TEST_ASSERT_FALSE(syn_timer_is_active(&timers[0]));
+    syn_timer_start(&timers[0]);
+    TEST_ASSERT_TRUE(syn_timer_is_active(&timers[0]));
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, timers[0].target_tick);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX - 1U, syn_timer_next_expiry(&timers[0], 1U));
+
+    /* Active but already-past target_tick returns 0 remaining before syn_timer_expired() */
+    mock_tick_ms = 100U;
+    syn_timer_init(&timers[0], 50U, false, NULL, NULL);
+    syn_timer_start(&timers[0]);
+    mock_tick_ms = 160U;
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_timer_remaining(&timers[0]));
+
+    /* Mixed inactive + active future timers */
+    mock_tick_ms = 1000U;
+    syn_timer_init(&timers[0], 50U, false, NULL, NULL); /* inactive */
+    syn_timer_init(&timers[1], 300U, false, NULL, NULL);
+    syn_timer_init(&timers[2], 120U, false, NULL, NULL);
+    syn_timer_start(&timers[1]);
+    syn_timer_start(&timers[2]);
+    TEST_ASSERT_EQUAL_UINT32(1120U, syn_timer_next_expiry(timers, 3U));
+}
+
+/** R3-K09: period_ms > INT32_MAX clamps in syn_timer_init() and syn_timer_set_period(). */
+static void test_timer_period_int32_max_clamp(void)
+{
+    SYN_Timer tmr;
+    mock_tick_ms = 1000U;
+
+    syn_timer_init(&tmr, 0x80000005U, false, NULL, NULL);
+    TEST_ASSERT_EQUAL_UINT32(0x7FFFFFFFU, tmr.period_ms);
+
+    syn_timer_start(&tmr);
+    TEST_ASSERT_FALSE(syn_timer_expired(&tmr));
+    TEST_ASSERT_EQUAL_UINT32(0x7FFFFFFFU, syn_timer_remaining(&tmr));
+
+    mock_tick_ms = 1000U + 0x7FFFFFFEU;
+    TEST_ASSERT_FALSE(syn_timer_expired(&tmr));
+
+    mock_tick_ms = 1000U + 0x7FFFFFFFU;
+    TEST_ASSERT_TRUE(syn_timer_expired(&tmr));
+
+    mock_tick_ms = 250U;
+    syn_timer_set_period(&tmr, UINT32_MAX);
+    TEST_ASSERT_EQUAL_UINT32(0x7FFFFFFFU, tmr.period_ms);
+    syn_timer_start(&tmr);
+    TEST_ASSERT_FALSE(syn_timer_expired(&tmr));
+}
+
+/** R4-K10: Zero period_ms clamps to 1ms and public NULL guards return safely. */
+static void test_r4_timer_zero_period_clamp_and_null_guards(void)
+{
+    SYN_Timer tmr;
+
+    /* 1. Public NULL guards */
+    syn_timer_init(NULL, 10U, false, NULL, NULL);
+    syn_timer_start(NULL);
+    syn_timer_stop(NULL);
+    syn_timer_set_period(NULL, 10U);
+    TEST_ASSERT_FALSE(syn_timer_expired(NULL));
+    syn_timer_service(NULL, 2U);
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_timer_remaining(NULL));
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, syn_timer_next_expiry(NULL, 2U));
+
+    /* 2. period_ms == 0U clamps to 1U in both init and set_period */
+    mock_tick_ms = 500U;
+    syn_timer_init(&tmr, 0U, true, NULL, NULL);
+    TEST_ASSERT_EQUAL_UINT32(1U, tmr.period_ms);
+    syn_timer_start(&tmr);
+    TEST_ASSERT_FALSE(syn_timer_expired(&tmr));
+    TEST_ASSERT_EQUAL_UINT32(501U, syn_timer_next_expiry(&tmr, 1U));
+
+    mock_tick_ms = 501U;
+    TEST_ASSERT_TRUE(syn_timer_expired(&tmr));
+
+    syn_timer_set_period(&tmr, 0U);
+    TEST_ASSERT_EQUAL_UINT32(1U, tmr.period_ms);
+}
+
 void run_timer_tests(void)
 {
     RUN_TEST(test_software_timer);
@@ -185,4 +276,7 @@ void run_timer_tests(void)
     RUN_TEST(test_timer_extensions);
     RUN_TEST(test_timer_tick_wraparound);
     RUN_TEST(test_timer_next_expiry);
+    RUN_TEST(test_timer_next_expiry_uint32_max_clamp_and_edges);
+    RUN_TEST(test_timer_period_int32_max_clamp);
+    RUN_TEST(test_r4_timer_zero_period_clamp_and_null_guards);
 }

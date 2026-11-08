@@ -161,10 +161,63 @@ static void test_interpolator_bezier(void)
     SYN_Vector3F p0 = {0.0f, 0.0f, 0.0f};
     SYN_Vector3F p1 = {10.0f, 20.0f, 0.0f};
     SYN_Vector3F p2 = {30.0f, 20.0f, 0.0f};
-    SYN_Vector3F p3 = {40.0f, 0.0f, 0.0f};
+    SYN_Vector3F p3 = {40.0f, 0.0f, 10.0f};
 
-    SYN_Status st = syn_interpolator_plan_bezier(&interp, p0, p1, p2, p3, 10.0f, 5.0f, 2.0f, 0.1f);
+    /* Parameter validation */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_interpolator_plan_bezier(NULL, p0, p1, p2, p3, 10.0f, 5.0f, 2.0f, 0.1f));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_interpolator_plan_bezier(&interp, p0, p1, p2, p3, 0.0f,
+                                                                      5.0f, 2.0f, 0.1f));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_interpolator_plan_bezier(&interp, p0, p1, p2, p3,
+                                                                      10.0f, 0.0f, 2.0f, 0.1f));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_interpolator_plan_bezier(&interp, p0, p1, p2, p3,
+                                                                      10.0f, 5.0f, 0.0f, 0.1f));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_interpolator_plan_bezier(&interp, p0, p1, p2, p3,
+                                                                      10.0f, 5.0f, 2.0f, 0.0f));
+
+    SYN_Status st = syn_interpolator_plan_bezier(&interp, p0, p1, p2, p3, 10.0f, 5.0f, 2.0f, 1.0f);
     TEST_ASSERT_EQUAL(SYN_OK, st);
+    TEST_ASSERT_EQUAL(SYN_INTERP_MODE_BEZIER, interp.mode);
+    TEST_ASSERT_TRUE(interp.total_length > 45.0f);
+
+    /* Evaluate curved Bezier with non-zero tangent via eval_at_time */
+    SYN_Vector3F eval_pos = {0.0f, 0.0f, 0.0f};
+    SYN_Vector3F eval_vel = {0.0f, 0.0f, 0.0f};
+    (void)syn_interpolator_eval_at_time(&interp, 0.1f, &eval_pos, &eval_vel);
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_interpolator_plan_bezier(&interp, p0, p1, p2, p3, 10.0f, 5.0f, 2.0f, 1.0f));
+
+    /* Step to midpoint u = 0.5 -> B(0.5) = (20.0, 15.0, 5.0), proving true curved Bezier */
+    uint32_t mid_step = interp.total_steps / 2U;
+    SYN_Vector3F pos = {0.0f, 0.0f, 0.0f};
+    for (uint32_t i = 0U; i < mid_step; i++) {
+        TEST_ASSERT_TRUE(syn_interpolator_step(&interp, &pos));
+    }
+    float expected_u = (float)mid_step / (float)interp.total_steps;
+    float ui = 1.0f - expected_u;
+    float exp_y = 3.0f * ui * ui * expected_u * 20.0f + 3.0f * ui * expected_u * expected_u * 20.0f;
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, exp_y, pos.y);
+    TEST_ASSERT_TRUE(pos.y > 14.0f);
+
+    /* Step to completion */
+    while (syn_interpolator_step(&interp, &pos)) {
+    }
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 40.0f, pos.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 0.0f, pos.y);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 10.0f, pos.z);
+
+    /* Degenerate zero-length Bezier, tiny-step Bezier, and zero-endpoint-tangent eval_at_time */
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_interpolator_plan_bezier(&interp, p0, p0, p0, p0, 10.0f, 5.0f, 2.0f, 1.0f));
+    TEST_ASSERT_EQUAL(SYN_INTERP_MODE_IDLE, interp.mode);
+
+    SYN_Vector3F p_tiny = {0.01f, 0.0f, 0.0f};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_interpolator_plan_bezier(&interp, p0, p0, p_tiny, p_tiny, 1.0f,
+                                                           1.0f, 1.0f, 10.0f));
+    TEST_ASSERT_EQUAL_UINT32(1U, interp.total_steps);
+    SYN_Vector3F vel = {0.0f, 0.0f, 0.0f};
+    /* First scurve tick at ratio=0 with p0==p1 has B'(0)=0, exercising tang_norm <= 1e-6f */
+    (void)syn_interpolator_eval_at_time(&interp, 0.0f, &pos, &vel);
 }
 
 void run_interpolator_tests(void)

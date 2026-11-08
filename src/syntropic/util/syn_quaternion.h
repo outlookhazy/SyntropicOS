@@ -18,6 +18,8 @@
 extern "C" {
 #endif
 
+#ifndef SYN_QUATERNION_TYPE_DEFINED
+#define SYN_QUATERNION_TYPE_DEFINED /**< Guard for SYN_Quaternion typedef */
 /**
  * @brief Fixed-point Q16.16 Quaternion representation q = w + xi + yj + zk.
  */
@@ -27,6 +29,7 @@ typedef struct {
     q16_t y; /**< Vector j component      */
     q16_t z; /**< Vector k component      */
 } SYN_Quaternion;
+#endif
 
 /**
  * @brief Initialize identity quaternion q = (1, 0, 0, 0).

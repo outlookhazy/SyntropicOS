@@ -15,16 +15,16 @@
 #ifndef SYN_IGMP_H
 #define SYN_IGMP_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/net/syn_eth.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SYN_IGMP_TYPE_MEMBERSHIP_QUERY 0x11U /**< IGMP Membership Query message type (0x11) */
 #define SYN_IGMP_TYPE_V2_REPORT 0x16U        /**< IGMPv2 Membership Report message type (0x16) */

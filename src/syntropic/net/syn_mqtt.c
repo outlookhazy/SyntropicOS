@@ -10,6 +10,7 @@
  */
 
 #include "../port/syn_port_system.h"
+#include "../sched/syn_sched.h"
 #include "../util/syn_assert.h"
 #include "../util/syn_metrics.h"
 #include "../util/syn_pack.h"
@@ -49,25 +50,24 @@ size_t syn_mqtt_encode_varint(uint32_t val, uint8_t buf[4])
 
 bool syn_mqtt_decode_varint(const uint8_t *buf, size_t buf_len, uint32_t *val, size_t *bytes_read)
 {
-    if (buf == NULL || val == NULL || bytes_read == NULL || buf_len == 0) {
+    if (buf == NULL || val == NULL || bytes_read == NULL || buf_len == 0U) {
         return false;
     }
-    uint32_t multiplier = 1;
-    uint32_t value = 0;
-    size_t pos = 0;
-    uint8_t encoded_byte;
+    uint32_t multiplier = 1U;
+    uint32_t value = 0U;
+    size_t pos = 0U;
+    uint8_t encoded_byte = 0U;
 
     do {
-        if (pos >= buf_len || pos >= 4) {
+        if (pos >= buf_len || pos >= 4U) {
             return false;
         }
         encoded_byte = buf[pos++];
-        value += (encoded_byte & 0x7FU) * multiplier;
-        if (multiplier > 128U * 128U * 128U) {
-            return false; /* LCOV_EXCL_LINE: Defensive guard */
+        value += (uint32_t)(encoded_byte & 0x7FU) * multiplier;
+        if ((encoded_byte & 0x80U) != 0U) {
+            multiplier *= 128U;
         }
-        multiplier *= 128U;
-    } while ((encoded_byte & 0x80U) != 0);
+    } while ((encoded_byte & 0x80U) != 0U);
 
     *val = value;
     *bytes_read = pos;
@@ -78,19 +78,19 @@ size_t syn_mqtt5_encode_user_prop(const char *key, const char *val, uint8_t *buf
                                   size_t max_buf_len)
 {
     if (key == NULL || val == NULL || buf == NULL) {
-        return 0;
+        return 0U;
     }
     size_t klen = strlen(key);
     size_t vlen = strlen(val);
-    if (klen > 65535 || vlen > 65535) {
-        return 0; /* LCOV_EXCL_LINE: Defensive length check */
+    if (klen > UINT16_MAX || vlen > UINT16_MAX) {
+        return 0U;
     }
-    size_t total = 1 + 2 + klen + 2 + vlen; /* Identifier (1) + Key (2+klen) + Val (2+vlen) */
+    size_t total = 5U + klen + vlen; /* Identifier (1) + Key (2+klen) + Val (2+vlen) */
     if (max_buf_len < total) {
-        return 0;
+        return 0U;
     }
 
-    size_t pos = 0;
+    size_t pos = 0U;
     buf[pos++] = SYN_MQTT5_PROP_USER_PROPERTY;
     buf[pos++] = (uint8_t)(klen >> 8U);
     buf[pos++] = (uint8_t)(klen & 0xFFU);
@@ -116,7 +116,61 @@ static size_t encode_remaining_len(uint8_t *buf, uint32_t len)
     return syn_mqtt_encode_varint(len, buf);
 }
 
+/**
+ * @brief Close any open socket and reset transient MQTT session and QoS 1 retransmit state.
+ * @param c MQTT client context.
+ */
+static void mqtt_reset_session(SYN_MqttClient *c)
+{
+    if (c->sock != SYN_SOCKET_INVALID) {
+        syn_port_sock_close(c->sock);
+        c->sock = SYN_SOCKET_INVALID;
+    }
+    c->state = SYN_MQTT_DISCONNECTED;
+    c->rx_phase = SYN_MQTT_RX_IDLE;
+    c->pending_puback_id = 0U;
+    c->retransmit_len = 0U;
+    c->ping_pending = false;
+    c->ping_sent_ms = 0U;
+}
+
+/**
+ * @brief Append a 16-bit length-prefixed UTF-8 string into an MQTT packet buffer.
+ * @param tx  Destination buffer.
+ * @param pos [in,out] Write cursor.
+ * @param str Source string bytes.
+ * @param len String length (<= UINT16_MAX).
+ */
+static void mqtt_put_str(uint8_t *tx, size_t *pos, const char *str, uint16_t len)
+{
+    syn_poke_u16(len, tx, *pos);
+    *pos += 2U;
+    if (len > 0U) {
+        memcpy(tx + *pos, str, len);
+        *pos += len;
+    }
+}
+
 /* ── Connection Packets ─────────────────────────────────────────────────── */
+
+/**
+ * @brief Compute validated MQTT 3.1.1 CONNECT credential flags and lengths.
+ * @param c        MQTT client context.
+ * @param has_user [out] Set true when username is present.
+ * @param has_pass [out] Set true when both username and password are present.
+ * @param u_len    [out] Username byte length.
+ * @param p_len    [out] Password byte length.
+ * @return true if credential lengths fit in 16-bit MQTT strings, false otherwise.
+ */
+static bool mqtt_connect_creds_len(const SYN_MqttClient *c, bool *has_user, bool *has_pass,
+                                   size_t *u_len, size_t *p_len)
+{
+    *has_user = (c->username != NULL);
+    *has_pass = *has_user && (c->password != NULL);
+    *u_len = *has_user ? strlen(c->username) : 0U;
+    *p_len = *has_pass ? strlen(c->password) : 0U;
+    return (*u_len <= UINT16_MAX) && (*p_len <= UINT16_MAX);
+}
 
 /**
  * @brief Build and send an MQTT CONNECT packet.
@@ -125,60 +179,55 @@ static size_t encode_remaining_len(uint8_t *buf, uint32_t len)
  */
 static bool send_mqtt_connect(SYN_MqttClient *c)
 {
-    uint8_t *tx = c->tx_buf;
-
-    uint32_t rem_len = 2 + 4 + 1 + 1 + 2; /* protocol name, level, flags, keep_alive */
-    rem_len += 2 + strlen(c->client_id);
-    if (c->username != NULL)
-        rem_len += 2 + strlen(c->username);
-    if (c->password != NULL)
-        rem_len += 2 + strlen(c->password);
-
-    if (1 + 4 + rem_len > c->tx_buf_size)
+    size_t cid_len = strlen(c->client_id);
+    bool has_user = false;
+    bool has_pass = false;
+    size_t u_len = 0U;
+    size_t p_len = 0U;
+    if (cid_len > UINT16_MAX || !mqtt_connect_creds_len(c, &has_user, &has_pass, &u_len, &p_len)) {
         return false;
+    }
 
-    tx[0] = 0x10; /* CONNECT */
-    size_t pos = 1;
-    pos += encode_remaining_len(tx + pos, rem_len);
+    uint32_t rem_len = (uint32_t)(12U + cid_len);
+    if (has_user) {
+        rem_len += (uint32_t)(2U + u_len);
+    }
+    if (has_pass) {
+        rem_len += (uint32_t)(2U + p_len);
+    }
 
-    syn_poke_u16(0x0004, tx, pos);
-    pos += 2;
-    tx[pos++] = 'M';
-    tx[pos++] = 'Q';
-    tx[pos++] = 'T';
-    tx[pos++] = 'T';
-    tx[pos++] = 0x04; /* Level 3.1.1 */
+    uint8_t varint_buf[4];
+    size_t varint_len = encode_remaining_len(varint_buf, rem_len);
+    if (c->tx_buf_size < 1U + varint_len || (size_t)rem_len > c->tx_buf_size - 1U - varint_len) {
+        return false;
+    }
 
-    uint8_t flags = 0x02; /* Clean session */
-    if (c->username != NULL)
-        flags |= 0x80;
-    if (c->password != NULL)
-        flags |= 0x40;
+    uint8_t *tx = c->tx_buf;
+    tx[0] = 0x10U; /* CONNECT */
+    memcpy(tx + 1U, varint_buf, varint_len);
+    size_t pos = 1U + varint_len;
+
+    mqtt_put_str(tx, &pos, "MQTT", 4U);
+    tx[pos++] = 0x04U; /* Level 3.1.1 */
+
+    uint8_t flags = 0x02U; /* Clean session */
+    if (has_user) {
+        flags |= 0x80U;
+    }
+    if (has_pass) {
+        flags |= 0x40U;
+    }
     tx[pos++] = flags;
 
     syn_poke_u16(c->keep_alive_s, tx, pos);
-    pos += 2;
+    pos += 2U;
 
-    uint16_t cid_len = (uint16_t)strlen(c->client_id);
-    syn_poke_u16(cid_len, tx, pos);
-    pos += 2;
-    memcpy(tx + pos, c->client_id, cid_len);
-    pos += cid_len;
-
-    if (c->username != NULL) {
-        uint16_t u_len = (uint16_t)strlen(c->username);
-        syn_poke_u16(u_len, tx, pos);
-        pos += 2;
-        memcpy(tx + pos, c->username, u_len);
-        pos += u_len;
+    mqtt_put_str(tx, &pos, c->client_id, (uint16_t)cid_len);
+    if (has_user) {
+        mqtt_put_str(tx, &pos, c->username, (uint16_t)u_len);
     }
-
-    if (c->password != NULL) {
-        uint16_t p_len = (uint16_t)strlen(c->password);
-        syn_poke_u16(p_len, tx, pos);
-        pos += 2;
-        memcpy(tx + pos, c->password, p_len);
-        pos += p_len;
+    if (has_pass) {
+        mqtt_put_str(tx, &pos, c->password, (uint16_t)p_len);
     }
 
     return syn_port_sock_send_all(c->sock, tx, pos) == (int)pos;
@@ -204,7 +253,10 @@ SYN_Status syn_mqtt_ping(SYN_MqttClient *client)
         return SYN_ERROR;
     }
     if (send_mqtt_ping(client)) {
-        client->last_activity_ms = syn_port_get_tick_ms();
+        uint32_t now = syn_port_get_tick_ms();
+        client->last_activity_ms = now;
+        client->ping_pending = true;
+        client->ping_sent_ms = now;
         return SYN_OK;
     }
     return SYN_ERROR;
@@ -266,174 +318,211 @@ static void handle_publish(SYN_MqttClient *c, const uint8_t *payload, uint32_t l
  */
 static void process_packet(SYN_MqttClient *c)
 {
-    uint8_t type = c->rx_header & 0xF0;
+    uint8_t type = c->rx_header & 0xF0U;
     uint32_t rem_len = c->rx_rem_len;
 
-    if (type == 0x20) {
-        /* CONNACK */
-        if (rem_len >= 2 && c->rx_buf[1] == 0) {
+    if (type == 0x20U) {
+        if (rem_len >= 2U && c->rx_buf[1] == 0U) {
             c->state = SYN_MQTT_CONNECTED;
         } else {
-            syn_port_sock_close(c->sock);
-            c->sock = SYN_SOCKET_INVALID;
-            c->state = SYN_MQTT_DISCONNECTED;
-            c->rx_phase = SYN_MQTT_RX_IDLE;
+            mqtt_reset_session(c);
         }
-    } else if (type == 0x30) {
-        /* PUBLISH */
-        handle_publish(c, c->rx_buf, rem_len, c->rx_header & 0x0F);
-    } else if (type == 0x40) {
-        /* PUBACK */
-        if (rem_len >= 2) {
-            uint16_t pid = syn_peek_u16(c->rx_buf, 0);
+    } else if (type == 0x30U) {
+        handle_publish(c, c->rx_buf, rem_len, c->rx_header & 0x0FU);
+    } else if (type == 0x40U) {
+        if (rem_len >= 2U) {
+            uint16_t pid = syn_peek_u16(c->rx_buf, 0U);
             if (pid == c->pending_puback_id) {
-                c->pending_puback_id = 0;
-                c->retransmit_len = 0;
+                c->pending_puback_id = 0U;
+                c->retransmit_len = 0U;
             }
         }
-    } else if (type == 0x90) {
+    } else if (type == 0x90U) {
         /* SUBACK */
-    } else if (type == 0xD0) {
-        /* PINGRESP — reset keep alive activity timer */
+    } else if (type == 0xD0U) {
+        c->ping_pending = false;
     }
 }
 
 /**
- * @brief Non-blocking receive state machine poll.
- *
- * Reads available bytes with timeout=0. Advances through RX phases:
- *   IDLE → REMAINING_LEN → PAYLOAD / DISCARD → IDLE
- *
- * @param c  MQTT client.
+ * @brief Non-blocking socket read that resets session on EOF or readable-error.
+ * @param c   MQTT client context.
+ * @param buf Destination byte buffer.
+ * @param len Maximum bytes to read.
+ * @return Bytes read (> 0), or -1 on no data / session closed.
  */
-static void poll_rx(SYN_MqttClient *c)
+static int mqtt_recv_checked(SYN_MqttClient *c, uint8_t *buf, size_t len)
 {
-    if (c->sock == SYN_SOCKET_INVALID)
-        return;
-
-    for (;;) {
-        /* Non-blocking deadline check for mid-packet stalling */
-        if (c->rx_phase != SYN_MQTT_RX_IDLE) {
-            if ((int32_t)(syn_port_get_tick_ms() - c->rx_deadline) >= 0) {
-                syn_port_sock_close(c->sock);
-                c->sock = SYN_SOCKET_INVALID;
-                c->state = SYN_MQTT_DISCONNECTED;
-                c->rx_phase = SYN_MQTT_RX_IDLE;
-                return;
-            }
-        }
-
-        switch (c->rx_phase) {
-        case SYN_MQTT_RX_IDLE: {
-            uint8_t hdr;
-            int n = syn_port_sock_recv(c->sock, &hdr, 1, 0);
-            if (n < 0)
-                return; /* No data ready */
-            if (n == 0) {
-                /* Connection closed */
-                syn_port_sock_close(c->sock);
-                c->sock = SYN_SOCKET_INVALID;
-                c->state = SYN_MQTT_DISCONNECTED;
-                return;
-            }
-            c->last_activity_ms = syn_port_get_tick_ms();
-            c->rx_header = hdr;
-            c->rx_rem_len = 0;
-            c->rx_mult = 1;
-            c->rx_phase = SYN_MQTT_RX_REMAINING_LEN;
-            c->rx_deadline = syn_port_get_tick_ms() + MQTT_RECV_TIMEOUT_MS;
-            break;
-        }
-
-        case SYN_MQTT_RX_REMAINING_LEN: {
-            uint8_t b;
-            int n = syn_port_sock_recv(c->sock, &b, 1, 0);
-            if (n < 0)
-                return; /* No data ready */
-            if (n == 0) {
-                /* Connection closed during header */
-                syn_port_sock_close(c->sock);
-                c->sock = SYN_SOCKET_INVALID;
-                c->state = SYN_MQTT_DISCONNECTED;
-                c->rx_phase = SYN_MQTT_RX_IDLE;
-                return;
-            }
-            c->last_activity_ms = syn_port_get_tick_ms();
-            c->rx_rem_len += (uint32_t)(b & 127) * c->rx_mult;
-            if (c->rx_mult >= 2097152U) {
-                /* Malformed varint (more than 4 bytes) — disconnect */
-                syn_port_sock_close(c->sock);
-                c->sock = SYN_SOCKET_INVALID;
-                c->state = SYN_MQTT_DISCONNECTED;
-                c->rx_phase = SYN_MQTT_RX_IDLE;
-                return;
-            }
-            c->rx_mult *= 128;
-
-            if ((b & 128) == 0) {
-                /* Varint remaining length decoded */
-                c->rx_pos = 0;
-                if (c->rx_rem_len == 0) {
-                    process_packet(c);
-                    c->rx_phase = SYN_MQTT_RX_IDLE;
-                } else if (c->rx_rem_len <= c->rx_buf_size) {
-                    c->rx_phase = SYN_MQTT_RX_PAYLOAD;
-                } else {
-                    /* Oversized packet — discard payload */
-                    c->rx_phase = SYN_MQTT_RX_DISCARD;
-                }
-            }
-            break;
-        }
-
-        case SYN_MQTT_RX_PAYLOAD: {
-            size_t space = c->rx_rem_len - c->rx_pos;
-            int n = syn_port_sock_recv(c->sock, c->rx_buf + c->rx_pos, space, 0);
-            if (n < 0)
-                return; /* No data ready */
-            if (n == 0) {
-                /* Connection closed during payload */
-                syn_port_sock_close(c->sock);
-                c->sock = SYN_SOCKET_INVALID;
-                c->state = SYN_MQTT_DISCONNECTED;
-                c->rx_phase = SYN_MQTT_RX_IDLE;
-                return;
-            }
-            c->last_activity_ms = syn_port_get_tick_ms();
-            c->rx_pos += (size_t)n;
-            if (c->rx_pos == c->rx_rem_len) {
-                process_packet(c);
-                c->rx_phase = SYN_MQTT_RX_IDLE;
-            }
-            break;
-        }
-
-        case SYN_MQTT_RX_DISCARD: {
-            uint8_t drop_buf[64];
-            size_t space = c->rx_rem_len - c->rx_pos;
-            if (space > sizeof(drop_buf))
-                space = sizeof(drop_buf);
-
-            int n = syn_port_sock_recv(c->sock, drop_buf, space, 0);
-            if (n < 0)
-                return; /* No data ready */
-            if (n == 0) {
-                /* Connection closed during discard */
-                syn_port_sock_close(c->sock);
-                c->sock = SYN_SOCKET_INVALID;
-                c->state = SYN_MQTT_DISCONNECTED;
-                c->rx_phase = SYN_MQTT_RX_IDLE;
-                return;
-            }
-            c->last_activity_ms = syn_port_get_tick_ms();
-            c->rx_pos += (size_t)n;
-            if (c->rx_pos == c->rx_rem_len) {
-                c->rx_phase = SYN_MQTT_RX_IDLE;
-            }
-            break;
-        }
-        }
+    bool was_readable = syn_port_sock_readable(c->sock);
+    int n = syn_port_sock_recv(c->sock, buf, len, 0);
+    if (n == 0 || (n < 0 && was_readable)) {
+        mqtt_reset_session(c);
+        return -1;
     }
+    if (n > 0) {
+        c->last_activity_ms = syn_port_get_tick_ms();
+    }
+    return n;
+}
+
+/**
+ * @brief Read and process the 1-byte fixed header opcode in SYN_MQTT_RX_IDLE.
+ * @param c MQTT client context.
+ * @return true if a byte was consumed.
+ */
+static bool mqtt_rx_idle(SYN_MqttClient *c)
+{
+    uint8_t hdr = 0U;
+    if (mqtt_recv_checked(c, &hdr, 1U) <= 0) {
+        return false;
+    }
+    c->rx_header = hdr;
+    c->rx_rem_len = 0U;
+    c->rx_mult = 1U;
+    c->rx_phase = SYN_MQTT_RX_REMAINING_LEN;
+    c->rx_deadline = syn_port_get_tick_ms() + MQTT_RECV_TIMEOUT_MS;
+    return true;
+}
+
+/**
+ * @brief Read and decode one remaining-length varint byte.
+ * @param c MQTT client context.
+ * @return true if a valid byte was consumed without resetting the session.
+ */
+static bool mqtt_rx_rem_len(SYN_MqttClient *c)
+{
+    uint8_t b = 0U;
+    if (mqtt_recv_checked(c, &b, 1U) <= 0) {
+        return false;
+    }
+    c->rx_rem_len += (uint32_t)(b & 0x7FU) * c->rx_mult;
+    if ((b & 0x80U) != 0U) {
+        if (c->rx_mult >= 2097152U) {
+            mqtt_reset_session(c);
+            return false;
+        }
+        c->rx_mult *= 128U;
+        return true;
+    }
+
+    c->rx_pos = 0U;
+    if (c->rx_rem_len == 0U) {
+        process_packet(c);
+        c->rx_phase = SYN_MQTT_RX_IDLE;
+    } else if (c->rx_rem_len <= c->rx_buf_size) {
+        c->rx_phase = SYN_MQTT_RX_PAYLOAD;
+    } else {
+        c->rx_phase = SYN_MQTT_RX_DISCARD;
+    }
+    return true;
+}
+
+/**
+ * @brief Accumulate payload bytes into c->rx_buf and dispatch when complete.
+ * @param c MQTT client context.
+ * @return true if payload bytes were consumed.
+ */
+static bool mqtt_rx_payload(SYN_MqttClient *c)
+{
+    size_t space = (size_t)c->rx_rem_len - c->rx_pos;
+    int n = mqtt_recv_checked(c, c->rx_buf + c->rx_pos, space);
+    if (n <= 0) {
+        return false;
+    }
+    c->rx_pos += (size_t)n;
+    if (c->rx_pos == c->rx_rem_len) {
+        process_packet(c);
+        c->rx_phase = SYN_MQTT_RX_IDLE;
+    }
+    return true;
+}
+
+/**
+ * @brief Drain oversized packet payload bytes without buffering.
+ * @param c MQTT client context.
+ * @return true if discard bytes were consumed.
+ */
+static bool mqtt_rx_discard(SYN_MqttClient *c)
+{
+    uint8_t drop_buf[64];
+    size_t space = (size_t)c->rx_rem_len - c->rx_pos;
+    if (space > sizeof(drop_buf)) {
+        space = sizeof(drop_buf);
+    }
+
+    int n = mqtt_recv_checked(c, drop_buf, space);
+    if (n <= 0) {
+        return false;
+    }
+    c->rx_pos += (size_t)n;
+    if (c->rx_pos == c->rx_rem_len) {
+        c->rx_phase = SYN_MQTT_RX_IDLE;
+    }
+    return true;
+}
+
+/**
+ * @brief Non-blocking receive state machine poll (up to 32 steps per slice).
+ * @param c MQTT client context.
+ * @return true if at least one socket read consumed >= 1 byte.
+ */
+static bool poll_rx(SYN_MqttClient *c)
+{
+    if (c->sock == SYN_SOCKET_INVALID) {
+        return false;
+    }
+
+    bool progressed = false;
+    for (size_t steps = 0U; steps < 32U && c->sock != SYN_SOCKET_INVALID; steps++) {
+        if (c->rx_phase != SYN_MQTT_RX_IDLE &&
+            (int32_t)(syn_port_get_tick_ms() - c->rx_deadline) >= 0) {
+            mqtt_reset_session(c);
+            return progressed;
+        }
+
+        bool step_ok = false;
+        if (c->rx_phase == SYN_MQTT_RX_IDLE) {
+            step_ok = mqtt_rx_idle(c);
+        } else if (c->rx_phase == SYN_MQTT_RX_REMAINING_LEN) {
+            step_ok = mqtt_rx_rem_len(c);
+        } else if (c->rx_phase == SYN_MQTT_RX_PAYLOAD) {
+            step_ok = mqtt_rx_payload(c);
+        } else {
+            step_ok = mqtt_rx_discard(c);
+        }
+
+        if (!step_ok) {
+            break;
+        }
+        progressed = true;
+    }
+    return progressed;
+}
+
+/**
+ * @brief Allocate the next non-zero 16-bit MQTT packet identifier.
+ * @param c MQTT client context.
+ * @return Non-zero packet identifier (1..65535).
+ */
+static uint16_t mqtt_next_packet_id(SYN_MqttClient *c)
+{
+    c->next_packet_id++;
+    if (c->next_packet_id == 0U) {
+        c->next_packet_id = 1U;
+    }
+    return c->next_packet_id;
+}
+
+/**
+ * @brief Cache an encoded QoS 1 PUBLISH packet in the bounded retransmit buffer.
+ * @param c   MQTT client context.
+ * @param tx  Encoded PUBLISH frame.
+ * @param len Total frame length.
+ */
+static void mqtt_store_retransmit(SYN_MqttClient *c, const uint8_t *tx, size_t len)
+{
+    memcpy(c->retransmit_buf, tx, len);
+    c->retransmit_len = len;
 }
 
 /* ── Public API ─────────────────────────────────────────────────────────── */
@@ -471,90 +560,108 @@ SYN_Status syn_mqtt_init(SYN_MqttClient *client, const char *host, uint16_t port
     return SYN_OK;
 }
 
+/**
+ * @brief Validate arguments and client state for syn_mqtt_publish.
+ * @param client  MQTT client context.
+ * @param topic   Topic string.
+ * @param payload Payload pointer.
+ * @param len     Payload length.
+ * @param qos     Requested QoS level (0 or 1).
+ * @return true if valid and client is connected, false otherwise.
+ */
+static bool mqtt_publish_args_ok(const SYN_MqttClient *client, const char *topic,
+                                 const void *payload, size_t len, uint8_t qos)
+{
+    if (client == NULL || topic == NULL || client->state != SYN_MQTT_CONNECTED || qos > 1U) {
+        return false;
+    }
+    if (qos == 1U && client->pending_puback_id != 0U) {
+        return false;
+    }
+    return (len == 0U) || (payload != NULL);
+}
+
 SYN_Status syn_mqtt_publish(SYN_MqttClient *client, const char *topic, const void *payload,
                             size_t len, uint8_t qos, bool retain)
 {
-    SYN_ASSERT(client != NULL);
-    SYN_ASSERT(topic != NULL);
-    if (client->state != SYN_MQTT_CONNECTED)
+    if (!mqtt_publish_args_ok(client, topic, payload, len, qos)) {
         return SYN_ERROR;
-
-    uint16_t pkt_id = 0;
-    if (qos > 0) {
-        client->next_packet_id++;
-        if (client->next_packet_id == 0) {
-            client->next_packet_id = 1;
-        }
-        pkt_id = client->next_packet_id;
-        client->pending_puback_id = pkt_id;
-        client->pending_puback_ms = syn_port_get_tick_ms();
     }
 
-    uint32_t rem_len = 2u + (uint32_t)strlen(topic) + (qos > 0 ? 2u : 0u) + (uint32_t)len;
+    size_t topic_len = strlen(topic);
+    size_t hdr_rem = 2U + topic_len + ((qos > 0U) ? 2U : 0U);
+    if (topic_len > UINT16_MAX || len > 268435455U - hdr_rem) {
+        return SYN_ERROR;
+    }
+
+    uint32_t rem_len = (uint32_t)(hdr_rem + len);
+    uint8_t varint_buf[4];
+    size_t varint_len = encode_remaining_len(varint_buf, rem_len);
+    size_t total_len = 1U + varint_len + (size_t)rem_len;
+    if (client->tx_buf == NULL || total_len > client->tx_buf_size ||
+        (qos > 0U && total_len > sizeof(client->retransmit_buf))) {
+        return SYN_ERROR;
+    }
+
     uint8_t *tx = client->tx_buf;
+    tx[0] = (uint8_t)(0x30U | ((uint32_t)qos << 1U) | (retain ? 0x01U : 0U));
+    memcpy(tx + 1U, varint_buf, varint_len);
+    size_t pos = 1U + varint_len;
 
-    tx[0] = (uint8_t)(0x30u | ((uint32_t)qos << 1) | (retain ? 0x01u : 0u));
-    size_t pos = 1;
-    pos += encode_remaining_len(tx + pos, rem_len);
-
-    uint16_t t_len = (uint16_t)strlen(topic);
-    syn_poke_u16(t_len, tx, pos);
-    pos += 2;
-    memcpy(tx + pos, topic, t_len);
-    pos += t_len;
-
-    if (qos > 0) {
+    mqtt_put_str(tx, &pos, topic, (uint16_t)topic_len);
+    uint16_t pkt_id = 0U;
+    if (qos > 0U) {
+        pkt_id = mqtt_next_packet_id(client);
         syn_poke_u16(pkt_id, tx, pos);
-        pos += 2;
+        pos += 2U;
     }
-    if (len > 0 && payload != NULL) {
+    if (len > 0U) {
         memcpy(tx + pos, payload, len);
         pos += len;
     }
 
-    if (qos > 0) {
-        if (pos <= sizeof(client->retransmit_buf)) {
-            memcpy(client->retransmit_buf, tx, pos);
-            client->retransmit_len = pos;
-        } else {
-            client->retransmit_len = 0;
-        }
+    if (syn_port_sock_send_all(client->sock, tx, pos) != (int)pos) {
+        return SYN_ERROR;
     }
-
-    int sent = syn_port_sock_send_all(client->sock, tx, pos);
-    return (sent == (int)pos) ? SYN_OK : SYN_ERROR;
+    if (qos > 0U) {
+        client->pending_puback_id = pkt_id;
+        client->pending_puback_ms = syn_port_get_tick_ms();
+        mqtt_store_retransmit(client, tx, pos);
+    }
+    return SYN_OK;
 }
 
 SYN_Status syn_mqtt_subscribe(SYN_MqttClient *client, const char *topic, uint8_t qos)
 {
-    SYN_ASSERT(client != NULL);
-    SYN_ASSERT(topic != NULL);
-    if (client->state != SYN_MQTT_CONNECTED)
+    if (client == NULL || topic == NULL || client->state != SYN_MQTT_CONNECTED) {
         return SYN_ERROR;
-
-    client->next_packet_id++;
-    if (client->next_packet_id == 0) {
-        client->next_packet_id = 1;
     }
-    uint16_t pkt_id = client->next_packet_id;
+    if (qos > 1U) {
+        return SYN_INVALID_PARAM;
+    }
 
-    uint32_t rem_len =
-        2u + 2u + (uint32_t)strlen(topic) + 1u; /* packet id, topic len, topic, qos */
+    size_t topic_len = strlen(topic);
+    if (topic_len > UINT16_MAX) {
+        return SYN_ERROR;
+    }
+
+    uint32_t rem_len = (uint32_t)(5U + topic_len);
+    uint8_t varint_buf[4];
+    size_t varint_len = encode_remaining_len(varint_buf, rem_len);
+    size_t total_len = 1U + varint_len + (size_t)rem_len;
+    if (client->tx_buf == NULL || total_len > client->tx_buf_size) {
+        return SYN_ERROR;
+    }
+
+    uint16_t pkt_id = mqtt_next_packet_id(client);
     uint8_t *tx = client->tx_buf;
-
-    tx[0] = 0x82; /* SUBSCRIBE */
-    size_t pos = 1;
-    pos += encode_remaining_len(tx + pos, rem_len);
+    tx[0] = 0x82U; /* SUBSCRIBE */
+    memcpy(tx + 1U, varint_buf, varint_len);
+    size_t pos = 1U + varint_len;
 
     syn_poke_u16(pkt_id, tx, pos);
-    pos += 2;
-
-    uint16_t t_len = (uint16_t)strlen(topic);
-    syn_poke_u16(t_len, tx, pos);
-    pos += 2;
-    memcpy(tx + pos, topic, t_len);
-    pos += t_len;
-
+    pos += 2U;
+    mqtt_put_str(tx, &pos, topic, (uint16_t)topic_len);
     tx[pos++] = qos;
 
     int sent = syn_port_sock_send_all(client->sock, tx, pos);
@@ -563,22 +670,39 @@ SYN_Status syn_mqtt_subscribe(SYN_MqttClient *client, const char *topic, uint8_t
 
 void syn_mqtt_disconnect(SYN_MqttClient *client)
 {
-    if (client == NULL)
+    if (client == NULL) {
         return;
+    }
 
     if (client->state == SYN_MQTT_CONNECTED && client->sock != SYN_SOCKET_INVALID) {
-        static const uint8_t disc[] = {0xE0, 0x00};
-        syn_port_sock_send_all(client->sock, disc, 2);
+        static const uint8_t disc[] = {0xE0U, 0x00U};
+        (void)syn_port_sock_send_all(client->sock, disc, 2U);
     }
-    if (client->sock != SYN_SOCKET_INVALID) {
-        syn_port_sock_close(client->sock);
-        client->sock = SYN_SOCKET_INVALID;
+    mqtt_reset_session(client);
+}
+
+/**
+ * @brief Check whether QoS 1 retransmit or keep-alive timers have elapsed while connected.
+ * @param c   MQTT client context.
+ * @param now Current millisecond tick.
+ * @return true if a connected-state timer is due.
+ */
+static bool mqtt_connected_timers_due(const SYN_MqttClient *c, uint32_t now)
+{
+    if (c->state != SYN_MQTT_CONNECTED) {
+        return false;
     }
-    client->state = SYN_MQTT_DISCONNECTED;
-    client->rx_phase = SYN_MQTT_RX_IDLE;
-    /* Clear QoS retransmit state — stale IDs must not bleed into next session. */
-    client->pending_puback_id = 0;
-    client->retransmit_len = 0;
+    if (c->ping_pending && (now - c->ping_sent_ms) >= MQTT_ACK_TIMEOUT_MS) {
+        return true;
+    }
+    if (c->pending_puback_id != 0U && (now - c->pending_puback_ms) >= MQTT_ACK_TIMEOUT_MS) {
+        return true;
+    }
+    if (!c->ping_pending && c->keep_alive_s > 0U &&
+        (now - c->last_activity_ms) >= (uint32_t)c->keep_alive_s * 1000U) {
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -588,113 +712,149 @@ void syn_mqtt_disconnect(SYN_MqttClient *client)
  */
 static bool mqtt_has_work(const SYN_MqttClient *c)
 {
-    /* LCOV_EXCL_START: Defensive NULL check */
-    if (c == NULL)
-        return false;
-    /* LCOV_EXCL_STOP */
-    if (c->sock != SYN_SOCKET_INVALID && syn_port_sock_readable(c->sock))
+    if (c->state == SYN_MQTT_DISCONNECTED) {
         return true;
+    }
+    if (c->sock != SYN_SOCKET_INVALID && syn_port_sock_readable(c->sock)) {
+        return true;
+    }
 
     uint32_t now = syn_port_get_tick_ms();
+    if (c->rx_phase != SYN_MQTT_RX_IDLE && (int32_t)(now - c->rx_deadline) >= 0) {
+        return true;
+    }
     if (c->state == SYN_MQTT_CONNECTING && (now - c->last_activity_ms) >= MQTT_ACK_TIMEOUT_MS) {
         return true;
     }
-    if (c->pending_puback_id != 0 && (now - c->pending_puback_ms) >= MQTT_ACK_TIMEOUT_MS) {
+    return mqtt_connected_timers_due(c, now);
+}
+
+/**
+ * @brief Open a fresh TCP socket and send MQTT CONNECT.
+ * @param c MQTT client context.
+ * @return true if socket connected and CONNECT frame was sent.
+ */
+static bool mqtt_try_connect(SYN_MqttClient *c)
+{
+    mqtt_reset_session(c);
+    c->sock = syn_port_sock_connect_host(c->host, c->port);
+    if (c->sock == SYN_SOCKET_INVALID) {
+        return false;
+    }
+    c->state = SYN_MQTT_CONNECTING;
+    c->rx_phase = SYN_MQTT_RX_IDLE;
+    if (!send_mqtt_connect(c)) {
+        mqtt_reset_session(c);
+        return false;
+    }
+    c->last_activity_ms = syn_port_get_tick_ms();
+    return true;
+}
+
+/**
+ * @brief Enforce PINGRESP timeout or transmit due keep-alive PINGREQ while connected.
+ * @param c   MQTT client context.
+ * @param now Current millisecond tick.
+ * @return true if session remains connected, false if session was reset.
+ */
+static bool mqtt_step_keepalive(SYN_MqttClient *c, uint32_t now)
+{
+    if (c->ping_pending) {
+        if ((now - c->ping_sent_ms) >= MQTT_ACK_TIMEOUT_MS) {
+            mqtt_reset_session(c);
+            return false;
+        }
         return true;
     }
-    if (c->state == SYN_MQTT_CONNECTED && c->keep_alive_s > 0 &&
-        (now - c->last_activity_ms) >= (uint32_t)c->keep_alive_s * 1000) {
-        return true;
+    if (c->keep_alive_s > 0U && (now - c->last_activity_ms) >= (uint32_t)c->keep_alive_s * 1000U) {
+        if (!send_mqtt_ping(c)) {
+            mqtt_reset_session(c);
+            return false;
+        }
+        c->last_activity_ms = now;
+        c->ping_pending = true;
+        c->ping_sent_ms = now;
     }
-    return false;
+    return true;
+}
+
+/**
+ * @brief Advance an active (CONNECTING or CONNECTED) MQTT session by one non-blocking slice.
+ * @param c MQTT client context.
+ * @return true if RX polling consumed at least one byte from the socket.
+ */
+static bool mqtt_step_active(SYN_MqttClient *c)
+{
+    if (c->state == SYN_MQTT_CONNECTING &&
+        (syn_port_get_tick_ms() - c->last_activity_ms) >= MQTT_ACK_TIMEOUT_MS) {
+        mqtt_reset_session(c);
+        return false;
+    }
+
+    bool progressed = poll_rx(c);
+    if (c->state != SYN_MQTT_CONNECTED) {
+        return progressed;
+    }
+
+    uint32_t now = syn_port_get_tick_ms();
+    if (!mqtt_step_keepalive(c, now)) {
+        return false;
+    }
+
+    now = syn_port_get_tick_ms();
+    if (c->pending_puback_id != 0U && c->retransmit_len > 0U &&
+        (now - c->pending_puback_ms) >= MQTT_ACK_TIMEOUT_MS) {
+        c->pending_puback_ms = now;
+        c->retransmit_buf[0] |= 0x08U;
+        (void)syn_port_sock_send_all(c->sock, c->retransmit_buf, c->retransmit_len);
+    }
+    return progressed;
+}
+
+/**
+ * @brief Check whether sustained RX progress left additional readable bytes on an active socket.
+ * @param c          MQTT client context.
+ * @param progressed Whether the preceding poll slice consumed bytes.
+ * @return true if another cooperative RX slice should run immediately.
+ */
+static bool mqtt_more_rx_ready(const SYN_MqttClient *c, bool progressed)
+{
+    return progressed && (c->sock != SYN_SOCKET_INVALID) && syn_port_sock_readable(c->sock);
 }
 
 /* ── Protothread task ──────────────────────────────────────────────────── */
 
 SYN_PT_Status syn_mqtt_task(SYN_PT *pt, SYN_Task *task)
 {
-    if (task == NULL || task->user_data == NULL)
+    if (pt == NULL || task == NULL || task->user_data == NULL) {
         return PT_EXITED;
+    }
 
     SYN_MqttClient *c = (SYN_MqttClient *)task->user_data;
 
     PT_BEGIN(pt);
 
+    if (c->state != SYN_MQTT_CONNECTED) {
+        mqtt_reset_session(c);
+    }
+
     for (;;) {
         if (c->state == SYN_MQTT_DISCONNECTED) {
-            c->sock = syn_port_sock_connect_host(c->host, c->port);
-            if (c->sock == SYN_SOCKET_INVALID) {
+            if (!mqtt_try_connect(c)) {
                 PT_TASK_DELAY_MS(pt, task, 5000);
                 continue;
             }
-            c->state = SYN_MQTT_CONNECTING;
-            c->rx_phase = SYN_MQTT_RX_IDLE;
-            if (!send_mqtt_connect(c)) {
-                syn_port_sock_close(c->sock);
-                c->sock = SYN_SOCKET_INVALID;
-                c->state = SYN_MQTT_DISCONNECTED;
-                PT_TASK_DELAY_MS(pt, task, 5000);
-                continue;
-            }
-            c->last_activity_ms = syn_port_get_tick_ms();
         }
 
-        if (c->state == SYN_MQTT_CONNECTING || c->state == SYN_MQTT_CONNECTED) {
-            /* Check CONNECTING response (CONNACK) timeout */
-            if (c->state == SYN_MQTT_CONNECTING) {
-                uint32_t now = syn_port_get_tick_ms();
-                if ((now - c->last_activity_ms) >= MQTT_ACK_TIMEOUT_MS) {
-                    syn_port_sock_close(c->sock);
-                    c->sock = SYN_SOCKET_INVALID;
-                    c->state = SYN_MQTT_DISCONNECTED;
-                    c->rx_phase = SYN_MQTT_RX_IDLE;
-                    PT_TASK_DELAY_MS(pt, task, 5000);
-                    continue;
-                }
-            }
+        bool progressed = mqtt_step_active(c);
+        if (c->state == SYN_MQTT_DISCONNECTED) {
+            PT_TASK_DELAY_MS(pt, task, 5000);
+            continue;
+        }
 
-            /* Poll socket for incoming packets (non-blocking state machine) */
-            poll_rx(c);
-
-            if (c->state == SYN_MQTT_DISCONNECTED) {
-                /* LCOV_EXCL_START: Delay restart after disconnect */
-                PT_TASK_DELAY_MS(pt, task, 5000);
-                continue;
-                /* LCOV_EXCL_STOP */
-            }
-
-            /* Keep alive timer */
-            uint32_t now = syn_port_get_tick_ms();
-            if (c->state == SYN_MQTT_CONNECTED && c->keep_alive_s > 0) {
-                if ((now - c->last_activity_ms) >= (uint32_t)c->keep_alive_s * 1000) {
-                    if (send_mqtt_ping(c)) {
-                        c->last_activity_ms = now;
-                    } else {
-                        /* LCOV_EXCL_START: Keepalive ping send failure cleanup */
-                        syn_port_sock_close(c->sock);
-                        c->sock = SYN_SOCKET_INVALID;
-                        c->state = SYN_MQTT_DISCONNECTED;
-                        c->rx_phase = SYN_MQTT_RX_IDLE;
-                        PT_TASK_DELAY_MS(pt, task, 5000);
-                        continue;
-                        /* LCOV_EXCL_STOP */
-                    }
-                }
-            }
-
-            /* Check QoS 1 Puback timeout */
-            if (c->pending_puback_id != 0) {
-                uint32_t now = syn_port_get_tick_ms();
-                if ((now - c->pending_puback_ms) >= MQTT_ACK_TIMEOUT_MS) {
-                    /* Retransmit */
-                    c->pending_puback_ms = now;
-                    if (c->retransmit_len > 0) {
-                        /* Set DUP flag (0x08) */
-                        c->retransmit_buf[0] |= 0x08;
-                        syn_port_sock_send_all(c->sock, c->retransmit_buf, c->retransmit_len);
-                    }
-                }
-            }
+        if (mqtt_more_rx_ready(c, progressed)) {
+            PT_CONTINUE_IF_NEEDED(pt, task);
+            continue;
         }
 
         PT_WAIT_UNTIL(pt, mqtt_has_work(c));

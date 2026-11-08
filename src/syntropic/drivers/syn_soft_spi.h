@@ -19,6 +19,8 @@
 extern "C" {
 #endif
 
+#ifndef SYN_SPI_MODE_DEFINED
+#define SYN_SPI_MODE_DEFINED /**< Guard for SYN_SPI_Mode definition */
 /**
  * @brief SPI Clock Mode
  */
@@ -27,7 +29,10 @@ typedef enum {
     SYN_SPI_MODE_1 = 1, /**< CPOL=0, CPHA=1 */
     SYN_SPI_MODE_2 = 2, /**< CPOL=1, CPHA=0 */
     SYN_SPI_MODE_3 = 3  /**< CPOL=1, CPHA=1 */
-} SYN_SPIMode;
+} SYN_SPI_Mode;
+/** @brief Legacy typedef alias for SYN_SPI_Mode. */
+typedef SYN_SPI_Mode SYN_SPIMode;
+#endif
 
 /**
  * @brief Software SPI instance.

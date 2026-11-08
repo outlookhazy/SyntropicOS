@@ -3,7 +3,7 @@
 
 BUILD_DIR ?= build
 CC      := gcc
-CFLAGS   = -MMD -MP -std=c99 -fPIC -pedantic -Wall -Wextra -Werror -I. -Isrc -Itests/unit -Itests/unit/mocks -I$(BUILD_DIR) -DSYN_LOG_COLOR=1 -DSYN_USE_COREDUMP=1 -DSYN_COREDUMP_FLASH_ADDR=0 -DSYN_USE_TICKLESS=1 -DSYN_USE_DMA=1 -DSYN_USE_I2C_ASYNC=1 -DSYN_USE_SPI_ASYNC=1 -DSYN_FW_USE_HMAC=1 -DSYN_FW_USE_ED25519=1 -DSYN_FW_USE_AES_GCM=1 -DSYN_USE_PORT_AES=1 -DSYN_USE_MULTICORE=1 -DUNITY_INCLUDE_DOUBLE -DSYN_USE_METRICS=1 -DSYN_USE_ROUTER=1 -DSYN_USE_LIN=1 -DSYN_USE_LINTP=1 -DSYN_USE_GBT27930=1 -DSYN_USE_CANNM=1 -DSYN_USE_IR=1 -DSYN_USE_SMBUS=1 -DSYN_USE_PMBUS=1 -DSYN_USE_MBUS=1 -DSYN_USE_DLT645=1 -DSYN_USE_AT_PARSER=1 -DSYN_USE_BACNET=1 -DSYN_USE_DEVICENET=1 -DSYN_USE_YMODEM=1 -DSYN_USE_AUDIO=1 -DSYN_USE_ADPCM=1 -DSYN_USE_SBC=1 -DSYN_USE_BLE=1 -DSYN_USE_OTA=1 -DSYN_USE_LWM2M_TASK=1
+CFLAGS   = -MMD -MP -std=c99 -pthread -fPIC -pedantic -Wall -Wextra -Werror -I. -Isrc -Itests/unit -Itests/unit/mocks -I$(BUILD_DIR) -DSYN_LOG_COLOR=1 -DSYN_CLI_HISTORY_DEPTH=4 -DSYN_USE_COREDUMP=1 -DSYN_COREDUMP_FLASH_ADDR=0 -DSYN_USE_TICKLESS=1 -DSYN_USE_DMA=1 -DSYN_USE_I2C_ASYNC=1 -DSYN_USE_SPI_ASYNC=1 -DSYN_FW_USE_HMAC=1 -DSYN_FW_USE_ED25519=1 -DSYN_FW_USE_AES_GCM=1 -DSYN_USE_PORT_AES=1 -DSYN_USE_MULTICORE=1 -DUNITY_INCLUDE_DOUBLE -DSYN_USE_METRICS=1 -DSYN_USE_ROUTER=1 -DSYN_USE_LIN=1 -DSYN_USE_LINTP=1 -DSYN_USE_GBT27930=1 -DSYN_USE_CANNM=1 -DSYN_USE_IR=1 -DSYN_USE_SMBUS=1 -DSYN_USE_PMBUS=1 -DSYN_USE_MBUS=1 -DSYN_USE_DLT645=1 -DSYN_USE_AT_PARSER=1 -DSYN_USE_BACNET=1 -DSYN_USE_DEVICENET=1 -DSYN_USE_YMODEM=1 -DSYN_USE_AUDIO=1 -DSYN_USE_ADPCM=1 -DSYN_USE_SBC=1 -DSYN_USE_BLE=1 -DSYN_USE_OTA=1 -DSYN_USE_LWM2M_TASK=1 -DSYN_USE_CAN_FD=1 -DSYN_USE_RTC=1
 
 
 # All SyntropicOS source files
@@ -33,6 +33,7 @@ SYN_SRCS := \
 	src/syntropic/util/syn_ringbuf.c src/syntropic/util/syn_fsm.c \
 	src/syntropic/util/syn_crc.c src/syntropic/util/syn_fmt.c \
 	src/syntropic/util/syn_base64.c \
+	src/syntropic/util/syn_str.c \
 	src/syntropic/util/syn_ramp.c src/syntropic/util/syn_scurve.c \
 	src/syntropic/util/syn_cbor_write.c src/syntropic/util/syn_cbor_read.c \
 	src/syntropic/util/syn_pubsub.c \
@@ -106,6 +107,7 @@ SYN_SRCS := \
 	src/syntropic/util/syn_lz4.c \
 	src/syntropic/sched/syn_ao.c \
 	src/syntropic/storage/syn_vfs.c \
+	src/syntropic/storage/syn_fat.c \
 	src/syntropic/storage/syn_lfs.c \
 	src/syntropic/net/syn_coap.c \
 	src/syntropic/dsp/syn_fft.c \
@@ -223,7 +225,7 @@ BUILD_DIR := build/tests
 # All per-module test files
 TEST_SRCS := $(wildcard tests/unit/test_*.c)
 
-ALL_SRCS := $(SYN_SRCS) $(UNITY_SRCS) $(MOCK_SRCS) $(TEST_SRCS)
+ALL_SRCS := $(MOCK_SRCS) $(SYN_SRCS) $(UNITY_SRCS) $(TEST_SRCS)
 OBJS     := $(patsubst %.c,$(BUILD_DIR)/%.o,$(ALL_SRCS))
 
 -include $(OBJS:.o=.d)
@@ -255,7 +257,7 @@ $(BUILD_DIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/test_unity: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $@ -lm $(LDFLAGS)
+	$(CC) $(CFLAGS) $(OBJS) -o $@ -lm -lpthread $(LDFLAGS)
 
 .PHONY: test-cov FORCE
 
@@ -264,7 +266,7 @@ test-cov: LDFLAGS += --coverage
 test-cov: FORCE
 	rm -rf $(BUILD_DIR)
 	$(MAKE) -f tests/Makefile.unity $(BUILD_DIR)/test_unity CFLAGS="$(CFLAGS) --coverage" LDFLAGS="$(LDFLAGS) --coverage"
-	./$(BUILD_DIR)/test_unity 2>&1 | tee /tmp/test_out.txt; EXIT_CODE=$$?; grep -E "FAIL|Expected|Was" /tmp/test_out.txt || true; exit $$EXIT_CODE
+	{ ./$(BUILD_DIR)/test_unity 2>&1; echo $$? > $(BUILD_DIR)/test_unity.rc; } | tee $(BUILD_DIR)/test_out.txt; EXIT_CODE=$$(cat $(BUILD_DIR)/test_unity.rc); rm -f $(BUILD_DIR)/test_unity.rc; grep -E "FAIL|Expected|Was" $(BUILD_DIR)/test_out.txt || true; exit $$EXIT_CODE
 
 test_unity: $(BUILD_DIR)/test_unity
 
@@ -275,11 +277,13 @@ ARM_CC      := arm-none-eabi-gcc
 ARM_CFLAGS  := -MMD -MP -mcpu=cortex-m4 -mthumb -mabi=aapcs -mfloat-abi=soft -mno-unaligned-access -std=c99 -pedantic -Wall -Wextra \
                -O2 -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables \
                -ffunction-sections -fdata-sections -I. -Isrc -Itests/unit -Itests/unit/mocks -I$(BUILD_DIR) \
-               -DSYN_LOG_COLOR=0 -DSYN_LOG_USE_PRINTF=0 -DSYN_USE_COREDUMP=1 -DSYN_COREDUMP_FLASH_ADDR=0 -DSYN_USE_TICKLESS=1 \
+               -DSYN_LOG_COLOR=0 -DSYN_CLI_HISTORY_DEPTH=4 -DSYN_LOG_USE_PRINTF=1 -DSYN_USE_COREDUMP=1 -DSYN_COREDUMP_FLASH_ADDR=0 -DSYN_USE_TICKLESS=1 \
                -DSYN_USE_DMA=1 -DSYN_USE_I2C_ASYNC=1 -DSYN_USE_SPI_ASYNC=1 -DSYN_FW_USE_HMAC=1 -DSYN_FW_USE_ED25519=1 -DSYN_FW_USE_AES_GCM=1 -DSYN_USE_PORT_AES=1 -DSYN_USE_MULTICORE=1 \
-               -DUNITY_OUTPUT_CHAR=semihosting_putc -DUNITY_FLUSH=qemu_flush_dummy -DUNITY_EXCLUDE_FLOAT_PRINT -DUNITY_EXCLUDE_DOUBLE -DSYN_USE_METRICS=1 -DSYN_USE_ROUTER=1 -DSYN_USE_LIN=1 -DSYN_USE_LINTP=1 -DSYN_USE_GBT27930=1 -DSYN_USE_CANNM=1 -DSYN_USE_IR=1 \
+               -DUNITY_OUTPUT_CHAR=semihosting_putc -DUNITY_FLUSH=qemu_flush_dummy -DUNITY_EXCLUDE_FLOAT_PRINT -DUNITY_INCLUDE_DOUBLE -DUNITY_SUPPORT_64 -DSYN_USE_METRICS=1 -DSYN_USE_ROUTER=1 -DSYN_USE_LIN=1 -DSYN_USE_LINTP=1 -DSYN_USE_GBT27930=1 -DSYN_USE_CANNM=1 -DSYN_USE_IR=1 \
                -DSYN_USE_SMBUS=1 -DSYN_USE_PMBUS=1 -DSYN_USE_MBUS=1 -DSYN_USE_DLT645=1 -DSYN_USE_AT_PARSER=1 \
                -DSYN_USE_BACNET=1 -DSYN_USE_DEVICENET=1 -DSYN_USE_YMODEM=1 \
+               -DSYN_USE_AUDIO=1 -DSYN_USE_ADPCM=1 -DSYN_USE_SBC=1 -DSYN_USE_BLE=1 -DSYN_USE_OTA=1 -DSYN_USE_LWM2M_TASK=1 \
+               -DSYN_USE_CAN_FD=1 -DSYN_USE_RTC=1 \
                -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable -Wno-format -Wno-stringop-truncation -Wno-type-limits
 
 ARM_OBJS    := $(patsubst %.c,$(BUILD_DIR)/arm/%.o,$(ALL_SRCS))

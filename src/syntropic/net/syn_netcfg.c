@@ -18,7 +18,10 @@ SYN_Status syn_netcfg_init(SYN_NETCFG *netcfg, SYN_NETCFG_Mode mode, const uint8
     netcfg->mode = mode;
     netcfg->link_state = SYN_NETCFG_LINK_UP;
 
-    syn_dhcp_init(&netcfg->dhcp, 0x12345678UL);
+    uint32_t xid = ((uint32_t)mac[2] << 24U) | ((uint32_t)mac[3] << 16U) |
+                   ((uint32_t)mac[4] << 8U) | (uint32_t)mac[5];
+    xid ^= ((uint32_t)mac[0] << 8U) | (uint32_t)mac[1];
+    syn_dhcp_init(&netcfg->dhcp, xid);
     syn_autoip_init(&netcfg->autoip, mac);
 
     if (mode == SYN_NETCFG_MODE_STATIC) {

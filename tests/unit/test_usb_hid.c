@@ -77,8 +77,10 @@ void test_usb_hid_report_send_and_read(void)
     TEST_ASSERT_EQUAL(4, rlen);
     TEST_ASSERT_EQUAL(4, hid.rx_len);
 
-    /* Oversized report send (line 134) */
+    /* Busy check & oversized report send */
     uint8_t big_buf[100] = {0};
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_usb_hid_send_report(&hid, big_buf, sizeof(big_buf)));
+    hid.tx_len = 0U;
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_hid_send_report(&hid, big_buf, sizeof(big_buf)));
     TEST_ASSERT_EQUAL(64, hid.tx_len);
 }
@@ -218,4 +220,28 @@ void test_usb_hid_null_checks(void)
     /* Call registered setup callback with NULL params (line 33) */
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, dev.classes[0].setup(NULL, NULL, NULL, NULL));
     TEST_ASSERT_FALSE(syn_usb_hid_tx_ready(NULL));
+}
+
+void test_r5_usb_hid_regressions(void)
+{
+    SYN_USB_Device dev;
+    SYN_USB_HID hid;
+    syn_usb_init(&dev, TEST_DEVICE_DESC);
+    syn_usb_hid_init(&hid);
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_usb_hid_register(&dev, &hid, SAMPLE_REPORT_DESC, sizeof(SAMPLE_REPORT_DESC)));
+
+    const uint8_t rep1[4] = {0xAAU, 0xBBU, 0xCCU, 0xDDU};
+    const uint8_t rep2[4] = {0x11U, 0x22U, 0x33U, 0x44U};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_hid_send_report(&hid, rep1, sizeof(rep1)));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_usb_hid_send_report(&hid, rep2, sizeof(rep2)));
+    TEST_ASSERT_EQUAL_MEMORY(rep1, hid.tx_buf, sizeof(rep1));
+
+    SYN_USB_ClassDriver *drv = &dev.classes[0];
+    drv->data_in(NULL, hid.ep_in);
+    drv->data_in(&hid, 0x89U);
+    TEST_ASSERT_FALSE(syn_usb_hid_tx_ready(&hid));
+    drv->data_in(&hid, hid.ep_in);
+    TEST_ASSERT_TRUE(syn_usb_hid_tx_ready(&hid));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_hid_send_report(&hid, rep2, sizeof(rep2)));
 }

@@ -256,6 +256,70 @@ SYN_Status syn_kinematics_jacobian(const SYN_DH_Param *chain, size_t num_joints,
     return SYN_OK;
 }
 
+/* ── 64-Bit Fixed-Point Geometry Helpers ────────────────────────────────── */
+
+/**
+ * @brief Overflow-safe 2D Euclidean distance sqrt(x^2 + y^2) in Q16.16.
+ * @param x X coordinate in Q16.16.
+ * @param y Y coordinate in Q16.16.
+ * @return Euclidean norm in Q16.16 (clamped to INT32_MAX).
+ */
+static q16_t hypot2d_q16(q16_t x, q16_t y)
+{
+    uint64_t sum = (uint64_t)((int64_t)x * (int64_t)x) + (uint64_t)((int64_t)y * (int64_t)y);
+    uint64_t root = syn_isqrt64(sum);
+    if (root > (uint64_t)INT32_MAX) {
+        return INT32_MAX;
+    }
+    return (q16_t)root;
+}
+
+/**
+ * @brief Solve 2-link planar inverse kinematics using 64-bit cosine law.
+ * @param rx Target X in planar arm frame (Q16.16).
+ * @param ry Target Y in planar arm frame (Q16.16).
+ * @param l1 First link length (Q16.16, > 0).
+ * @param l2 Second link length (Q16.16, > 0).
+ * @param elbow Elbow configuration (up or down).
+ * @param out_q1 Output first joint angle (rad, Q16.16).
+ * @param out_q2 Output second joint relative angle (rad, Q16.16).
+ * @return SYN_OK on success, SYN_ERROR if target is outside workspace.
+ */
+static SYN_Status solve_2link_planar(q16_t rx, q16_t ry, q16_t l1, q16_t l2, SYN_ArmElbow elbow,
+                                     q16_t *out_q1, q16_t *out_q2)
+{
+    uint64_t r2_u64 = (uint64_t)((int64_t)rx * (int64_t)rx) + (uint64_t)((int64_t)ry * (int64_t)ry);
+    int64_t r2 = (int64_t)(r2_u64 >> 16U);
+    int64_t l1_sq = ((int64_t)l1 * (int64_t)l1) >> 16;
+    int64_t l2_sq = ((int64_t)l2 * (int64_t)l2) >> 16;
+    int64_t num = r2 - l1_sq - l2_sq;
+    int64_t den = (2LL * (int64_t)l1 * (int64_t)l2) >> 16;
+
+    if (den <= 0 || num > den || num < -den) {
+        return SYN_ERROR;
+    }
+
+    int64_t scale_num = num;
+    int64_t scale_den = den;
+    while (scale_den > (1LL << 45)) {
+        scale_num >>= 2;
+        scale_den >>= 2;
+    }
+
+    q16_t cos_q2 = (q16_t)((scale_num * (int64_t)Q16_ONE) / scale_den);
+    int64_t sin_sq = (int64_t)Q16_ONE - (((int64_t)cos_q2 * (int64_t)cos_q2) >> 16);
+    q16_t sin_q2 = (q16_t)syn_isqrt64((uint64_t)sin_sq << 16U);
+    if (elbow == SYN_ARM_ELBOW_DOWN) {
+        sin_q2 = -sin_q2;
+    }
+
+    *out_q2 = q16_atan2(sin_q2, cos_q2);
+    q16_t k1 = l1 + q16_mul(l2, cos_q2);
+    q16_t k2 = q16_mul(l2, sin_q2);
+    *out_q1 = q16_atan2(ry, rx) - q16_atan2(k2, k1);
+    return SYN_OK;
+}
+
 /* ── 3-DOF Planar Arm ────────────────────────────────────────────────────── */
 
 SYN_Status syn_kinematics_planar3_fk(const SYN_Kinematics_Planar3Config *cfg, q16_t q1, q16_t q2,
@@ -289,39 +353,18 @@ SYN_Status syn_kinematics_planar3_ik(const SYN_Kinematics_Planar3Config *cfg, q1
                                      q16_t phi, SYN_ArmElbow elbow, q16_t *out_q1, q16_t *out_q2,
                                      q16_t *out_q3)
 {
-    if (cfg == NULL || cfg->l1 == 0 || cfg->l2 == 0) {
+    if (cfg == NULL || cfg->l1 <= 0 || cfg->l2 <= 0) {
         return SYN_INVALID_PARAM;
     }
 
-    /* Target wrist position */
     q16_t xw = x - q16_mul(cfg->l3, q16_cos(phi));
     q16_t yw = y - q16_mul(cfg->l3, q16_sin(phi));
 
-    q16_t r2 = q16_mul(xw, xw) + q16_mul(yw, yw);
-    q16_t l1_sq = q16_mul(cfg->l1, cfg->l1);
-    q16_t l2_sq = q16_mul(cfg->l2, cfg->l2);
-
-    /* Cosine rule: cos(q2) = (r^2 - l1^2 - l2^2) / (2 * l1 * l2) */
-    q16_t num = r2 - l1_sq - l2_sq;
-    q16_t den = q16_mul(Q16_FROM_INT(2), q16_mul(cfg->l1, cfg->l2));
-    q16_t cos_q2 = q16_div(num, den);
-
-    if (cos_q2 > Q16_ONE || cos_q2 < -Q16_ONE) {
-        return SYN_ERROR; /* Unreachable position */
+    q16_t q1 = 0;
+    q16_t q2 = 0;
+    if (solve_2link_planar(xw, yw, cfg->l1, cfg->l2, elbow, &q1, &q2) != SYN_OK) {
+        return SYN_ERROR;
     }
-
-    q16_t sin_sq = Q16_ONE - q16_mul(cos_q2, cos_q2);
-    q16_t sin_q2 = q16_sqrt(sin_sq);
-    if (elbow == SYN_ARM_ELBOW_DOWN) {
-        sin_q2 = -sin_q2;
-    }
-
-    q16_t q2 = q16_atan2(sin_q2, cos_q2);
-
-    /* q1 = atan2(yw, xw) - atan2(l2 * sin(q2), l1 + l2 * cos(q2)) */
-    q16_t k1 = cfg->l1 + q16_mul(cfg->l2, cos_q2);
-    q16_t k2 = q16_mul(cfg->l2, sin_q2);
-    q16_t q1 = q16_atan2(yw, xw) - q16_atan2(k2, k1);
     q16_t q3 = phi - q1 - q2;
 
     if (out_q1 != NULL) {
@@ -360,44 +403,23 @@ SYN_Status syn_kinematics_scara_ik(const SYN_Kinematics_SCARAConfig *cfg, const 
                                    SYN_ArmElbow elbow, q16_t *out_q1, q16_t *out_q2, q16_t *out_d3,
                                    q16_t *out_q4)
 {
-    if (cfg == NULL || target == NULL || cfg->l1 == 0 || cfg->l2 == 0) {
+    if (cfg == NULL || target == NULL || cfg->l1 <= 0 || cfg->l2 <= 0) {
         return SYN_INVALID_PARAM;
     }
 
-    q16_t x = target->position.x;
-    q16_t y = target->position.y;
-    q16_t z = target->position.z;
-    q16_t yaw = target->orientation.yaw;
-
-    q16_t r2 = q16_mul(x, x) + q16_mul(y, y);
-    q16_t l1_sq = q16_mul(cfg->l1, cfg->l1);
-    q16_t l2_sq = q16_mul(cfg->l2, cfg->l2);
-
-    q16_t num = r2 - l1_sq - l2_sq;
-    q16_t den = q16_mul(Q16_FROM_INT(2), q16_mul(cfg->l1, cfg->l2));
-    q16_t cos_q2 = q16_div(num, den);
-
-    if (cos_q2 > Q16_ONE || cos_q2 < -Q16_ONE) {
-        return SYN_ERROR;
-    }
-
-    q16_t sin_sq = Q16_ONE - q16_mul(cos_q2, cos_q2);
-    q16_t sin_q2 = q16_sqrt(sin_sq);
-    if (elbow == SYN_ARM_ELBOW_DOWN) {
-        sin_q2 = -sin_q2;
-    }
-
-    q16_t q2 = q16_atan2(sin_q2, cos_q2);
-    q16_t k1 = cfg->l1 + q16_mul(cfg->l2, cos_q2);
-    q16_t k2 = q16_mul(cfg->l2, sin_q2);
-    q16_t q1 = q16_atan2(y, x) - q16_atan2(k2, k1);
-
-    q16_t d3 = cfg->z_home - z;
+    q16_t d3 = cfg->z_home - target->position.z;
     if (cfg->d_max > 0 && (d3 < 0 || d3 > cfg->d_max)) {
         return SYN_ERROR;
     }
 
-    q16_t q4 = yaw - q1 - q2;
+    q16_t q1 = 0;
+    q16_t q2 = 0;
+    if (solve_2link_planar(target->position.x, target->position.y, cfg->l1, cfg->l2, elbow, &q1,
+                           &q2) != SYN_OK) {
+        return SYN_ERROR;
+    }
+
+    q16_t q4 = target->orientation.yaw - q1 - q2;
 
     if (out_q1 != NULL) {
         *out_q1 = q1;
@@ -415,6 +437,55 @@ SYN_Status syn_kinematics_scara_ik(const SYN_Kinematics_SCARAConfig *cfg, const 
 }
 
 /* ── 6-DOF Articulated Arm (Spherical Wrist) ─────────────────────────────── */
+
+/**
+ * @brief Extract Z-Y-Z spherical wrist angles (q4, q5, q6) from R_36 = R_03^T * R_06.
+ * @param r03 3x3 rotation matrix from base to link 3.
+ * @param r06 3x3 target end-effector rotation matrix.
+ * @param wrist_flip Invert wrist pitch sign if true.
+ * @param out_q Output joint array (writes indices 3, 4, 5).
+ */
+static void solve_spherical_wrist(const q16_t r03[9], const q16_t r06[9], bool wrist_flip,
+                                  q16_t out_q[6])
+{
+    q16_t r36[9];
+    for (uint8_t r = 0U; r < 3U; r++) {
+        for (uint8_t c = 0U; c < 3U; c++) {
+            r36[r * 3U + c] = q16_mul(r03[0U * 3U + r], r06[0U * 3U + c]) +
+                              q16_mul(r03[1U * 3U + r], r06[1U * 3U + c]) +
+                              q16_mul(r03[2U * 3U + r], r06[2U * 3U + c]);
+        }
+    }
+
+    q16_t r36_22 = r36[8];
+    q16_t sin_q5 = hypot2d_q16(r36[2], r36[5]);
+    if (wrist_flip) {
+        sin_q5 = -sin_q5;
+    }
+    q16_t q5 = q16_atan2(sin_q5, r36_22);
+
+    q16_t q4 = 0;
+    q16_t q6 = 0;
+    if (q16_abs(sin_q5) > Q16_FROM_FRAC(5, 1000)) {
+        if (!wrist_flip) {
+            q4 = q16_atan2(r36[5], r36[2]);
+            q6 = q16_atan2(r36[7], -r36[6]);
+        } else {
+            q4 = q16_atan2(-r36[5], -r36[2]);
+            q6 = q16_atan2(-r36[7], r36[6]);
+        }
+    } else if (r36_22 >= 0) {
+        q4 = 0;
+        q6 = q16_atan2(-r36[1], r36[0]);
+    } else {
+        q4 = 0;
+        q6 = q16_atan2(r36[1], -r36[0]);
+    }
+
+    out_q[3] = q4;
+    out_q[4] = q5;
+    out_q[5] = q6;
+}
 
 SYN_Status syn_kinematics_6dof_fk(const SYN_Kinematics_6DOFConfig *cfg, const q16_t q[6],
                                   SYN_Pose6D *out_pose)
@@ -437,118 +508,63 @@ SYN_Status syn_kinematics_6dof_fk(const SYN_Kinematics_6DOFConfig *cfg, const q1
 SYN_Status syn_kinematics_6dof_ik(const SYN_Kinematics_6DOFConfig *cfg, const SYN_Pose6D *target,
                                   SYN_ArmElbow elbow, bool wrist_flip, q16_t out_q[6])
 {
-    if (cfg == NULL || target == NULL || out_q == NULL || cfg->a2 == 0 || cfg->d4 == 0) {
+    if (cfg == NULL || target == NULL || out_q == NULL || cfg->a2 <= 0 || cfg->d4 <= 0) {
         return SYN_INVALID_PARAM;
     }
 
-    /* 1. Calculate target rotation matrix R_06 */
     q16_t r06[9];
     rpy_to_rot_matrix(target->orientation.roll, target->orientation.pitch, target->orientation.yaw,
                       r06);
 
-    /* 2. Wrist center position: Pw = P - d6 * z6 */
-    q16_t z6_x = r06[2];
-    q16_t z6_y = r06[5];
-    q16_t z6_z = r06[8];
+    /* Wrist center: Pw = P_06 - d6 * z6 */
+    q16_t pw_x = target->position.x - q16_mul(cfg->d6, r06[2]);
+    q16_t pw_y = target->position.y - q16_mul(cfg->d6, r06[5]);
+    q16_t pw_z = target->position.z - q16_mul(cfg->d6, r06[8]);
 
-    q16_t pw_x = target->position.x - q16_mul(cfg->d6, z6_x);
-    q16_t pw_y = target->position.y - q16_mul(cfg->d6, z6_y);
-    q16_t pw_z = target->position.z - q16_mul(cfg->d6, z6_z);
-
-    /* 3. Base angle q1 */
     q16_t q1 = q16_atan2(pw_y, pw_x);
-
-    /* 4. Planar projection for shoulder q2 & elbow q3 */
-    q16_t r_xy = q16_hypot(pw_x, pw_y) - cfg->a1;
+    q16_t r_xy = hypot2d_q16(pw_x, pw_y) - cfg->a1;
     q16_t s_z = pw_z - cfg->d1;
 
-    q16_t d_sq = q16_mul(r_xy, r_xy) + q16_mul(s_z, s_z);
-    q16_t a2_sq = q16_mul(cfg->a2, cfg->a2);
-    q16_t d4_sq = q16_mul(cfg->d4, cfg->d4);
-
-    q16_t cos_q3 =
-        q16_div(d_sq - a2_sq - d4_sq, q16_mul(Q16_FROM_INT(2), q16_mul(cfg->a2, cfg->d4)));
-    if (cos_q3 > Q16_ONE || cos_q3 < -Q16_ONE) {
+    /* Forearm d4 lies along z3 (rotated -90 deg from x2 when q3 = 0): phi3 = q3 - pi/2 */
+    q16_t q2 = 0;
+    q16_t phi3 = 0;
+    if (solve_2link_planar(r_xy, s_z, cfg->a2, cfg->d4, elbow, &q2, &phi3) != SYN_OK) {
         return SYN_ERROR;
     }
-
-    q16_t sin_sq3 = Q16_ONE - q16_mul(cos_q3, cos_q3);
-    q16_t sin_q3 = q16_sqrt(sin_sq3);
-    if (elbow == SYN_ARM_ELBOW_DOWN) {
-        sin_q3 = -sin_q3;
+    q16_t q3 = phi3 + Q16_PI_2;
+    if (q3 > Q16_PI) {
+        q3 -= Q16_2_PI;
     }
-    q16_t q3 = q16_atan2(sin_q3, cos_q3);
 
-    q16_t beta = q16_atan2(s_z, r_xy);
-    q16_t gamma = q16_atan2(q16_mul(cfg->d4, sin_q3), cfg->a2 + q16_mul(cfg->d4, cos_q3));
-    q16_t q2 = beta - gamma;
-
-    /* 5. Compute R_03 and R_36 = R_03^T * R_06 */
+    /* R_03 for Standard DH alpha = [+pi/2, 0, +pi/2] */
     q16_t q23 = q2 + q3;
     q16_t c1 = q16_cos(q1);
     q16_t s1 = q16_sin(q1);
     q16_t c23 = q16_cos(q23);
     q16_t s23 = q16_sin(q23);
 
-    /* R_03 columns */
     q16_t r03[9];
     r03[0] = q16_mul(c1, c23);
-    r03[1] = -q16_mul(c1, s23);
-    r03[2] = s1;
+    r03[1] = s1;
+    r03[2] = q16_mul(c1, s23);
     r03[3] = q16_mul(s1, c23);
-    r03[4] = -q16_mul(s1, s23);
-    r03[5] = -c1;
+    r03[4] = -c1;
+    r03[5] = q16_mul(s1, s23);
     r03[6] = s23;
-    r03[7] = c23;
-    r03[8] = 0;
-
-    /* R_36 = R_03^T * R_06 */
-    q16_t r36[9];
-    for (uint8_t r = 0; r < 3; r++) {
-        for (uint8_t c = 0; c < 3; c++) {
-            r36[r * 3 + c] = q16_mul(r03[0 * 3 + r], r06[0 * 3 + c]) +
-                             q16_mul(r03[1 * 3 + r], r06[1 * 3 + c]) +
-                             q16_mul(r03[2 * 3 + r], r06[2 * 3 + c]);
-        }
-    }
-
-    /* 6. Extract Euler Z-Y-Z angles for wrist joints q4, q5, q6 */
-    q16_t r36_22 = r36[8];
-    q16_t sin_q5 = q16_hypot(r36[2], r36[5]);
-    if (wrist_flip) {
-        sin_q5 = -sin_q5;
-    }
-    q16_t q5 = q16_atan2(sin_q5, r36_22);
-
-    q16_t q4 = 0;
-    q16_t q6 = 0;
-    if (q16_abs(sin_q5) > Q16_FROM_FRAC(5, 1000)) {
-        if (!wrist_flip) {
-            q4 = q16_atan2(r36[5], r36[2]);
-            q6 = q16_atan2(r36[7], -r36[6]);
-        } else {
-            q4 = q16_atan2(-r36[5], -r36[2]);
-            q6 = q16_atan2(-r36[7], r36[6]);
-        }
-    } else {
-        /* Wrist singular configuration */
-        q4 = 0;
-        q6 = q16_atan2(-r36[1], r36[0]);
-    }
+    r03[7] = 0;
+    r03[8] = -c23;
 
     out_q[0] = q1;
     out_q[1] = q2;
     out_q[2] = q3;
-    out_q[3] = q4;
-    out_q[4] = q5;
-    out_q[5] = q6;
+    solve_spherical_wrist(r03, r06, wrist_flip, out_q);
     return SYN_OK;
 }
 
 /* ── 3-Axis Delta Parallel Robot ─────────────────────────────────────────── */
 
 /**
- * @brief Helper to solve single Delta arm angle.
+ * @brief Helper to solve single Delta arm angle using 64-bit arithmetic.
  * @param x0 Projected X coordinate.
  * @param y0 Projected Y coordinate.
  * @param z0 Projected Z coordinate.
@@ -559,34 +575,56 @@ SYN_Status syn_kinematics_6dof_ik(const SYN_Kinematics_6DOFConfig *cfg, const SY
  */
 static SYN_Status delta_calc_arm(q16_t x0, q16_t y0, q16_t z0, q16_t L, q16_t l, q16_t *out_theta)
 {
-    q16_t E = q16_mul(x0, x0) + q16_mul(y0, y0) + q16_mul(z0, z0) + q16_mul(L, L) - q16_mul(l, l);
-    q16_t two_L_y0 = q16_mul(Q16_FROM_INT(2), q16_mul(L, y0));
-    q16_t A = E - two_L_y0;
-    q16_t B = q16_mul(Q16_FROM_INT(4), q16_mul(L, z0));
-    q16_t C = E + two_L_y0;
+    int64_t E =
+        (((int64_t)x0 * (int64_t)x0) + ((int64_t)y0 * (int64_t)y0) + ((int64_t)z0 * (int64_t)z0) +
+         ((int64_t)L * (int64_t)L) - ((int64_t)l * (int64_t)l)) >>
+        16;
+    int64_t two_L_y0 = (2LL * (int64_t)L * (int64_t)y0) >> 16;
+    int64_t A = E - two_L_y0;
+    int64_t B = (4LL * (int64_t)L * (int64_t)z0) >> 16;
+    int64_t C = E + two_L_y0;
 
-    int64_t b_sq = ((int64_t)B * (int64_t)B) >> 16;
-    int64_t ac = ((int64_t)A * (int64_t)C) >> 16;
-    int64_t four_ac = ac * 4;
-    int64_t disc_64 = b_sq - four_ac;
-    if (disc_64 < 0 || disc_64 > INT32_MAX) {
-        return SYN_ERROR;
+    int64_t max_a = (A < 0) ? -A : A;
+    int64_t max_b = (B < 0) ? -B : B;
+    int64_t max_c = (C < 0) ? -C : C;
+    int64_t max_abc = (max_a > max_b) ? max_a : max_b;
+    if (max_c > max_abc) {
+        max_abc = max_c;
+    }
+    while (max_abc > (1LL << 29)) {
+        A >>= 1;
+        B >>= 1;
+        C >>= 1;
+        max_abc >>= 1;
     }
 
-    q16_t disc = (q16_t)disc_64;
+    int64_t disc_64 = (B * B) - (4LL * A * C);
+    if (disc_64 < 0) {
+        return SYN_ERROR;
+    }
 
     if (A == 0) {
         if (B == 0) {
             return SYN_ERROR;
         }
-        q16_t t = -q16_div(C, B);
-        *out_theta = q16_mul(Q16_FROM_INT(2), q16_atan2(t, Q16_ONE));
+        int64_t num_lin = -C;
+        int64_t den_lin = B;
+        if (den_lin < 0) {
+            num_lin = -num_lin;
+            den_lin = -den_lin;
+        }
+        *out_theta = q16_mul(Q16_FROM_INT(2), q16_atan2((q16_t)num_lin, (q16_t)den_lin));
         return SYN_OK;
     }
 
-    q16_t sqrt_disc = q16_sqrt(disc);
-    q16_t t = q16_div(-B - sqrt_disc, q16_mul(Q16_FROM_INT(2), A));
-    *out_theta = q16_mul(Q16_FROM_INT(2), q16_atan2(t, Q16_ONE));
+    int64_t sqrt_disc = (int64_t)syn_isqrt64((uint64_t)disc_64);
+    int64_t num = -B - sqrt_disc;
+    int64_t den = 2LL * A;
+    if (den < 0) {
+        num = -num;
+        den = -den;
+    }
+    *out_theta = q16_mul(Q16_FROM_INT(2), q16_atan2((q16_t)num, (q16_t)den));
     return SYN_OK;
 }
 
@@ -594,7 +632,7 @@ SYN_Status syn_kinematics_delta_ik(const SYN_Kinematics_DeltaConfig *cfg,
                                    const SYN_Position3D *target, q16_t *out_theta1,
                                    q16_t *out_theta2, q16_t *out_theta3)
 {
-    if (cfg == NULL || target == NULL || cfg->upper_arm_len == 0 || cfg->lower_arm_len == 0) {
+    if (cfg == NULL || target == NULL || cfg->upper_arm_len <= 0 || cfg->lower_arm_len <= 0) {
         return SYN_INVALID_PARAM;
     }
 
@@ -641,7 +679,7 @@ SYN_Status syn_kinematics_delta_ik(const SYN_Kinematics_DeltaConfig *cfg,
 SYN_Status syn_kinematics_delta_fk(const SYN_Kinematics_DeltaConfig *cfg, q16_t theta1,
                                    q16_t theta2, q16_t theta3, SYN_Position3D *out_pos)
 {
-    if (cfg == NULL || out_pos == NULL || cfg->upper_arm_len == 0 || cfg->lower_arm_len == 0) {
+    if (cfg == NULL || out_pos == NULL || cfg->upper_arm_len <= 0 || cfg->lower_arm_len <= 0) {
         return SYN_INVALID_PARAM;
     }
 
@@ -663,41 +701,55 @@ SYN_Status syn_kinematics_delta_fk(const SYN_Kinematics_DeltaConfig *cfg, q16_t 
     q16_t x3 = q16_mul(y3_p, -Q16_SIN240);
     q16_t y3 = q16_mul(y3_p, Q16_COS240);
 
-    /* 3-Sphere intersection: (x - xi)^2 + (y - yi)^2 + (z - zi)^2 = l^2 */
-    q16_t d_denom = q16_mul(y2 - y1, x3) - q16_mul(y3 - y1, x2);
+    /* 3-Sphere intersection in 64-bit Q48.16 */
+    int64_t d_denom =
+        (((int64_t)(y2 - y1) * (int64_t)x3) - ((int64_t)(y3 - y1) * (int64_t)x2)) >> 16;
     if (d_denom == 0) {
         return SYN_ERROR;
     }
 
-    q16_t w1 = q16_mul(y1, y1) + q16_mul(z1, z1);
-    q16_t w2 = q16_mul(x2, x2) + q16_mul(y2, y2) + q16_mul(z2, z2);
-    q16_t w3 = q16_mul(x3, x3) + q16_mul(y3, y3) + q16_mul(z3, z3);
+    int64_t w1 = (((int64_t)y1 * (int64_t)y1) + ((int64_t)z1 * (int64_t)z1)) >> 16;
+    int64_t w2 =
+        (((int64_t)x2 * (int64_t)x2) + ((int64_t)y2 * (int64_t)y2) + ((int64_t)z2 * (int64_t)z2)) >>
+        16;
+    int64_t w3 =
+        (((int64_t)x3 * (int64_t)x3) + ((int64_t)y3 * (int64_t)y3) + ((int64_t)z3 * (int64_t)z3)) >>
+        16;
 
-    q16_t a1 = q16_div(q16_mul(z2 - z1, y3 - y1) - q16_mul(z3 - z1, y2 - y1), d_denom);
-    q16_t b1 = -q16_div(q16_mul(w2 - w1, y3 - y1) - q16_mul(w3 - w1, y2 - y1),
-                        q16_mul(Q16_FROM_INT(2), d_denom));
+    int64_t a1_num =
+        (((int64_t)(z2 - z1) * (int64_t)(y3 - y1)) - ((int64_t)(z3 - z1) * (int64_t)(y2 - y1))) >>
+        16;
+    int64_t a1 = (a1_num * (int64_t)Q16_ONE) / d_denom;
 
-    q16_t a2_coeff = -q16_div(q16_mul(z2 - z1, x3) - q16_mul(z3 - z1, x2), d_denom);
-    q16_t b2_coeff =
-        q16_div(q16_mul(w2 - w1, x3) - q16_mul(w3 - w1, x2), q16_mul(Q16_FROM_INT(2), d_denom));
+    int64_t b1_num = (((w2 - w1) * (int64_t)(y3 - y1)) - ((w3 - w1) * (int64_t)(y2 - y1))) >> 16;
+    int64_t b1 = -(b1_num * (int64_t)Q16_ONE) / (2LL * d_denom);
 
-    q16_t a = q16_mul(a1, a1) + q16_mul(a2_coeff, a2_coeff) + Q16_ONE;
-    q16_t b = q16_mul(Q16_FROM_INT(2), (q16_mul(a1, b1) + q16_mul(a2_coeff, b2_coeff - y1) - z1));
-    q16_t c =
-        q16_mul(b1, b1) + q16_mul(b2_coeff - y1, b2_coeff - y1) + q16_mul(z1, z1) - q16_mul(l, l);
+    int64_t a2_num =
+        (((int64_t)(z2 - z1) * (int64_t)x3) - ((int64_t)(z3 - z1) * (int64_t)x2)) >> 16;
+    int64_t a2_coeff = -(a2_num * (int64_t)Q16_ONE) / d_denom;
 
-    q16_t disc = q16_mul(b, b) - q16_mul(Q16_FROM_INT(4), q16_mul(a, c));
-    if (disc < 0) {
+    int64_t b2_num = (((w2 - w1) * (int64_t)x3) - ((w3 - w1) * (int64_t)x2)) >> 16;
+    int64_t b2_coeff = (b2_num * (int64_t)Q16_ONE) / (2LL * d_denom);
+
+    int64_t a = ((a1 * a1) >> 16) + ((a2_coeff * a2_coeff) >> 16) + (int64_t)Q16_ONE;
+    int64_t dy1 = b2_coeff - (int64_t)y1;
+    int64_t b = 2LL * (((a1 * b1) >> 16) + ((a2_coeff * dy1) >> 16) - (int64_t)z1);
+    int64_t c = ((b1 * b1) >> 16) + ((dy1 * dy1) >> 16) + (((int64_t)z1 * (int64_t)z1) >> 16) -
+                (((int64_t)l * (int64_t)l) >> 16);
+
+    int64_t disc_q32 = (b * b) - (4LL * a * c);
+    if (disc_q32 < 0) {
         return SYN_ERROR;
     }
 
-    q16_t z = q16_div(-b - q16_sqrt(disc), q16_mul(Q16_FROM_INT(2), a));
-    q16_t x = q16_mul(a1, z) + b1;
-    q16_t y = q16_mul(a2_coeff, z) + b2_coeff;
+    int64_t sqrt_disc = (int64_t)syn_isqrt64((uint64_t)disc_q32);
+    int64_t z = ((-b - sqrt_disc) * (int64_t)Q16_ONE) / (2LL * a);
+    int64_t x = ((a1 * z) >> 16) + b1;
+    int64_t y = ((a2_coeff * z) >> 16) + b2_coeff;
 
-    out_pos->x = x;
-    out_pos->y = y;
-    out_pos->z = z;
+    out_pos->x = (q16_t)x;
+    out_pos->y = (q16_t)y;
+    out_pos->z = (q16_t)z;
     return SYN_OK;
 }
 

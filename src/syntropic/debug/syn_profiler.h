@@ -44,6 +44,7 @@ typedef struct {
     uint32_t total_us;        /**< Total time in current period (µs)    */
     uint32_t peak_us;         /**< Peak single-run time (µs)            */
     uint32_t run_count;       /**< Number of runs in current period     */
+    uint32_t last_run_count;  /**< Completed-period run count for dump  */
     uint16_t cpu_percent_x10; /**< CPU% × 10 (e.g., 125 = 12.5%)      */
 
     /* Internal */

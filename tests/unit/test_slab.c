@@ -110,9 +110,109 @@ void test_slab_edge_cases_and_exhaustion(void)
 
 static void test_slab_null_params(void)
 {
+    uint8_t backing[64];
+    size_t sizes[] = {16};
+    size_t counts[] = {1};
+    SYN_SlabAllocator slab;
+
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_slab_init(NULL, NULL, 0, NULL, NULL, 0));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_slab_init(&slab, NULL, 64, sizes, counts, 1));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_slab_init(&slab, backing, 64, NULL, counts, 1));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_slab_init(&slab, backing, 64, sizes, NULL, 1));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_slab_init(&slab, backing, 64, sizes, counts, 0));
     TEST_ASSERT_NULL(syn_slab_alloc(NULL, 16));
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_slab_free(NULL, NULL));
+}
+
+static void test_r5_slab_alignment_and_double_free(void)
+{
+    uintptr_t raw_words[128];
+    uint8_t *unaligned = ((uint8_t *)raw_words) + 1U;
+    SYN_SlabAllocator slab;
+
+    /* Too-small unaligned buffer (total_size <= alignment adjust) rejected */
+    size_t sizes_odd[] = {12U, 20U};
+    size_t counts_odd[] = {3U, 3U};
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_slab_init(&slab, unaligned, 2U, sizes_odd, counts_odd, 2U));
+
+    /* Zero block count in class rejected */
+    size_t zero_counts[] = {0U};
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_slab_init(&slab, raw_words, sizeof(raw_words),
+                                                           sizes_odd, zero_counts, 1U));
+
+    /* Unaligned backing + odd sizes (12, 20) aligned to sizeof(void *) */
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_slab_init(&slab, unaligned, sizeof(raw_words) - 1U, sizes_odd, counts_odd, 2U));
+
+    void *a1 = syn_slab_alloc(&slab, 12U);
+    void *a2 = syn_slab_alloc(&slab, 12U);
+    void *a3 = syn_slab_alloc(&slab, 12U);
+    void *b1 = syn_slab_alloc(&slab, 20U);
+    TEST_ASSERT_NOT_NULL(a1);
+    TEST_ASSERT_NOT_NULL(a2);
+    TEST_ASSERT_NOT_NULL(a3);
+    TEST_ASSERT_NOT_NULL(b1);
+    TEST_ASSERT_EQUAL_UINT(0U, (uintptr_t)a1 % sizeof(void *));
+    TEST_ASSERT_EQUAL_UINT(0U, (uintptr_t)a2 % sizeof(void *));
+    TEST_ASSERT_EQUAL_UINT(0U, (uintptr_t)a3 % sizeof(void *));
+    TEST_ASSERT_EQUAL_UINT(0U, (uintptr_t)b1 % sizeof(void *));
+
+    /* Out-of-bounds before start_ptr and after slab end */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_slab_free(&slab, (void *)raw_words));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_slab_free(&slab, ((uint8_t *)raw_words) + sizeof(raw_words)));
+
+    /* Double-free while 1 block (a3) remains allocated in class 0 */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_slab_free(&slab, a1));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_slab_free(&slab, a2));
+    /* Free head (a2) and second node (a1) again — both must fail without cycle */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_slab_free(&slab, a2));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_slab_free(&slab, a1));
+
+    SYN_SlabStats stats;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_slab_get_stats(&slab, &stats));
+    TEST_ASSERT_EQUAL_size_t(2U, stats.total_allocs);
+
+    /* Exhaust remaining class 1 blocks so best-fit fallback cannot satisfy class 0 overflow */
+    void *b2 = syn_slab_alloc(&slab, 20U);
+    void *b3 = syn_slab_alloc(&slab, 20U);
+    TEST_ASSERT_NOT_NULL(b2);
+    TEST_ASSERT_NOT_NULL(b3);
+
+    /* Re-allocating twice yields two distinct blocks, third fails */
+    void *r1 = syn_slab_alloc(&slab, 12U);
+    void *r2 = syn_slab_alloc(&slab, 12U);
+    TEST_ASSERT_NOT_NULL(r1);
+    TEST_ASSERT_NOT_NULL(r2);
+    TEST_ASSERT_NOT_EQUAL(r1, r2);
+    TEST_ASSERT_NULL(syn_slab_alloc(&slab, 12U));
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_slab_free(&slab, r1));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_slab_free(&slab, r2));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_slab_free(&slab, a3));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_slab_free(&slab, b1));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_slab_free(&slab, b2));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_slab_free(&slab, b3));
+
+    /* Class with > 64 blocks exercises idx >= 64 fallback in slab_mark_block_free */
+    uintptr_t big_words[70];
+    size_t big_sz[] = {sizeof(void *)};
+    size_t big_cnt[] = {66U};
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_slab_init(&slab, big_words, sizeof(big_words), big_sz, big_cnt, 1U));
+    /* Freelist starts at idx 65, then 64, then 63 */
+    void *hi65 = syn_slab_alloc(&slab, sizeof(void *));
+    void *hi64 = syn_slab_alloc(&slab, sizeof(void *));
+    void *lo63 = syn_slab_alloc(&slab, sizeof(void *));
+    TEST_ASSERT_NOT_NULL(hi65);
+    TEST_ASSERT_NOT_NULL(hi64);
+    TEST_ASSERT_NOT_NULL(lo63);
+    /* Free hi64 then lo63 so hi64 is second in freelist; double-free hi64 & valid free hi65 */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_slab_free(&slab, hi64));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_slab_free(&slab, lo63));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_slab_free(&slab, hi64));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_slab_free(&slab, hi65));
 }
 
 void run_slab_tests(void)
@@ -120,4 +220,5 @@ void run_slab_tests(void)
     RUN_TEST(test_slab_alloc_free_stats);
     RUN_TEST(test_slab_edge_cases_and_exhaustion);
     RUN_TEST(test_slab_null_params);
+    RUN_TEST(test_r5_slab_alignment_and_double_free);
 }

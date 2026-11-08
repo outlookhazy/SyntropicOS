@@ -67,6 +67,7 @@ int16_t syn_adpcm_decode_sample(SYN_ADPCM_State *state, uint8_t nibble)
         return 0;
     }
 
+    state->step_index = clamp_step_idx((int32_t)state->step_index);
     uint8_t delta_code = nibble & 0x0FU;
     int16_t step = g_adpcm_step_table[state->step_index];
 
@@ -102,6 +103,7 @@ uint8_t syn_adpcm_encode_sample(SYN_ADPCM_State *state, int16_t sample)
         return 0;
     }
 
+    state->step_index = clamp_step_idx((int32_t)state->step_index);
     int16_t step = g_adpcm_step_table[state->step_index];
     int32_t diff = (int32_t)sample - (int32_t)state->predicted_sample;
     uint8_t delta_code = 0;

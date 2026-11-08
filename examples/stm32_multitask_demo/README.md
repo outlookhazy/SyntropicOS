@@ -66,7 +66,7 @@ SYN_PT_Status task_led_func(SYN_PT *pt) {
                  * On next call, switch(pt->lc) jumps directly to 'case 236:' inside the while loop! */
                 pt->lc = 236; case 236:
                 if (!((syn_port_get_tick_ms() - last_tick) >= 500)) {
-                    return PT_WAITING;
+                    return PT_IDLE;
                 }
 
                 last_tick = syn_port_get_tick_ms();
@@ -74,7 +74,7 @@ SYN_PT_Status task_led_func(SYN_PT *pt) {
     }
     _pt_yield_flag = 0;
     pt->lc = 0;
-    return PT_EXITED;
+    return PT_ENDED;
 }
 ```
 

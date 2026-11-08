@@ -123,78 +123,106 @@ SYN_Status syn_dhcp_build_request(SYN_DHCP *dhcp, const uint8_t mac_addr[6], uin
     return SYN_OK;
 }
 
+/**
+ * @brief Parsed DHCP option values extracted from a BOOTP options block.
+ */
+typedef struct {
+    uint8_t msg_type; /**< DHCP Message Type (Option 53) */
+    uint32_t subnet;  /**< Subnet Mask (Option 1) */
+    uint32_t router;  /**< Default Router (Option 3) */
+    uint32_t lease;   /**< IP Address Lease Time in seconds (Option 51) */
+    uint32_t server;  /**< DHCP Server Identifier (Option 54) */
+} SYN_DhcpParsedOpts;
+
+/**
+ * @brief Validate fixed BOOTP reply header fields, magic cookie, and transaction ID.
+ * @param dhcp     DHCP client state.
+ * @param dhcp_pkt Raw DHCP UDP payload.
+ * @param len      Payload length in bytes.
+ * @return true if the packet is a valid BOOTREPLY for this client transaction.
+ */
+static bool dhcp_reply_valid(const SYN_DHCP *dhcp, const uint8_t *dhcp_pkt, size_t len)
+{
+    if (!dhcp || !dhcp_pkt || len < 244U || dhcp_pkt[0] != 2U) {
+        return false;
+    }
+    if (unpack_uint32(&dhcp_pkt[236]) != SYN_DHCP_MAGIC_COOKIE) {
+        return false;
+    }
+    return unpack_uint32(&dhcp_pkt[4]) == dhcp->xid;
+}
+
+/**
+ * @brief Decode a single TLV DHCP option into SYN_DhcpParsedOpts.
+ * @param opts    Parsed options accumulator.
+ * @param opt     Option code.
+ * @param opt_len Option payload length in bytes.
+ * @param val     Pointer to option payload bytes.
+ */
+static void dhcp_apply_option(SYN_DhcpParsedOpts *opts, uint8_t opt, uint8_t opt_len,
+                              const uint8_t *val)
+{
+    if (opt == SYN_DHCP_OPT_MSG_TYPE && opt_len >= 1U) {
+        opts->msg_type = val[0];
+    } else if (opt == SYN_DHCP_OPT_SUBNET_MASK && opt_len >= 4U) {
+        opts->subnet = unpack_uint32(val);
+    } else if (opt == SYN_DHCP_OPT_ROUTER && opt_len >= 4U) {
+        opts->router = unpack_uint32(val);
+    } else if (opt == SYN_DHCP_OPT_LEASE_TIME && opt_len >= 4U) {
+        opts->lease = unpack_uint32(val);
+    } else if (opt == 54U && opt_len >= 4U) {
+        opts->server = unpack_uint32(val);
+    }
+}
+
 SYN_Status syn_dhcp_process_packet(SYN_DHCP *dhcp, SYN_ETH *eth, const uint8_t *dhcp_pkt,
                                    size_t len)
 {
-    if (!dhcp || !dhcp_pkt || len < 244) {
-        return SYN_INVALID_PARAM;
-    }
-
-    /* Verify Magic Cookie */
-    if (unpack_uint32(&dhcp_pkt[236]) != SYN_DHCP_MAGIC_COOKIE) {
-        return SYN_INVALID_PARAM;
-    }
-
-    /* Verify Transaction ID */
-    if (unpack_uint32(&dhcp_pkt[4]) != dhcp->xid) {
+    if (!dhcp_reply_valid(dhcp, dhcp_pkt, len)) {
         return SYN_INVALID_PARAM;
     }
 
     uint32_t yiaddr = unpack_uint32(&dhcp_pkt[16]);
+    SYN_DhcpParsedOpts opts = {0};
 
-    /* Parse Options */
-    uint8_t msg_type = 0;
-    uint32_t subnet = 0;
-    uint32_t router = 0;
-    uint32_t lease = 0;
-    uint32_t server = 0;
-
-    size_t i = 240;
+    size_t i = 240U;
     while (i < len && dhcp_pkt[i] != SYN_DHCP_OPT_END) {
         uint8_t opt = dhcp_pkt[i++];
-        if (opt == 0)
+        if (opt == 0U) {
             continue; /* Pad */
-        if (i >= len)
-            break;
-        uint8_t opt_len = dhcp_pkt[i++];
-        if (i + opt_len > len)
-            break;
-
-        if (opt == SYN_DHCP_OPT_MSG_TYPE && opt_len >= 1) {
-            msg_type = dhcp_pkt[i];
-        } else if (opt == SYN_DHCP_OPT_SUBNET_MASK && opt_len >= 4) {
-            subnet = unpack_uint32(&dhcp_pkt[i]);
-        } else if (opt == SYN_DHCP_OPT_ROUTER && opt_len >= 4) {
-            router = unpack_uint32(&dhcp_pkt[i]);
-        } else if (opt == SYN_DHCP_OPT_LEASE_TIME && opt_len >= 4) {
-            lease = unpack_uint32(&dhcp_pkt[i]);
-        } else if (opt == 54 && opt_len >= 4) {
-            server = unpack_uint32(&dhcp_pkt[i]);
         }
+        if (i >= len) {
+            break;
+        }
+        uint8_t opt_len = dhcp_pkt[i++];
+        if (i + opt_len > len) {
+            break;
+        }
+        dhcp_apply_option(&opts, opt, opt_len, &dhcp_pkt[i]);
         i += opt_len;
     }
 
-    if (msg_type == SYN_DHCP_OFFER) {
+    if (opts.msg_type == SYN_DHCP_OFFER) {
         dhcp->offered_ip = yiaddr;
-        dhcp->subnet_mask = subnet;
-        dhcp->gateway = router;
-        dhcp->lease_time_sec = lease;
-        dhcp->server_ip = server;
+        dhcp->subnet_mask = opts.subnet;
+        dhcp->gateway = opts.router;
+        dhcp->lease_time_sec = opts.lease;
+        dhcp->server_ip = opts.server;
         dhcp->state = SYN_DHCP_STATE_OFFER;
         return SYN_BUSY;
-    } else if (msg_type == SYN_DHCP_ACK) {
+    } else if (opts.msg_type == SYN_DHCP_ACK) {
         dhcp->offered_ip = yiaddr;
-        dhcp->subnet_mask = subnet;
-        dhcp->gateway = router;
-        dhcp->lease_time_sec = lease;
+        dhcp->subnet_mask = opts.subnet;
+        dhcp->gateway = opts.router;
+        dhcp->lease_time_sec = opts.lease;
         dhcp->state = SYN_DHCP_STATE_BOUND;
         dhcp->acks_received++;
 
         /* Update Ethernet Interface settings */
         if (eth) {
             eth->ip_addr = yiaddr;
-            eth->netmask = subnet;
-            eth->gateway = router;
+            eth->netmask = opts.subnet;
+            eth->gateway = opts.router;
         }
 
         return SYN_OK;

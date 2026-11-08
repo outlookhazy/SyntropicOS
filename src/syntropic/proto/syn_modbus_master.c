@@ -5,6 +5,8 @@
 
 #include "syn_modbus_master.h"
 
+#if SYN_MODBUS_MASTER_ENABLED
+
 #include "../util/syn_assert.h"
 #include "../util/syn_crc.h"
 #include "../util/syn_pack.h"
@@ -64,29 +66,25 @@ static SYN_Status send_request(SYN_ModbusMaster *m, uint8_t slave_addr, uint8_t 
     m->rx_len = 0;
     m->read_count = 0;
     m->exception_code = 0;
-    m->request_tick_ms = 0;
+    m->request_tick_ms = syn_port_get_tick_ms();
 
     m->buf[0] = slave_addr;
     m->buf[1] = fc;
     write_u16_be(&m->buf[2], addr);
 
-    if (fc == SYN_MB_FC_READ_HOLDING || fc == SYN_MB_FC_READ_INPUT) {
+    if (fc == SYN_MB_FC_WRITE_MULTIPLE) {
         write_u16_be(&m->buf[4], count);
-        syn_poke_u16_le(syn_crc16_modbus(m->buf, 6), m->buf, 6);
-        m->tx_len = 8;
-    } else if (fc == SYN_MB_FC_WRITE_SINGLE) {
-        write_u16_be(&m->buf[4], count); /* count parameter holds write value */
-        syn_poke_u16_le(syn_crc16_modbus(m->buf, 6), m->buf, 6);
-        m->tx_len = 8;
-    } else if (fc == SYN_MB_FC_WRITE_MULTIPLE) {
-        write_u16_be(&m->buf[4], count);
-        m->buf[6] = (uint8_t)(count * 2);
+        m->buf[6] = (uint8_t)(count * 2U);
         for (uint16_t i = 0; i < count; i++) {
-            write_u16_be(&m->buf[7 + i * 2], write_vals[i]);
+            write_u16_be(&m->buf[7U + i * 2U], write_vals[i]);
         }
-        uint16_t len = 7 + count * 2;
+        uint16_t len = (uint16_t)(7U + count * 2U);
         syn_poke_u16_le(syn_crc16_modbus(m->buf, len), m->buf, len);
-        m->tx_len = len + 2;
+        m->tx_len = (uint16_t)(len + 2U);
+    } else {
+        write_u16_be(&m->buf[4], count);
+        syn_poke_u16_le(syn_crc16_modbus(m->buf, 6), m->buf, 6);
+        m->tx_len = 8U;
     }
 
     m->state = SYN_MB_MASTER_STATE_WAITING_RESPONSE;
@@ -168,6 +166,7 @@ SYN_Status syn_modbus_master_write_multiple_coils(SYN_ModbusMaster *m, uint8_t s
     m->rx_len = 0;
     m->read_count = 0;
     m->exception_code = 0;
+    m->request_tick_ms = syn_port_get_tick_ms();
 
     m->buf[0] = slave_addr;
     m->buf[1] = SYN_MB_FC_WRITE_MULTIPLE_COILS;
@@ -190,11 +189,13 @@ SYN_Status syn_modbus_master_mask_write_register(SYN_ModbusMaster *m, uint8_t sl
                                                  uint16_t reg_addr, uint16_t and_mask,
                                                  uint16_t or_mask)
 {
-    if (m == NULL || slave_addr == 0)
+    if (m == NULL || slave_addr == 0) {
         return SYN_INVALID_PARAM;
+    }
 
-    if (m->state == SYN_MB_MASTER_STATE_WAITING_RESPONSE)
+    if (m->state == SYN_MB_MASTER_STATE_WAITING_RESPONSE) {
         return SYN_BUSY;
+    }
 
     m->slave_addr = slave_addr;
     m->func_code = SYN_MB_FC_MASK_WRITE_REGISTER;
@@ -203,6 +204,7 @@ SYN_Status syn_modbus_master_mask_write_register(SYN_ModbusMaster *m, uint8_t sl
     m->rx_len = 0;
     m->read_count = 0;
     m->exception_code = 0;
+    m->request_tick_ms = syn_port_get_tick_ms();
 
     m->buf[0] = slave_addr;
     m->buf[1] = SYN_MB_FC_MASK_WRITE_REGISTER;
@@ -220,11 +222,13 @@ SYN_Status syn_modbus_master_mask_write_register(SYN_ModbusMaster *m, uint8_t sl
 SYN_Status syn_modbus_master_read_fifo_queue(SYN_ModbusMaster *m, uint8_t slave_addr,
                                              uint16_t fifo_addr)
 {
-    if (m == NULL || slave_addr == 0)
+    if (m == NULL || slave_addr == 0) {
         return SYN_INVALID_PARAM;
+    }
 
-    if (m->state == SYN_MB_MASTER_STATE_WAITING_RESPONSE)
+    if (m->state == SYN_MB_MASTER_STATE_WAITING_RESPONSE) {
         return SYN_BUSY;
+    }
 
     m->slave_addr = slave_addr;
     m->func_code = SYN_MB_FC_READ_FIFO_QUEUE;
@@ -233,6 +237,7 @@ SYN_Status syn_modbus_master_read_fifo_queue(SYN_ModbusMaster *m, uint8_t slave_
     m->rx_len = 0;
     m->read_count = 0;
     m->exception_code = 0;
+    m->request_tick_ms = syn_port_get_tick_ms();
 
     m->buf[0] = slave_addr;
     m->buf[1] = SYN_MB_FC_READ_FIFO_QUEUE;
@@ -247,11 +252,13 @@ SYN_Status syn_modbus_master_read_fifo_queue(SYN_ModbusMaster *m, uint8_t slave_
 
 SYN_Status syn_modbus_master_report_server_id(SYN_ModbusMaster *m, uint8_t slave_addr)
 {
-    if (m == NULL || slave_addr == 0)
+    if (m == NULL || slave_addr == 0) {
         return SYN_INVALID_PARAM;
+    }
 
-    if (m->state == SYN_MB_MASTER_STATE_WAITING_RESPONSE)
+    if (m->state == SYN_MB_MASTER_STATE_WAITING_RESPONSE) {
         return SYN_BUSY;
+    }
 
     m->slave_addr = slave_addr;
     m->func_code = SYN_MB_FC_REPORT_SERVER_ID;
@@ -260,6 +267,7 @@ SYN_Status syn_modbus_master_report_server_id(SYN_ModbusMaster *m, uint8_t slave
     m->rx_len = 0;
     m->read_count = 0;
     m->exception_code = 0;
+    m->request_tick_ms = syn_port_get_tick_ms();
 
     m->buf[0] = slave_addr;
     m->buf[1] = SYN_MB_FC_REPORT_SERVER_ID;
@@ -439,6 +447,7 @@ SYN_Status syn_modbus_master_queue_step(SYN_ModbusMaster *m, SYN_ModbusMasterQue
         }
 
         if (st == SYN_OK) {
+            m->request_tick_ms = now_ms;
             syn_modbus_master_process(m, now_ms); /* transition state to WAITING_RESPONSE */
         }
     } else if (state == SYN_MB_MASTER_STATE_COMPLETE && q->count > 0) {
@@ -470,3 +479,5 @@ SYN_Status syn_modbus_master_queue_step(SYN_ModbusMaster *m, SYN_ModbusMasterQue
 
     return SYN_OK;
 }
+
+#endif /* SYN_MODBUS_MASTER_ENABLED */

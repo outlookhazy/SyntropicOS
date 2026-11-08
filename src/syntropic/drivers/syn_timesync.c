@@ -9,7 +9,6 @@
  * @brief High-precision time discipline and clock synchronization implementation.
  */
 
-#include "../util/syn_assert.h"
 #include "syn_timesync.h"
 
 #include <stdlib.h>
@@ -19,9 +18,8 @@
 
 void syn_timesync_init(SYN_TimeSync *tsync)
 {
-    SYN_ASSERT(tsync != NULL);
     if (tsync == NULL) {
-        return; /* LCOV_EXCL_LINE: Defensive NULL guard after SYN_ASSERT in release builds */
+        return;
     }
 
     memset(tsync, 0, sizeof(SYN_TimeSync));

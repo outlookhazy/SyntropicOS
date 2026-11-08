@@ -81,8 +81,8 @@ void setup()
     syn_led_blink(&led, 500, 500);
 
     /* Create tasks */
-    syn_task_create(&tasks[0], "blink",  blink_task,  0, NULL);
-    syn_task_create(&tasks[1], "report", report_task, 1, NULL);
+    syn_task_create(&tasks[0], "blink",  blink_task,  SYN_PRIO_LOW,  NULL);
+    syn_task_create(&tasks[1], "report", report_task, SYN_PRIO_HIGH, NULL);
     syn_sched_init(&sched, tasks, 2);
 
     SYN_LOG_I(TAG, "Scheduler started with %u tasks",

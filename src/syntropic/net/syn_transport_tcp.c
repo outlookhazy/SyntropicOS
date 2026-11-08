@@ -27,8 +27,9 @@ static bool tcp_send(const uint8_t *data, size_t len, void *ctx)
     SYN_ASSERT(tcp != NULL);
     SYN_ASSERT(len <= (size_t)0xFFFF);
 
-    if (tcp->sock == SYN_SOCKET_INVALID)
+    if (tcp->sock == SYN_SOCKET_INVALID || (len > 0U && data == NULL)) {
         return false;
+    }
 
     uint8_t len_hdr[2];
     len_hdr[0] = (uint8_t)(len >> 8);
@@ -38,13 +39,32 @@ static bool tcp_send(const uint8_t *data, size_t len, void *ctx)
         return false;
     }
 
-    if (len > 0 && data != NULL) {
+    if (len > 0U) {
         if (syn_port_sock_send_all(tcp->sock, data, len) != (int)len) {
             return false;
         }
     }
 
     return true;
+}
+
+/**
+ * @brief Read available bytes from TCP socket and close on EOF or readable error.
+ * @param tcp Transport TCP context.
+ * @param buf Destination buffer.
+ * @param len Maximum bytes to read.
+ * @return Bytes read (> 0), or <= 0 when incomplete or closed.
+ */
+static int tcp_read_chunk(SYN_TransportTcp *tcp, void *buf, size_t len)
+{
+    bool was_readable = syn_port_sock_readable(tcp->sock);
+    int n = syn_port_sock_recv(tcp->sock, buf, len, 0);
+    if (n == 0 || (n < 0 && was_readable)) {
+        syn_port_sock_close(tcp->sock);
+        tcp->sock = SYN_SOCKET_INVALID;
+        tcp->state = 0;
+    }
+    return n;
 }
 
 /**
@@ -69,68 +89,61 @@ static bool tcp_recv(uint8_t *data, size_t max_len, size_t *out_len, void *ctx)
     for (;;) {
         if (tcp->state == 0) {
             uint8_t b;
-            int n = syn_port_sock_recv(tcp->sock, &b, 1, 0); /* non-blocking */
+            int n = tcp_read_chunk(tcp, &b, 1U);
             if (n <= 0)
-                return false; /* no data, timeout, or closed */
+                return false;
             tcp->payload_len = (uint16_t)((uint16_t)b << 8);
             tcp->state = 1;
         } else if (tcp->state == 1) {
             uint8_t b;
-            int n = syn_port_sock_recv(tcp->sock, &b, 1, 0);
+            int n = tcp_read_chunk(tcp, &b, 1U);
             if (n <= 0)
                 return false;
             tcp->payload_len |= b;
             tcp->bytes_read = 0;
-            tcp->state = 2;
 
-            if (tcp->payload_len > sizeof(tcp->rx_buf)) {
-                /* Framing error: packet too large for transport buffer */
-                tcp->state = 0;
-                return false;
-            }
-        } else if (tcp->state == 2) {
-            uint16_t remaining = tcp->payload_len - tcp->bytes_read;
-            if (remaining == 0) {
-                /* Empty packet */
-                *out_len = 0;
+            if (tcp->payload_len == 0U) {
+                *out_len = 0U;
                 tcp->state = 0;
                 return true;
             }
-
-            int n = syn_port_sock_recv(tcp->sock, tcp->rx_buf + tcp->bytes_read, remaining, 0);
+            if (tcp->payload_len > sizeof(tcp->rx_buf)) {
+                /* Framing error: packet too large for transport buffer */
+                syn_port_sock_close(tcp->sock);
+                tcp->sock = SYN_SOCKET_INVALID;
+                tcp->state = 0;
+                return false;
+            }
+            tcp->state = 2;
+        } else {
+            uint16_t remaining = tcp->payload_len - tcp->bytes_read;
+            int n = tcp_read_chunk(tcp, tcp->rx_buf + tcp->bytes_read, remaining);
             if (n <= 0)
                 return false;
 
             tcp->bytes_read += (uint16_t)n;
             if (tcp->bytes_read == tcp->payload_len) {
+                tcp->state = 0;
                 if (tcp->payload_len <= max_len) {
                     memcpy(data, tcp->rx_buf, tcp->payload_len);
                     *out_len = tcp->payload_len;
-                    tcp->state = 0;
                     return true;
-                } else {
-                    /* Output buffer too small, drop it */
-                    tcp->state = 0;
-                    return false;
                 }
+                return false;
             }
         }
     }
 }
 
 /**
- * @brief Check if TCP socket or internal buffer has pending readable data.
+ * @brief Check if underlying TCP socket currently has unread bytes or EOF/error pending.
  * @param ctx Pointer to SYN_TransportTcp instance.
- * @return True if data is ready, false otherwise.
+ * @return True if socket is readable, false otherwise.
  */
 static bool tcp_has_data(const void *ctx)
 {
     const SYN_TransportTcp *tcp = (const SYN_TransportTcp *)ctx;
-    if (tcp == NULL || tcp->sock == SYN_SOCKET_INVALID)
-        return false;
-    if (tcp->state > 0)
-        return true; /* Partial header or payload buffer in progress */
-    return syn_port_sock_readable(tcp->sock);
+    return (tcp != NULL) && (tcp->sock != SYN_SOCKET_INVALID) && syn_port_sock_readable(tcp->sock);
 }
 
 void syn_transport_tcp_init(SYN_Transport *t, SYN_TransportTcp *tcp, SYN_Socket sock)

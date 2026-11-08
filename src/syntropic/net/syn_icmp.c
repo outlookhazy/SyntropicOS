@@ -21,82 +21,126 @@ uint16_t syn_icmp_checksum(const void *buf, size_t len)
     return syn_ip_checksum(buf, len);
 }
 
+/**
+ * @brief Build an Ethernet II + IPv4 + ICMP Echo Reply frame from a validated Echo Request.
+ *
+ * @param icmp        Pointer to ICMP context.
+ * @param ip_pkt      Inbound Ethernet + IPv4 packet.
+ * @param pkt_len     Unpadded Ethernet + IPv4 packet length (14 + ip_total_len).
+ * @param icmp_offset Offset of ICMP header inside ip_pkt.
+ * @param frame_tx    Destination buffer for reply frame.
+ * @param tx_len      Output wire frame length (padded to 60B minimum).
+ */
+static void icmp_build_echo_reply(SYN_ICMP *icmp, const uint8_t *ip_pkt, size_t pkt_len,
+                                  size_t icmp_offset, uint8_t *frame_tx, size_t *tx_len)
+{
+    memcpy(frame_tx, ip_pkt, pkt_len);
+
+    /* Swap MAC addresses (offset 0 and 6) */
+    memcpy(&frame_tx[0], &ip_pkt[6], 6U);
+    memcpy(&frame_tx[6], &ip_pkt[0], 6U);
+
+    /* Swap IP addresses (offset 26 and 30) */
+    memcpy(&frame_tx[26], &ip_pkt[30], 4U);
+    memcpy(&frame_tx[30], &ip_pkt[26], 4U);
+
+    /* Modify ICMP Type: 8 (Request) -> 0 (Reply) */
+    frame_tx[icmp_offset] = SYN_ICMP_TYPE_ECHO_REPLY;
+    frame_tx[icmp_offset + 2U] = 0U;
+    frame_tx[icmp_offset + 3U] = 0U;
+
+    size_t icmp_len = pkt_len - icmp_offset;
+    uint16_t csum = syn_icmp_checksum(&frame_tx[icmp_offset], icmp_len);
+    frame_tx[icmp_offset + 2U] = (uint8_t)(csum >> 8U);
+    frame_tx[icmp_offset + 3U] = (uint8_t)(csum & 0xFFU);
+
+    /* Zero pad frame to minimum Ethernet length (60 bytes) */
+    size_t wire_len = pkt_len;
+    if (wire_len < SYN_ETH_MIN_FRAME_LEN) {
+        memset(&frame_tx[wire_len], 0, SYN_ETH_MIN_FRAME_LEN - wire_len);
+        wire_len = SYN_ETH_MIN_FRAME_LEN;
+    }
+
+    icmp->echo_replies_tx++;
+    *tx_len = wire_len;
+}
+
+/**
+ * @brief Validate IPv4 total length and ICMP checksum, returning unpadded lengths.
+ *
+ * @param icmp         Pointer to ICMP context.
+ * @param ip_pkt       Inbound Ethernet + IPv4 packet.
+ * @param len          Raw frame byte length.
+ * @param ip_hl        Validated IPv4 header byte length (>= 20).
+ * @param pkt_len_out  Output unpadded frame length (14 + ip_total_len).
+ * @param icmp_off_out Output ICMP header byte offset.
+ * @return SYN_OK on valid ICMP packet, SYN_INVALID_PARAM or SYN_ERROR otherwise.
+ */
+static SYN_Status icmp_validate_bounds_and_csum(SYN_ICMP *icmp, const uint8_t *ip_pkt, size_t len,
+                                                uint8_t ip_hl, size_t *pkt_len_out,
+                                                size_t *icmp_off_out)
+{
+    uint16_t ip_total_len = ((uint16_t)ip_pkt[16] << 8U) | (uint16_t)ip_pkt[17];
+    size_t pkt_len = 14U + (size_t)ip_total_len;
+    if (ip_total_len < (uint16_t)ip_hl + SYN_ICMP_HEADER_LEN || pkt_len > len ||
+        pkt_len > SYN_ETH_MAX_FRAME_LEN) {
+        icmp->errors++;
+        return SYN_INVALID_PARAM;
+    }
+
+    size_t icmp_offset = 14U + (size_t)ip_hl;
+    size_t icmp_len = (size_t)ip_total_len - (size_t)ip_hl;
+    if (syn_icmp_checksum(&ip_pkt[icmp_offset], icmp_len) != 0U) {
+        icmp->errors++;
+        return SYN_ERROR;
+    }
+
+    *pkt_len_out = pkt_len;
+    *icmp_off_out = icmp_offset;
+    return SYN_OK;
+}
+
 SYN_Status syn_icmp_process_packet(SYN_ICMP *icmp, const uint8_t *ip_pkt, size_t len,
                                    uint8_t *frame_tx, size_t *tx_len)
 {
-    if (!icmp || !ip_pkt || len < 34) {
+    if (!icmp || !ip_pkt || len < 34U) {
         return SYN_INVALID_PARAM;
     }
 
     if (tx_len) {
-        *tx_len = 0;
+        *tx_len = 0U;
     }
 
     /* Verify Ethernet EtherType == IPv4 (0x0800) */
-    uint16_t ethertype = ((uint16_t)ip_pkt[12] << 8) | ip_pkt[13];
+    uint16_t ethertype = ((uint16_t)ip_pkt[12] << 8U) | (uint16_t)ip_pkt[13];
     if (ethertype != SYN_ETHTYPE_IPV4) {
         return SYN_OK;
     }
 
     /* IP Header begins at offset 14 */
     const uint8_t *ip_hdr = &ip_pkt[14];
-    uint8_t ip_hl = (ip_hdr[0] & 0x0F) * 4;
-    if (ip_hl < 20 || (size_t)(14 + ip_hl) > len) {
+    uint8_t ip_hl = (uint8_t)((ip_hdr[0] & 0x0FU) * 4U);
+    if (ip_hl < 20U || (14U + (size_t)ip_hl) > len) {
+        icmp->errors++;
         return SYN_INVALID_PARAM;
     }
 
-    uint8_t proto = ip_hdr[9];
-    if (proto != 1) { /* Protocol 1 = ICMP */
+    if (ip_hdr[9] != 1U) { /* Protocol 1 = ICMP */
         return SYN_OK;
     }
 
-    /* ICMP Header begins after IP Header */
-    size_t icmp_offset = 14 + ip_hl;
-    if (icmp_offset + SYN_ICMP_HEADER_LEN > len) {
-        return SYN_INVALID_PARAM;
+    size_t pkt_len = 0U;
+    size_t icmp_offset = 0U;
+    SYN_Status st = icmp_validate_bounds_and_csum(icmp, ip_pkt, len, ip_hl, &pkt_len, &icmp_offset);
+    if (st != SYN_OK) {
+        return st;
     }
 
-    const uint8_t *icmp_hdr = &ip_pkt[icmp_offset];
-    uint8_t type = icmp_hdr[0];
-
+    uint8_t type = ip_pkt[icmp_offset];
     if (type == SYN_ICMP_TYPE_ECHO_REQUEST) {
         icmp->echo_requests_rx++;
-
         if (frame_tx && tx_len) {
-            size_t pkt_len = len;
-            if (pkt_len > 1514) {
-                pkt_len = 1514;
-            }
-
-            memcpy(frame_tx, ip_pkt, pkt_len);
-
-            /* Swap MAC addresses (offset 0 and 6) */
-            memcpy(&frame_tx[0], &ip_pkt[6], 6);
-            memcpy(&frame_tx[6], &ip_pkt[0], 6);
-
-            /* Swap IP addresses (offset 26 and 30) */
-            memcpy(&frame_tx[26], &ip_pkt[30], 4);
-            memcpy(&frame_tx[30], &ip_pkt[26], 4);
-
-            /* Modify ICMP Type: 8 (Request) -> 0 (Reply) */
-            size_t tx_icmp_off = icmp_offset;
-            frame_tx[tx_icmp_off] = SYN_ICMP_TYPE_ECHO_REPLY;
-            frame_tx[tx_icmp_off + 2] = 0; /* Reset checksum bytes */
-            frame_tx[tx_icmp_off + 3] = 0;
-
-            size_t icmp_payload_len = pkt_len - tx_icmp_off;
-            uint16_t csum = syn_icmp_checksum(&frame_tx[tx_icmp_off], icmp_payload_len);
-            frame_tx[tx_icmp_off + 2] = (uint8_t)(csum >> 8);
-            frame_tx[tx_icmp_off + 3] = (uint8_t)(csum & 0xFF);
-
-            /* Zero pad frame to minimum Ethernet length (60 bytes) */
-            if (pkt_len < SYN_ETH_MIN_FRAME_LEN) {
-                memset(&frame_tx[pkt_len], 0, SYN_ETH_MIN_FRAME_LEN - pkt_len);
-                pkt_len = SYN_ETH_MIN_FRAME_LEN;
-            }
-
-            icmp->echo_replies_tx++;
-            *tx_len = pkt_len;
+            icmp_build_echo_reply(icmp, ip_pkt, pkt_len, icmp_offset, frame_tx, tx_len);
         }
     } else if (type == SYN_ICMP_TYPE_ECHO_REPLY) {
         icmp->echo_replies_rx++;
@@ -114,8 +158,12 @@ SYN_Status syn_icmp_build_echo_request(SYN_ICMP *icmp, SYN_ETH *eth, uint32_t ds
         return SYN_INVALID_PARAM;
     }
 
+    if (payload_len > (65535U - 28U) || (!payload && payload_len > 0U)) {
+        return SYN_INVALID_PARAM;
+    }
+
     uint16_t icmp_len = (uint16_t)(SYN_ICMP_HEADER_LEN + payload_len);
-    size_t total_len = 14 + 20 + icmp_len;
+    size_t total_len = 14U + 20U + (size_t)icmp_len;
     if (total_len < SYN_ETH_MIN_FRAME_LEN) {
         total_len = SYN_ETH_MIN_FRAME_LEN;
     }

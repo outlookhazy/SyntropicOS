@@ -14,18 +14,26 @@
 #ifndef SYN_COSE_H
 #define SYN_COSE_H
 
-#if __has_include("syn_config.h")
-#include "syn_config.h"
+#include "syntropic/common/syn_defs.h"
+#include "syntropic/crypto/syn_ed25519.h"
+#include "syntropic/crypto/syn_p256.h"
+
+#if (!defined(SYN_USE_COSE) || SYN_USE_COSE) && (!defined(SYN_USE_CBOR) || SYN_USE_CBOR) &&   \
+    (!defined(SYN_USE_SHA256) || SYN_USE_SHA256) && (!defined(SYN_USE_AES) || SYN_USE_AES) && \
+    (!defined(SYN_USE_CHACHA20POLY1305) || SYN_USE_CHACHA20POLY1305) && SYN_P256_ENABLED &&   \
+    SYN_ED25519_ENABLED
+/** @brief Non-zero when COSE and required CBOR/crypto dependencies are enabled. */
+#define SYN_COSE_ENABLED 1
+#else
+/** @brief Non-zero when COSE and required CBOR/crypto dependencies are enabled. */
+#define SYN_COSE_ENABLED 0
 #endif
 
-#if !defined(SYN_USE_COSE) || SYN_USE_COSE
+#if SYN_COSE_ENABLED
 
-#include "syntropic/common/syn_defs.h"
 #include "syntropic/crypto/syn_aes.h"
 #include "syntropic/crypto/syn_chacha20poly1305.h"
-#include "syntropic/crypto/syn_ed25519.h"
 #include "syntropic/crypto/syn_hmac.h"
-#include "syntropic/crypto/syn_p256.h"
 #include "syntropic/crypto/syn_sha256.h"
 #include "syntropic/util/syn_cbor_read.h"
 #include "syntropic/util/syn_cbor_write.h"
@@ -124,6 +132,18 @@ typedef enum {
 #define SYN_COSE_MAX_TAG_LEN 32U
 /** @brief Maximum protected header byte length (64 bytes). */
 #define SYN_COSE_MAX_PROTECTED_LEN 64U
+#ifndef SYN_COSE_MAX_STRUCT_LEN
+/** @brief Maximum serialized Sig_structure / MAC_structure buffer size (bytes). */
+#define SYN_COSE_MAX_STRUCT_LEN 512U
+#endif
+#ifndef SYN_COSE_MAX_ENC_STRUCT_LEN
+/** @brief Maximum serialized Enc_structure AAD buffer size (bytes). */
+#define SYN_COSE_MAX_ENC_STRUCT_LEN 256U
+#endif
+#ifndef SYN_COSE_MAX_ENCRYPT0_PAYLOAD
+/** @brief Maximum single-shot COSE_Encrypt0 plaintext length (bytes). */
+#define SYN_COSE_MAX_ENCRYPT0_PAYLOAD 1008U
+#endif
 
 /* ── COSE Parsed Message & Key Structures ────────────────────────────────── */
 
@@ -345,6 +365,6 @@ SYN_Status syn_cose_key_decode(const uint8_t *buf, size_t buf_len, SYN_COSE_Key 
 }
 #endif
 
-#endif /* SYN_USE_COSE */
+#endif /* SYN_COSE_ENABLED */
 
 #endif /* SYN_COSE_H */

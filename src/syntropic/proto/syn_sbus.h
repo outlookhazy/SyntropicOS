@@ -15,15 +15,15 @@
 #ifndef SYN_SBUS_H
 #define SYN_SBUS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SYN_SBUS_NUM_CHANNELS 16 /**< Number of analog channels in SBUS frame (16) */
 #define SYN_SBUS_FRAME_SIZE 25   /**< Total byte length of standard SBUS frame (25) */

@@ -624,6 +624,50 @@ static void test_aead_null_and_bounds(void)
     TEST_ASSERT_FALSE(syn_aead_decrypt(key, nonce, NULL, 0, buf, sizeof(buf), tag, NULL));
 }
 
+static void test_r5_n14_blake2s_keyed_bounds_and_null_guards(void)
+{
+    SYN_BLAKE2s ctx;
+    uint8_t key[32] = {0x42U};
+    uint8_t big_key[100];
+    uint8_t out[32];
+    memset(big_key, 0xAAU, sizeof(big_key));
+    memset(out, 0x5AU, sizeof(out));
+
+    /* Null & out-of-range init guards */
+    syn_blake2s_init(NULL, 32U);
+    syn_blake2s_init(&ctx, 0U);
+    TEST_ASSERT_EQUAL_UINT8(0U, ctx.outlen);
+    syn_blake2s_init(&ctx, 33U);
+    TEST_ASSERT_EQUAL_UINT8(0U, ctx.outlen);
+
+    /* R5-N14: syn_blake2s_init_keyed with NULL ctx, NULL key, keylen=0, keylen=100, bad outlen */
+    syn_blake2s_init_keyed(NULL, key, 16U, 32U);
+    syn_blake2s_init_keyed(&ctx, NULL, 16U, 32U);
+    TEST_ASSERT_EQUAL_UINT8(0U, ctx.outlen);
+    syn_blake2s_init_keyed(&ctx, key, 0U, 32U);
+    TEST_ASSERT_EQUAL_UINT8(0U, ctx.outlen);
+    syn_blake2s_init_keyed(&ctx, big_key, sizeof(big_key), 32U);
+    TEST_ASSERT_EQUAL_UINT8(0U, ctx.outlen);
+    syn_blake2s_init_keyed(&ctx, key, 16U, 0U);
+    TEST_ASSERT_EQUAL_UINT8(0U, ctx.outlen);
+    syn_blake2s_init_keyed(&ctx, key, 16U, 33U);
+    TEST_ASSERT_EQUAL_UINT8(0U, ctx.outlen);
+
+    /* Update & final on uninitialized/invalid contexts and NULL pointers */
+    syn_blake2s_update(NULL, "abc", 3U);
+    syn_blake2s_update(&ctx, "abc", 3U);
+    syn_blake2s_final(NULL, out);
+    syn_blake2s_final(&ctx, out);
+    TEST_ASSERT_EQUAL_HEX8(0x5AU, out[0]);
+
+    syn_blake2s_init(&ctx, 32U);
+    syn_blake2s_update(&ctx, NULL, 5U);
+    syn_blake2s_final(&ctx, NULL);
+    ctx.outlen = 33U;
+    syn_blake2s_final(&ctx, out);
+    TEST_ASSERT_EQUAL_HEX8(0x5AU, out[0]);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
  *  Test group runner
  * ═══════════════════════════════════════════════════════════════════════════ */
@@ -645,6 +689,7 @@ void run_crypto_tests(void)
     RUN_TEST(test_hmac_blake2s_streaming);
     RUN_TEST(test_blake2s_unaligned_outlen);
     RUN_TEST(test_hmac_blake2s_large_key);
+    RUN_TEST(test_r5_n14_blake2s_keyed_bounds_and_null_guards);
 
     /* ChaCha20-Poly1305 */
     RUN_TEST(test_chacha20_block_rfc8439);

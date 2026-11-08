@@ -55,8 +55,10 @@ int main_sched(void)
 {
     canopen_app_init();
 
-    syn_task_create(&s_tasks[TASK_CANOPEN_ENGINE], "CANopenEngine", task_canopen_engine_func, 1, NULL);
-    syn_task_create(&s_tasks[TASK_CANOPEN_TPDO],   "CANopenTPDO",   task_canopen_tpdo_func,   2, NULL);
+    syn_task_create(&s_tasks[TASK_CANOPEN_ENGINE], "CANopenEngine", task_canopen_engine_func,
+                    SYN_PRIO_HIGH, NULL);
+    syn_task_create(&s_tasks[TASK_CANOPEN_TPDO], "CANopenTPDO", task_canopen_tpdo_func,
+                    SYN_PRIO_NORMAL, NULL);
 
     syn_sched_init(&s_sched, s_tasks, TASK_COUNT);
 

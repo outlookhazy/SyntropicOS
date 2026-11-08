@@ -200,14 +200,22 @@ void syn_scurve3d_plan(SYN_SCurve3D *sc3d, int32_t start_x, int32_t start_y, int
     sc3d->start_x = start_x;
     sc3d->start_y = start_y;
     sc3d->start_z = start_z;
-    sc3d->delta_x = target_x - start_x;
-    sc3d->delta_y = target_y - start_y;
-    sc3d->delta_z = target_z - start_z;
 
-    uint32_t dx2 = (uint32_t)(sc3d->delta_x * sc3d->delta_x);
-    uint32_t dy2 = (uint32_t)(sc3d->delta_y * sc3d->delta_y);
-    uint32_t dz2 = (uint32_t)(sc3d->delta_z * sc3d->delta_z);
-    sc3d->total_dist = syn_isqrt32(dx2 + dy2 + dz2);
+    int64_t dx = (int64_t)target_x - (int64_t)start_x;
+    int64_t dy = (int64_t)target_y - (int64_t)start_y;
+    int64_t dz = (int64_t)target_z - (int64_t)start_z;
+    sc3d->delta_x = (int32_t)dx;
+    sc3d->delta_y = (int32_t)dy;
+    sc3d->delta_z = (int32_t)dz;
+
+    uint64_t adx = (dx < 0) ? (uint64_t)(-dx) : (uint64_t)dx;
+    uint64_t ady = (dy < 0) ? (uint64_t)(-dy) : (uint64_t)dy;
+    uint64_t adz = (dz < 0) ? (uint64_t)(-dz) : (uint64_t)dz;
+    uint64_t dist = syn_isqrt64(adx * adx + ady * ady + adz * adz);
+    if (dist > (uint64_t)INT32_MAX) {
+        dist = (uint64_t)INT32_MAX;
+    }
+    sc3d->total_dist = (uint32_t)dist;
 
     syn_scurve_init(&sc3d->sc_master, 0);
     syn_scurve_set_constraints(&sc3d->sc_master, v_max, a_max, j_max);

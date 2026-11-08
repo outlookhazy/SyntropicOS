@@ -167,14 +167,18 @@ static inline bool syn_sleep_any_locked(const SYN_Sleep *s)
 /**
  * @brief Try to enter sleep mode.
  *
- * If no locks are held and sleep is enabled, calls syn_port_sleep().
+ * If no locks are held, sleep is enabled, and @c max_depth is not
+ * @ref SYN_SLEEP_NONE, calls syn_port_sleep().
  *
  * @param s  Sleep instance.
- * @return true if we actually slept, false if vetoed.
+ * @return true if we actually slept, false if @p s is NULL or vetoed.
  */
 static inline bool syn_sleep_enter(SYN_Sleep *s)
 {
-    if (!s->enabled || s->lock_mask != 0) {
+    if (s == NULL) {
+        return false;
+    }
+    if (!s->enabled || (s->max_depth == SYN_SLEEP_NONE) || (s->lock_mask != 0U)) {
         s->veto_count++;
         return false;
     }

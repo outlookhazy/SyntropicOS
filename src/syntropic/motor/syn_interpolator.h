@@ -28,6 +28,7 @@ typedef enum {
     SYN_INTERP_MODE_LINEAR,       /**< 2D or 3D linear segment */
     SYN_INTERP_MODE_CIRCULAR_CW,  /**< 2D Clockwise arc */
     SYN_INTERP_MODE_CIRCULAR_CCW, /**< 2D Counter-clockwise arc */
+    SYN_INTERP_MODE_BEZIER,       /**< 3D Cubic Bezier curve */
 } SYN_Interp_Mode;
 
 /** @brief 3D Vector position in steps or user units */
@@ -45,6 +46,8 @@ typedef struct {
     SYN_Vector3F start_pos;     /**< Segment start point (X, Y, Z) */
     SYN_Vector3F target_pos;    /**< Segment target point (X, Y, Z) */
     SYN_Vector3F center_offset; /**< Circle center offset relative to start (I, J, K) */
+    SYN_Vector3F bezier_p1;     /**< Cubic Bezier interior control point P1 */
+    SYN_Vector3F bezier_p2;     /**< Cubic Bezier interior control point P2 */
 
     /* Current State */
     SYN_Vector3F current_pos; /**< Calculated current position */

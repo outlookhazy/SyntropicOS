@@ -19,6 +19,7 @@
  */
 
 #include "syntropic/syntropic.h"
+#include "syntropic/port/syn_port_serial.h"
 #include "syntropic/display/syn_canvas.h"
 #include "syntropic/ui/syn_imgui.h"
 #include "syntropic/cli/syn_cli.h"
@@ -241,14 +242,14 @@ static SYN_CLI cli;
 
 static SYN_PT_Status cli_sched_task(SYN_PT *pt, SYN_Task *task)
 {
-    (void)task;
+    uint8_t ch;
     PT_BEGIN(pt);
     for (;;) {
-        int c = getchar();
-        if (c != EOF) {
-            syn_cli_process_char(&cli, (char)c);
+        while (syn_port_serial_read(&ch, 1) > 0) {
+            syn_cli_process_char(&cli, (char)ch);
+            PT_CONTINUE_IF_NEEDED(pt, task);
         }
-        PT_YIELD(pt);
+        PT_PASS(pt);
     }
     PT_END(pt);
 }
@@ -697,13 +698,13 @@ static const SYN_HttpdRoute httpd_routes[] = {
 
 static SYN_PT_Status httpd_sched_task(SYN_PT *pt, SYN_Task *task)
 {
-    (void)task;
     static SYN_PT ws_pt;
     static SYN_Task ws_task;
 
     PT_BEGIN(pt);
 
     PT_INIT(&ws_pt);
+    ws_task.sched = task->sched;
     ws_task.user_data = &ws_session;
 
     for (;;) {
@@ -716,7 +717,7 @@ static SYN_PT_Status httpd_sched_task(SYN_PT *pt, SYN_Task *task)
         } else {
             PT_INIT(&ws_pt);
         }
-        PT_YIELD(pt);
+        PT_PASS(pt);
     }
 
     syn_httpd_stop(&httpd);
@@ -1062,6 +1063,7 @@ void app_main(void)
     }
 
     /* Init CLI */
+    syn_port_serial_init(115200);
     syn_cli_init(&cli, cli_commands, SYN_ARRAY_SIZE(cli_commands),
                  "syntropic> ");
 
@@ -1069,12 +1071,13 @@ void app_main(void)
     syn_cli_print_prompt(&cli);
 
     /* Initialize all cooperative tasks */
-    syn_task_create(&s_tasks[TASK_CLI], "cli", cli_sched_task, 3, NULL);
-    syn_task_create(&s_tasks[TASK_HTTPD], "httpd", httpd_sched_task, 1, NULL);
-    syn_task_create(&s_tasks[TASK_MDNS], "mdns", syn_mdns_task, 2, &mdns_inst);
-    syn_task_create(&s_tasks[TASK_MQTT], "mqtt", syn_mqtt_task, 1, &mqtt_client);
-    syn_task_create(&s_tasks[TASK_HTTP_CLIENT], "http_client", syn_http_client_task, 0, NULL);
-    syn_task_create(&s_tasks[TASK_DNS], "dns_client", syn_dns_resolve_task, 1, NULL);
+    syn_task_create(&s_tasks[TASK_CLI], "cli", cli_sched_task, SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&s_tasks[TASK_HTTPD], "httpd", httpd_sched_task, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&s_tasks[TASK_MDNS], "mdns", syn_mdns_task, SYN_PRIO_LOW, &mdns_inst);
+    syn_task_create(&s_tasks[TASK_MQTT], "mqtt", syn_mqtt_task, SYN_PRIO_HIGH, &mqtt_client);
+    syn_task_create(&s_tasks[TASK_HTTP_CLIENT], "http_client", syn_http_client_task,
+                    SYN_PRIO_CRITICAL, NULL);
+    syn_task_create(&s_tasks[TASK_DNS], "dns_client", syn_dns_resolve_task, SYN_PRIO_HIGH, NULL);
 
     /* Suspend the background/client ones initially */
     syn_task_suspend(&s_tasks[TASK_HTTPD]);

@@ -21,6 +21,7 @@ extern UART_HandleTypeDef huart1; /* Configured for 2400 Baud, 8 Data, Even Pari
 
 /* ── Global State ───────────────────────────────────────────────────────── */
 
+static SYN_UART meter_uart;
 static uint8_t rx_byte;
 static SYN_DLT645_Decoder decoder;
 static uint32_t last_energy_kwh_x100 = 0; /* Active energy (0.01 kWh resolution) */
@@ -50,6 +51,7 @@ static void on_dlt645_frame_received(const SYN_DLT645_Frame *frame, void *ctx)
                                       (bcd0 >> 4) * 1 + (bcd0 & 0x0F));
 
             last_energy_kwh_x100 = val;
+            (void)last_energy_kwh_x100;
 
             printf("[DL/T 645] Meter %02X%02X%02X%02X%02X%02X Active Energy: %lu.%02lu kWh\n",
                    frame->address[5], frame->address[4], frame->address[3],
@@ -73,6 +75,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         /* Re-arm single-byte UART interrupt */
         HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
     }
+}
+
+void meter_uart_tx_isr(void)
+{
+    syn_uart_tx_isr_flush(&meter_uart);
 }
 
 /* ── Meter Request Polling Task ─────────────────────────────────────────── */
@@ -102,8 +109,9 @@ static SYN_PT_Status meter_poll_task(SYN_PT *pt, SYN_Task *task)
             /* Enable RS-485 Driver (TX mode) */
             syn_gpio_write(RS485_DE_PIN, SYN_GPIO_HIGH);
 
-            /* Transmit frame */
-            HAL_UART_Transmit(&huart1, tx_buf, (uint16_t)tx_len, 100);
+            /* Queue frame asynchronously and wait until shift register drains */
+            PT_WAIT_UNTIL(pt, syn_uart_write_async(&meter_uart, tx_buf, tx_len) == SYN_OK);
+            PT_WAIT_UNTIL(pt, syn_uart_tx_complete(&meter_uart));
 
             /* Disable RS-485 Driver (RX mode) */
             syn_gpio_write(RS485_DE_PIN, SYN_GPIO_LOW);
@@ -119,6 +127,8 @@ int main(void)
 {
     HAL_Init();
     /* MCU clock & USART1 (2400 baud, 8E1) initialization here */
+    syn_port_stm32_register_uart(0, &huart1);
+    syn_uart_init(&meter_uart, 0, 2400);
 
     /* Initialize DL/T 645 streaming decoder */
     syn_dlt645_decoder_init(&decoder, SYN_DLT645_VER_2007, on_dlt645_frame_received, NULL);
@@ -130,7 +140,7 @@ int main(void)
     static SYN_Task tasks[1];
     static SYN_Sched sched;
 
-    syn_task_create(&tasks[0], "meter_poll", meter_poll_task, 0, NULL);
+    syn_task_create(&tasks[0], "meter_poll", meter_poll_task, SYN_PRIO_NORMAL, NULL);
     syn_sched_init(&sched, tasks, 1);
 
     /* Run cooperative OS kernel */

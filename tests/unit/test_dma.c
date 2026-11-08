@@ -215,6 +215,98 @@ static void test_dma_ringbuf_counter_overflow_guard(void)
     TEST_ASSERT_EQUAL(0, syn_dma_ringbuf_bytes_available(&rbuf));
 }
 
+static void test_dma_periph_non_incrementing_transfers(void)
+{
+    SYN_DMA dma;
+    uint32_t tx_buf[4] = {0x11U, 0x22U, 0x33U, 0x44U};
+    uint32_t periph_tx_reg = 0U;
+
+    SYN_DMA_Config tx_cfg = {.channel_id = 0,
+                             .dir = SYN_DMA_DIR_MEM_TO_PERIPH,
+                             .data_size = SYN_DMA_SIZE_32BIT,
+                             .src_inc = true,
+                             .dst_inc = false,
+                             .callback = dma_test_callback,
+                             .user_ctx = NULL};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dma_init(&dma, &tx_cfg));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dma_start(&dma, tx_buf, &periph_tx_reg, 4));
+    TEST_ASSERT_EQUAL_UINT32(0x44U, periph_tx_reg);
+    syn_dma_isr_handler(&dma, SYN_DMA_EVENT_COMPLETE);
+    TEST_ASSERT_EQUAL_INT(SYN_DMA_STATE_COMPLETE, syn_dma_get_state(&dma));
+
+    const uint32_t periph_rx_reg = 0xCAFEBABEU;
+    uint32_t rx_buf[3] = {0};
+    SYN_DMA_Config rx_cfg = {.channel_id = 0,
+                             .dir = SYN_DMA_DIR_PERIPH_TO_MEM,
+                             .data_size = SYN_DMA_SIZE_32BIT,
+                             .src_inc = false,
+                             .dst_inc = true,
+                             .callback = NULL,
+                             .user_ctx = NULL};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dma_init(&dma, &rx_cfg));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dma_start(&dma, &periph_rx_reg, rx_buf, 3));
+    TEST_ASSERT_EQUAL_UINT32(0xCAFEBABEU, rx_buf[0]);
+    TEST_ASSERT_EQUAL_UINT32(0xCAFEBABEU, rx_buf[2]);
+    syn_dma_isr_handler(&dma, SYN_DMA_EVENT_COMPLETE);
+}
+
+static void test_r5_dma_ringbuf_full_wrap_drain(void)
+{
+    dma_test_setup();
+    SYN_DMA dma;
+    SYN_DMA_Config cfg = {0};
+    cfg.channel_id = 1;
+    cfg.dir = SYN_DMA_DIR_PERIPH_TO_MEM;
+    cfg.data_size = SYN_DMA_SIZE_8BIT;
+    cfg.dst_inc = true;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dma_init(&dma, &cfg));
+
+    uint8_t rx_buf[64];
+    uint8_t periph_byte = 0x5AU;
+    SYN_DMA_RingBuf rbuf;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dma_ringbuf_init(&rbuf, &dma, rx_buf, sizeof(rx_buf)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dma_ringbuf_start(&rbuf, &periph_byte));
+
+    /* Before any byte arrives, remaining == capacity -> 0 bytes available */
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)syn_dma_ringbuf_bytes_available(&rbuf));
+
+    /* Hardware fills entire 64B buffer so remaining == 0 */
+    for (size_t i = 0; i < sizeof(rx_buf); i++) {
+        rx_buf[i] = (uint8_t)(i + 1U);
+    }
+    mock_dma[1].remaining = 0U;
+    TEST_ASSERT_EQUAL_UINT32(64U, (uint32_t)syn_dma_ringbuf_bytes_available(&rbuf));
+
+    /* Read first 20 bytes, then remaining 44 bytes */
+    uint8_t out[64];
+    memset(out, 0, sizeof(out));
+    TEST_ASSERT_EQUAL_UINT32(20U, (uint32_t)syn_dma_ringbuf_read(&rbuf, out, 20U));
+    TEST_ASSERT_EQUAL_UINT32(44U, (uint32_t)syn_dma_ringbuf_bytes_available(&rbuf));
+    TEST_ASSERT_EQUAL_UINT32(44U, (uint32_t)syn_dma_ringbuf_read(&rbuf, out + 20, 44U));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(rx_buf, out, sizeof(rx_buf));
+
+    /* R5-S12: Drained full buffer with remaining == 0 must NOT replay 64B! */
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)syn_dma_ringbuf_bytes_available(&rbuf));
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)syn_dma_ringbuf_read(&rbuf, out, sizeof(out)));
+
+    /* Subsequent hardware wrap writes 10 fresh bytes (remaining = 54), then fills to remaining = 0
+     */
+    for (size_t i = 0; i < sizeof(rx_buf); i++) {
+        rx_buf[i] = (uint8_t)(0xA0U + i);
+    }
+    mock_dma[1].remaining = 54U;
+    TEST_ASSERT_EQUAL_UINT32(10U, (uint32_t)syn_dma_ringbuf_bytes_available(&rbuf));
+    /* Hardware finishes 2nd full 64B wrap before CPU reads -> must report 64B, not wedge at 0! */
+    mock_dma[1].remaining = 0U;
+    TEST_ASSERT_EQUAL_UINT32(64U, (uint32_t)syn_dma_ringbuf_bytes_available(&rbuf));
+
+    mock_cache_invalidate_count = 0U;
+    TEST_ASSERT_EQUAL_UINT32(64U, (uint32_t)syn_dma_ringbuf_read(&rbuf, out, sizeof(out)));
+    TEST_ASSERT_TRUE(mock_cache_invalidate_count > 0U);
+    TEST_ASSERT_EQUAL_UINT8(0xA0U, out[0]);
+    TEST_ASSERT_EQUAL_UINT8(0xA9U, out[9]);
+}
+
 void run_dma_tests(void)
 {
     dma_test_setup();
@@ -225,4 +317,6 @@ void run_dma_tests(void)
     RUN_TEST(test_dma_stop_and_null_checks);
     RUN_TEST(test_dma_ringbuf);
     RUN_TEST(test_dma_ringbuf_counter_overflow_guard);
+    RUN_TEST(test_dma_periph_non_incrementing_transfers);
+    RUN_TEST(test_r5_dma_ringbuf_full_wrap_drain);
 }

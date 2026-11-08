@@ -9,20 +9,32 @@
  * @brief Task-level watchdog implementation.
  */
 
-#include "../system/syn_errlog.h"
 #include "../util/syn_assert.h"
 #include "syn_watchdog.h"
+#if !defined(SYN_USE_ERRLOG) || SYN_USE_ERRLOG
+#include "../system/syn_errlog.h"
+#endif
 
 #include <string.h>
 
+#if !defined(SYN_USE_ERRLOG) || SYN_USE_ERRLOG
 #define SYN_WDT_ERR_TIMEOUT 0x0200 /**< Watchdog timeout detected. */
+#endif
 
 void syn_watchdog_init(SYN_Watchdog *wdt, SYN_WDT_Entry *entries, uint8_t capacity,
                        SYN_WDT_TimeoutCallback callback, void *ctx)
 {
     SYN_ASSERT(wdt != NULL);
     SYN_ASSERT(entries != NULL);
-    SYN_ASSERT(capacity > 0);
+    SYN_ASSERT(capacity > 0U);
+
+    if (wdt == NULL || entries == NULL ||
+        capacity == 0U) { /* LCOV_EXCL_LINE: Defensive NULL/zero check */
+        return;           /* LCOV_EXCL_LINE: Defensive NULL/zero fallback */
+    }
+    if (capacity > SYN_WATCHDOG_MAX_CAPACITY) {
+        capacity = SYN_WATCHDOG_MAX_CAPACITY;
+    }
 
     memset(entries, 0, sizeof(*entries) * capacity);
     wdt->entries = entries;
@@ -35,67 +47,96 @@ void syn_watchdog_init(SYN_Watchdog *wdt, SYN_WDT_Entry *entries, uint8_t capaci
 
 int8_t syn_watchdog_register(SYN_Watchdog *wdt, const char *name, uint32_t timeout_ms)
 {
-    SYN_ASSERT(wdt != NULL);
-
-    if (wdt->count >= wdt->capacity)
+    if (wdt == NULL) {
         return -1;
+    }
 
-    /* Find free slot */
-    for (uint8_t i = 0; i < wdt->capacity; i++) {
-        if (!wdt->entries[i].active) {
-            wdt->entries[i].name = name;
-            wdt->entries[i].timeout_ms = timeout_ms;
-            wdt->entries[i].last_checkin = syn_port_get_tick_ms();
-            wdt->entries[i].active = true;
-            wdt->count++;
-            return (int8_t)i;
+    if (timeout_ms == 0U) {
+        timeout_ms = 1U;
+    } else if (timeout_ms > 0x7FFFFFFFU) {
+        timeout_ms = 0x7FFFFFFFU;
+    }
+
+    int8_t slot = -1;
+    syn_port_enter_critical();
+    if (wdt->entries != NULL && wdt->count < wdt->capacity &&
+        wdt->capacity <= SYN_WATCHDOG_MAX_CAPACITY) {
+        for (uint8_t i = 0U; i < wdt->capacity; i++) {
+            if (!wdt->entries[i].active) {
+                wdt->entries[i].name = name;
+                wdt->entries[i].timeout_ms = timeout_ms;
+                wdt->entries[i].last_checkin = syn_port_get_tick_ms();
+                wdt->entries[i].active = true;
+                wdt->count++;
+                slot = (int8_t)i;
+                break;
+            }
         }
     }
-    return -1; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
+    syn_port_exit_critical();
+
+    return slot;
 }
 
 void syn_watchdog_checkin(SYN_Watchdog *wdt, int8_t id)
 {
-    SYN_ASSERT(wdt != NULL);
-    SYN_ASSERT(id >= 0 && (uint8_t)id < wdt->capacity);
-    SYN_ASSERT(wdt->entries[id].active);
+    if (wdt == NULL || id < 0) {
+        return;
+    }
 
-    wdt->entries[id].last_checkin = syn_port_get_tick_ms();
+    syn_port_enter_critical();
+    if (wdt->entries != NULL && (uint8_t)id < wdt->capacity && wdt->entries[id].active) {
+        wdt->entries[id].last_checkin = syn_port_get_tick_ms();
+    }
+    syn_port_exit_critical();
 }
 
 void syn_watchdog_unregister(SYN_Watchdog *wdt, int8_t id)
 {
-    SYN_ASSERT(wdt != NULL);
-    SYN_ASSERT(id >= 0 && (uint8_t)id < wdt->capacity);
-
-    if (!wdt->entries[id].active) {
-        return; /* Already unregistered — guard against count underflow */
+    if (wdt == NULL || id < 0) {
+        return;
     }
 
-    wdt->entries[id].active = false;
-    wdt->count--;
+    syn_port_enter_critical();
+    if (wdt->entries != NULL && (uint8_t)id < wdt->capacity && wdt->entries[id].active) {
+        wdt->entries[id].active = false;
+        wdt->count--;
+    }
+    syn_port_exit_critical();
 }
 
 void syn_watchdog_update(SYN_Watchdog *wdt)
 {
-    SYN_ASSERT(wdt != NULL);
+    if (wdt == NULL || wdt->entries == NULL) {
+        return;
+    }
 
-    uint32_t now = syn_port_get_tick_ms();
+    for (uint8_t i = 0U; i < wdt->capacity; i++) {
+        bool timed_out = false;
 
-    for (uint8_t i = 0; i < wdt->capacity; i++) {
-        if (!wdt->entries[i].active)
+        syn_port_enter_critical();
+        if (wdt->entries[i].active) {
+            uint32_t now = syn_port_get_tick_ms();
+            int32_t diff = (int32_t)(now - wdt->entries[i].last_checkin);
+            if (diff >= 0 && (uint32_t)diff >= wdt->entries[i].timeout_ms) {
+                /* Reset check-in atomically so callback check-in/unregister is preserved */
+                wdt->entries[i].last_checkin = now;
+                timed_out = true;
+            }
+        }
+        syn_port_exit_critical();
+
+        if (!timed_out) {
             continue;
+        }
 
-        uint32_t elapsed = now - wdt->entries[i].last_checkin;
-        if (elapsed >= wdt->entries[i].timeout_ms) {
-            if (wdt->errlog != NULL) {
-                syn_errlog_record(wdt->errlog, SYN_WDT_ERR_TIMEOUT, SYN_ERR_ERROR, (uint32_t)i);
-            }
-            if (wdt->callback != NULL) {
-                wdt->callback(wdt, &wdt->entries[i], wdt->ctx);
-            }
-            /* Reset check-in to avoid repeated callbacks */
-            wdt->entries[i].last_checkin = now;
+#if !defined(SYN_USE_ERRLOG) || SYN_USE_ERRLOG
+        if (wdt->errlog != NULL) {
+            syn_errlog_record(wdt->errlog, SYN_WDT_ERR_TIMEOUT, SYN_ERR_ERROR, (uint32_t)i);
+        }
+#endif
+        if (wdt->callback != NULL) {
+            wdt->callback(wdt, &wdt->entries[i], wdt->ctx);
         }
     }
 }

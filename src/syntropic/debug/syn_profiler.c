@@ -1,6 +1,4 @@
-#if __has_include("syn_config.h")
-#include "syn_config.h"
-#endif
+#include "../common/syn_defs.h"
 
 #if !defined(SYN_USE_PROFILER) || SYN_USE_PROFILER
 
@@ -93,10 +91,11 @@ void syn_profiler_update(SYN_Profiler *prof)
         e->cpu_percent_x10 = (uint16_t)(e->total_us / period);
     }
 
-    /* Reset for next period (keep peak) */
+    /* Snapshot run_count and reset accumulators for next period (keep peak) */
     for (uint8_t i = 0; i < prof->capacity; i++) {
-        prof->entries[i].total_us = 0;
-        prof->entries[i].run_count = 0;
+        prof->entries[i].last_run_count = prof->entries[i].run_count;
+        prof->entries[i].total_us = 0U;
+        prof->entries[i].run_count = 0U;
         /* peak_us is NOT reset — it's an all-time high watermark */
     }
     prof->period_start = now;
@@ -160,7 +159,7 @@ void syn_profiler_dump(const SYN_Profiler *prof, SYN_ProfilerPrintFunc print)
             buf[pos++] = ' ';
 
         /* Runs */
-        syn_fmt_uint(num, sizeof(num), (uint32_t)e->run_count);
+        syn_fmt_uint(num, sizeof(num), e->last_run_count);
         nl = strlen(num);
         pad = (8 > nl) ? 8 - nl : 0;
         while (pad-- > 0)

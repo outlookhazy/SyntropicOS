@@ -233,7 +233,7 @@ void test_sha512_null_and_boundary_checks(void)
 
     /* 64-bit length counter overflow */
     ctx.total_len_lo = (uint64_t)-10;
-    syn_sha512_update(&ctx, "overflow test data", 20);
+    syn_sha512_update(&ctx, "overflow test data!!", 20);
     TEST_ASSERT_EQUAL(1, ctx.total_len_hi);
 }
 

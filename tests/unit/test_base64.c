@@ -134,10 +134,60 @@ void test_base64_null_and_bounds_checks(void)
     TEST_ASSERT_TRUE(syn_base64_calc_max_decoded_size(4) >= 3);
 }
 
+void test_r5_base64_strict_padding_and_pad_bits(void)
+{
+    char enc[16] = {0};
+    uint8_t bin[16] = {0};
+    size_t len = 99U;
+
+    /* Padding before 2 valid symbols in quartet */
+    TEST_ASSERT_FALSE(syn_base64_decode("====", 4, bin, sizeof(bin), &len));
+    TEST_ASSERT_FALSE(syn_base64_decode("=AAA", 4, bin, sizeof(bin), &len));
+    TEST_ASSERT_FALSE(syn_base64_decode("A===", 4, bin, sizeof(bin), &len));
+    TEST_ASSERT_FALSE(syn_base64_decode("Zm9v====", 8, bin, sizeof(bin), &len));
+
+    /* Incomplete or excess '=' padding */
+    TEST_ASSERT_FALSE(syn_base64_decode("Zg=", 3, bin, sizeof(bin), &len));
+    TEST_ASSERT_FALSE(syn_base64_decode("Zg===", 5, bin, sizeof(bin), &len));
+    TEST_ASSERT_FALSE(syn_base64_decode("Zm8==", 5, bin, sizeof(bin), &len));
+
+    /* Non-whitespace data after '=' */
+    TEST_ASSERT_FALSE(syn_base64_decode("Zg==Zg==", 8, bin, sizeof(bin), &len));
+    TEST_ASSERT_FALSE(syn_base64_decode("Zm8=A", 5, bin, sizeof(bin), &len));
+
+    /* Trailing single 6-bit symbol (1 mod 4 length) */
+    TEST_ASSERT_FALSE(syn_base64_decode("A", 1, bin, sizeof(bin), &len));
+    TEST_ASSERT_FALSE(syn_base64_decode("YWJjZ", 5, bin, sizeof(bin), &len));
+    TEST_ASSERT_FALSE(syn_base64url_decode("A", 1, bin, sizeof(bin), &len));
+
+    /* Non-zero unused pad bits on 2-symbol and 3-symbol final quartets */
+    TEST_ASSERT_FALSE(syn_base64_decode("AB==", 4, bin, sizeof(bin), &len));
+    TEST_ASSERT_FALSE(syn_base64_decode("AB", 2, bin, sizeof(bin), &len));
+    TEST_ASSERT_FALSE(syn_base64url_decode("AB", 2, bin, sizeof(bin), &len));
+    TEST_ASSERT_FALSE(syn_base64_decode("ABC=", 4, bin, sizeof(bin), &len));
+    TEST_ASSERT_FALSE(syn_base64_decode("ABC", 3, bin, sizeof(bin), &len));
+    TEST_ASSERT_FALSE(syn_base64url_decode("ABC", 3, bin, sizeof(bin), &len));
+
+    /* Valid unpadded Base64URL and whitespace around padding */
+    TEST_ASSERT_TRUE(syn_base64url_decode("-w", 2, bin, sizeof(bin), &len));
+    TEST_ASSERT_EQUAL_UINT32(1U, (uint32_t)len);
+    TEST_ASSERT_EQUAL_HEX8(0xFB, bin[0]);
+
+    TEST_ASSERT_TRUE(syn_base64_decode(" Zg== \r\n ", 0, bin, sizeof(bin), NULL));
+    TEST_ASSERT_EQUAL_HEX8((uint8_t)'f', bin[0]);
+
+    /* NULL src with non-zero length and NULL out_len on encoders */
+    TEST_ASSERT_FALSE(syn_base64_encode(NULL, 3, enc, sizeof(enc), &len));
+    TEST_ASSERT_FALSE(syn_base64url_encode(NULL, 3, enc, sizeof(enc), false, &len));
+    TEST_ASSERT_TRUE(syn_base64_encode((const uint8_t *)"a", 1, enc, sizeof(enc), NULL));
+    TEST_ASSERT_TRUE(syn_base64url_encode((const uint8_t *)"a", 1, enc, sizeof(enc), false, NULL));
+}
+
 void run_base64_tests(void)
 {
     RUN_TEST(test_base64_rfc4648_standard_test_vectors);
     RUN_TEST(test_base64url_rfc4648_test_vectors);
     RUN_TEST(test_base64_whitespace_and_newlines);
     RUN_TEST(test_base64_null_and_bounds_checks);
+    RUN_TEST(test_r5_base64_strict_padding_and_pad_bits);
 }

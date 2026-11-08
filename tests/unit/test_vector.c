@@ -94,9 +94,34 @@ void test_vector_edge_cases(void)
     TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(20), v_clamp_out[2]);
 }
 
+void test_r5_vector_empty_and_null_guards(void)
+{
+    q16_t v[2] = {Q16_FROM_INT(10), Q16_FROM_INT(-10)};
+    q16_t out[2] = {Q16_FROM_INT(77), Q16_FROM_INT(88)};
+
+    TEST_ASSERT_EQUAL_INT32(0, syn_vec_min(v, 0U));
+    TEST_ASSERT_EQUAL_INT32(0, syn_vec_max(v, 0U));
+    TEST_ASSERT_EQUAL_INT32(0, syn_vec_mean(v, 0U));
+    TEST_ASSERT_EQUAL_INT32(0, syn_vec_variance(v, 0U));
+    TEST_ASSERT_EQUAL_INT32(0, syn_vec_rms(v, 0U));
+
+    TEST_ASSERT_EQUAL_INT32(0, syn_vec_min(NULL, 2U));
+    TEST_ASSERT_EQUAL_INT32(0, syn_vec_max(NULL, 2U));
+    TEST_ASSERT_EQUAL_INT32(0, syn_vec_mean(NULL, 2U));
+    TEST_ASSERT_EQUAL_INT32(0, syn_vec_variance(NULL, 2U));
+    TEST_ASSERT_EQUAL_INT32(0, syn_vec_rms(NULL, 2U));
+
+    syn_vec_add(v, v, out, 0U);
+    syn_vec_sub(v, v, out, 0U);
+    syn_vec_scale(v, Q16_ONE, out, 0U);
+    syn_vec_clamp(v, -Q16_ONE, Q16_ONE, out, 0U);
+    TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(77), out[0]);
+}
+
 void run_vector_tests(void)
 {
     RUN_TEST(test_vector_basic_ops);
     RUN_TEST(test_vector_stats);
     RUN_TEST(test_vector_edge_cases);
+    RUN_TEST(test_r5_vector_empty_and_null_guards);
 }

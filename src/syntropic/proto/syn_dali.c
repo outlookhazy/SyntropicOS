@@ -115,6 +115,406 @@ static bool check_address_match(const SYN_DALI_SlaveState *slave, const SYN_DALI
     return false;
 }
 
+/**
+ * @brief Reset DALI slave operating parameters and registers to IEC 62386 defaults.
+ * @param slave Pointer to DALI slave state.
+ */
+static void dali_reset_state(SYN_DALI_SlaveState *slave)
+{
+    slave->actual_level = 254U;
+    slave->lamp_on = true;
+    slave->cfg.power_on_level = 254U;
+    slave->cfg.system_failure_level = 254U;
+    slave->cfg.min_level = 1U;
+    slave->cfg.max_level = 254U;
+    slave->cfg.fade_time = 0U;
+    slave->cfg.fade_rate = 7U;
+    slave->cfg.group_mask = 0U;
+    memset(slave->scenes, SYN_DALI_MASK_LEVEL, sizeof(slave->scenes));
+    slave->search_address = 0xFFFFFFU;
+    slave->random_address = 0xFFFFFFU;
+    slave->dtr0 = 0U;
+    slave->dtr1 = 0U;
+    slave->dtr2 = 0U;
+    slave->dapc_sequence_active = false;
+    slave->write_mem_enabled = false;
+    slave->initialise_active = false;
+}
+
+/**
+ * @brief Apply a Direct Arc Power Control (DAPC) level command.
+ * @param slave        Pointer to DALI slave state.
+ * @param target_level Requested 8-bit arc power level.
+ */
+static void dali_exec_direct_arc(SYN_DALI_SlaveState *slave, uint8_t target_level)
+{
+    if (target_level == SYN_DALI_MASK_LEVEL) {
+        return;
+    }
+    if (target_level == 0U) {
+        slave->actual_level = 0U;
+        slave->lamp_on = false;
+        return;
+    }
+    if (target_level < slave->cfg.min_level) {
+        target_level = slave->cfg.min_level;
+    }
+    if (target_level > slave->cfg.max_level) {
+        target_level = slave->cfg.max_level;
+    }
+    slave->actual_level = target_level;
+    slave->lamp_on = true;
+}
+
+/**
+ * @brief Execute OFF, UP, DOWN, and STEP arc power commands.
+ * @param slave Pointer to DALI slave state.
+ * @param cmd   DALI command opcode.
+ * @return true if command was handled, false otherwise.
+ */
+static bool dali_exec_step_cmd(SYN_DALI_SlaveState *slave, uint8_t cmd)
+{
+    switch (cmd) {
+    case SYN_DALI_CMD_OFF:
+        slave->actual_level = 0U;
+        slave->lamp_on = false;
+        return true;
+
+    case SYN_DALI_CMD_UP:
+    case SYN_DALI_CMD_STEP_UP:
+        if (slave->lamp_on && slave->actual_level > 0U &&
+            slave->actual_level < slave->cfg.max_level) {
+            slave->actual_level++;
+        }
+        return true;
+
+    case SYN_DALI_CMD_DOWN:
+        if (slave->actual_level > slave->cfg.min_level) {
+            slave->actual_level--;
+        }
+        return true;
+
+    case SYN_DALI_CMD_STEP_DOWN:
+    case SYN_DALI_CMD_STEP_DOWN_AND_OFF:
+        if (slave->actual_level > slave->cfg.min_level) {
+            slave->actual_level--;
+        } else {
+            slave->actual_level = 0U;
+            slave->lamp_on = false;
+        }
+        return true;
+
+    default:
+        return false;
+    }
+}
+
+/**
+ * @brief Execute RECALL_MAX, RECALL_MIN, ON_AND_STEP_UP, DAPC, or RESET command.
+ * @param slave Pointer to DALI slave state.
+ * @param cmd   DALI command opcode.
+ * @return true if command was handled, false otherwise.
+ */
+static bool dali_exec_preset_cmd(SYN_DALI_SlaveState *slave, uint8_t cmd)
+{
+    switch (cmd) {
+    case SYN_DALI_CMD_RECALL_MAX:
+        slave->actual_level = slave->cfg.max_level;
+        slave->lamp_on = true;
+        return true;
+
+    case SYN_DALI_CMD_RECALL_MIN:
+        slave->actual_level = slave->cfg.min_level;
+        slave->lamp_on = true;
+        return true;
+
+    case SYN_DALI_CMD_ON_AND_STEP_UP:
+        if (!slave->lamp_on || slave->actual_level == 0U) {
+            slave->actual_level = slave->cfg.min_level;
+            slave->lamp_on = true;
+        } else if (slave->actual_level < slave->cfg.max_level) {
+            slave->actual_level++;
+        }
+        return true;
+
+    case SYN_DALI_CMD_ENABLE_DAPC_SEQUENCE:
+        slave->dapc_sequence_active = true;
+        return true;
+
+    case SYN_DALI_CMD_RESET:
+        dali_reset_state(slave);
+        return true;
+
+    default:
+        return false;
+    }
+}
+
+/**
+ * @brief Execute DTR0 configuration store and write-enable commands.
+ * @param slave Pointer to DALI slave state.
+ * @param cmd   DALI command opcode.
+ * @return true if command was handled, false otherwise.
+ */
+static bool dali_exec_dtr_store_cmd(SYN_DALI_SlaveState *slave, uint8_t cmd)
+{
+    switch (cmd) {
+    case SYN_DALI_CMD_STORE_ACTUAL_LEVEL_IN_DTR:
+        slave->dtr0 = slave->actual_level;
+        return true;
+    case SYN_DALI_CMD_STORE_DTR_AS_MAX_LEVEL:
+        slave->cfg.max_level = slave->dtr0;
+        return true;
+    case SYN_DALI_CMD_STORE_DTR_AS_MIN_LEVEL:
+        slave->cfg.min_level = slave->dtr0;
+        return true;
+    case SYN_DALI_CMD_STORE_DTR_AS_SYS_FAIL_LEVEL:
+        slave->cfg.system_failure_level = slave->dtr0;
+        return true;
+    case SYN_DALI_CMD_STORE_DTR_AS_POWER_ON_LEVEL:
+        slave->cfg.power_on_level = slave->dtr0;
+        return true;
+    case SYN_DALI_CMD_STORE_DTR_AS_FADE_TIME:
+        slave->cfg.fade_time = slave->dtr0;
+        return true;
+    case SYN_DALI_CMD_STORE_DTR_AS_FADE_RATE:
+        slave->cfg.fade_rate = slave->dtr0;
+        return true;
+    case SYN_DALI_CMD_STORE_DTR_AS_SHORT_ADDR:
+        slave->cfg.short_address = (slave->dtr0 >> 1) & 0x3FU;
+        return true;
+    case SYN_DALI_CMD_ENABLE_WRITE_MEMORY:
+        slave->write_mem_enabled = true;
+        return true;
+    default:
+        return false;
+    }
+}
+
+/**
+ * @brief Execute status, DTR content, and group membership query commands.
+ * @param slave     Pointer to DALI slave state.
+ * @param cmd       DALI query opcode.
+ * @param resp_data Output backward frame byte.
+ * @return true if query matched and populated resp_data, false otherwise.
+ */
+static bool dali_exec_query_basic(const SYN_DALI_SlaveState *slave, uint8_t cmd, uint8_t *resp_data)
+{
+    switch (cmd) {
+    case SYN_DALI_CMD_QUERY_STATUS: {
+        uint8_t status = 0U;
+        if (slave->control_gear_failure) {
+            status |= (1U << 0);
+        }
+        if (slave->lamp_failure) {
+            status |= (1U << 1);
+        }
+        if (slave->lamp_on) {
+            status |= (1U << 2);
+        }
+        if (slave->cfg.short_address == SYN_DALI_SHORT_ADDR_UNASSIGNED) {
+            status |= (1U << 6);
+        }
+        *resp_data = status;
+        return true;
+    }
+    case SYN_DALI_CMD_QUERY_CONTENT_DTR:
+        *resp_data = slave->dtr0;
+        return true;
+    case SYN_DALI_CMD_QUERY_CONTENT_DTR1:
+        *resp_data = slave->dtr1;
+        return true;
+    case SYN_DALI_CMD_QUERY_CONTENT_DTR2:
+        *resp_data = slave->dtr2;
+        return true;
+    case SYN_DALI_CMD_QUERY_GROUPS_0_7:
+        *resp_data = (uint8_t)(slave->cfg.group_mask & 0xFFU);
+        return true;
+    case SYN_DALI_CMD_QUERY_GROUPS_8_15:
+        *resp_data = (uint8_t)((slave->cfg.group_mask >> 8) & 0xFFU);
+        return true;
+    default:
+        return false;
+    }
+}
+
+/**
+ * @brief Execute random address and operating level query commands.
+ * @param slave     Pointer to DALI slave state.
+ * @param cmd       DALI query opcode.
+ * @param resp_data Output backward frame byte.
+ * @return true if query matched and populated resp_data, false otherwise.
+ */
+static bool dali_exec_query_addr_levels(const SYN_DALI_SlaveState *slave, uint8_t cmd,
+                                        uint8_t *resp_data)
+{
+    switch (cmd) {
+    case SYN_DALI_CMD_QUERY_RANDOM_ADDR_H:
+        *resp_data = (uint8_t)((slave->random_address >> 16) & 0xFFU);
+        return true;
+    case SYN_DALI_CMD_QUERY_RANDOM_ADDR_M:
+        *resp_data = (uint8_t)((slave->random_address >> 8) & 0xFFU);
+        return true;
+    case SYN_DALI_CMD_QUERY_RANDOM_ADDR_L:
+        *resp_data = (uint8_t)(slave->random_address & 0xFFU);
+        return true;
+    case SYN_DALI_CMD_QUERY_ACTUAL_LEVEL:
+        *resp_data = slave->actual_level;
+        return true;
+    case SYN_DALI_CMD_QUERY_MAX_LEVEL:
+        *resp_data = slave->cfg.max_level;
+        return true;
+    case SYN_DALI_CMD_QUERY_MIN_LEVEL:
+        *resp_data = slave->cfg.min_level;
+        return true;
+    case SYN_DALI_CMD_QUERY_POWER_ON_LEVEL:
+        *resp_data = slave->cfg.power_on_level;
+        return true;
+    case SYN_DALI_CMD_QUERY_SYS_FAIL_LEVEL:
+        *resp_data = slave->cfg.system_failure_level;
+        return true;
+    default:
+        return false;
+    }
+}
+
+/**
+ * @brief Execute scene recall/configuration and group add/remove commands.
+ * @param slave Pointer to DALI slave state.
+ * @param cmd   DALI command opcode.
+ */
+static void dali_exec_scene_group_cmd(SYN_DALI_SlaveState *slave, uint8_t cmd)
+{
+    if (cmd >= SYN_DALI_CMD_GO_TO_SCENE_BASE && cmd <= (SYN_DALI_CMD_GO_TO_SCENE_BASE + 15U)) {
+        uint8_t scene_lvl = slave->scenes[cmd - SYN_DALI_CMD_GO_TO_SCENE_BASE];
+        if (scene_lvl != SYN_DALI_MASK_LEVEL) {
+            slave->actual_level = scene_lvl;
+            slave->lamp_on = (scene_lvl > 0U);
+        }
+    } else if (cmd >= SYN_DALI_CMD_STORE_DTR_AS_SCENE_BASE &&
+               cmd <= (SYN_DALI_CMD_STORE_DTR_AS_SCENE_BASE + 15U)) {
+        slave->scenes[cmd - SYN_DALI_CMD_STORE_DTR_AS_SCENE_BASE] = slave->dtr0;
+    } else if (cmd >= SYN_DALI_CMD_REMOVE_FROM_SCENE_BASE &&
+               cmd <= (SYN_DALI_CMD_REMOVE_FROM_SCENE_BASE + 15U)) {
+        slave->scenes[cmd - SYN_DALI_CMD_REMOVE_FROM_SCENE_BASE] = SYN_DALI_MASK_LEVEL;
+    } else if (cmd >= SYN_DALI_CMD_ADD_TO_GROUP_BASE &&
+               cmd <= (SYN_DALI_CMD_ADD_TO_GROUP_BASE + 15U)) {
+        slave->cfg.group_mask |= (uint16_t)(1U << (cmd - SYN_DALI_CMD_ADD_TO_GROUP_BASE));
+    } else if (cmd >= SYN_DALI_CMD_REMOVE_FROM_GROUP_BASE &&
+               cmd <= (SYN_DALI_CMD_REMOVE_FROM_GROUP_BASE + 15U)) {
+        slave->cfg.group_mask &= (uint16_t)(~(1U << (cmd - SYN_DALI_CMD_REMOVE_FROM_GROUP_BASE)));
+    }
+}
+
+/**
+ * @brief Dispatch an addressed indirect arc, configuration, or query command.
+ * @param slave     Pointer to DALI slave state.
+ * @param cmd       DALI command opcode.
+ * @param resp_data Output backward frame byte.
+ * @param has_resp  Set to true if backward frame response is generated.
+ */
+static void dali_exec_indirect_cmd(SYN_DALI_SlaveState *slave, uint8_t cmd, uint8_t *resp_data,
+                                   bool *has_resp)
+{
+    if (dali_exec_step_cmd(slave, cmd) || dali_exec_preset_cmd(slave, cmd) ||
+        dali_exec_dtr_store_cmd(slave, cmd)) {
+        return;
+    }
+    if (dali_exec_query_basic(slave, cmd, resp_data) ||
+        dali_exec_query_addr_levels(slave, cmd, resp_data)) {
+        *has_resp = true;
+        return;
+    }
+    dali_exec_scene_group_cmd(slave, cmd);
+}
+
+/**
+ * @brief Execute commissioning termination, DTR load, initialise, randomise, and search commands.
+ * @param slave     Pointer to DALI slave state.
+ * @param spec_code Special command address byte.
+ * @param spec_data Special command data byte.
+ * @return true if special command was handled, false otherwise.
+ */
+static bool dali_exec_special_search(SYN_DALI_SlaveState *slave, uint8_t spec_code,
+                                     uint8_t spec_data)
+{
+    switch (spec_code) {
+    case SYN_DALI_SPEC_TERMINATE:
+        slave->initialise_active = false;
+        return true;
+    case SYN_DALI_SPEC_DTR0:
+        slave->dtr0 = spec_data;
+        return true;
+    case SYN_DALI_SPEC_DTR1:
+        slave->dtr1 = spec_data;
+        return true;
+    case SYN_DALI_SPEC_DTR2:
+        slave->dtr2 = spec_data;
+        return true;
+    case SYN_DALI_SPEC_INITIALISE:
+        slave->initialise_active = true;
+        return true;
+    case SYN_DALI_SPEC_RANDOMISE:
+        if (slave->initialise_active) {
+            slave->random_address = ((uint32_t)spec_data << 16) | 0x1234U;
+        }
+        return true;
+    case SYN_DALI_SPEC_SEARCHADDRH:
+        slave->search_address = (slave->search_address & 0x00FFFFU) | ((uint32_t)spec_data << 16);
+        return true;
+    case SYN_DALI_SPEC_SEARCHADDRM:
+        slave->search_address = (slave->search_address & 0xFF00FFU) | ((uint32_t)spec_data << 8);
+        return true;
+    case SYN_DALI_SPEC_SEARCHADDRL:
+        slave->search_address = (slave->search_address & 0xFFFF00U) | (uint32_t)spec_data;
+        return true;
+    default:
+        return false;
+    }
+}
+
+/**
+ * @brief Execute compare and short-address programming/verification special commands.
+ * @param slave     Pointer to DALI slave state.
+ * @param spec_code Special command address byte.
+ * @param spec_data Special command data byte.
+ * @param resp_data Output backward frame byte.
+ * @param has_resp  Set to true if backward frame response is generated.
+ */
+static void dali_exec_special_addr(SYN_DALI_SlaveState *slave, uint8_t spec_code, uint8_t spec_data,
+                                   uint8_t *resp_data, bool *has_resp)
+{
+    switch (spec_code) {
+    case SYN_DALI_SPEC_COMPARE:
+        if (slave->initialise_active && slave->random_address <= slave->search_address) {
+            *resp_data = 0xFFU;
+            *has_resp = true;
+        }
+        break;
+    case SYN_DALI_SPEC_PROGRAM_SHORT_ADDR:
+        if (slave->initialise_active) {
+            slave->cfg.short_address = (spec_data >> 1) & 0x3FU;
+        }
+        break;
+    case SYN_DALI_SPEC_VERIFY_SHORT_ADDR:
+        if (((spec_data >> 1) & 0x3FU) == slave->cfg.short_address) {
+            *resp_data = 0xFFU;
+            *has_resp = true;
+        }
+        break;
+    case SYN_DALI_SPEC_QUERY_SHORT_ADDR:
+        if (slave->cfg.short_address != SYN_DALI_SHORT_ADDR_UNASSIGNED) {
+            *resp_data = (uint8_t)((slave->cfg.short_address << 1) | 0x01U);
+        } else {
+            *resp_data = 0xFFU;
+        }
+        *has_resp = true;
+        break;
+    default:
+        break;
+    }
+}
+
 SYN_Status syn_dali_slave_process(SYN_DALI_SlaveState *slave, const SYN_DALI_ForwardFrame *req,
                                   uint8_t *resp_data, bool *has_resp)
 {
@@ -123,324 +523,19 @@ SYN_Status syn_dali_slave_process(SYN_DALI_SlaveState *slave, const SYN_DALI_For
     }
 
     *has_resp = false;
-    *resp_data = 0;
+    *resp_data = 0U;
 
-    bool is_match = check_address_match(slave, req);
-
-    if (is_match) {
+    if (check_address_match(slave, req)) {
         if (req->is_direct) {
-            /* Direct Arc Power Control */
-            uint8_t target_level = req->data_cmd;
-            if (target_level == SYN_DALI_MASK_LEVEL) {
-                /* MASK level: do nothing */
-            } else if (target_level == 0) {
-                slave->actual_level = 0;
-                slave->lamp_on = false;
-            } else {
-                if (target_level < slave->cfg.min_level)
-                    target_level = slave->cfg.min_level;
-                if (target_level > slave->cfg.max_level)
-                    target_level = slave->cfg.max_level;
-                slave->actual_level = target_level;
-                slave->lamp_on = true;
-            }
+            dali_exec_direct_arc(slave, req->data_cmd);
             return SYN_OK;
         }
-
-        /* Indirect Standard Commands */
-        uint8_t cmd = req->data_cmd;
-        switch (cmd) {
-        case SYN_DALI_CMD_OFF:
-            slave->actual_level = 0;
-            slave->lamp_on = false;
-            break;
-
-        case SYN_DALI_CMD_UP:
-            if (slave->actual_level < slave->cfg.max_level) {
-                slave->actual_level++;
-                slave->lamp_on = true;
-            }
-            break;
-
-        case SYN_DALI_CMD_DOWN:
-            if (slave->actual_level > slave->cfg.min_level) {
-                slave->actual_level--;
-            }
-            break;
-
-        case SYN_DALI_CMD_STEP_UP:
-            if (slave->actual_level < slave->cfg.max_level) {
-                slave->actual_level++;
-                slave->lamp_on = true;
-            }
-            break;
-
-        case SYN_DALI_CMD_STEP_DOWN:
-            if (slave->actual_level > slave->cfg.min_level) {
-                slave->actual_level--;
-            } else {
-                slave->actual_level = 0;
-                slave->lamp_on = false;
-            }
-            break;
-
-        case SYN_DALI_CMD_RECALL_MAX:
-            slave->actual_level = slave->cfg.max_level;
-            slave->lamp_on = true;
-            break;
-
-        case SYN_DALI_CMD_RECALL_MIN:
-            slave->actual_level = slave->cfg.min_level;
-            slave->lamp_on = true;
-            break;
-
-        case SYN_DALI_CMD_STEP_DOWN_AND_OFF:
-            if (slave->actual_level > slave->cfg.min_level) {
-                slave->actual_level--;
-            } else {
-                slave->actual_level = 0;
-                slave->lamp_on = false;
-            }
-            break;
-
-        case SYN_DALI_CMD_ON_AND_STEP_UP:
-            if (!slave->lamp_on || slave->actual_level == 0) {
-                slave->actual_level = slave->cfg.min_level;
-                slave->lamp_on = true;
-            } else if (slave->actual_level < slave->cfg.max_level) {
-                slave->actual_level++;
-            }
-            break;
-
-        case SYN_DALI_CMD_ENABLE_DAPC_SEQUENCE:
-            slave->dapc_sequence_active = true;
-            break;
-
-        case SYN_DALI_CMD_RESET:
-            slave->actual_level = slave->cfg.power_on_level;
-            slave->lamp_on = (slave->actual_level > 0);
-            break;
-
-        case SYN_DALI_CMD_STORE_ACTUAL_LEVEL_IN_DTR:
-            slave->dtr0 = slave->actual_level;
-            break;
-
-        case SYN_DALI_CMD_STORE_DTR_AS_MAX_LEVEL:
-            slave->cfg.max_level = slave->dtr0;
-            break;
-
-        case SYN_DALI_CMD_STORE_DTR_AS_MIN_LEVEL:
-            slave->cfg.min_level = slave->dtr0;
-            break;
-
-        case SYN_DALI_CMD_STORE_DTR_AS_SYS_FAIL_LEVEL:
-            slave->cfg.system_failure_level = slave->dtr0;
-            break;
-
-        case SYN_DALI_CMD_STORE_DTR_AS_POWER_ON_LEVEL:
-            slave->cfg.power_on_level = slave->dtr0;
-            break;
-
-        case SYN_DALI_CMD_STORE_DTR_AS_FADE_TIME:
-            slave->cfg.fade_time = slave->dtr0;
-            break;
-
-        case SYN_DALI_CMD_STORE_DTR_AS_FADE_RATE:
-            slave->cfg.fade_rate = slave->dtr0;
-            break;
-
-        case SYN_DALI_CMD_STORE_DTR_AS_SHORT_ADDR:
-            slave->cfg.short_address = (slave->dtr0 >> 1) & 0x3FU;
-            break;
-
-        case SYN_DALI_CMD_ENABLE_WRITE_MEMORY:
-            slave->write_mem_enabled = true;
-            break;
-
-        case SYN_DALI_CMD_QUERY_STATUS: {
-            uint8_t status = 0;
-            if (slave->control_gear_failure)
-                status |= (1U << 0);
-            if (slave->lamp_failure)
-                status |= (1U << 1);
-            if (slave->lamp_on)
-                status |= (1U << 2);
-            if (slave->cfg.short_address == SYN_DALI_SHORT_ADDR_UNASSIGNED)
-                status |= (1U << 6);
-            *resp_data = status;
-            *has_resp = true;
-            break;
-        }
-
-        case SYN_DALI_CMD_QUERY_CONTENT_DTR:
-            *resp_data = slave->dtr0;
-            *has_resp = true;
-            break;
-
-        case SYN_DALI_CMD_QUERY_CONTENT_DTR1:
-            *resp_data = slave->dtr1;
-            *has_resp = true;
-            break;
-
-        case SYN_DALI_CMD_QUERY_CONTENT_DTR2:
-            *resp_data = slave->dtr2;
-            *has_resp = true;
-            break;
-
-        case SYN_DALI_CMD_QUERY_GROUPS_0_7:
-            *resp_data = (uint8_t)(slave->cfg.group_mask & 0xFFU);
-            *has_resp = true;
-            break;
-
-        case SYN_DALI_CMD_QUERY_GROUPS_8_15:
-            *resp_data = (uint8_t)((slave->cfg.group_mask >> 8) & 0xFFU);
-            *has_resp = true;
-            break;
-
-        case SYN_DALI_CMD_QUERY_RANDOM_ADDR_H:
-            *resp_data = (uint8_t)((slave->random_address >> 16) & 0xFFU);
-            *has_resp = true;
-            break;
-
-        case SYN_DALI_CMD_QUERY_RANDOM_ADDR_M:
-            *resp_data = (uint8_t)((slave->random_address >> 8) & 0xFFU);
-            *has_resp = true;
-            break;
-
-        case SYN_DALI_CMD_QUERY_RANDOM_ADDR_L:
-            *resp_data = (uint8_t)(slave->random_address & 0xFFU);
-            *has_resp = true;
-            break;
-
-        case SYN_DALI_CMD_QUERY_ACTUAL_LEVEL:
-            *resp_data = slave->actual_level;
-            *has_resp = true;
-            break;
-
-        case SYN_DALI_CMD_QUERY_MAX_LEVEL:
-            *resp_data = slave->cfg.max_level;
-            *has_resp = true;
-            break;
-
-        case SYN_DALI_CMD_QUERY_MIN_LEVEL:
-            *resp_data = slave->cfg.min_level;
-            *has_resp = true;
-            break;
-
-        case SYN_DALI_CMD_QUERY_POWER_ON_LEVEL:
-            *resp_data = slave->cfg.power_on_level;
-            *has_resp = true;
-            break;
-
-        case SYN_DALI_CMD_QUERY_SYS_FAIL_LEVEL:
-            *resp_data = slave->cfg.system_failure_level;
-            *has_resp = true;
-            break;
-
-        default:
-            if (cmd >= SYN_DALI_CMD_GO_TO_SCENE_BASE &&
-                cmd <= (SYN_DALI_CMD_GO_TO_SCENE_BASE + 15U)) {
-                uint8_t scene_idx = cmd - SYN_DALI_CMD_GO_TO_SCENE_BASE;
-                uint8_t scene_lvl = slave->scenes[scene_idx];
-                if (scene_lvl != SYN_DALI_MASK_LEVEL) {
-                    slave->actual_level = scene_lvl;
-                    slave->lamp_on = (scene_lvl > 0);
-                }
-            } else if (cmd >= SYN_DALI_CMD_STORE_DTR_AS_SCENE_BASE &&
-                       cmd <= (SYN_DALI_CMD_STORE_DTR_AS_SCENE_BASE + 15U)) {
-                slave->scenes[cmd - SYN_DALI_CMD_STORE_DTR_AS_SCENE_BASE] = slave->dtr0;
-            } else if (cmd >= SYN_DALI_CMD_REMOVE_FROM_SCENE_BASE &&
-                       cmd <= (SYN_DALI_CMD_REMOVE_FROM_SCENE_BASE + 15U)) {
-                slave->scenes[cmd - SYN_DALI_CMD_REMOVE_FROM_SCENE_BASE] = SYN_DALI_MASK_LEVEL;
-            } else if (cmd >= SYN_DALI_CMD_ADD_TO_GROUP_BASE &&
-                       cmd <= (SYN_DALI_CMD_ADD_TO_GROUP_BASE + 15U)) {
-                slave->cfg.group_mask |= (1U << (cmd - SYN_DALI_CMD_ADD_TO_GROUP_BASE));
-            } else if (cmd >= SYN_DALI_CMD_REMOVE_FROM_GROUP_BASE &&
-                       cmd <= (SYN_DALI_CMD_REMOVE_FROM_GROUP_BASE + 15U)) {
-                slave->cfg.group_mask &= ~(1U << (cmd - SYN_DALI_CMD_REMOVE_FROM_GROUP_BASE));
-            }
-            break;
-        }
+        dali_exec_indirect_cmd(slave, req->data_cmd, resp_data, has_resp);
     }
 
-    /* Special / Configuration Commands */
     if (req->addr_type == SYN_DALI_ADDR_SPECIAL) {
-        uint8_t spec_code = req->address;
-        uint8_t spec_data = req->data_cmd;
-
-        switch (spec_code) {
-        case SYN_DALI_SPEC_TERMINATE:
-            slave->initialise_active = false;
-            break;
-
-        case SYN_DALI_SPEC_DTR0:
-            slave->dtr0 = spec_data;
-            break;
-
-        case SYN_DALI_SPEC_DTR1:
-            slave->dtr1 = spec_data;
-            break;
-
-        case SYN_DALI_SPEC_DTR2:
-            slave->dtr2 = spec_data;
-            break;
-
-        case SYN_DALI_SPEC_INITIALISE:
-            slave->initialise_active = true;
-            break;
-
-        case SYN_DALI_SPEC_RANDOMISE:
-            if (slave->initialise_active) {
-                slave->random_address = ((uint32_t)spec_data << 16) | 0x1234U;
-            }
-            break;
-
-        case SYN_DALI_SPEC_SEARCHADDRH:
-            slave->search_address =
-                (slave->search_address & 0x00FFFFU) | ((uint32_t)spec_data << 16);
-            break;
-
-        case SYN_DALI_SPEC_SEARCHADDRM:
-            slave->search_address =
-                (slave->search_address & 0xFF00FFU) | ((uint32_t)spec_data << 8);
-            break;
-
-        case SYN_DALI_SPEC_SEARCHADDRL:
-            slave->search_address = (slave->search_address & 0xFFFF00U) | (uint32_t)spec_data;
-            break;
-
-        case SYN_DALI_SPEC_COMPARE:
-            if (slave->initialise_active && slave->random_address <= slave->search_address) {
-                *resp_data = 0xFFU;
-                *has_resp = true;
-            }
-            break;
-
-        case SYN_DALI_SPEC_PROGRAM_SHORT_ADDR:
-            if (slave->initialise_active) {
-                slave->cfg.short_address = (spec_data >> 1) & 0x3FU;
-            }
-            break;
-
-        case SYN_DALI_SPEC_VERIFY_SHORT_ADDR:
-            if (((spec_data >> 1) & 0x3FU) == slave->cfg.short_address) {
-                *resp_data = 0xFFU;
-                *has_resp = true;
-            }
-            break;
-
-        case SYN_DALI_SPEC_QUERY_SHORT_ADDR:
-            if (slave->cfg.short_address != SYN_DALI_SHORT_ADDR_UNASSIGNED) {
-                *resp_data = (slave->cfg.short_address << 1) | 0x01U;
-                *has_resp = true;
-            } else {
-                *resp_data = 0xFFU;
-                *has_resp = true;
-            }
-            break;
-
-        default:
-            break;
+        if (!dali_exec_special_search(slave, req->address, req->data_cmd)) {
+            dali_exec_special_addr(slave, req->address, req->data_cmd, resp_data, has_resp);
         }
     }
 

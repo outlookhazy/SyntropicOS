@@ -382,6 +382,108 @@ void test_ymodem_edge_cases(void)
     TEST_ASSERT_EQUAL_STRING("nosize.bin", rx.filename);
 }
 
+static void test_r5_ymodem_regressions(void)
+{
+    SYN_YMODEM_Receiver rx;
+    uint8_t empty0[128] = {0};
+    uint8_t data_block[128];
+    memset(data_block, 0x3CU, sizeof(data_block));
+
+    /* 1. R5-S14: >= 64B filename must truncate into rx.filename without corrupting rx.filesize */
+    mock_reset_stream();
+    uint8_t long_fn_blk0[128];
+    memset(long_fn_blk0, 0, sizeof(long_fn_blk0));
+    /* 80-char filename ('a' * 76 + ".bin") followed by '\0' and "  128 1000" */
+    memset(long_fn_blk0, 'a', 76U);
+    memcpy(&long_fn_blk0[76], ".bin", 4U);
+    long_fn_blk0[80] = '\0';
+    memcpy(&long_fn_blk0[81], "  128 1000", 10U);
+
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00, long_fn_blk0, sizeof(long_fn_blk0));
+    mock_feed_packet(SYN_YMODEM_SOH, 0x01, data_block, sizeof(data_block));
+    mock_feed_byte(SYN_YMODEM_EOT);
+    mock_feed_byte(SYN_YMODEM_EOT);
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00, empty0, sizeof(empty0));
+
+    syn_ymodem_receiver_init(&rx, mock_putchar, mock_getchar, NULL, NULL);
+    TEST_ASSERT_EQUAL_INT(SYN_YMODEM_OK, syn_ymodem_receive(&rx));
+    TEST_ASSERT_EQUAL_UINT32((uint32_t)(SYN_YMODEM_MAX_FILENAME - 1U),
+                             (uint32_t)strlen(rx.filename));
+    TEST_ASSERT_EQUAL_UINT32(128U, rx.filesize);
+    TEST_ASSERT_EQUAL_UINT32(128U, rx.bytes_received);
+
+    /* 2. R5-S14: Block 0 without any NUL terminator (bounded scan, no OOB strtoul) */
+    mock_reset_stream();
+    uint8_t nonul_blk0[128];
+    memset(nonul_blk0, '9', sizeof(nonul_blk0));
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00, nonul_blk0, sizeof(nonul_blk0));
+    mock_feed_byte(SYN_YMODEM_EOT);
+    mock_feed_byte(SYN_YMODEM_EOT);
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00, empty0, sizeof(empty0));
+
+    syn_ymodem_receiver_init(&rx, mock_putchar, mock_getchar, mock_event_cb, NULL);
+    TEST_ASSERT_EQUAL_INT(SYN_YMODEM_OK, syn_ymodem_receive(&rx));
+    TEST_ASSERT_EQUAL_UINT32(0U, rx.filesize);
+
+    /* 3. R5-S14: Oversized ASCII filesize saturates at UINT32_MAX without UB */
+    mock_reset_stream();
+    uint8_t huge_sz_blk0[128];
+    memset(huge_sz_blk0, 0, sizeof(huge_sz_blk0));
+    memcpy(huge_sz_blk0, "huge.bin", 8U);
+    memcpy(&huge_sz_blk0[9], "999999999999999", 15U);
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00, huge_sz_blk0, sizeof(huge_sz_blk0));
+    mock_feed_byte(SYN_YMODEM_EOT);
+    mock_feed_byte(SYN_YMODEM_EOT);
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00, empty0, sizeof(empty0));
+
+    syn_ymodem_receiver_init(&rx, mock_putchar, mock_getchar, mock_event_cb, NULL);
+    TEST_ASSERT_EQUAL_INT(SYN_YMODEM_OK, syn_ymodem_receive(&rx));
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, rx.filesize);
+
+    /* 4. R5-S14: Repeated data NAKs hit SYN_YMODEM_MAX_RETRIES and abort with CAN, CAN */
+    mock_reset_stream();
+    uint8_t valid_blk0[128] = {0};
+    memcpy(valid_blk0, "retry.bin", 10U);
+    memcpy(&valid_blk0[10], "64", 2U);
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00, valid_blk0, sizeof(valid_blk0));
+    for (uint8_t r = 0U; r < SYN_YMODEM_MAX_RETRIES; r++) {
+        mock_feed_byte(0xFFU);
+    }
+    syn_ymodem_receiver_init(&rx, mock_putchar, mock_getchar, mock_event_cb, NULL);
+    TEST_ASSERT_EQUAL_INT(SYN_YMODEM_ERR_CRC, syn_ymodem_receive(&rx));
+    TEST_ASSERT_TRUE(mock_tx_len >= 2U);
+    TEST_ASSERT_EQUAL_HEX8(SYN_YMODEM_CAN, mock_tx_buf[mock_tx_len - 2U]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_YMODEM_CAN, mock_tx_buf[mock_tx_len - 1U]);
+
+    /* 5. Timeout during data header wait, timeout mid-data-block, single CAN glitch, & extra data
+     * past filesize */
+    mock_reset_stream();
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00, valid_blk0, sizeof(valid_blk0));
+    syn_ymodem_receiver_init(&rx, mock_putchar, mock_getchar, mock_event_cb, NULL);
+    TEST_ASSERT_EQUAL_INT(SYN_YMODEM_ERR_TIMEOUT, syn_ymodem_receive(&rx));
+
+    mock_reset_stream();
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00, valid_blk0, sizeof(valid_blk0));
+    mock_feed_byte(SYN_YMODEM_SOH);
+    mock_feed_byte(0x01U);
+    syn_ymodem_receiver_init(&rx, mock_putchar, mock_getchar, mock_event_cb, NULL);
+    TEST_ASSERT_EQUAL_INT(SYN_YMODEM_ERR_TIMEOUT, syn_ymodem_receive(&rx));
+
+    /* Single CAN followed by non-CAN byte + extra block after filesize already met */
+    mock_reset_stream();
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00, valid_blk0, sizeof(valid_blk0));
+    mock_feed_byte(SYN_YMODEM_CAN);
+    mock_feed_byte(0x7FU);
+    mock_feed_packet(SYN_YMODEM_SOH, 0x01, data_block, sizeof(data_block));
+    mock_feed_packet(SYN_YMODEM_SOH, 0x02, data_block, sizeof(data_block));
+    mock_feed_byte(SYN_YMODEM_EOT);
+    mock_feed_byte(SYN_YMODEM_EOT);
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00, empty0, sizeof(empty0));
+    syn_ymodem_receiver_init(&rx, mock_putchar, mock_getchar, mock_event_cb, NULL);
+    TEST_ASSERT_EQUAL_INT(SYN_YMODEM_OK, syn_ymodem_receive(&rx));
+    TEST_ASSERT_EQUAL_UINT32(64U, rx.bytes_received);
+}
+
 void run_ymodem_tests(void)
 {
     RUN_TEST(test_ymodem_init_and_null_checks);
@@ -390,4 +492,5 @@ void run_ymodem_tests(void)
     RUN_TEST(test_ymodem_crc_error_and_timeout);
     RUN_TEST(test_ymodem_cancel);
     RUN_TEST(test_ymodem_edge_cases);
+    RUN_TEST(test_r5_ymodem_regressions);
 }

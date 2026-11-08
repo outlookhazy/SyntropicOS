@@ -64,30 +64,40 @@ void app_loop(void) {
 
 ---
 
-## 2. Multi-Task Software Watchdog (`system/syn_watchdog.h`)
+## 2. Multi-Task Software Watchdog (`sched/syn_watchdog.h`)
 
-The software watchdog monitors multiple concurrent tasks, ensuring that if any individual protothread hangs or deadlocks, the system hardware watchdog resets the device.
+The software watchdog monitors per-task check-in deadlines and invokes a timeout callback (typically `syn_port_system_reset()`) if any registered task misses its window.
 
 ```c
-#include <syntropic/system/syn_watchdog.h>
+#include <stdio.h>
+#include <syntropic/port/syn_port_system.h>
+#include <syntropic/sched/syn_watchdog.h>
 
 static SYN_Watchdog wdt;
+static SYN_WDT_Entry entries[3];
+static int8_t sensor_wdt_id;
+
+static void on_wdt_timeout(SYN_Watchdog *w, const SYN_WDT_Entry *entry, void *ctx) {
+    (void)w;
+    (void)ctx;
+    printf("ERROR: Task '%s' missed %lu ms deadline! Resetting system...\n",
+           entry->name, (unsigned long)entry->timeout_ms);
+    syn_port_system_reset();
+}
 
 void task_worker(void) {
-    // Kick task 0 heartbeat
-    syn_watchdog_kick(&wdt, 0);
+    // Reset check-in deadline for registered task
+    syn_watchdog_checkin(&wdt, sensor_wdt_id);
 }
 
 void app_init(void) {
-    // Monitor 3 tasks with a 2000ms timeout window
-    syn_watchdog_init(&wdt, 3, 2000);
+    // Initialize watchdog with 3 caller-owned entry slots and timeout callback
+    syn_watchdog_init(&wdt, entries, 3, on_wdt_timeout, NULL);
+    sensor_wdt_id = syn_watchdog_register(&wdt, "sensor", 2000);
 }
 
 void app_check_watchdog(void) {
-    if (!syn_watchdog_check(&wdt)) {
-        // One or more tasks failed to kick within 2000ms!
-        printf("ERROR: Task deadlock detected! Resetting system...\n");
-        syn_port_reset();
-    }
+    // Evaluate all active task deadlines
+    syn_watchdog_update(&wdt);
 }
 ```

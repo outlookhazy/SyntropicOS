@@ -16,15 +16,17 @@
 #ifndef SYN_ETH_H
 #define SYN_ETH_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+#include "port/syn_port_eth.h"
 #include "syntropic/common/syn_defs.h"
+#include "syntropic/pt/syn_pt.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SYN_ETH_MAC_LEN 6U          /**< Ethernet MAC address length in bytes */
 #define SYN_ETH_HEADER_LEN 14U      /**< Ethernet II header length in bytes */
@@ -200,10 +202,21 @@ struct SYN_ICMP *syn_eth_get_icmp_instance(void);
  */
 struct SYN_TCP *syn_eth_get_tcp_instance(void);
 
-/* ── Protothread Coroutine Integration ──────────────────────────────────── */
+/**
+ * @brief Set the IGMP engine instance for Ethernet IPv4 protocol 2 dispatch.
+ *
+ * @param igmp Pointer to SYN_IGMP instance, or NULL to detach.
+ */
+void syn_eth_set_igmp_instance(void *igmp);
 
-#include "port/syn_port_eth.h"
-#include "syntropic/pt/syn_pt.h"
+/**
+ * @brief Weak hook — obtain the IGMP engine instance for Ethernet IPv4 protocol 2 dispatch.
+ *
+ * @return Pointer to SYN_IGMP instance, or NULL.
+ */
+void *syn_eth_get_igmp_instance(void);
+
+/* ── Protothread Coroutine Integration ──────────────────────────────────── */
 
 /**
  * @brief Block a protothread coroutine until a raw Ethernet frame is received from PHY.

@@ -20,7 +20,8 @@
 /* ── Internal Helpers ───────────────────────────────────────────────────── */
 
 static SYN_Status sntp_send_request(const SYN_SNTP *sntp, SYN_Socket sock);
-static SYN_Status sntp_parse_packet(SYN_SNTP *sntp, const uint8_t *pkt, size_t len);
+static SYN_Status sntp_parse_packet(SYN_SNTP *sntp, const uint8_t *pkt);
+static uint32_t sntp_sync_wait_ms(uint32_t sync_interval_s);
 
 /* ── API ────────────────────────────────────────────────────────────────── */
 
@@ -28,6 +29,12 @@ void syn_sntp_init(SYN_SNTP *sntp, const SYN_SockAddr *server, uint32_t sync_int
 {
     SYN_ASSERT(sntp != NULL);
     SYN_ASSERT(server != NULL);
+
+    if (sync_interval_s == 0U) {
+        sync_interval_s = 1U;
+    } else if (sync_interval_s > 2147483U) {
+        sync_interval_s = 2147483U;
+    }
 
     memset(sntp, 0, sizeof(*sntp));
     sntp->server = *server;
@@ -43,23 +50,48 @@ void syn_sntp_init(SYN_SNTP *sntp, const SYN_SockAddr *server, uint32_t sync_int
 }
 
 /**
+ * @brief Verify that the UDP datagram sender matches the configured server IP when non-zero.
+ * @param sntp SNTP client context.
+ * @param from Sender socket address reported by recvfrom.
+ * @return true if server IP is wildcard (0.0.0.0) or matches sender IP.
+ */
+static bool sntp_sender_valid(const SYN_SNTP *sntp, const SYN_SockAddr *from)
+{
+    uint8_t configured = (uint8_t)(sntp->server.ip[0] | sntp->server.ip[1] | sntp->server.ip[2] |
+                                   sntp->server.ip[3]);
+    if (configured == 0U) {
+        return true;
+    }
+    return memcmp(from->ip, sntp->server.ip, 4U) == 0;
+}
+
+/**
+ * @brief Validate SNTP response header fields (LI, Mode, and Stratum per RFC 4330).
+ * @param pkt Raw 48-byte NTP packet.
+ * @return true if synchronized server/broadcast header is valid, false otherwise.
+ */
+static bool sntp_header_valid(const uint8_t *pkt)
+{
+    uint8_t li = (pkt[0] >> 6U) & 0x03U;
+    uint8_t mode = pkt[0] & 0x07U;
+    uint8_t stratum = pkt[1];
+    if (li == 3U || (mode != 4U && mode != 5U)) {
+        return false;
+    }
+    return (stratum >= 1U) && (stratum <= 15U);
+}
+
+/**
  * @brief Parse an SNTP response packet and extract the transmit timestamp.
  * @param sntp  SNTP client instance.
- * @param pkt   Raw UDP payload.
- * @param len   Payload length in bytes.
- * @return SYN_OK on success, SYN_BUSY if packet too short, SYN_ERROR on invalid response.
+ * @param pkt   Raw UDP payload (at least SYN_SNTP_PACKET_SIZE bytes).
+ * @return SYN_OK on success, SYN_ERROR on invalid response.
  */
-static SYN_Status sntp_parse_packet(SYN_SNTP *sntp, const uint8_t *pkt, size_t len)
+static SYN_Status sntp_parse_packet(SYN_SNTP *sntp, const uint8_t *pkt)
 {
-    if (len < SYN_SNTP_PACKET_SIZE)
-        return SYN_BUSY; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
-
-    /* Validate mode (4=server, 5=broadcast) and stratum != 0 */
-    uint8_t mode = pkt[0] & 0x07;
-    if (mode != 4 && mode != 5)
+    if (!sntp_header_valid(pkt)) {
         return SYN_ERROR;
-    if (pkt[1] == 0)
-        return SYN_ERROR; /* kiss-of-death */
+    }
 
     /* Extract transmit timestamp (bytes 40–47, NTP epoch big-endian) */
     uint32_t ntp_s = syn_peek_u32(pkt, 40);
@@ -98,6 +130,7 @@ static SYN_Status sntp_parse_packet(SYN_SNTP *sntp, const uint8_t *pkt, size_t l
     sntp->epoch_frac = ntp_frac;
     sntp->sync_tick_ms = new_tick_ms;
     sntp->synced = true;
+    sntp->cycle_ok = true;
 
     return SYN_OK;
 }
@@ -107,11 +140,12 @@ SYN_Status syn_sntp_query(SYN_SNTP *sntp)
     SYN_ASSERT(sntp != NULL);
 
     uint8_t pkt[SYN_SNTP_PACKET_SIZE];
-    SYN_SockAddr from;
+    SYN_SockAddr from = {{0U, 0U, 0U, 0U}, 0U};
 
     SYN_Socket sock = syn_port_udp_open(0);
-    if (sock == SYN_SOCKET_INVALID)
+    if (sock == SYN_SOCKET_INVALID) {
         return SYN_ERROR;
+    }
 
     if (sntp_send_request(sntp, sock) != SYN_OK) {
         syn_port_sock_close(sock);
@@ -121,10 +155,14 @@ SYN_Status syn_sntp_query(SYN_SNTP *sntp)
     int n = syn_port_udp_recvfrom(sock, pkt, sizeof(pkt), &from, SYN_SNTP_TIMEOUT_MS);
     syn_port_sock_close(sock);
 
-    if (n < (int)SYN_SNTP_PACKET_SIZE)
+    if (n < (int)SYN_SNTP_PACKET_SIZE) {
         return (n <= 0) ? SYN_TIMEOUT : SYN_ERROR;
+    }
+    if (!sntp_sender_valid(sntp, &from)) {
+        return SYN_ERROR;
+    }
 
-    return sntp_parse_packet(sntp, pkt, (size_t)n);
+    return sntp_parse_packet(sntp, pkt);
 }
 
 uint32_t syn_sntp_get_epoch_s(const SYN_SNTP *sntp)
@@ -186,27 +224,51 @@ static SYN_Status sntp_send_request(const SYN_SNTP *sntp, SYN_Socket sock)
 static SYN_Status sntp_try_recv(SYN_SNTP *sntp, SYN_Socket sock)
 {
     uint8_t pkt[SYN_SNTP_PACKET_SIZE];
-    SYN_SockAddr from;
+    SYN_SockAddr from = {{0U, 0U, 0U, 0U}, 0U};
 
     int n = syn_port_udp_recvfrom(sock, pkt, sizeof(pkt), &from, 0);
+    if (n <= 0 || !sntp_sender_valid(sntp, &from)) {
+        return SYN_BUSY;
+    }
     if (n < (int)SYN_SNTP_PACKET_SIZE) {
-        return (n <= 0) ? SYN_BUSY : SYN_ERROR;
+        return SYN_ERROR;
     }
 
-    return sntp_parse_packet(sntp, pkt, (size_t)n);
+    return sntp_parse_packet(sntp, pkt);
+}
+
+/**
+ * @brief Clamp sync interval seconds into valid millisecond delay without overflow.
+ * @param sync_interval_s Sync interval in seconds.
+ * @return Clamped wait duration in milliseconds.
+ */
+static uint32_t sntp_sync_wait_ms(uint32_t sync_interval_s)
+{
+    if (sync_interval_s > 2147483U) {
+        return 2147483000U;
+    }
+    return ((sync_interval_s == 0U) ? 1U : sync_interval_s) * 1000U;
 }
 
 /* ── Protothread task ───────────────────────────────────────────────────── */
 
 SYN_PT_Status syn_sntp_task(SYN_PT *pt, SYN_Task *task)
 {
+    if (pt == NULL || task == NULL || task->user_data == NULL) {
+        return PT_EXITED;
+    }
     SYN_SNTP *sntp = (SYN_SNTP *)task->user_data;
-    SYN_ASSERT(sntp != NULL);
 
     PT_BEGIN(pt);
 
+    if (sntp->udp_sock != SYN_SOCKET_INVALID) {
+        syn_port_sock_close(sntp->udp_sock);
+        sntp->udp_sock = SYN_SOCKET_INVALID;
+    }
+
     for (;;) {
         syn_backoff_reset(&sntp->backoff);
+        sntp->cycle_ok = false;
 
         while (sntp->backoff.attempts < SYN_SNTP_MAX_RETRIES) {
             /* Phase 1: Open socket */
@@ -221,7 +283,7 @@ SYN_PT_Status syn_sntp_task(SYN_PT *pt, SYN_Task *task)
                 syn_port_sock_close(sntp->udp_sock);
                 sntp->udp_sock = SYN_SOCKET_INVALID;
                 PT_TASK_DELAY_MS(pt, task, syn_backoff_next_ms(&sntp->backoff));
-                continue; /* LCOV_EXCL_LINE: Defensive bounds check / hardware port fallback */
+                continue;
             }
 
             /* Phase 3: Non-blocking poll with deadline */
@@ -232,7 +294,7 @@ SYN_PT_Status syn_sntp_task(SYN_PT *pt, SYN_Task *task)
             syn_port_sock_close(sntp->udp_sock);
             sntp->udp_sock = SYN_SOCKET_INVALID;
 
-            if (sntp->synced) {
+            if (sntp->cycle_ok) {
                 break; /* Success! */
             }
 
@@ -241,10 +303,10 @@ SYN_PT_Status syn_sntp_task(SYN_PT *pt, SYN_Task *task)
         }
 
         /* Wait for next sync interval */
-        PT_TASK_DELAY_MS(pt, task, sntp->sync_interval_s * 1000);
+        PT_TASK_DELAY_MS(pt, task, sntp_sync_wait_ms(sntp->sync_interval_s));
     }
 
-    PT_END(pt); /* LCOV_EXCL_LINE: Defensive bounds check / hardware port fallback */
+    PT_END(pt);
 }
 
 #endif /* SYN_USE_SNTP */

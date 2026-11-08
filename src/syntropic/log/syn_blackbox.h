@@ -13,19 +13,20 @@
 #ifndef SYN_BLACKBOX_H
 #define SYN_BLACKBOX_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SYN_BLACKBOX_FRAME_INTRA 'I' /**< Intra frame identifier 'I' (full uncompressed frame) */
 #define SYN_BLACKBOX_FRAME_DELTA 'P' /**< Delta frame identifier 'P' (predictive delta-encoded) */
 #define SYN_BLACKBOX_FRAME_SLOW 'S'  /**< Slow frame identifier 'S' (low-rate status fields) */
+#define SYN_BLACKBOX_MAX_FRAME_SIZE 64U /**< Worst-case encoded 'I' or 'P' frame size in bytes */
 
 /** Blackbox Flight State Record. */
 typedef struct {
@@ -53,11 +54,24 @@ typedef struct {
 SYN_Status syn_blackbox_init(SYN_Blackbox *bb);
 
 /**
+ * @brief Encode a full Intra Frame ('I') with explicit output buffer capacity check.
+ *
+ * @param bb       Pointer to Blackbox instance.
+ * @param record   Pointer to flight state record.
+ * @param buf_out  Output buffer.
+ * @param buf_cap  Capacity of @p buf_out in bytes.
+ * @param out_len  Pointer to receive encoded byte length.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on NULL argument or insufficient @p buf_cap.
+ */
+SYN_Status syn_blackbox_encode_intra_ex(SYN_Blackbox *bb, const SYN_Blackbox_Record *record,
+                                        uint8_t *buf_out, size_t buf_cap, size_t *out_len);
+
+/**
  * @brief Encode a full Intra Frame ('I') into raw binary log stream.
  *
  * @param bb      Pointer to Blackbox instance.
  * @param record  Pointer to flight state record.
- * @param buf_out Output buffer (must hold at least 32 bytes).
+ * @param buf_out Output buffer (must hold at least SYN_BLACKBOX_MAX_FRAME_SIZE bytes).
  * @param out_len Pointer to receive encoded byte length.
  * @return SYN_OK on success.
  */
@@ -65,11 +79,24 @@ SYN_Status syn_blackbox_encode_intra(SYN_Blackbox *bb, const SYN_Blackbox_Record
                                      uint8_t *buf_out, size_t *out_len);
 
 /**
+ * @brief Encode a compact Predictive Delta Frame ('P') with explicit output buffer capacity check.
+ *
+ * @param bb       Pointer to Blackbox instance.
+ * @param record   Pointer to flight state record.
+ * @param buf_out  Output buffer.
+ * @param buf_cap  Capacity of @p buf_out in bytes.
+ * @param out_len  Pointer to receive encoded byte length.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on NULL argument or insufficient @p buf_cap.
+ */
+SYN_Status syn_blackbox_encode_delta_ex(SYN_Blackbox *bb, const SYN_Blackbox_Record *record,
+                                        uint8_t *buf_out, size_t buf_cap, size_t *out_len);
+
+/**
  * @brief Encode a compact Predictive Delta Frame ('P') relative to last frame.
  *
  * @param bb      Pointer to Blackbox instance.
  * @param record  Pointer to flight state record.
- * @param buf_out Output buffer (must hold at least 32 bytes).
+ * @param buf_out Output buffer (must hold at least SYN_BLACKBOX_MAX_FRAME_SIZE bytes).
  * @param out_len Pointer to receive encoded byte length.
  * @return SYN_OK on success.
  */

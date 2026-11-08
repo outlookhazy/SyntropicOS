@@ -10,19 +10,35 @@
  */
 
 #include "../port/syn_port_system.h"
-#include "../util/syn_assert.h"
 #include "syn_timer.h"
+
+/**
+ * @brief Clamp software timer period into valid range [1, INT32_MAX].
+ * @param period_ms Requested period in milliseconds.
+ * @return Clamped period in milliseconds.
+ */
+static uint32_t timer_clamp_period(uint32_t period_ms)
+{
+    if (period_ms == 0U) {
+        return 1U;
+    }
+    if (period_ms > 0x7FFFFFFFU) {
+        return 0x7FFFFFFFU;
+    }
+    return period_ms;
+}
 
 /* ── API ────────────────────────────────────────────────────────────────── */
 
 void syn_timer_init(SYN_Timer *timer, uint32_t period_ms, bool periodic, SYN_TimerCallback callback,
                     void *user_data)
 {
-    SYN_ASSERT(timer != NULL);
-    SYN_ASSERT(period_ms > 0);
+    if (timer == NULL) {
+        return;
+    }
 
-    timer->period_ms = period_ms;
-    timer->target_tick = 0;
+    timer->period_ms = timer_clamp_period(period_ms);
+    timer->target_tick = 0U;
     timer->callback = callback;
     timer->user_data = user_data;
     timer->periodic = periodic;
@@ -31,7 +47,9 @@ void syn_timer_init(SYN_Timer *timer, uint32_t period_ms, bool periodic, SYN_Tim
 
 void syn_timer_start(SYN_Timer *timer)
 {
-    SYN_ASSERT(timer != NULL);
+    if (timer == NULL) {
+        return;
+    }
 
     timer->target_tick = syn_port_get_tick_ms() + timer->period_ms;
     timer->active = true;
@@ -39,22 +57,23 @@ void syn_timer_start(SYN_Timer *timer)
 
 void syn_timer_stop(SYN_Timer *timer)
 {
-    SYN_ASSERT(timer != NULL);
+    if (timer == NULL) {
+        return;
+    }
     timer->active = false;
 }
 
 void syn_timer_set_period(SYN_Timer *timer, uint32_t period_ms)
 {
-    SYN_ASSERT(timer != NULL);
-    SYN_ASSERT(period_ms > 0);
-    timer->period_ms = period_ms;
+    if (timer == NULL) {
+        return;
+    }
+    timer->period_ms = timer_clamp_period(period_ms);
 }
 
 bool syn_timer_expired(SYN_Timer *timer)
 {
-    SYN_ASSERT(timer != NULL);
-
-    if (!timer->active) {
+    if (timer == NULL || !timer->active) {
         return false;
     }
 
@@ -85,9 +104,11 @@ bool syn_timer_expired(SYN_Timer *timer)
 
 void syn_timer_service(SYN_Timer *timers, size_t count)
 {
-    SYN_ASSERT(timers != NULL || count == 0);
+    if (timers == NULL || count == 0U) {
+        return;
+    }
 
-    for (size_t i = 0; i < count; i++) {
+    for (size_t i = 0U; i < count; i++) {
         SYN_Timer *t = &timers[i];
 
         if (!t->active) {
@@ -104,29 +125,30 @@ void syn_timer_service(SYN_Timer *timers, size_t count)
 
 uint32_t syn_timer_remaining(const SYN_Timer *timer)
 {
-    SYN_ASSERT(timer != NULL);
-
-    if (!timer->active) {
-        return 0;
+    if (timer == NULL || !timer->active) {
+        return 0U;
     }
 
     uint32_t now = syn_port_get_tick_ms();
     int32_t diff = (int32_t)(timer->target_tick - now);
 
-    return (diff > 0) ? (uint32_t)diff : 0;
+    return (diff > 0) ? (uint32_t)diff : 0U;
 }
 
 uint32_t syn_timer_next_expiry(const SYN_Timer *timers, size_t count)
 {
-    SYN_ASSERT(timers != NULL || count == 0);
+    if (timers == NULL || count == 0U) {
+        return UINT32_MAX;
+    }
 
     uint32_t now = syn_port_get_tick_ms();
     uint32_t earliest = UINT32_MAX;
     bool any_ready_now = false;
 
-    for (size_t i = 0; i < count; i++) {
-        if (!timers[i].active)
+    for (size_t i = 0U; i < count; i++) {
+        if (!timers[i].active) {
             continue;
+        }
 
         /* Check if this timer has already expired */
         if ((int32_t)(now - timers[i].target_tick) >= 0) {
@@ -134,9 +156,11 @@ uint32_t syn_timer_next_expiry(const SYN_Timer *timers, size_t count)
             continue;
         }
 
-        /* Timer is in the future — track the earliest */
-        if ((int32_t)(timers[i].target_tick - earliest) < 0 || earliest == UINT32_MAX) {
-            earliest = timers[i].target_tick;
+        /* Timer is in the future — track the earliest (avoid UINT32_MAX sentinel alias) */
+        uint32_t target =
+            (timers[i].target_tick == UINT32_MAX) ? (UINT32_MAX - 1U) : timers[i].target_tick;
+        if (earliest == UINT32_MAX || (int32_t)(target - earliest) < 0) {
+            earliest = target;
         }
     }
 

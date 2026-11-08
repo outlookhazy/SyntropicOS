@@ -85,10 +85,14 @@ static void test_lin_master_schedule(void)
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lin_master_init(&master, slots, 2));
 
     const SYN_LIN_ScheduleSlot *active = NULL;
+    /* First tick immediately emits Slot 0 */
+    TEST_ASSERT_TRUE(syn_lin_master_step(&master, 0, &active));
+    TEST_ASSERT_EQUAL_PTR(&slots[0], active);
+
     TEST_ASSERT_FALSE(syn_lin_master_step(&master, 5, &active));
     TEST_ASSERT_EQUAL_PTR(&slots[0], active);
 
-    /* Timer reaches 10ms slot delay; step advances to next slot */
+    /* Timer reaches 10ms Slot 0 delay; step advances to Slot 1 */
     TEST_ASSERT_TRUE(syn_lin_master_step(&master, 5, &active));
     TEST_ASSERT_EQUAL_PTR(&slots[1], active);
 
@@ -235,11 +239,13 @@ static void test_lin_edge_cases(void)
     TEST_ASSERT_FALSE(syn_lin_slave_process_byte(&slave, 0x00, &frame));
     TEST_ASSERT_EQUAL_INT(SYN_LIN_STATE_IDLE, slave.state);
 
-    /* LIN master zero dt_ms test */
+    /* LIN master first-tick slot 0 + subsequent zero dt_ms + NULL active_slot test */
     SYN_LIN_Master master_dt;
     SYN_LIN_ScheduleSlot dt_slot = {.id = 0x01, .len = 2, .delay_ms = 100};
     syn_lin_master_init(&master_dt, &dt_slot, 1);
+    TEST_ASSERT_TRUE(syn_lin_master_step(&master_dt, 0, NULL));
     TEST_ASSERT_FALSE(syn_lin_master_step(&master_dt, 0, NULL));
+    TEST_ASSERT_TRUE(syn_lin_master_step(&master_dt, 100, NULL));
 
     /* LIN slave rx_idx >= SYN_LIN_DATA_MAX overflow check in STATE_DATA */
     SYN_LIN_Slave ov_slave;

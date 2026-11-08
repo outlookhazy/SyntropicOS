@@ -45,7 +45,7 @@ static SYN_PT_Status task_hall_commutation_func(SYN_PT *pt, SYN_Task *task)
         if (syn_bldc_6step_set_hall(&s_bldc, hall, &gates) == SYN_OK) {
             stm32_apply_phase_gates(&gates);
         }
-        PT_YIELD(pt);
+        PT_PASS(pt);
     }
 
     PT_END(pt);
@@ -75,8 +75,10 @@ int main_sched(void)
     s_bldc.speed_pid_active = true;
     syn_bldc_6step_start(&s_bldc);
 
-    syn_task_create(&s_tasks[TASK_HALL_COMMUTATION], "HallCommutation", task_hall_commutation_func, 1, NULL);
-    syn_task_create(&s_tasks[TASK_SPEED_PID],        "SpeedPID",        task_speed_pid_func,        2, NULL);
+    syn_task_create(&s_tasks[TASK_HALL_COMMUTATION], "HallCommutation", task_hall_commutation_func,
+                    SYN_PRIO_CRITICAL, NULL);
+    syn_task_create(&s_tasks[TASK_SPEED_PID], "SpeedPID", task_speed_pid_func, SYN_PRIO_HIGH,
+                    NULL);
 
     syn_sched_init(&s_sched, s_tasks, TASK_COUNT);
 

@@ -19,16 +19,21 @@
  *   - Sleep (WFI-based)
  */
 
-#if defined(STM32F407xx) && !defined(ARDUINO)
+#if defined(STM32F407xx) && !defined(USE_HAL_DRIVER) && !defined(ARDUINO)
 
 #include "syntropic/common/syn_compiler.h"
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/port/syn_port_adc.h"
 #include "syntropic/port/syn_port_can.h"
 #include "syntropic/port/syn_port_exti.h"
+#include "syntropic/port/syn_port_flash.h"
+#include "syntropic/port/syn_port_gpio.h"
 #include "syntropic/port/syn_port_i2c.h"
 #include "syntropic/port/syn_port_spi.h"
+#include "syntropic/port/syn_port_system.h"
+#include "syntropic/port/syn_port_uart.h"
 #include "syntropic/system/syn_sleep.h"
+#include "syntropic/util/syn_assert.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -56,6 +61,9 @@
 #define SYSTICK_CTRL (*(volatile uint32_t *)(SYSTICK_BASE + 0x00))
 #define SYSTICK_LOAD (*(volatile uint32_t *)(SYSTICK_BASE + 0x04))
 #define SYSTICK_VAL (*(volatile uint32_t *)(SYSTICK_BASE + 0x08))
+#define SYSTICK_CTRL_COUNTFLAG (1UL << 16)
+#define SCB_ICSR (*(volatile uint32_t *)0xE000ED04UL)
+#define SCB_ICSR_PENDSTSET (1UL << 26)
 
 /* ── GPIO ───────────────────────────────────────────────────────────────── */
 
@@ -308,15 +316,20 @@ typedef struct {
 #define CAN_RF0R_RFOM0 (1U << 5)
 
 /* ── System clock (assumed 16 MHz for Renode default) ───────────────────── */
+#ifndef SYSTEM_CLOCK_HZ
 #define SYSTEM_CLOCK_HZ 16000000UL
-#define APB1_CLOCK_HZ (SYSTEM_CLOCK_HZ / 1)
-#define APB2_CLOCK_HZ (SYSTEM_CLOCK_HZ / 1)
+#endif
+#define APB1_CLOCK_HZ (SYSTEM_CLOCK_HZ / 1U)
+#define APB2_CLOCK_HZ (SYSTEM_CLOCK_HZ / 1U)
+
+#define SCB_AIRCR (*(volatile uint32_t *)0xE000ED0CUL)
+#define SCB_AIRCR_VECTKEY_SYSRESETREQ 0x05FA0004UL
 
 /* ═══════════════════════════════════════════════════════════════════════════
  *  System / Tick
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-static volatile uint32_t systick_ms = 0;
+static volatile uint32_t systick_ms = 0U;
 
 void SysTick_Handler(void)
 {
@@ -330,34 +343,70 @@ uint32_t syn_port_get_tick_ms(void)
 
 uint32_t syn_port_get_tick_us(void)
 {
-    uint32_t ms = systick_ms;
     uint32_t load = SYSTICK_LOAD;
-    if (load > 0) {
-        uint32_t val = SYSTICK_VAL;
-        uint32_t elapsed_cycles = load - val;
-        uint32_t cycles_per_us = 168U; /* 168 MHz System Clock */
-        return (ms * 1000U) + (elapsed_cycles / cycles_per_us);
+    uint32_t cycles_per_us = (uint32_t)(SYSTEM_CLOCK_HZ / 1000000UL);
+    if (load == 0U || cycles_per_us == 0U) {
+        return systick_ms * 1000U;
     }
-    return ms * 1000U;
+
+    uint32_t ms1;
+    uint32_t ms2;
+    uint32_t val;
+    uint32_t pend1;
+    uint32_t pend2;
+    do {
+        ms1 = systick_ms;
+        pend1 = SCB_ICSR & SCB_ICSR_PENDSTSET;
+        val = SYSTICK_VAL;
+        ms2 = systick_ms;
+        pend2 = SCB_ICSR & SCB_ICSR_PENDSTSET;
+    } while (ms1 != ms2 || pend1 != pend2);
+
+    if (pend1 != 0U) {
+        ms1++;
+    }
+
+    uint32_t elapsed_cycles = (load >= val) ? (load - val) : 0U;
+    return (ms1 * 1000U) + (elapsed_cycles / cycles_per_us);
 }
 
 void syn_port_delay_ms(uint32_t ms)
 {
+    uint32_t primask;
+    __asm volatile("mrs %0, primask" : "=r"(primask));
+    if ((primask & 1U) != 0U) {
+        (void)SYSTICK_CTRL;
+        for (uint32_t i = 0U; i < ms; i++) {
+            while ((SYSTICK_CTRL & SYSTICK_CTRL_COUNTFLAG) == 0U) {
+            }
+        }
+        return;
+    }
+
     uint32_t start = systick_ms;
     while ((systick_ms - start) < ms) {
         __asm volatile("wfi");
     }
 }
 
-static uint32_t critical_status = 0;
-static uint32_t critical_nesting = 0;
+SYN_NORETURN void syn_port_system_reset(void)
+{
+    __asm volatile("dsb");
+    SCB_AIRCR = SCB_AIRCR_VECTKEY_SYSRESETREQ;
+    __asm volatile("dsb");
+    for (;;) {
+    }
+}
+
+static volatile uint32_t critical_status = 0U;
+static volatile uint32_t critical_nesting = 0U;
 
 void syn_port_enter_critical(void)
 {
     uint32_t primask;
     __asm volatile("mrs %0, primask" : "=r"(primask));
     __asm volatile("cpsid i");
-    if (critical_nesting == 0) {
+    if (critical_nesting == 0U) {
         critical_status = primask;
     }
     critical_nesting++;
@@ -365,9 +414,9 @@ void syn_port_enter_critical(void)
 
 void syn_port_exit_critical(void)
 {
-    if (critical_nesting > 0) {
+    if (critical_nesting > 0U) {
         critical_nesting--;
-        if (critical_nesting == 0) {
+        if (critical_nesting == 0U) {
             if ((critical_status & 1U) == 0U) {
                 __asm volatile("cpsie i");
             }
@@ -383,8 +432,9 @@ SYN_Status syn_port_gpio_init(SYN_GPIO_Pin pin, SYN_GPIO_Mode mode)
 {
     uint8_t port_idx = pin >> 4;
     uint8_t bit = GPIO_BIT(pin);
-    if (port_idx >= NUM_GPIO_PORTS)
+    if (port_idx >= NUM_GPIO_PORTS) {
         return SYN_INVALID_PARAM;
+    }
 
     GPIO_TypeDef *gpio = gpio_ports[port_idx];
 
@@ -392,22 +442,28 @@ SYN_Status syn_port_gpio_init(SYN_GPIO_Pin pin, SYN_GPIO_Mode mode)
     RCC_AHB1ENR |= (1U << port_idx);
 
     /* Clear and set mode */
-    gpio->MODER &= ~(3U << (bit * 2));
-    gpio->PUPDR &= ~(3U << (bit * 2));
+    gpio->MODER &= ~(3U << (bit * 2U));
+    gpio->OTYPER &= ~(1U << bit);
+    gpio->PUPDR &= ~(3U << (bit * 2U));
 
     switch (mode) {
     case SYN_GPIO_OUTPUT:
-        gpio->MODER |= (1U << (bit * 2));   /* 01 = output */
-        gpio->OSPEEDR |= (2U << (bit * 2)); /* High speed */
+        gpio->MODER |= (1U << (bit * 2U));   /* 01 = output push-pull */
+        gpio->OSPEEDR |= (2U << (bit * 2U)); /* High speed */
+        break;
+    case SYN_GPIO_OUTPUT_OD:
+        gpio->MODER |= (1U << (bit * 2U)); /* 01 = output open-drain */
+        gpio->OTYPER |= (1U << bit);
+        gpio->OSPEEDR |= (2U << (bit * 2U)); /* High speed */
         break;
     case SYN_GPIO_INPUT:
         /* 00 = input, no pull */
         break;
     case SYN_GPIO_INPUT_PULLUP:
-        gpio->PUPDR |= (1U << (bit * 2)); /* 01 = pull-up */
+        gpio->PUPDR |= (1U << (bit * 2U)); /* 01 = pull-up */
         break;
     case SYN_GPIO_INPUT_PULLDOWN:
-        gpio->PUPDR |= (2U << (bit * 2)); /* 10 = pull-down */
+        gpio->PUPDR |= (2U << (bit * 2U)); /* 10 = pull-down */
         break;
     default:
         return SYN_INVALID_PARAM;
@@ -587,286 +643,289 @@ SYN_Status syn_port_uart_receive(SYN_UARTInstance inst, uint8_t *data, size_t le
  *  SPI (master mode, full-duplex, polling)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-SYN_Status syn_port_spi_init(const SYN_SPI_Config *cfg)
+SYN_Status syn_port_spi_init(uint8_t spi_id, uint32_t baudrate_hz, uint8_t mode, uint8_t role)
 {
-    if (!cfg || cfg->bus >= 3)
+    if (spi_id >= 3U || baudrate_hz == 0U || mode > 3U) {
         return SYN_INVALID_PARAM;
-    SPI_TypeDef *spi = spi_instances[cfg->bus];
+    }
+    if (role != 0U) {
+        return SYN_NOT_IMPLEMENTED;
+    }
+    SPI_TypeDef *spi = spi_instances[spi_id];
 
     /* Enable clock */
-    if (cfg->bus == 0) {
+    if (spi_id == 0U) {
         RCC_APB2ENR |= (1U << 12); /* SPI1 on APB2 */
     } else {
-        RCC_APB1ENR |= (1U << (13 + cfg->bus)); /* SPI2=bit14, SPI3=bit15 */
+        RCC_APB1ENR |= (1U << (13U + spi_id)); /* SPI2=bit14, SPI3=bit15 */
     }
 
     /* Build CR1 */
     uint32_t cr1 = SPI_CR1_MSTR | SPI_CR1_SSM | SPI_CR1_SSI;
 
     /* CPOL / CPHA */
-    if (cfg->mode == SYN_SPI_MODE_2 || cfg->mode == SYN_SPI_MODE_3) {
+    if (mode == 2U || mode == 3U) {
         cr1 |= SPI_CR1_CPOL;
     }
-    if (cfg->mode == SYN_SPI_MODE_1 || cfg->mode == SYN_SPI_MODE_3) {
+    if (mode == 1U || mode == 3U) {
         cr1 |= SPI_CR1_CPHA;
     }
 
-    /* Bit order */
-    if (cfg->bit_order == 1) {
-        cr1 |= SPI_CR1_LSBFIRST;
-    }
-
-    /* Baud rate prescaler — find closest prescaler for requested clock.
-     * BR[2:0] in bits 5:3, prescaler = 2^(BR+1) */
-    uint32_t pclk = (cfg->bus == 0) ? APB2_CLOCK_HZ : APB1_CLOCK_HZ;
-    uint32_t br = 0;
-    while (br < 7 && (pclk / (2U << br)) > cfg->clock_hz) {
+    /* Baud rate prescaler: BR[2:0] in bits 5:3, prescaler = 2^(BR+1) */
+    uint32_t pclk = (spi_id == 0U) ? APB2_CLOCK_HZ : APB1_CLOCK_HZ;
+    uint32_t br = 0U;
+    while (br < 7U && (pclk / (2U << br)) > baudrate_hz) {
         br++;
     }
-    cr1 |= (br << 3);
+    cr1 |= (br << 3U);
 
     spi->CR1 = cr1;
-    spi->CR2 = 0;
-    spi->CR1 |= SPI_CR1_SPE; /* Enable */
+    spi->CR2 = 0U;
+    spi->CR1 |= SPI_CR1_SPE;
 
     return SYN_OK;
 }
 
-SYN_Status syn_port_spi_deinit(uint8_t bus)
+SYN_Status syn_port_spi_deinit(uint8_t spi_id)
 {
-    if (bus >= 3)
+    if (spi_id >= 3U) {
         return SYN_INVALID_PARAM;
-    spi_instances[bus]->CR1 = 0;
+    }
+    spi_instances[spi_id]->CR1 = 0U;
     return SYN_OK;
 }
 
-SYN_Status syn_port_spi_transfer(uint8_t bus, const uint8_t *tx_buf, uint8_t *rx_buf, size_t len)
+SYN_Status syn_port_spi_transfer(uint8_t spi_id, const uint8_t *tx, uint8_t *rx, size_t len)
 {
-    if (bus >= 3)
+    if (spi_id >= 3U) {
         return SYN_INVALID_PARAM;
-    SPI_TypeDef *spi = spi_instances[bus];
+    }
+    SPI_TypeDef *spi = spi_instances[spi_id];
 
-    for (size_t i = 0; i < len; i++) {
-        /* Wait for TX empty with timeout */
-        volatile uint32_t timeout = 100000;
-        while (!(spi->SR & SPI_SR_TXE) && --timeout) { /* spin */
+    for (size_t i = 0U; i < len; i++) {
+        volatile uint32_t timeout = 100000U;
+        while ((spi->SR & SPI_SR_TXE) == 0U && --timeout > 0U) {
         }
-        if (!timeout)
+        if (timeout == 0U) {
             return SYN_TIMEOUT;
-
-        /* Send byte (or 0xFF if no TX buffer) */
-        spi->DR = tx_buf ? tx_buf[i] : 0xFF;
-
-        /* Wait for RX not empty with timeout */
-        timeout = 100000;
-        while (!(spi->SR & SPI_SR_RXNE) && --timeout) { /* spin */
         }
-        if (!timeout)
-            return SYN_TIMEOUT;
 
-        /* Read received byte */
-        uint8_t rx = (uint8_t)(spi->DR & 0xFF);
-        if (rx_buf)
-            rx_buf[i] = rx;
+        spi->DR = (tx != NULL) ? tx[i] : 0xFFU;
+
+        timeout = 100000U;
+        while ((spi->SR & SPI_SR_RXNE) == 0U && --timeout > 0U) {
+        }
+        if (timeout == 0U) {
+            return SYN_TIMEOUT;
+        }
+
+        uint8_t rx_byte = (uint8_t)(spi->DR & 0xFFU);
+        if (rx != NULL) {
+            rx[i] = rx_byte;
+        }
     }
 
-    /* Wait until not busy with timeout */
-    volatile uint32_t timeout = 100000;
-    while ((spi->SR & SPI_SR_BSY) && --timeout) { /* spin */
+    volatile uint32_t timeout = 100000U;
+    while ((spi->SR & SPI_SR_BSY) != 0U && --timeout > 0U) {
     }
-    if (!timeout)
+    if (timeout == 0U) {
         return SYN_TIMEOUT;
+    }
 
     return SYN_OK;
-}
-
-SYN_Status syn_port_spi_cs_assert(uint8_t bus, SYN_GPIO_Pin cs_pin)
-{
-    (void)bus;
-    return syn_port_gpio_write(cs_pin, SYN_GPIO_LOW);
-}
-
-SYN_Status syn_port_spi_cs_deassert(uint8_t bus, SYN_GPIO_Pin cs_pin)
-{
-    (void)bus;
-    return syn_port_gpio_write(cs_pin, SYN_GPIO_HIGH);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
  *  I2C (master mode, 7-bit addressing, polling)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-SYN_Status syn_port_i2c_init(const SYN_I2C_Config *cfg)
+SYN_Status syn_port_i2c_init(uint8_t i2c_id, uint32_t clock_speed_hz, uint8_t role,
+                             uint16_t own_addr)
 {
-    if (!cfg || cfg->bus >= 3)
+    if (i2c_id >= 3U || clock_speed_hz == 0U) {
         return SYN_INVALID_PARAM;
-    I2C_TypeDef *i2c = i2c_instances[cfg->bus];
+    }
+    if (role != 0U) {
+        return SYN_NOT_IMPLEMENTED;
+    }
+    I2C_TypeDef *i2c = i2c_instances[i2c_id];
 
     /* Enable clock (I2C1=bit21, I2C2=bit22, I2C3=bit23) */
-    RCC_APB1ENR |= (1U << (21 + cfg->bus));
+    RCC_APB1ENR |= (1U << (21U + i2c_id));
 
     /* Disable peripheral for configuration */
-    i2c->CR1 = 0;
+    i2c->CR1 = 0U;
 
     /* Set APB clock frequency in CR2 (in MHz) */
-    uint32_t freq_mhz = APB1_CLOCK_HZ / 1000000;
-    i2c->CR2 = freq_mhz & 0x3F;
+    uint32_t freq_mhz = APB1_CLOCK_HZ / 1000000UL;
+    if (freq_mhz < 2U) {
+        freq_mhz = 2U;
+    }
+    i2c->CR2 = freq_mhz & 0x3FU;
+    i2c->OAR1 = ((uint32_t)(own_addr & 0x7FU) << 1U) | (1U << 14);
 
     /* Set CCR for standard/fast mode */
-    if (cfg->clock_hz <= 100000) {
-        /* Standard mode: T_high = T_low = CCR * T_pclk */
-        i2c->CCR = APB1_CLOCK_HZ / (2 * cfg->clock_hz);
+    if (clock_speed_hz <= 100000U) {
+        uint32_t ccr = APB1_CLOCK_HZ / (2U * clock_speed_hz);
+        if (ccr < 4U) {
+            ccr = 4U;
+        }
+        i2c->CCR = ccr;
+        i2c->TRISE = freq_mhz + 1U;
     } else {
-        /* Fast mode (duty=0): T_high = CCR * T_pclk, T_low = 2 * CCR * T_pclk */
-        i2c->CCR = (1U << 15) | (APB1_CLOCK_HZ / (3 * cfg->clock_hz));
+        uint32_t ccr = APB1_CLOCK_HZ / (3U * clock_speed_hz);
+        if (ccr < 1U) {
+            ccr = 1U;
+        }
+        i2c->CCR = (1U << 15) | ccr;
+        i2c->TRISE = ((freq_mhz * 300U) / 1000U) + 1U;
     }
 
-    /* TRISE = (max_rise_time_ns / T_pclk_ns) + 1 */
-    i2c->TRISE = freq_mhz + 1;
-
-    /* Enable */
     i2c->CR1 = I2C_CR1_PE;
 
     return SYN_OK;
 }
 
-SYN_Status syn_port_i2c_deinit(uint8_t bus)
+SYN_Status syn_port_i2c_deinit(uint8_t i2c_id)
 {
-    if (bus >= 3)
+    if (i2c_id >= 3U) {
         return SYN_INVALID_PARAM;
-    i2c_instances[bus]->CR1 = 0;
+    }
+    i2c_instances[i2c_id]->CR1 = 0U;
     return SYN_OK;
 }
 
 static SYN_Status i2c_start(I2C_TypeDef *i2c, uint8_t addr, bool read)
 {
-    /* Generate START */
     i2c->CR1 |= I2C_CR1_START;
 
-    /* Wait for SB (start bit generated) */
-    uint32_t timeout = 100000;
-    while (!(i2c->SR1 & I2C_SR1_SB) && timeout--) { /* spin */
+    uint32_t timeout = 100000U;
+    while ((i2c->SR1 & I2C_SR1_SB) == 0U && timeout > 0U) {
+        timeout--;
     }
-    if (!timeout)
+    if (timeout == 0U) {
         return SYN_TIMEOUT;
+    }
 
-    /* Send address */
-    i2c->DR = (addr << 1) | (read ? 1 : 0);
+    i2c->DR = ((uint32_t)addr << 1U) | (read ? 1U : 0U);
 
-    /* Wait for ADDR (address acknowledged) */
-    timeout = 100000;
-    while (!(i2c->SR1 & I2C_SR1_ADDR) && timeout--) {
-        if (i2c->SR1 & I2C_SR1_AF) {
-            /* NACK — no device at this address */
+    timeout = 100000U;
+    while ((i2c->SR1 & I2C_SR1_ADDR) == 0U && timeout > 0U) {
+        timeout--;
+        if ((i2c->SR1 & I2C_SR1_AF) != 0U) {
             i2c->SR1 &= ~I2C_SR1_AF;
             i2c->CR1 |= I2C_CR1_STOP;
             return SYN_ERROR;
         }
     }
-    if (!timeout)
+    if (timeout == 0U) {
+        i2c->CR1 |= I2C_CR1_STOP;
         return SYN_TIMEOUT;
+    }
 
-    /* Clear ADDR by reading SR1 then SR2 */
     (void)i2c->SR1;
     (void)i2c->SR2;
 
     return SYN_OK;
 }
 
-SYN_Status syn_port_i2c_write(uint8_t bus, uint8_t addr, const uint8_t *data, size_t len)
+static SYN_Status i2c_write_phase(I2C_TypeDef *i2c, uint8_t addr, const uint8_t *tx, size_t tx_len,
+                                  bool send_stop)
 {
-    if (bus >= 3)
-        return SYN_INVALID_PARAM;
-    I2C_TypeDef *i2c = i2c_instances[bus];
-
     SYN_Status s = i2c_start(i2c, addr, false);
-    if (s != SYN_OK)
+    if (s != SYN_OK) {
         return s;
+    }
 
-    for (size_t i = 0; i < len; i++) {
-        /* Wait for TXE */
-        uint32_t timeout = 100000;
-        while (!(i2c->SR1 & I2C_SR1_TXE) && timeout--) { /* spin */
+    for (size_t i = 0U; i < tx_len; i++) {
+        uint32_t timeout = 100000U;
+        while ((i2c->SR1 & I2C_SR1_TXE) == 0U && timeout > 0U) {
+            timeout--;
         }
-        if (!timeout)
+        if (timeout == 0U) {
+            i2c->CR1 |= I2C_CR1_STOP;
             return SYN_TIMEOUT;
-        i2c->DR = data[i];
+        }
+        i2c->DR = tx[i];
     }
 
-    /* Wait for BTF (byte transfer finished) */
-    uint32_t timeout = 100000;
-    while (!(i2c->SR1 & I2C_SR1_BTF) && timeout--) { /* spin */
+    if (tx_len > 0U) {
+        uint32_t timeout = 100000U;
+        while ((i2c->SR1 & I2C_SR1_BTF) == 0U && timeout > 0U) {
+            timeout--;
+        }
+        if (timeout == 0U) {
+            i2c->CR1 |= I2C_CR1_STOP;
+            return SYN_TIMEOUT;
+        }
     }
 
-    /* Generate STOP */
-    i2c->CR1 |= I2C_CR1_STOP;
+    if (send_stop) {
+        i2c->CR1 |= I2C_CR1_STOP;
+    }
 
     return SYN_OK;
 }
 
-SYN_Status syn_port_i2c_read(uint8_t bus, uint8_t addr, uint8_t *data, size_t len)
+static SYN_Status i2c_read_phase(I2C_TypeDef *i2c, uint8_t addr, uint8_t *rx, size_t rx_len)
 {
-    if (bus >= 3 || len == 0)
-        return SYN_INVALID_PARAM;
-    I2C_TypeDef *i2c = i2c_instances[bus];
-
-    /* Enable ACK for multi-byte reads */
-    if (len > 1) {
+    if (rx_len > 1U) {
         i2c->CR1 |= I2C_CR1_ACK;
+    } else {
+        i2c->CR1 &= ~I2C_CR1_ACK;
     }
 
     SYN_Status s = i2c_start(i2c, addr, true);
-    if (s != SYN_OK)
+    if (s != SYN_OK) {
         return s;
+    }
 
-    for (size_t i = 0; i < len; i++) {
-        if (i == len - 1) {
-            /* Last byte: NACK + STOP */
+    for (size_t i = 0U; i < rx_len; i++) {
+        if (i == (rx_len - 1U)) {
             i2c->CR1 &= ~I2C_CR1_ACK;
             i2c->CR1 |= I2C_CR1_STOP;
         }
 
-        /* Wait for RXNE */
-        uint32_t timeout = 100000;
-        while (!(i2c->SR1 & I2C_SR1_RXNE) && timeout--) { /* spin */
+        uint32_t timeout = 100000U;
+        while ((i2c->SR1 & I2C_SR1_RXNE) == 0U && timeout > 0U) {
+            timeout--;
         }
-        if (!timeout)
+        if (timeout == 0U) {
+            i2c->CR1 |= I2C_CR1_STOP;
             return SYN_TIMEOUT;
+        }
 
-        data[i] = (uint8_t)(i2c->DR & 0xFF);
+        rx[i] = (uint8_t)(i2c->DR & 0xFFU);
     }
 
     return SYN_OK;
 }
 
-SYN_Status syn_port_i2c_write_read(uint8_t bus, uint8_t addr, const uint8_t *tx_data, size_t tx_len,
-                                   uint8_t *rx_data, size_t rx_len)
+SYN_Status syn_port_i2c_transfer(uint8_t i2c_id, uint16_t addr, const uint8_t *tx, size_t tx_len,
+                                 uint8_t *rx, size_t rx_len)
 {
-    if (bus >= 3)
+    if (i2c_id >= 3U || addr > 0x7FU) {
         return SYN_INVALID_PARAM;
-    I2C_TypeDef *i2c = i2c_instances[bus];
+    }
+    if ((tx_len > 0U && tx == NULL) || (rx_len > 0U && rx == NULL)) {
+        return SYN_INVALID_PARAM;
+    }
 
-    /* Write phase (no STOP — repeated start) */
-    SYN_Status s = i2c_start(i2c, addr, false);
-    if (s != SYN_OK)
-        return s;
+    I2C_TypeDef *i2c = i2c_instances[i2c_id];
+    uint8_t addr7 = (uint8_t)addr;
 
-    for (size_t i = 0; i < tx_len; i++) {
-        uint32_t timeout = 100000;
-        while (!(i2c->SR1 & I2C_SR1_TXE) && timeout--) { /* spin */
+    if (tx_len > 0U || rx_len == 0U) {
+        SYN_Status s = i2c_write_phase(i2c, addr7, tx, tx_len, rx_len == 0U);
+        if (s != SYN_OK) {
+            return s;
         }
-        if (!timeout)
-            return SYN_TIMEOUT;
-        i2c->DR = tx_data[i];
     }
 
-    /* Wait for BTF before repeated start */
-    uint32_t timeout = 100000;
-    while (!(i2c->SR1 & I2C_SR1_BTF) && timeout--) { /* spin */
+    if (rx_len > 0U) {
+        return i2c_read_phase(i2c, addr7, rx, rx_len);
     }
 
-    /* Read phase (with STOP at end) */
-    return syn_port_i2c_read(bus, addr, rx_data, rx_len);
+    return SYN_OK;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -993,49 +1052,54 @@ uint32_t syn_port_flash_sector_size(uint32_t addr)
  *  ADC (ADC1, single-channel software-triggered)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-SYN_Status syn_port_adc_init(uint8_t ch)
+SYN_Status syn_port_adc_init(uint8_t adc_id, uint32_t channel_mask)
 {
-    (void)ch;
-    /* Enable ADC1 clock */
-    RCC_APB2ENR |= (1U << 8);
+    (void)channel_mask;
+    if (adc_id != 0U) {
+        return SYN_NOT_IMPLEMENTED;
+    }
 
-    /* Turn on ADC */
+    RCC_APB2ENR |= (1U << 8);
     ADC1->CR2 = ADC_CR2_ADON;
-    /* Small settling delay */
     for (volatile int i = 0; i < 1000; i++) {
     }
 
     return SYN_OK;
 }
 
-uint16_t syn_port_adc_read(uint8_t ch)
+SYN_Status syn_port_adc_deinit(uint8_t adc_id)
 {
-    /* Set channel in SQR3 (regular sequence, 1 conversion) */
-    ADC1->SQR3 = ch & 0x1F;
-    ADC1->SQR1 = 0; /* 1 conversion */
+    if (adc_id != 0U) {
+        return SYN_NOT_IMPLEMENTED;
+    }
+    ADC1->CR2 = 0U;
+    return SYN_OK;
+}
 
-    /* Clear EOC */
-    ADC1->SR &= ~ADC_SR_EOC;
-
-    /* Start conversion */
-    ADC1->CR2 |= ADC_CR2_SWSTART;
-
-    /* Wait for EOC with timeout to prevent hangs in simulation */
-    volatile uint32_t timeout = 10000;
-    while (!(ADC1->SR & ADC_SR_EOC) && --timeout) { /* spin */
+uint16_t syn_port_adc_read_channel(uint8_t adc_id, uint8_t channel)
+{
+    if (adc_id != 0U || channel > 18U) {
+        return 0U;
     }
 
-    return (uint16_t)(ADC1->DR & 0x0FFF);
+    ADC1->SQR3 = (uint32_t)channel & 0x1FU;
+    ADC1->SQR1 = 0U;
+    ADC1->SR &= ~ADC_SR_EOC;
+    ADC1->CR2 |= ADC_CR2_SWSTART;
+
+    volatile uint32_t timeout = 10000U;
+    while ((ADC1->SR & ADC_SR_EOC) == 0U && --timeout > 0U) {
+    }
+
+    return (uint16_t)(ADC1->DR & 0x0FFFU);
 }
 
-uint8_t syn_port_adc_resolution(void)
+SYN_Status syn_port_adc_start_dma_scan(uint8_t adc_id, uint16_t *dest, size_t num_channels)
 {
-    return 12;
-}
-
-uint16_t syn_port_adc_reference_mv(void)
-{
-    return 3300;
+    if (adc_id != 0U || dest == NULL || num_channels == 0U) {
+        return SYN_INVALID_PARAM;
+    }
+    return SYN_NOT_IMPLEMENTED;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1237,7 +1301,7 @@ void syn_port_sleep(SYN_SleepMode mode)
  *  Assert handler
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-void syn_assert_failed(const char *file, int line)
+SYN_WEAK SYN_NORETURN void syn_assert_failed(const char *file, int line)
 {
     (void)file;
     (void)line;
@@ -1508,4 +1572,4 @@ SYN_WEAK int syn_port_serial_read(uint8_t *buf, size_t max_len)
     return (int)received;
 }
 
-#endif /* STM32F407xx && !ARDUINO */
+#endif /* STM32F407xx && !USE_HAL_DRIVER && !ARDUINO */

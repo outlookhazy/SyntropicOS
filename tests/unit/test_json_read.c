@@ -438,6 +438,62 @@ static void test_json_read_string_escape_sequences(void)
     TEST_ASSERT_FALSE(syn_json_parse(&r, overflow_bad, strlen(overflow_bad)));
 }
 
+static void test_json_read_integer_saturation_and_unpadded_eof(void)
+{
+    SYN_JsonReader r;
+    int32_t v = 0;
+
+    char sat_json[] = "{\"pos\":99999999999999999999,\"min\":-2147483648,\"neg\":-99999999999999}";
+    TEST_ASSERT_TRUE(syn_json_parse(&r, sat_json, strlen(sat_json)));
+    TEST_ASSERT_TRUE(syn_json_get_int(&r, "pos", &v));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, v);
+    TEST_ASSERT_TRUE(syn_json_get_int(&r, "min", &v));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, v);
+    TEST_ASSERT_TRUE(syn_json_get_int(&r, "neg", &v));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, v);
+
+    /* Unpadded buffer ending right after scalar value (p == end before closing '}') */
+    char raw_eof[8] = {'{', '"', 'k', '"', ':', '1', '2', '3'};
+    TEST_ASSERT_FALSE(syn_json_parse(&r, raw_eof, sizeof(raw_eof)));
+}
+
+static void test_r5_n13_json_exact_bool_and_invalid_scalars(void)
+{
+    SYN_JsonReader r;
+
+    char bad_t1[] = "{\"flag\":t}";
+    char bad_t2[] = "{\"flag\":tru}";
+    char bad_t3[] = "{\"flag\":truX}";
+    char bad_t4[] = "{\"flag\":trueX}";
+    char bad_f1[] = "{\"flag\":f}";
+    char bad_f2[] = "{\"flag\":fals}";
+    char bad_f3[] = "{\"flag\":falsX}";
+    char bad_f4[] = "{\"flag\":falseX}";
+    char bad_n1[] = "{\"flag\":nulX}";
+    char bad_m1[] = "{\"num\":-}";
+    char bad_m2[] = "{\"num\":-x}";
+
+    TEST_ASSERT_FALSE(syn_json_parse(&r, bad_t1, strlen(bad_t1)));
+    TEST_ASSERT_FALSE(syn_json_parse(&r, bad_t2, strlen(bad_t2)));
+    TEST_ASSERT_FALSE(syn_json_parse(&r, bad_t3, strlen(bad_t3)));
+    TEST_ASSERT_FALSE(syn_json_parse(&r, bad_t4, strlen(bad_t4)));
+    TEST_ASSERT_FALSE(syn_json_parse(&r, bad_f1, strlen(bad_f1)));
+    TEST_ASSERT_FALSE(syn_json_parse(&r, bad_f2, strlen(bad_f2)));
+    TEST_ASSERT_FALSE(syn_json_parse(&r, bad_f3, strlen(bad_f3)));
+    TEST_ASSERT_FALSE(syn_json_parse(&r, bad_f4, strlen(bad_f4)));
+    TEST_ASSERT_FALSE(syn_json_parse(&r, bad_n1, strlen(bad_n1)));
+    TEST_ASSERT_FALSE(syn_json_parse(&r, bad_m1, strlen(bad_m1)));
+    TEST_ASSERT_FALSE(syn_json_parse(&r, bad_m2, strlen(bad_m2)));
+
+    char good_ws[] = "{\"a\": true ,\"b\": false }";
+    bool bval = false;
+    TEST_ASSERT_TRUE(syn_json_parse(&r, good_ws, strlen(good_ws)));
+    TEST_ASSERT_TRUE(syn_json_get_bool(&r, "a", &bval));
+    TEST_ASSERT_TRUE(bval);
+    TEST_ASSERT_TRUE(syn_json_get_bool(&r, "b", &bval));
+    TEST_ASSERT_FALSE(bval);
+}
+
 void run_json_read_tests(void)
 {
     RUN_TEST(test_json_read_simple_object);
@@ -466,4 +522,6 @@ void run_json_read_tests(void)
     RUN_TEST(test_json_read_skip_value_unterminated_string);
     RUN_TEST(test_json_read_unterminated_object_key);
     RUN_TEST(test_json_read_string_escape_sequences);
+    RUN_TEST(test_json_read_integer_saturation_and_unpadded_eof);
+    RUN_TEST(test_r5_n13_json_exact_bool_and_invalid_scalars);
 }

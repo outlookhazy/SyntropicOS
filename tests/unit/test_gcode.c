@@ -3,6 +3,7 @@
  * @brief Complete unit tests for G-Code RS-274 Motion Interpreter and Controller (100% coverage).
  */
 
+#include "mocks/mock_port.h"
 #include "unity/unity.h"
 
 #include <string.h>
@@ -12,6 +13,7 @@ static SYN_GCode_SpindleMode g_last_spindle_mode = SYN_GCODE_SPINDLE_OFF;
 static float g_last_spindle_rpm = 0.0f;
 static SYN_GCode_CoolantMode g_last_coolant_mode = SYN_GCODE_COOLANT_OFF;
 static uint32_t g_last_tool_num = 0U;
+static float g_last_dwell_sec = -1.0f;
 
 static void on_test_spindle(SYN_GCode_SpindleMode mode, float rpm, void *user_data)
 {
@@ -30,6 +32,12 @@ static void on_test_tool(uint32_t tool_num, void *user_data)
 {
     (void)user_data;
     g_last_tool_num = tool_num;
+}
+
+static void on_test_dwell(float seconds, void *user_data)
+{
+    (void)user_data;
+    g_last_dwell_sec = seconds;
 }
 
 /* ── Tests ───────────────────────────────────────────────────────────────── */
@@ -165,7 +173,7 @@ void test_gcode_execution_and_modal_states(void)
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "M5"));
     TEST_ASSERT_EQUAL_INT(SYN_GCODE_SPINDLE_OFF, g_last_spindle_mode);
 
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "M99"));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "M30"));
 
     /* 5. Coolant Modes: M7, M8, M9 */
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "M7"));
@@ -242,11 +250,11 @@ void test_gcode_execution_and_modal_states(void)
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl_raw, "G1 X12.0 Y34.0 Z56.0"));
     TEST_ASSERT_FLOAT_WITHIN(0.01f, 12.0f, ctrl_raw.current_pos.x);
 
-    /* 15. Invalid line execution and unknown letter parsing and G-code */
+    /* 15. Invalid line execution and unknown letter / G / M rejection */
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_line(&ctrl, "X+"));
     SYN_GCode_Block q_block;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_parse_line("Q10 H2", &q_block));
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G99"));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_parse_line("Q10 H2", &q_block));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_line(&ctrl, "G99"));
 }
 
 void test_gcode_protothread(void)
@@ -266,18 +274,196 @@ void test_gcode_protothread(void)
     PT_INIT(&pt);
     SYN_Task task = {.user_data = &ctrl};
 
+    /* Test protothread when idle */
+    SYN_PT_Status st = syn_gcode_task_pt(&pt, &task);
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, st);
+
     /* Test protothread when move is active */
     syn_gcode_execute_line(&ctrl, "G1 X10.0");
     TEST_ASSERT_TRUE(ctrl.move_in_progress);
 
-    SYN_PT_Status st = syn_gcode_task_pt(&pt, &task);
-    TEST_ASSERT_EQUAL_INT(PT_YIELDED, st);
+    st = syn_gcode_task_pt(&pt, &task);
+    TEST_ASSERT_EQUAL_INT(PT_MORE, st);
+
+    /* Step protothread to completion -> final step returns PT_IDLE and clears move_in_progress */
+    int guard = 0;
+    while (st == PT_MORE && guard++ < 10000) {
+        st = syn_gcode_task_pt(&pt, &task);
+    }
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, st);
+    TEST_ASSERT_FALSE(ctrl.move_in_progress);
+
+    /* Move in progress when interpolator == NULL -> clears move_in_progress and returns false
+     * (syn_gcode.c:478-479) */
+    ctrl.cfg.interpolator = NULL;
+    ctrl.move_in_progress = true;
+    SYN_Vector3F pos = {0};
+    TEST_ASSERT_FALSE(syn_gcode_step(&ctrl, &pos));
+    TEST_ASSERT_FALSE(ctrl.move_in_progress);
 
     /* Null checks */
-    TEST_ASSERT_EQUAL_INT(PT_ENDED, syn_gcode_task_pt(NULL, &task));
-    TEST_ASSERT_EQUAL_INT(PT_ENDED, syn_gcode_task_pt(&pt, NULL));
+    TEST_ASSERT_EQUAL_INT(PT_EXITED, syn_gcode_task_pt(NULL, &task));
+    TEST_ASSERT_EQUAL_INT(PT_EXITED, syn_gcode_task_pt(&pt, NULL));
     SYN_Task null_task = {.user_data = NULL};
-    TEST_ASSERT_EQUAL_INT(PT_ENDED, syn_gcode_task_pt(&pt, &null_task));
+    TEST_ASSERT_EQUAL_INT(PT_EXITED, syn_gcode_task_pt(&pt, &null_task));
+}
+
+void test_gcode_r4_p13_regressions(void)
+{
+    SYN_GCode_Block block;
+
+    /* 1. Reject uint32_t overflow in G, M, T words (G4294967297 must not wrap to G1) */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_parse_line("G4294967297 X10", &block));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_parse_line("M4294967296", &block));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_parse_line("T99999999999", &block));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_parse_line("T4294967295", &block));
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, block.t);
+
+    /* 2. Multi-G word block applies all modal groups and preserves G4 active motion mode */
+    SYN_Interpolator interp;
+    SYN_GCode_Config cfg = {
+        .interpolator = &interp,
+        .default_feedrate = 100.0f,
+        .max_acceleration = 1000.0f,
+        .max_jerk = 5000.0f,
+        .step_resolution = 0.01f,
+    };
+    SYN_GCode_Controller ctrl;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_init(&ctrl, &cfg));
+    ctrl.dist_mode = SYN_GCODE_DIST_INCREMENTAL;
+    ctrl.units = SYN_GCODE_UNITS_INCH;
+    ctrl.plane = SYN_GCODE_PLANE_YZ;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G17 G90 G21 G1 X10.0 F200.0"));
+    TEST_ASSERT_EQUAL_INT(SYN_GCODE_PLANE_XY, ctrl.plane);
+    TEST_ASSERT_EQUAL_INT(SYN_GCODE_DIST_ABSOLUTE, ctrl.dist_mode);
+    TEST_ASSERT_EQUAL_INT(SYN_GCODE_UNITS_MM, ctrl.units);
+    TEST_ASSERT_EQUAL_INT(SYN_GCODE_MOTION_LINEAR, ctrl.motion_mode);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 200.0f / 60.0f, ctrl.feedrate);
+
+    SYN_Vector3F pos;
+    while (syn_gcode_step(&ctrl, &pos)) {
+    }
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, 10.0f, ctrl.current_pos.x);
+
+    /* Non-modal G4 dwell must NOT overwrite modal motion_mode (G1 stays active for X20) */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G4 P0.5"));
+    TEST_ASSERT_EQUAL_INT(SYN_GCODE_MOTION_LINEAR, ctrl.motion_mode);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "X20.0"));
+    TEST_ASSERT_TRUE(ctrl.move_in_progress);
+    while (syn_gcode_step(&ctrl, &pos)) {
+    }
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, 20.0f, ctrl.current_pos.x);
+
+    /* 3. G20 inch scaling (25.4 mm/in) on coordinates, incremental moves, arcs, G92, and F */
+    SYN_GCode_Controller raw;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_init(&raw, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&raw, "G20 G90 G1 X1.0 Y2.0 Z0.5 F10.0"));
+    TEST_ASSERT_EQUAL_INT(SYN_GCODE_UNITS_INCH, raw.units);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 254.0f / 60.0f, raw.feedrate);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 25.4f, raw.current_pos.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 50.8f, raw.current_pos.y);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 12.7f, raw.current_pos.z);
+
+    /* Incremental move in inches */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&raw, "G91 X0.5 Y-1.0 Z0.5"));
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 38.1f, raw.current_pos.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 25.4f, raw.current_pos.y);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 25.4f, raw.current_pos.z);
+
+    /* G92 work coordinate offset in inches */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&raw, "G90 G92 X0.5 Y0.0 Z0.0"));
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 25.4f, raw.offset_pos.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 25.4f, raw.offset_pos.y);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 25.4f, raw.offset_pos.z);
+
+    /* G28 non-modal home (partial axis and full home, preserving motion_mode) */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&raw, "G28 X0"));
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 0.0f, raw.current_pos.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 25.4f, raw.current_pos.y);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&raw, "G28"));
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 0.0f, raw.current_pos.y);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 0.0f, raw.current_pos.z);
+    TEST_ASSERT_EQUAL_INT(SYN_GCODE_MOTION_LINEAR, raw.motion_mode);
+
+    /* G2 circular arc in inches with I/J/K offsets on interpolated controller */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G28"));
+    while (syn_gcode_step(&ctrl, &pos)) {
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_gcode_execute_line(&ctrl, "G20 G90 G2 X1.0 Y0.0 I0.5 J0.0 K0.0"));
+    while (syn_gcode_step(&ctrl, &pos)) {
+    }
+    TEST_ASSERT_FLOAT_WITHIN(0.2f, 25.4f, ctrl.current_pos.x);
+
+    /* Legacy caller passing hand-constructed block with only has_g / g_code */
+    SYN_GCode_Block legacy = {.has_g = true, .g_code = 21U};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_block(&raw, &legacy));
+    TEST_ASSERT_EQUAL_INT(SYN_GCODE_UNITS_MM, raw.units);
+}
+
+void test_r5_gcode_feedrate_and_strict_validation(void)
+{
+    SYN_GCode_Controller ctrl;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_init(&ctrl, NULL));
+    /* Default 100 mm/min converts to 100/60 = 1.6667 mm/s */
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 100.0f / 60.0f, ctrl.feedrate);
+
+    /* G4 dwell callback, step countdown, zero-dwell, and PT non-blocking sleep */
+    g_last_dwell_sec = -1.0f;
+    SYN_GCode_Config dcfg = {.step_resolution = 0.01f, .on_dwell = on_test_dwell};
+    SYN_GCode_Controller dctrl;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_init(&dctrl, &dcfg));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&dctrl, "G4 P0"));
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.0f, g_last_dwell_sec);
+    TEST_ASSERT_EQUAL_UINT32(0U, dctrl.dwell_steps);
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&dctrl, "G4 P0.03"));
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.03f, g_last_dwell_sec);
+    TEST_ASSERT_EQUAL_UINT32(3U, dctrl.dwell_steps);
+    SYN_Vector3F dpos = {0};
+    TEST_ASSERT_TRUE(syn_gcode_step(&dctrl, &dpos));
+    TEST_ASSERT_TRUE(syn_gcode_step(&dctrl, &dpos));
+    TEST_ASSERT_TRUE(syn_gcode_step(&dctrl, &dpos));
+    TEST_ASSERT_FALSE(syn_gcode_step(&dctrl, &dpos));
+
+    /* Protothread G4 dwell sleep across mock ticks */
+    mock_port_reset();
+    SYN_PT dpt;
+    PT_INIT(&dpt);
+    SYN_Task dtask = {.user_data = &dctrl};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&dctrl, "G4 P0.025"));
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, syn_gcode_task_pt(&dpt, &dtask));
+    mock_tick_advance(10U);
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, syn_gcode_task_pt(&dpt, &dtask));
+    mock_tick_advance(20U);
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, syn_gcode_task_pt(&dpt, &dtask));
+    TEST_ASSERT_EQUAL_UINT32(0U, dtask.delay_until);
+
+    /* G94 mm/min -> mm/s conversion: F600 mm/min == 10.0 mm/s */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "N10 G94 G21 G1 X5.0 F600.0"));
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 10.0f, ctrl.feedrate);
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 5.0f, ctrl.current_pos.x);
+
+    /* "G999 X10" must error out and NEVER move axes silently */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_line(&ctrl, "G999 X100.0"));
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 5.0f, ctrl.current_pos.x);
+
+    /* Unknown M-code and unrecognized letters must error without moving axes */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_line(&ctrl, "M999 X100.0"));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_line(&ctrl, "Q5 X100.0"));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_line(&ctrl, "N+"));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_line(&ctrl, "F0"));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_line(&ctrl, "S-10"));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_line(&ctrl, "P-1"));
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 5.0f, ctrl.current_pos.x);
+
+    /* Direct execute_block with invalid g_code or m_code also rejected */
+    SYN_GCode_Block bad_g = {.has_g = true, .g_code = 999U, .has_x = true, .x = 50.0f};
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_block(&ctrl, &bad_g));
+    SYN_GCode_Block bad_m = {.has_m = true, .m_code = 999U, .has_x = true, .x = 50.0f};
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_block(&ctrl, &bad_m));
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 5.0f, ctrl.current_pos.x);
 }
 
 void run_gcode_tests(void)
@@ -286,4 +472,6 @@ void run_gcode_tests(void)
     RUN_TEST(test_gcode_line_parsing);
     RUN_TEST(test_gcode_execution_and_modal_states);
     RUN_TEST(test_gcode_protothread);
+    RUN_TEST(test_gcode_r4_p13_regressions);
+    RUN_TEST(test_r5_gcode_feedrate_and_strict_validation);
 }

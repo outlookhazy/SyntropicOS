@@ -35,13 +35,19 @@
 #ifndef SYN_HMAC_DRBG_H
 #define SYN_HMAC_DRBG_H
 
-#if __has_include("syn_config.h")
-#include "syn_config.h"
+#include "../common/syn_defs.h"
+
+#if (!defined(SYN_USE_HMAC_DRBG) || SYN_USE_HMAC_DRBG) && \
+    (!defined(SYN_USE_SHA256) || SYN_USE_SHA256)
+/** @brief Non-zero when HMAC-DRBG and SHA-256 dependencies are enabled. */
+#define SYN_HMAC_DRBG_ENABLED 1
+#else
+/** @brief Non-zero when HMAC-DRBG and SHA-256 dependencies are enabled. */
+#define SYN_HMAC_DRBG_ENABLED 0
 #endif
 
-#if !defined(SYN_USE_HMAC_DRBG) || SYN_USE_HMAC_DRBG
+#if SYN_HMAC_DRBG_ENABLED
 
-#include "../common/syn_defs.h"
 #include "syn_hmac.h"
 
 #include <stdbool.h>

@@ -57,36 +57,27 @@ typedef struct {
 
 /**
  * @brief Block the protothread until the semaphore count is > 0,
- *        then decrement it.
+ *        then atomically decrement it.
  *
  * Must be called from within a protothread (between PT_BEGIN/PT_END).
  *
  * @param pt   Protothread.
  * @param sem  Semaphore to wait on.
  */
-#define PT_SEM_WAIT(pt, sem)                 \
-    do {                                     \
-        PT_WAIT_UNTIL(pt, (sem)->count > 0); \
-        syn_port_enter_critical();           \
-        (sem)->count--;                      \
-        syn_port_exit_critical();            \
-    } while (0)
+#define PT_SEM_WAIT(pt, sem) PT_WAIT_UNTIL((pt), pt_sem_trywait(sem) != 0)
 
 /**
  * @brief Block task execution (SYN_TASK_BLOCKED) until semaphore count is > 0,
- *        then decrement it.
+ *        then atomically decrement it.
+ *
+ * @note Zero-RAM wrapper over PT_BLOCK_CONDITION: the signaling context calling
+ *       PT_SEM_SIGNAL() must also call syn_task_resume(task) to wake @p task.
  *
  * @param pt   Protothread.
  * @param task Pointer to SYN_Task.
  * @param sem  Semaphore to wait on.
  */
-#define PT_SEM_BLOCK(pt, task, sem)                     \
-    do {                                                \
-        PT_BLOCK_CONDITION(pt, task, (sem)->count > 0); \
-        syn_port_enter_critical();                      \
-        (sem)->count--;                                 \
-        syn_port_exit_critical();                       \
-    } while (0)
+#define PT_SEM_BLOCK(pt, task, sem) PT_BLOCK_CONDITION((pt), (task), pt_sem_trywait(sem) != 0)
 
 /* ── Signal (any context) ───────────────────────────────────────────────── */
 
@@ -122,6 +113,9 @@ static inline void pt_sem_signal(SYN_PT_Sem *sem)
  */
 static inline int pt_sem_trywait(SYN_PT_Sem *sem)
 {
+    if (sem == NULL) {
+        return 0;
+    }
     int acquired = 0;
 
     syn_port_enter_critical();

@@ -99,8 +99,7 @@ static SYN_PT_Status coap_control_task(SYN_PT *pt, SYN_Task *task)
             coap_req.req_option_count = 1;
 
             syn_coap_request_init(&coap_req, &coap_server_addr, &req_hdr, 2000, 3);
-            PT_INIT(&tasks[0].pt);
-            tasks[0].state = SYN_TASK_READY;
+            syn_task_restart(&tasks[0]);
             req_active = true;
         } else {
             if (coap_req.status == SYN_OK) {
@@ -171,12 +170,12 @@ void setup()
 
     syn_coap_request_init(&coap_req, &coap_server_addr, &req_hdr, 2000, 3);
 
-    syn_task_create(&tasks[0], "coap",  syn_coap_request_task, 1, &coap_req);
-    syn_task_create(&tasks[1], "blink", blink_task,            2, NULL);
-    syn_task_create(&tasks[2], "ctrl",  coap_control_task,     3, NULL);
+    syn_task_create(&tasks[0], "coap",  syn_coap_request_task, SYN_PRIO_HIGH,   &coap_req);
+    syn_task_create(&tasks[1], "blink", blink_task,            SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks[2], "ctrl",  coap_control_task,     SYN_PRIO_LOW,    NULL);
 
     /* Pause coap task until ctrl task triggers it */
-    tasks[0].state = SYN_TASK_SUSPENDED;
+    syn_task_suspend(&tasks[0]);
 
     syn_sched_init(&sched, tasks, 3);
 

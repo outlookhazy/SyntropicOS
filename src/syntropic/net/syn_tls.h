@@ -15,12 +15,29 @@
 #ifndef SYN_TLS_H
 #define SYN_TLS_H
 
+#include "syntropic/common/syn_defs.h"
+#include "syntropic/crypto/syn_hkdf.h"
+#include "syntropic/crypto/syn_x509.h"
+
+#if (!defined(SYN_USE_TLS) || SYN_USE_TLS) && SYN_HKDF_SHA512_ENABLED && SYN_X509_ENABLED && \
+    (!defined(SYN_USE_AES) || SYN_USE_AES) &&                                                \
+    (!defined(SYN_USE_CHACHA20POLY1305) || SYN_USE_CHACHA20POLY1305) &&                      \
+    (!defined(SYN_USE_X25519) || SYN_USE_X25519) && (!defined(SYN_USE_PT) || SYN_USE_PT) &&  \
+    (!defined(SYN_USE_SCHED) || SYN_USE_SCHED)
+/** @brief Non-zero when TLS 1.3 and required crypto/scheduler dependencies are enabled. */
+#define SYN_TLS_ENABLED 1
+#else
+/** @brief Non-zero when TLS 1.3 and required crypto/scheduler dependencies are enabled. */
+#define SYN_TLS_ENABLED 0
+#endif
+
+#if SYN_TLS_ENABLED
+
 #include "syntropic/crypto/syn_aes.h"
 #include "syntropic/crypto/syn_chacha20poly1305.h"
-#include "syntropic/crypto/syn_hkdf.h"
 #include "syntropic/crypto/syn_sha256.h"
+#include "syntropic/crypto/syn_sha512.h"
 #include "syntropic/crypto/syn_x25519.h"
-#include "syntropic/crypto/syn_x509.h"
 #include "syntropic/net/syn_transport.h"
 #include "syntropic/pt/syn_pt.h"
 #include "syntropic/sched/syn_task.h"
@@ -71,6 +88,7 @@ typedef enum {
 typedef struct {
     SYN_TLS_AuthMode mode;            /**< PSK, RPK, X.509, or mTLS */
     SYN_TLS_CipherSuite cipher_suite; /**< Selected TLS 1.3 cipher suite */
+    bool is_server;                   /**< true for server endpoint, false for client (default) */
     const char *server_name;          /**< SNI hostname (optional) */
 
     /* PSK configuration */
@@ -84,10 +102,13 @@ typedef struct {
     size_t peer_pubkey_len;     /**< Raw peer public key length */
 
     /* X.509 & mTLS configuration */
-    const SYN_X509_Cert *root_ca;   /**< Trusted Root CA cert for server validation */
-    const uint8_t *client_cert_der; /**< Client certificate DER bytes (for mTLS) */
-    size_t client_cert_len;         /**< Client certificate length */
-    const uint8_t *client_privkey;  /**< Client private key (32 bytes) */
+    const SYN_X509_Cert *root_ca; /**< Trusted Root CA cert for peer validation */
+    const uint8_t *peer_cert_der; /**< Peer X.509 certificate DER bytes */
+    size_t peer_cert_len;         /**< Peer X.509 certificate DER length */
+    const uint8_t
+        *client_cert_der;          /**< Local certificate DER bytes (mTLS client or X.509 server) */
+    size_t client_cert_len;        /**< Local certificate DER length */
+    const uint8_t *client_privkey; /**< Local private key (32 bytes) */
 } SYN_TLS_Config;
 
 /** TLS 1.3 Engine Context (Caller-owned, zero-heap). */
@@ -106,7 +127,8 @@ typedef struct {
     uint8_t my_pubkey[SYN_TLS_SECRET_LEN];   /**< Ephemeral X25519 public key */
     uint8_t peer_pubkey[SYN_TLS_SECRET_LEN]; /**< Peer ephemeral X25519 public key */
 
-    SYN_SHA256 transcript_hash; /**< Running handshake transcript hash */
+    SYN_SHA256 transcript_hash;   /**< Running SHA-256 handshake transcript hash */
+    SYN_SHA512 transcript_sha384; /**< Running SHA-384 handshake transcript hash */
 
     uint8_t client_handshake_secret[SYN_TLS_SECRET_LEN]; /**< Client handshake traffic secret */
     uint8_t server_handshake_secret[SYN_TLS_SECRET_LEN]; /**< Server handshake traffic secret */
@@ -130,6 +152,13 @@ typedef struct {
     uint8_t app_rx_buf[SYN_TLS_RECORD_MAX_PAYLOAD]; /**< Decrypted app data ring buffer */
     size_t app_rx_head;                             /**< App data head index */
     size_t app_rx_tail;                             /**< App data tail index */
+
+    /** @brief Transient cryptographic scratchpad keeping stack frames within 256B. */
+    union {
+        SYN_AES_GCM_Context gcm; /**< AES-GCM scratch context */
+        SYN_AES_Context aes;     /**< AES-CCM scratch context */
+        SYN_X509_Cert cert;      /**< Parsed peer X.509 certificate scratch */
+    } crypto_scratch;            /**< Shared cipher/X.509 scratch storage */
 } SYN_TLS_Context;
 
 /**
@@ -218,5 +247,7 @@ static inline SYN_TLS_State syn_tls_get_state(const SYN_TLS_Context *ctx)
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* SYN_TLS_ENABLED */
 
 #endif /* SYN_TLS_H */

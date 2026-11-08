@@ -49,26 +49,34 @@ void syn_quat_mul(const SYN_Quaternion *q1, const SYN_Quaternion *q2, SYN_Quater
 q16_t syn_quat_norm(const SYN_Quaternion *q)
 {
     SYN_ASSERT(q != NULL);
-    int64_t sum =
-        (int64_t)q->w * q->w + (int64_t)q->x * q->x + (int64_t)q->y * q->y + (int64_t)q->z * q->z;
-    q16_t sum_q16 = (q16_t)(sum >> Q16_SHIFT);
-    return q16_sqrt(sum_q16);
+    const q16_t comps[4] = {q->w, q->x, q->y, q->z};
+    const uint64_t max_sq = (uint64_t)INT32_MAX * (uint64_t)INT32_MAX;
+    uint64_t sum = 0U;
+
+    for (size_t i = 0U; i < 4U; i++) {
+        uint64_t u = (comps[i] < 0) ? (uint64_t)(-(int64_t)comps[i]) : (uint64_t)(uint32_t)comps[i];
+        uint64_t sq = u * u;
+        if (sq >= max_sq || sum >= (max_sq - sq)) {
+            return INT32_MAX;
+        }
+        sum += sq;
+    }
+
+    return (q16_t)syn_isqrt64(sum);
 }
 
 SYN_Status syn_quat_normalize(SYN_Quaternion *q)
 {
     SYN_ASSERT(q != NULL);
-    int64_t sum =
-        (int64_t)q->w * q->w + (int64_t)q->x * q->x + (int64_t)q->y * q->y + (int64_t)q->z * q->z;
-    q16_t norm_sq = (q16_t)(sum >> Q16_SHIFT);
-    if (norm_sq == 0)
+    q16_t mag = syn_quat_norm(q);
+    if (mag == 0) {
         return SYN_ERROR;
+    }
 
-    q16_t inv_norm = q16_rsqrt(norm_sq);
-    q->w = q16_mul(q->w, inv_norm);
-    q->x = q16_mul(q->x, inv_norm);
-    q->y = q16_mul(q->y, inv_norm);
-    q->z = q16_mul(q->z, inv_norm);
+    q->w = q16_div(q->w, mag);
+    q->x = q16_div(q->x, mag);
+    q->y = q16_div(q->y, mag);
+    q->z = q16_div(q->z, mag);
     return SYN_OK;
 }
 
@@ -175,6 +183,7 @@ void syn_quat_from_euler(SYN_Quaternion *q, q16_t roll, q16_t pitch, q16_t yaw)
     q->x = (q16_t)x;
     q->y = (q16_t)y;
     q->z = (q16_t)z;
+    (void)syn_quat_normalize(q);
 }
 
 void syn_quat_to_euler(const SYN_Quaternion *q, q16_t *roll, q16_t *pitch, q16_t *yaw)
@@ -221,10 +230,10 @@ void syn_quat_slerp(const SYN_Quaternion *q1, const SYN_Quaternion *q2, q16_t t,
 
     if (dot > Q16_ONE - Q16_FROM_FRAC(1, 1000)) {
         /* Linear interpolation for small angles */
-        out->w = q1->w + (q16_t)(((int64_t)(q2_norm.w - q1->w) * t) >> Q16_SHIFT);
-        out->x = q1->x + (q16_t)(((int64_t)(q2_norm.x - q1->x) * t) >> Q16_SHIFT);
-        out->y = q1->y + (q16_t)(((int64_t)(q2_norm.y - q1->y) * t) >> Q16_SHIFT);
-        out->z = q1->z + (q16_t)(((int64_t)(q2_norm.z - q1->z) * t) >> Q16_SHIFT);
+        out->w = q1->w + (q16_t)((((int64_t)q2_norm.w - (int64_t)q1->w) * t) >> Q16_SHIFT);
+        out->x = q1->x + (q16_t)((((int64_t)q2_norm.x - (int64_t)q1->x) * t) >> Q16_SHIFT);
+        out->y = q1->y + (q16_t)((((int64_t)q2_norm.y - (int64_t)q1->y) * t) >> Q16_SHIFT);
+        out->z = q1->z + (q16_t)((((int64_t)q2_norm.z - (int64_t)q1->z) * t) >> Q16_SHIFT);
         (void)syn_quat_normalize(out);
         return;
     }
@@ -239,4 +248,5 @@ void syn_quat_slerp(const SYN_Quaternion *q1, const SYN_Quaternion *q2, q16_t t,
     out->x = (q16_t)(((int64_t)q1->x * ratio_a + (int64_t)q2_norm.x * ratio_b) >> Q16_SHIFT);
     out->y = (q16_t)(((int64_t)q1->y * ratio_a + (int64_t)q2_norm.y * ratio_b) >> Q16_SHIFT);
     out->z = (q16_t)(((int64_t)q1->z * ratio_a + (int64_t)q2_norm.z * ratio_b) >> Q16_SHIFT);
+    (void)syn_quat_normalize(out);
 }

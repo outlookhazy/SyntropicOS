@@ -30,6 +30,8 @@
 #ifndef SYN_COBS_H
 #define SYN_COBS_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

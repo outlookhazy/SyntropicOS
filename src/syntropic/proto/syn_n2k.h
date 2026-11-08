@@ -123,7 +123,8 @@ typedef struct {
     uint8_t state_of_charge;  /**< State of Charge in 1% (0 to 100%) */
     uint8_t state_of_health;  /**< State of Health in 1% (0 to 100%) */
     uint16_t time_to_go_min;  /**< Time Remaining in minutes (0 to 65532 min) */
-    uint16_t capacity_ah_1e1; /**< Capacity / Ripple Voltage in 0.1 AH */
+    uint16_t ripple_voltage;  /**< Ripple Voltage in 0.01 Volts */
+    uint16_t capacity_ah_1e1; /**< Remaining Capacity in 0.1 AH (16-bit) */
 } SYN_N2K_DcDetailedStatus;
 
 /**
@@ -239,6 +240,28 @@ SYN_Status syn_n2k_encode_dc_detailed(uint8_t sa, const SYN_N2K_DcDetailedStatus
  * @return SYN_OK on success.
  */
 SYN_Status syn_n2k_decode_dc_detailed(const SYN_CAN_Frame *frame, SYN_N2K_DcDetailedStatus *dc);
+
+/**
+ * @brief Encode full 11-byte PGN 127506 (DC Detailed Status) into 2 Fast-Packet CAN frames.
+ * @param sa Source address.
+ * @param seq_id 3-bit Fast-Packet sequence identifier (0..7).
+ * @param dc DC detailed status structure (preserving 16-bit ripple_voltage and capacity_ah_1e1).
+ * @param frames_out Output array of 2 CAN frames.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on NULL pointer.
+ */
+SYN_Status syn_n2k_encode_dc_detailed_fastpacket(uint8_t sa, uint8_t seq_id,
+                                                 const SYN_N2K_DcDetailedStatus *dc,
+                                                 SYN_CAN_Frame frames_out[2]);
+
+/**
+ * @brief Decode full PGN 127506 (DC Detailed Status) from a reassembled Fast-Packet payload.
+ * @param payload Reassembled Fast-Packet payload buffer (at least 11 bytes).
+ * @param len Payload length in bytes.
+ * @param dc Output DC detailed status structure.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on NULL pointer or short length.
+ */
+SYN_Status syn_n2k_decode_dc_detailed_payload(const uint8_t *payload, size_t len,
+                                              SYN_N2K_DcDetailedStatus *dc);
 
 /**
  * @brief Encode PGN 130310 (Environmental Parameters) into an 8-byte CAN frame.

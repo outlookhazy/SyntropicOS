@@ -32,32 +32,39 @@ typedef struct {
  * @brief Active Object structure.
  */
 typedef struct {
-    SYN_Task task;       /**< Scheduler task handle                */
-    SYN_PT pt;           /**< Task protothread state               */
-    SYN_Mailbox mailbox; /**< Event mailbox                        */
-    SYN_FSM fsm;         /**< State machine                        */
+    SYN_Task *task;      /**< Bound caller-owned scheduler task slot   */
+    SYN_Mailbox mailbox; /**< Event mailbox (usable depth: cap - 1)    */
+    SYN_FSM fsm;         /**< State machine                            */
     SYN_AO_Event
         last_event; /**< Most recent dispatched event (access in actions via ao->last_event) */
 } SYN_ActiveObject;
 
 /**
- * @brief Initialize an Active Object.
+ * @brief Initialize an Active Object and bind its scheduler task slot.
+ *
+ * Pass `&tasks[i]` from the contiguous task array managed by `SYN_Sched` so
+ * `syn_ao_post()` wakes the exact task descriptor executed by the scheduler.
+ * Because `SYN_Mailbox` reserves one ring slot as full/empty sentinel, @p mailbox_cap
+ * must be at least 2 and stores up to `mailbox_cap - 1` queued events.
  *
  * @param ao             Active Object instance.
+ * @param task           Caller-owned scheduler task slot (e.g. `&tasks[i]`).
  * @param name           Name of the active object (used for task/logging).
+ * @param priority       Cooperative task priority (`SYN_Prio`).
  * @param transitions    Transition table for the internal state machine.
  * @param initial_state  Initial state of the state machine.
- * @param mailbox_buf    Buffer backing the mailbox event queue.
- * @param mailbox_cap    Capacity (number of elements) of the buffer.
+ * @param mailbox_buf    Buffer backing the mailbox event queue (`SYN_AO_Event[mailbox_cap]`).
+ * @param mailbox_cap    Allocated slot count of @p mailbox_buf (must be >= 2).
  */
-void syn_ao_init(SYN_ActiveObject *ao, const char *name, const SYN_FSM_Transition *transitions,
-                 SYN_FSM_State initial_state, void *mailbox_buf, size_t mailbox_cap);
+void syn_ao_init(SYN_ActiveObject *ao, SYN_Task *task, const char *name, SYN_Prio priority,
+                 const SYN_FSM_Transition *transitions, SYN_FSM_State initial_state,
+                 void *mailbox_buf, size_t mailbox_cap);
 
 /**
  * @brief Post an event to the Active Object's mailbox.
  *
- * Thread-safe and ISR-safe. Protects the mailbox write using
- * critical sections.
+ * Thread-safe and ISR-safe. Protects the mailbox write and blocked-task wakeup
+ * using critical sections.
  *
  * @param ao   Active Object instance.
  * @param sig  Signal identifier.

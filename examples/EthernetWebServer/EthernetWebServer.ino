@@ -255,8 +255,8 @@ void setup()
                    http_work_buffer, sizeof(http_work_buffer));
 
     /* 5. Register Concurrent Scheduler Tasks */
-    syn_task_create(&tasks[0], "httpd", syn_httpd_task, 1, &http_server);
-    syn_task_create(&tasks[1], "blink", blink_task, 2, NULL);
+    syn_task_create(&tasks[0], "httpd", syn_httpd_task, SYN_PRIO_HIGH, &http_server);
+    syn_task_create(&tasks[1], "blink", blink_task, SYN_PRIO_NORMAL, NULL);
 
     syn_sched_init(&sched, tasks, 2);
 

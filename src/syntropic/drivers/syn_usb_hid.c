@@ -10,11 +10,32 @@
 /** Standard HID Interface Descriptor Template (1 interface, 1 IN EP, 25 bytes) */
 static const uint8_t HID_INTERFACE_DESC[25] = {
     /* Interface 0: HID Class */
-    0x09, 0x04, 0x00, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00,
+    0x09U, 0x04U, 0x00U, 0x00U, 0x01U, 0x03U, 0x00U, 0x00U, 0x00U,
     /* HID Descriptor */
-    0x09, 0x21, 0x11, 0x01, 0x00, 0x01, 0x22, 0x34, 0x00,
+    0x09U, 0x21U, 0x11U, 0x01U, 0x00U, 0x01U, 0x22U, 0x34U, 0x00U,
     /* Endpoint 0x83: Interrupt IN */
-    0x07, 0x05, 0x83, 0x03, 0x40, 0x00, 0x0A};
+    0x07U, 0x05U, 0x83U, 0x03U, 0x40U, 0x00U, 0x0AU};
+
+/**
+ * @brief Handle HID GET_DESCRIPTOR setup requests (0x22 Report Descriptor).
+ *
+ * @param hid  Pointer to SYN_USB_HID instance.
+ * @param pkt  Setup packet pointer.
+ * @param resp Response buffer.
+ * @param rlen Output response length pointer.
+ * @return SYN_OK on success, SYN_ERROR if unsupported.
+ */
+static SYN_Status hid_handle_get_descriptor(const SYN_USB_HID *hid, const SYN_USB_SetupPacket *pkt,
+                                            uint8_t *resp, uint16_t *rlen)
+{
+    if (((uint8_t)(pkt->wValue >> 8) == 0x22U) && (hid->report_desc != NULL)) {
+        uint16_t len = (pkt->wLength < hid->report_desc_len) ? pkt->wLength : hid->report_desc_len;
+        memcpy(resp, hid->report_desc, len);
+        *rlen = len;
+        return SYN_OK;
+    }
+    return SYN_ERROR;
+}
 
 /**
  * @brief Class setup request dispatcher for HID class requests.
@@ -29,11 +50,11 @@ static SYN_Status hid_class_setup(void *ctx, const SYN_USB_SetupPacket *pkt, uin
                                   uint16_t *rlen)
 {
     SYN_USB_HID *hid = (SYN_USB_HID *)ctx;
-    if (!hid || !pkt || !resp || !rlen) {
+    if ((hid == NULL) || (pkt == NULL) || (resp == NULL) || (rlen == NULL)) {
         return SYN_INVALID_PARAM;
     }
 
-    *rlen = 0;
+    *rlen = 0U;
 
     switch (pkt->bRequest) {
     case SYN_USB_HID_REQ_GET_REPORT:
@@ -41,7 +62,6 @@ static SYN_Status hid_class_setup(void *ctx, const SYN_USB_SetupPacket *pkt, uin
             uint16_t copy_len = (pkt->wLength < hid->tx_len) ? pkt->wLength : hid->tx_len;
             memcpy(resp, hid->tx_buf, copy_len);
             *rlen = copy_len;
-            return SYN_OK;
         }
         return SYN_OK;
 
@@ -66,68 +86,83 @@ static SYN_Status hid_class_setup(void *ctx, const SYN_USB_SetupPacket *pkt, uin
         hid->active_protocol = (uint8_t)(pkt->wValue & 0xFFU);
         return SYN_OK;
 
-    case SYN_USB_REQ_GET_DESCRIPTOR: {
-        uint8_t desc_type = (uint8_t)(pkt->wValue >> 8);
-        if (desc_type == 0x22U && hid->report_desc) { /* HID Report Descriptor */
-            uint16_t len =
-                (pkt->wLength < hid->report_desc_len) ? pkt->wLength : hid->report_desc_len;
-            memcpy(resp, hid->report_desc, len);
-            *rlen = len;
-            return SYN_OK;
-        }
-        return SYN_ERROR;
-    }
+    case SYN_USB_REQ_GET_DESCRIPTOR:
+        return hid_handle_get_descriptor(hid, pkt, resp, rlen);
 
     default:
         return SYN_OK;
     }
 }
 
+/**
+ * @brief Data IN completion callback for HID Interrupt IN endpoint.
+ *
+ * @param ctx Pointer to SYN_USB_HID instance.
+ * @param ep  Endpoint address.
+ */
+static void hid_class_data_in(void *ctx, uint8_t ep)
+{
+    SYN_USB_HID *hid = (SYN_USB_HID *)ctx;
+    if ((hid != NULL) && (ep == hid->ep_in)) {
+        hid->tx_len = 0U;
+    }
+}
+
 SYN_Status syn_usb_hid_init(SYN_USB_HID *hid)
 {
-    if (!hid) {
+    if (hid == NULL) {
         return SYN_INVALID_PARAM;
     }
     memset(hid, 0, sizeof(*hid));
-    hid->ep_in = 0x83;
-    hid->idle_rate = 0;
-    hid->active_protocol = 1; /* 1 = Report Protocol */
+    hid->ep_in = 0x83U;
+    hid->idle_rate = 0U;
+    hid->active_protocol = 1U;
     return SYN_OK;
 }
 
 SYN_Status syn_usb_hid_register(SYN_USB_Device *dev, SYN_USB_HID *hid, const uint8_t *report_desc,
                                 uint16_t report_desc_len)
 {
-    if (!dev || !hid || !report_desc || report_desc_len == 0U) {
+    if ((dev == NULL) || (hid == NULL) || (report_desc == NULL) || (report_desc_len == 0U)) {
         return SYN_INVALID_PARAM;
     }
 
     hid->report_desc = report_desc;
     hid->report_desc_len = report_desc_len;
 
-    /* Copy static interface desc template and dynamically update Report Desc Length (bytes 16..17)
-     */
     uint8_t desc_buf[sizeof(HID_INTERFACE_DESC)];
     memcpy(desc_buf, HID_INTERFACE_DESC, sizeof(HID_INTERFACE_DESC));
     desc_buf[16] = (uint8_t)(report_desc_len & 0xFFU);
     desc_buf[17] = (uint8_t)((report_desc_len >> 8) & 0xFFU);
+    desc_buf[20] = hid->ep_in;
 
     SYN_USB_ClassDriver cls;
     memset(&cls, 0, sizeof(cls));
-    cls.iface_start = dev->class_count; /* Interface number assignment */
+    cls.iface_start = hid->iface_num;
     cls.iface_count = 1U;
     cls.ctx = hid;
     cls.setup = hid_class_setup;
+    cls.data_in = hid_class_data_in;
 
-    hid->iface_num = cls.iface_start;
-
-    return syn_usb_register_class(dev, &cls, desc_buf, sizeof(desc_buf));
+    SYN_Status st = syn_usb_register_class(dev, &cls, desc_buf, (uint16_t)sizeof(desc_buf));
+    if (st == SYN_OK) {
+        hid->iface_num = dev->classes[dev->class_count - 1U].iface_start;
+        if (!dev->raw_config_override) {
+            uint16_t base = (uint16_t)(dev->config_buf_used - sizeof(desc_buf));
+            hid->ep_in = dev->config_buf[base + 20U];
+        }
+    }
+    return st;
 }
 
 SYN_Status syn_usb_hid_send_report(SYN_USB_HID *hid, const void *report, size_t len)
 {
-    if (!hid || !report || len == 0U) {
+    if ((hid == NULL) || (report == NULL) || (len == 0U)) {
         return SYN_INVALID_PARAM;
+    }
+
+    if (hid->tx_len > 0U) {
+        return SYN_BUSY;
     }
 
     if (len > sizeof(hid->tx_buf)) {
@@ -142,7 +177,7 @@ SYN_Status syn_usb_hid_send_report(SYN_USB_HID *hid, const void *report, size_t 
 
 SYN_Status syn_usb_hid_read_report(SYN_USB_HID *hid, void *buf, size_t max_len, size_t *out_len)
 {
-    if (!hid || !buf || !out_len) {
+    if ((hid == NULL) || (buf == NULL) || (out_len == NULL)) {
         return SYN_INVALID_PARAM;
     }
 
@@ -156,8 +191,8 @@ SYN_Status syn_usb_hid_read_report(SYN_USB_HID *hid, void *buf, size_t max_len, 
     *out_len = copy_len;
 
     if (copy_len < hid->rx_len) {
-        memmove(hid->rx_buf, &hid->rx_buf[copy_len], hid->rx_len - copy_len);
-        hid->rx_len -= (uint16_t)copy_len;
+        memmove(hid->rx_buf, &hid->rx_buf[copy_len], (size_t)hid->rx_len - copy_len);
+        hid->rx_len = (uint16_t)(hid->rx_len - (uint16_t)copy_len);
     } else {
         hid->rx_len = 0U;
     }

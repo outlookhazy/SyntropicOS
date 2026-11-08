@@ -117,6 +117,87 @@ SYN_CborType syn_cbor_peek_type(const SYN_CborReader *r)
 /** @brief Maximum nesting depth for syn_cbor_skip. */
 #define SKIP_MAX_DEPTH 8u
 
+/**
+ * @brief Skip major type 7 payload bytes (floats, bool, null, simple).
+ * @param r    CBOR reader state.
+ * @param info 5-bit additional info field.
+ * @return true if sufficient unread bytes exist, false on truncation.
+ */
+static bool skip_major7(SYN_CborReader *r, uint8_t info)
+{
+    size_t skip_bytes = 0u;
+    if (info == 25u) {
+        skip_bytes = 2u;
+    } else if (info == 26u) {
+        skip_bytes = 4u;
+    } else if (info == 27u) {
+        skip_bytes = 8u;
+    }
+    if (r->len - r->pos < skip_bytes) {
+        r->ok = false;
+        return false;
+    }
+    r->pos += skip_bytes;
+    return true;
+}
+
+/**
+ * @brief Validate and push nested collection onto skip stack.
+ * @param r         CBOR reader state.
+ * @param count     Declared element or pair count.
+ * @param item_mult Items per declared entry (1 for array, 2 for map).
+ * @param pending   Remaining item counters per nesting level.
+ * @param depth     Current nesting depth pointer.
+ * @return true if collection fits bounds and depth limit, false otherwise.
+ */
+static bool skip_push(SYN_CborReader *r, uint64_t count, size_t item_mult, size_t *pending,
+                      uint8_t *depth)
+{
+    if (!r->ok || count > (uint64_t)((r->len - r->pos) / item_mult) ||
+        *depth + 1u >= SKIP_MAX_DEPTH) {
+        r->ok = false;
+        return false;
+    }
+    (*depth)++;
+    pending[*depth] = (size_t)count * item_mult;
+    return true;
+}
+
+/**
+ * @brief Advance or push a single CBOR item during syn_cbor_skip.
+ * @param r       CBOR reader state.
+ * @param b       Initial header byte of the CBOR item.
+ * @param pending Remaining item counters per nesting level.
+ * @param depth   Current nesting depth pointer.
+ * @return true on valid item advance/push, false on malformed or truncated data.
+ */
+static bool skip_step(SYN_CborReader *r, uint8_t b, size_t *pending, uint8_t *depth)
+{
+    uint8_t major = b >> 5u;
+    uint8_t info = b & 0x1Fu;
+
+    if (major == 7u) {
+        return skip_major7(r, info);
+    }
+    if (major == 2u || major == 3u) {
+        uint64_t n = decode_arg(r, info);
+        if (!r->ok || n > (uint64_t)(r->len - r->pos)) {
+            r->ok = false;
+            return false;
+        }
+        r->pos += (size_t)n;
+        return true;
+    }
+    if (major == 4u) {
+        return skip_push(r, decode_arg(r, info), 1u, pending, depth);
+    }
+    if (major == 5u) {
+        return skip_push(r, decode_arg(r, info), 2u, pending, depth);
+    }
+    (void)decode_arg(r, info);
+    return r->ok;
+}
+
 void syn_cbor_skip(SYN_CborReader *r)
 {
     size_t pending[SKIP_MAX_DEPTH]; /* remaining items at each depth */
@@ -130,57 +211,8 @@ void syn_cbor_skip(SYN_CborReader *r)
             r->ok = false;
             return;
         }
-        uint8_t b = consume_byte(r);
-        uint8_t major = b >> 5u;
-        uint8_t info = b & 0x1Fu;
-
-        if (major == 7u) {
-            /* float32: 4 more bytes; float16: 2; float64: 8; else 0 */
-            size_t skip_bytes = 0;
-            if (info == 25u) {
-                skip_bytes = 2u;
-            } else if (info == 26u) {
-                skip_bytes = 4u;
-            } else if (info == 27u) {
-                skip_bytes = 8u;
-            }
-            if (skip_bytes > 0) {
-                if (r->len - r->pos < skip_bytes) {
-                    r->ok = false;
-                    return;
-                }
-                r->pos += skip_bytes;
-            }
-            /* bool/null/simple: 0 extra bytes */
-        } else if (major == 2u || major == 3u) {
-            /* byte/text string: skip 'arg' data bytes */
-            uint64_t n = decode_arg(r, info);
-            if (!r->ok || (size_t)n > (r->len - r->pos)) {
-                r->ok = false;
-                return;
-            }
-            r->pos += (size_t)n;
-        } else if (major == 4u) {
-            /* array: push 'arg' items */
-            uint64_t n = decode_arg(r, info);
-            if (depth + 1u >= SKIP_MAX_DEPTH) {
-                r->ok = false;
-                return;
-            }
-            depth++;
-            pending[depth] = (size_t)n;
-        } else if (major == 5u) {
-            /* map: push 'arg * 2' items (each pair = key + value) */
-            uint64_t n = decode_arg(r, info);
-            if (depth + 1u >= SKIP_MAX_DEPTH) {
-                r->ok = false;
-                return;
-            }
-            depth++;
-            pending[depth] = (size_t)(n * 2u);
-        } else {
-            /* major type 0 or 1: uint/int, arg is the value, no data bytes */
-            decode_arg(r, info);
+        if (!skip_step(r, consume_byte(r), pending, &depth)) {
+            return;
         }
 
         /* Pop completed levels */
@@ -188,8 +220,8 @@ void syn_cbor_skip(SYN_CborReader *r)
             depth--;
         }
     }
-#undef SKIP_MAX_DEPTH
 }
+#undef SKIP_MAX_DEPTH
 
 /* ── Collections ─────────────────────────────────────────────────────────── */
 
@@ -204,7 +236,12 @@ size_t syn_cbor_read_map_begin(SYN_CborReader *r)
         r->ok = false;
         return 0u;
     }
-    return (size_t)decode_arg(r, b & 0x1Fu);
+    uint64_t val = decode_arg(r, b & 0x1Fu);
+    if (!r->ok || val > (uint64_t)((r->len - r->pos) / 2u)) {
+        r->ok = false;
+        return 0u;
+    }
+    return (size_t)val;
 }
 
 size_t syn_cbor_read_array_begin(SYN_CborReader *r)
@@ -218,7 +255,12 @@ size_t syn_cbor_read_array_begin(SYN_CborReader *r)
         r->ok = false;
         return 0u;
     }
-    return (size_t)decode_arg(r, b & 0x1Fu);
+    uint64_t val = decode_arg(r, b & 0x1Fu);
+    if (!r->ok || val > (uint64_t)(r->len - r->pos)) {
+        r->ok = false;
+        return 0u;
+    }
+    return (size_t)val;
 }
 
 /* ── Scalars ─────────────────────────────────────────────────────────────── */
@@ -322,10 +364,10 @@ size_t syn_cbor_read_text(SYN_CborReader *r, char *buf, size_t cap)
         r->ok = false;
         return 0u;
     }
-    size_t n = (size_t)decode_arg(r, b & 0x1Fu);
-
+    uint64_t raw_n = decode_arg(r, b & 0x1Fu);
     size_t available = (r->pos < r->len) ? (r->len - r->pos) : 0u;
-    if (n > available) {
+    size_t n = (raw_n > (uint64_t)SIZE_MAX) ? SIZE_MAX : (size_t)raw_n;
+    if (!r->ok || raw_n > (uint64_t)available) {
         r->ok = false;
     }
     size_t copy = (n < cap) ? n : (cap > 0u ? cap - 1u : 0u);
@@ -338,7 +380,7 @@ size_t syn_cbor_read_text(SYN_CborReader *r, char *buf, size_t cap)
         }
         buf[copy] = '\0';
     }
-    if (n <= available) {
+    if (r->ok && raw_n <= (uint64_t)available) {
         r->pos += n;
     } else {
         r->pos = r->len;
@@ -358,10 +400,10 @@ size_t syn_cbor_read_bytes(SYN_CborReader *r, uint8_t *buf, size_t cap)
         r->ok = false;
         return 0u;
     }
-    size_t n = (size_t)decode_arg(r, b & 0x1Fu);
-
+    uint64_t raw_n = decode_arg(r, b & 0x1Fu);
     size_t available = (r->pos < r->len) ? (r->len - r->pos) : 0u;
-    if (n > available) {
+    size_t n = (raw_n > (uint64_t)SIZE_MAX) ? SIZE_MAX : (size_t)raw_n;
+    if (!r->ok || raw_n > (uint64_t)available) {
         r->ok = false;
     }
     size_t copy = (n < cap) ? n : cap;
@@ -371,7 +413,7 @@ size_t syn_cbor_read_bytes(SYN_CborReader *r, uint8_t *buf, size_t cap)
     if (buf != NULL && copy > 0u) {
         memcpy(buf, r->buf + r->pos, copy);
     }
-    if (n <= available) {
+    if (r->ok && raw_n <= (uint64_t)available) {
         r->pos += n;
     } else {
         r->pos = r->len;

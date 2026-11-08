@@ -41,5 +41,10 @@ static inline int gpio_get_level(gpio_num_t g)
     (void)g;
     return 0;
 }
+static inline int gpio_reset_pin(gpio_num_t g)
+{
+    (void)g;
+    return 0;
+}
 
 #endif /* MOCK_DRIVER_GPIO_H */

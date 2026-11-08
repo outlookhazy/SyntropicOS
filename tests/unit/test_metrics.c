@@ -6,13 +6,14 @@
 #ifndef SYN_USE_ROUTER
 #define SYN_USE_ROUTER 1
 #endif
+#include "mocks/mock_port.h"
 #include "syntropic/net/syn_router.h"
 #include "syntropic/util/syn_metrics.h"
 #include "unity/unity.h"
 
 #include <string.h>
 
-#if SYN_USE_METRICS
+#if defined(SYN_USE_METRICS) && SYN_USE_METRICS
 
 SYN_METRIC_DECLARE(test_counter, "test_counter", "Description", SYN_METRIC_TYPE_COUNTER);
 SYN_METRIC_DECLARE(test_gauge, "test_gauge", "Description", SYN_METRIC_TYPE_GAUGE);
@@ -61,15 +62,21 @@ void test_metric_registry(void)
 void test_metric_histogram_buckets_and_counter_overflow(void)
 {
     syn_metrics_init();
+    TEST_ASSERT_FALSE(test_counter.registered);
+    TEST_ASSERT_FALSE(test_gauge.registered);
+    TEST_ASSERT_NULL(test_counter.next);
+    TEST_ASSERT_NULL(test_gauge.next);
 
-    /* Double registration check */
+    /* Re-registration + duplicate registration check */
+    syn_metric_register(&test_counter);
+    TEST_ASSERT_TRUE(test_counter.registered);
     syn_metric_register(&test_counter);
     syn_metric_register(NULL);
 
     /* Foreach NULL callback check */
     syn_metrics_foreach(NULL, NULL);
 
-#if SYN_USE_ROUTER
+#if defined(SYN_USE_ROUTER) && SYN_USE_ROUTER
     /* Test null router branches (lines 37 & 49) */
     syn_metrics_set_router(NULL);
     syn_metrics_record("temp", 23.45f);
@@ -85,10 +92,37 @@ void test_metric_histogram_buckets_and_counter_overflow(void)
     syn_metrics_record("temp", 23.45f);
     syn_metrics_record("this_is_a_very_long_metric_name_exceeding_thirty_two_chars", 1.0f);
     syn_metrics_count("requests", 5);
+    syn_metrics_set_router(NULL);
 #endif
 }
 
+static void test_r5_metrics_reinit_and_critical_section(void)
+{
+    mock_port_reset();
+    int enters_before = mock_critical_enter_count;
+
+    syn_metrics_init();
+    TEST_ASSERT_GREATER_THAN(enters_before, mock_critical_enter_count);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    g_found_count = 0;
+    syn_metrics_foreach(metric_visitor, NULL);
+    TEST_ASSERT_EQUAL_INT(0, g_found_count);
+
+    enters_before = mock_critical_enter_count;
+    SYN_METRIC_REGISTER(test_counter);
+    SYN_METRIC_REGISTER(test_gauge);
+    TEST_ASSERT_EQUAL_INT(enters_before + 2, mock_critical_enter_count);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    g_found_count = 0;
+    syn_metrics_foreach(metric_visitor, NULL);
+    TEST_ASSERT_EQUAL_INT(2, g_found_count);
+}
+
 #else
+
+SYN_METRIC_DECLARE(disabled_counter, "disabled_counter", "Disabled", SYN_METRIC_TYPE_COUNTER);
 
 void test_metric_counter_inc(void)
 {
@@ -106,6 +140,13 @@ void test_metric_histogram_buckets_and_counter_overflow(void)
 {
     TEST_IGNORE_MESSAGE("SYN_USE_METRICS disabled");
 }
+static void test_r5_metrics_reinit_and_critical_section(void)
+{
+    syn_metrics_init();
+    syn_metrics_record("noop", 1.0f);
+    syn_metrics_count("noop", 1);
+    syn_metrics_foreach(NULL, NULL);
+}
 
 #endif
 
@@ -118,4 +159,5 @@ void run_metrics_tests(void)
     RUN_TEST(test_metric_gauge_ops);
     RUN_TEST(test_metric_registry);
     RUN_TEST(test_metric_histogram_buckets_and_counter_overflow);
+    RUN_TEST(test_r5_metrics_reinit_and_critical_section);
 }

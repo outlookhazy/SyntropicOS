@@ -138,14 +138,14 @@ void test_dhcp_coroutine_pt(void)
     SYN_PT pt;
     PT_INIT(&pt);
 
-    /* First step: DHCP state != BOUND -> coroutine yields (PT_WAITING) */
-    TEST_ASSERT_EQUAL_INT(PT_WAITING, dhcp_coroutine_task(&pt, &dhcp));
+    /* First step: DHCP state != BOUND -> coroutine yields (PT_IDLE) */
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, dhcp_coroutine_task(&pt, &dhcp));
 
     /* Simulate binding completion */
     dhcp.state = SYN_DHCP_STATE_BOUND;
 
-    /* Second step: DHCP state == BOUND -> coroutine completes (PT_EXITED) */
-    TEST_ASSERT_EQUAL_INT(PT_EXITED, dhcp_coroutine_task(&pt, &dhcp));
+    /* Second step: DHCP state == BOUND -> coroutine completes (PT_ENDED) */
+    TEST_ASSERT_EQUAL_INT(PT_ENDED, dhcp_coroutine_task(&pt, &dhcp));
 }
 
 void test_dhcp_extended_option_parsing(void)
@@ -214,6 +214,7 @@ void test_dhcp_extended_option_parsing(void)
 
     /* Truncated options tests */
     uint8_t trunc_pkt[250] = {0};
+    trunc_pkt[0] = 2;
     trunc_pkt[4] = (uint8_t)(XID >> 24);
     trunc_pkt[5] = (uint8_t)(XID >> 16);
     trunc_pkt[6] = (uint8_t)(XID >> 8);
@@ -237,6 +238,7 @@ void test_dhcp_extended_option_parsing(void)
 
     /* Unknown option (e.g. Option 99) with length 2 */
     uint8_t unk_opt_pkt[300] = {0};
+    unk_opt_pkt[0] = 2;
     unk_opt_pkt[4] = (uint8_t)(XID >> 24);
     unk_opt_pkt[5] = (uint8_t)(XID >> 16);
     unk_opt_pkt[6] = (uint8_t)(XID >> 8);
@@ -304,6 +306,7 @@ void test_dhcp_null_checks(void)
 
     /* Option 0 padding byte in process packet */
     uint8_t pad_pkt[300] = {0};
+    pad_pkt[0] = 2;
     pad_pkt[4] = (uint8_t)(0x12345678UL >> 24);
     pad_pkt[5] = (uint8_t)(0x12345678UL >> 16);
     pad_pkt[6] = (uint8_t)(0x12345678UL >> 8);
@@ -374,10 +377,107 @@ void test_dhcp_null_checks(void)
                       syn_dhcp_process_packet(&dhcp, NULL, trunc_payload_pkt, 243));
 }
 
+void test_dhcp_null_and_invalid_params(void)
+{
+    SYN_DHCP dhcp;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dhcp_init(&dhcp, XID));
+
+    uint8_t buf[300];
+    size_t len = 0;
+
+    /* Individual parameter checks on syn_dhcp_build_discover */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_dhcp_build_discover(NULL, MAC, buf, sizeof(buf), &len));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_dhcp_build_discover(&dhcp, NULL, buf, sizeof(buf), &len));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_dhcp_build_discover(&dhcp, MAC, NULL, sizeof(buf), &len));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dhcp_build_discover(&dhcp, MAC, buf, 249U, &len));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_dhcp_build_discover(&dhcp, MAC, buf, sizeof(buf), NULL));
+
+    /* Individual parameter checks on syn_dhcp_build_request */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_dhcp_build_request(NULL, MAC, buf, sizeof(buf), &len));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_dhcp_build_request(&dhcp, NULL, buf, sizeof(buf), &len));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_dhcp_build_request(&dhcp, MAC, NULL, sizeof(buf), &len));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dhcp_build_request(&dhcp, MAC, buf, 259U, &len));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_dhcp_build_request(&dhcp, MAC, buf, sizeof(buf), NULL));
+
+    /* Individual parameter checks on syn_dhcp_process_packet */
+    uint8_t ack_pkt[250] = {0};
+    ack_pkt[0] = 2;
+    ack_pkt[4] = (uint8_t)(XID >> 24);
+    ack_pkt[5] = (uint8_t)(XID >> 16);
+    ack_pkt[6] = (uint8_t)(XID >> 8);
+    ack_pkt[7] = (uint8_t)(XID);
+    ack_pkt[16] = 10;
+    ack_pkt[17] = 0;
+    ack_pkt[18] = 0;
+    ack_pkt[19] = 42;
+    ack_pkt[236] = 0x63;
+    ack_pkt[237] = 0x82;
+    ack_pkt[238] = 0x53;
+    ack_pkt[239] = 0x63;
+    ack_pkt[240] = SYN_DHCP_OPT_MSG_TYPE;
+    ack_pkt[241] = 1;
+    ack_pkt[242] = SYN_DHCP_ACK;
+    ack_pkt[243] = SYN_DHCP_OPT_END;
+
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_dhcp_process_packet(NULL, NULL, ack_pkt, sizeof(ack_pkt)));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_dhcp_process_packet(&dhcp, NULL, NULL, sizeof(ack_pkt)));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dhcp_process_packet(&dhcp, NULL, ack_pkt, 243U));
+
+    /* DHCPACK with eth == NULL binds state without dereferencing NULL eth */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dhcp_process_packet(&dhcp, NULL, ack_pkt, 244U));
+    TEST_ASSERT_EQUAL_INT(SYN_DHCP_STATE_BOUND, dhcp.state);
+    TEST_ASSERT_EQUAL_UINT32(0x0A00002AUL, dhcp.offered_ip);
+}
+
+static void test_dhcp_round4_reject_bootrequest(void)
+{
+    SYN_DHCP dhcp;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dhcp_init(&dhcp, XID));
+
+    uint8_t pkt[250] = {0};
+    pkt[0] = 1U; /* BOOTREQUEST must be rejected even with matching XID & cookie */
+    pkt[4] = (uint8_t)(XID >> 24);
+    pkt[5] = (uint8_t)(XID >> 16);
+    pkt[6] = (uint8_t)(XID >> 8);
+    pkt[7] = (uint8_t)(XID);
+    pkt[16] = 192;
+    pkt[17] = 168;
+    pkt[18] = 1;
+    pkt[19] = 99;
+    pkt[236] = 0x63;
+    pkt[237] = 0x82;
+    pkt[238] = 0x53;
+    pkt[239] = 0x63;
+    pkt[240] = SYN_DHCP_OPT_MSG_TYPE;
+    pkt[241] = 1;
+    pkt[242] = SYN_DHCP_ACK;
+    pkt[243] = SYN_DHCP_OPT_END;
+
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dhcp_process_packet(&dhcp, NULL, pkt, 244U));
+    TEST_ASSERT_EQUAL_INT(SYN_DHCP_STATE_INIT, dhcp.state);
+
+    pkt[0] = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dhcp_process_packet(&dhcp, NULL, pkt, 244U));
+}
+
 void run_dhcp_tests(void)
 {
     RUN_TEST(test_dhcp_init);
     RUN_TEST(test_dhcp_build_discover);
     RUN_TEST(test_dhcp_process_offer_and_ack);
+    RUN_TEST(test_dhcp_coroutine_pt);
+    RUN_TEST(test_dhcp_extended_option_parsing);
     RUN_TEST(test_dhcp_null_checks);
+    RUN_TEST(test_dhcp_null_and_invalid_params);
+    RUN_TEST(test_dhcp_round4_reject_bootrequest);
 }

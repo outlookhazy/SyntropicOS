@@ -14,10 +14,6 @@
 #ifndef SYN_BLDC_6STEP_H
 #define SYN_BLDC_6STEP_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/control/syn_pid.h"
 #include "syntropic/util/syn_qmath.h"
@@ -25,6 +21,10 @@ extern "C" {
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** Phase Output State (High-Side / Low-Side Gate Switches). */
 typedef enum {

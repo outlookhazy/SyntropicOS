@@ -34,10 +34,14 @@ extern "C" {
 
 /* ── Constants & Limits ─────────────────────────────────────────────────── */
 
-#define SYN_OPCUA_DEFAULT_PORT 4840U        /**< Standard OPC UA TCP Port */
-#define SYN_OPCUA_MAX_NODES 32U             /**< Static Node Table Capacity */
-#define SYN_OPCUA_MAX_REFERENCES 8U         /**< Max References per Node */
-#define SYN_OPCUA_MAX_STRING_LEN 64U        /**< Max Identifier & Name String Length */
+#define SYN_OPCUA_DEFAULT_PORT 4840U /**< Standard OPC UA TCP Port */
+#ifndef SYN_OPCUA_MAX_NODES
+#define SYN_OPCUA_MAX_NODES 32U /**< Static Node Table Capacity */
+#endif
+#define SYN_OPCUA_MAX_REFERENCES 8U /**< Max References per Node */
+#ifndef SYN_OPCUA_MAX_STRING_LEN
+#define SYN_OPCUA_MAX_STRING_LEN 64U /**< Max Identifier & Name String Length */
+#endif
 #define SYN_OPCUA_PROTOCOL_VERSION 0U       /**< OPC UA Binary Protocol Version */
 #define SYN_OPCUA_DEFAULT_BUFFER_SIZE 1024U /**< Default Chunk Buffer Size */
 
@@ -46,17 +50,26 @@ extern "C" {
 #define SYN_OPCUA_STATUS_UNCERTAIN 0x40000000U          /**< Value is uncertain */
 #define SYN_OPCUA_STATUS_BAD_UNEXPECTED 0x80010000U     /**< Unexpected error */
 #define SYN_OPCUA_STATUS_BAD_INTERNAL_ERROR 0x80020000U /**< Internal error occurred */
+#define SYN_OPCUA_STATUS_BAD_DECODING_ERROR 0x80070000U /**< Binary decoding error */
+#define SYN_OPCUA_STATUS_BAD_SECURITY_CHECKS_FAILED \
+    0x80130000U /**< Security verification failed   \
+                 */
+#define SYN_OPCUA_STATUS_BAD_SECURE_CHANNEL_ID_INVALID \
+    0x80220000U                                             /**< SecureChannelId is invalid */
+#define SYN_OPCUA_STATUS_BAD_SESSION_ID_INVALID 0x80250000U /**< SessionId is invalid */
+#define SYN_OPCUA_STATUS_BAD_SESSION_NOT_ACTIVATED \
+    0x80270000U /**< Session has not been activated */
 #define SYN_OPCUA_STATUS_BAD_NODE_ID_UNKNOWN            \
     0x80340000U /**< NodeId is unknown in address space \
                  */
 #define SYN_OPCUA_STATUS_BAD_ATTRIBUTE_ID_INVALID 0x80350000U /**< AttributeId is invalid */
+#define SYN_OPCUA_STATUS_BAD_INDEX_RANGE_INVALID 0x80360000U  /**< IndexRange is invalid */
 #define SYN_OPCUA_STATUS_BAD_NOT_READABLE 0x803A0000U         /**< Node attribute is not readable */
 #define SYN_OPCUA_STATUS_BAD_NOT_WRITABLE 0x803B0000U         /**< Node attribute is not writable */
 #define SYN_OPCUA_STATUS_BAD_SERVICE_UNSUPPORTED \
     0x80430000U /**< Requested service is unsupported */
-#define SYN_OPCUA_STATUS_BAD_SECURITY_CHECKS_FAILED \
-    0x80130000U /**< Security verification failed   \
-                 */
+#define SYN_OPCUA_STATUS_BAD_TYPE_MISMATCH \
+    0x80740000U /**< Value data type does not match node type */
 
 /* Standard OPC UA Attribute IDs */
 #define SYN_OPCUA_ATTR_NODE_ID 1U       /**< NodeId attribute */
@@ -189,9 +202,10 @@ typedef struct SYN_OPCUA_Node {
     /* Hierarchical parent linking */
     SYN_OPCUA_NodeId parent_id; /**< Parent NodeId */
 
-    SYN_OPCUA_ReadCb on_read;   /**< Optional dynamic read hook */
-    SYN_OPCUA_WriteCb on_write; /**< Optional dynamic write hook */
-    void *user_data;            /**< Context passed to callbacks */
+    SYN_OPCUA_ReadCb on_read;                  /**< Optional dynamic read hook */
+    SYN_OPCUA_WriteCb on_write;                /**< Optional dynamic write hook */
+    void *user_data;                           /**< Context passed to callbacks */
+    char string_buf[SYN_OPCUA_MAX_STRING_LEN]; /**< Inline storage for written string values */
 } SYN_OPCUA_Node;
 
 /**
@@ -213,10 +227,11 @@ typedef struct {
  * @brief Server connection and session state.
  */
 typedef enum {
-    SYN_OPCUA_STATE_CLOSED = 0,     /**< Connection closed */
-    SYN_OPCUA_STATE_HELLO_RECEIVED, /**< Hello processed, Ack sent */
-    SYN_OPCUA_STATE_SECURE_CHANNEL, /**< Secure channel opened */
-    SYN_OPCUA_STATE_SESSION_ACTIVE  /**< Session active and authenticated */
+    SYN_OPCUA_STATE_CLOSED = 0,      /**< Connection closed */
+    SYN_OPCUA_STATE_HELLO_RECEIVED,  /**< Hello processed, Ack sent */
+    SYN_OPCUA_STATE_SECURE_CHANNEL,  /**< Secure channel opened */
+    SYN_OPCUA_STATE_SESSION_CREATED, /**< Session created, awaiting ActivateSession */
+    SYN_OPCUA_STATE_SESSION_ACTIVE   /**< Session active and authenticated */
 } SYN_OPCUA_ServerState;
 
 /**
@@ -234,6 +249,7 @@ typedef struct SYN_OPCUA_Server {
 
     SYN_OPCUA_Node nodes[SYN_OPCUA_MAX_NODES]; /**< Static address space table */
     size_t node_count;                         /**< Number of registered nodes */
+    size_t rx_pending; /**< Buffered partial TCP frame byte count in cfg.rx_buf */
 } SYN_OPCUA_Server;
 
 /* ── Public API ─────────────────────────────────────────────────────────── */

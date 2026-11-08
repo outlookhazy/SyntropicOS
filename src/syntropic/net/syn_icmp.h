@@ -14,16 +14,16 @@
 #ifndef SYN_ICMP_H
 #define SYN_ICMP_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/net/syn_eth.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SYN_ICMP_TYPE_ECHO_REPLY 0U   /**< ICMP Type 0: Echo Reply */
 #define SYN_ICMP_TYPE_UNREACHABLE 3U  /**< ICMP Type 3: Destination Unreachable */

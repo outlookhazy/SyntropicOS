@@ -7,15 +7,15 @@
 #ifndef SYN_FOC_ENCODER_H
 #define SYN_FOC_ENCODER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "../common/syn_defs.h"
 #include "../util/syn_qmath.h"
 
 #include <stdbool.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** @brief Sensored Feedback Type */
 typedef enum {

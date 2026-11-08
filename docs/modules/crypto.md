@@ -69,14 +69,13 @@ Elliptic Curve Diffie-Hellman (Curve25519 / RFC 7748) key exchange for secure pe
 ```c
 #include <syntropic/crypto/syn_x25519.h>
 
-void ecdh_key_exchange(void) {
-    uint8_t my_private[32];
-    uint8_t my_public[32];
-    uint8_t peer_public[32];
-    uint8_t shared_secret[32];
+void ecdh_key_exchange(const uint8_t peer_public[32], uint8_t my_public[32],
+                       uint8_t shared_secret[32]) {
+    uint8_t my_private[32] = { /* 32 CSPRNG bytes */ };
 
-    // Generate public key: P = k * G
-    syn_x25519_base(my_public, my_private);
+    // Clamp private scalar per RFC 7748 and derive public key: P = k * G
+    syn_x25519_clamp(my_private);
+    syn_x25519_pubkey(my_public, my_private);
 
     // Derive shared secret: S = k * Peer_P
     syn_x25519(shared_secret, my_private, peer_public);
@@ -136,7 +135,7 @@ void p256_ecdh_and_ecdsa_demo(void) {
 
 Complete cleanroom TCG TPM 2.0 serializer and response parser for hardware security chips (SPI / I2C TPM):
 - **Core Operations**: `TPM2_Startup`, `TPM2_SelfTest`, `TPM2_GetRandom`.
-- **Platform Configuration Registers (PCRs)**: `TPM2_PCR_Read` and `TPM2_PCR_Extend` (SHA-1, SHA-256, SHA-384, SHA-512) for measured boot integrity chains.
+- **Platform Configuration Registers (PCRs)**: `TPM2_PCR_Read` and `TPM2_PCR_Extend` (SHA-256, SHA-384) for measured boot integrity chains.
 - **Remote Attestation**: `TPM2_Quote` over selected PCR banks with nonce verification.
 - **Hardware NVRAM**: Authenticated `TPM2_NV_Read` and `TPM2_NV_Write`.
 
@@ -146,7 +145,7 @@ Complete cleanroom TCG TPM 2.0 serializer and response parser for hardware secur
 static SYN_TPM2_Context g_tpm;
 static uint8_t g_tpm_rx[512], g_tpm_tx[512];
 
-void tpm2_setup(const SYN_Transport *tpm_spi_transport) {
+void tpm2_setup(SYN_Transport *tpm_spi_transport) {
     SYN_TPM2_Config cfg = {
         .transport = tpm_spi_transport,
         .rx_buf = g_tpm_rx,

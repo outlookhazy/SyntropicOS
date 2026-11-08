@@ -347,12 +347,16 @@ static SYN_PT_Status app_dtc_monitor_task(SYN_PT *pt)
 {
     PT_BEGIN(pt);
 
-    /* Monitor CAN bus-off fault condition */
-    evaluate_dtc_status(DTC_CODE_CAN_BUS_OFF, g_sim_can_bus_off);
+    for (;;) {
+        /* Monitor CAN bus-off fault condition */
+        evaluate_dtc_status(DTC_CODE_CAN_BUS_OFF, g_sim_can_bus_off);
 
-    /* Monitor supply voltage high fault condition (> 16.0V) */
-    bool voltage_fault = (g_sim_sys_voltage_mv > 16000U);
-    evaluate_dtc_status(DTC_CODE_VOLTAGE_HIGH, voltage_fault);
+        /* Monitor supply voltage high fault condition (> 16.0V) */
+        bool voltage_fault = (g_sim_sys_voltage_mv > 16000U);
+        evaluate_dtc_status(DTC_CODE_VOLTAGE_HIGH, voltage_fault);
+
+        PT_PASS(pt);
+    }
 
     PT_END(pt);
 }
@@ -399,7 +403,6 @@ int main(void)
 
     printf("Step 2: Simulating CAN Bus-Off fault (Cycle 1 -> Fault active)...\n");
     g_sim_can_bus_off = true;
-    PT_INIT(&monitor_pt);
     app_dtc_monitor_task(&monitor_pt);
     printf("Confirmed DTC count: %u\n", (unsigned)get_confirmed_dtc_count());
 

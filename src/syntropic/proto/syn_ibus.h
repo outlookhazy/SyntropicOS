@@ -13,15 +13,15 @@
 #ifndef SYN_IBUS_H
 #define SYN_IBUS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SYN_IBUS_FRAME_SIZE 32U   /**< IBUS frame size in bytes (32) */
 #define SYN_IBUS_NUM_CHANNELS 14U /**< Number of RC channels in IBUS frame (14) */

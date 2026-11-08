@@ -33,7 +33,7 @@ static SYN_PT_Status task_ppm_rx_func(SYN_PT *pt, SYN_Task *task)
         /* Ingest incoming timer capture pulse width */
         uint16_t pulse_us = 1500;
         (void)syn_ppm_process_pulse(&s_ppm, pulse_us);
-        PT_YIELD(pt);
+        PT_PASS(pt);
     }
 
     PT_END(pt);
@@ -65,8 +65,8 @@ int main_sched(void)
 {
     syn_ppm_init(&s_ppm);
 
-    syn_task_create(&s_tasks[TASK_PPM_RX],  "PpmRx",   task_ppm_rx_func,  1, NULL);
-    syn_task_create(&s_tasks[TASK_CONTROL], "Control", task_control_func, 2, NULL);
+    syn_task_create(&s_tasks[TASK_PPM_RX], "PpmRx", task_ppm_rx_func, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&s_tasks[TASK_CONTROL], "Control", task_control_func, SYN_PRIO_NORMAL, NULL);
 
     syn_sched_init(&s_sched, s_tasks, TASK_COUNT);
 

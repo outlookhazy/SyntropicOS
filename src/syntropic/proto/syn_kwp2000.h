@@ -44,12 +44,13 @@ extern "C" {
 #define SYN_KWP2000_SID_SECURITY_ACCESS 0x27U                 /**< SecurityAccess */
 #define SYN_KWP2000_SID_WRITE_DATA_BY_COMMON_IDENTIFIER 0x2EU /**< WriteDataByCommonIdentifier */
 #define SYN_KWP2000_SID_START_ROUTINE_BY_LOCAL_IDENTIFIER \
-    0x31U                                           /**< StartRoutineByLocalIdentifier */
-#define SYN_KWP2000_SID_REQUEST_DOWNLOAD 0x34U      /**< RequestDownload */
-#define SYN_KWP2000_SID_TRANSFER_DATA 0x36U         /**< TransferData */
-#define SYN_KWP2000_SID_REQUEST_TRANSFER_EXIT 0x37U /**< RequestTransferExit */
-#define SYN_KWP2000_SID_TESTER_PRESENT 0x3EU        /**< TesterPresent */
-#define SYN_KWP2000_SID_NEGATIVE_RESPONSE 0x7FU     /**< NegativeResponse */
+    0x31U                                                    /**< StartRoutineByLocalIdentifier */
+#define SYN_KWP2000_SID_REQUEST_DOWNLOAD 0x34U               /**< RequestDownload */
+#define SYN_KWP2000_SID_TRANSFER_DATA 0x36U                  /**< TransferData */
+#define SYN_KWP2000_SID_REQUEST_TRANSFER_EXIT 0x37U          /**< RequestTransferExit */
+#define SYN_KWP2000_SID_WRITE_DATA_BY_LOCAL_IDENTIFIER 0x3BU /**< WriteDataByLocalIdentifier */
+#define SYN_KWP2000_SID_TESTER_PRESENT 0x3EU                 /**< TesterPresent */
+#define SYN_KWP2000_SID_NEGATIVE_RESPONSE 0x7FU              /**< NegativeResponse */
 /**@}*/
 
 /** @name KWP2000 Session Modes (ISO 14230-3) */
@@ -89,18 +90,18 @@ typedef uint8_t SYN_KWP2000_Session;
 
 /** @brief Registered Local Identifier (LID) descriptor. */
 typedef struct {
-    uint8_t lid;      /**< 1-byte Local Identifier (e.g. 0x01, 0x10) */
-    const void *data; /**< Pointer to data buffer                     */
-    uint16_t len;     /**< Length of data buffer in bytes             */
-    bool writable;    /**< Is LID writable via Service 0x3B/0x2E?     */
+    uint8_t lid;   /**< 1-byte Local Identifier (e.g. 0x01, 0x10) */
+    void *data;    /**< Pointer to data buffer                     */
+    uint16_t len;  /**< Length of data buffer in bytes             */
+    bool writable; /**< Is LID writable via Service 0x3B?          */
 } SYN_KWP2000_LID;
 
 /** @brief Registered Common Identifier (CID) descriptor. */
 typedef struct {
-    uint16_t cid;     /**< 2-byte Common Identifier (e.g. 0xF190)    */
-    const void *data; /**< Pointer to data buffer                     */
-    uint16_t len;     /**< Length of data buffer in bytes             */
-    bool writable;    /**< Is CID writable via Service 0x2E?          */
+    uint16_t cid;  /**< 2-byte Common Identifier (e.g. 0xF190)    */
+    void *data;    /**< Pointer to data buffer                     */
+    uint16_t len;  /**< Length of data buffer in bytes             */
+    bool writable; /**< Is CID writable via Service 0x2E?          */
 } SYN_KWP2000_CID;
 
 /** @brief Session transition callback function pointer. */
@@ -159,6 +160,7 @@ typedef struct {
     void *memory_ctx;                    /**< Memory context                      */
 
     bool is_downloading;        /**< Is RequestDownload active?          */
+    uint8_t expected_block_seq; /**< Expected 0x36 block sequence number */
     uint32_t download_addr;     /**< Target download address             */
     uint32_t download_size;     /**< Expected total transfer size        */
     uint32_t download_received; /**< Bytes received so far               */
@@ -174,27 +176,27 @@ typedef struct {
 SYN_Status syn_kwp2000_init(SYN_KWP2000_Server *server);
 
 /**
- * @brief Register a Local Identifier (LID, 1-byte) for Service 0x21 reading.
+ * @brief Register a Local Identifier (LID, 1-byte) for Service 0x21/0x3B.
  * @param server Pointer to server instance.
  * @param lid 1-byte Local Identifier.
- * @param data Pointer to data buffer.
+ * @param data Pointer to mutable data buffer.
  * @param len Data length in bytes.
  * @param writable Is LID writable?
  * @return SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on error.
  */
-SYN_Status syn_kwp2000_register_lid(SYN_KWP2000_Server *server, uint8_t lid, const void *data,
+SYN_Status syn_kwp2000_register_lid(SYN_KWP2000_Server *server, uint8_t lid, void *data,
                                     uint16_t len, bool writable);
 
 /**
- * @brief Register a Common Identifier (CID, 2-byte) for Service 0x22 reading.
+ * @brief Register a Common Identifier (CID, 2-byte) for Service 0x22/0x2E.
  * @param server Pointer to server instance.
  * @param cid 2-byte Common Identifier.
- * @param data Pointer to data buffer.
+ * @param data Pointer to mutable data buffer.
  * @param len Data length in bytes.
  * @param writable Is CID writable?
  * @return SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on error.
  */
-SYN_Status syn_kwp2000_register_cid(SYN_KWP2000_Server *server, uint16_t cid, const void *data,
+SYN_Status syn_kwp2000_register_cid(SYN_KWP2000_Server *server, uint16_t cid, void *data,
                                     uint16_t len, bool writable);
 
 /**

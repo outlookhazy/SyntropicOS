@@ -3,25 +3,34 @@
  * @brief Implementation of system-wide metrics registry.
  */
 
-#ifdef SYN_CONFIG_FILE
-#include SYN_CONFIG_FILE
-#elif __has_include("syn_config.h")
-#include "syn_config.h"
-#endif
-
-#include "../util/syn_fmt.h"
 #include "syn_metrics.h"
+
+#include "../common/syn_defs.h"
+#include "../port/syn_port_system.h"
+#include "../util/syn_fmt.h"
 
 #include <stdio.h>
 #include <string.h>
 
-#if SYN_USE_METRICS
+#if defined(SYN_USE_METRICS) && SYN_USE_METRICS
+
+static SYN_Metric *g_metrics_head = NULL;
 
 void syn_metrics_init(void)
 {
+    syn_port_enter_critical();
+    SYN_Metric *curr = g_metrics_head;
+    while (curr != NULL) {
+        SYN_Metric *next = curr->next;
+        curr->registered = false;
+        curr->next = NULL;
+        curr = next;
+    }
+    g_metrics_head = NULL;
+    syn_port_exit_critical();
 }
 
-#if SYN_USE_ROUTER
+#if defined(SYN_USE_ROUTER) && SYN_USE_ROUTER
 #include "../net/syn_router.h"
 
 static struct SYN_Router *g_metrics_router = NULL;
@@ -56,17 +65,19 @@ void syn_metrics_count(const char *name, int32_t delta)
 }
 #endif /* SYN_USE_ROUTER */
 
-static SYN_Metric *g_metrics_head = NULL;
-
 void syn_metric_register(SYN_Metric *m)
 {
-    if (!m || m->registered)
+    if (!m) {
         return;
-    m->registered = true;
+    }
 
-    /* Simple thread-safe-ish insertion (assuming init happens on primary core) */
-    m->next = g_metrics_head;
-    g_metrics_head = m;
+    syn_port_enter_critical();
+    if (!m->registered) {
+        m->registered = true;
+        m->next = g_metrics_head;
+        g_metrics_head = m;
+    }
+    syn_port_exit_critical();
 }
 
 void syn_metrics_foreach(void (*cb)(const SYN_Metric *m, void *ctx), void *ctx)

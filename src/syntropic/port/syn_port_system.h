@@ -10,6 +10,10 @@
 #ifndef SYN_PORT_SYSTEM_H
 #define SYN_PORT_SYSTEM_H
 
+#if defined(__has_include) && __has_include("syn_config.h")
+#include "syn_config.h"
+#endif
+
 #include "../common/syn_compiler.h"
 #include "../common/syn_defs.h"
 
@@ -64,6 +68,12 @@ void syn_port_nvic_enable_irq(uint8_t irq_num);
 #if defined(SYN_USE_TICKLESS) && SYN_USE_TICKLESS
 /**
  * @brief Program low-power sleep mode until the designated target tick.
+ *
+ * @note The tickless scheduler invokes this function inside a critical section
+ *       with interrupts masked. Implementations must wake on pending-but-masked
+ *       interrupts (such as WFI on Cortex-M) or re-mask interrupts before
+ *       returning so the caller exits its critical section cleanly.
+ *
  * @param wake_tick_ms Target tick time in milliseconds to wake up.
  */
 void syn_port_sleep_until(uint32_t wake_tick_ms);

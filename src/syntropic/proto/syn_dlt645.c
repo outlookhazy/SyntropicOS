@@ -175,6 +175,22 @@ void syn_dlt645_decoder_init(SYN_DLT645_Decoder *dec, SYN_DLT645_Ver version,
     dec->cb_ctx = ctx;
 }
 
+/**
+ * @brief Discard leading bytes up to the next 0x68 SOF marker for stream resynchronization.
+ * @param dec Streaming DL/T 645 decoder instance.
+ */
+static void dlt645_shift_to_next_sof(SYN_DLT645_Decoder *dec)
+{
+    for (size_t i = 1U; i < dec->rx_len; i++) {
+        if (dec->rx_buf[i] == SYN_DLT645_SOF) {
+            dec->rx_len -= i;
+            memmove(dec->rx_buf, &dec->rx_buf[i], dec->rx_len);
+            return;
+        }
+    }
+    dec->rx_len = 0U;
+}
+
 void syn_dlt645_decoder_feed(SYN_DLT645_Decoder *dec, uint8_t rx_byte)
 {
     if (dec == NULL) {
@@ -182,31 +198,39 @@ void syn_dlt645_decoder_feed(SYN_DLT645_Decoder *dec, uint8_t rx_byte)
     }
 
     /* Ignore preambles if buffer is empty */
-    if (dec->rx_len == 0 && rx_byte == SYN_DLT645_PREAMBLE) {
+    if (dec->rx_len == 0U && rx_byte == SYN_DLT645_PREAMBLE) {
         return;
     }
 
     /* Must start with SOF (0x68) */
-    if (dec->rx_len == 0 && rx_byte != SYN_DLT645_SOF) {
+    if (dec->rx_len == 0U && rx_byte != SYN_DLT645_SOF) {
         return;
     }
 
     /* Prevent overflow */
     if (dec->rx_len >= sizeof(dec->rx_buf)) {
-        dec->rx_len = 0;
+        dec->rx_len = 0U;
         return;
     }
 
     dec->rx_buf[dec->rx_len++] = rx_byte;
 
-    /* Check potential frame completion on EOF byte */
-    if (rx_byte == SYN_DLT645_EOF && dec->rx_len >= 12) {
-        SYN_DLT645_Frame frame;
-        if (syn_dlt645_parse(dec->rx_buf, dec->rx_len, dec->version, &frame) == SYN_OK) {
-            if (dec->cb != NULL) {
-                dec->cb(&frame, dec->cb_ctx);
+    /* Check potential frame completion or resync on EOF byte */
+    if (rx_byte == SYN_DLT645_EOF) {
+        while (dec->rx_len >= 12U) {
+            SYN_DLT645_Frame frame;
+            SYN_Status st = syn_dlt645_parse(dec->rx_buf, dec->rx_len, dec->version, &frame);
+            if (st == SYN_OK) {
+                if (dec->cb != NULL) {
+                    dec->cb(&frame, dec->cb_ctx);
+                }
+                dec->rx_len = 0U;
+                break;
             }
-            dec->rx_len = 0; /* Reset for next frame */
+            if (st != SYN_ERROR) {
+                break;
+            }
+            dlt645_shift_to_next_sof(dec);
         }
     }
 }

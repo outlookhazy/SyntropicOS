@@ -7,6 +7,8 @@
 #include "syn_at_parser.h"
 
 #include <ctype.h>
+#include <errno.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -37,6 +39,8 @@ void syn_at_parser_reset(SYN_AtParser *parser)
         parser->line_buf[0] = '\0';
     }
 }
+
+static bool parse_at_int(const char *p, int *out_val);
 
 /**
  * @brief Check if string starts with given prefix.
@@ -93,13 +97,9 @@ SYN_AtRespType syn_at_parser_feed_char(SYN_AtParser *parser, char c)
             parser->last_resp = SYN_AT_RESP_ERROR;
         } else if (starts_with(line, "+CME ERROR:") || starts_with(line, "+CMS ERROR:")) {
             parser->last_resp = SYN_AT_RESP_CME_ERROR;
-            const char *p = strchr(line, ':');
-            if (p != NULL) {
-                parser->cme_error_code = atoi(p + 1);
-            } else {
-                parser->cme_error_code = -1; /* LCOV_EXCL_LINE: Unreachable fallback; colon is
-                                                guaranteed by starts_with match */
-            }
+            const char *colon = strchr(line, ':');
+            int code = 0;
+            parser->cme_error_code = parse_at_int(colon + 1, &code) ? code : 0;
         } else if (starts_with(line, "+RECEIVE,") || starts_with(line, "+IPD,") ||
                    starts_with(line, "CLOSED") || starts_with(line, "SHUT OK") ||
                    starts_with(line, "RING") || starts_with(line, "+CMTI:")) {
@@ -154,6 +154,88 @@ int syn_at_parser_get_cme_error(const SYN_AtParser *parser)
 }
 
 /**
+ * @brief Check if character is an AT parameter delimiter (NUL, comma, CR, or LF).
+ * @param c Character to test.
+ * @return true if c is a parameter delimiter, false otherwise.
+ */
+static bool is_param_delim(char c)
+{
+    return (c == '\0' || c == ',' || c == '\r' || c == '\n');
+}
+
+/**
+ * @brief Parse a signed decimal integer from an AT parameter token.
+ * @param p       Start of parameter substring.
+ * @param out_val Output pointer for parsed integer value.
+ * @return true if a valid integer followed by a delimiter was parsed.
+ */
+static bool parse_at_int(const char *p, int *out_val)
+{
+    while (*p == ' ' || *p == '\t') {
+        p++;
+    }
+    if (is_param_delim(*p)) {
+        return false;
+    }
+
+    errno = 0;
+    char *endptr = NULL;
+    long val = strtol(p, &endptr, 10);
+    if (endptr == p || errno == ERANGE || val < (long)INT_MIN || val > (long)INT_MAX) {
+        return false;
+    }
+
+    while (*endptr == ' ' || *endptr == '\t') {
+        endptr++;
+    }
+    if (!is_param_delim(*endptr)) {
+        return false;
+    }
+
+    *out_val = (int)val;
+    return true;
+}
+
+/**
+ * @brief Advance past an unquoted '+CMD:' response prefix if present.
+ * @param line Input AT response line.
+ * @return Pointer past the header colon, or line if no unquoted header colon precedes commas.
+ */
+static const char *skip_at_header(const char *line)
+{
+    bool in_quote = false;
+    for (const char *s = line; *s != '\0'; s++) {
+        if (*s == '"') {
+            in_quote = !in_quote;
+        } else if (!in_quote && *s == ',') {
+            break;
+        } else if (!in_quote && *s == ':') {
+            return s + 1;
+        }
+    }
+    return line;
+}
+
+/**
+ * @brief Find the next comma outside of double-quoted string literals.
+ * @param p Input string cursor.
+ * @return Pointer to next unquoted comma, or NULL if none exists.
+ */
+static const char *next_unquoted_comma(const char *p)
+{
+    bool in_quote = false;
+    while (*p != '\0') {
+        if (*p == '"') {
+            in_quote = !in_quote;
+        } else if (!in_quote && *p == ',') {
+            return p;
+        }
+        p++;
+    }
+    return NULL;
+}
+
+/**
  * @brief Find starting position of parameter by index.
  * @param line Input line string.
  * @param param_idx 0-based parameter index.
@@ -165,21 +247,14 @@ static const char *find_param_start(const char *line, size_t param_idx)
         return NULL;
     }
 
-    /* Skip header prefix if present (e.g. "+CSQ: ") */
-    const char *p = strchr(line, ':');
-    if (p != NULL) {
-        p++;
-    } else {
-        p = line;
-    }
-
+    const char *p = skip_at_header(line);
     while (*p == ' ') {
         p++;
     }
 
-    size_t curr_idx = 0;
+    size_t curr_idx = 0U;
     while (curr_idx < param_idx) {
-        p = strchr(p, ',');
+        p = next_unquoted_comma(p);
         if (p == NULL) {
             return NULL;
         }
@@ -200,17 +275,16 @@ bool syn_at_parser_get_param_int(const char *line, size_t param_idx, int *out_va
     }
 
     const char *p = find_param_start(line, param_idx);
-    if (p == NULL || *p == '\0') {
+    if (p == NULL) {
         return false;
     }
 
-    *out_val = atoi(p);
-    return true;
+    return parse_at_int(p, out_val);
 }
 
 bool syn_at_parser_get_param_str(const char *line, size_t param_idx, char *out_buf, size_t max_len)
 {
-    if (out_buf == NULL || max_len == 0) {
+    if (out_buf == NULL || max_len == 0U) {
         return false;
     }
 
@@ -219,14 +293,19 @@ bool syn_at_parser_get_param_str(const char *line, size_t param_idx, char *out_b
         return false;
     }
 
-    /* Skip leading quote */
-    if (*p == '"') {
+    bool quoted = (*p == '"');
+    if (quoted) {
         p++;
     }
 
-    size_t out_idx = 0;
-    while (*p != '\0' && *p != ',' && *p != '"' && *p != '\r' && *p != '\n' &&
-           out_idx < max_len - 1) {
+    size_t out_idx = 0U;
+    while (*p != '\0' && *p != '\r' && *p != '\n' && out_idx < max_len - 1U) {
+        if (quoted && *p == '"') {
+            break;
+        }
+        if (!quoted && *p == ',') {
+            break;
+        }
         out_buf[out_idx++] = *p++;
     }
     out_buf[out_idx] = '\0';

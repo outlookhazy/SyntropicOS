@@ -57,6 +57,30 @@ SYN_Status syn_ble_l2cap_disconnect(SYN_BLE_L2CAP *l2cap, uint16_t conn_handle)
     return SYN_OK;
 }
 
+/**
+ * @brief Find or allocate connection slot for incoming ACL packet.
+ * @param l2cap L2CAP context handle.
+ * @param conn_handle Connection handle.
+ * @return Active connection entry pointer, or NULL if pool full.
+ */
+static SYN_BLE_L2CAP_Connection *l2cap_get_or_alloc_conn(SYN_BLE_L2CAP *l2cap, uint16_t conn_handle)
+{
+    for (size_t i = 0U; i < SYN_BLE_MAX_CONNECTIONS; i++) {
+        if (l2cap->conns[i].active && l2cap->conns[i].conn_handle == conn_handle) {
+            return &l2cap->conns[i];
+        }
+    }
+    for (size_t i = 0U; i < SYN_BLE_MAX_CONNECTIONS; i++) {
+        if (!l2cap->conns[i].active) {
+            memset(&l2cap->conns[i], 0, sizeof(l2cap->conns[i]));
+            l2cap->conns[i].conn_handle = conn_handle;
+            l2cap->conns[i].active = true;
+            return &l2cap->conns[i];
+        }
+    }
+    return NULL;
+}
+
 SYN_Status syn_ble_l2cap_process_acl(SYN_BLE_L2CAP *l2cap, uint16_t conn_handle,
                                      uint8_t pb_bc_flags, const uint8_t *data, uint16_t len)
 {
@@ -64,78 +88,66 @@ SYN_Status syn_ble_l2cap_process_acl(SYN_BLE_L2CAP *l2cap, uint16_t conn_handle,
         return SYN_INVALID_PARAM;
     }
 
-    SYN_BLE_L2CAP_Connection *conn = NULL;
-    for (size_t i = 0U; i < SYN_BLE_MAX_CONNECTIONS; i++) {
-        if (l2cap->conns[i].active && l2cap->conns[i].conn_handle == conn_handle) {
-            conn = &l2cap->conns[i];
-            break;
-        }
-    }
-
+    SYN_BLE_L2CAP_Connection *conn = l2cap_get_or_alloc_conn(l2cap, conn_handle);
     if (conn == NULL) {
-        if (syn_ble_l2cap_connect(l2cap, conn_handle) != SYN_OK) {
-            return SYN_ERROR;
-        }
-        for (size_t i = 0U; i < SYN_BLE_MAX_CONNECTIONS; i++) {
-            if (l2cap->conns[i].active && l2cap->conns[i].conn_handle == conn_handle) {
-                conn = &l2cap->conns[i];
-                break;
-            }
-        }
-        /* LCOV_EXCL_START: Static analyzer defense guard */
-        if (conn == NULL) {
-            return SYN_ERROR;
-        }
-        /* LCOV_EXCL_STOP */
+        return SYN_ERROR;
     }
 
     uint8_t pb_flags = pb_bc_flags & 0x03U;
 
     if (pb_flags == 0x02U || pb_flags == 0x00U) {
         if (len < 4U) {
+            conn->reassembling = false;
             return SYN_INVALID_PARAM;
         }
-        uint16_t pdu_len = (uint16_t)(data[0] | (data[1] << 8U));
-        uint16_t cid = (uint16_t)(data[2] | (data[3] << 8U));
+        uint16_t pdu_len = (uint16_t)((uint16_t)data[0] | (uint16_t)((uint16_t)data[1] << 8U));
+        uint16_t cid = (uint16_t)((uint16_t)data[2] | (uint16_t)((uint16_t)data[3] << 8U));
         const uint8_t *pdu_payload = &data[4];
         uint16_t payload_len = (uint16_t)(len - 4U);
 
+        if ((size_t)pdu_len > sizeof(conn->rx_buf) || payload_len > pdu_len) {
+            conn->reassembling = false;
+            return SYN_ERROR;
+        }
+
         if (payload_len == pdu_len) {
+            conn->reassembling = false;
             if (l2cap->rx_cb != NULL) {
                 l2cap->rx_cb(l2cap, conn_handle, cid, pdu_payload, pdu_len, l2cap->user_data);
             }
-            conn->reassembling = false;
-        } else if (payload_len < pdu_len) {
-            if (pdu_len > sizeof(conn->rx_buf)) {
-                return SYN_ERROR;
-            }
+        } else {
             memcpy(conn->rx_buf, pdu_payload, payload_len);
             conn->rx_len = payload_len;
             conn->expected_len = pdu_len;
             conn->cid = cid;
             conn->reassembling = true;
         }
-    } else if (pb_flags == 0x01U) {
+        return SYN_OK;
+    }
+
+    if (pb_flags == 0x01U) {
         if (!conn->reassembling) {
             return SYN_ERROR;
         }
-        if ((uint32_t)conn->rx_len + len > sizeof(conn->rx_buf)) {
+        if ((uint32_t)conn->rx_len + (uint32_t)len > (uint32_t)conn->expected_len) {
             conn->reassembling = false;
             return SYN_ERROR;
         }
         memcpy(&conn->rx_buf[conn->rx_len], data, len);
-        conn->rx_len += len;
+        conn->rx_len = (uint16_t)(conn->rx_len + len);
 
-        if (conn->rx_len >= conn->expected_len) {
+        if (conn->rx_len == conn->expected_len) {
+            conn->reassembling = false;
             if (l2cap->rx_cb != NULL) {
                 l2cap->rx_cb(l2cap, conn_handle, conn->cid, conn->rx_buf, conn->expected_len,
                              l2cap->user_data);
             }
-            conn->reassembling = false;
         }
+        return SYN_OK;
     }
 
-    return SYN_OK;
+    conn->reassembling = false;
+    return SYN_INVALID_PARAM;
 }
 
 SYN_Status syn_ble_l2cap_encode_pdu(uint16_t conn_handle, uint16_t cid, const uint8_t *payload,

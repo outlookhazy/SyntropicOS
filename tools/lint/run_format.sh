@@ -12,11 +12,11 @@ fi
 echo "=== SyntropicOS Code Formatting Check (clang-format) ==="
 
 if ! command -v clang-format >/dev/null 2>&1; then
-    echo "Notice: clang-format not found on host. Run via container: make container-format"
-    exit 0
+    echo "ERROR: clang-format not found. Run via container: make container-format" >&2
+    exit 1
 fi
 
-FILES=$(find src tests -name "*.c" -o -name "*.h" ! -path "*/unity/*" ! -name "stb_*.h")
+FILES=$(find src tests \( -name "*.c" -o -name "*.h" \) ! -path "*/unity/*" ! -name "stb_*.h")
 
 if [[ "${MODE}" == "fix" ]]; then
     echo "Applying formatting fixes..."

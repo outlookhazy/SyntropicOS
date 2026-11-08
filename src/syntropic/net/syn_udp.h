@@ -16,6 +16,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +32,10 @@ extern "C" {
 #define SYN_UDP_BUF_SIZE 256 /**< UDP socket internal RX buffer size in bytes */
 #endif
 
+#ifndef SYN_UDP_MAX_DGRAMS
+#define SYN_UDP_MAX_DGRAMS 8U /**< Maximum queued UDP datagram descriptors per socket */
+#endif
+
 /** @brief UDP packet header structure (8 bytes). */
 typedef struct {
     uint16_t src_port; /**< Source port number. */
@@ -39,17 +44,28 @@ typedef struct {
     uint16_t checksum; /**< Checksum over pseudo-header and payload. */
 } SYN_UdpHeader;
 
+/** @brief Queued UDP datagram metadata descriptor preserving packet boundaries. */
+typedef struct {
+    uint32_t src_ip;   /**< Sender IPv4 address. */
+    uint16_t src_port; /**< Sender UDP port. */
+    uint16_t len;      /**< Datagram payload byte length. */
+} SYN_UdpDatagram;
+
 /* ── UDP Socket Slot ────────────────────────────────────────────────────── */
 
 /** @brief UDP socket slot control block. */
 typedef struct {
     bool is_bound;        /**< True if socket is bound to a local port. */
     uint16_t local_port;  /**< Bound local port number. */
-    uint32_t remote_ip;   /**< Connected remote IPv4 address. */
-    uint16_t remote_port; /**< Connected remote port number. */
+    uint32_t remote_ip;   /**< Sender IPv4 address of front queued datagram. */
+    uint16_t remote_port; /**< Sender UDP port of front queued datagram. */
 
-    uint8_t rx_buf[SYN_UDP_BUF_SIZE]; /**< Receive payload buffer. */
-    uint16_t rx_len;                  /**< Received payload length. */
+    uint8_t rx_buf[SYN_UDP_BUF_SIZE];           /**< Queued receive payload byte buffer. */
+    uint16_t rx_len;                            /**< Front datagram payload byte length. */
+    uint16_t rx_total_len;                      /**< Total payload bytes across queued datagrams. */
+    SYN_UdpDatagram dgrams[SYN_UDP_MAX_DGRAMS]; /**< Per-datagram boundary ring buffer. */
+    uint8_t dgram_head;                         /**< Head index in datagram ring. */
+    uint8_t dgram_count;                        /**< Number of queued datagrams. */
 
     SYN_Task *blocked_task; /**< Protothread task sleeping on this UDP socket. */
 } SYN_UdpSocket;
@@ -60,6 +76,7 @@ typedef struct {
 typedef struct {
     SYN_ETH *eth;                               /**< Associated Ethernet interface instance. */
     SYN_UdpSocket sockets[SYN_UDP_MAX_SOCKETS]; /**< Array of managed UDP sockets. */
+    uint16_t next_ephemeral_port;               /**< Ephemeral local port cursor (49152..65535). */
 } SYN_UDP;
 
 /* ── Functions ─────────────────────────────────────────────────────────── */
@@ -120,6 +137,41 @@ int syn_udp_sendto(SYN_UDP *udp, uint16_t src_port, uint32_t dst_ip, uint16_t ds
  */
 uint16_t syn_udp_checksum(uint32_t src_ip, uint32_t dst_ip, const uint8_t *udp_seg, size_t len);
 
+/**
+ * @brief Dequeue a single UDP datagram from a bound socket, preserving datagram boundaries.
+ * @param sock       Pointer to UDP socket slot.
+ * @param buf        Destination buffer for datagram payload.
+ * @param max_len    Maximum bytes to copy into buf.
+ * @param bytes_read [out] Bytes copied into buf (0 if no datagram queued).
+ * @param src_ip     [out] Optional pointer receiving sender IPv4 address.
+ * @param src_port   [out] Optional pointer receiving sender UDP port.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on NULL required pointer.
+ */
+SYN_Status syn_udp_recv(SYN_UdpSocket *sock, void *buf, size_t max_len, size_t *bytes_read,
+                        uint32_t *src_ip, uint16_t *src_port);
+
+/**
+ * @brief Validate pointer arguments for PT_UDP_BLOCK_READ without triggering -Waddress.
+ * @param pt         Protothread state pointer.
+ * @param task       Task instance pointer.
+ * @param sock       UDP socket pointer.
+ * @param buf        Destination read buffer pointer.
+ * @param bytes_read Output byte count pointer.
+ * @return true if all required pointers are non-NULL, false otherwise.
+ */
+static inline bool syn_udp_pt_args_valid(SYN_PT *pt, const SYN_Task *task,
+                                         const SYN_UdpSocket *sock, const void *buf,
+                                         const size_t *bytes_read)
+{
+    if (pt == NULL || task == NULL || sock == NULL || buf == NULL || bytes_read == NULL) {
+        if (pt != NULL) {
+            PT_INIT(pt);
+        }
+        return false;
+    }
+    return true;
+}
+
 /* ── Task Blocking Macros ───────────────────────────────────────────────── */
 
 /**
@@ -133,23 +185,31 @@ uint16_t syn_udp_checksum(uint32_t src_ip, uint32_t dst_ip, const uint8_t *udp_s
  * @param src_ip     Pointer to uint32_t receiving sender IP address.
  * @param src_port   Pointer to uint16_t receiving sender port.
  */
-#define PT_UDP_BLOCK_READ(pt, task, sock, buf, max_len, bytes_read, src_ip, src_port) \
-    do {                                                                              \
-        (sock)->blocked_task = (task);                                                \
-        PT_BLOCK_CONDITION(pt, task, (sock)->rx_len > 0 || !(sock)->is_bound);        \
-        if ((sock)->rx_len > 0) {                                                     \
-            size_t _n = ((sock)->rx_len < (max_len)) ? (sock)->rx_len : (max_len);    \
-            memcpy((buf), (sock)->rx_buf, _n);                                        \
-            memmove((sock)->rx_buf, (sock)->rx_buf + _n, (sock)->rx_len - _n);        \
-            (sock)->rx_len -= _n;                                                     \
-            *(bytes_read) = _n;                                                       \
-            if (src_ip)                                                               \
-                *(src_ip) = (sock)->remote_ip;                                        \
-            if (src_port)                                                             \
-                *(src_port) = (sock)->remote_port;                                    \
-        } else {                                                                      \
-            *(bytes_read) = 0;                                                        \
-        }                                                                             \
+#define PT_UDP_BLOCK_READ(pt, task, sock, buf, max_len, bytes_read, src_ip, src_port)     \
+    do {                                                                                  \
+        while (1) {                                                                       \
+            if (!syn_udp_pt_args_valid((pt), (task), (sock), (buf), (bytes_read))) {      \
+                return PT_EXITED;                                                         \
+            }                                                                             \
+            (sock)->blocked_task = (task);                                                \
+            syn_port_enter_critical();                                                    \
+            if ((task)->state == (uint8_t)SYN_TASK_READY) {                               \
+                (task)->state = (uint8_t)SYN_TASK_BLOCKED;                                \
+                SYN_PT_STATE_BARRIER();                                                   \
+            }                                                                             \
+            syn_port_exit_critical();                                                     \
+            if ((sock)->dgram_count > 0U || (sock)->rx_len > 0U || !(sock)->is_bound) {   \
+                syn_port_enter_critical();                                                \
+                if ((task)->state == (uint8_t)SYN_TASK_BLOCKED) {                         \
+                    (task)->state = (uint8_t)SYN_TASK_READY;                              \
+                }                                                                         \
+                syn_port_exit_critical();                                                 \
+                break;                                                                    \
+            }                                                                             \
+            PT_PASS(pt);                                                                  \
+        }                                                                                 \
+        (sock)->blocked_task = NULL;                                                      \
+        (void)syn_udp_recv((sock), (buf), (max_len), (bytes_read), (src_ip), (src_port)); \
     } while (0)
 
 #ifdef __cplusplus

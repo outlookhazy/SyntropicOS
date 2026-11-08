@@ -9,15 +9,15 @@
 #ifndef SYN_RC_FAILSAFE_H
 #define SYN_RC_FAILSAFE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** Maximum supported failsafe RC channels. */
 #define SYN_RC_FAILSAFE_MAX_CHANNELS 16U
@@ -42,6 +42,7 @@ typedef struct {
     SYN_Failsafe_Config config;                      /**< Active configuration settings */
     uint32_t last_frame_ms;                          /**< Timestamp of last valid frame in ms */
     bool in_failsafe;                                /**< True if currently in failsafe mode */
+    bool ever_received;                              /**< True once first valid RC frame arrives */
     uint32_t failsafe_events;                        /**< Total failsafe trigger events count */
     uint16_t channels[SYN_RC_FAILSAFE_MAX_CHANNELS]; /**< Output channel pulse widths in us */
 } SYN_Failsafe_Manager;

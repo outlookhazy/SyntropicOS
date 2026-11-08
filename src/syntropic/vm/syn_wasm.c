@@ -5,7 +5,9 @@
 
 #include "syn_wasm.h"
 
+#if !defined(SYN_WASM_USE_FIXED) || !SYN_WASM_USE_FIXED
 #include <math.h>
+#endif
 #include <string.h>
 
 #if defined(SYN_WASM_USE_FIXED) && SYN_WASM_USE_FIXED
@@ -401,96 +403,213 @@ static bool pop_f64(SYN_WASM_Context *ctx, double *val)
 }
 #endif
 
-static void skip_instruction_immediates(uint8_t op, const uint8_t *bytes, uint32_t size,
-                                        uint32_t *pc)
+static bool wasm_read_byte(SYN_WASM_Context *ctx, uint32_t limit, uint8_t *out)
 {
-    switch (op) {
-    /* LCOV_EXCL_START: Wasm instruction immediates skipper opcodes */
-    case OP_BLOCK:
-    case OP_LOOP:
-    case OP_IF:
-    case OP_MEMORY_SIZE:
-    case OP_MEMORY_GROW:
-        (*pc)++;
-        break;
-    /* LCOV_EXCL_STOP */
-    case OP_BR:
-    case OP_BR_IF:
-    case OP_CALL:
-    case OP_LOCAL_GET:
-    case OP_LOCAL_SET:
-    case OP_LOCAL_TEE:
-    case OP_GLOBAL_GET:
-    case OP_GLOBAL_SET:
-    case OP_I32_CONST:
-        read_u32_leb128(bytes, size, pc);
-        break;
-    /* LCOV_EXCL_START: Wasm module parser instruction immediate skip helpers */
-    case OP_I64_CONST:
-        read_i64_leb128(bytes, size, pc);
-        break;
-    case OP_CALL_INDIRECT:
-        read_u32_leb128(bytes, size, pc);
-        read_u32_leb128(bytes, size, pc);
-        break;
-    case OP_BR_TABLE: {
-        uint32_t count = read_u32_leb128(bytes, size, pc);
-        for (uint32_t i = 0; i <= count; i++) {
-            read_u32_leb128(bytes, size, pc);
+    if (ctx->pc >= limit) {
+        ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+        return false;
+    }
+    *out = ctx->module->bytes[ctx->pc++];
+    return true;
+}
+
+static bool wasm_advance_pc(SYN_WASM_Context *ctx, uint32_t limit, uint32_t count)
+{
+    if ((uint64_t)ctx->pc + (uint64_t)count > (uint64_t)limit) {
+        ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+        return false;
+    }
+    ctx->pc += count;
+    return true;
+}
+
+static bool wasm_read_u32_leb(SYN_WASM_Context *ctx, uint32_t limit, uint32_t *out)
+{
+    uint32_t result = 0U;
+    uint32_t shift = 0U;
+
+    while (ctx->pc < limit) {
+        uint8_t byte = ctx->module->bytes[ctx->pc++];
+        if (shift == 28U && (byte & 0xF0U) != 0U) {
+            ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+            return false;
         }
-        break;
-    }
-    case OP_I32_LOAD:
-    case OP_I32_LOAD8_S:
-    case OP_I32_LOAD8_U:
-    case OP_I32_LOAD16_S:
-    case OP_I32_LOAD16_U:
-    case OP_I32_STORE:
-    case OP_I32_STORE8:
-    case OP_I32_STORE16:
-    case OP_I64_LOAD:
-    case OP_I64_LOAD8_S:
-    case OP_I64_LOAD8_U:
-    case OP_I64_LOAD16_S:
-    case OP_I64_LOAD16_U:
-    case OP_I64_LOAD32_S:
-    case OP_I64_LOAD32_U:
-    case OP_I64_STORE:
-    case OP_I64_STORE8:
-    case OP_I64_STORE16:
-    case OP_I64_STORE32:
-    case OP_F32_LOAD:
-    case OP_F64_LOAD:
-    case OP_F32_STORE:
-    case OP_F64_STORE:
-        read_u32_leb128(bytes, size, pc);
-        read_u32_leb128(bytes, size, pc);
-        break;
-    case OP_F32_CONST:
-        *pc += 4;
-        break;
-    case OP_F64_CONST:
-        *pc += 8;
-        break;
-    case OP_PREFIX_MISC: {
-        uint32_t subop = read_u32_leb128(bytes, size, pc);
-        if (subop == 8) {
-            read_u32_leb128(bytes, size, pc);
-            read_u32_leb128(bytes, size, pc);
-        } else if (subop == 9) {
-            read_u32_leb128(bytes, size, pc);
-        } else if (subop == 10) {
-            read_u32_leb128(bytes, size, pc);
-            read_u32_leb128(bytes, size, pc);
-        } else if (subop == 11) {
-            read_u32_leb128(bytes, size, pc);
+        result |= (uint32_t)(byte & 0x7FU) << shift;
+        if ((byte & 0x80U) == 0U) {
+            *out = result;
+            return true;
         }
-        break;
+        shift += 7U;
     }
-    /* LCOV_EXCL_STOP */
-    default:
-        break;
+
+    ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+    return false;
+}
+
+static bool wasm_read_i32_leb(SYN_WASM_Context *ctx, uint32_t limit, int32_t *out)
+{
+    uint32_t result = 0U;
+    uint32_t shift = 0U;
+
+    while (ctx->pc < limit) {
+        uint8_t byte = ctx->module->bytes[ctx->pc++];
+        if (shift == 28U && (byte & 0x80U) != 0U) {
+            ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+            return false;
+        }
+        result |= (uint32_t)(byte & 0x7FU) << shift;
+        shift += 7U;
+        if ((byte & 0x80U) == 0U) {
+            if (shift < 32U && (byte & 0x40U) != 0U) {
+                result |= (~0U << shift);
+            }
+            *out = (int32_t)result;
+            return true;
+        }
     }
+
+    ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+    return false;
+}
+
+static bool wasm_read_i64_leb(SYN_WASM_Context *ctx, uint32_t limit, int64_t *out)
+{
+    uint64_t result = 0ULL;
+    uint32_t shift = 0U;
+
+    while (ctx->pc < limit) {
+        uint8_t byte = ctx->module->bytes[ctx->pc++];
+        if (shift == 63U && (byte & 0x80U) != 0U) {
+            ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+            return false;
+        }
+        uint64_t chunk = (shift == 63U) ? (uint64_t)(byte & 0x01U) : (uint64_t)(byte & 0x7FU);
+        result |= chunk << shift;
+        shift += 7U;
+        if ((byte & 0x80U) == 0U) {
+            if (shift < 64U && (byte & 0x40U) != 0U) {
+                result |= (~0ULL << shift);
+            }
+            *out = (int64_t)result;
+            return true;
+        }
+    }
+
+    ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+    return false;
+}
+
+static uint8_t wasm_op_u32_leb_count(uint8_t op)
+{
+    if ((op >= OP_LOCAL_GET && op <= OP_GLOBAL_SET) || op == OP_BR || op == OP_BR_IF ||
+        op == OP_CALL) {
+        return 1U;
+    }
+    if ((op >= OP_I32_LOAD && op <= OP_I64_STORE32) || op == OP_CALL_INDIRECT) {
+        return 2U;
+    }
+    return 0U;
+}
+
+static bool wasm_skip_br_table(SYN_WASM_Context *ctx, uint32_t limit)
+{
+    uint32_t count = 0U;
+    if (!wasm_read_u32_leb(ctx, limit, &count)) {
+        return false;
+    }
+    for (uint32_t i = 0U; i <= count; i++) {
+        uint32_t target = 0U;
+        if (!wasm_read_u32_leb(ctx, limit, &target)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool wasm_skip_misc_op(SYN_WASM_Context *ctx, uint32_t limit)
+{
+    uint32_t subop = 0U;
+    if (!wasm_read_u32_leb(ctx, limit, &subop)) {
+        return false;
+    }
+    uint8_t extra = 0U;
+    if (subop == 8U || subop == 10U) {
+        extra = 2U;
+    } else if (subop == 9U || subop == 11U) {
+        extra = 1U;
+    }
+    for (uint8_t i = 0U; i < extra; i++) {
+        uint32_t imm = 0U;
+        if (!wasm_read_u32_leb(ctx, limit, &imm)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool wasm_skip_immediates_checked(SYN_WASM_Context *ctx, uint8_t op, uint32_t limit)
+{
+    if (op == OP_MEMORY_SIZE || op == OP_MEMORY_GROW) {
+        uint8_t b = 0U;
+        return wasm_read_byte(ctx, limit, &b);
+    }
+    if (op == OP_I32_CONST) {
+        int32_t v = 0;
+        return wasm_read_i32_leb(ctx, limit, &v);
+    }
+    if (op == OP_I64_CONST) {
+        int64_t v = 0;
+        return wasm_read_i64_leb(ctx, limit, &v);
+    }
+    if (op == OP_F32_CONST) {
+        return wasm_advance_pc(ctx, limit, 4U);
+    }
+    if (op == OP_F64_CONST) {
+        return wasm_advance_pc(ctx, limit, 8U);
+    }
+    if (op == OP_BR_TABLE) {
+        return wasm_skip_br_table(ctx, limit);
+    }
+    if (op == OP_PREFIX_MISC) {
+        return wasm_skip_misc_op(ctx, limit);
+    }
+
+    uint8_t leb_cnt = wasm_op_u32_leb_count(op);
+    for (uint8_t i = 0U; i < leb_cnt; i++) {
+        uint32_t v = 0U;
+        if (!wasm_read_u32_leb(ctx, limit, &v)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool wasm_skip_block(SYN_WASM_Context *ctx, uint32_t limit, bool stop_at_else,
+                            bool *out_found_else)
+{
+    *out_found_else = false;
+    uint32_t depth = 1U;
+    while (depth > 0U) {
+        uint8_t op = 0U;
+        if (!wasm_read_byte(ctx, limit, &op)) {
+            return false;
+        }
+        if (op == OP_BLOCK || op == OP_LOOP || op == OP_IF) {
+            uint8_t bt = 0U;
+            if (!wasm_read_byte(ctx, limit, &bt)) {
+                return false;
+            }
+            depth++;
+        } else if (op == OP_END) {
+            depth--;
+        } else if (stop_at_else && op == OP_ELSE && depth == 1U) {
+            *out_found_else = true;
+            return true;
+        } else if (!wasm_skip_immediates_checked(ctx, op, limit)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /* ── Module Parser ──────────────────────────────────────────────────────── */
@@ -528,13 +647,11 @@ bool syn_wasm_module_load(SYN_WASM_Module *mod, const uint8_t *bytes, uint32_t s
     while (offset < size) {
         uint8_t section_id = bytes[offset++];
         uint32_t section_len = read_u32_leb128(bytes, size, &offset);
-        uint32_t section_end = offset + section_len;
 
-        /* LCOV_EXCL_START: Wasm section_end boundary check */
-        if (section_end > size) {
+        if ((uint64_t)offset + (uint64_t)section_len > (uint64_t)size) {
             return false;
         }
-        /* LCOV_EXCL_STOP */
+        uint32_t section_end = offset + section_len;
 
         if (section_id == WASM_SEC_TYPE) {
             uint32_t num_types = read_u32_leb128(bytes, section_end, &offset);
@@ -565,8 +682,14 @@ bool syn_wasm_module_load(SYN_WASM_Module *mod, const uint8_t *bytes, uint32_t s
             uint32_t num_imports = read_u32_leb128(bytes, section_end, &offset);
             for (uint32_t i = 0; i < num_imports && offset < section_end; i++) {
                 uint32_t mod_len = read_u32_leb128(bytes, section_end, &offset);
+                if ((uint64_t)offset + (uint64_t)mod_len > (uint64_t)section_end) {
+                    return false;
+                }
                 offset += mod_len;
                 uint32_t field_len = read_u32_leb128(bytes, section_end, &offset);
+                if ((uint64_t)offset + (uint64_t)field_len >= (uint64_t)section_end) {
+                    return false;
+                }
                 offset += field_len;
                 uint8_t kind = bytes[offset++];
                 if (kind == 0) { /* Function import */
@@ -612,6 +735,9 @@ bool syn_wasm_module_load(SYN_WASM_Module *mod, const uint8_t *bytes, uint32_t s
             for (uint32_t i = 0; i < num_exports && offset < section_end; i++) {
                 uint32_t name_len = read_u32_leb128(bytes, section_end, &offset);
                 uint32_t name_offset = offset;
+                if ((uint64_t)offset + (uint64_t)name_len >= (uint64_t)section_end) {
+                    return false;
+                }
                 offset += name_len;
                 uint8_t kind = bytes[offset++];
                 uint32_t idx = read_u32_leb128(bytes, section_end, &offset);
@@ -660,6 +786,9 @@ bool syn_wasm_module_load(SYN_WASM_Module *mod, const uint8_t *bytes, uint32_t s
             for (uint32_t i = 0; i < num_bodies && offset < section_end; i++) {
                 uint32_t body_size = read_u32_leb128(bytes, section_end, &offset);
                 uint32_t body_start = offset;
+                if ((uint64_t)body_start + (uint64_t)body_size > (uint64_t)section_end) {
+                    return false;
+                }
                 if (i < func_decl_count && mod->func_count < SYN_WASM_MAX_FUNCTIONS) {
                     uint32_t t_idx = type_func_indices[i];
                     mod->funcs[mod->func_count].type_idx = t_idx;
@@ -683,6 +812,42 @@ bool syn_wasm_module_load(SYN_WASM_Module *mod, const uint8_t *bytes, uint32_t s
 
 /* ── Context & Execution ─────────────────────────────────────────────────── */
 
+static bool wasm_load_data_section(SYN_WASM_Context *ctx, const SYN_WASM_Module *mod,
+                                   uint32_t section_end, uint32_t *offset)
+{
+    uint32_t num_segments = read_u32_leb128(mod->bytes, section_end, offset);
+    for (uint32_t s = 0U; s < num_segments && *offset < section_end; s++) {
+        uint32_t flags = read_u32_leb128(mod->bytes, section_end, offset);
+        (void)flags;
+        int32_t data_offset = 0;
+        if (*offset < section_end) {
+            uint8_t op = mod->bytes[(*offset)++];
+            if (op == OP_I32_CONST) {
+                data_offset = read_i32_leb128(mod->bytes, section_end, offset);
+            }
+            if (*offset < section_end && mod->bytes[*offset] == OP_END) {
+                (*offset)++;
+            }
+        }
+        uint32_t data_size = read_u32_leb128(mod->bytes, section_end, offset);
+        if ((uint64_t)(*offset) + (uint64_t)data_size > (uint64_t)section_end) {
+            ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+            return false;
+        }
+        if (data_offset < 0 || (data_size > 0U && ctx->linear_mem == NULL) ||
+            (uint64_t)(uint32_t)data_offset + (uint64_t)data_size >
+                (uint64_t)ctx->linear_mem_size) {
+            ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+            return false;
+        }
+        if (data_size > 0U) {
+            memcpy(&ctx->linear_mem[(uint32_t)data_offset], &mod->bytes[*offset], data_size);
+        }
+        *offset += data_size;
+    }
+    return true;
+}
+
 bool syn_wasm_init(SYN_WASM_Context *ctx, const SYN_WASM_Module *mod, uint8_t *linear_mem,
                    uint32_t mem_size)
 {
@@ -694,21 +859,31 @@ bool syn_wasm_init(SYN_WASM_Context *ctx, const SYN_WASM_Module *mod, uint8_t *l
     ctx->module = mod;
     ctx->linear_mem = linear_mem;
     ctx->linear_mem_size = mem_size;
+    ctx->local_count = SYN_WASM_MAX_LOCALS;
     ctx->status = SYN_WASM_OK;
 
-    /* Parse and populate Data Section (Section 11) into linear memory */
-    if (linear_mem && mem_size > 0 && mod->bytes && mod->size > 8) {
-        uint32_t offset = 8;
+    /* Parse and populate Global (Section 6) and Data (Section 11) */
+    static const uint8_t wasm_hdr[8] = {0x00U, 0x61U, 0x73U, 0x6DU, 0x01U, 0x00U, 0x00U, 0x00U};
+    if (mod->bytes != NULL && mod->size > 8U &&
+        memcmp(mod->bytes, wasm_hdr, sizeof(wasm_hdr)) == 0) {
+        uint32_t offset = 8U;
         while (offset < mod->size) {
             uint8_t section_id = mod->bytes[offset++];
             uint32_t section_size = read_u32_leb128(mod->bytes, mod->size, &offset);
+            if ((uint64_t)offset + (uint64_t)section_size > (uint64_t)mod->size) {
+                ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+                return false;
+            }
             uint32_t section_end = offset + section_size;
 
             if (section_id == WASM_SEC_GLOBAL) {
                 uint32_t num_globals = read_u32_leb128(mod->bytes, section_end, &offset);
                 for (uint32_t g = 0; g < num_globals && offset < section_end; g++) {
-                    offset++; /* Type */
-                    offset++; /* Mutability */
+                    if ((uint64_t)offset + 2ULL > (uint64_t)section_end) {
+                        ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+                        return false;
+                    }
+                    offset += 2U; /* Type + Mutability */
                     int64_t init_val = 0;
                     if (offset < section_end) {
                         uint8_t op = mod->bytes[offset++];
@@ -725,30 +900,12 @@ bool syn_wasm_init(SYN_WASM_Context *ctx, const SYN_WASM_Module *mod, uint8_t *l
                     }
                     if (g < SYN_WASM_MAX_GLOBALS) {
                         ctx->globals[g] = (uint64_t)init_val;
+                        ctx->global_count = (uint16_t)(g + 1U);
                     }
                 }
             } else if (section_id == WASM_SEC_DATA) {
-                uint32_t num_segments = read_u32_leb128(mod->bytes, section_end, &offset);
-                for (uint32_t s = 0; s < num_segments && offset < section_end; s++) {
-                    uint32_t flags = read_u32_leb128(mod->bytes, section_end, &offset);
-                    (void)flags;
-                    int32_t data_offset = 0;
-                    if (offset < section_end) {
-                        uint8_t op = mod->bytes[offset++];
-                        if (op == OP_I32_CONST) {
-                            data_offset = read_i32_leb128(mod->bytes, section_end, &offset);
-                        }
-                        if (offset < section_end && mod->bytes[offset] == OP_END) {
-                            offset++;
-                        }
-                    }
-                    uint32_t data_size = read_u32_leb128(mod->bytes, section_end, &offset);
-                    if (offset + data_size <= section_end) {
-                        if ((uint32_t)data_offset + data_size <= mem_size) {
-                            memcpy(&linear_mem[data_offset], &mod->bytes[offset], data_size);
-                        }
-                        offset += data_size;
-                    }
+                if (!wasm_load_data_section(ctx, mod, section_end, &offset)) {
+                    return false;
                 }
             }
 
@@ -789,6 +946,166 @@ int32_t syn_wasm_find_export(const SYN_WASM_Module *mod, const char *name)
     return -1;
 }
 
+static uint32_t wasm_frame_code_end(const SYN_WASM_Context *ctx)
+{
+    const SYN_WASM_Module *mod = ctx->module;
+    uint16_t fn_idx = ctx->call_stack[ctx->call_depth - 1U].func_idx;
+    if (fn_idx >= mod->func_count || mod->funcs[fn_idx].code_size == 0U) {
+        return mod->size;
+    }
+    uint64_t end =
+        (uint64_t)mod->funcs[fn_idx].code_offset + (uint64_t)mod->funcs[fn_idx].code_size;
+    return (end < (uint64_t)mod->size) ? (uint32_t)end : mod->size;
+}
+
+static bool wasm_parse_func_locals(SYN_WASM_Context *ctx, uint16_t func_index, uint32_t *out_pc,
+                                   uint32_t *out_locals)
+{
+    const SYN_WASM_FuncDef *fn = &ctx->module->funcs[func_index];
+    uint64_t end64 = (uint64_t)fn->code_offset + (uint64_t)fn->code_size;
+    if (end64 > (uint64_t)ctx->module->size) {
+        ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+        return false;
+    }
+    uint32_t saved_pc = ctx->pc;
+    uint32_t end = (uint32_t)end64;
+    ctx->pc = fn->code_offset;
+
+    uint32_t num_vecs = 0U;
+    if (!wasm_read_u32_leb(ctx, end, &num_vecs)) {
+        ctx->pc = saved_pc;
+        return false;
+    }
+    uint64_t total = 0ULL;
+    for (uint32_t i = 0U; i < num_vecs; i++) {
+        uint32_t count = 0U;
+        uint8_t ltype = 0U;
+        if (!wasm_read_u32_leb(ctx, end, &count) || !wasm_read_byte(ctx, end, &ltype)) {
+            ctx->pc = saved_pc;
+            return false;
+        }
+        (void)ltype;
+        total += (uint64_t)count;
+        if (total > (uint64_t)SYN_WASM_MAX_LOCALS) {
+            ctx->pc = saved_pc;
+            ctx->status = SYN_WASM_TRAP_STACK_OVERFLOW;
+            return false;
+        }
+    }
+    *out_pc = ctx->pc;
+    *out_locals = (uint32_t)total;
+    ctx->pc = saved_pc;
+    return true;
+}
+
+static bool wasm_push_frame(SYN_WASM_Context *ctx, uint16_t target_idx, bool allow_empty_stack)
+{
+    if (ctx->call_depth >= SYN_WASM_MAX_CALL_DEPTH) {
+        ctx->status = SYN_WASM_TRAP_CALL_STACK_OVERFLOW;
+        return false;
+    }
+    uint8_t argc = ctx->module->funcs[target_idx].param_count;
+    if (!allow_empty_stack && ctx->sp < (uint32_t)argc) {
+        ctx->status = SYN_WASM_TRAP_STACK_UNDERFLOW;
+        return false;
+    }
+    uint32_t body_pc = 0U;
+    uint32_t declared_locals = 0U;
+    if (!wasm_parse_func_locals(ctx, target_idx, &body_pc, &declared_locals)) {
+        return false;
+    }
+    uint16_t next_base = (ctx->call_depth == 0U) ? 0U : ctx->local_count;
+    uint32_t total_locals = (uint32_t)argc + declared_locals;
+    if ((uint32_t)next_base + total_locals > (uint32_t)SYN_WASM_MAX_LOCALS) {
+        ctx->status = SYN_WASM_TRAP_STACK_OVERFLOW;
+        return false;
+    }
+    if (total_locals > 0U) {
+        memset(&ctx->locals[next_base], 0, (size_t)total_locals * sizeof(uint64_t));
+    }
+    if (ctx->sp >= (uint32_t)argc) {
+        for (uint8_t i = argc; i > 0U; i--) {
+            ctx->locals[next_base + (uint16_t)(i - 1U)] = ctx->stack[--ctx->sp];
+        }
+    } else {
+        ctx->sp = 0U;
+    }
+
+    SYN_WASM_CallFrame *frame = &ctx->call_stack[ctx->call_depth++];
+    frame->func_idx = target_idx;
+    frame->return_pc = allow_empty_stack ? 0U : ctx->pc;
+    frame->frame_sp = allow_empty_stack ? 0U : ctx->sp;
+    frame->local_base = next_base;
+    frame->label_base = ctx->label_depth;
+    if (allow_empty_stack) {
+        ctx->sp = 0U;
+    }
+    ctx->local_count = (uint16_t)(next_base + (uint16_t)total_locals);
+    ctx->pc = body_pc;
+    return true;
+}
+
+static void wasm_invoke_func(SYN_WASM_Context *ctx, uint32_t target_idx)
+{
+    const SYN_WASM_Module *mod = ctx->module;
+    if (target_idx >= mod->func_count) {
+        ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+        return;
+    }
+    if (target_idx < mod->import_func_count) {
+        if (target_idx >= ctx->host_func_count || ctx->host_funcs[target_idx] == NULL) {
+            ctx->status = SYN_WASM_TRAP_UNREGISTERED_HOST;
+            return;
+        }
+        uint8_t argc = mod->funcs[target_idx].param_count;
+        if (ctx->sp < (uint32_t)argc) {
+            ctx->status = SYN_WASM_TRAP_STACK_UNDERFLOW;
+            return;
+        }
+        ctx->sp -= (uint32_t)argc;
+        const uint64_t *args_ptr = (argc > 0U) ? &ctx->stack[ctx->sp] : NULL;
+        uint64_t ret = ctx->host_funcs[target_idx](ctx, args_ptr, argc);
+        if (ctx->status == SYN_WASM_OK && mod->funcs[target_idx].result_count > 0U) {
+            (void)push_stack64(ctx, ret);
+        }
+        return;
+    }
+    (void)wasm_push_frame(ctx, (uint16_t)target_idx, false);
+}
+
+static void wasm_do_return(SYN_WASM_Context *ctx)
+{
+    const SYN_WASM_Module *mod = ctx->module;
+    SYN_WASM_CallFrame *frame = &ctx->call_stack[ctx->call_depth - 1U];
+    uint16_t fn_idx = frame->func_idx;
+    uint8_t res_count = (fn_idx < mod->func_count) ? mod->funcs[fn_idx].result_count : 0U;
+
+    if (res_count > 0U) {
+        if (ctx->sp < frame->frame_sp + (uint32_t)res_count) {
+            ctx->status = SYN_WASM_TRAP_STACK_UNDERFLOW;
+            return;
+        }
+        if (ctx->sp != frame->frame_sp + (uint32_t)res_count) {
+            uint32_t src_base = ctx->sp - (uint32_t)res_count;
+            for (uint8_t i = 0U; i < res_count; i++) {
+                ctx->stack[frame->frame_sp + (uint32_t)i] = ctx->stack[src_base + (uint32_t)i];
+            }
+            ctx->sp = frame->frame_sp + (uint32_t)res_count;
+        }
+    } else {
+        ctx->sp = frame->frame_sp;
+    }
+
+    ctx->label_depth = frame->label_base;
+    ctx->local_count = frame->local_base;
+    ctx->call_depth--;
+    if (ctx->call_depth == 0U) {
+        ctx->status = SYN_WASM_HALTED;
+    } else {
+        ctx->pc = frame->return_pc;
+    }
+}
+
 bool syn_wasm_call(SYN_WASM_Context *ctx, uint16_t func_index)
 {
     if (!ctx || !ctx->module || func_index >= ctx->module->func_count) {
@@ -800,7 +1117,7 @@ bool syn_wasm_call(SYN_WASM_Context *ctx, uint16_t func_index)
     /* LCOV_EXCL_START: Wasm imported host function call handler */
     if (func_index < mod->import_func_count) {
         if (func_index < ctx->host_func_count && ctx->host_funcs[func_index]) {
-            uint32_t ret = ctx->host_funcs[func_index](ctx, NULL, 0);
+            uint32_t ret = (uint32_t)ctx->host_funcs[func_index](ctx, NULL, 0);
             push_stack(ctx, ret);
             ctx->status = SYN_WASM_HALTED;
             return true;
@@ -810,47 +1127,11 @@ bool syn_wasm_call(SYN_WASM_Context *ctx, uint16_t func_index)
     }
     /* LCOV_EXCL_STOP */
 
-    /* Initialize Call Frame */
-    ctx->call_depth = 0;
-    ctx->label_depth = 0;
-
-    uint8_t argc = mod->funcs[func_index].param_count;
-    uint64_t args[16] = {0};
-    /* LCOV_EXCL_START: Wasm argc overflow clamp */
-    if (argc > 16)
-        argc = 16;
-    /* LCOV_EXCL_STOP */
-    for (int i = (int)argc - 1; i >= 0; i--) {
-        pop_stack64(ctx, &args[i]);
-    }
-    ctx->sp = 0;
-
-    SYN_WASM_CallFrame *frame = &ctx->call_stack[0];
-    frame->func_idx = func_index;
-    frame->return_pc = 0;
-    frame->frame_sp = 0;
-    frame->local_base = 0;
-    ctx->call_depth = 1;
-
-    /* Skip Local Declarations Header in Code Body */
-    uint32_t cur = mod->funcs[func_index].code_offset;
-    uint32_t end = cur + mod->funcs[func_index].code_size;
-    uint32_t num_local_vecs = read_u32_leb128(mod->bytes, end, &cur);
-    for (uint32_t i = 0; i < num_local_vecs && cur < end; i++) {
-        uint32_t count = read_u32_leb128(mod->bytes, end, &cur);
-        uint8_t ltype = mod->bytes[cur++];
-        (void)count;
-        (void)ltype;
-    }
-
-    ctx->local_count = SYN_WASM_MAX_LOCALS;
-    memset(ctx->locals, 0, sizeof(ctx->locals));
-    for (uint8_t i = 0; i < argc; i++) {
-        ctx->locals[i] = args[i];
-    }
-    ctx->pc = cur;
+    ctx->call_depth = 0U;
+    ctx->label_depth = 0U;
+    ctx->local_count = 0U;
     ctx->status = SYN_WASM_OK;
-    return true;
+    return wasm_push_frame(ctx, func_index, true);
 }
 
 uint64_t syn_wasm_result(const SYN_WASM_Context *ctx)
@@ -861,35 +1142,347 @@ uint64_t syn_wasm_result(const SYN_WASM_Context *ctx)
     return ctx->stack[ctx->sp - 1];
 }
 
-static void branch_to_label(SYN_WASM_Context *ctx, uint32_t label_idx)
+static bool wasm_push_label(SYN_WASM_Context *ctx, uint8_t opcode, uint8_t arity)
 {
-    /* LCOV_EXCL_START: Wasm label depth check */
-    if (label_idx >= ctx->label_depth) {
+    if (ctx->label_depth >= SYN_WASM_MAX_LABELS) {
+        ctx->status = SYN_WASM_TRAP_CALL_STACK_OVERFLOW;
+        return false;
+    }
+    SYN_WASM_Label *lbl = &ctx->label_stack[ctx->label_depth++];
+    lbl->opcode = opcode;
+    lbl->arity = arity;
+    lbl->target_pc = ctx->pc;
+    lbl->stack_sp = ctx->sp;
+    return true;
+}
+
+static void wasm_exec_block_if(SYN_WASM_Context *ctx, uint8_t opcode, uint32_t code_end)
+{
+    uint8_t bt = 0U;
+    if (!wasm_read_byte(ctx, code_end, &bt)) {
         return;
     }
-    /* LCOV_EXCL_STOP */
-    uint8_t target_depth = (uint8_t)(ctx->label_depth - 1 - label_idx);
+    uint8_t arity = (opcode != OP_LOOP && bt != 0x40U) ? 1U : 0U;
+    if (opcode == OP_IF) {
+        uint32_t cond = 0U;
+        if (!pop_stack(ctx, &cond)) {
+            return;
+        }
+        if (cond == 0U) {
+            bool found_else = false;
+            if (!wasm_skip_block(ctx, code_end, true, &found_else)) {
+                return;
+            }
+            if (found_else) {
+                (void)wasm_push_label(ctx, OP_IF, arity);
+            }
+            return;
+        }
+    }
+    (void)wasm_push_label(ctx, opcode, arity);
+}
+
+static void wasm_exec_else(SYN_WASM_Context *ctx, uint32_t code_end)
+{
+    uint8_t label_base = ctx->call_stack[ctx->call_depth - 1U].label_base;
+    if (ctx->label_depth <= label_base) {
+        ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+        return;
+    }
+    bool dummy_else = false;
+    if (wasm_skip_block(ctx, code_end, false, &dummy_else)) {
+        ctx->label_depth--;
+    }
+}
+
+static void wasm_branch_to_label(SYN_WASM_Context *ctx, uint32_t label_idx, uint32_t code_end)
+{
+    uint8_t label_base = ctx->call_stack[ctx->call_depth - 1U].label_base;
+    uint32_t active_labels = (uint32_t)(ctx->label_depth - label_base);
+    if (label_idx == active_labels) {
+        wasm_do_return(ctx);
+        return;
+    }
+    if (label_idx > active_labels) {
+        ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+        return;
+    }
+    uint8_t target_depth = (uint8_t)(ctx->label_depth - 1U - label_idx);
     SYN_WASM_Label *lbl = &ctx->label_stack[target_depth];
 
+    if (ctx->sp < lbl->stack_sp + (uint32_t)lbl->arity) {
+        ctx->status = SYN_WASM_TRAP_STACK_UNDERFLOW;
+        return;
+    }
+    if (lbl->arity > 0U) {
+        ctx->stack[lbl->stack_sp] = ctx->stack[ctx->sp - 1U];
+        ctx->sp = lbl->stack_sp + 1U;
+    } else {
+        ctx->sp = lbl->stack_sp;
+    }
+
     if (lbl->opcode == OP_LOOP) {
-        ctx->label_depth = (uint8_t)(target_depth + 1);
+        ctx->label_depth = (uint8_t)(target_depth + 1U);
         ctx->pc = lbl->target_pc;
     } else {
         ctx->label_depth = target_depth;
-        uint32_t depth = 1;
         ctx->pc = lbl->target_pc;
-        while (ctx->pc < ctx->module->size && depth > 0) {
-            uint8_t op = ctx->module->bytes[ctx->pc++];
-            if (op == OP_BLOCK || op == OP_LOOP || op == OP_IF) {
-                ctx->pc++;
-                depth++;
-            } else if (op == OP_END) {
-                depth--;
-            } else {
-                skip_instruction_immediates(op, ctx->module->bytes, ctx->module->size, &ctx->pc);
-            }
+        bool dummy_else = false;
+        (void)wasm_skip_block(ctx, code_end, false, &dummy_else);
+    }
+}
+
+static void wasm_exec_br_table(SYN_WASM_Context *ctx, uint32_t code_end)
+{
+    uint32_t count = 0U;
+    if (!wasm_read_u32_leb(ctx, code_end, &count)) {
+        return;
+    }
+    uint32_t index = 0U;
+    bool has_idx = pop_stack(ctx, &index);
+    uint32_t target_idx = 0U;
+
+    for (uint32_t i = 0U; i < count; i++) {
+        uint32_t tbl_target = 0U;
+        if (!wasm_read_u32_leb(ctx, code_end, &tbl_target)) {
+            return;
+        }
+        if (has_idx && index == i) {
+            target_idx = tbl_target;
         }
     }
+    uint32_t default_target = 0U;
+    if (!wasm_read_u32_leb(ctx, code_end, &default_target) || !has_idx) {
+        return;
+    }
+    if (index >= count) {
+        target_idx = default_target;
+    }
+    wasm_branch_to_label(ctx, target_idx, code_end);
+}
+
+static bool wasm_read_memarg(SYN_WASM_Context *ctx, uint32_t code_end, uint32_t *out_offset)
+{
+    uint32_t align = 0U;
+    return wasm_read_u32_leb(ctx, code_end, &align) && wasm_read_u32_leb(ctx, code_end, out_offset);
+}
+
+static bool wasm_check_mem(SYN_WASM_Context *ctx, uint32_t base_addr, uint32_t offset,
+                           uint32_t req_bytes, uint64_t *out_addr)
+{
+    uint64_t addr = (uint64_t)base_addr + (uint64_t)offset;
+    if (ctx->linear_mem == NULL || addr + (uint64_t)req_bytes > (uint64_t)ctx->linear_mem_size) {
+        ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+        return false;
+    }
+    *out_addr = addr;
+    return true;
+}
+
+#if !defined(SYN_WASM_USE_FIXED) || !SYN_WASM_USE_FIXED
+static void wasm_exec_trunc_i32(SYN_WASM_Context *ctx, double d, bool is_signed)
+{
+    if (isnan(d) || isinf(d)) {
+        ctx->status = SYN_WASM_TRAP_DIV_ZERO;
+        return;
+    }
+    double t = trunc(d);
+    if (is_signed) {
+        if (t < -2147483648.0 || t > 2147483647.0) {
+            ctx->status = SYN_WASM_TRAP_DIV_ZERO;
+            return;
+        }
+        (void)push_stack(ctx, (uint32_t)(int32_t)t);
+    } else {
+        if (t < 0.0 || t > 4294967295.0) {
+            ctx->status = SYN_WASM_TRAP_DIV_ZERO;
+            return;
+        }
+        (void)push_stack(ctx, (uint32_t)t);
+    }
+}
+
+static void wasm_exec_trunc_i64(SYN_WASM_Context *ctx, double d, bool is_signed)
+{
+    if (isnan(d) || isinf(d)) {
+        ctx->status = SYN_WASM_TRAP_DIV_ZERO;
+        return;
+    }
+    double t = trunc(d);
+    if (is_signed) {
+        if (t < -9223372036854775808.0 || t >= 9223372036854775808.0) {
+            ctx->status = SYN_WASM_TRAP_DIV_ZERO;
+            return;
+        }
+        int64_t iv = (t == -9223372036854775808.0) ? INT64_MIN : (int64_t)t;
+        (void)push_stack64(ctx, (uint64_t)iv);
+    } else {
+        if (t < 0.0 || t >= 18446744073709551616.0) {
+            ctx->status = SYN_WASM_TRAP_DIV_ZERO;
+            return;
+        }
+        (void)push_stack64(ctx, (uint64_t)t);
+    }
+}
+
+static void wasm_exec_trunc(SYN_WASM_Context *ctx, uint8_t opcode)
+{
+    double d = 0.0;
+    if (opcode == OP_I32_TRUNC_F32_S || opcode == OP_I32_TRUNC_F32_U ||
+        opcode == OP_I64_TRUNC_F32_S || opcode == OP_I64_TRUNC_F32_U) {
+        float fa = 0.0F;
+        if (!pop_f32(ctx, &fa)) {
+            return;
+        }
+        d = (double)fa;
+    } else if (!pop_f64(ctx, &d)) {
+        return;
+    }
+
+    bool is_signed = (opcode == OP_I32_TRUNC_F32_S || opcode == OP_I32_TRUNC_F64_S ||
+                      opcode == OP_I64_TRUNC_F32_S || opcode == OP_I64_TRUNC_F64_S);
+    if (opcode <= OP_I32_TRUNC_F64_U) {
+        wasm_exec_trunc_i32(ctx, d, is_signed);
+    } else {
+        wasm_exec_trunc_i64(ctx, d, is_signed);
+    }
+}
+
+static uint32_t wasm_sat_to_i32(double d, bool is_unsigned)
+{
+    if (isnan(d)) {
+        return 0U;
+    }
+    if (is_unsigned) {
+        if (d <= 0.0) {
+            return 0U;
+        }
+        if (d >= 4294967296.0) {
+            return 0xFFFFFFFFU;
+        }
+        return (uint32_t)trunc(d);
+    }
+    if (d <= -2147483648.0) {
+        return 0x80000000U;
+    }
+    if (d >= 2147483647.0) {
+        return 0x7FFFFFFFU;
+    }
+    return (uint32_t)(int32_t)trunc(d);
+}
+
+static uint64_t wasm_sat_to_i64(double d, bool is_unsigned)
+{
+    if (isnan(d)) {
+        return 0ULL;
+    }
+    if (is_unsigned) {
+        if (d <= 0.0) {
+            return 0ULL;
+        }
+        if (d >= 18446744073709551616.0) {
+            return 0xFFFFFFFFFFFFFFFFULL;
+        }
+        return (uint64_t)trunc(d);
+    }
+    if (d <= -9223372036854775808.0) {
+        return 0x8000000000000000ULL;
+    }
+    if (d >= 9223372036854775808.0) {
+        return 0x7FFFFFFFFFFFFFFFULL;
+    }
+    return (uint64_t)(int64_t)trunc(d);
+}
+
+static void wasm_exec_trunc_sat(SYN_WASM_Context *ctx, uint32_t subop)
+{
+    double d = 0.0;
+    if ((subop & 2U) == 0U) {
+        float f = 0.0F;
+        if (!pop_f32(ctx, &f)) {
+            return;
+        }
+        d = (double)f;
+    } else if (!pop_f64(ctx, &d)) {
+        return;
+    }
+
+    bool is_unsigned = ((subop & 1U) != 0U);
+    if (subop < 4U) {
+        (void)push_stack(ctx, wasm_sat_to_i32(d, is_unsigned));
+    } else {
+        (void)push_stack64(ctx, wasm_sat_to_i64(d, is_unsigned));
+    }
+}
+#endif
+
+static void wasm_exec_bulk_mem(SYN_WASM_Context *ctx, uint32_t subop, uint32_t code_end)
+{
+    uint32_t imm0 = 0U;
+    uint32_t imm1 = 0U;
+    if (subop == 8U) {
+        if (!wasm_read_u32_leb(ctx, code_end, &imm0) || !wasm_read_u32_leb(ctx, code_end, &imm1)) {
+            return;
+        }
+        uint32_t n = 0U;
+        uint32_t src = 0U;
+        uint32_t dst = 0U;
+        (void)(pop_stack(ctx, &n) && pop_stack(ctx, &src) && pop_stack(ctx, &dst));
+    } else if (subop == 9U) {
+        (void)wasm_read_u32_leb(ctx, code_end, &imm0);
+    } else if (subop == 10U) {
+        if (!wasm_read_u32_leb(ctx, code_end, &imm0) || !wasm_read_u32_leb(ctx, code_end, &imm1)) {
+            return;
+        }
+        uint32_t len = 0U;
+        uint32_t src = 0U;
+        uint32_t dst = 0U;
+        if (pop_stack(ctx, &len) && pop_stack(ctx, &src) && pop_stack(ctx, &dst)) {
+            if (ctx->linear_mem != NULL &&
+                (uint64_t)dst + (uint64_t)len <= (uint64_t)ctx->linear_mem_size &&
+                (uint64_t)src + (uint64_t)len <= (uint64_t)ctx->linear_mem_size) {
+                if (len > 0U) {
+                    memmove(&ctx->linear_mem[dst], &ctx->linear_mem[src], len);
+                }
+            } else {
+                ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+            }
+        }
+    } else if (subop == 11U) {
+        if (!wasm_read_u32_leb(ctx, code_end, &imm0)) {
+            return;
+        }
+        uint32_t len = 0U;
+        uint32_t val = 0U;
+        uint32_t dst = 0U;
+        if (pop_stack(ctx, &len) && pop_stack(ctx, &val) && pop_stack(ctx, &dst)) {
+            if (ctx->linear_mem != NULL &&
+                (uint64_t)dst + (uint64_t)len <= (uint64_t)ctx->linear_mem_size) {
+                if (len > 0U) {
+                    memset(&ctx->linear_mem[dst], (uint8_t)val, len);
+                }
+            } else {
+                ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+            }
+        }
+    } else {
+        ctx->status = SYN_WASM_TRAP_BAD_OPCODE;
+    }
+}
+
+static void wasm_exec_misc(SYN_WASM_Context *ctx, uint32_t code_end)
+{
+    uint32_t subop = 0U;
+    if (!wasm_read_u32_leb(ctx, code_end, &subop)) {
+        return;
+    }
+#if !defined(SYN_WASM_USE_FIXED) || !SYN_WASM_USE_FIXED
+    if (subop <= 7U) {
+        wasm_exec_trunc_sat(ctx, subop);
+        return;
+    }
+#endif
+    wasm_exec_bulk_mem(ctx, subop, code_end);
 }
 
 /* ── Interpreter Step Loop ───────────────────────────────────────────────── */
@@ -917,7 +1510,11 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
         }
         /* LCOV_EXCL_STOP */
 
-        uint8_t opcode = mod->bytes[ctx->pc++];
+        uint32_t code_end = wasm_frame_code_end(ctx);
+        uint8_t opcode = 0U;
+        if (!wasm_read_byte(ctx, code_end, &opcode)) {
+            break;
+        }
         executed++;
 
         switch (opcode) {
@@ -928,275 +1525,102 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
 
         case OP_NOP:
             break;
-        /* LCOV_EXCL_STOP */
-
-        /* LCOV_EXCL_START: Wasm block, loop, if, else, end interpreter control flow */
-        case OP_BLOCK:
-        case OP_LOOP:
-        case OP_IF: {
-            ctx->pc++; /* Block return type byte */
-            if (opcode == OP_IF) {
-                uint32_t cond = 0;
-                if (!pop_stack(ctx, &cond))
-                    break;
-                if (cond == 0) {
-                    /* Skip to else or end */
-                    uint32_t depth = 1;
-                    while (ctx->pc < mod->size && depth > 0) {
-                        uint8_t op = mod->bytes[ctx->pc++];
-                        if (op == OP_BLOCK || op == OP_LOOP || op == OP_IF) {
-                            ctx->pc++;
-                            depth++;
-                        } else if (op == OP_END) {
-                            depth--;
-                        } else if (op == OP_ELSE && depth == 1) {
-                            break;
-                        } else {
-                            skip_instruction_immediates(op, mod->bytes, mod->size, &ctx->pc);
-                        }
-                    }
-                    break;
-                }
-            }
-            if (ctx->label_depth < SYN_WASM_MAX_LABELS) {
-                SYN_WASM_Label *lbl = &ctx->label_stack[ctx->label_depth++];
-                lbl->opcode = opcode;
-                lbl->target_pc = ctx->pc;
-                lbl->stack_sp = ctx->sp;
-            }
-            break;
-        }
-
-        case OP_ELSE: {
-            /* Skip to end of block */
-            uint32_t depth = 1;
-            while (ctx->pc < mod->size && depth > 0) {
-                uint8_t op = mod->bytes[ctx->pc++];
-                if (op == OP_BLOCK || op == OP_LOOP || op == OP_IF) {
-                    ctx->pc++;
-                    depth++;
-                } else if (op == OP_END) {
-                    depth--;
-                } else {
-                    skip_instruction_immediates(op, mod->bytes, mod->size, &ctx->pc);
-                }
-            }
-            if (ctx->label_depth > 0) {
-                ctx->label_depth--;
-            }
-            break;
-        }
-
-        case OP_END:
-            if (ctx->label_depth > 0) {
-                ctx->label_depth--;
-            } else {
-                /* Function Return */
-                ctx->call_depth--;
-                if (ctx->call_depth == 0) {
-                    ctx->status = SYN_WASM_HALTED;
-                } else {
-                    ctx->pc = ctx->call_stack[ctx->call_depth].return_pc;
-                }
-            }
-            break;
             /* LCOV_EXCL_STOP */
 
+        case OP_BLOCK:
+        case OP_LOOP:
+        case OP_IF:
+            wasm_exec_block_if(ctx, opcode, code_end);
+            break;
+
+        case OP_ELSE:
+            wasm_exec_else(ctx, code_end);
+            break;
+
+        case OP_END:
+            if (ctx->label_depth > ctx->call_stack[ctx->call_depth - 1U].label_base) {
+                ctx->label_depth--;
+            } else {
+                wasm_do_return(ctx);
+            }
+            break;
+
         case OP_BR: {
-            uint32_t label_idx = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            branch_to_label(ctx, label_idx);
+            uint32_t label_idx = 0U;
+            if (wasm_read_u32_leb(ctx, code_end, &label_idx)) {
+                wasm_branch_to_label(ctx, label_idx, code_end);
+            }
             break;
         }
 
         case OP_BR_IF: {
-            uint32_t label_idx = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            uint32_t cond = 0;
-            if (pop_stack(ctx, &cond) && cond != 0) {
-                branch_to_label(ctx, label_idx);
+            uint32_t label_idx = 0U;
+            uint32_t cond = 0U;
+            if (wasm_read_u32_leb(ctx, code_end, &label_idx) && pop_stack(ctx, &cond) &&
+                cond != 0U) {
+                wasm_branch_to_label(ctx, label_idx, code_end);
             }
             break;
         }
 
-        /* LCOV_EXCL_START: Wasm br_table and memory sizing opcodes */
-        case OP_BR_TABLE: {
-            uint32_t count = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            uint32_t target_idx = 0;
-            uint32_t index = 0;
-            bool popped = pop_stack(ctx, &index);
-
-            for (uint32_t i = 0; i < count; i++) {
-                uint32_t tbl_target = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-                if (popped && index == i) {
-                    target_idx = tbl_target;
-                }
-            }
-            uint32_t default_target = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            if (!popped || index >= count) {
-                target_idx = default_target;
-            }
-            branch_to_label(ctx, target_idx);
+        case OP_BR_TABLE:
+            wasm_exec_br_table(ctx, code_end);
             break;
-        }
 
         case OP_MEMORY_SIZE: {
-            ctx->pc++; /* Reserved 0x00 byte */
-            uint32_t pages = ctx->linear_mem_size / 65536;
-            push_stack(ctx, pages);
+            uint8_t mem_idx = 0U;
+            if (wasm_read_byte(ctx, code_end, &mem_idx)) {
+                (void)mem_idx;
+                uint32_t pages = ctx->linear_mem_size / 65536U;
+                (void)push_stack(ctx, pages);
+            }
             break;
         }
 
         case OP_MEMORY_GROW: {
-            ctx->pc++; /* Reserved 0x00 byte */
-            uint32_t delta = 0;
-            if (pop_stack(ctx, &delta)) {
-                uint32_t current_pages = ctx->linear_mem_size / 65536;
-                if (delta == 0) {
-                    push_stack(ctx, current_pages);
+            uint8_t mem_idx = 0U;
+            uint32_t delta = 0U;
+            if (wasm_read_byte(ctx, code_end, &mem_idx) && pop_stack(ctx, &delta)) {
+                (void)mem_idx;
+                uint32_t current_pages = ctx->linear_mem_size / 65536U;
+                if (delta == 0U) {
+                    (void)push_stack(ctx, current_pages);
                 } else {
-                    /* Static zero-allocation runtime cannot dynamically grow memory */
-                    push_stack(ctx, 0xFFFFFFFFU);
+                    (void)push_stack(ctx, 0xFFFFFFFFU);
                 }
             }
             break;
         }
-        /* LCOV_EXCL_STOP */
 
-        /* LCOV_EXCL_START: Wasm return opcode */
         case OP_RETURN:
-            ctx->call_depth--;
-            if (ctx->call_depth == 0) {
-                ctx->status = SYN_WASM_HALTED;
-            } else {
-                ctx->pc = ctx->call_stack[ctx->call_depth].return_pc;
-            }
+            wasm_do_return(ctx);
             break;
-        /* LCOV_EXCL_STOP */
 
-        /* LCOV_EXCL_START: Wasm call instruction interpreter fallback */
         case OP_CALL: {
-            uint32_t target_idx = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            if (target_idx < mod->import_func_count) {
-                /* Call Host Function */
-                if (target_idx < ctx->host_func_count && ctx->host_funcs[target_idx]) {
-                    uint8_t argc = mod->funcs[target_idx].param_count;
-                    uint64_t args[16] = {0};
-                    if (argc > 16)
-                        argc = 16;
-                    for (int i = (int)argc - 1; i >= 0; i--) {
-                        pop_stack64(ctx, &args[i]);
-                    }
-                    uint64_t ret = ctx->host_funcs[target_idx](ctx, args, argc);
-                    if (mod->funcs[target_idx].result_count > 0) {
-                        push_stack64(ctx, ret);
-                    }
-                } else {
-                    ctx->status = SYN_WASM_TRAP_UNREGISTERED_HOST;
-                }
-            } else if (ctx->call_depth < SYN_WASM_MAX_CALL_DEPTH) {
-                uint8_t argc = mod->funcs[target_idx].param_count;
-                uint64_t args[16] = {0};
-                if (argc > 16)
-                    argc = 16;
-                for (int i = (int)argc - 1; i >= 0; i--) {
-                    pop_stack64(ctx, &args[i]);
-                }
-
-                uint16_t next_base = ctx->call_stack[ctx->call_depth - 1].local_base + 8;
-                SYN_WASM_CallFrame *frame = &ctx->call_stack[ctx->call_depth++];
-                frame->func_idx = (uint16_t)target_idx;
-                frame->return_pc = ctx->pc;
-                frame->frame_sp = ctx->sp;
-                frame->local_base = next_base;
-
-                uint32_t cur = mod->funcs[target_idx].code_offset;
-                uint32_t end = cur + mod->funcs[target_idx].code_size;
-                uint32_t num_local_vecs = read_u32_leb128(mod->bytes, end, &cur);
-
-                for (uint32_t i = 0; i < num_local_vecs && cur < end; i++) {
-                    uint32_t count = read_u32_leb128(mod->bytes, end, &cur);
-                    cur++;
-                    (void)count;
-                }
-                for (uint8_t i = 0; i < argc; i++) {
-                    if (next_base + i < SYN_WASM_MAX_LOCALS) {
-                        ctx->locals[next_base + i] = args[i];
-                    }
-                }
-                ctx->pc = cur;
-            } else {
-                ctx->status = SYN_WASM_TRAP_CALL_STACK_OVERFLOW;
+            uint32_t target_idx = 0U;
+            if (wasm_read_u32_leb(ctx, code_end, &target_idx)) {
+                wasm_invoke_func(ctx, target_idx);
             }
             break;
         }
-        /* LCOV_EXCL_STOP */
 
-        /* LCOV_EXCL_START: Wasm call_indirect instruction interpreter fallback */
         case OP_CALL_INDIRECT: {
-            uint32_t type_idx = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            uint32_t table_idx = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
+            uint32_t type_idx = 0U;
+            uint32_t table_idx = 0U;
+            uint32_t elem_idx = 0U;
+            if (!wasm_read_u32_leb(ctx, code_end, &type_idx) ||
+                !wasm_read_u32_leb(ctx, code_end, &table_idx) || !pop_stack(ctx, &elem_idx)) {
+                break;
+            }
             (void)type_idx;
             (void)table_idx;
-            uint32_t elem_idx = 0;
-            if (!pop_stack(ctx, &elem_idx))
-                break;
             if (elem_idx >= mod->table_element_count) {
                 ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
                 break;
             }
-            uint32_t target_idx = mod->table_elements[elem_idx];
-            if (target_idx < mod->import_func_count) {
-                if (target_idx < ctx->host_func_count && ctx->host_funcs[target_idx]) {
-                    uint8_t argc = mod->funcs[target_idx].param_count;
-                    uint64_t args[16] = {0};
-                    if (argc > 16)
-                        argc = 16;
-                    for (int i = (int)argc - 1; i >= 0; i--) {
-                        pop_stack64(ctx, &args[i]);
-                    }
-                    uint64_t ret = ctx->host_funcs[target_idx](ctx, args, argc);
-                    if (mod->funcs[target_idx].result_count > 0) {
-                        push_stack64(ctx, ret);
-                    }
-                } else {
-                    ctx->status = SYN_WASM_TRAP_UNREGISTERED_HOST;
-                }
-            } else if (ctx->call_depth < SYN_WASM_MAX_CALL_DEPTH) {
-                uint8_t argc = mod->funcs[target_idx].param_count;
-                uint64_t args[16] = {0};
-                if (argc > 16)
-                    argc = 16;
-                for (int i = (int)argc - 1; i >= 0; i--) {
-                    pop_stack64(ctx, &args[i]);
-                }
-
-                uint16_t next_base = ctx->call_stack[ctx->call_depth - 1].local_base + 8;
-                SYN_WASM_CallFrame *frame = &ctx->call_stack[ctx->call_depth++];
-                frame->func_idx = (uint16_t)target_idx;
-                frame->return_pc = ctx->pc;
-                frame->frame_sp = ctx->sp;
-                frame->local_base = next_base;
-
-                uint32_t cur = mod->funcs[target_idx].code_offset;
-                uint32_t end = cur + mod->funcs[target_idx].code_size;
-                uint32_t num_local_vecs = read_u32_leb128(mod->bytes, end, &cur);
-
-                for (uint32_t i = 0; i < num_local_vecs && cur < end; i++) {
-                    uint32_t count = read_u32_leb128(mod->bytes, end, &cur);
-                    cur++;
-                    (void)count;
-                }
-                for (uint8_t i = 0; i < argc; i++) {
-                    if (next_base + i < SYN_WASM_MAX_LOCALS) {
-                        ctx->locals[next_base + i] = args[i];
-                    }
-                }
-                ctx->pc = cur;
-            } else {
-                ctx->status = SYN_WASM_TRAP_CALL_STACK_OVERFLOW;
-            }
+            wasm_invoke_func(ctx, mod->table_elements[elem_idx]);
             break;
         }
-        /* LCOV_EXCL_STOP */
 
         /* LCOV_EXCL_START: Wasm drop opcode */
         case OP_DROP: {
@@ -1207,7 +1631,9 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
             /* LCOV_EXCL_STOP */
 
         case OP_SELECT: {
-            uint32_t cond = 0, val2 = 0, val1 = 0;
+            uint32_t cond = 0;
+            uint32_t val2 = 0;
+            uint32_t val1 = 0;
             if (pop_stack(ctx, &cond) && pop_stack(ctx, &val2) && pop_stack(ctx, &val1)) {
                 push_stack(ctx, (cond != 0) ? val1 : val2);
             }
@@ -1215,47 +1641,76 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
         }
 
         case OP_LOCAL_GET: {
-            uint32_t idx = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            uint16_t base = ctx->call_stack[ctx->call_depth - 1].local_base;
-            if (base + idx < SYN_WASM_MAX_LOCALS) {
-                push_stack64(ctx, ctx->locals[base + idx]);
+            uint32_t idx = 0U;
+            if (!wasm_read_u32_leb(ctx, code_end, &idx)) {
+                break;
             }
+            uint16_t base = ctx->call_stack[ctx->call_depth - 1U].local_base;
+            if ((uint64_t)base + (uint64_t)idx >= (uint64_t)ctx->local_count) {
+                ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+                break;
+            }
+            (void)push_stack64(ctx, ctx->locals[base + (uint16_t)idx]);
             break;
         }
 
         case OP_LOCAL_SET: {
-            uint32_t idx = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            uint64_t val = 0;
-            uint16_t base = ctx->call_stack[ctx->call_depth - 1].local_base;
-            if (pop_stack64(ctx, &val) && (base + idx < SYN_WASM_MAX_LOCALS)) {
-                ctx->locals[base + idx] = val;
+            uint32_t idx = 0U;
+            uint64_t val = 0ULL;
+            if (!wasm_read_u32_leb(ctx, code_end, &idx) || !pop_stack64(ctx, &val)) {
+                break;
             }
+            uint16_t base = ctx->call_stack[ctx->call_depth - 1U].local_base;
+            if ((uint64_t)base + (uint64_t)idx >= (uint64_t)ctx->local_count) {
+                ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+                break;
+            }
+            ctx->locals[base + (uint16_t)idx] = val;
             break;
         }
 
         case OP_LOCAL_TEE: {
-            uint32_t idx = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            uint16_t base = ctx->call_stack[ctx->call_depth - 1].local_base;
-            if (ctx->sp > 0 && (base + idx < SYN_WASM_MAX_LOCALS)) {
-                ctx->locals[base + idx] = ctx->stack[ctx->sp - 1];
+            uint32_t idx = 0U;
+            if (!wasm_read_u32_leb(ctx, code_end, &idx)) {
+                break;
             }
+            if (ctx->sp == 0U) {
+                ctx->status = SYN_WASM_TRAP_STACK_UNDERFLOW;
+                break;
+            }
+            uint16_t base = ctx->call_stack[ctx->call_depth - 1U].local_base;
+            if ((uint64_t)base + (uint64_t)idx >= (uint64_t)ctx->local_count) {
+                ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+                break;
+            }
+            ctx->locals[base + (uint16_t)idx] = ctx->stack[ctx->sp - 1U];
             break;
         }
 
         case OP_GLOBAL_GET: {
-            uint32_t idx = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            if (idx < SYN_WASM_MAX_GLOBALS) {
-                push_stack(ctx, ctx->globals[idx]);
+            uint32_t idx = 0U;
+            if (!wasm_read_u32_leb(ctx, code_end, &idx)) {
+                break;
             }
+            if (idx >= SYN_WASM_MAX_GLOBALS) {
+                ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+                break;
+            }
+            (void)push_stack64(ctx, ctx->globals[idx]);
             break;
         }
 
         case OP_GLOBAL_SET: {
-            uint32_t idx = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            uint32_t val;
-            if (pop_stack(ctx, &val) && idx < SYN_WASM_MAX_GLOBALS) {
-                ctx->globals[idx] = val;
+            uint32_t idx = 0U;
+            uint64_t val = 0ULL;
+            if (!wasm_read_u32_leb(ctx, code_end, &idx) || !pop_stack64(ctx, &val)) {
+                break;
             }
+            if (idx >= SYN_WASM_MAX_GLOBALS) {
+                ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+                break;
+            }
+            ctx->globals[idx] = val;
             break;
         }
 
@@ -1265,41 +1720,38 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
         case OP_I32_LOAD8_U:
         case OP_I32_LOAD16_S:
         case OP_I32_LOAD16_U: {
-            read_u32_leb128(mod->bytes, mod->size, &ctx->pc); /* alignment */
-            uint32_t offset = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            uint32_t base_addr = 0;
-            if (!pop_stack(ctx, &base_addr))
+            uint32_t offset = 0U;
+            uint32_t base_addr = 0U;
+            if (!wasm_read_memarg(ctx, code_end, &offset) || !pop_stack(ctx, &base_addr)) {
                 break;
-            uint64_t addr = (uint64_t)base_addr + offset;
-
-            uint32_t req_bytes = 4;
+            }
+            uint32_t req_bytes = 4U;
             if (opcode == OP_I32_LOAD8_S || opcode == OP_I32_LOAD8_U) {
-                req_bytes = 1;
+                req_bytes = 1U;
             } else if (opcode == OP_I32_LOAD16_S || opcode == OP_I32_LOAD16_U) {
-                req_bytes = 2;
+                req_bytes = 2U;
             }
-
-            if (!ctx->linear_mem || addr > ctx->linear_mem_size - req_bytes) {
-                ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+            uint64_t addr = 0ULL;
+            if (!wasm_check_mem(ctx, base_addr, offset, req_bytes, &addr)) {
                 break;
             }
 
-            uint32_t val = 0;
+            uint32_t val = 0U;
             if (opcode == OP_I32_LOAD) {
                 val = ((uint32_t)ctx->linear_mem[addr]) |
-                      ((uint32_t)ctx->linear_mem[addr + 1] << 8) |
-                      ((uint32_t)ctx->linear_mem[addr + 2] << 16) |
-                      ((uint32_t)ctx->linear_mem[addr + 3] << 24);
+                      ((uint32_t)ctx->linear_mem[addr + 1U] << 8U) |
+                      ((uint32_t)ctx->linear_mem[addr + 2U] << 16U) |
+                      ((uint32_t)ctx->linear_mem[addr + 3U] << 24U);
             } else if (opcode == OP_I32_LOAD8_U) {
                 val = ctx->linear_mem[addr];
             } else if (opcode == OP_I32_LOAD8_S) {
-                val = (int32_t)(int8_t)ctx->linear_mem[addr];
+                val = (uint32_t)(int32_t)(int8_t)ctx->linear_mem[addr];
             } else if (opcode == OP_I32_LOAD16_U) {
-                val =
-                    ((uint32_t)ctx->linear_mem[addr]) | ((uint32_t)ctx->linear_mem[addr + 1] << 8);
+                val = ((uint32_t)ctx->linear_mem[addr]) |
+                      ((uint32_t)ctx->linear_mem[addr + 1U] << 8U);
             } else if (opcode == OP_I32_LOAD16_S) {
-                val = (int32_t)(int16_t)(((uint32_t)ctx->linear_mem[addr]) |
-                                         ((uint32_t)ctx->linear_mem[addr + 1] << 8));
+                val = (uint32_t)(int32_t)(int16_t)(((uint32_t)ctx->linear_mem[addr]) |
+                                                   ((uint32_t)ctx->linear_mem[addr + 1U] << 8U));
             }
             push_stack(ctx, val);
             break;
@@ -1312,56 +1764,54 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
         case OP_I64_LOAD16_U:
         case OP_I64_LOAD32_S:
         case OP_I64_LOAD32_U: {
-            read_u32_leb128(mod->bytes, mod->size, &ctx->pc); /* alignment */
-            uint32_t offset = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            uint32_t base_addr = 0;
-            if (!pop_stack(ctx, &base_addr))
+            uint32_t offset = 0U;
+            uint32_t base_addr = 0U;
+            if (!wasm_read_memarg(ctx, code_end, &offset) || !pop_stack(ctx, &base_addr)) {
                 break;
-            uint64_t addr = (uint64_t)base_addr + offset;
-
-            uint32_t req_bytes = 8;
-            if (opcode == OP_I64_LOAD8_S || opcode == OP_I64_LOAD8_U)
-                req_bytes = 1;
-            else if (opcode == OP_I64_LOAD16_S || opcode == OP_I64_LOAD16_U)
-                req_bytes = 2;
-            else if (opcode == OP_I64_LOAD32_S || opcode == OP_I64_LOAD32_U)
-                req_bytes = 4;
-
-            if (!ctx->linear_mem || addr > ctx->linear_mem_size - req_bytes) {
-                ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+            }
+            uint32_t req_bytes = 8U;
+            if (opcode == OP_I64_LOAD8_S || opcode == OP_I64_LOAD8_U) {
+                req_bytes = 1U;
+            } else if (opcode == OP_I64_LOAD16_S || opcode == OP_I64_LOAD16_U) {
+                req_bytes = 2U;
+            } else if (opcode == OP_I64_LOAD32_S || opcode == OP_I64_LOAD32_U) {
+                req_bytes = 4U;
+            }
+            uint64_t addr = 0ULL;
+            if (!wasm_check_mem(ctx, base_addr, offset, req_bytes, &addr)) {
                 break;
             }
 
-            uint64_t val = 0;
+            uint64_t val = 0ULL;
             if (opcode == OP_I64_LOAD) {
                 val = ((uint64_t)ctx->linear_mem[addr]) |
-                      ((uint64_t)ctx->linear_mem[addr + 1] << 8) |
-                      ((uint64_t)ctx->linear_mem[addr + 2] << 16) |
-                      ((uint64_t)ctx->linear_mem[addr + 3] << 24) |
-                      ((uint64_t)ctx->linear_mem[addr + 4] << 32) |
-                      ((uint64_t)ctx->linear_mem[addr + 5] << 40) |
-                      ((uint64_t)ctx->linear_mem[addr + 6] << 48) |
-                      ((uint64_t)ctx->linear_mem[addr + 7] << 56);
+                      ((uint64_t)ctx->linear_mem[addr + 1U] << 8U) |
+                      ((uint64_t)ctx->linear_mem[addr + 2U] << 16U) |
+                      ((uint64_t)ctx->linear_mem[addr + 3U] << 24U) |
+                      ((uint64_t)ctx->linear_mem[addr + 4U] << 32U) |
+                      ((uint64_t)ctx->linear_mem[addr + 5U] << 40U) |
+                      ((uint64_t)ctx->linear_mem[addr + 6U] << 48U) |
+                      ((uint64_t)ctx->linear_mem[addr + 7U] << 56U);
             } else if (opcode == OP_I64_LOAD8_U) {
                 val = ctx->linear_mem[addr];
             } else if (opcode == OP_I64_LOAD8_S) {
                 val = (uint64_t)(int64_t)(int8_t)ctx->linear_mem[addr];
             } else if (opcode == OP_I64_LOAD16_U) {
-                val =
-                    ((uint64_t)ctx->linear_mem[addr]) | ((uint64_t)ctx->linear_mem[addr + 1] << 8);
+                val = ((uint64_t)ctx->linear_mem[addr]) |
+                      ((uint64_t)ctx->linear_mem[addr + 1U] << 8U);
             } else if (opcode == OP_I64_LOAD16_S) {
                 val = (uint64_t)(int64_t)(int16_t)(((uint32_t)ctx->linear_mem[addr]) |
-                                                   ((uint32_t)ctx->linear_mem[addr + 1] << 8));
+                                                   ((uint32_t)ctx->linear_mem[addr + 1U] << 8U));
             } else if (opcode == OP_I64_LOAD32_U) {
                 val = ((uint64_t)ctx->linear_mem[addr]) |
-                      ((uint64_t)ctx->linear_mem[addr + 1] << 8) |
-                      ((uint64_t)ctx->linear_mem[addr + 2] << 16) |
-                      ((uint64_t)ctx->linear_mem[addr + 3] << 24);
+                      ((uint64_t)ctx->linear_mem[addr + 1U] << 8U) |
+                      ((uint64_t)ctx->linear_mem[addr + 2U] << 16U) |
+                      ((uint64_t)ctx->linear_mem[addr + 3U] << 24U);
             } else if (opcode == OP_I64_LOAD32_S) {
                 val = (uint64_t)(int64_t)(int32_t)(((uint32_t)ctx->linear_mem[addr]) |
-                                                   ((uint32_t)ctx->linear_mem[addr + 1] << 8) |
-                                                   ((uint32_t)ctx->linear_mem[addr + 2] << 16) |
-                                                   ((uint32_t)ctx->linear_mem[addr + 3] << 24));
+                                                   ((uint32_t)ctx->linear_mem[addr + 1U] << 8U) |
+                                                   ((uint32_t)ctx->linear_mem[addr + 2U] << 16U) |
+                                                   ((uint32_t)ctx->linear_mem[addr + 3U] << 24U));
             }
             push_stack64(ctx, val);
             break;
@@ -1370,35 +1820,34 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
         case OP_I32_STORE:
         case OP_I32_STORE8:
         case OP_I32_STORE16: {
-            read_u32_leb128(mod->bytes, mod->size, &ctx->pc); /* alignment */
-            uint32_t offset = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            uint32_t val = 0, base_addr = 0;
-            if (!pop_stack(ctx, &val) || !pop_stack(ctx, &base_addr))
+            uint32_t offset = 0U;
+            uint32_t val = 0U;
+            uint32_t base_addr = 0U;
+            if (!wasm_read_memarg(ctx, code_end, &offset) || !pop_stack(ctx, &val) ||
+                !pop_stack(ctx, &base_addr)) {
                 break;
-            uint64_t addr = (uint64_t)base_addr + offset;
-
-            uint32_t req_bytes = 4;
-            if (opcode == OP_I32_STORE8) {
-                req_bytes = 1;
-            } else if (opcode == OP_I32_STORE16) {
-                req_bytes = 2;
             }
-
-            if (!ctx->linear_mem || addr > ctx->linear_mem_size - req_bytes) {
-                ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+            uint32_t req_bytes = 4U;
+            if (opcode == OP_I32_STORE8) {
+                req_bytes = 1U;
+            } else if (opcode == OP_I32_STORE16) {
+                req_bytes = 2U;
+            }
+            uint64_t addr = 0ULL;
+            if (!wasm_check_mem(ctx, base_addr, offset, req_bytes, &addr)) {
                 break;
             }
 
             if (opcode == OP_I32_STORE) {
-                ctx->linear_mem[addr] = (uint8_t)(val & 0xFF);
-                ctx->linear_mem[addr + 1] = (uint8_t)((val >> 8) & 0xFF);
-                ctx->linear_mem[addr + 2] = (uint8_t)((val >> 16) & 0xFF);
-                ctx->linear_mem[addr + 3] = (uint8_t)((val >> 24) & 0xFF);
+                ctx->linear_mem[addr] = (uint8_t)(val & 0xFFU);
+                ctx->linear_mem[addr + 1U] = (uint8_t)((val >> 8U) & 0xFFU);
+                ctx->linear_mem[addr + 2U] = (uint8_t)((val >> 16U) & 0xFFU);
+                ctx->linear_mem[addr + 3U] = (uint8_t)((val >> 24U) & 0xFFU);
             } else if (opcode == OP_I32_STORE8) {
-                ctx->linear_mem[addr] = (uint8_t)(val & 0xFF);
+                ctx->linear_mem[addr] = (uint8_t)(val & 0xFFU);
             } else if (opcode == OP_I32_STORE16) {
-                ctx->linear_mem[addr] = (uint8_t)(val & 0xFF);
-                ctx->linear_mem[addr + 1] = (uint8_t)((val >> 8) & 0xFF);
+                ctx->linear_mem[addr] = (uint8_t)(val & 0xFFU);
+                ctx->linear_mem[addr + 1U] = (uint8_t)((val >> 8U) & 0xFFU);
             }
             break;
         }
@@ -1407,39 +1856,38 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
         case OP_I64_STORE8:
         case OP_I64_STORE16:
         case OP_I64_STORE32: {
-            read_u32_leb128(mod->bytes, mod->size, &ctx->pc); /* alignment */
-            uint32_t offset = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            uint64_t val = 0;
-            uint32_t base_addr = 0;
-            if (!pop_stack64(ctx, &val) || !pop_stack(ctx, &base_addr))
+            uint32_t offset = 0U;
+            uint64_t val = 0ULL;
+            uint32_t base_addr = 0U;
+            if (!wasm_read_memarg(ctx, code_end, &offset) || !pop_stack64(ctx, &val) ||
+                !pop_stack(ctx, &base_addr)) {
                 break;
-            uint64_t addr = (uint64_t)base_addr + offset;
-
-            uint32_t req_bytes = 8;
-            if (opcode == OP_I64_STORE8)
-                req_bytes = 1;
-            else if (opcode == OP_I64_STORE16)
-                req_bytes = 2;
-            else if (opcode == OP_I64_STORE32)
-                req_bytes = 4;
-
-            if (!ctx->linear_mem || addr > ctx->linear_mem_size - req_bytes) {
-                ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+            }
+            uint32_t req_bytes = 8U;
+            if (opcode == OP_I64_STORE8) {
+                req_bytes = 1U;
+            } else if (opcode == OP_I64_STORE16) {
+                req_bytes = 2U;
+            } else if (opcode == OP_I64_STORE32) {
+                req_bytes = 4U;
+            }
+            uint64_t addr = 0ULL;
+            if (!wasm_check_mem(ctx, base_addr, offset, req_bytes, &addr)) {
                 break;
             }
 
             if (opcode == OP_I64_STORE) {
-                for (int i = 0; i < 8; i++) {
-                    ctx->linear_mem[addr + i] = (uint8_t)((val >> (i * 8)) & 0xFF);
+                for (uint32_t i = 0U; i < 8U; i++) {
+                    ctx->linear_mem[addr + i] = (uint8_t)((val >> (i * 8U)) & 0xFFU);
                 }
             } else if (opcode == OP_I64_STORE8) {
-                ctx->linear_mem[addr] = (uint8_t)(val & 0xFF);
+                ctx->linear_mem[addr] = (uint8_t)(val & 0xFFU);
             } else if (opcode == OP_I64_STORE16) {
-                ctx->linear_mem[addr] = (uint8_t)(val & 0xFF);
-                ctx->linear_mem[addr + 1] = (uint8_t)((val >> 8) & 0xFF);
+                ctx->linear_mem[addr] = (uint8_t)(val & 0xFFU);
+                ctx->linear_mem[addr + 1U] = (uint8_t)((val >> 8U) & 0xFFU);
             } else if (opcode == OP_I64_STORE32) {
-                for (int i = 0; i < 4; i++) {
-                    ctx->linear_mem[addr + i] = (uint8_t)((val >> (i * 8)) & 0xFF);
+                for (uint32_t i = 0U; i < 4U; i++) {
+                    ctx->linear_mem[addr + i] = (uint8_t)((val >> (i * 8U)) & 0xFFU);
                 }
             }
             break;
@@ -1447,14 +1895,18 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
             /* LCOV_EXCL_STOP */
 
         case OP_I32_CONST: {
-            int32_t val = read_i32_leb128(mod->bytes, mod->size, &ctx->pc);
-            push_stack(ctx, (uint32_t)val);
+            int32_t val = 0;
+            if (wasm_read_i32_leb(ctx, code_end, &val)) {
+                push_stack(ctx, (uint32_t)val);
+            }
             break;
         }
 
         case OP_I64_CONST: {
-            int64_t val = read_i64_leb128(mod->bytes, mod->size, &ctx->pc);
-            push_stack64(ctx, (uint64_t)val);
+            int64_t val = 0;
+            if (wasm_read_i64_leb(ctx, code_end, &val)) {
+                push_stack64(ctx, (uint64_t)val);
+            }
             break;
         }
 
@@ -1679,28 +2131,32 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
                 res = a * b;
                 break;
             case OP_I64_DIV_S:
-                if (b == 0) {
+                if (b == 0ULL || ((int64_t)a == INT64_MIN && (int64_t)b == -1LL)) {
                     ctx->status = SYN_WASM_TRAP_DIV_ZERO;
                     break;
                 }
                 res = (uint64_t)((int64_t)a / (int64_t)b);
                 break;
             case OP_I64_DIV_U:
-                if (b == 0) {
+                if (b == 0ULL) {
                     ctx->status = SYN_WASM_TRAP_DIV_ZERO;
                     break;
                 }
                 res = a / b;
                 break;
             case OP_I64_REM_S:
-                if (b == 0) {
+                if (b == 0ULL) {
                     ctx->status = SYN_WASM_TRAP_DIV_ZERO;
+                    break;
+                }
+                if ((int64_t)a == INT64_MIN && (int64_t)b == -1LL) {
+                    res = 0ULL;
                     break;
                 }
                 res = (uint64_t)((int64_t)a % (int64_t)b);
                 break;
             case OP_I64_REM_U:
-                if (b == 0) {
+                if (b == 0ULL) {
                     ctx->status = SYN_WASM_TRAP_DIV_ZERO;
                     break;
                 }
@@ -1716,16 +2172,18 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
                 res = a ^ b;
                 break;
             case OP_I64_SHL:
-                res = a << (b % 64);
+                res = a << (b % 64ULL);
                 break;
             case OP_I64_SHR_S:
-                res = (uint64_t)((int64_t)a >> (b % 64));
+                res = (uint64_t)((int64_t)a >> (b % 64ULL));
                 break;
             case OP_I64_SHR_U:
-                res = a >> (b % 64);
+                res = a >> (b % 64ULL);
                 break;
             }
-            push_stack64(ctx, res);
+            if (ctx->status == SYN_WASM_OK) {
+                push_stack64(ctx, res);
+            }
             break;
         }
         /* LCOV_EXCL_STOP */
@@ -1848,10 +2306,15 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
 
         /* ── Floating-Point & Bulk Memory Opcodes ───────────────────────── */
         case OP_F32_CONST: {
-            uint32_t val = mod->bytes[ctx->pc] | ((uint32_t)mod->bytes[ctx->pc + 1] << 8) |
-                           ((uint32_t)mod->bytes[ctx->pc + 2] << 16) |
-                           ((uint32_t)mod->bytes[ctx->pc + 3] << 24);
-            ctx->pc += 4;
+            if ((uint64_t)ctx->pc + 4ULL > (uint64_t)code_end) {
+                ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+                break;
+            }
+            uint32_t val = (uint32_t)mod->bytes[ctx->pc] |
+                           ((uint32_t)mod->bytes[ctx->pc + 1U] << 8U) |
+                           ((uint32_t)mod->bytes[ctx->pc + 2U] << 16U) |
+                           ((uint32_t)mod->bytes[ctx->pc + 3U] << 24U);
+            ctx->pc += 4U;
 #if defined(SYN_WASM_USE_FIXED) && SYN_WASM_USE_FIXED
             float fval;
             memcpy(&fval, &val, sizeof(float));
@@ -1864,11 +2327,15 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
         }
 
         case OP_F64_CONST: {
-            uint64_t val = 0;
-            for (int i = 0; i < 8; i++) {
-                val |= ((uint64_t)mod->bytes[ctx->pc + i]) << (i * 8);
+            if ((uint64_t)ctx->pc + 8ULL > (uint64_t)code_end) {
+                ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+                break;
             }
-            ctx->pc += 8;
+            uint64_t val = 0ULL;
+            for (uint32_t i = 0U; i < 8U; i++) {
+                val |= ((uint64_t)mod->bytes[ctx->pc + i]) << (i * 8U);
+            }
+            ctx->pc += 8U;
             push_stack64(ctx, val);
             break;
         }
@@ -1876,20 +2343,19 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
         /* LCOV_EXCL_START: Wasm floating-point & bulk memory opcode interpreter fallbacks */
         case OP_F32_LOAD:
         case OP_F64_LOAD: {
-            read_u32_leb128(mod->bytes, mod->size, &ctx->pc); /* alignment */
-            uint32_t offset = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            uint32_t base_addr = 0;
-            if (!pop_stack(ctx, &base_addr))
-                break;
-            uint64_t addr = (uint64_t)base_addr + offset;
-            uint32_t req = (opcode == OP_F32_LOAD) ? 4 : 8;
-            if (!ctx->linear_mem || addr > ctx->linear_mem_size - req) {
-                ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+            uint32_t offset = 0U;
+            uint32_t base_addr = 0U;
+            if (!wasm_read_memarg(ctx, code_end, &offset) || !pop_stack(ctx, &base_addr)) {
                 break;
             }
-            uint64_t val = 0;
-            for (uint32_t i = 0; i < req; i++) {
-                val |= ((uint64_t)ctx->linear_mem[addr + i]) << (i * 8);
+            uint32_t req = (opcode == OP_F32_LOAD) ? 4U : 8U;
+            uint64_t addr = 0ULL;
+            if (!wasm_check_mem(ctx, base_addr, offset, req, &addr)) {
+                break;
+            }
+            uint64_t val = 0ULL;
+            for (uint32_t i = 0U; i < req; i++) {
+                val |= ((uint64_t)ctx->linear_mem[addr + i]) << (i * 8U);
             }
             push_stack64(ctx, val);
             break;
@@ -1897,20 +2363,20 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
 
         case OP_F32_STORE:
         case OP_F64_STORE: {
-            read_u32_leb128(mod->bytes, mod->size, &ctx->pc); /* alignment */
-            uint32_t offset = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            uint64_t val = 0;
-            uint32_t base_addr = 0;
-            if (!pop_stack64(ctx, &val) || !pop_stack(ctx, &base_addr))
-                break;
-            uint64_t addr = (uint64_t)base_addr + offset;
-            uint32_t req = (opcode == OP_F32_STORE) ? 4 : 8;
-            if (!ctx->linear_mem || addr > ctx->linear_mem_size - req) {
-                ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+            uint32_t offset = 0U;
+            uint64_t val = 0ULL;
+            uint32_t base_addr = 0U;
+            if (!wasm_read_memarg(ctx, code_end, &offset) || !pop_stack64(ctx, &val) ||
+                !pop_stack(ctx, &base_addr)) {
                 break;
             }
-            for (uint32_t i = 0; i < req; i++) {
-                ctx->linear_mem[addr + i] = (uint8_t)((val >> (i * 8)) & 0xFF);
+            uint32_t req = (opcode == OP_F32_STORE) ? 4U : 8U;
+            uint64_t addr = 0ULL;
+            if (!wasm_check_mem(ctx, base_addr, offset, req, &addr)) {
+                break;
+            }
+            for (uint32_t i = 0U; i < req; i++) {
+                ctx->linear_mem[addr + i] = (uint8_t)((val >> (i * 8U)) & 0xFFU);
             }
             break;
         }
@@ -2027,6 +2493,7 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
             break;
         }
 
+#if !defined(SYN_WASM_USE_FIXED) || !SYN_WASM_USE_FIXED
         case OP_F64_ADD:
         case OP_F64_SUB:
         case OP_F64_MUL:
@@ -2139,46 +2606,6 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
             break;
         }
 
-        case OP_I32_TRUNC_F32_S:
-        case OP_I32_TRUNC_F32_U: {
-            float fa = 0.0f;
-            if (!pop_f32(ctx, &fa))
-                break;
-            uint32_t res = (opcode == OP_I32_TRUNC_F32_S) ? (uint32_t)(int32_t)fa : (uint32_t)fa;
-            push_stack(ctx, res);
-            break;
-        }
-
-        case OP_I32_TRUNC_F64_S:
-        case OP_I32_TRUNC_F64_U: {
-            double da = 0.0;
-            if (!pop_f64(ctx, &da))
-                break;
-            uint32_t res = (opcode == OP_I32_TRUNC_F64_S) ? (uint32_t)(int32_t)da : (uint32_t)da;
-            push_stack(ctx, res);
-            break;
-        }
-
-        case OP_I64_TRUNC_F32_S:
-        case OP_I64_TRUNC_F32_U: {
-            float fa = 0.0f;
-            if (!pop_f32(ctx, &fa))
-                break;
-            uint64_t res = (opcode == OP_I64_TRUNC_F32_S) ? (uint64_t)(int64_t)fa : (uint64_t)fa;
-            push_stack64(ctx, res);
-            break;
-        }
-
-        case OP_I64_TRUNC_F64_S:
-        case OP_I64_TRUNC_F64_U: {
-            double da = 0.0;
-            if (!pop_f64(ctx, &da))
-                break;
-            uint64_t res = (opcode == OP_I64_TRUNC_F64_S) ? (uint64_t)(int64_t)da : (uint64_t)da;
-            push_stack64(ctx, res);
-            break;
-        }
-
         case OP_F32_CONVERT_I32_S:
         case OP_F32_CONVERT_I32_U: {
             uint32_t ia = 0;
@@ -2272,70 +2699,25 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
             }
             break;
         }
+#endif
+        /* LCOV_EXCL_STOP */
 
-        case OP_PREFIX_MISC: {
-            uint32_t subop = read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            if (subop <= 7) {
-                if (subop == 0 || subop == 1) {
-                    float f = 0.0f;
-                    if (pop_f32(ctx, &f))
-                        push_stack(ctx, (uint32_t)(int32_t)f);
-                } else if (subop == 2 || subop == 3) {
-                    double d = 0.0;
-                    if (pop_f64(ctx, &d))
-                        push_stack(ctx, (uint32_t)(int32_t)d);
-                } else if (subop == 4 || subop == 5) {
-                    float f = 0.0f;
-                    if (pop_f32(ctx, &f))
-                        push_stack64(ctx, (uint64_t)(int64_t)f);
-                } else {
-                    double d = 0.0;
-                    if (pop_f64(ctx, &d))
-                        push_stack64(ctx, (uint64_t)(int64_t)d);
-                }
-            } else if (subop == 8) {
-                (void)read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-                (void)read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-                uint32_t n = 0;
-                uint32_t src = 0;
-                uint32_t dst = 0;
-                pop_stack(ctx, &n);
-                pop_stack(ctx, &src);
-                pop_stack(ctx, &dst);
-            } else if (subop == 9) {
-                (void)read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-            } else if (subop == 10) {
-                (void)read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-                (void)read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-                uint32_t len = 0;
-                uint32_t src = 0;
-                uint32_t dst = 0;
-                if (pop_stack(ctx, &len) && pop_stack(ctx, &src) && pop_stack(ctx, &dst)) {
-                    if (ctx->linear_mem && dst + len <= ctx->linear_mem_size &&
-                        src + len <= ctx->linear_mem_size) {
-                        memmove(&ctx->linear_mem[dst], &ctx->linear_mem[src], len);
-                    } else {
-                        ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
-                    }
-                }
-            } else if (subop == 11) {
-                (void)read_u32_leb128(mod->bytes, mod->size, &ctx->pc);
-                uint32_t len = 0;
-                uint32_t val = 0;
-                uint32_t dst = 0;
-                if (pop_stack(ctx, &len) && pop_stack(ctx, &val) && pop_stack(ctx, &dst)) {
-                    if (ctx->linear_mem && dst + len <= ctx->linear_mem_size) {
-                        memset(&ctx->linear_mem[dst], (uint8_t)val, len);
-                    } else {
-                        ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
-                    }
-                }
-            } else {
-                ctx->status = SYN_WASM_TRAP_BAD_OPCODE;
-            }
+#if !defined(SYN_WASM_USE_FIXED) || !SYN_WASM_USE_FIXED
+        case OP_I32_TRUNC_F32_S:
+        case OP_I32_TRUNC_F32_U:
+        case OP_I32_TRUNC_F64_S:
+        case OP_I32_TRUNC_F64_U:
+        case OP_I64_TRUNC_F32_S:
+        case OP_I64_TRUNC_F32_U:
+        case OP_I64_TRUNC_F64_S:
+        case OP_I64_TRUNC_F64_U:
+            wasm_exec_trunc(ctx, opcode);
             break;
-        }
-            /* LCOV_EXCL_STOP */
+#endif
+
+        case OP_PREFIX_MISC:
+            wasm_exec_misc(ctx, code_end);
+            break;
 
         /* LCOV_EXCL_START: Default bad opcode trap */
         default:

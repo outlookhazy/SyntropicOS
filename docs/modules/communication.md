@@ -43,14 +43,15 @@ For MCU-to-MCU serial communication over UART TTL or RS232/RS485, SyntropicOS pa
 ```mermaid
 flowchart LR
     UART["Single-Byte UART RX Interrupt"] --> Decoder["syn_cobs_decoder_feed"]
-    Decoder -->|0x00 Delimiter Found| Assembly["Decoded Frame"]
-    Assembly --> Router["syn_router_feed"]
-    Router -->|Match Node ID & Msg Type| Callback["Handler Callback (e.g. on_set_led)"]
+    Decoder -->|0x00 Delimiter Found| Assembly["Decoded Frame Buffer"]
+    Assembly --> Router["syn_router_poll"]
+    Router -->|Match Node ID & Msg Type| Callback["Handler Callback (e.g. on_led_command)"]
 ```
 
 ### Complete STM32 HAL UART Single-Byte Interrupt Example
 
 ```c
+#include <string.h>
 #include <syntropic/proto/syn_cobs.h>
 #include <syntropic/net/syn_router.h>
 
@@ -62,24 +63,50 @@ static uint8_t rx_byte;
 static SYN_COBS_Decoder cobs_dec;
 static uint8_t cobs_buf[128];
 
+static uint8_t rx_pkt_buf[128];
+static volatile size_t rx_pkt_len;
+static volatile bool rx_pkt_ready;
+
 static SYN_Router router;
 static SYN_RouterHandler handlers[4];
 
 // Custom Transport: Send framed COBS packet over UART
-static SYN_Status uart_send(const uint8_t *data, size_t len, void *ctx) {
+static bool uart_send(const uint8_t *data, size_t len, void *ctx) {
+    (void)ctx;
     uint8_t enc[140];
     size_t enc_len = syn_cobs_encode(data, len, enc);
     enc[enc_len++] = 0x00; // Append 0x00 frame delimiter
-    
-    HAL_UART_Transmit(&huart2, enc, (uint16_t)enc_len, 100);
-    return SYN_OK;
+
+    return HAL_UART_Transmit(&huart2, enc, (uint16_t)enc_len, 100) == HAL_OK;
 }
 
-static SYN_Transport transport = { .send = uart_send, .ctx = NULL };
+// Custom Transport: Poll decoded COBS frame buffered from ISR
+static bool uart_recv(uint8_t *data, size_t max_len, size_t *out_len, void *ctx) {
+    (void)ctx;
+    if (!rx_pkt_ready) {
+        return false;
+    }
+    size_t n = rx_pkt_len;
+    if (n > max_len) {
+        rx_pkt_ready = false;
+        return false;
+    }
+    memcpy(data, rx_pkt_buf, n);
+    *out_len = n;
+    rx_pkt_ready = false;
+    return true;
+}
+
+static SYN_Transport transport = { .send = uart_send, .recv = uart_recv, .ctx = NULL };
 
 // COBS Decoder Callback when a complete frame arrives
 static void on_cobs_frame(const uint8_t *data, size_t len, void *ctx) {
-    syn_router_feed(&router, data, len);
+    (void)ctx;
+    if (!rx_pkt_ready && len <= sizeof(rx_pkt_buf)) {
+        memcpy(rx_pkt_buf, data, len);
+        rx_pkt_len = len;
+        rx_pkt_ready = true;
+    }
 }
 
 // Single-Byte UART Interrupt Callback (No DMA)
@@ -92,6 +119,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
 // Message Handler Callback
 static void on_led_command(const SYN_Packet *pkt, void *ctx) {
+    (void)ctx;
     if (pkt->len > 0 && pkt->payload[0] == 0x01) {
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET); // LED ON
     }
@@ -99,11 +127,15 @@ static void on_led_command(const SYN_Packet *pkt, void *ctx) {
 
 void app_init(void) {
     syn_cobs_decoder_init(&cobs_dec, cobs_buf, sizeof(cobs_buf), on_cobs_frame, NULL);
-    
+
     syn_router_init(&router, SLAVE_NODE_ID, &transport, handlers, 4);
     syn_router_register(&router, MSG_TYPE_LED, on_led_command, NULL);
-    
+
     HAL_UART_Receive_IT(&huart2, &rx_byte, 1);
+}
+
+void app_loop(void) {
+    syn_router_poll(&router);
 }
 ```
 
@@ -122,10 +154,10 @@ The M-Bus (Meter-Bus) driver supports utility metering devices (water, gas, elec
 #include <syntropic/proto/syn_mbus.h>
 
 void parse_mbus_stream(const uint8_t *buffer, size_t len) {
-    SYN_MBusFrame frame;
-    if (syn_mbus_parse_long(buffer, len, &frame) == SYN_OK) {
+    SYN_MBUS_Frame frame;
+    if (syn_mbus_decode_frame(buffer, len, &frame) == SYN_OK) {
         printf("M-Bus Frame Received! C-Field: 0x%02X, Address: 0x%02X\n",
-               frame.control, frame.address);
+               frame.c_field, frame.a_field);
     }
 }
 ```
@@ -183,7 +215,7 @@ SyntropicOS provides a standalone, zero-heap Ethernet II and IP networking stack
 - **Ethernet II & ARP (`syn_eth.h`)**: Raw Ethernet II framing, MAC address filtering, and configurable static ARP table cache (`SYN_ETH_ARP_CACHE_SIZE`, defaults to 8 entries).
 - **Native TCP Engine (`syn_tcp.h`)**: Zero-alloc IPv4 TCP state machine (`LISTEN`, `SYN_RCVD`, `ESTABLISHED`, `FIN_WAIT`), 3-way handshake (`SYN` → `SYN-ACK` → `ACK`), sequence/ACK tracking, and non-blocking `PT_TCP_BLOCK_READ` protothread task macro.
 - **Native UDP Engine (`syn_udp.h`)**: Zero-alloc IPv4 UDP demuxing stack, 8-byte header construction, pseudo-header checksum (`syn_udp_checksum`), targeted destination port waking (`syn_task_resume`), and `PT_UDP_BLOCK_READ` protothread macro.
-- **UDP Transport Bridge (`syn_transport_udp.h`)**: Dual-stack transport bridge connecting `syn_port_udp_*` platform abstraction layer directly to `syn_udp` for seamless execution across software MACRAW, WIZnet hardware sockets, or POSIX/OS sockets.
+- **UDP Transport Bridge (`syn_transport_udp.h`)**: Dual-stack transport bridge connecting `syn_port_udp_*` platform abstraction layer directly to `syn_udp` across software MACRAW, WIZnet hardware sockets, or POSIX/OS sockets.
 - **DHCP Client (`syn_dhcp.h`)**: RFC 2131 BOOTP/DHCP client state machine (`DISCOVER` → `OFFER` → `REQUEST` → `ACK`) over UDP ports 67/68.
 - **ICMP Protocol Engine (`syn_icmp.h`)**: RFC 792 ICMP Echo Request / Reply (Ping) engine with RFC 1071 Ones-Complement Internet Checksum.
 - **RFC 3927 AutoIP (`syn_autoip.h`)**: Link-Local `169.254.x.x` address selection, ARP probing, and collision recovery.
@@ -248,6 +280,7 @@ void uds_init(void) {
 void uds_task_10ms(uint32_t dt_ms) {
     syn_uds_tick(&g_uds, dt_ms); /* Automatically triggers on_ecu_reset callback after 50 ms */
 }
+```
 
 ### Per-DID Session & Security Authorization Filters
 
@@ -259,8 +292,6 @@ uint8_t engine_speed[2];
 syn_uds_register_did_ext(&g_uds, 0xF190, engine_speed, sizeof(engine_speed), true,
                          SYN_UDS_SESSION_MASK_DEFAULT | SYN_UDS_SESSION_MASK_EXTENDED,
                          SYN_UDS_SECURITY_MASK_LEVEL_1);
-```
-
 ```
 
 ### Addressing Mode Support (Physical vs. Functional)
@@ -605,7 +636,14 @@ Zero-heap MQTT for Sensor Networks (MQTT-SN v1.2) client engine for constrained 
 static SYN_MQTTSN_Client g_sn_client;
 static uint8_t g_sn_rx[256], g_sn_tx[256];
 
-void on_sn_message(SYN_MQTTSN_Client *client, uint16_t topic_id, const uint8_t *payload, size_t len) {
+void on_sn_message(SYN_MQTTSN_Client *client, uint16_t topic_id, uint8_t topic_type,
+                   const uint8_t *payload, size_t len, void *user_data) {
+    (void)client;
+    (void)topic_id;
+    (void)topic_type;
+    (void)payload;
+    (void)len;
+    (void)user_data;
     /* Process incoming sensor command */
 }
 

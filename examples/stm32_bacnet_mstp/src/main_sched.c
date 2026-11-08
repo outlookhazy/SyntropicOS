@@ -32,7 +32,7 @@ static SYN_PT_Status task_bacnet_poll_func(SYN_PT *pt, SYN_Task *task)
 
     while (1) {
         bacnet_app_poll();
-        PT_YIELD(pt);
+        PT_PASS(pt);
     }
 
     PT_END(pt);
@@ -54,8 +54,10 @@ int main_sched(void)
 {
     bacnet_app_init();
 
-    syn_task_create(&s_tasks[TASK_BACNET_POLL], "BACnetPoll", task_bacnet_poll_func, 1, NULL);
-    syn_task_create(&s_tasks[TASK_BACNET_COV],  "BACnetCOV",  task_bacnet_cov_func,  2, NULL);
+    syn_task_create(&s_tasks[TASK_BACNET_POLL], "BACnetPoll", task_bacnet_poll_func, SYN_PRIO_HIGH,
+                    NULL);
+    syn_task_create(&s_tasks[TASK_BACNET_COV], "BACnetCOV", task_bacnet_cov_func, SYN_PRIO_NORMAL,
+                    NULL);
 
     syn_sched_init(&s_sched, s_tasks, TASK_COUNT);
 

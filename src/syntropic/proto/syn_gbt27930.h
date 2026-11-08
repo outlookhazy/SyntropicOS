@@ -41,6 +41,7 @@ extern "C" {
 #define SYN_GBT27930_PGN_CRM 0x000100U /**< Charger Recognition Message (CRM) */
 #define SYN_GBT27930_PGN_BRM 0x000200U /**< BMS Recognition Message (BRM) */
 #define SYN_GBT27930_PGN_BCP 0x000600U /**< BMS Charging Parameter (BCP) */
+#define SYN_GBT27930_PGN_CTS 0x000700U /**< Charger Time Sync Message (CTS) */
 #define SYN_GBT27930_PGN_CML 0x000800U /**< Charger Max Output Capability (CML) */
 #define SYN_GBT27930_PGN_BRO 0x000900U /**< BMS Charging Ready State (BRO) */
 #define SYN_GBT27930_PGN_CRO 0x000A00U /**< Charger Output Ready State (CRO) */
@@ -68,12 +69,13 @@ typedef enum {
  * @brief GB/T 27930 State Machine Phases.
  */
 typedef enum {
-    SYN_GBT27930_STATE_IDLE = 0,
-    SYN_GBT27930_STATE_HANDSHAKE = 1,
-    SYN_GBT27930_STATE_PARAM_CONFIG = 2,
-    SYN_GBT27930_STATE_CHARGING = 3,
-    SYN_GBT27930_STATE_STOPPING = 4,
-    SYN_GBT27930_STATE_ERROR = 5
+    SYN_GBT27930_STATE_IDLE = 0,         /**< Idle / uninitialized phase */
+    SYN_GBT27930_STATE_HANDSHAKE = 1,    /**< Handshake and recognition phase */
+    SYN_GBT27930_STATE_PARAM_CONFIG = 2, /**< Parameter configuration phase */
+    SYN_GBT27930_STATE_CHARGING = 3,     /**< Active power transfer phase */
+    SYN_GBT27930_STATE_STOPPING = 4,     /**< Stop charging handshake phase */
+    SYN_GBT27930_STATE_ERROR = 5,        /**< Communication timeout or fault phase */
+    SYN_GBT27930_STATE_END = 6           /**< End of charging statistics phase (BSD / CSD) */
 } SYN_GBT27930_State;
 
 /**
@@ -104,16 +106,18 @@ typedef struct {
  * @brief Real-time Charging Telemetry (BCL / BCS / CCS / BSM).
  */
 typedef struct {
-    uint16_t volt_demand_v;      /**< Voltage Demand (0.1 V/bit) */
-    uint16_t curr_demand_a;      /**< Current Demand (0.1 A/bit, offset -400A) */
-    uint8_t charge_mode;         /**< 0x01=Constant Voltage, 0x02=Constant Current */
-    uint16_t measured_volt_v;    /**< Measured Output Voltage (0.1 V/bit) */
-    uint16_t measured_curr_a;    /**< Measured Output Current (0.1 A/bit, offset -400A) */
-    uint8_t soc_percent;         /**< Battery SOC percentage (0..100 %) */
-    uint16_t remaining_time_min; /**< Remaining charging time in minutes */
-    uint16_t max_cell_volt_v;    /**< Measured Max Cell Voltage (0.01 V/bit) */
-    uint8_t max_cell_temp_c;     /**< Measured Max Cell Temp (1 °C/bit, offset -50°C) */
-    uint8_t min_cell_temp_c;     /**< Measured Min Cell Temp (1 °C/bit, offset -50°C) */
+    uint16_t volt_demand_v;       /**< Voltage Demand (0.1 V/bit) */
+    uint16_t curr_demand_a;       /**< Current Demand (0.1 A/bit, offset -400A) */
+    uint8_t charge_mode;          /**< 0x01=Constant Voltage, 0x02=Constant Current */
+    uint16_t measured_volt_v;     /**< Measured Output Voltage (0.1 V/bit) */
+    uint16_t measured_curr_a;     /**< Measured Output Current (0.1 A/bit, offset -400A) */
+    uint8_t soc_percent;          /**< Battery SOC percentage (0..100 %) */
+    uint16_t remaining_time_min;  /**< Remaining charging time in minutes */
+    uint16_t max_cell_volt_v;     /**< Measured Max Cell Voltage (0.01 V/bit) */
+    uint8_t max_cell_temp_c;      /**< Measured Max Cell Temp (1 °C/bit, offset -50°C) */
+    uint8_t min_cell_temp_c;      /**< Measured Min Cell Temp (1 °C/bit, offset -50°C) */
+    uint16_t cumulative_time_min; /**< Cumulative charging time in minutes (CCS/CSD) */
+    uint16_t output_energy_kwh;   /**< Delivered energy (0.1 kWh/bit, CSD) */
 } SYN_GBT27930_Telemetry;
 
 /**
@@ -127,10 +131,22 @@ typedef struct {
     SYN_GBT27930_Telemetry telemetry;        /**< Real-time telemetry */
     bool ready_for_charging;                 /**< Local ready state flag */
     bool peer_ready_for_charging;            /**< Peer ready state flag */
+    bool crm00_received;                     /**< BMS received CRM(0x00) recognition prompt */
+    bool brm_received;                       /**< Charger received BRM recognition data */
+    bool bcp_received;                       /**< Charger received BCP battery parameters */
+    bool cml_sent;                           /**< Charger transmitted CML capability frame */
+    bool cml_received;                       /**< BMS received CML charger capability */
+    bool cts_received;                       /**< BMS received CTS time sync frame */
+    bool ready_tx_sent;                      /**< Local BRO(0xAA)/CRO(0xAA) transmitted */
+    bool stop_tx_sent;                       /**< Local BST/CST stop frame transmitted */
+    bool peer_stopped;                       /**< Peer BST/CST stop frame received */
+    bool stats_received;                     /**< Peer BSD/CSD statistics frame received */
+    uint8_t tx_substep;                      /**< Periodic multi-PGN schedule index */
     uint32_t timer_ms;                       /**< Periodic transmit timer */
     uint32_t timeout_ms;                     /**< Phase timeout timer */
     uint8_t stop_reason;                     /**< Stop reason code */
     uint8_t fault_code;                      /**< Error/Fault code */
+    uint8_t sync_time_bcd[7];                /**< Charger BCD timestamp for CTS (optional) */
 } SYN_GBT27930_Session;
 
 /**

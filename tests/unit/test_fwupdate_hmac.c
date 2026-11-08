@@ -14,7 +14,7 @@
 #include <string.h>
 
 #define SLOT_ADDR 0x0000u
-#define SLOT_SIZE (2048u - (uint32_t)sizeof(SYN_FwImageHeader))
+#define SLOT_SIZE (2048u - (uint32_t)MOCK_FLASH_SECTOR)
 
 static uint8_t page_buf[256];
 static SYN_FwUpdate upd;
@@ -107,8 +107,7 @@ void test_hmac_mismatch_fails(void)
 
 void test_hmac_null_skips_verification(void)
 {
-    /* Even with key set, passing NULL for expected_hmac should skip HMAC
-     * check and succeed with CRC-only verification. */
+    /* R5-S03: With HMAC key configured, passing NULL for expected_hmac must fail closed. */
     uint8_t firmware[64];
     memset(firmware, 0xBB, sizeof(firmware));
 
@@ -119,13 +118,17 @@ void test_hmac_null_skips_verification(void)
     syn_fwupdate_set_key(&upd, test_key, sizeof(test_key));
     syn_fwupdate_write(&upd, firmware, sizeof(firmware));
 
-    /* NULL HMAC = CRC-only fallback */
 #if defined(SYN_FW_USE_ED25519) && SYN_FW_USE_ED25519
     SYN_Status st = syn_fwupdate_finish(&upd, crc, NULL, NULL, 0x00010200);
 #else
     SYN_Status st = syn_fwupdate_finish(&upd, crc, NULL, 0x00010200);
 #endif
-    TEST_ASSERT_EQUAL(SYN_OK, st);
+    TEST_ASSERT_EQUAL(SYN_ERROR, st);
+    TEST_ASSERT_FALSE(syn_fwupdate_active(&upd));
+
+    SYN_FwImageHeader hdr;
+    memcpy(&hdr, mock_flash + SLOT_ADDR, sizeof(hdr));
+    TEST_ASSERT_EQUAL(SYN_FW_STATE_INVALID, hdr.state);
 }
 
 void test_hmac_crc_only_without_key(void)

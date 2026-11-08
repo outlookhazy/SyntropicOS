@@ -17,6 +17,19 @@
 
 #include <string.h>
 
+/**
+ * @brief Zeroize sensitive stack buffers without compiler dead-store elimination.
+ * @param v Buffer pointer.
+ * @param n Number of bytes to zeroize.
+ */
+static void syn_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
+
 /* ── AES Forward S-Box ───────────────────────────────────────────────────── */
 
 /** Forward Substitution Box (S-Box) */
@@ -178,6 +191,7 @@ SYN_Status syn_aes_init(SYN_AES_Context *ctx, const uint8_t *key, size_t key_len
         k = (uint8_t)(k + 4U);
     }
 
+    syn_secure_zero(temp, sizeof(temp));
     return SYN_OK;
 }
 
@@ -257,6 +271,7 @@ void syn_aes_encrypt_block(const SYN_AES_Context *ctx, const uint8_t in[SYN_AES_
             out[r + 4 * c] = state[r][c];
         }
     }
+    syn_secure_zero(state, sizeof(state));
 }
 
 #if !defined(SYN_USE_AES_DECRYPT) || SYN_USE_AES_DECRYPT
@@ -341,6 +356,7 @@ void syn_aes_decrypt_block(const SYN_AES_Context *ctx, const uint8_t in[SYN_AES_
             out[r + 4 * c] = state[r][c];
         }
     }
+    syn_secure_zero(state, sizeof(state));
 }
 #endif
 
@@ -389,6 +405,8 @@ SYN_Status syn_aes_cbc_encrypt(const SYN_AES_Context *ctx, const uint8_t iv[SYN_
         offset += 16U;
     }
 
+    syn_secure_zero(current_iv, sizeof(current_iv));
+    syn_secure_zero(block, sizeof(block));
     *out_len = total_len;
     return SYN_OK;
 }
@@ -418,6 +436,8 @@ SYN_Status syn_aes_cbc_decrypt(const SYN_AES_Context *ctx, const uint8_t iv[SYN_
         memcpy(out + offset, block, 16);
         offset += 16U;
     }
+    syn_secure_zero(current_iv, sizeof(current_iv));
+    syn_secure_zero(block, sizeof(block));
 
     /* PKCS#7 Unpadding validation */
     uint8_t pad_val = out[in_len - 1U];
@@ -482,6 +502,8 @@ SYN_Status syn_aes_ctr(const SYN_AES_Context *ctx, const uint8_t nonce[SYN_AES_B
         offset += chunk;
     }
 
+    syn_secure_zero(cb, sizeof(cb));
+    syn_secure_zero(stream, sizeof(stream));
     return SYN_OK;
 }
 #endif
@@ -527,6 +549,8 @@ static void ghash_mult_bit(const uint8_t x[16], const uint8_t y[16], uint8_t out
         }
     }
     memcpy(out, z, 16);
+    syn_secure_zero(v, sizeof(v));
+    syn_secure_zero(z, sizeof(z));
 }
 
 void syn_aes_ghash_mult(const uint8_t x[16], const uint8_t h[16], uint8_t out[16])
@@ -713,6 +737,12 @@ SYN_Status syn_aes_gcm_encrypt(const SYN_AES_GCM_Context *ctx, const uint8_t *no
         tag[j] = (uint8_t)(ghash_out[j] ^ j0_enc[j]);
     }
 
+    syn_secure_zero(j0, sizeof(j0));
+    syn_secure_zero(cb, sizeof(cb));
+    syn_secure_zero(stream, sizeof(stream));
+    syn_secure_zero(s, sizeof(s));
+    syn_secure_zero(ghash_out, sizeof(ghash_out));
+    syn_secure_zero(j0_enc, sizeof(j0_enc));
     return SYN_OK;
 }
 
@@ -762,8 +792,13 @@ SYN_Status syn_aes_gcm_decrypt(const SYN_AES_GCM_Context *ctx, const uint8_t *no
     for (size_t i = 0U; i < SYN_AES_GCM_TAG_SIZE; i++) {
         diff |= (uint8_t)(expected_tag[i] ^ tag[i]);
     }
+    syn_secure_zero(s, sizeof(s));
+    syn_secure_zero(ghash_out, sizeof(ghash_out));
+    syn_secure_zero(j0_enc, sizeof(j0_enc));
+    syn_secure_zero(expected_tag, sizeof(expected_tag));
 
     if (diff != 0U) {
+        syn_secure_zero(j0, sizeof(j0));
         if (out != NULL && out != in && in_len > 0U) {
             memset(out, 0, in_len);
         }
@@ -773,6 +808,7 @@ SYN_Status syn_aes_gcm_decrypt(const SYN_AES_GCM_Context *ctx, const uint8_t *no
     /* Decrypt ciphertext with CTR mode starting at inc32(J0) */
     uint8_t cb[16];
     memcpy(cb, j0, 16);
+    syn_secure_zero(j0, sizeof(j0));
     inc32(cb);
 
     uint8_t stream[16];
@@ -787,6 +823,8 @@ SYN_Status syn_aes_gcm_decrypt(const SYN_AES_GCM_Context *ctx, const uint8_t *no
         offset += chunk;
     }
 
+    syn_secure_zero(cb, sizeof(cb));
+    syn_secure_zero(stream, sizeof(stream));
     return SYN_OK;
 }
 #endif
@@ -921,6 +959,8 @@ static SYN_Status ccm_compute_mac(const SYN_AES_Context *ctx, const uint8_t *non
         ccm_mac_pad_zero(ctx, mac, blk, &blk_len);
     }
 
+    syn_secure_zero(b0, sizeof(b0));
+    syn_secure_zero(blk, sizeof(blk));
     return SYN_OK;
 }
 
@@ -947,12 +987,12 @@ SYN_Status syn_aes_ccm_encrypt(const SYN_AES_Context *ctx, const uint8_t *nonce,
     ccm_compute_mac(ctx, nonce, nonce_len, L, aad, aad_len, in, in_len, tag_len, mac);
 
     /* 2. CTR Payload Encryption */
+    uint8_t ai[16] = {0};
+    uint8_t si[16] = {0};
     uint64_t ctr = 1U;
     size_t offset = 0U;
     while (offset < in_len) {
-        uint8_t ai[16];
         ccm_format_ctr(ai, nonce, nonce_len, L, ctr++);
-        uint8_t si[16];
         syn_aes_encrypt_block(ctx, ai, si);
         size_t chunk = (in_len - offset >= 16U) ? 16U : (in_len - offset);
         for (size_t j = 0U; j < chunk; j++) {
@@ -970,6 +1010,11 @@ SYN_Status syn_aes_ccm_encrypt(const SYN_AES_Context *ctx, const uint8_t *nonce,
         tag[j] = (uint8_t)(mac[j] ^ s0[j]);
     }
 
+    syn_secure_zero(mac, sizeof(mac));
+    syn_secure_zero(ai, sizeof(ai));
+    syn_secure_zero(si, sizeof(si));
+    syn_secure_zero(a0, sizeof(a0));
+    syn_secure_zero(s0, sizeof(s0));
     return SYN_OK;
 }
 
@@ -1000,14 +1045,16 @@ SYN_Status syn_aes_ccm_decrypt(const SYN_AES_Context *ctx, const uint8_t *nonce,
     for (size_t j = 0U; j < tag_len; j++) {
         unmasked_tag[j] = (uint8_t)(tag[j] ^ s0[j]);
     }
+    syn_secure_zero(a0, sizeof(a0));
+    syn_secure_zero(s0, sizeof(s0));
 
     /* 2. CTR Decrypt Ciphertext */
+    uint8_t ai[16] = {0};
+    uint8_t si[16] = {0};
     uint64_t ctr = 1U;
     size_t offset = 0U;
     while (offset < in_len) {
-        uint8_t ai[16];
         ccm_format_ctr(ai, nonce, nonce_len, L, ctr++);
-        uint8_t si[16];
         syn_aes_encrypt_block(ctx, ai, si);
         size_t chunk = (in_len - offset >= 16U) ? 16U : (in_len - offset);
         for (size_t j = 0U; j < chunk; j++) {
@@ -1025,6 +1072,8 @@ SYN_Status syn_aes_ccm_decrypt(const SYN_AES_Context *ctx, const uint8_t *nonce,
     for (size_t j = 0U; j < tag_len; j++) {
         diff |= (uint8_t)(unmasked_tag[j] ^ mac[j]);
     }
+    syn_secure_zero(unmasked_tag, sizeof(unmasked_tag));
+    syn_secure_zero(mac, sizeof(mac));
 
     if (diff != 0U) {
         if (out == in) {
@@ -1032,9 +1081,7 @@ SYN_Status syn_aes_ccm_decrypt(const SYN_AES_Context *ctx, const uint8_t *nonce,
             ctr = 1U;
             offset = 0U;
             while (offset < in_len) {
-                uint8_t ai[16];
                 ccm_format_ctr(ai, nonce, nonce_len, L, ctr++);
-                uint8_t si[16];
                 syn_aes_encrypt_block(ctx, ai, si);
                 size_t chunk = (in_len - offset >= 16U) ? 16U : (in_len - offset);
                 for (size_t j = 0U; j < chunk; j++) {
@@ -1045,9 +1092,13 @@ SYN_Status syn_aes_ccm_decrypt(const SYN_AES_Context *ctx, const uint8_t *nonce,
         } else if (out != NULL && in_len > 0U) {
             memset(out, 0, in_len);
         }
+        syn_secure_zero(ai, sizeof(ai));
+        syn_secure_zero(si, sizeof(si));
         return SYN_ERROR;
     }
 
+    syn_secure_zero(ai, sizeof(ai));
+    syn_secure_zero(si, sizeof(si));
     return SYN_OK;
 }
 #endif

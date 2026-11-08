@@ -91,20 +91,20 @@ static inline bool syn_event_check_any(const SYN_EventGroup *grp, uint32_t mask)
 /**
  * @brief Block the protothread until ALL bits in @p mask are set, then auto-clear.
  */
-#define PT_WAIT_EVENT(pt, grp, mask)                       \
-    do {                                                   \
-        PT_WAIT_UNTIL(pt, syn_event_check_all(grp, mask)); \
-        syn_event_clear(grp, mask);                        \
-    } while (0)
+#define PT_WAIT_EVENT(pt, grp, mask)                                                 \
+    PT_WAIT_UNTIL(pt, syn_event_flags_wait((grp), (mask),                            \
+                                           (uint32_t)SYN_EVENT_FLAGS_WAIT_ALL |      \
+                                               (uint32_t)SYN_EVENT_FLAGS_AUTO_CLEAR, \
+                                           NULL) == SYN_OK)
 
 /**
  * @brief Block the protothread until ANY bit in @p mask is set, then auto-clear.
  */
-#define PT_WAIT_EVENT_ANY(pt, grp, mask)                   \
-    do {                                                   \
-        PT_WAIT_UNTIL(pt, syn_event_check_any(grp, mask)); \
-        syn_event_clear(grp, syn_event_get(grp) & (mask)); \
-    } while (0)
+#define PT_WAIT_EVENT_ANY(pt, grp, mask)                                             \
+    PT_WAIT_UNTIL(pt, syn_event_flags_wait((grp), (mask),                            \
+                                           (uint32_t)SYN_EVENT_FLAGS_WAIT_ANY |      \
+                                               (uint32_t)SYN_EVENT_FLAGS_AUTO_CLEAR, \
+                                           NULL) == SYN_OK)
 
 #ifdef __cplusplus
 }

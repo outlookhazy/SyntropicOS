@@ -15,12 +15,22 @@
 #define SYN_LWM2M_TASK_H
 
 #include "syntropic/common/syn_defs.h"
-#include "syntropic/net/syn_coap.h"
 #include "syntropic/proto/syn_lwm2m.h"
+
+#if (!defined(SYN_USE_LWM2M_TASK) || SYN_USE_LWM2M_TASK) && SYN_LWM2M_ENABLED && \
+    (!defined(SYN_USE_PT) || SYN_USE_PT) && (!defined(SYN_USE_SCHED) || SYN_USE_SCHED)
+/** @brief Non-zero when LwM2M autonomous task and scheduler dependencies are enabled. */
+#define SYN_LWM2M_TASK_ENABLED 1
+#else
+/** @brief Non-zero when LwM2M autonomous task and scheduler dependencies are enabled. */
+#define SYN_LWM2M_TASK_ENABLED 0
+#endif
+
+#if SYN_LWM2M_TASK_ENABLED
+
+#include "syntropic/net/syn_coap.h"
 #include "syntropic/pt/syn_pt.h"
 #include "syntropic/sched/syn_sched.h"
-
-#if !defined(SYN_USE_LWM2M_TASK) || SYN_USE_LWM2M_TASK
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,6 +93,18 @@ typedef struct {
 
 /* ── Task Context ────────────────────────────────────────────────────────── */
 
+/** @brief Maximum queued dirty resource notifications per supervisor tick. */
+#define SYN_LWM2M_MAX_DIRTY_QUEUE 8U
+
+/**
+ * @brief Queued dirty resource or object-instance entry.
+ */
+typedef struct {
+    uint16_t obj_id;  /**< Changed Object ID */
+    uint16_t inst_id; /**< Changed Instance ID */
+    int32_t res_id;   /**< Changed Resource ID (-1 for entire instance) */
+} SYN_LwM2M_DirtyEntry;
+
 /**
  * @brief LwM2M Supervisor Task Context.
  */
@@ -90,15 +112,14 @@ typedef struct SYN_LwM2M_Task {
     SYN_LwM2M_TaskConfig cfg; /**< Task configuration */
     SYN_PT pt;                /**< Protothread state */
 
-    uint16_t next_msg_id;     /**< Message ID sequence counter */
-    uint32_t last_action_ms;  /**< Timestamp of last transmitted request (ms) */
-    uint32_t retry_count;     /**< Number of failed retry attempts */
-    bool force_update;        /**< Flag to trigger immediate Registration Update */
-    bool force_deregister;    /**< Flag to request clean Deregistration */
-    bool resource_changed;    /**< Flag indicating a resource value changed */
-    uint16_t changed_obj_id;  /**< Changed Object ID */
-    uint16_t changed_inst_id; /**< Changed Instance ID */
-    int32_t changed_res_id;   /**< Changed Resource ID */
+    uint16_t next_msg_id;    /**< Message ID sequence counter */
+    uint16_t pending_msg_id; /**< Message ID of in-flight Register or Update request */
+    uint32_t last_action_ms; /**< Timestamp of last transmitted request (ms) */
+    uint32_t retry_count;    /**< Number of failed retry attempts */
+    bool force_update;       /**< Flag to trigger immediate Registration Update */
+    bool force_deregister;   /**< Flag to request clean Deregistration */
+    SYN_LwM2M_DirtyEntry dirty_queue[SYN_LWM2M_MAX_DIRTY_QUEUE]; /**< Pending dirty queue */
+    size_t dirty_count; /**< Number of queued dirty entries */
 } SYN_LwM2M_Task;
 
 /* ── Public API ─────────────────────────────────────────────────────────── */
@@ -166,6 +187,6 @@ SYN_Status syn_lwm2m_task_notify_changed(SYN_LwM2M_Task *task, uint16_t obj_id, 
 }
 #endif
 
-#endif /* SYN_USE_LWM2M_TASK */
+#endif /* SYN_LWM2M_TASK_ENABLED */
 
 #endif /* SYN_LWM2M_TASK_H */

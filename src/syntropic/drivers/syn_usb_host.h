@@ -10,16 +10,17 @@
 #ifndef SYN_USB_HOST_H
 #define SYN_USB_HOST_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/drivers/syn_usb.h"
+#include "syntropic/pt/syn_pt.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifndef SYN_USB_HOST_MAX_CLASSES
 #define SYN_USB_HOST_MAX_CLASSES 4U /**< Maximum registered host class drivers */
@@ -158,7 +159,6 @@ bool syn_usb_host_is_ready(const SYN_USB_Host *host);
 const SYN_USB_HostDevInfo *syn_usb_host_get_dev_info(const SYN_USB_Host *host);
 
 /* ── Protothread Coroutine Integration ──────────────────────────────────── */
-#include "syntropic/pt/syn_pt.h"
 
 /**
  * @brief Block a protothread coroutine until a USB device is enumerated and ready.

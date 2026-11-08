@@ -3,6 +3,7 @@
  * @brief Unit tests for zero-heap CBOR Object Signing and Encryption (COSE - RFC 9052).
  */
 
+#include "mocks/mock_port.h"
 #include "syntropic/proto/syn_cose.h"
 #include "unity/unity.h"
 
@@ -780,8 +781,8 @@ void test_cose_encrypt0_aes_ccm_roundtrip_and_tamper(void)
 
     /* 5. Tampering tests */
     /* Bad key */
-    uint8_t bad_key[16];
-    memcpy(bad_key, key128, 16);
+    uint8_t bad_key[32];
+    memcpy(bad_key, key256, 32);
     bad_key[0] ^= 0xFF;
     TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_encrypt0_decrypt(cose_msg, cose_msg_len, bad_key, aad,
                                                                sizeof(aad) - 1, dec_buf,
@@ -963,6 +964,193 @@ void test_cose_key_encode_decode(void)
     TEST_ASSERT_EQUAL_INT(SYN_COSE_KTY_SYMMETRIC, decoded.kty);
 }
 
+void test_cose_zero_copy_views_and_oversized_kid(void)
+{
+    uint8_t seed[32] = {0xAAU};
+    uint8_t pub[32], sec[32];
+    TEST_ASSERT_TRUE(syn_ed25519_create_keypair(pub, sec, seed));
+    static const uint8_t sym_key[32] = {0x55U};
+    static const uint8_t iv[12] = {0x11U};
+    static const uint8_t msg_body[] = "zero-copy-slice";
+
+    uint8_t wire[256];
+    size_t wire_len = 0U;
+
+    /* 1. Sign1 zero-copy pointers point into wire[] */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_cose_sign1_create(SYN_COSE_ALGO_EDDSA, sec, pub, NULL, 0U,
+                                                        msg_body, sizeof(msg_body) - 1U, NULL, 0U,
+                                                        wire, sizeof(wire), &wire_len));
+    SYN_COSE_Sign1Message s1;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_cose_sign1_verify(wire, wire_len, pub, 32U, NULL, 0U, &s1));
+    TEST_ASSERT_TRUE(s1.payload >= wire && (s1.payload + s1.payload_len) <= (wire + wire_len));
+    TEST_ASSERT_TRUE(s1.signature >= wire &&
+                     (s1.signature + s1.signature_len) <= (wire + wire_len));
+
+    /* 2. Encrypt0 zero-copy ciphertext pointer points into wire[] */
+    uint8_t pt_out[64];
+    size_t pt_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_cose_encrypt0_create(SYN_COSE_ALGO_CHACHA20_POLY1305, sym_key,
+                                                           iv, sizeof(iv), NULL, 0U, msg_body,
+                                                           sizeof(msg_body) - 1U, NULL, 0U, wire,
+                                                           sizeof(wire), &wire_len));
+    SYN_COSE_Encrypt0Message e0;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_cose_encrypt0_decrypt(wire, wire_len, sym_key, NULL, 0U,
+                                                            pt_out, sizeof(pt_out), &pt_len, &e0));
+    TEST_ASSERT_TRUE(e0.ciphertext >= wire &&
+                     (e0.ciphertext + e0.ciphertext_len) <= (wire + wire_len));
+
+    /* 3. Mac0 zero-copy payload and tag pointers point into wire[] */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_cose_mac0_create(SYN_COSE_ALGO_HMAC_256_256, sym_key, 32U,
+                                                       NULL, 0U, msg_body, sizeof(msg_body) - 1U,
+                                                       NULL, 0U, wire, sizeof(wire), &wire_len));
+    SYN_COSE_Mac0Message m0;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_cose_mac0_verify(wire, wire_len, sym_key, 32U, NULL, 0U, &m0));
+    TEST_ASSERT_TRUE(m0.payload >= wire && (m0.payload + m0.payload_len) <= (wire + wire_len));
+    TEST_ASSERT_TRUE(m0.tag >= wire && (m0.tag + m0.tag_len) <= (wire + wire_len));
+
+    /* 4. Oversized kid (> SYN_COSE_MAX_KID_LEN = 32B) rejected in Sign1, Encrypt0, and Mac0 */
+    uint8_t big_kid[40];
+    memset(big_kid, 0x4BU, sizeof(big_kid));
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_cose_sign1_create(SYN_COSE_ALGO_EDDSA, sec, pub, big_kid,
+                                                sizeof(big_kid), msg_body, sizeof(msg_body) - 1U,
+                                                NULL, 0U, wire, sizeof(wire), &wire_len));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_sign1_verify(wire, wire_len, pub, 32U, NULL, 0U, &s1));
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_cose_encrypt0_create(SYN_COSE_ALGO_CHACHA20_POLY1305, sym_key,
+                                                           iv, sizeof(iv), big_kid, sizeof(big_kid),
+                                                           msg_body, sizeof(msg_body) - 1U, NULL,
+                                                           0U, wire, sizeof(wire), &wire_len));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_encrypt0_decrypt(wire, wire_len, sym_key, NULL, 0U, pt_out,
+                                                    sizeof(pt_out), &pt_len, &e0));
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_cose_mac0_create(SYN_COSE_ALGO_HMAC_256_256, sym_key, 32U, big_kid,
+                                               sizeof(big_kid), msg_body, sizeof(msg_body) - 1U,
+                                               NULL, 0U, wire, sizeof(wire), &wire_len));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_mac0_verify(wire, wire_len, sym_key, 32U, NULL, 0U, &m0));
+}
+
+void test_r5_n01_cose_truncated_maps_and_sign_guards(void)
+{
+    uint8_t dummy_key[32] = {0x42U};
+    uint8_t pt_out[32];
+    size_t pt_len = 0U;
+    SYN_COSE_Key key_out;
+
+    /* 1. R5-N01 regression vectors (<1ms instant rejection of 4.29B map count) */
+    static const uint8_t trunc_map_5b[] = {0xBAU, 0xFFU, 0xFFU, 0xFFU, 0xFFU};
+    static const uint8_t trunc_sign1_10b[] = {0x84U, 0x43U, 0xA1U, 0x01U, 0x27U,
+                                              0xBAU, 0xFFU, 0xFFU, 0xFFU, 0xFFU};
+    static const uint8_t trunc_enc0_11b[] = {0x83U, 0x44U, 0xA1U, 0x01U, 0x18U, 0x18U,
+                                             0xBAU, 0xFFU, 0xFFU, 0xFFU, 0xFFU};
+    static const uint8_t trunc_mac0_10b[] = {0x84U, 0x43U, 0xA1U, 0x01U, 0x05U,
+                                             0xBAU, 0xFFU, 0xFFU, 0xFFU, 0xFFU};
+
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_key_decode(trunc_map_5b, sizeof(trunc_map_5b), &key_out));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_sign1_verify(trunc_map_5b, sizeof(trunc_map_5b),
+                                                           dummy_key, 32U, NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_sign1_verify(trunc_sign1_10b, sizeof(trunc_sign1_10b),
+                                                           dummy_key, 32U, NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL_INT(
+        SYN_ERROR, syn_cose_encrypt0_decrypt(trunc_enc0_11b, sizeof(trunc_enc0_11b), dummy_key,
+                                             NULL, 0U, pt_out, sizeof(pt_out), &pt_len, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_mac0_verify(trunc_mac0_10b, sizeof(trunc_mac0_10b),
+                                                          dummy_key, 32U, NULL, 0U, NULL));
+
+    /* 2. Protected header malformed maps (empty bstr, huge map, non-uint key, non-int alg) */
+    static const uint8_t empty_prot_sign1[] = {0x84U, 0x40U, 0xA0U, 0x40U, 0x40U};
+    static const uint8_t bad_prot_map_sign1[] = {0x84U, 0x45U, 0xBAU, 0xFFU, 0xFFU,
+                                                 0xFFU, 0xFFU, 0xA0U, 0x40U, 0x40U};
+    static const uint8_t text_key_prot_sign1[] = {0x84U, 0x44U, 0xA1U, 0x61U, 0x61U,
+                                                  0x01U, 0xA0U, 0x40U, 0x40U};
+    static const uint8_t text_alg_prot_sign1[] = {0x84U, 0x44U, 0xA1U, 0x01U, 0x61U,
+                                                  0x61U, 0xA0U, 0x40U, 0x40U};
+    static const uint8_t bad_prot_enc0[] = {0x83U, 0x44U, 0xA1U, 0x61U, 0x61U, 0x01U, 0xA0U, 0x40U};
+    static const uint8_t bad_prot_mac0[] = {0x84U, 0x44U, 0xA1U, 0x61U, 0x61U,
+                                            0x01U, 0xA0U, 0x40U, 0x40U};
+
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_sign1_verify(empty_prot_sign1, sizeof(empty_prot_sign1),
+                                                dummy_key, 32U, NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_sign1_verify(bad_prot_map_sign1, sizeof(bad_prot_map_sign1),
+                                                dummy_key, 32U, NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_sign1_verify(text_key_prot_sign1, sizeof(text_key_prot_sign1),
+                                                dummy_key, 32U, NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_sign1_verify(text_alg_prot_sign1, sizeof(text_alg_prot_sign1),
+                                                dummy_key, 32U, NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_encrypt0_decrypt(bad_prot_enc0, sizeof(bad_prot_enc0),
+                                                               dummy_key, NULL, 0U, pt_out,
+                                                               sizeof(pt_out), &pt_len, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_mac0_verify(bad_prot_mac0, sizeof(bad_prot_mac0),
+                                                          dummy_key, 32U, NULL, 0U, NULL));
+
+    /* 3. Unprotected header non-uint key & oversized IV (>16B) */
+    static const uint8_t text_key_unprot_sign1[] = {0x84U, 0x43U, 0xA1U, 0x01U, 0x27U, 0xA1U,
+                                                    0x61U, 0x61U, 0x01U, 0x40U, 0x40U};
+    static const uint8_t text_key_unprot_enc0[] = {0x83U, 0x44U, 0xA1U, 0x01U, 0x18U, 0x18U,
+                                                   0xA1U, 0x61U, 0x61U, 0x01U, 0x40U};
+    static const uint8_t big_iv_enc0[] = {
+        0x83U, 0x44U, 0xA1U, 0x01U, 0x18U, 0x18U, 0xA1U, 0x05U, 0x54U, 0U, 0U, 0U, 0U, 0U, 0U,
+        0U,    0U,    0U,    0U,    0U,    0U,    0U,    0U,    0U,    0U, 0U, 0U, 0U, 0U, 0x40U};
+
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_sign1_verify(text_key_unprot_sign1,
+                                                           sizeof(text_key_unprot_sign1), dummy_key,
+                                                           32U, NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_encrypt0_decrypt(text_key_unprot_enc0,
+                                                    sizeof(text_key_unprot_enc0), dummy_key, NULL,
+                                                    0U, pt_out, sizeof(pt_out), &pt_len, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_encrypt0_decrypt(big_iv_enc0, sizeof(big_iv_enc0),
+                                                               dummy_key, NULL, 0U, pt_out,
+                                                               sizeof(pt_out), &pt_len, NULL));
+
+    /* 4. RNG failure and invalid ES256 private key in syn_cose_sign1_create */
+    uint8_t out_buf[256];
+    size_t out_len = 0U;
+    uint8_t valid_priv[32] = {0};
+    valid_priv[31] = 1U;
+    uint8_t zero_priv[32] = {0};
+    static const uint8_t msg[] = "rng-check";
+
+    mock_random_skip = true;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_sign1_create(SYN_COSE_ALGO_ES256, valid_priv, NULL,
+                                                           NULL, 0U, msg, sizeof(msg) - 1U, NULL,
+                                                           0U, out_buf, sizeof(out_buf), &out_len));
+    mock_random_skip = false;
+
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_sign1_create(SYN_COSE_ALGO_ES256, zero_priv, NULL,
+                                                           NULL, 0U, msg, sizeof(msg) - 1U, NULL,
+                                                           0U, out_buf, sizeof(out_buf), &out_len));
+
+    /* 5. COSE_Key decode error branches (non-int label, invalid bstr field, missing kty) */
+    static const uint8_t key_non_int_lbl[] = {0xA1U, 0x61U, 0x61U, 0x01U};
+    static const uint8_t key_bad_bstr[] = {0xA2U, 0x01U, 0x04U, 0x02U, 0x05U};
+    static const uint8_t key_missing_kty[] = {0xA1U, 0x03U, 0x27U};
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_key_decode(key_non_int_lbl, sizeof(key_non_int_lbl), &key_out));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_key_decode(key_bad_bstr, sizeof(key_bad_bstr), &key_out));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_key_decode(key_missing_kty, sizeof(key_missing_kty), &key_out));
+
+    /* 6. COSE_Mac0 with valid non-HMAC algorithm (alg=1 AES-GCM-128 -> tag_len 0 rejected) */
+    static const uint8_t mac0_non_hmac_alg[] = {0x84U, 0x43U, 0xA1U, 0x01U,
+                                                0x01U, 0xA0U, 0x40U, 0x40U};
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_mac0_verify(mac0_non_hmac_alg, sizeof(mac0_non_hmac_alg),
+                                               dummy_key, 32U, NULL, 0U, NULL));
+}
+
 void run_cose_tests(void)
 {
     RUN_TEST(test_cose_sign1_eddsa_roundtrip_and_tamper);
@@ -973,4 +1161,6 @@ void run_cose_tests(void)
     RUN_TEST(test_cose_mac0_hmac_roundtrip_and_tamper);
     RUN_TEST(test_cose_key_encode_decode);
     RUN_TEST(test_cose_null_and_boundary_checks);
+    RUN_TEST(test_cose_zero_copy_views_and_oversized_kid);
+    RUN_TEST(test_r5_n01_cose_truncated_maps_and_sign_guards);
 }

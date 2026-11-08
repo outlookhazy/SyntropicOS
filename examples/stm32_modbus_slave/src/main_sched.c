@@ -67,7 +67,7 @@ static SYN_PT_Status task_modbus_poll_func(SYN_PT *pt, SYN_Task *task)
 
     while (1) {
         syn_modbus_poll(&s_modbus_slave);
-        PT_YIELD(pt);
+        PT_PASS(pt);
     }
 
     PT_END(pt);
@@ -120,8 +120,10 @@ int main_sched(void)
     s_holding_regs[0] = 500U;
     s_holding_regs[1] = 1152;
 
-    syn_task_create(&s_tasks[TASK_MODBUS_POLL], "ModbusPoll", task_modbus_poll_func, 1, NULL);
-    syn_task_create(&s_tasks[TASK_SENSOR_UPDATE], "SensorUpdate", task_sensor_update_func, 2, NULL);
+    syn_task_create(&s_tasks[TASK_MODBUS_POLL], "ModbusPoll", task_modbus_poll_func, SYN_PRIO_HIGH,
+                    NULL);
+    syn_task_create(&s_tasks[TASK_SENSOR_UPDATE], "SensorUpdate", task_sensor_update_func,
+                    SYN_PRIO_NORMAL, NULL);
 
     syn_sched_init(&s_sched, s_tasks, TASK_COUNT);
 

@@ -89,16 +89,19 @@ void syn_dmx512_slave_init(SYN_DMX512_Slave *slave, uint16_t start_address, uint
 
 void syn_dmx512_slave_rx_break(SYN_DMX512_Slave *slave)
 {
-    if (slave == NULL)
+    if (slave == NULL) {
         return;
+    }
 
-    if (slave->rx_state == SYN_DMX512_STATE_READ_SLOTS &&
-        slave->current_slot >= slave->start_address) {
+    uint32_t end_slot = (uint32_t)slave->start_address + (uint32_t)slave->footprint;
+    if (slave->rx_state == SYN_DMX512_STATE_READ_SLOTS && slave->start_address >= 1U &&
+        slave->footprint >= 1U && end_slot - 1U <= SYN_DMX512_MAX_CHANNELS &&
+        (uint32_t)slave->current_slot >= end_slot) {
         slave->frame_complete = true;
     }
 
     slave->rx_state = SYN_DMX512_STATE_WAIT_START;
-    slave->current_slot = 0;
+    slave->current_slot = 0U;
 }
 
 void syn_dmx512_slave_rx_byte(SYN_DMX512_Slave *slave, uint8_t byte)

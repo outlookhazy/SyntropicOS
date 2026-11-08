@@ -65,6 +65,7 @@ typedef struct SYN_DMA {
     size_t current_len;      /**< Active transfer length in bytes */
     uint32_t transfers_cnt;  /**< Total successful transfers count */
     uint32_t errors_cnt;     /**< Total transfer errors count */
+    bool ring_saw_nonzero;   /**< Circular ringbuf observed hardware progress */
 } SYN_DMA;
 
 /**
@@ -123,10 +124,11 @@ void syn_dma_isr_handler(SYN_DMA *dma, SYN_DMA_Event event);
  * @brief Continuous circular DMA reception stream controller.
  */
 typedef struct {
-    SYN_DMA *dma;         /**< Underlying DMA channel                    */
-    uint8_t *buf;         /**< Caller-allocated circular reception buffer */
-    size_t capacity;      /**< Total capacity of buffer in bytes         */
-    volatile size_t tail; /**< Application read pointer index            */
+    SYN_DMA *dma;         /**< Underlying DMA channel                         */
+    uint8_t *buf;         /**< Caller-allocated circular reception buffer     */
+    size_t capacity;      /**< Total capacity of buffer in bytes              */
+    volatile size_t tail; /**< Application read pointer index                 */
+    bool wrap_drained;    /**< True when full capacity drained at remaining=0 */
 } SYN_DMA_RingBuf;
 
 /**

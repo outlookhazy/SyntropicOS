@@ -37,8 +37,6 @@ enum {
  */
 static bool button_read_raw(const SYN_Button *btn)
 {
-    if (btn == NULL)
-        return false; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
     SYN_GPIO_State level = syn_gpio_read(btn->pin);
 
     if (btn->polarity == (uint8_t)SYN_BUTTON_ACTIVE_LOW) {
@@ -56,7 +54,9 @@ static bool button_read_raw(const SYN_Button *btn)
  */
 static void button_fire_event(SYN_Button *btn, uint8_t evt, SYN_ButtonCallback cb, void *ctx)
 {
+    syn_port_enter_critical();
     btn->events |= evt;
+    syn_port_exit_critical();
     if (cb != NULL) {
         cb(btn, ctx);
     }
@@ -71,7 +71,7 @@ static void button_fire_event(SYN_Button *btn, uint8_t evt, SYN_ButtonCallback c
 static void action_start_debounce(void *ctx)
 {
     SYN_Button *btn = (SYN_Button *)ctx;
-    btn->state_tick = syn_port_get_tick_ms();
+    btn->state_tick = btn->now_tick;
     btn->raw_pressed = true;
 }
 
@@ -82,7 +82,7 @@ static void action_start_debounce(void *ctx)
 static void action_bounce_back(void *ctx)
 {
     SYN_Button *btn = (SYN_Button *)ctx;
-    btn->state_tick = syn_port_get_tick_ms();
+    btn->state_tick = btn->now_tick;
     btn->raw_pressed = false;
 }
 
@@ -93,9 +93,9 @@ static void action_bounce_back(void *ctx)
 static void action_confirm_press(void *ctx)
 {
     SYN_Button *btn = (SYN_Button *)ctx;
-    btn->state_tick = syn_port_get_tick_ms();
+    btn->state_tick = btn->now_tick;
     btn->pressed = true;
-    btn->repeat_tick = syn_port_get_tick_ms();
+    btn->repeat_tick = btn->now_tick;
     btn->click_count++;
 
     button_fire_event(btn, SYN_BUTTON_EVT_PRESS, btn->on_press, btn->on_press_ctx);
@@ -108,8 +108,8 @@ static void action_confirm_press(void *ctx)
 static void action_release(void *ctx)
 {
     SYN_Button *btn = (SYN_Button *)ctx;
-    btn->state_tick = syn_port_get_tick_ms();
-    btn->click_tick = syn_port_get_tick_ms();
+    btn->state_tick = btn->now_tick;
+    btn->click_tick = btn->now_tick;
     btn->pressed = false;
     btn->raw_pressed = false;
     btn->in_combo = false;
@@ -124,8 +124,8 @@ static void action_release(void *ctx)
 static void action_long_press(void *ctx)
 {
     SYN_Button *btn = (SYN_Button *)ctx;
-    btn->state_tick = syn_port_get_tick_ms();
-    btn->repeat_tick = syn_port_get_tick_ms();
+    btn->state_tick = btn->now_tick;
+    btn->repeat_tick = btn->now_tick;
     btn->click_count = 0;
 
     button_fire_event(btn, SYN_BUTTON_EVT_LONG_PRESS, btn->on_long_press, btn->on_long_press_ctx);
@@ -159,8 +159,11 @@ static const SYN_FSM_Transition g_button_transitions[] = {
 void syn_button_init(SYN_Button *btn, SYN_GPIO_Pin pin, SYN_ButtonPolarity polarity,
                      uint16_t debounce_ms)
 {
-    SYN_ASSERT(btn != NULL);
+    if (btn == NULL) {
+        return;
+    }
 
+    uint32_t now = syn_port_get_tick_ms();
     memset(btn, 0, sizeof(*btn));
     btn->pin = pin;
     btn->polarity = (uint8_t)polarity;
@@ -169,7 +172,8 @@ void syn_button_init(SYN_Button *btn, SYN_GPIO_Pin pin, SYN_ButtonPolarity polar
     btn->pressed = false;
     btn->raw_pressed = false;
     btn->click_count = 0;
-    btn->state_tick = syn_port_get_tick_ms();
+    btn->state_tick = now;
+    btn->now_tick = now;
 
     syn_fsm_init(&btn->fsm, g_button_transitions, (SYN_FSM_State)SYN_BUTTON_STATE_IDLE, "btn");
     syn_fsm_set_context(&btn->fsm, btn);
@@ -179,7 +183,9 @@ void syn_button_init(SYN_Button *btn, SYN_GPIO_Pin pin, SYN_ButtonPolarity polar
 
 void syn_button_set_click_window(SYN_Button *btn, uint16_t window_ms)
 {
-    SYN_ASSERT(btn != NULL);
+    if (btn == NULL) {
+        return;
+    }
     btn->double_click_ms = window_ms;
 }
 
@@ -187,18 +193,27 @@ void syn_button_set_click_window(SYN_Button *btn, uint16_t window_ms)
 
 void syn_button_on_press(SYN_Button *btn, SYN_ButtonCallback cb, void *ctx)
 {
+    if (btn == NULL) {
+        return;
+    }
     btn->on_press = cb;
     btn->on_press_ctx = ctx;
 }
 
 void syn_button_on_release(SYN_Button *btn, SYN_ButtonCallback cb, void *ctx)
 {
+    if (btn == NULL) {
+        return;
+    }
     btn->on_release = cb;
     btn->on_release_ctx = ctx;
 }
 
 void syn_button_on_long_press(SYN_Button *btn, SYN_ButtonCallback cb, uint16_t hold_ms, void *ctx)
 {
+    if (btn == NULL) {
+        return;
+    }
     btn->on_long_press = cb;
     btn->on_long_press_ctx = ctx;
     btn->long_press_ms = hold_ms;
@@ -206,6 +221,9 @@ void syn_button_on_long_press(SYN_Button *btn, SYN_ButtonCallback cb, uint16_t h
 
 void syn_button_on_repeat(SYN_Button *btn, SYN_ButtonCallback cb, uint16_t interval_ms, void *ctx)
 {
+    if (btn == NULL) {
+        return;
+    }
     btn->on_repeat = cb;
     btn->on_repeat_ctx = ctx;
     btn->repeat_ms = interval_ms;
@@ -213,39 +231,66 @@ void syn_button_on_repeat(SYN_Button *btn, SYN_ButtonCallback cb, uint16_t inter
 
 void syn_button_on_single_click(SYN_Button *btn, SYN_ButtonCallback cb, void *ctx)
 {
+    if (btn == NULL) {
+        return;
+    }
     btn->on_single_click = cb;
     btn->on_single_click_ctx = ctx;
 }
 
 void syn_button_on_double_click(SYN_Button *btn, SYN_ButtonCallback cb, void *ctx)
 {
+    if (btn == NULL) {
+        return;
+    }
     btn->on_double_click = cb;
     btn->on_double_click_ctx = ctx;
 }
 
 void syn_button_on_triple_click(SYN_Button *btn, SYN_ButtonCallback cb, void *ctx)
 {
+    if (btn == NULL) {
+        return;
+    }
     btn->on_triple_click = cb;
     btn->on_triple_click_ctx = ctx;
 }
 
 void syn_button_on_multi_click(SYN_Button *btn, SYN_ButtonCallback cb, void *ctx)
 {
+    if (btn == NULL) {
+        return;
+    }
     btn->on_multi_click = cb;
     btn->on_multi_click_ctx = ctx;
 }
 
 /* ── Combo button functions ─────────────────────────────────────────────── */
 
-void syn_button_combo_init(SYN_ButtonCombo *combo, const SYN_Button **buttons, size_t count,
+/**
+ * @brief Reset click count and mark currently pressed combo buttons as suppressed.
+ * @param combo Button combo instance.
+ */
+static void combo_suppress_pressed(SYN_ButtonCombo *combo)
+{
+    for (size_t i = 0; i < combo->count; i++) {
+        if (combo->buttons[i]->pressed) {
+            combo->buttons[i]->click_count = 0U;
+            combo->buttons[i]->in_combo = true;
+        }
+    }
+}
+
+void syn_button_combo_init(SYN_ButtonCombo *combo, SYN_Button *const *buttons, size_t count,
                            SYN_ButtonCallback cb, void *ctx)
 {
-    SYN_ASSERT(combo != NULL);
-    SYN_ASSERT(buttons != NULL || count == 0);
+    if (combo == NULL) {
+        return;
+    }
 
     memset(combo, 0, sizeof(*combo));
     combo->buttons = buttons;
-    combo->count = count;
+    combo->count = (buttons != NULL) ? count : 0U;
     combo->on_combo = cb;
     combo->on_combo_ctx = ctx;
     combo->active = false;
@@ -253,44 +298,87 @@ void syn_button_combo_init(SYN_ButtonCombo *combo, const SYN_Button **buttons, s
 
 void syn_button_combo_update(SYN_ButtonCombo *combo)
 {
-    SYN_ASSERT(combo != NULL);
-
-    if (combo->count == 0 || combo->buttons == NULL) {
+    if (combo == NULL || combo->count == 0U || combo->buttons == NULL) {
         return;
     }
 
     bool all_pressed = true;
+    bool any_pressed = false;
     for (size_t i = 0; i < combo->count; i++) {
-        if (combo->buttons[i] == NULL || !combo->buttons[i]->pressed) {
+        if (combo->buttons[i] == NULL) {
+            return;
+        }
+        if (combo->buttons[i]->pressed) {
+            any_pressed = true;
+        } else {
             all_pressed = false;
-            break;
         }
     }
 
-    if (all_pressed && !combo->active) {
-        combo->active = true;
-        for (size_t i = 0; i < combo->count; i++) {
-            if (combo->buttons[i] != NULL) {
-                ((SYN_Button *)combo->buttons[i])->click_count = 0;
-                ((SYN_Button *)combo->buttons[i])->in_combo = true;
-            }
+    if (combo->active) {
+        if (!any_pressed) {
+            combo->active = false;
+        } else {
+            combo_suppress_pressed(combo);
         }
+        return;
+    }
+
+    if (all_pressed) {
+        combo->active = true;
+        combo_suppress_pressed(combo);
         if (combo->on_combo != NULL) {
             combo->on_combo(NULL, combo->on_combo_ctx);
         }
-    } else if (!all_pressed && combo->active) {
-        combo->active = false;
     }
 }
 
 /* ── State machine update ───────────────────────────────────────────────── */
 
+/**
+ * @brief Evaluate accumulated multi-click gestures once button returns to IDLE.
+ * @param btn  Button instance.
+ * @param now  Snapshot tick for current update.
+ */
+static void button_eval_multiclick(SYN_Button *btn, uint32_t now)
+{
+    if ((SYN_ButtonState)syn_fsm_state(&btn->fsm) != SYN_BUTTON_STATE_IDLE ||
+        btn->click_count == 0U) {
+        return;
+    }
+
+    uint32_t idle_elapsed = now - btn->click_tick;
+    if (btn->double_click_ms != 0U && idle_elapsed < btn->double_click_ms) {
+        return;
+    }
+
+    uint8_t count = btn->click_count;
+    btn->click_count = 0U;
+
+    if (count == 1U) {
+        button_fire_event(btn, SYN_BUTTON_EVT_SINGLE_CLICK, btn->on_single_click,
+                          btn->on_single_click_ctx);
+    } else if (count == 2U) {
+        button_fire_event(btn, SYN_BUTTON_EVT_DOUBLE_CLICK, btn->on_double_click,
+                          btn->on_double_click_ctx);
+    } else if (count == 3U) {
+        button_fire_event(btn, SYN_BUTTON_EVT_TRIPLE_CLICK, btn->on_triple_click,
+                          btn->on_triple_click_ctx);
+    } else {
+        button_fire_event(btn, SYN_BUTTON_EVT_MULTI_CLICK, btn->on_multi_click,
+                          btn->on_multi_click_ctx);
+    }
+}
+
 void syn_button_update(SYN_Button *btn)
 {
-    SYN_ASSERT(btn != NULL);
+    if (btn == NULL) {
+        return;
+    }
 
     bool raw = button_read_raw(btn);
     uint32_t now = syn_port_get_tick_ms();
+    btn->now_tick = now;
     uint32_t elapsed = now - btn->state_tick;
     SYN_ButtonState current = (SYN_ButtonState)syn_fsm_state(&btn->fsm);
 
@@ -307,58 +395,34 @@ void syn_button_update(SYN_Button *btn)
         if (!raw) {
             syn_fsm_dispatch(&btn->fsm, BTN_EV_RAW_RELEASE);
         } else if (!btn->in_combo) {
-            /* Check long press threshold */
-            if (btn->long_press_ms > 0 && elapsed >= btn->long_press_ms) {
+            /* Check long press threshold; else check auto-repeat */
+            if (btn->long_press_ms > 0U && elapsed >= btn->long_press_ms) {
                 syn_fsm_dispatch(&btn->fsm, BTN_EV_LONG_PRESS);
-            }
-            /* Check repeat (stays in same state, no FSM transition) */
-            if (btn->repeat_ms > 0 && (now - btn->repeat_tick) >= btn->repeat_ms) {
+            } else if (btn->repeat_ms > 0U && (now - btn->repeat_tick) >= btn->repeat_ms) {
                 btn->repeat_tick = now;
-                btn->click_count = 0;
+                btn->click_count = 0U;
                 button_fire_event(btn, SYN_BUTTON_EVT_REPEAT, btn->on_repeat, btn->on_repeat_ctx);
             }
         }
     } else if (current == SYN_BUTTON_STATE_HELD) {
         if (!raw) {
             syn_fsm_dispatch(&btn->fsm, BTN_EV_RAW_RELEASE);
-        } else if (!btn->in_combo) {
-            /* Check repeat in held state */
-            if (btn->repeat_ms > 0 && (now - btn->repeat_tick) >= btn->repeat_ms) {
-                btn->repeat_tick = now;
-                btn->click_count = 0;
-                button_fire_event(btn, SYN_BUTTON_EVT_REPEAT, btn->on_repeat, btn->on_repeat_ctx);
-            }
+        } else if (!btn->in_combo && btn->repeat_ms > 0U &&
+                   (now - btn->repeat_tick) >= btn->repeat_ms) {
+            btn->repeat_tick = now;
+            btn->click_count = 0U;
+            button_fire_event(btn, SYN_BUTTON_EVT_REPEAT, btn->on_repeat, btn->on_repeat_ctx);
         }
     }
 
-    /* Evaluate multi-click timeout window when button is back in IDLE */
-    current = (SYN_ButtonState)syn_fsm_state(&btn->fsm);
-    if (current == SYN_BUTTON_STATE_IDLE && btn->click_count > 0) {
-        uint32_t idle_elapsed = now - btn->click_tick;
-        if (btn->double_click_ms == 0 || idle_elapsed >= btn->double_click_ms) {
-            uint8_t count = btn->click_count;
-            btn->click_count = 0;
-
-            if (count == 1) {
-                button_fire_event(btn, SYN_BUTTON_EVT_SINGLE_CLICK, btn->on_single_click,
-                                  btn->on_single_click_ctx);
-            } else if (count == 2) {
-                button_fire_event(btn, SYN_BUTTON_EVT_DOUBLE_CLICK, btn->on_double_click,
-                                  btn->on_double_click_ctx);
-            } else if (count == 3) {
-                button_fire_event(btn, SYN_BUTTON_EVT_TRIPLE_CLICK, btn->on_triple_click,
-                                  btn->on_triple_click_ctx);
-            } else if (count >= 4) {
-                button_fire_event(btn, SYN_BUTTON_EVT_MULTI_CLICK, btn->on_multi_click,
-                                  btn->on_multi_click_ctx);
-            }
-        }
-    }
+    button_eval_multiclick(btn, now);
 }
 
 void syn_button_service(SYN_Button *buttons, size_t count)
 {
-    SYN_ASSERT(buttons != NULL || count == 0);
+    if (buttons == NULL) {
+        return;
+    }
 
     for (size_t i = 0; i < count; i++) {
         syn_button_update(&buttons[i]);

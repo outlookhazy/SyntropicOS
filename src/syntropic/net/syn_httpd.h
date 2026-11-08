@@ -23,7 +23,7 @@
  *   static uint8_t httpd_buf[1024];
  *   static SYN_Httpd httpd;
  *   syn_httpd_init(&httpd, 80, routes, 1, httpd_buf, sizeof(httpd_buf));
- *   syn_task_create(&tasks[N], "httpd", syn_httpd_task, 2, &httpd);
+ *   syn_task_create(&tasks[N], "httpd", syn_httpd_task, SYN_PRIO_NORMAL, &httpd);
  * @endcode
  * @ingroup syn_net
  */
@@ -67,6 +67,7 @@ typedef struct {
     const char *query;           /**< Query string after '?', or NULL  */
     uint32_t content_length;     /**< Content-Length, 0 if absent      */
     const char *content_type;    /**< Content-Type, or NULL            */
+    char content_type_buf[64];   /**< Bounded copy of Content-Type     */
     const char *headers;         /**< Pointer to start of headers      */
     SYN_Socket client_sock;      /**< Client socket (for body reads)   */
     size_t body_consumed;        /**< Bytes of body already consumed   */
@@ -80,11 +81,12 @@ typedef struct {
  * @brief HTTP response formatting state.
  */
 typedef struct {
-    SYN_Socket sock;   /**< Client socket                    */
-    uint8_t *buf;      /**< Shared work buffer               */
-    size_t buf_size;   /**< Buffer capacity                  */
-    bool headers_sent; /**< Have headers been finalized?     */
-    bool upgraded;     /**< Has connection been upgraded?    */
+    SYN_Socket sock;      /**< Client socket                    */
+    uint8_t *buf;         /**< Shared work buffer               */
+    size_t buf_size;      /**< Buffer capacity                  */
+    size_t body_consumed; /**< Request body bytes consumed      */
+    bool headers_sent;    /**< Have headers been finalized?     */
+    bool upgraded;        /**< Has connection been upgraded?    */
 } SYN_HttpdResponse;
 
 /* ── Route handler ─────────────────────────────────────────────────────── */
@@ -120,7 +122,8 @@ typedef struct {
 typedef enum {
     SYN_HTTPD_IDLE,            /**< Polling for new client connection   */
     SYN_HTTPD_READING_HEADERS, /**< Accumulating header bytes (non-blocking) */
-    SYN_HTTPD_DISPATCHING,     /**< Headers complete — parse, route, respond */
+    SYN_HTTPD_READING_BODY,    /**< Accumulating Content-Length body bytes (non-blocking) */
+    SYN_HTTPD_DISPATCHING,     /**< Headers/body complete — parse, route, respond */
 } SYN_HttpdState;
 
 /**
@@ -139,7 +142,8 @@ typedef struct {
     SYN_HttpdState state;   /**< Current processing phase    */
     SYN_Socket client;      /**< Active client socket        */
     size_t rx_total;        /**< Bytes accumulated in work_buf */
-    uint32_t recv_deadline; /**< Tick deadline for header recv */
+    size_t expected_total;  /**< Header + Content-Length bytes needed before dispatch */
+    uint32_t recv_deadline; /**< Tick deadline for header/body recv */
 } SYN_Httpd;
 
 /* ── Server API ────────────────────────────────────────────────────────── */
@@ -169,7 +173,7 @@ SYN_Status syn_httpd_init(SYN_Httpd *srv, uint16_t port, const SYN_HttpdRoute *r
  *
  * @param pt   Pointer to the cooperative protothread context.
  * @param task Pointer to the scheduler task structure.
- * @return PT_WAITING or PT_EXITED status.
+ * @return PT_IDLE when waiting, PT_MORE after handling a step, or PT_ENDED.
  */
 SYN_PT_Status syn_httpd_task(SYN_PT *pt, SYN_Task *task);
 
@@ -248,7 +252,7 @@ void syn_httpd_body_str(SYN_HttpdResponse *resp, const char *str);
  * @param max_len  Buffer capacity in bytes.
  * @return Bytes read, 0 at end of body, -1 on error.
  */
-int syn_httpd_read_body(const SYN_HttpdRequest *req, const SYN_HttpdResponse *resp, void *buf,
+int syn_httpd_read_body(const SYN_HttpdRequest *req, SYN_HttpdResponse *resp, void *buf,
                         size_t max_len);
 
 /**

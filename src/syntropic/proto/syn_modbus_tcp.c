@@ -44,6 +44,33 @@ bool syn_mbap_decode_header(const uint8_t *buf, SYN_MBAP_Header *hdr)
 }
 
 /**
+ * @brief Return fixed Modbus response PDU length for fixed-length function codes.
+ * @param fc Modbus function code byte.
+ * @return Fixed response PDU byte length, or 0 if variable-length or unknown.
+ */
+static uint16_t get_fixed_response_pdu_len(uint8_t fc)
+{
+    switch (fc) {
+    case SYN_MB_FC_WRITE_SINGLE_COIL:
+    case SYN_MB_FC_WRITE_SINGLE:
+    case SYN_MB_FC_DIAGNOSTICS:
+    case SYN_MB_FC_GET_COMM_EVENT_CNT:
+    case SYN_MB_FC_WRITE_MULTIPLE_COILS:
+    case SYN_MB_FC_WRITE_MULTIPLE:
+        return 5U;
+
+    case SYN_MB_FC_READ_EXCEPTION_STATUS:
+        return 2U;
+
+    case SYN_MB_FC_MASK_WRITE_REGISTER:
+        return 7U;
+
+    default:
+        return 0U;
+    }
+}
+
+/**
  * @brief Calculate expected response PDU byte length for Modbus TCP query.
  * @param buf Pointer to MBAP/PDU payload buffer.
  * @return Response PDU byte length.
@@ -51,52 +78,32 @@ bool syn_mbap_decode_header(const uint8_t *buf, SYN_MBAP_Header *hdr)
 static uint16_t get_response_pdu_len(const uint8_t *buf)
 {
     uint8_t fc = buf[1];
-    if (fc & 0x80) {
-        return 2; /* Function Code + Exception Code */
+    if ((fc & 0x80U) != 0U) {
+        return 2U; /* Function Code + Exception Code */
     }
 
-    switch (fc) {
-    case SYN_MB_FC_READ_COILS:
-    case SYN_MB_FC_READ_DISCRETE_INPUTS:
-    case SYN_MB_FC_READ_HOLDING:
-    case SYN_MB_FC_READ_INPUT:
-    case SYN_MB_FC_REPORT_SERVER_ID:
-    case SYN_MB_FC_READ_FILE_RECORD:
-    case SYN_MB_FC_WRITE_FILE_RECORD:
-        return (uint16_t)(2 + buf[2]);
+    uint16_t fixed_len = get_fixed_response_pdu_len(fc);
+    if (fixed_len > 0U) {
+        return fixed_len;
+    }
 
-    case SYN_MB_FC_WRITE_SINGLE_COIL:
-    case SYN_MB_FC_WRITE_SINGLE:
-    case SYN_MB_FC_WRITE_MULTIPLE_COILS:
-    case SYN_MB_FC_WRITE_MULTIPLE:
-        return 5;
+    if (fc == SYN_MB_FC_READ_FIFO_QUEUE) {
+        return (uint16_t)(3U + (((uint16_t)buf[2] << 8U) | buf[3]));
+    }
 
-    case SYN_MB_FC_READ_EXCEPTION_STATUS:
-        return 2;
-
-    case SYN_MB_FC_MASK_WRITE_REGISTER:
-        return 7;
-
-    case SYN_MB_FC_READ_FIFO_QUEUE:
-        return (uint16_t)(3 + (((uint16_t)buf[2] << 8) | buf[3]));
-
-    case SYN_MB_FC_READ_DEVICE_INFO: {
-        uint16_t len = 7;
+    if (fc == SYN_MB_FC_READ_DEVICE_INFO) {
+        uint16_t len = 7U;
         uint8_t obj_count = buf[7];
-        size_t p = 8;
-        for (uint8_t i = 0; i < obj_count; i++) {
-            uint8_t olen = buf[p + 1];
-            p += 2 + olen;
-            len += 2 + olen;
+        size_t p = 8U;
+        for (uint8_t i = 0U; i < obj_count; i++) {
+            uint8_t olen = buf[p + 1U];
+            p += 2U + olen;
+            len += 2U + olen;
         }
         return len;
     }
 
-    /* LCOV_EXCL_START: Fallback for custom or unrecognized function codes */
-    default:
-        return (uint16_t)(2 + buf[2]);
-        /* LCOV_EXCL_STOP */
-    }
+    return (uint16_t)(2U + buf[2]);
 }
 
 bool syn_modbus_tcp_process_slave(SYN_Modbus *mb, const uint8_t *req_adu, uint16_t req_len,
@@ -134,19 +141,23 @@ bool syn_modbus_tcp_process_slave(SYN_Modbus *mb, const uint8_t *req_adu, uint16
     }
 
     /* Copy Unit ID and PDU into slave buffer, then append CRC for syn_modbus_process */
-    mb->buf[0] = req_hdr.unit_id;
+    mb->buf[0] = (req_hdr.unit_id == 0U) ? 0U : mb->cfg.slave_addr;
     memcpy(&mb->buf[1], &req_adu[SYN_MBAP_HEADER_LEN], pdu_len);
 
     uint16_t crc = syn_crc16_modbus(mb->buf, 1 + pdu_len);
     mb->buf[1 + pdu_len] = (uint8_t)(crc & 0xFF);
     mb->buf[2 + pdu_len] = (uint8_t)((crc >> 8) & 0xFF);
     mb->rx_len = 3 + pdu_len;
+    mb->frame_ready = true;
 
-    /* Process PDU using slave dispatcher */
+    /* Process PDU using slave dispatcher without emitting RTU UART bytes */
+    uint32_t prev_tx = mb->frames_tx;
+    mb->suppress_uart_tx = true;
     bool has_response = syn_modbus_process(mb);
+    mb->suppress_uart_tx = false;
 
     /* Broadcast or exception without response */
-    if (!has_response || mb->buf[0] == 0) {
+    if ((!has_response && mb->frames_tx == prev_tx) || req_hdr.unit_id == 0U) {
         return false;
     }
 

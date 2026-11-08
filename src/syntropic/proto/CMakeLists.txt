@@ -20,26 +20,33 @@ target_sources(syntropic INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_ethercat.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_gbt27930.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_ibus.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/syn_iolink.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_ir.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_isotp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_j1939.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/syn_kwp2000.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_lin.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_lintp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_lss.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/syn_lwm2m.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/syn_lwm2m_task.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_mavlink.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_mbus.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_modbus.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_modbus_master.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_modbus_tcp.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/syn_mqttsn.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_msp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_n2k.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_nmea.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_ocpp.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/syn_opcua.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_pmbus.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_sbus.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_smbus.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_uds.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_uds_util.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_xcp.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/syn_xrce_dds.c
     ${CMAKE_CURRENT_SOURCE_DIR}/syn_ymodem.c
 )

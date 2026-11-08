@@ -3,7 +3,8 @@
  * @brief Scoped spinlock helper for shared resource protection.
  *
  * Convenience wrapper around the spinlock port functions. Provides
- * an RAII-style scoped lock that guarantees release on scope exit.
+ * a scoped lock macro that acquires on entry and releases on normal
+ * block completion.
  *
  * @par Usage
  * @code
@@ -26,9 +27,7 @@
 #ifndef SYN_SPINLOCK_H
 #define SYN_SPINLOCK_H
 
-#if __has_include("syn_config.h")
-#include "syn_config.h"
-#endif
+#include "../common/syn_defs.h"
 
 #if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
 
@@ -65,9 +64,12 @@ extern "C" {
 /**
  * @brief Scoped spinlock guard.
  *
- * Acquires the spinlock at scope entry, releases at scope exit.
- * Uses a for-loop trick to guarantee release even on early return
- * or break statements within the guarded block.
+ * Acquires the spinlock before executing the guarded block and releases it
+ * when control reaches the end of the block normally.
+ *
+ * @warning Do NOT execute return, break, or goto out of a SYN_SPINLOCK_GUARD
+ *          block; doing so skips the post-expression release and leaks both
+ *          the spinlock and interrupt mask.
  *
  * @param id  Spinlock index (0 .. SYN_SPINLOCK_COUNT-1).
  *

@@ -215,7 +215,12 @@ static void test_ccp_daq_list_streaming(void)
     uintptr_t target_addr = (uintptr_t)&sample_val;
     g_ccp_slave.daq_lists[0].odts[0].entries[0].address = target_addr;
     g_ccp_slave.daq_lists[0].odts[0].entries[0].size = 4;
+    g_ccp_slave.daq_lists[0].odts[0].entries[0].host_valid = true;
     g_ccp_slave.daq_lists[0].odts[0].entry_count = 1;
+    g_ccp_slave.daq_lists[0].odts[1].entries[0].address = 0x12340000U;
+    g_ccp_slave.daq_lists[0].odts[1].entries[0].size = 4;
+    g_ccp_slave.daq_lists[0].odts[1].entries[0].host_valid = false;
+    g_ccp_slave.daq_lists[0].odts[1].entry_count = 1;
 
     /* START_STOP (Start DAQ 0) */
     cro[0] = SYN_CCP_CMD_START_STOP;
@@ -237,6 +242,11 @@ static void test_ccp_daq_list_streaming(void)
     TEST_ASSERT_EQUAL_HEX8(0x56, dto[2]);
     TEST_ASSERT_EQUAL_HEX8(0x34, dto[3]);
     TEST_ASSERT_EQUAL_HEX8(0x12, dto[4]);
+
+    /* ODT 1 has host_valid == false with region_count == 0 -> must not dereference 0x12340000U */
+    TEST_ASSERT_TRUE(syn_ccp_service_daq(&g_ccp_slave, 0x01, dto, &list_idx, &odt_idx));
+    TEST_ASSERT_EQUAL_HEX8(0x01, dto[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x00, dto[1]);
 
     /* START_STOP_ALL (Stop all) */
     cro[0] = SYN_CCP_CMD_START_STOP_ALL;
@@ -593,6 +603,193 @@ static void test_ccp_null_checks_and_bounds(void)
     TEST_ASSERT_TRUE(syn_ccp_service_daq(&g_ccp_slave, 0x02, daq_dto, &l_idx, &o_idx));
 }
 
+static void test_r5_a11_resource_locks_mem_regions_and_multi_daq(void)
+{
+    syn_ccp_init(&g_ccp_slave, 0x1234U);
+    uint8_t ram_buf[16] = {0};
+    uint8_t rom_buf[8] = {0xA1, 0xB2, 0xC3, 0xD4, 0xE5, 0xF6, 0x07, 0x18};
+    uint8_t cro[8] = {0};
+    uint8_t dto[8] = {0};
+
+    /* Region registration validation and full-table checks */
+    TEST_ASSERT_FALSE(syn_ccp_register_mem_region(NULL, 0x20000000U, ram_buf, 16U, true));
+    TEST_ASSERT_FALSE(syn_ccp_register_mem_region(&g_ccp_slave, 0x20000000U, NULL, 16U, true));
+    TEST_ASSERT_FALSE(syn_ccp_register_mem_region(&g_ccp_slave, 0x20000000U, ram_buf, 0U, true));
+    TEST_ASSERT_TRUE(
+        syn_ccp_register_mem_region(&g_ccp_slave, 0x20000000U, ram_buf, sizeof(ram_buf), true));
+    TEST_ASSERT_TRUE(
+        syn_ccp_register_mem_region(&g_ccp_slave, 0x08000000U, rom_buf, sizeof(rom_buf), false));
+    TEST_ASSERT_TRUE(syn_ccp_register_mem_region(&g_ccp_slave, 0x30000000U, ram_buf, 4U, true));
+    TEST_ASSERT_TRUE(syn_ccp_register_mem_region(&g_ccp_slave, 0x40000000U, ram_buf, 4U, true));
+    TEST_ASSERT_FALSE(syn_ccp_register_mem_region(&g_ccp_slave, 0x50000000U, ram_buf, 4U, true));
+
+    /* Connect via broadcast 0x0000 and lock all resources */
+    cro[0] = SYN_CCP_CMD_CONNECT;
+    TEST_ASSERT_TRUE(syn_ccp_process_cro(&g_ccp_slave, cro, dto));
+    g_ccp_slave.unlocked_resources = 0U;
+
+    /* Locked CAL, PGM, and DAQ commands must return SYN_CCP_ERR_RESOURCE_LOCKED */
+    cro[0] = SYN_CCP_CMD_DNLOAD;
+    cro[2] = 2U;
+    TEST_ASSERT_TRUE(syn_ccp_process_cro(&g_ccp_slave, cro, dto));
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_RESOURCE_LOCKED, dto[1]);
+
+    cro[0] = SYN_CCP_CMD_SET_CAL_PAGE;
+    TEST_ASSERT_TRUE(syn_ccp_process_cro(&g_ccp_slave, cro, dto));
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_RESOURCE_LOCKED, dto[1]);
+
+    cro[0] = SYN_CCP_CMD_PROGRAM;
+    cro[2] = 2U;
+    TEST_ASSERT_TRUE(syn_ccp_process_cro(&g_ccp_slave, cro, dto));
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_RESOURCE_LOCKED, dto[1]);
+
+    cro[0] = SYN_CCP_CMD_GET_DAQ_SIZE;
+    cro[2] = 0U;
+    TEST_ASSERT_TRUE(syn_ccp_process_cro(&g_ccp_slave, cro, dto));
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_RESOURCE_LOCKED, dto[1]);
+
+    uint8_t l_idx = 0U, o_idx = 0U;
+    syn_ccp_daq_event(NULL, 1U);
+    syn_ccp_daq_event(&g_ccp_slave, 1U);
+    TEST_ASSERT_FALSE(syn_ccp_service_daq(&g_ccp_slave, 1U, dto, &l_idx, &o_idx));
+
+    /* Unlock via GET_SEED + UNLOCK (with pending_unlock_resource fallback when cro[2]==0) */
+    g_ccp_slave.seed_cb = ccp_seed_generator;
+    g_ccp_slave.unlock_cb = ccp_unlock_validator;
+    uint8_t all_mask = SYN_CCP_RESOURCE_CAL | SYN_CCP_RESOURCE_DAQ | SYN_CCP_RESOURCE_PGM;
+    cro[0] = SYN_CCP_CMD_GET_SEED;
+    cro[2] = all_mask;
+    syn_ccp_process_cro(&g_ccp_slave, cro, dto);
+
+    uint32_t key = (uint32_t)all_mask * 0x11111111U;
+    cro[0] = SYN_CCP_CMD_UNLOCK;
+    cro[2] = 0U;
+    cro[4] = (uint8_t)key;
+    cro[5] = (uint8_t)(key >> 8U);
+    cro[6] = (uint8_t)(key >> 16U);
+    cro[7] = (uint8_t)(key >> 24U);
+    syn_ccp_process_cro(&g_ccp_slave, cro, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_SUCCESS, dto[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x00U, dto[3]); /* 0 = no protected resources remaining */
+
+    /* 32-bit wire SET_MTA + DNLOAD + SHORT_UP on 64-bit host via registered region */
+    uint8_t set_mta_ram[8] = {SYN_CCP_CMD_SET_MTA, 1U, 0U, 0U, 0x04U, 0x00U, 0x00U, 0x20U};
+    syn_ccp_process_cro(&g_ccp_slave, set_mta_ram, dto);
+    uint8_t set_mta1_wire[8] = {SYN_CCP_CMD_SET_MTA, 1U, 1U, 0U, 0x04U, 0x00U, 0x00U, 0x20U};
+    syn_ccp_process_cro(&g_ccp_slave, set_mta1_wire, dto);
+    syn_ccp_set_mta(&g_ccp_slave, 9U, 0U, 0U);
+
+    uint8_t dn_ram[8] = {SYN_CCP_CMD_DNLOAD, 2U, 4U, 0x11U, 0x22U, 0x33U, 0x44U, 0U};
+    syn_ccp_process_cro(&g_ccp_slave, dn_ram, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_SUCCESS, dto[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x44U, ram_buf[7]);
+
+    uint8_t sup_ram[8] = {SYN_CCP_CMD_SHORT_UP, 3U, 4U, 0U, 0x04U, 0x00U, 0x00U, 0x20U};
+    syn_ccp_process_cro(&g_ccp_slave, sup_ram, dto);
+    TEST_ASSERT_EQUAL_HEX8(0x11U, dto[3]);
+    TEST_ASSERT_EQUAL_HEX8(0x44U, dto[6]);
+
+    /* Host pointer within registered region also resolves cleanly */
+    syn_ccp_set_mta(&g_ccp_slave, 0U, 0U, (uintptr_t)&ram_buf[0]);
+    uint8_t pgm_ok[8] = {SYN_CCP_CMD_PROGRAM, 4U, 2U, 0x99U, 0x88U, 0U, 0U, 0U};
+    syn_ccp_process_cro(&g_ccp_slave, pgm_ok, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_SUCCESS, dto[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x99U, ram_buf[0]);
+
+    /* Out-of-bounds, unmapped, and read-only write attempts must return ACCESS_DENIED */
+    uint8_t set_mta_ro[8] = {SYN_CCP_CMD_SET_MTA, 5U, 0U, 0U, 0x00U, 0x00U, 0x00U, 0x08U};
+    syn_ccp_process_cro(&g_ccp_slave, set_mta_ro, dto);
+    syn_ccp_process_cro(&g_ccp_slave, dn_ram, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_ACCESS_DENIED, dto[1]);
+    syn_ccp_process_cro(&g_ccp_slave, pgm_ok, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_ACCESS_DENIED, dto[1]);
+
+    uint8_t set_mta_oob[8] = {SYN_CCP_CMD_SET_MTA, 6U, 0U, 0U, 0x0EU, 0x00U, 0x00U, 0x20U};
+    syn_ccp_process_cro(&g_ccp_slave, set_mta_oob, dto);
+    syn_ccp_process_cro(&g_ccp_slave, dn_ram, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_ACCESS_DENIED, dto[1]);
+
+    uint8_t sup_unmapped[8] = {SYN_CCP_CMD_SHORT_UP, 7U, 2U, 0U, 0x00U, 0x00U, 0x00U, 0x90U};
+    syn_ccp_process_cro(&g_ccp_slave, sup_unmapped, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_ACCESS_DENIED, dto[1]);
+
+    /* Multi-list & multi-ODT round-robin DAQ + per-list prescaler isolation */
+    ram_buf[0] = 0xAAU;
+    ram_buf[4] = 0xBBU;
+    rom_buf[0] = 0xCCU;
+
+    uint8_t sz0[8] = {SYN_CCP_CMD_SET_DAQ_SIZE, 1U, 0U, 0U, 2U, 0U, 0U, 0U};
+    uint8_t sz1[8] = {SYN_CCP_CMD_SET_DAQ_SIZE, 2U, 1U, 0U, 1U, 0U, 0U, 0U};
+    syn_ccp_process_cro(&g_ccp_slave, sz0, dto);
+    syn_ccp_process_cro(&g_ccp_slave, sz1, dto);
+
+    /* List 0 ODT 0 -> 0x20000000 (1B), List 0 ODT 1 -> 0x20000004 (1B), List 1 ODT 0 -> 0x08000000
+     */
+    uint8_t m0[8] = {SYN_CCP_CMD_SET_MTA, 1U, 0U, 0U, 0x00U, 0x00U, 0x00U, 0x20U};
+    uint8_t b00[8] = {SYN_CCP_CMD_BUILD_PKT, 2U, 0U, 0U, 0U, 1U, 0U, 0U};
+    syn_ccp_process_cro(&g_ccp_slave, m0, dto);
+    syn_ccp_process_cro(&g_ccp_slave, b00, dto);
+
+    uint8_t m1[8] = {SYN_CCP_CMD_SET_MTA, 3U, 0U, 0U, 0x04U, 0x00U, 0x00U, 0x20U};
+    uint8_t b01[8] = {SYN_CCP_CMD_BUILD_PKT, 4U, 0U, 1U, 0U, 1U, 0U, 0U};
+    syn_ccp_process_cro(&g_ccp_slave, m1, dto);
+    syn_ccp_process_cro(&g_ccp_slave, b01, dto);
+
+    syn_ccp_process_cro(&g_ccp_slave, set_mta_ro, dto);
+    uint8_t b10[8] = {SYN_CCP_CMD_BUILD_PKT, 5U, 1U, 0U, 0U, 1U, 0U, 0U};
+    syn_ccp_process_cro(&g_ccp_slave, b10, dto);
+
+    uint8_t st0[8] = {SYN_CCP_CMD_START_STOP, 6U, 1U, 0U, 0U, 1U, 0U, 0U}; /* prescaler 0 -> 1 */
+    uint8_t st1[8] = {SYN_CCP_CMD_START_STOP, 7U, 1U, 1U, 0U, 1U, 1U, 0U};
+    syn_ccp_process_cro(&g_ccp_slave, st0, dto);
+    syn_ccp_process_cro(&g_ccp_slave, st1, dto);
+
+    /* Drain 3 ODTs across List 0 (2 ODTs) and List 1 (1 ODT) in round-robin order */
+    TEST_ASSERT_TRUE(syn_ccp_service_daq(&g_ccp_slave, 1U, dto, &l_idx, &o_idx));
+    TEST_ASSERT_EQUAL_UINT8(0U, l_idx);
+    TEST_ASSERT_EQUAL_UINT8(0U, o_idx);
+    TEST_ASSERT_EQUAL_HEX8(0xAAU, dto[1]);
+
+    TEST_ASSERT_TRUE(syn_ccp_service_daq(&g_ccp_slave, 1U, dto, &l_idx, &o_idx));
+    TEST_ASSERT_EQUAL_UINT8(1U, l_idx);
+    TEST_ASSERT_EQUAL_UINT8(0U, o_idx);
+    TEST_ASSERT_EQUAL_HEX8(0xCCU, dto[1]);
+
+    TEST_ASSERT_TRUE(syn_ccp_service_daq(&g_ccp_slave, 1U, dto, &l_idx, &o_idx));
+    TEST_ASSERT_EQUAL_UINT8(0U, l_idx);
+    TEST_ASSERT_EQUAL_UINT8(1U, o_idx);
+    TEST_ASSERT_EQUAL_HEX8(0xBBU, dto[1]);
+    /* End-of-tick drain terminates cleanly without re-stepping prescalers */
+    TEST_ASSERT_FALSE(syn_ccp_service_daq(&g_ccp_slave, 1U, dto, &l_idx, &o_idx));
+
+    /* Explicit syn_ccp_daq_event + bounded while() drain across next tick */
+    syn_ccp_daq_event(&g_ccp_slave, 1U);
+    uint8_t drained = 0U;
+    while (drained < 8U && syn_ccp_service_daq(&g_ccp_slave, 1U, dto, &l_idx, &o_idx)) {
+        drained++;
+    }
+    TEST_ASSERT_EQUAL_UINT8(3U, drained);
+
+    /* Zero-size DNLOAD/PROGRAM paths */
+    uint8_t dn_zero[8] = {SYN_CCP_CMD_DNLOAD, 8U, 0U, 0U, 0U, 0U, 0U, 0U};
+    syn_ccp_process_cro(&g_ccp_slave, dn_zero, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_SUCCESS, dto[1]);
+    uint8_t pgm_zero[8] = {SYN_CCP_CMD_PROGRAM, 9U, 0U, 0U, 0U, 0U, 0U, 0U};
+    syn_ccp_process_cro(&g_ccp_slave, pgm_zero, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_SUCCESS, dto[1]);
+    TEST_ASSERT_FALSE(syn_ccp_service_daq(&g_ccp_slave, 1U, dto, NULL, &o_idx));
+    TEST_ASSERT_FALSE(syn_ccp_service_daq(&g_ccp_slave, 1U, dto, &l_idx, NULL));
+
+    /* DISCONNECT with mode 0x01 (end of session) vs invalid mode 0x99 (ignored) */
+    uint8_t disc_bad_mode[8] = {SYN_CCP_CMD_DISCONNECT, 10U, 0x99U, 0x34U, 0x12U, 0U, 0U, 0U};
+    syn_ccp_process_cro(&g_ccp_slave, disc_bad_mode, dto);
+    TEST_ASSERT_TRUE(g_ccp_slave.connected);
+
+    uint8_t disc_perm[8] = {SYN_CCP_CMD_DISCONNECT, 11U, 0x01U, 0x34U, 0x12U, 0U, 0U, 0U};
+    syn_ccp_process_cro(&g_ccp_slave, disc_perm, dto);
+    TEST_ASSERT_FALSE(g_ccp_slave.connected);
+}
+
 void run_ccp_tests(void)
 {
     RUN_TEST(test_ccp_init_and_connect_disconnect);
@@ -603,4 +800,5 @@ void run_ccp_tests(void)
     RUN_TEST(test_ccp_program_and_clear_memory);
     RUN_TEST(test_ccp_extended_cro_and_daq);
     RUN_TEST(test_ccp_null_checks_and_bounds);
+    RUN_TEST(test_r5_a11_resource_locks_mem_regions_and_multi_daq);
 }

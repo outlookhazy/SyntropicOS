@@ -38,6 +38,8 @@ typedef struct {
     uint8_t display_control; /**< Display ON/OFF control state */
     uint8_t display_mode;    /**< Entry mode state */
     bool backlight;          /**< True if backlight enabled */
+    uint8_t cursor_col;      /**< Cached DDRAM cursor column */
+    uint8_t cursor_row;      /**< Cached DDRAM cursor row */
 
     /* I2C Mode Context */
     SYN_SoftI2C i2c;        /**< Software I2C bus context */

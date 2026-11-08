@@ -310,18 +310,34 @@ static void test_lwm2m_link_format_and_registration(void)
     SYN_CoapMsg err_resp = {.code = COAP_RESP_BAD_REQ};
     TEST_ASSERT_FALSE(syn_lwm2m_handle_register_response(&client, &err_resp, NULL, 0));
 
-    /* Build Update Request */
-    TEST_ASSERT_TRUE(syn_lwm2m_build_update_request(&client, 0x1235, token, 4, 600, &req, req_opts,
-                                                    8, &req_opt_cnt, payload_buf,
-                                                    sizeof(payload_buf)) > 0);
+    /* Build Update Request (lifetime-only -> 0 payload bytes, COAP_CODE_POST) */
+    (void)memset(payload_buf, 0xA5, sizeof(payload_buf));
+    size_t upd_len =
+        syn_lwm2m_build_update_request(&client, 0x1235, token, 4, 600, &req, req_opts, 8,
+                                       &req_opt_cnt, payload_buf, sizeof(payload_buf));
+    TEST_ASSERT_EQUAL_UINT32(0U, upd_len);
     TEST_ASSERT_EQUAL(COAP_CODE_POST, req.code);
+    TEST_ASSERT_NULL(req.payload);
+    TEST_ASSERT_EQUAL_UINT32(0U, req.payload_len);
     TEST_ASSERT_EQUAL(3, req_opt_cnt);
 
     /* Update request with leading slash in location_path */
     strcpy(client.location_path, "/rd/99");
-    TEST_ASSERT_TRUE(syn_lwm2m_build_update_request(&client, 0x1235, token, 4, 0, &req, req_opts, 8,
-                                                    &req_opt_cnt, payload_buf,
-                                                    sizeof(payload_buf)) > 0);
+    upd_len = syn_lwm2m_build_update_request(&client, 0x1235, token, 4, 0, &req, req_opts, 8,
+                                             &req_opt_cnt, payload_buf, sizeof(payload_buf));
+    TEST_ASSERT_EQUAL_UINT32(0U, upd_len);
+    TEST_ASSERT_EQUAL(COAP_CODE_POST, req.code);
+    TEST_ASSERT_NULL(req.payload);
+    TEST_ASSERT_EQUAL_UINT32(0U, req.payload_len);
+
+    /* Update request with empty location_path clears req.code to 0 */
+    client.location_path[0] = '\0';
+    req.code = COAP_CODE_POST;
+    upd_len = syn_lwm2m_build_update_request(&client, 0x1235, token, 4, 600, &req, req_opts, 8,
+                                             &req_opt_cnt, payload_buf, sizeof(payload_buf));
+    TEST_ASSERT_EQUAL_UINT32(0U, upd_len);
+    TEST_ASSERT_EQUAL(0, req.code);
+    strcpy(client.location_path, "/rd/99");
 
     /* Build Deregister Request */
     TEST_ASSERT_TRUE(syn_lwm2m_build_deregister_request(&client, 0x1236, token, 4, &req, req_opts,
@@ -580,7 +596,7 @@ static void test_lwm2m_standard_objects_complete_reads_and_writes(void)
         .val.str = "coap://new.fw/v2",
     };
     TEST_ASSERT_EQUAL(SYN_OK, fw_obj.write(0, 1, &uri_val, fw_obj.user_ctx));
-    TEST_ASSERT_EQUAL(SYN_LWM2M_FW_STATE_DOWNLOADED, fw_ctx.state);
+    TEST_ASSERT_EQUAL(SYN_LWM2M_FW_STATE_DOWNLOADING, fw_ctx.state);
     TEST_ASSERT_EQUAL(SYN_ERROR, fw_obj.write(0, 99, &uri_val, fw_obj.user_ctx));
     TEST_ASSERT_EQUAL(SYN_ERROR, fw_obj.exec(0, 99, NULL, 0, fw_obj.user_ctx));
 
@@ -1045,6 +1061,393 @@ static void test_lwm2m_boundary_and_error_handling(void)
     TEST_ASSERT_EQUAL(SYN_ERROR, temp_null.read(0, 5700, NULL, &temp_ctx));
 }
 
+typedef struct {
+    double float_val;
+    bool bool_val;
+} R4CustomWriteCtx;
+
+static SYN_Status r4_custom_write_cb(uint16_t inst_id, uint16_t res_id,
+                                     const SYN_LwM2M_Value *in_val, void *user_ctx)
+{
+    (void)inst_id;
+    R4CustomWriteCtx *ctx = (R4CustomWriteCtx *)user_ctx;
+    if (res_id == 0U && in_val->type == SYN_LWM2M_TYPE_FLOAT) {
+        ctx->float_val = in_val->val.floating;
+        return SYN_OK;
+    }
+    if (res_id == 1U && in_val->type == SYN_LWM2M_TYPE_BOOL) {
+        ctx->bool_val = in_val->val.boolean;
+        return SYN_OK;
+    }
+    return SYN_ERROR;
+}
+
+static void test_lwm2m_r4_p01_p05_regressions(void)
+{
+    SYN_Transport dummy_tr = {0};
+    SYN_LwM2M_Client client;
+    TEST_ASSERT_TRUE(syn_lwm2m_client_init(&client, "r4-client", 300U, &dummy_tr));
+
+    SYN_LwM2M_DeviceContext dev_ctx = {0};
+    SYN_LwM2M_Object dev_obj = syn_lwm2m_make_device_object(&dev_ctx);
+    TEST_ASSERT_TRUE(syn_lwm2m_register_object(&client, &dev_obj));
+
+    SYN_LwM2M_FirmwareContext fw_ctx = {0};
+    SYN_LwM2M_Object fw_obj = syn_lwm2m_make_firmware_object(&fw_ctx);
+    TEST_ASSERT_TRUE(syn_lwm2m_register_object(&client, &fw_obj));
+
+    SYN_LwM2M_SensorContext temp_ctx = {.sensor_value = 22.0, .unit = "Cel"};
+    SYN_LwM2M_Object temp_obj = syn_lwm2m_make_temperature_object(&temp_ctx);
+    TEST_ASSERT_TRUE(syn_lwm2m_register_object(&client, &temp_obj));
+
+    static const SYN_LwM2M_ResourceDesc r4_res[] = {
+        {0U, SYN_LWM2M_OP_W, SYN_LWM2M_TYPE_FLOAT},
+        {1U, SYN_LWM2M_OP_W, SYN_LWM2M_TYPE_BOOL},
+    };
+    R4CustomWriteCtx custom_ctx = {0};
+    SYN_LwM2M_Object custom_obj = {
+        .id = 400U,
+        .instance_count = 1U,
+        .instances = NULL,
+        .resource_count = 2U,
+        .resources = r4_res,
+        .read = NULL,
+        .write = r4_custom_write_cb,
+        .exec = NULL,
+        .user_ctx = &custom_ctx,
+    };
+    TEST_ASSERT_TRUE(syn_lwm2m_register_object(&client, &custom_obj));
+
+    SYN_CoapMsg req = {.type = COAP_TYPE_CON, .code = COAP_CODE_PUT, .msg_id = 0x42};
+    SYN_CoapMsg resp = {0};
+    SYN_CoapOption resp_opts[4];
+    size_t resp_opt_cnt = 0U;
+    uint8_t resp_buf[256];
+
+    /* max_resp_opts < 2U guard */
+    TEST_ASSERT_EQUAL(SYN_ERROR,
+                      syn_lwm2m_process_request(&client, &req, NULL, 0U, &resp, resp_opts, 1U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+
+    /* 1. R4-P01: 100-byte URI write via TLV (Content-Format 11542) and plain-text */
+    char uri_100[101];
+    (void)memset(uri_100, 'a', 100U);
+    (void)memcpy(uri_100, "coaps://ota.syntropic.local/", 28U);
+    uri_100[100] = '\0';
+
+    uint8_t tlv_uri[128];
+    size_t tlv_uri_len = syn_lwm2m_tlv_encode_string(1U, uri_100, tlv_uri, sizeof(tlv_uri));
+    TEST_ASSERT_TRUE(tlv_uri_len > 100U);
+
+    uint8_t cf_tlv[2] = {(uint8_t)(SYN_LWM2M_FORMAT_TLV >> 8),
+                         (uint8_t)(SYN_LWM2M_FORMAT_TLV & 0xFF)};
+    SYN_CoapOption fw_opts[4] = {
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"5", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"1", .len = 1U},
+        {.num = COAP_OPT_CONTENT_FORMAT, .val = cf_tlv, .len = 2U},
+    };
+    req.payload = tlv_uri;
+    req.payload_len = tlv_uri_len;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, fw_opts, 4U, &resp, resp_opts, 4U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_CHANGED, resp.code);
+    TEST_ASSERT_EQUAL_STRING(uri_100, fw_ctx.package_uri);
+
+    /* Reject plain-text fallback when Content-Format == 11542 (TLV) */
+    const char *plain_uri = "coap://plain.example/fw.bin";
+    req.payload = (const uint8_t *)plain_uri;
+    req.payload_len = strlen(plain_uri);
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, fw_opts, 4U, &resp, resp_opts, 4U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_BAD_REQ, resp.code);
+
+    /* Oversized TLV string (>= 128B) with Content-Format == 11542 -> 4.00 Bad Request */
+    char uri_140[141];
+    (void)memset(uri_140, 'x', 140U);
+    uri_140[140] = '\0';
+    uint8_t tlv_big[160];
+    size_t tlv_big_len = syn_lwm2m_tlv_encode_string(1U, uri_140, tlv_big, sizeof(tlv_big));
+    req.payload = tlv_big;
+    req.payload_len = tlv_big_len;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, fw_opts, 4U, &resp, resp_opts, 4U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_BAD_REQ, resp.code);
+
+    /* 100-byte plain-text URI write with Content-Format = 0 (0-byte empty uint option) */
+    (void)memset(&fw_ctx, 0, sizeof(fw_ctx));
+    fw_opts[3].val = NULL;
+    fw_opts[3].len = 0U;
+    req.payload = (const uint8_t *)uri_100;
+    req.payload_len = 100U;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, fw_opts, 4U, &resp, resp_opts, 4U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_CHANGED, resp.code);
+    TEST_ASSERT_EQUAL_STRING(uri_100, fw_ctx.package_uri);
+
+    /* 2. R4-P01: Non-NUL-terminated integer payload buffer + invalid text integer/float */
+    uint8_t raw_digits[4] = {'9', '8', '7', '6'};
+    SYN_CoapOption time_opts[3] = {
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"3", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"13", .len = 2U},
+    };
+    req.payload = raw_digits;
+    req.payload_len = sizeof(raw_digits);
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, time_opts, 3U, &resp, resp_opts, 4U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_CHANGED, resp.code);
+    TEST_ASSERT_EQUAL(9876LL, dev_ctx.current_time);
+
+    const char *bad_int = "not_an_int";
+    req.payload = (const uint8_t *)bad_int;
+    req.payload_len = strlen(bad_int);
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, time_opts, 3U, &resp, resp_opts, 4U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_BAD_REQ, resp.code);
+
+    /* Plain-text float write (valid, malformed TLV fallback, invalid text, and unsupported bool) */
+    SYN_CoapOption flt_opts[3] = {
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"400", .len = 3U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+    };
+    uint8_t raw_float[5] = {'3', '6', '.', '2', '5'};
+    req.payload = raw_float;
+    req.payload_len = sizeof(raw_float);
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, flt_opts, 3U, &resp, resp_opts, 4U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_CHANGED, resp.code);
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 36.25f, (float)custom_ctx.float_val);
+
+    /* Valid TLV header for res 0 with 3-byte value (invalid float len) + Content-Format TLV */
+    uint8_t bad_tlv_flt[5] = {0xC3U, 0x00U, 'x', 'y', 'z'};
+    SYN_CoapOption flt_tlv_opts[4] = {
+        flt_opts[0],
+        flt_opts[1],
+        flt_opts[2],
+        {.num = COAP_OPT_CONTENT_FORMAT, .val = cf_tlv, .len = 2U},
+    };
+    req.payload = bad_tlv_flt;
+    req.payload_len = sizeof(bad_tlv_flt);
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, flt_tlv_opts, 4U, &resp, resp_opts,
+                                                4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_BAD_REQ, resp.code);
+
+    const char *bad_flt = "xyz";
+    req.payload = (const uint8_t *)bad_flt;
+    req.payload_len = 3U;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, flt_opts, 3U, &resp, resp_opts, 4U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_BAD_REQ, resp.code);
+
+    flt_opts[2].val = (const uint8_t *)"1";
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, flt_opts, 3U, &resp, resp_opts, 4U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_BAD_REQ, resp.code);
+
+    /* Plain-text BOOL writes ("1", "0", "true", "false") + unsupported OBJLNK plain-text */
+    const char *bool_toks[4] = {"1", "0", "true", "false"};
+    const bool bool_exp[4] = {true, false, true, false};
+    for (size_t bi = 0U; bi < 4U; bi++) {
+        req.payload = (const uint8_t *)bool_toks[bi];
+        req.payload_len = strlen(bool_toks[bi]);
+        TEST_ASSERT_EQUAL(SYN_OK,
+                          syn_lwm2m_process_request(&client, &req, flt_opts, 3U, &resp, resp_opts,
+                                                    4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+        TEST_ASSERT_EQUAL(COAP_RESP_CHANGED, resp.code);
+        TEST_ASSERT_EQUAL(bool_exp[bi], custom_ctx.bool_val);
+    }
+
+    static const SYN_LwM2M_ResourceDesc objlnk_res[1] = {
+        {2U, SYN_LWM2M_OP_W, SYN_LWM2M_TYPE_OBJLNK}};
+    SYN_LwM2M_Object objlnk_obj = {
+        .id = 401U,
+        .instance_count = 1U,
+        .resource_count = 1U,
+        .resources = objlnk_res,
+        .write = r4_custom_write_cb,
+        .user_ctx = &custom_ctx,
+    };
+    TEST_ASSERT_TRUE(syn_lwm2m_register_object(&client, &objlnk_obj));
+    SYN_CoapOption lnk_opts[3] = {
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"401", .len = 3U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"2", .len = 1U},
+    };
+    req.payload = (const uint8_t *)"3:0";
+    req.payload_len = 3U;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, lnk_opts, 3U, &resp, resp_opts, 4U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_BAD_REQ, resp.code);
+
+    /* Whole-instance GET (/3/0) with small resp_buf returns 5.00 Internal instead of truncated
+     * TLV */
+    SYN_CoapMsg inst_get = {.type = COAP_TYPE_CON, .code = COAP_CODE_GET, .msg_id = 0x43};
+    SYN_CoapOption inst_get_opts[2] = {
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"3", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+    };
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &inst_get, inst_get_opts, 2U, &resp,
+                                                resp_opts, 4U, &resp_opt_cnt, resp_buf, 8U));
+    TEST_ASSERT_EQUAL(COAP_RESP_INTERNAL, resp.code);
+
+    /* 3. R4-P05: Default pmax is 60s, and full observer table omits COAP_OPT_OBSERVE */
+    for (size_t i = 0U; i < SYN_LWM2M_MAX_OBSERVERS; i++) {
+        uint8_t tok = (uint8_t)(0x10U + i);
+        TEST_ASSERT_TRUE(syn_lwm2m_observe_add(&client, 3U, 0U, 0, &tok, 1U, 0U, 0U));
+        TEST_ASSERT_EQUAL_UINT32(60U, client.observations[i].pmax);
+    }
+
+    uint8_t obs_zero = 0U;
+    SYN_CoapOption obs_get_opts[4] = {
+        {.num = COAP_OPT_OBSERVE, .val = &obs_zero, .len = 0U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"3303", .len = 4U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"5700", .len = 4U},
+    };
+    req.code = COAP_CODE_GET;
+    req.token_len = 2U;
+    req.token[0] = 0xFEU;
+    req.token[1] = 0xEDU;
+    req.payload = NULL;
+    req.payload_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, obs_get_opts, 4U, &resp, resp_opts,
+                                                4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_CONTENT, resp.code);
+    TEST_ASSERT_EQUAL_UINT32(1U, resp_opt_cnt);
+    TEST_ASSERT_EQUAL_UINT16(COAP_OPT_CONTENT_FORMAT, resp_opts[0].num);
+}
+
+static void test_r5_n10_lwm2m_fw_uri_observe_cancel_and_instance_notify(void)
+{
+    SYN_Transport dummy_tr = {0};
+    SYN_LwM2M_Client client;
+    TEST_ASSERT_TRUE(syn_lwm2m_client_init(&client, "r5-client", 300U, &dummy_tr));
+
+    SYN_LwM2M_DeviceContext dev_ctx = {0};
+    SYN_LwM2M_Object dev_obj = syn_lwm2m_make_device_object(&dev_ctx);
+    TEST_ASSERT_TRUE(syn_lwm2m_register_object(&client, &dev_obj));
+
+    SYN_LwM2M_FirmwareContext fw_ctx = {0};
+    SYN_LwM2M_Object fw_obj = syn_lwm2m_make_firmware_object(&fw_ctx);
+    TEST_ASSERT_TRUE(syn_lwm2m_register_object(&client, &fw_obj));
+
+    SYN_LwM2M_SensorContext temp_ctx = {.sensor_value = 24.5, .unit = "Cel"};
+    SYN_LwM2M_Object temp_obj = syn_lwm2m_make_temperature_object(&temp_ctx);
+    TEST_ASSERT_TRUE(syn_lwm2m_register_object(&client, &temp_obj));
+
+    /* 1. Writing /5/0/1 sets DOWNLOADING; writing empty string resets to IDLE */
+    SYN_LwM2M_Value uri_val = {.type = SYN_LWM2M_TYPE_STRING, .val.str = "coaps://ota.local/fw"};
+    TEST_ASSERT_EQUAL(SYN_OK, fw_obj.write(0U, 1U, &uri_val, fw_obj.user_ctx));
+    TEST_ASSERT_EQUAL(SYN_LWM2M_FW_STATE_DOWNLOADING, fw_ctx.state);
+
+    uri_val.val.str = "";
+    TEST_ASSERT_EQUAL(SYN_OK, fw_obj.write(0U, 1U, &uri_val, fw_obj.user_ctx));
+    TEST_ASSERT_EQUAL(SYN_LWM2M_FW_STATE_IDLE, fw_ctx.state);
+
+    /* 2. CoAP Observe=0 registers, Observe=1 deregisters without Observe opt, Observe=2 ignored */
+    SYN_CoapMsg req = {
+        .type = COAP_TYPE_CON,
+        .code = COAP_CODE_GET,
+        .msg_id = 0x5100U,
+        .token_len = 2U,
+        .token = {0x44U, 0x55U},
+    };
+    uint8_t obs_reg = 0U;
+    uint8_t obs_dereg = 1U;
+    uint8_t obs_unknown = 2U;
+    SYN_CoapOption opts[4] = {
+        {.num = COAP_OPT_OBSERVE, .val = &obs_reg, .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"3303", .len = 4U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"5700", .len = 4U},
+    };
+    SYN_CoapMsg resp = {0};
+    SYN_CoapOption resp_opts[4];
+    size_t resp_opt_cnt = 0U;
+    uint8_t resp_buf[256];
+
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, opts, 4U, &resp, resp_opts, 4U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_CONTENT, resp.code);
+    TEST_ASSERT_EQUAL_UINT32(2U, (uint32_t)resp_opt_cnt);
+    TEST_ASSERT_EQUAL_UINT16(COAP_OPT_OBSERVE, resp_opts[0].num);
+    TEST_ASSERT_TRUE(client.observations[0].active);
+
+    /* Observe=1 cancels active observation and returns 2.05 without COAP_OPT_OBSERVE */
+    opts[0].val = &obs_dereg;
+    opts[0].len = 1U;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, opts, 4U, &resp, resp_opts, 4U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL(COAP_RESP_CONTENT, resp.code);
+    TEST_ASSERT_EQUAL_UINT32(1U, (uint32_t)resp_opt_cnt);
+    TEST_ASSERT_EQUAL_UINT16(COAP_OPT_CONTENT_FORMAT, resp_opts[0].num);
+    TEST_ASSERT_FALSE(client.observations[0].active);
+
+    /* Observe=2 ignored (neither adds nor emits Observe option) */
+    opts[0].val = &obs_unknown;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_lwm2m_process_request(&client, &req, opts, 4U, &resp, resp_opts, 4U,
+                                                &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL_UINT32(1U, (uint32_t)resp_opt_cnt);
+    TEST_ASSERT_FALSE(client.observations[0].active);
+
+    /* 3. Whole-instance observation (res_id == -1) in syn_lwm2m_build_notify */
+    uint8_t inst_tok[2] = {0x99U, 0xAAU};
+    TEST_ASSERT_TRUE(syn_lwm2m_observe_add(&client, 3303U, 0U, -1, inst_tok, 2U, 0U, 60U));
+    size_t inst_len = syn_lwm2m_build_notify(&client, 3303U, 0U, -1, 0x6001U, &resp, resp_opts, 4U,
+                                             &resp_opt_cnt, resp_buf, sizeof(resp_buf));
+    TEST_ASSERT_GREATER_THAN_UINT32(0U, (uint32_t)inst_len);
+    TEST_ASSERT_EQUAL(COAP_RESP_CONTENT, resp.code);
+    TEST_ASSERT_EQUAL_UINT32(2U, (uint32_t)resp_opt_cnt);
+    TEST_ASSERT_EQUAL_UINT16(COAP_OPT_OBSERVE, resp_opts[0].num);
+
+    /* Instance notify edge cases: invalid instance, NULL resources, and failing resource read */
+    uint8_t tok_bad_inst[1] = {0xB1U};
+    TEST_ASSERT_TRUE(syn_lwm2m_observe_add(&client, 3303U, 5U, -1, tok_bad_inst, 1U, 0U, 60U));
+    TEST_ASSERT_EQUAL_UINT32(
+        0U, (uint32_t)syn_lwm2m_build_notify(&client, 3303U, 5U, -1, 0x6002U, &resp, resp_opts, 4U,
+                                             &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+
+    SYN_LwM2M_Object no_res_obj = {
+        .id = 501U, .instance_count = 1U, .resources = NULL, .read = err_read_cb};
+    TEST_ASSERT_TRUE(syn_lwm2m_register_object(&client, &no_res_obj));
+    uint8_t tok_no_res[1] = {0xB2U};
+    TEST_ASSERT_TRUE(syn_lwm2m_observe_add(&client, 501U, 0U, -1, tok_no_res, 1U, 0U, 60U));
+    TEST_ASSERT_EQUAL_UINT32(
+        0U, (uint32_t)syn_lwm2m_build_notify(&client, 501U, 0U, -1, 0x6003U, &resp, resp_opts, 4U,
+                                             &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+
+    static const SYN_LwM2M_ResourceDesc fail_res[1] = {{0U, SYN_LWM2M_OP_R, SYN_LWM2M_TYPE_INT}};
+    SYN_LwM2M_Object fail_read_obj = {.id = 502U,
+                                      .instance_count = 1U,
+                                      .resource_count = 1U,
+                                      .resources = fail_res,
+                                      .read = err_read_cb};
+    TEST_ASSERT_TRUE(syn_lwm2m_register_object(&client, &fail_read_obj));
+    uint8_t tok_fail_rd[1] = {0xB3U};
+    TEST_ASSERT_TRUE(syn_lwm2m_observe_add(&client, 502U, 0U, -1, tok_fail_rd, 1U, 0U, 60U));
+    TEST_ASSERT_EQUAL_UINT32(
+        0U, (uint32_t)syn_lwm2m_build_notify(&client, 502U, 0U, -1, 0x6004U, &resp, resp_opts, 4U,
+                                             &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+}
+
 void run_lwm2m_tests(void)
 {
     RUN_TEST(test_lwm2m_tlv_integer_codec);
@@ -1055,4 +1458,6 @@ void run_lwm2m_tests(void)
     RUN_TEST(test_lwm2m_standard_objects_complete_reads_and_writes);
     RUN_TEST(test_lwm2m_observations_and_dispatcher_coverage);
     RUN_TEST(test_lwm2m_boundary_and_error_handling);
+    RUN_TEST(test_lwm2m_r4_p01_p05_regressions);
+    RUN_TEST(test_r5_n10_lwm2m_fw_uri_observe_cancel_and_instance_notify);
 }

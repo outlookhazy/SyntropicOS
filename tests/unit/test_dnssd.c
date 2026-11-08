@@ -5,6 +5,7 @@
 
 #include "mocks/mock_port.h"
 #include "syntropic/net/syn_dnssd.h"
+#include "syntropic/sched/syn_sched.h"
 #include "unity/unity.h"
 
 #include <string.h>
@@ -221,7 +222,7 @@ void test_dnssd_task_execution(void)
 
     /* Run one step with no packets */
     SYN_PT_Status st = syn_dnssd_task(&pt, &task);
-    TEST_ASSERT_EQUAL(PT_WAITING, st);
+    TEST_ASSERT_EQUAL(PT_IDLE, st);
 
     /* Inject packet to UDP socket and run task */
     uint8_t query[64] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -231,8 +232,12 @@ void test_dnssd_task_execution(void)
     SYN_SockAddr from_addr = {.ip = {192, 168, 1, 1}, .port = 5353};
     mock_udp_inject_packet(query, qlen, &from_addr);
 
+    mock_udp_tx_len = 0;
     st = syn_dnssd_task(&pt, &task);
-    TEST_ASSERT_EQUAL(PT_WAITING, st);
+    TEST_ASSERT_EQUAL(PT_IDLE, st);
+    TEST_ASSERT_GREATER_THAN_size_t(12U, mock_udp_tx_len);
+    TEST_ASSERT_EQUAL_UINT8(0x84U, mock_udp_tx_buf[2]);
+    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(1U, mock_udp_tx_buf[7]);
 }
 
 void test_dnssd_announce(void)
@@ -314,10 +319,11 @@ void test_dnssd_query_and_response_parsing(void)
     SYN_DnsSd bad_sd = sd;
     bad_sd.sock = SYN_SOCKET_INVALID;
     TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_discover(&bad_sd, "_coap._udp"));
-    uint8_t small_qbuf[64];
-    size_t small_qlen = 0;
+    uint8_t small_qbuf[16];
+    size_t small_qlen = 99U;
     TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_build_query("_coap._udp", small_qbuf,
                                                            sizeof(small_qbuf), &small_qlen));
+    TEST_ASSERT_EQUAL_size_t(0U, small_qlen);
 
     /* Error parsing checks */
     TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_parse_response(NULL, rlen, &disc));
@@ -404,7 +410,7 @@ void test_dnssd_browser_task_coroutine(void)
 
     /* Run coroutine step - no packets, should wait */
     SYN_PT_Status st = syn_dnssd_browse_task(&pt, &task);
-    TEST_ASSERT_EQUAL(PT_WAITING, st);
+    TEST_ASSERT_EQUAL(PT_IDLE, st);
     TEST_ASSERT_EQUAL_INT(0, discovered);
 
     /* Create response packet and inject */
@@ -427,15 +433,405 @@ void test_dnssd_browser_task_coroutine(void)
 
     /* Run coroutine step - should receive and invoke callback */
     st = syn_dnssd_browse_task(&pt, &task);
-    TEST_ASSERT_EQUAL(PT_WAITING, st);
+    TEST_ASSERT_EQUAL(PT_IDLE, st);
     TEST_ASSERT_EQUAL_INT(1, discovered);
     TEST_ASSERT_EQUAL_UINT32(1, browser.discovered_count);
 
     /* Expire timeout and run coroutine */
     mock_tick_advance(2000);
     st = syn_dnssd_browse_task(&pt, &task);
-    TEST_ASSERT_EQUAL(PT_EXITED, st);
+    TEST_ASSERT_EQUAL(PT_ENDED, st);
     TEST_ASSERT_FALSE(browser.active);
+}
+
+void test_dnssd_tasks_guards_and_multi_packet_yielding(void)
+{
+    mock_port_reset();
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task empty_task = {0};
+
+    /* 1. syn_dnssd_browse_task NULL & browser->sd == NULL guards (syn_dnssd.c:565-571) */
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dnssd_browse_task(NULL, &empty_task));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dnssd_browse_task(&pt, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dnssd_browse_task(&pt, &empty_task));
+
+    SYN_DnsSd_Browser browser = {0};
+    browser.sd = NULL;
+    browser.active = true;
+    SYN_Task task = {0};
+    task.user_data = &browser;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dnssd_browse_task(&pt, &task));
+
+    /* 2. syn_dnssd_browse_task with sd->sock == SYN_SOCKET_INVALID (syn_dnssd.c:576-579) */
+    SYN_DnsSd sd = {0};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_init(&sd));
+    int discovered = 0;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_browser_init(&browser, &sd, "_coap._udp",
+                                                         on_discovered_service, &discovered, 1000));
+    sd.sock = SYN_SOCKET_INVALID;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dnssd_browse_task(&pt, &task));
+    TEST_ASSERT_FALSE(browser.active);
+
+    /* 3. syn_dnssd_browse_task multi-packet queue hits PT_CONTINUE_IF_NEEDED (syn_dnssd.c:605) */
+    mock_port_reset();
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_init(&sd));
+    discovered = 0;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_browser_init(&browser, &sd, "_coap._udp",
+                                                         on_discovered_service, &discovered, 1000));
+
+    SYN_DnsSd remote_sd;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_init(&remote_sd));
+    SYN_DnsSd_Service svc = {.instance_name = "NodeA",
+                             .service_type = "_coap._udp",
+                             .hostname = "node-a",
+                             .port = 5683,
+                             .ip = {192, 168, 1, 60},
+                             .txt_count = 0};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_register(&remote_sd, &svc));
+    uint8_t resp[512];
+    size_t rlen = 0;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_announce(&remote_sd, 0, resp, sizeof(resp), &rlen));
+
+    SYN_SockAddr from_addr = {.ip = {192, 168, 1, 60}, .port = 5353};
+    mock_udp_rx_count = 0;
+    mock_udp_rx_pos = 0;
+    mock_udp_inject_packet(resp, rlen, &from_addr);
+    mock_udp_inject_packet(resp, rlen, &from_addr);
+
+    SYN_Sched sched = {0};
+    memset(&task, 0, sizeof(task));
+    task.user_data = &browser;
+    task.sched = &sched;
+    sched.running = &task;
+    sched.share_contended = true;
+    PT_INIT(&pt);
+
+    TEST_ASSERT_EQUAL(PT_MORE, syn_dnssd_browse_task(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(1, discovered);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_dnssd_browse_task(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(2, discovered);
+
+    /* 4. syn_dnssd_task NULL guards, invalid sock, and multi-packet PT_CONTINUE_IF_NEEDED
+     *    (syn_dnssd.c:621-631, 650-652) */
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dnssd_task(NULL, &empty_task));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dnssd_task(&pt, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dnssd_task(&pt, &empty_task));
+
+    SYN_DnsSd bad_sd = {0};
+    bad_sd.sock = SYN_SOCKET_INVALID;
+    memset(&task, 0, sizeof(task));
+    task.user_data = &bad_sd;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dnssd_task(&pt, &task));
+
+    /* Queue 2 discovery queries into remote_sd and step syn_dnssd_task with contended sched */
+    mock_port_reset();
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_init(&remote_sd));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_register(&remote_sd, &svc));
+    mock_udp_tx_len = 0;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_discover(&sd, "_coap._udp"));
+    uint8_t query_pkt[256];
+    size_t query_len = mock_udp_tx_len;
+    TEST_ASSERT_TRUE(query_len > 0 && query_len <= sizeof(query_pkt));
+    memcpy(query_pkt, mock_udp_tx_buf, query_len);
+
+    mock_udp_tx_len = 0;
+    mock_udp_rx_count = 0;
+    mock_udp_rx_pos = 0;
+    mock_udp_inject_packet(query_pkt, query_len, &from_addr);
+    mock_udp_inject_packet(query_pkt, query_len, &from_addr);
+
+    memset(&sched, 0, sizeof(sched));
+    memset(&task, 0, sizeof(task));
+    task.user_data = &remote_sd;
+    task.sched = &sched;
+    sched.running = &task;
+    sched.share_contended = true;
+    PT_INIT(&pt);
+
+    TEST_ASSERT_EQUAL(PT_MORE, syn_dnssd_task(&pt, &task));
+    size_t tx_after_first = mock_udp_tx_len;
+    TEST_ASSERT_TRUE(tx_after_first > 0);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_dnssd_task(&pt, &task));
+    TEST_ASSERT_TRUE(mock_udp_tx_len > tx_after_first);
+}
+
+void test_dnssd_round3_regressions(void)
+{
+    mock_port_reset();
+
+    SYN_DnsSd sd;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_init(&sd));
+
+    /* 1. R3-N05: syn_dnssd_register rejects txt_count > SYN_DNSSD_MAX_TXT_RECORDS and NULL TXT */
+    SYN_DnsSd_Service bad_txt = {.instance_name = "Node",
+                                 .service_type = "_http._tcp",
+                                 .hostname = "node",
+                                 .port = 80,
+                                 .ip = {10, 0, 0, 1},
+                                 .txt_records = {NULL},
+                                 .txt_count = 1U};
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_register(&sd, &bad_txt));
+
+    bad_txt.txt_records[0] = "k=v";
+    bad_txt.txt_count = SYN_DNSSD_MAX_TXT_RECORDS + 1U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_register(&sd, &bad_txt));
+
+    /* 2. R3-N05: 70-char TXT clamping (>63) + exact per-record truncation bounds in
+     * pack_service_response */
+    const char *long_txt =
+        "attr=0123456789012345678901234567890123456789012345678901234567890123456789";
+    SYN_DnsSd_Service big_svc = {.instance_name = "BigNode",
+                                 .service_type = "_http._tcp",
+                                 .hostname = "bignode",
+                                 .port = 8080,
+                                 .ip = {10, 0, 0, 2},
+                                 .txt_records = {long_txt, long_txt, long_txt, long_txt, long_txt,
+                                                 long_txt, long_txt, long_txt},
+                                 .txt_count = 8U};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_register(&sd, &big_svc));
+
+    uint8_t full_buf[1500];
+    size_t full_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_dnssd_announce(&sd, 0U, full_buf, sizeof(full_buf), &full_len));
+    TEST_ASSERT_GREATER_THAN_size_t(512U, full_len);
+
+    /* Exhaustively test every truncation boundary 0 .. full_len - 1 without OOB writes */
+    uint8_t guard_buf[1502];
+    for (size_t cap = 0U; cap < full_len; cap++) {
+        guard_buf[cap] = 0xA5U;
+        size_t out_len = 99U;
+        TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_announce(&sd, 0U, guard_buf, cap, &out_len));
+        TEST_ASSERT_EQUAL_size_t(0U, out_len);
+        TEST_ASSERT_EQUAL_HEX8(0xA5U, guard_buf[cap]);
+    }
+
+    /* Empty-TXT truncation across every byte boundary 0 .. empty_full - 1 */
+    SYN_DnsSd sd_empty;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_init(&sd_empty));
+    SYN_DnsSd_Service empty_svc = {.instance_name = "E",
+                                   .service_type = "_coap._udp",
+                                   .hostname = "e",
+                                   .port = 5683,
+                                   .ip = {10, 0, 0, 3},
+                                   .txt_count = 0U};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_register(&sd_empty, &empty_svc));
+    size_t empty_full = 0U;
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_dnssd_announce(&sd_empty, 0U, full_buf, sizeof(full_buf), &empty_full));
+    for (size_t cap = 0U; cap < empty_full; cap++) {
+        size_t trunc_txt_len = 0U;
+        TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                              syn_dnssd_announce(&sd_empty, 0U, guard_buf, cap, &trunc_txt_len));
+    }
+
+    /* 3. R3-N05: Multi-question mDNS query with 0xC0 pointer on Q1 still matches Q2 */
+    uint8_t comp_query[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                            /* Question 1: _other + pointer 0xC0 0x0C + QTYPE PTR + QCLASS IN */
+                            6, '_', 'o', 't', 'h', 'e', 'r', 0xC0, 0x0C, 0x00, 0x0C, 0x00, 0x01,
+                            /* Question 2: _http._tcp.local + QTYPE PTR + QCLASS IN */
+                            5, '_', 'h', 't', 't', 'p', 4, '_', 't', 'c', 'p', 5, 'l', 'o', 'c',
+                            'a', 'l', 0, 0x00, 0x0C, 0x00, 0x01};
+    size_t comp_resp_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_dnssd_process_query(&sd, comp_query, sizeof(comp_query), full_buf,
+                                                  sizeof(full_buf), &comp_resp_len));
+    TEST_ASSERT_EQUAL_size_t(full_len, comp_resp_len);
+
+    /* Truncated 1-byte 0xC0 pointer and truncated QTYPE/QCLASS rejected safely */
+    uint8_t trunc_ptr_q[] = {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0xC0};
+    TEST_ASSERT_EQUAL_INT(SYN_NOT_FOUND,
+                          syn_dnssd_process_query(&sd, trunc_ptr_q, sizeof(trunc_ptr_q), full_buf,
+                                                  sizeof(full_buf), &comp_resp_len));
+    uint8_t trunc_qtype[] = {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 3, 'f', 'o', 'o', 0, 0x00, 0x0C};
+    TEST_ASSERT_EQUAL_INT(SYN_NOT_FOUND,
+                          syn_dnssd_process_query(&sd, trunc_qtype, sizeof(trunc_qtype), full_buf,
+                                                  sizeof(full_buf), &comp_resp_len));
+    uint8_t unterminated_q[] = {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 3, 'f', 'o', 'o'};
+    TEST_ASSERT_EQUAL_INT(SYN_NOT_FOUND,
+                          syn_dnssd_process_query(&sd, unterminated_q, sizeof(unterminated_q),
+                                                  full_buf, sizeof(full_buf), &comp_resp_len));
+
+    /* 4. R3-N06: UDP recvfrom failure while readable yields PT_IDLE in both tasks + PT_END
+     * fallthrough */
+    SYN_DnsSd_Browser browser;
+    int disc_cnt = 0;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_browser_init(&browser, &sd, "_http._tcp",
+                                                         on_discovered_service, &disc_cnt, 1000U));
+    mock_udp_recv_fail = true;
+
+    SYN_PT bpt;
+    PT_INIT(&bpt);
+    SYN_Task btask = {.user_data = &browser};
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_dnssd_browse_task(&bpt, &btask));
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_dnssd_browse_task(&bpt, &btask));
+
+    SYN_PT dpt;
+    PT_INIT(&dpt);
+    SYN_Task dtask = {.user_data = &sd};
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_dnssd_task(&dpt, &dtask));
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_dnssd_task(&dpt, &dtask));
+    mock_udp_recv_fail = false;
+
+    dpt.lc = 9999;
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_dnssd_task(&dpt, &dtask));
+
+    /* 5. Corrupted service slot guard, malformed browse response, and inactive browse wake */
+    uint8_t bad_pkt[16] = {0};
+    SYN_SockAddr bad_from = {.ip = {192, 168, 1, 99}, .port = 5353};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_browser_init(&browser, &sd, "_http._tcp",
+                                                         on_discovered_service, &disc_cnt, 1000U));
+    mock_udp_set_response(bad_pkt, sizeof(bad_pkt), &bad_from);
+    PT_INIT(&bpt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_dnssd_browse_task(&bpt, &btask));
+    TEST_ASSERT_EQUAL(0, disc_cnt);
+
+    browser.active = false;
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_dnssd_browse_task(&bpt, &btask));
+
+    sd.services[0].txt_count = 99U;
+    size_t bad_svc_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_dnssd_announce(&sd, 0U, full_buf, sizeof(full_buf), &bad_svc_len));
+}
+
+void test_dnssd_round4_compression_qdcount_and_rdata_bounds(void)
+{
+    mock_port_reset();
+
+    SYN_DnsSd sd;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_init(&sd));
+    SYN_DnsSd_Service svc = {.instance_name = "NodeComp",
+                             .service_type = "_http._tcp",
+                             .hostname = "compnode",
+                             .port = 8080,
+                             .ip = {192, 168, 1, 77},
+                             .txt_records = {"k=v"},
+                             .txt_count = 1U};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_register(&sd, &svc));
+
+    /* 1. Compressed QNAME in Q2 referencing "_tcp.local" at offset 19 in Q1 */
+    uint8_t comp_qname_pkt[] = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        /* offset 12: 6 "_other" + offset 19: 4 "_tcp" 5 "local" 0 + QTYPE/QCLASS */
+        6, '_', 'o', 't', 'h', 'e', 'r', 4, '_', 't', 'c', 'p', 5, 'l', 'o', 'c', 'a', 'l', 0, 0x00,
+        0x0C, 0x00, 0x01,
+        /* Q2: 5 "_http" + pointer 0xC0 0x13 (offset 19) + QTYPE PTR + QCLASS IN */
+        5, '_', 'h', 't', 't', 'p', 0xC0, 0x13, 0x00, 0x0C, 0x00, 0x01};
+    uint8_t resp_out[512];
+    size_t resp_out_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_dnssd_process_query(&sd, comp_qname_pkt, sizeof(comp_qname_pkt),
+                                                  resp_out, sizeof(resp_out), &resp_out_len));
+    TEST_ASSERT_GREATER_THAN_size_t(12U, resp_out_len);
+
+    /* Invalid 0x80 label byte in query rejected */
+    uint8_t bad_label_bits[] = {0, 0, 0,    0,   0,    1,    0,    0,    0,   0,
+                                0, 0, 0x80, 'a', 0x00, 0x00, 0x0C, 0x00, 0x01};
+    TEST_ASSERT_EQUAL_INT(SYN_NOT_FOUND,
+                          syn_dnssd_process_query(&sd, bad_label_bits, sizeof(bad_label_bits),
+                                                  resp_out, sizeof(resp_out), &resp_out_len));
+
+    /* 2. Compressed mDNS response with QDCOUNT=1, ANCOUNT=1, NSCOUNT=1, ARCOUNT=3 */
+    uint8_t comp_resp[] = {
+        0x00, 0x00, 0x84, 0x00, 0x00, 0x01, /* QDCOUNT = 1 */
+        0x00, 0x01,                         /* ANCOUNT = 1 */
+        0x00, 0x01,                         /* NSCOUNT = 1 */
+        0x00, 0x03,                         /* ARCOUNT = 3 */
+        /* offset 12: Question _http._tcp.local (offset 12="_http._tcp.local", offset 23="local") */
+        5, '_', 'h', 't', 't', 'p', 4, '_', 't', 'c', 'p', 5, 'l', 'o', 'c', 'a', 'l', 0, 0x00,
+        0x0C, 0x00, 0x01,
+        /* offset 34: Answer PTR: owner 0xC0 0x0C, rdlen=11: 8 "NodeComp" + 0xC0 0x0C */
+        0xC0, 0x0C, 0x00, 0x0C, 0x00, 0x01, 0x00, 0x00, 0x00, 0x78, 0x00, 0x0B,
+        /* offset 46: PTR RDATA */
+        8, 'N', 'o', 'd', 'e', 'C', 'o', 'm', 'p', 0xC0, 0x0C,
+        /* offset 57: Authority NSEC (type 47): owner 0xC0 0x2E, rdlen=2, skipped cleanly */
+        0xC0, 0x2E, 0x00, 0x2F, 0x00, 0x01, 0x00, 0x00, 0x00, 0x78, 0x00, 0x02, 0x00, 0x00,
+        /* offset 71: Additional SRV: owner 0xC0 0x2E, rdlen=17: port=8080 + "compnode" + 0xC0 0x17
+         */
+        0xC0, 0x2E, 0x00, 0x21, 0x80, 0x01, 0x00, 0x00, 0x00, 0x78, 0x00, 0x11, 0x00, 0x00, 0x00,
+        0x00, 0x1F, 0x90, 8, 'c', 'o', 'm', 'p', 'n', 'o', 'd', 'e', 0xC0, 0x17,
+        /* offset 100: Additional TXT: owner 0xC0 0x2E, rdlen=4: 3 "k=v" */
+        0xC0, 0x2E, 0x00, 0x10, 0x80, 0x01, 0x00, 0x00, 0x00, 0x78, 0x00, 0x04, 3, 'k', '=', 'v',
+        /* offset 116: Additional A: owner 8 "compnode" + 0xC0 0x17, rdlen=4 */
+        8, 'c', 'o', 'm', 'p', 'n', 'o', 'd', 'e', 0xC0, 0x17, 0x00, 0x01, 0x80, 0x01, 0x00, 0x00,
+        0x00, 0x78, 0x00, 0x04, 192, 168, 1, 77};
+
+    SYN_DnsSd_Discovered disc;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_parse_response(comp_resp, sizeof(comp_resp), &disc));
+    TEST_ASSERT_EQUAL_STRING("NodeComp", disc.instance_name);
+    TEST_ASSERT_EQUAL_STRING("_http._tcp", disc.service_type);
+    TEST_ASSERT_EQUAL_STRING("compnode", disc.hostname);
+    TEST_ASSERT_EQUAL_UINT16(8080U, disc.port);
+    TEST_ASSERT_EQUAL_STRING("k=v", disc.txt);
+    TEST_ASSERT_EQUAL_UINT8(192U, disc.ip[0]);
+    TEST_ASSERT_EQUAL_UINT8(77U, disc.ip[3]);
+
+    /* 3. Malformed question with QDCOUNT=1 fails syn_dnssd_parse_response */
+    uint8_t bad_qd_resp[] = {0, 0, 0x84, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0xC0};
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_dnssd_parse_response(bad_qd_resp, sizeof(bad_qd_resp), &disc));
+
+    /* 4. RDATA overread guards, pointer bounds/hops, single-label PTR/SRV, and short RR header */
+    uint8_t rdata_bounds_resp[] = {
+        0x00, 0x00, 0x84, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00,
+        /* RR1: PTR with rdlength=2 but label claims 10 bytes -> rejected without overreading RR2 */
+        0x00, 0x00, 0x0C, 0x00, 0x01, 0x00, 0x00, 0x00, 0x78, 0x00, 0x02, 10, 'X',
+        /* RR2: PTR with single-label "nodot" (covers first_dot == NULL) */
+        0x00, 0x00, 0x0C, 0x00, 0x01, 0x00, 0x00, 0x00, 0x78, 0x00, 0x07, 5, 'n', 'o', 'd', 'o',
+        't', 0,
+        /* RR3: SRV with rdlength=6 (zero target bytes -> rejected without setting port) */
+        0x00, 0x00, 0x21, 0x80, 0x01, 0x00, 0x00, 0x00, 0x78, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00,
+        0x22, 0xB8,
+        /* RR4: SRV with single-label target "plainhost" (covers first_dot == NULL false branch) */
+        0x00, 0x00, 0x21, 0x80, 0x01, 0x00, 0x00, 0x00, 0x78, 0x00, 0x11, 0x00, 0x00, 0x00, 0x00,
+        0x13, 0x88, 9, 'p', 'l', 'a', 'i', 'n', 'h', 'o', 's', 't', 0,
+        /* RR5: PTR with out-of-bounds compression pointer 0xC0 0xFF in RDATA */
+        0x00, 0x00, 0x0C, 0x00, 0x01, 0x00, 0x00, 0x00, 0x78, 0x00, 0x02, 0xC0, 0xFF,
+        /* RR6: Valid root owner 0x00 followed by < 10 bytes (covers resp_len - pos < 10U) */
+        0x00, 0x00, 0x01};
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_dnssd_parse_response(rdata_bounds_resp, sizeof(rdata_bounds_resp), &disc));
+    TEST_ASSERT_EQUAL_STRING("", disc.instance_name);
+    TEST_ASSERT_EQUAL_UINT16(5000U, disc.port);
+    TEST_ASSERT_EQUAL_STRING("plainhost", disc.hostname);
+
+    /* Truncated 1-byte 0xC0 inside RDATA */
+    uint8_t trunc_c0_rdata[] = {0,    0,    0x84, 0,    0,    0,    0,    1,
+                                0,    0,    0,    0,    0x00, 0x00, 0x0C, 0x00,
+                                0x01, 0x00, 0x00, 0x00, 0x78, 0x00, 0x01, 0xC0};
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_dnssd_parse_response(trunc_c0_rdata, sizeof(trunc_c0_rdata), &disc));
+}
+
+void test_r5_n13_dnssd_build_query_truncation_bounds(void)
+{
+    uint8_t qbuf[128];
+    size_t full_qlen = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_dnssd_build_query("_http._tcp", qbuf, sizeof(qbuf), &full_qlen));
+    TEST_ASSERT_EQUAL_size_t(34U, full_qlen);
+
+    /* Sweep every truncation boundary 0 .. full_qlen - 1 (covers header, QNAME, QTYPE, QCLASS) */
+    uint8_t guard[64];
+    for (size_t cap = 0U; cap < full_qlen; cap++) {
+        guard[cap] = 0x5AU;
+        size_t out_len = 77U;
+        TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_build_query("_http._tcp", guard, cap, &out_len));
+        TEST_ASSERT_EQUAL_size_t(0U, out_len);
+        TEST_ASSERT_EQUAL_HEX8(0x5AU, guard[cap]);
+    }
+
+    size_t exact_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_dnssd_build_query("_http._tcp", guard, full_qlen, &exact_len));
+    TEST_ASSERT_EQUAL_size_t(full_qlen, exact_len);
 }
 
 void run_dnssd_tests(void)
@@ -446,4 +842,8 @@ void run_dnssd_tests(void)
     RUN_TEST(test_dnssd_announce);
     RUN_TEST(test_dnssd_query_and_response_parsing);
     RUN_TEST(test_dnssd_browser_task_coroutine);
+    RUN_TEST(test_dnssd_tasks_guards_and_multi_packet_yielding);
+    RUN_TEST(test_dnssd_round3_regressions);
+    RUN_TEST(test_dnssd_round4_compression_qdcount_and_rdata_bounds);
+    RUN_TEST(test_r5_n13_dnssd_build_query_truncation_bounds);
 }

@@ -6,6 +6,7 @@
 #include "syn_dnssd.h"
 
 #include "../port/syn_port_system.h"
+#include "../sched/syn_sched.h"
 #include "../util/syn_assert.h"
 
 #include <stdio.h>
@@ -19,97 +20,174 @@
 #define DNSSD_TTL_SRV 120U
 
 /**
- * @brief Write 16-bit big-endian integer to buffer.
- * @param[out] buf Output buffer.
- * @param[in,out] pos Current buffer offset.
- * @param[in] val Value to write.
+ * @brief Append raw bytes into a bounded output buffer.
+ * @param buf Destination buffer.
+ * @param cap Buffer capacity.
+ * @param pos [in,out] Write cursor.
+ * @param src Source bytes.
+ * @param len Byte count to append.
+ * @return true if bytes fit and were written, false on truncation.
  */
-static void write_u16(uint8_t *buf, size_t *pos, uint16_t val)
+static bool dnssd_put_bytes(uint8_t *buf, size_t cap, size_t *pos, const void *src, size_t len)
 {
-    buf[(*pos)++] = (uint8_t)(val >> 8U);
-    buf[(*pos)++] = (uint8_t)(val & 0xFFU);
+    if (len > cap - *pos) {
+        return false;
+    }
+    if (len > 0U) {
+        memcpy(buf + *pos, src, len);
+        *pos += len;
+    }
+    return true;
 }
 
 /**
- * @brief Write 32-bit big-endian integer to buffer.
- * @param[out] buf Output buffer.
- * @param[in,out] pos Current buffer offset.
- * @param[in] val Value to write.
+ * @brief Append a single byte into a bounded output buffer.
+ * @param buf Destination buffer.
+ * @param cap Buffer capacity.
+ * @param pos [in,out] Write cursor.
+ * @param val Byte value.
+ * @return true on success, false on truncation.
  */
-static void write_u32(uint8_t *buf, size_t *pos, uint32_t val)
+static bool dnssd_put_u8(uint8_t *buf, size_t cap, size_t *pos, uint8_t val)
 {
-    buf[(*pos)++] = (uint8_t)(val >> 24U);
-    buf[(*pos)++] = (uint8_t)(val >> 16U);
-    buf[(*pos)++] = (uint8_t)(val >> 8U);
-    buf[(*pos)++] = (uint8_t)(val & 0xFFU);
+    return dnssd_put_bytes(buf, cap, pos, &val, 1U);
 }
 
 /**
- * @brief Write DNS label with length prefix to buffer.
- * @param[out] buf Output buffer.
- * @param[in,out] pos Current buffer offset.
- * @param[in] str Label string.
+ * @brief Append a 16-bit big-endian integer into a bounded output buffer.
+ * @param buf Destination buffer.
+ * @param cap Buffer capacity.
+ * @param pos [in,out] Write cursor.
+ * @param val 16-bit value.
+ * @return true on success, false on truncation.
  */
-static void write_label(uint8_t *buf, size_t *pos, const char *str)
+static bool dnssd_put_u16(uint8_t *buf, size_t cap, size_t *pos, uint16_t val)
+{
+    uint8_t b[2] = {(uint8_t)(val >> 8U), (uint8_t)(val & 0xFFU)};
+    return dnssd_put_bytes(buf, cap, pos, b, 2U);
+}
+
+/**
+ * @brief Append a 32-bit big-endian integer into a bounded output buffer.
+ * @param buf Destination buffer.
+ * @param cap Buffer capacity.
+ * @param pos [in,out] Write cursor.
+ * @param val 32-bit value.
+ * @return true on success, false on truncation.
+ */
+static bool dnssd_put_u32(uint8_t *buf, size_t cap, size_t *pos, uint32_t val)
+{
+    uint8_t b[4] = {(uint8_t)(val >> 24U), (uint8_t)(val >> 16U), (uint8_t)(val >> 8U),
+                    (uint8_t)(val & 0xFFU)};
+    return dnssd_put_bytes(buf, cap, pos, b, 4U);
+}
+
+/**
+ * @brief Write DNS label (clamped to 63 octets) with length prefix into bounded buffer.
+ * @param buf Destination buffer.
+ * @param cap Buffer capacity.
+ * @param pos [in,out] Write cursor.
+ * @param str Label string.
+ * @return true on success, false on truncation.
+ */
+static bool dnssd_put_label(uint8_t *buf, size_t cap, size_t *pos, const char *str)
 {
     size_t len = strlen(str);
-    if (len > 63)
-        len = 63; /* LCOV_EXCL_LINE: Defensive clamp */
-    buf[(*pos)++] = (uint8_t)len;
-    memcpy(&buf[*pos], str, len);
-    *pos += len;
+    if (len > 63U) {
+        len = 63U;
+    }
+    return dnssd_put_u8(buf, cap, pos, (uint8_t)len) && dnssd_put_bytes(buf, cap, pos, str, len);
 }
 
 /**
- * @brief Write DNS service type domain name to buffer.
- * @param[out] buf Output buffer.
- * @param[in,out] pos Current buffer offset.
- * @param[in] service_type Service type string.
+ * @brief Write DNS service type domain name (`_svc._proto.local.`) into bounded buffer.
+ * @param buf          Destination buffer.
+ * @param cap          Buffer capacity.
+ * @param pos          [in,out] Write cursor.
+ * @param service_type Service type string.
+ * @return true on success, false on truncation.
  */
-static void write_service_type_name(uint8_t *buf, size_t *pos, const char *service_type)
+static bool dnssd_put_service_type_name(uint8_t *buf, size_t cap, size_t *pos,
+                                        const char *service_type)
 {
-    /* Split service_type (e.g. "_http._tcp") */
     char temp[64];
-    strncpy(temp, service_type, sizeof(temp) - 1);
-    temp[sizeof(temp) - 1] = '\0';
+    strncpy(temp, service_type, sizeof(temp) - 1U);
+    temp[sizeof(temp) - 1U] = '\0';
 
     char *dot = strchr(temp, '.');
+    bool ok = true;
     if (dot != NULL) {
         *dot = '\0';
-        write_label(buf, pos, temp);
-        write_label(buf, pos, dot + 1);
+        ok = dnssd_put_label(buf, cap, pos, temp) && dnssd_put_label(buf, cap, pos, dot + 1);
     } else {
-        write_label(buf, pos, temp);
+        ok = dnssd_put_label(buf, cap, pos, temp);
     }
-    write_label(buf, pos, "local");
-    buf[(*pos)++] = 0x00; /* Null terminator */
+    return ok && dnssd_put_label(buf, cap, pos, "local") && dnssd_put_u8(buf, cap, pos, 0x00U);
 }
 
 /**
- * @brief Write DNS instance FQDN to buffer.
- * @param[out] buf Output buffer.
- * @param[in,out] pos Current buffer offset.
- * @param[in] instance Instance name.
- * @param[in] service_type Service type.
+ * @brief Write DNS instance FQDN into bounded buffer.
+ * @param buf          Destination buffer.
+ * @param cap          Buffer capacity.
+ * @param pos          [in,out] Write cursor.
+ * @param instance     Instance name.
+ * @param service_type Service type.
+ * @return true on success, false on truncation.
  */
-static void write_instance_fqdn(uint8_t *buf, size_t *pos, const char *instance,
-                                const char *service_type)
+static bool dnssd_put_instance_fqdn(uint8_t *buf, size_t cap, size_t *pos, const char *instance,
+                                    const char *service_type)
 {
-    write_label(buf, pos, instance);
-    write_service_type_name(buf, pos, service_type);
+    return dnssd_put_label(buf, cap, pos, instance) &&
+           dnssd_put_service_type_name(buf, cap, pos, service_type);
 }
 
 /**
- * @brief Write DNS hostname FQDN to buffer.
- * @param[out] buf Output buffer.
- * @param[in,out] pos Current buffer offset.
- * @param[in] hostname Hostname string.
+ * @brief Write DNS hostname FQDN (`host.local.`) into bounded buffer.
+ * @param buf      Destination buffer.
+ * @param cap      Buffer capacity.
+ * @param pos      [in,out] Write cursor.
+ * @param hostname Hostname string.
+ * @return true on success, false on truncation.
  */
-static void write_hostname_fqdn(uint8_t *buf, size_t *pos, const char *hostname)
+static bool dnssd_put_hostname_fqdn(uint8_t *buf, size_t cap, size_t *pos, const char *hostname)
 {
-    write_label(buf, pos, hostname);
-    write_label(buf, pos, "local");
-    buf[(*pos)++] = 0x00;
+    return dnssd_put_label(buf, cap, pos, hostname) && dnssd_put_label(buf, cap, pos, "local") &&
+           dnssd_put_u8(buf, cap, pos, 0x00U);
+}
+
+/**
+ * @brief Write fixed 10-byte DNS RR metadata and record RDLENGTH offset.
+ * @param buf       Destination buffer.
+ * @param cap       Buffer capacity.
+ * @param pos       [in,out] Write cursor.
+ * @param type      RR type code.
+ * @param cls       RR class + cache-flush bits.
+ * @param ttl       TTL in seconds.
+ * @param rdlen_pos [out] Offset of 16-bit RDLENGTH field.
+ * @return true on success, false on truncation.
+ */
+static bool dnssd_put_rr_meta(uint8_t *buf, size_t cap, size_t *pos, uint16_t type, uint16_t cls,
+                              uint32_t ttl, size_t *rdlen_pos)
+{
+    if (!dnssd_put_u16(buf, cap, pos, type) || !dnssd_put_u16(buf, cap, pos, cls) ||
+        !dnssd_put_u32(buf, cap, pos, ttl)) {
+        return false;
+    }
+    *rdlen_pos = *pos;
+    return dnssd_put_u16(buf, cap, pos, 0U);
+}
+
+/**
+ * @brief Backpatch a 16-bit big-endian RDLENGTH field after writing RDATA.
+ * @param buf       Packet buffer.
+ * @param rdlen_pos Offset of RDLENGTH field.
+ * @param end_pos   Offset immediately following RDATA.
+ */
+static void dnssd_patch_rdlen(uint8_t *buf, size_t rdlen_pos, size_t end_pos)
+{
+    uint16_t rdlen = (uint16_t)(end_pos - (rdlen_pos + 2U));
+    buf[rdlen_pos] = (uint8_t)(rdlen >> 8U);
+    buf[rdlen_pos + 1U] = (uint8_t)(rdlen & 0xFFU);
 }
 
 SYN_Status syn_dnssd_init(SYN_DnsSd *sd)
@@ -133,19 +211,110 @@ SYN_Status syn_dnssd_init(SYN_DnsSd *sd)
     return SYN_OK;
 }
 
+/**
+ * @brief Validate a DNS-SD service descriptor including TXT array bounds and non-NULL entries.
+ * @param svc Service configuration.
+ * @return true if valid.
+ */
+static bool dnssd_valid_service(const SYN_DnsSd_Service *svc)
+{
+    if (svc == NULL || svc->instance_name == NULL || svc->service_type == NULL ||
+        svc->hostname == NULL || svc->port == 0U || svc->txt_count > SYN_DNSSD_MAX_TXT_RECORDS) {
+        return false;
+    }
+    for (size_t i = 0U; i < svc->txt_count; i++) {
+        if (svc->txt_records[i] == NULL) {
+            return false;
+        }
+    }
+    return true;
+}
+
 SYN_Status syn_dnssd_register(SYN_DnsSd *sd, const SYN_DnsSd_Service *svc)
 {
-    if (sd == NULL || svc == NULL || svc->instance_name == NULL || svc->service_type == NULL ||
-        svc->hostname == NULL || svc->port == 0) {
-        return SYN_ERROR;
-    }
-
-    if (sd->service_count >= SYN_DNSSD_MAX_SERVICES) {
+    if (sd == NULL || !dnssd_valid_service(svc) || sd->service_count >= SYN_DNSSD_MAX_SERVICES) {
         return SYN_ERROR;
     }
 
     sd->services[sd->service_count++] = *svc;
     return SYN_OK;
+}
+
+/**
+ * @brief Append one DNS label (with leading dot if non-empty) into a bounded C string.
+ * @param out     Output string buffer.
+ * @param max_out Output buffer capacity.
+ * @param out_len [in,out] Current string length.
+ * @param label   Label bytes.
+ * @param len     Label byte length.
+ */
+static void dnssd_append_label(char *out, size_t max_out, size_t *out_len, const uint8_t *label,
+                               size_t len)
+{
+    size_t o = *out_len;
+    if (o > 0U && o + 1U < max_out) {
+        out[o++] = '.';
+    }
+    size_t avail = max_out - 1U - o;
+    size_t copy_len = (len < avail) ? len : avail;
+    memcpy(&out[o], label, copy_len);
+    o += copy_len;
+    out[o] = '\0';
+    *out_len = o;
+}
+
+/**
+ * @brief Extract a DNS domain name (following up to 8 0xC0 compression pointers) into a C string.
+ * @param buf        Packet start buffer.
+ * @param msg_len    Total packet byte length.
+ * @param stream_end End offset of inline section (`<= msg_len`).
+ * @param pos        [in,out] Inline cursor; updated past inline name on success.
+ * @param out        [out] Output string buffer (capacity >= 2).
+ * @param max_out    Capacity of out buffer.
+ * @return true if name was well-formed within bounds, false otherwise.
+ */
+static bool skip_or_read_name(const uint8_t *buf, size_t msg_len, size_t stream_end, size_t *pos,
+                              char *out, size_t max_out)
+{
+    size_t p = *pos;
+    size_t next_pos = 0U;
+    size_t out_len = 0U;
+    uint8_t hops = 0U;
+    bool jumped = false;
+    out[0] = '\0';
+
+    while (true) {
+        size_t limit = jumped ? msg_len : stream_end;
+        if (p >= limit) {
+            return false;
+        }
+        uint8_t len = buf[p];
+        if (len == 0U) {
+            *pos = jumped ? next_pos : (p + 1U);
+            return true;
+        }
+        if ((len & 0xC0U) == 0xC0U) {
+            if (limit - p < 2U || hops >= 8U) {
+                return false;
+            }
+            uint16_t target = (uint16_t)(((uint16_t)(len & 0x3FU) << 8U) | buf[p + 1U]);
+            if ((size_t)target >= msg_len) {
+                return false;
+            }
+            if (!jumped) {
+                next_pos = p + 2U;
+                jumped = true;
+            }
+            p = (size_t)target;
+            hops++;
+            continue;
+        }
+        if ((len & 0xC0U) != 0U || limit - p - 1U < (size_t)len) {
+            return false;
+        }
+        dnssd_append_label(out, max_out, &out_len, &buf[p + 1U], (size_t)len);
+        p += 1U + (size_t)len;
+    }
 }
 
 /**
@@ -159,35 +328,105 @@ SYN_Status syn_dnssd_register(SYN_DnsSd *sd, const SYN_DnsSd_Service *svc)
 static bool match_qname_service(const uint8_t *buf, size_t buf_len, size_t *offset,
                                 const char *service_type)
 {
-    /* Match query against _service._proto.local */
-    size_t pos = *offset;
-    char q_name[128] = {0};
-    size_t q_pos = 0;
-
-    while (pos < buf_len && buf[pos] != 0) {
-        uint8_t label_len = buf[pos++];
-        if (label_len > 63 || pos + label_len > buf_len) {
-            return false;
-        }
-        if (q_pos > 0 && q_pos < sizeof(q_name) - 1) {
-            q_name[q_pos++] = '.';
-        }
-        if (q_pos + label_len < sizeof(q_name) - 1) {
-            memcpy(&q_name[q_pos], &buf[pos], label_len);
-            q_pos += label_len;
-        }
-        pos += label_len;
+    char q_name[128];
+    if (!skip_or_read_name(buf, buf_len, buf_len, offset, q_name, sizeof(q_name))) {
+        return false;
     }
-    if (pos < buf_len && buf[pos] == 0) {
-        pos++;
-    }
-    q_name[q_pos] = '\0';
-    *offset = pos;
 
     char expected[128];
-    snprintf(expected, sizeof(expected), "%s.local", service_type);
+    (void)snprintf(expected, sizeof(expected), "%s.local", service_type);
 
     return (strcmp(q_name, expected) == 0);
+}
+
+/**
+ * @brief Pack PTR answer record into bounded DNS-SD response buffer.
+ * @param svc Service definition.
+ * @param buf Destination buffer.
+ * @param cap Buffer capacity.
+ * @param pos [in,out] Write cursor.
+ * @return true on success, false on truncation.
+ */
+static bool dnssd_pack_ptr_rr(const SYN_DnsSd_Service *svc, uint8_t *buf, size_t cap, size_t *pos)
+{
+    size_t rdlen_pos = 0U;
+    if (!dnssd_put_service_type_name(buf, cap, pos, svc->service_type) ||
+        !dnssd_put_rr_meta(buf, cap, pos, 0x000CU, 0x0001U, DNSSD_TTL_PTR, &rdlen_pos) ||
+        !dnssd_put_instance_fqdn(buf, cap, pos, svc->instance_name, svc->service_type)) {
+        return false;
+    }
+    dnssd_patch_rdlen(buf, rdlen_pos, *pos);
+    return true;
+}
+
+/**
+ * @brief Pack SRV additional record into bounded DNS-SD response buffer.
+ * @param svc Service definition.
+ * @param buf Destination buffer.
+ * @param cap Buffer capacity.
+ * @param pos [in,out] Write cursor.
+ * @return true on success, false on truncation.
+ */
+static bool dnssd_pack_srv_rr(const SYN_DnsSd_Service *svc, uint8_t *buf, size_t cap, size_t *pos)
+{
+    size_t rdlen_pos = 0U;
+    if (!dnssd_put_instance_fqdn(buf, cap, pos, svc->instance_name, svc->service_type) ||
+        !dnssd_put_rr_meta(buf, cap, pos, 0x0021U, 0x8001U, DNSSD_TTL_SRV, &rdlen_pos) ||
+        !dnssd_put_u16(buf, cap, pos, 0x0000U) || !dnssd_put_u16(buf, cap, pos, 0x0000U) ||
+        !dnssd_put_u16(buf, cap, pos, svc->port) ||
+        !dnssd_put_hostname_fqdn(buf, cap, pos, svc->hostname)) {
+        return false;
+    }
+    dnssd_patch_rdlen(buf, rdlen_pos, *pos);
+    return true;
+}
+
+/**
+ * @brief Pack TXT additional record into bounded DNS-SD response buffer.
+ * @param svc Service definition.
+ * @param buf Destination buffer.
+ * @param cap Buffer capacity.
+ * @param pos [in,out] Write cursor.
+ * @return true on success, false on truncation.
+ */
+static bool dnssd_pack_txt_rr(const SYN_DnsSd_Service *svc, uint8_t *buf, size_t cap, size_t *pos)
+{
+    size_t rdlen_pos = 0U;
+    if (!dnssd_put_instance_fqdn(buf, cap, pos, svc->instance_name, svc->service_type) ||
+        !dnssd_put_rr_meta(buf, cap, pos, 0x0010U, 0x8001U, DNSSD_TTL_PTR, &rdlen_pos)) {
+        return false;
+    }
+    if (svc->txt_count > 0U) {
+        for (size_t t = 0U; t < svc->txt_count; t++) {
+            if (!dnssd_put_label(buf, cap, pos, svc->txt_records[t])) {
+                return false;
+            }
+        }
+    } else if (!dnssd_put_u8(buf, cap, pos, 0x00U)) {
+        return false;
+    }
+    dnssd_patch_rdlen(buf, rdlen_pos, *pos);
+    return true;
+}
+
+/**
+ * @brief Pack IPv4 A additional record into bounded DNS-SD response buffer.
+ * @param svc Service definition.
+ * @param buf Destination buffer.
+ * @param cap Buffer capacity.
+ * @param pos [in,out] Write cursor.
+ * @return true on success, false on truncation.
+ */
+static bool dnssd_pack_a_rr(const SYN_DnsSd_Service *svc, uint8_t *buf, size_t cap, size_t *pos)
+{
+    size_t rdlen_pos = 0U;
+    if (!dnssd_put_hostname_fqdn(buf, cap, pos, svc->hostname) ||
+        !dnssd_put_rr_meta(buf, cap, pos, 0x0001U, 0x8001U, DNSSD_TTL_SRV, &rdlen_pos) ||
+        !dnssd_put_bytes(buf, cap, pos, svc->ip, 4U)) {
+        return false;
+    }
+    dnssd_patch_rdlen(buf, rdlen_pos, *pos);
+    return true;
 }
 
 /**
@@ -201,84 +440,88 @@ static bool match_qname_service(const uint8_t *buf, size_t buf_len, size_t *offs
 static SYN_Status pack_service_response(const SYN_DnsSd_Service *svc, uint8_t *resp_buf,
                                         size_t max_resp_len, size_t *resp_len)
 {
-    if (max_resp_len < 512) {
+    *resp_len = 0U;
+    if (!dnssd_valid_service(svc)) {
         return SYN_ERROR;
     }
 
-    /* Build DNS-SD Response Packet */
-    size_t rpos = 0;
-
-    /* Header: ID=0, Flags=0x8400 (Response + Authoritative), QD=0, AN=1 (PTR), NS=0, AR=3 (SRV,
-     * TXT, A) */
-    write_u16(resp_buf, &rpos, 0x0000);
-    write_u16(resp_buf, &rpos, 0x8400);
-    write_u16(resp_buf, &rpos, 0x0000); /* QDCOUNT */
-    write_u16(resp_buf, &rpos, 0x0001); /* ANCOUNT (1 PTR) */
-    write_u16(resp_buf, &rpos, 0x0000); /* NSCOUNT */
-    write_u16(resp_buf, &rpos, 0x0003); /* ARCOUNT (SRV, TXT, A) */
-
-    /* 1. Answer Record: PTR */
-    write_service_type_name(resp_buf, &rpos, svc->service_type);
-    write_u16(resp_buf, &rpos, 0x000C); /* TYPE: PTR (12) */
-    write_u16(resp_buf, &rpos, 0x0001); /* CLASS: IN (1) */
-    write_u32(resp_buf, &rpos, DNSSD_TTL_PTR);
-
-    size_t ptr_rdlen_pos = rpos;
-    rpos += 2; /* Reserve 2 bytes for RDLENGTH */
-    size_t ptr_rdata_start = rpos;
-    write_instance_fqdn(resp_buf, &rpos, svc->instance_name, svc->service_type);
-    uint16_t ptr_rdlen = (uint16_t)(rpos - ptr_rdata_start);
-    resp_buf[ptr_rdlen_pos] = (uint8_t)(ptr_rdlen >> 8U);
-    resp_buf[ptr_rdlen_pos + 1] = (uint8_t)(ptr_rdlen & 0xFFU);
-
-    /* 2. Additional Record 1: SRV */
-    write_instance_fqdn(resp_buf, &rpos, svc->instance_name, svc->service_type);
-    write_u16(resp_buf, &rpos, 0x0021); /* TYPE: SRV (33) */
-    write_u16(resp_buf, &rpos, 0x8001); /* CLASS: IN + Cache-Flush */
-    write_u32(resp_buf, &rpos, DNSSD_TTL_SRV);
-
-    size_t srv_rdlen_pos = rpos;
-    rpos += 2;
-    size_t srv_rdata_start = rpos;
-    write_u16(resp_buf, &rpos, 0x0000); /* Priority 0 */
-    write_u16(resp_buf, &rpos, 0x0000); /* Weight 0 */
-    write_u16(resp_buf, &rpos, svc->port);
-    write_hostname_fqdn(resp_buf, &rpos, svc->hostname);
-    uint16_t srv_rdlen = (uint16_t)(rpos - srv_rdata_start);
-    resp_buf[srv_rdlen_pos] = (uint8_t)(srv_rdlen >> 8U);
-    resp_buf[srv_rdlen_pos + 1] = (uint8_t)(srv_rdlen & 0xFFU);
-
-    /* 3. Additional Record 2: TXT */
-    write_instance_fqdn(resp_buf, &rpos, svc->instance_name, svc->service_type);
-    write_u16(resp_buf, &rpos, 0x0010); /* TYPE: TXT (16) */
-    write_u16(resp_buf, &rpos, 0x8001); /* CLASS: IN + Cache-Flush */
-    write_u32(resp_buf, &rpos, DNSSD_TTL_PTR);
-
-    size_t txt_rdlen_pos = rpos;
-    rpos += 2;
-    size_t txt_rdata_start = rpos;
-    if (svc->txt_count > 0) {
-        for (size_t t = 0; t < svc->txt_count; t++) {
-            write_label(resp_buf, &rpos, svc->txt_records[t]);
-        }
-    } else {
-        resp_buf[rpos++] = 0x00; /* Empty TXT */
+    static const uint8_t hdr[12] = {0x00U, 0x00U, 0x84U, 0x00U, 0x00U, 0x00U,
+                                    0x00U, 0x01U, 0x00U, 0x00U, 0x00U, 0x03U};
+    size_t rpos = 0U;
+    if (!dnssd_put_bytes(resp_buf, max_resp_len, &rpos, hdr, sizeof(hdr)) ||
+        !dnssd_pack_ptr_rr(svc, resp_buf, max_resp_len, &rpos) ||
+        !dnssd_pack_srv_rr(svc, resp_buf, max_resp_len, &rpos) ||
+        !dnssd_pack_txt_rr(svc, resp_buf, max_resp_len, &rpos) ||
+        !dnssd_pack_a_rr(svc, resp_buf, max_resp_len, &rpos)) {
+        return SYN_ERROR;
     }
-    uint16_t txt_rdlen = (uint16_t)(rpos - txt_rdata_start);
-    resp_buf[txt_rdlen_pos] = (uint8_t)(txt_rdlen >> 8U);
-    resp_buf[txt_rdlen_pos + 1] = (uint8_t)(txt_rdlen & 0xFFU);
-
-    /* 4. Additional Record 3: A (IPv4 address) */
-    write_hostname_fqdn(resp_buf, &rpos, svc->hostname);
-    write_u16(resp_buf, &rpos, 0x0001); /* TYPE: A (1) */
-    write_u16(resp_buf, &rpos, 0x8001); /* CLASS: IN + Cache-Flush */
-    write_u32(resp_buf, &rpos, DNSSD_TTL_SRV);
-    write_u16(resp_buf, &rpos, 0x0004); /* RDLENGTH 4 */
-    memcpy(&resp_buf[rpos], svc->ip, 4);
-    rpos += 4;
 
     *resp_len = rpos;
     return SYN_OK;
+}
+
+/**
+ * @brief Skip a DNS question entry (QNAME with optional 0xC0 pointer + QTYPE + QCLASS).
+ * @param buf     DNS query buffer.
+ * @param buf_len Total query byte length.
+ * @param pos     [in,out] Read cursor.
+ * @return true if question entry was well-formed within bounds, false otherwise.
+ */
+static bool dnssd_skip_question(const uint8_t *buf, size_t buf_len, size_t *pos)
+{
+    size_t p = *pos;
+    bool terminated = false;
+
+    while (p < buf_len) {
+        uint8_t len = buf[p];
+        if (len == 0U) {
+            p++;
+            terminated = true;
+            break;
+        }
+        if ((len & 0xC0U) == 0xC0U) {
+            if (buf_len - p < 2U) {
+                return false;
+            }
+            p += 2U;
+            terminated = true;
+            break;
+        }
+        if (len > 63U || buf_len - p - 1U < (size_t)len) {
+            return false;
+        }
+        p += 1U + (size_t)len;
+    }
+
+    if (!terminated || buf_len - p < 4U) {
+        return false;
+    }
+    *pos = p + 4U;
+    return true;
+}
+
+/**
+ * @brief Match a DNS question at name_start against any registered service.
+ * @param sd         DNS-SD instance.
+ * @param query_buf  Query packet buffer.
+ * @param query_len  Query packet length.
+ * @param name_start Offset of QNAME.
+ * @param next_pos   [out] Offset after QNAME + QTYPE + QCLASS when matched.
+ * @return Pointer to matching service, or NULL.
+ */
+static const SYN_DnsSd_Service *dnssd_match_registered(const SYN_DnsSd *sd,
+                                                       const uint8_t *query_buf, size_t query_len,
+                                                       size_t name_start, size_t *next_pos)
+{
+    for (size_t s = 0U; s < sd->service_count; s++) {
+        size_t temp_pos = name_start;
+        if (match_qname_service(query_buf, query_len, &temp_pos, sd->services[s].service_type) &&
+            query_len - temp_pos >= 4U) {
+            *next_pos = temp_pos + 4U;
+            return &sd->services[s];
+        }
+    }
+    return NULL;
 }
 
 SYN_Status syn_dnssd_process_query(const SYN_DnsSd *sd, const uint8_t *query_buf, size_t query_len,
@@ -287,48 +530,29 @@ SYN_Status syn_dnssd_process_query(const SYN_DnsSd *sd, const uint8_t *query_buf
     if (sd == NULL || query_buf == NULL || resp_buf == NULL || resp_len == NULL) {
         return SYN_ERROR;
     }
-    *resp_len = 0;
+    *resp_len = 0U;
 
-    if (query_len < 12) {
+    if (query_len < 12U) {
         return SYN_ERROR;
     }
 
-    /* Check flags: QR bit must be 0 (Query) */
     uint16_t flags = ((uint16_t)query_buf[2] << 8U) | query_buf[3];
-    if ((flags & 0x8000U) != 0) {
-        return SYN_ERROR;
-    }
-
     uint16_t qdcount = ((uint16_t)query_buf[4] << 8U) | query_buf[5];
-    if (qdcount == 0) {
+    if ((flags & 0x8000U) != 0U || qdcount == 0U) {
         return SYN_ERROR;
     }
 
-    size_t pos = 12;
+    size_t pos = 12U;
     const SYN_DnsSd_Service *matched_svc = NULL;
 
-    for (uint16_t q = 0; q < qdcount; q++) {
-        size_t name_start = pos;
-        for (size_t s = 0; s < sd->service_count; s++) {
-            size_t temp_pos = name_start;
-            if (match_qname_service(query_buf, query_len, &temp_pos,
-                                    sd->services[s].service_type)) {
-                matched_svc = &sd->services[s];
-                pos = temp_pos;
-                break;
-            }
-        }
+    for (uint16_t q = 0U; q < qdcount; q++) {
+        matched_svc = dnssd_match_registered(sd, query_buf, query_len, pos, &pos);
         if (matched_svc != NULL) {
             break;
         }
-        /* Skip unknown QNAME */
-        while (pos < query_len && query_buf[pos] != 0) {
-            pos += 1 + query_buf[pos];
+        if (!dnssd_skip_question(query_buf, query_len, &pos)) {
+            break;
         }
-        if (pos < query_len && query_buf[pos] == 0) {
-            pos++;
-        }
-        pos += 4; /* Skip QTYPE (2) + QCLASS (2) */
     }
 
     if (matched_svc == NULL) {
@@ -347,14 +571,9 @@ SYN_Status syn_dnssd_announce(const SYN_DnsSd *sd, size_t service_index, uint8_t
 
     SYN_Status st =
         pack_service_response(&sd->services[service_index], resp_buf, max_resp_len, resp_len);
-    if (st == SYN_OK && sd->sock != SYN_SOCKET_INVALID && *resp_len > 0) {
-        SYN_SockAddr mcast_dest;
-        mcast_dest.ip[0] = 224;
-        mcast_dest.ip[1] = 0;
-        mcast_dest.ip[2] = 0;
-        mcast_dest.ip[3] = 251;
-        mcast_dest.port = SYN_DNSSD_PORT;
-        syn_port_udp_sendto(sd->sock, resp_buf, *resp_len, &mcast_dest);
+    if (st == SYN_OK && sd->sock != SYN_SOCKET_INVALID && *resp_len > 0U) {
+        SYN_SockAddr mcast_dest = {.ip = {224U, 0U, 0U, 251U}, .port = SYN_DNSSD_PORT};
+        (void)syn_port_udp_sendto(sd->sock, resp_buf, *resp_len, &mcast_dest);
     }
     return st;
 }
@@ -365,155 +584,152 @@ SYN_Status syn_dnssd_build_query(const char *service_type, uint8_t *query_buf, s
     if (service_type == NULL || query_buf == NULL || query_len == NULL) {
         return SYN_ERROR;
     }
-    if (max_len < 128) {
+    *query_len = 0U;
+
+    static const uint8_t qhdr[12] = {0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x01U,
+                                     0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U};
+    size_t pos = 0U;
+    if (!dnssd_put_bytes(query_buf, max_len, &pos, qhdr, sizeof(qhdr)) ||
+        !dnssd_put_service_type_name(query_buf, max_len, &pos, service_type) ||
+        !dnssd_put_u16(query_buf, max_len, &pos, 0x000CU) ||
+        !dnssd_put_u16(query_buf, max_len, &pos, 0x0001U)) {
         return SYN_ERROR;
     }
-
-    size_t pos = 0;
-    /* Header: ID=0, Flags=0x0000 (Query), QDCOUNT=1, ANCOUNT=0, NSCOUNT=0, ARCOUNT=0 */
-    write_u16(query_buf, &pos, 0x0000);
-    write_u16(query_buf, &pos, 0x0000);
-    write_u16(query_buf, &pos, 0x0001); /* QDCOUNT */
-    write_u16(query_buf, &pos, 0x0000);
-    write_u16(query_buf, &pos, 0x0000);
-    write_u16(query_buf, &pos, 0x0000);
-
-    /* Question: QNAME = _service._proto.local, QTYPE = PTR (12), QCLASS = IN (1) */
-    write_service_type_name(query_buf, &pos, service_type);
-    write_u16(query_buf, &pos, 0x000C); /* PTR */
-    write_u16(query_buf, &pos, 0x0001); /* IN */
 
     *query_len = pos;
     return SYN_OK;
 }
 
 /**
- * @brief Helper to skip or extract a DNS domain name (handling pointers).
- * @param[in] buf Input buffer containing DNS packet.
- * @param[in] buf_len Total buffer length.
- * @param[in,out] pos Offset within buffer.
- * @param[out] out Output string buffer (or NULL to skip).
- * @param[in] max_out Maximum capacity of out buffer.
+ * @brief Parse PTR RDATA into instance_name and service_type fields.
+ * @param resp_buf    DNS response packet buffer.
+ * @param resp_len    Total packet length.
+ * @param rdata_start Offset of PTR RDATA.
+ * @param rdlength    RDATA byte length.
+ * @param out_disc    [out] Discovered service output struct.
  */
-static void skip_or_read_name(const uint8_t *buf, size_t buf_len, size_t *pos, char *out,
-                              size_t max_out)
+static void dnssd_parse_ptr_rdata(const uint8_t *resp_buf, size_t resp_len, size_t rdata_start,
+                                  uint16_t rdlength, SYN_DnsSd_Discovered *out_disc)
 {
-    size_t p = *pos;
-    size_t o = 0;
-    if (out != NULL && max_out > 0) {
-        out[0] = '\0';
+    char target_fqdn[128];
+    size_t p_rd = rdata_start;
+    size_t rdata_end = rdata_start + (size_t)rdlength;
+    if (!skip_or_read_name(resp_buf, resp_len, rdata_end, &p_rd, target_fqdn,
+                           sizeof(target_fqdn))) {
+        return;
     }
+    char *first_dot = strchr(target_fqdn, '.');
+    if (first_dot == NULL) {
+        return;
+    }
+    size_t inst_len = (size_t)(first_dot - target_fqdn);
+    if (inst_len < sizeof(out_disc->instance_name)) {
+        memcpy(out_disc->instance_name, target_fqdn, inst_len);
+        out_disc->instance_name[inst_len] = '\0';
+    }
+    strncpy(out_disc->service_type, first_dot + 1, sizeof(out_disc->service_type) - 1U);
+    char *loc = strstr(out_disc->service_type, ".local");
+    if (loc != NULL) {
+        *loc = '\0';
+    }
+}
 
-    while (p < buf_len) {
-        uint8_t len = buf[p];
-        if (len == 0) {
-            p++;
-            break;
-        }
-        if ((len & 0xC0U) == 0xC0U) {
-            p += 2;
-            break;
-        }
-        p++;
-        if (p + len > buf_len) {
-            break;
-        }
-        if (out != NULL && max_out > 0) {
-            if (o > 0 && o + 1 < max_out) {
-                out[o++] = '.';
-            }
-            size_t copy_len = len < (max_out - 1 - o) ? len : (max_out - 1 - o);
-            memcpy(&out[o], &buf[p], copy_len);
-            o += copy_len;
-            out[o] = '\0';
-        }
-        p += len;
+/**
+ * @brief Parse SRV RDATA into port and hostname fields.
+ * @param resp_buf    DNS response packet buffer.
+ * @param resp_len    Total packet length.
+ * @param rdata_start Offset of SRV RDATA.
+ * @param rdlength    RDATA byte length.
+ * @param out_disc    [out] Discovered service output struct.
+ */
+static void dnssd_parse_srv_rdata(const uint8_t *resp_buf, size_t resp_len, size_t rdata_start,
+                                  uint16_t rdlength, SYN_DnsSd_Discovered *out_disc)
+{
+    size_t p_host = rdata_start + 6U;
+    size_t rdata_end = rdata_start + (size_t)rdlength;
+    char host_fqdn[128];
+    if (!skip_or_read_name(resp_buf, resp_len, rdata_end, &p_host, host_fqdn, sizeof(host_fqdn))) {
+        return;
     }
-    *pos = p;
+    out_disc->port = ((uint16_t)resp_buf[rdata_start + 4U] << 8U) | resp_buf[rdata_start + 5U];
+    char *first_dot = strchr(host_fqdn, '.');
+    if (first_dot != NULL) {
+        *first_dot = '\0';
+    }
+    strncpy(out_disc->hostname, host_fqdn, sizeof(out_disc->hostname) - 1U);
+}
+
+/**
+ * @brief Dispatch a single DNS resource record into a discovered service descriptor.
+ * @param resp_buf    DNS response packet buffer.
+ * @param resp_len    Total packet length.
+ * @param type        RR type code.
+ * @param rdata_start Offset of RDATA.
+ * @param rdlength    RDATA byte length.
+ * @param out_disc    [out] Discovered service output struct.
+ */
+static void dnssd_parse_rr(const uint8_t *resp_buf, size_t resp_len, uint16_t type,
+                           size_t rdata_start, uint16_t rdlength, SYN_DnsSd_Discovered *out_disc)
+{
+    if (type == 0x000CU) {
+        dnssd_parse_ptr_rdata(resp_buf, resp_len, rdata_start, rdlength, out_disc);
+    } else if (type == 0x0021U && rdlength >= 6U) {
+        dnssd_parse_srv_rdata(resp_buf, resp_len, rdata_start, rdlength, out_disc);
+    } else if (type == 0x0010U && rdlength > 0U) {
+        uint8_t txt_len = resp_buf[rdata_start];
+        if (txt_len > 0U && txt_len < sizeof(out_disc->txt) && (size_t)txt_len < rdlength) {
+            memcpy(out_disc->txt, &resp_buf[rdata_start + 1U], txt_len);
+            out_disc->txt[txt_len] = '\0';
+        }
+    } else if (type == 0x0001U && rdlength == 4U) {
+        memcpy(out_disc->ip, &resp_buf[rdata_start], 4U);
+    }
 }
 
 SYN_Status syn_dnssd_parse_response(const uint8_t *resp_buf, size_t resp_len,
                                     SYN_DnsSd_Discovered *out_disc)
 {
-    if (resp_buf == NULL || out_disc == NULL || resp_len < 12) {
+    if (resp_buf == NULL || out_disc == NULL || resp_len < 12U) {
         return SYN_ERROR;
     }
     memset(out_disc, 0, sizeof(*out_disc));
 
     uint16_t flags = ((uint16_t)resp_buf[2] << 8U) | resp_buf[3];
-    if ((flags & 0x8000U) == 0) {
-        return SYN_ERROR; /* Not a response */
-    }
-
+    uint16_t qdcount = ((uint16_t)resp_buf[4] << 8U) | resp_buf[5];
     uint16_t ancount = ((uint16_t)resp_buf[6] << 8U) | resp_buf[7];
+    uint16_t nscount = ((uint16_t)resp_buf[8] << 8U) | resp_buf[9];
     uint16_t arcount = ((uint16_t)resp_buf[10] << 8U) | resp_buf[11];
-    uint16_t total_rr = ancount + arcount;
-
-    if (total_rr == 0) {
+    uint32_t total_rr = (uint32_t)ancount + (uint32_t)nscount + (uint32_t)arcount;
+    if ((flags & 0x8000U) == 0U || total_rr == 0U) {
         return SYN_ERROR;
     }
 
-    size_t pos = 12;
-
-    /* Parse Resource Records */
-    for (uint16_t i = 0; i < total_rr && pos < resp_len; i++) {
-        char rr_name[128] = {0};
-        skip_or_read_name(resp_buf, resp_len, &pos, rr_name, sizeof(rr_name));
-
-        if (pos + 10 > resp_len) {
-            break;
+    size_t pos = 12U;
+    for (uint16_t q = 0U; q < qdcount; q++) {
+        if (!dnssd_skip_question(resp_buf, resp_len, &pos)) {
+            return SYN_ERROR;
         }
-        uint16_t type = ((uint16_t)resp_buf[pos] << 8U) | resp_buf[pos + 1];
-        /* skip class (2), ttl (4) */
-        uint16_t rdlength = ((uint16_t)resp_buf[pos + 8] << 8U) | resp_buf[pos + 9];
-        pos += 10;
+    }
 
-        if (pos + rdlength > resp_len) {
+    for (uint32_t i = 0U; i < total_rr && pos < resp_len; i++) {
+        char rr_name[128];
+        if (!skip_or_read_name(resp_buf, resp_len, resp_len, &pos, rr_name, sizeof(rr_name))) {
             break;
         }
 
-        size_t rdata_start = pos;
-        if (type == 0x000C) { /* PTR */
-            char target_fqdn[128] = {0};
-            size_t p_rd = rdata_start;
-            skip_or_read_name(resp_buf, resp_len, &p_rd, target_fqdn, sizeof(target_fqdn));
-            /* Extract instance name (first label) */
-            char *first_dot = strchr(target_fqdn, '.');
-            if (first_dot != NULL) {
-                size_t inst_len = (size_t)(first_dot - target_fqdn);
-                if (inst_len < sizeof(out_disc->instance_name)) {
-                    memcpy(out_disc->instance_name, target_fqdn, inst_len);
-                    out_disc->instance_name[inst_len] = '\0';
-                }
-                /* Service type is remainder without .local */
-                strncpy(out_disc->service_type, first_dot + 1, sizeof(out_disc->service_type) - 1);
-                char *loc = strstr(out_disc->service_type, ".local");
-                if (loc != NULL) {
-                    *loc = '\0';
-                }
-            }
-        } else if (type == 0x0021 && rdlength >= 6) { /* SRV */
-            out_disc->port =
-                ((uint16_t)resp_buf[rdata_start + 4] << 8U) | resp_buf[rdata_start + 5];
-            size_t p_host = rdata_start + 6;
-            char host_fqdn[128] = {0};
-            skip_or_read_name(resp_buf, resp_len, &p_host, host_fqdn, sizeof(host_fqdn));
-            char *first_dot = strchr(host_fqdn, '.');
-            if (first_dot != NULL) {
-                *first_dot = '\0';
-            }
-            strncpy(out_disc->hostname, host_fqdn, sizeof(out_disc->hostname) - 1);
-        } else if (type == 0x0010 && rdlength > 0) { /* TXT */
-            uint8_t txt_len = resp_buf[rdata_start];
-            if (txt_len > 0 && txt_len < sizeof(out_disc->txt) && (size_t)txt_len < rdlength) {
-                memcpy(out_disc->txt, &resp_buf[rdata_start + 1], txt_len);
-                out_disc->txt[txt_len] = '\0';
-            }
-        } else if (type == 0x0001 && rdlength == 4) { /* A */
-            memcpy(out_disc->ip, &resp_buf[rdata_start], 4);
+        if (resp_len - pos < 10U) {
+            break;
+        }
+        uint16_t type = ((uint16_t)resp_buf[pos] << 8U) | resp_buf[pos + 1U];
+        uint16_t rdlength = ((uint16_t)resp_buf[pos + 8U] << 8U) | resp_buf[pos + 9U];
+        pos += 10U;
+
+        if (rdlength > resp_len - pos) {
+            break;
         }
 
-        pos = rdata_start + rdlength;
+        dnssd_parse_rr(resp_buf, resp_len, type, pos, rdlength, out_disc);
+        pos += rdlength;
     }
 
     return SYN_OK;
@@ -526,16 +742,10 @@ SYN_Status syn_dnssd_discover(const SYN_DnsSd *sd, const char *service_type)
     }
 
     uint8_t query_buf[256];
-    size_t query_len = 0;
+    size_t query_len = 0U;
     (void)syn_dnssd_build_query(service_type, query_buf, sizeof(query_buf), &query_len);
 
-    SYN_SockAddr mcast_dest;
-    mcast_dest.ip[0] = 224;
-    mcast_dest.ip[1] = 0;
-    mcast_dest.ip[2] = 0;
-    mcast_dest.ip[3] = 251;
-    mcast_dest.port = SYN_DNSSD_PORT;
-
+    SYN_SockAddr mcast_dest = {.ip = {224U, 0U, 0U, 251U}, .port = SYN_DNSSD_PORT};
     return (syn_port_udp_sendto(sd->sock, query_buf, query_len, &mcast_dest) > 0) ? SYN_OK
                                                                                   : SYN_ERROR;
 }
@@ -559,80 +769,134 @@ SYN_Status syn_dnssd_browser_init(SYN_DnsSd_Browser *browser, const SYN_DnsSd *s
     return syn_dnssd_discover(sd, service_type);
 }
 
+/**
+ * @brief Parse one received mDNS browser packet and invoke callback on service match.
+ * @param browser Browser context.
+ * @param buf     Received datagram bytes.
+ * @param len     Received datagram length.
+ */
+static void dnssd_handle_browse_pkt(SYN_DnsSd_Browser *browser, const uint8_t *buf, size_t len)
+{
+    SYN_DnsSd_Discovered disc;
+    if (syn_dnssd_parse_response(buf, len, &disc) != SYN_OK || disc.instance_name[0] == '\0') {
+        return;
+    }
+    if (browser->service_type[0] == '\0' || strcmp(disc.service_type, browser->service_type) == 0) {
+        browser->discovered_count++;
+        if (browser->callback != NULL) {
+            browser->callback(&disc, browser->user_data);
+        }
+    }
+}
+
+/**
+ * @brief Check whether a DNS-SD browser task should wake from PT_WAIT_UNTIL.
+ * @param browser Browser context.
+ * @return true if inactive, socket closed, timed out, or UDP socket readable.
+ */
+static bool dnssd_browse_wait_done(const SYN_DnsSd_Browser *browser)
+{
+    if (!browser->active || browser->sd->sock == SYN_SOCKET_INVALID) {
+        return true;
+    }
+    if (browser->timeout_ms > 0U &&
+        (syn_port_get_tick_ms() - browser->start_time) >= browser->timeout_ms) {
+        return true;
+    }
+    return syn_port_udp_readable(browser->sd->sock);
+}
+
 SYN_PT_Status syn_dnssd_browse_task(SYN_PT *pt, SYN_Task *task)
 {
+    if (pt == NULL || task == NULL || task->user_data == NULL) {
+        return PT_EXITED;
+    }
     SYN_DnsSd_Browser *browser = (SYN_DnsSd_Browser *)task->user_data;
-    SYN_ASSERT(browser != NULL);
-    SYN_ASSERT(browser->sd != NULL);
+    if (browser->sd == NULL) {
+        return PT_EXITED;
+    }
 
     PT_BEGIN(pt);
 
     while (browser->active) {
-        uint32_t now = syn_port_get_tick_ms();
-        if (browser->timeout_ms > 0 && (now - browser->start_time) >= browser->timeout_ms) {
+        if (browser->sd->sock == SYN_SOCKET_INVALID) {
+            browser->active = false;
+            PT_EXIT(pt);
+        }
+
+        if (browser->timeout_ms > 0U &&
+            (syn_port_get_tick_ms() - browser->start_time) >= browser->timeout_ms) {
             browser->active = false;
             break;
         }
 
-        if (browser->sd->sock != SYN_SOCKET_INVALID && syn_port_udp_readable(browser->sd->sock)) {
-            uint8_t buf[1024];
+        if (syn_port_udp_readable(browser->sd->sock)) {
+            uint8_t buf[512];
             SYN_SockAddr from;
             int n = syn_port_udp_recvfrom(browser->sd->sock, buf, sizeof(buf), &from, 0);
+            if (n <= 0) {
+                PT_PASS(pt);
+                continue;
+            }
             if (n > 12) {
-                SYN_DnsSd_Discovered disc;
-                if (syn_dnssd_parse_response(buf, (size_t)n, &disc) == SYN_OK) {
-                    if (disc.instance_name[0] != '\0' &&
-                        (browser->service_type[0] == '\0' ||
-                         strcmp(disc.service_type, browser->service_type) == 0)) {
-                        browser->discovered_count++;
-                        if (browser->callback != NULL) {
-                            browser->callback(&disc, browser->user_data);
-                        }
-                    }
-                }
+                dnssd_handle_browse_pkt(browser, buf, (size_t)n);
+            }
+            if (browser->active && syn_port_udp_readable(browser->sd->sock)) {
+                PT_CONTINUE_IF_NEEDED(pt, task);
             }
         }
 
-        PT_WAIT_UNTIL(pt,
-                      !browser->active ||
-                          (browser->timeout_ms > 0 &&
-                           (syn_port_get_tick_ms() - browser->start_time) >= browser->timeout_ms) ||
-                          syn_port_udp_readable(browser->sd->sock));
+        PT_WAIT_UNTIL(pt, dnssd_browse_wait_done(browser));
     }
 
     PT_END(pt);
 }
 
+/**
+ * @brief Process one received mDNS query datagram in-place and multicast any matching response.
+ * @param sd   DNS-SD daemon context.
+ * @param pkt  Shared packet buffer containing query on entry and response on match.
+ * @param cap  Total capacity of pkt buffer.
+ * @param qlen Received query byte length.
+ */
+static void dnssd_handle_query_pkt(const SYN_DnsSd *sd, uint8_t *pkt, size_t cap, size_t qlen)
+{
+    size_t resp_len = 0U;
+    if (syn_dnssd_process_query(sd, pkt, qlen, pkt, cap, &resp_len) == SYN_OK && resp_len > 0U) {
+        SYN_SockAddr mcast_dest = {.ip = {224U, 0U, 0U, 251U}, .port = SYN_DNSSD_PORT};
+        (void)syn_port_udp_sendto(sd->sock, pkt, resp_len, &mcast_dest);
+    }
+}
+
 SYN_PT_Status syn_dnssd_task(SYN_PT *pt, SYN_Task *task)
 {
+    if (pt == NULL || task == NULL || task->user_data == NULL) {
+        return PT_EXITED;
+    }
     const SYN_DnsSd *sd = (const SYN_DnsSd *)task->user_data;
-    SYN_ASSERT(sd != NULL);
 
     PT_BEGIN(pt);
 
     while (1) {
-        if (sd->sock != SYN_SOCKET_INVALID) {
-            uint8_t query[512];
-            SYN_SockAddr from;
-            int n = syn_port_udp_recvfrom(sd->sock, query, sizeof(query), &from, 0);
-            if (n > 0) {
-                uint8_t resp[1024];
-                size_t resp_len = 0;
-                if (syn_dnssd_process_query(sd, query, (size_t)n, resp, sizeof(resp), &resp_len) ==
-                        SYN_OK &&
-                    resp_len > 0) {
-                    SYN_SockAddr mcast_dest;
-                    mcast_dest.ip[0] = 224;
-                    mcast_dest.ip[1] = 0;
-                    mcast_dest.ip[2] = 0;
-                    mcast_dest.ip[3] = 251;
-                    mcast_dest.port = SYN_DNSSD_PORT;
-                    syn_port_udp_sendto(sd->sock, resp, resp_len, &mcast_dest);
-                }
-            }
+        if (sd->sock == SYN_SOCKET_INVALID) {
+            PT_EXIT(pt);
         }
+
+        uint8_t pkt[512];
+        SYN_SockAddr from;
+        int n = syn_port_udp_recvfrom(sd->sock, pkt, sizeof(pkt), &from, 0);
+        if (n > 0) {
+            dnssd_handle_query_pkt(sd, pkt, sizeof(pkt), (size_t)n);
+            if (sd->sock != SYN_SOCKET_INVALID && syn_port_udp_readable(sd->sock)) {
+                PT_CONTINUE_IF_NEEDED(pt, task);
+            }
+        } else if (syn_port_udp_readable(sd->sock)) {
+            PT_PASS(pt);
+            continue;
+        }
+
         PT_WAIT_UNTIL(pt, sd->sock == SYN_SOCKET_INVALID || syn_port_udp_readable(sd->sock));
     }
 
-    PT_END(pt); /* LCOV_EXCL_LINE: Infinite task loop end */
+    PT_END(pt);
 }

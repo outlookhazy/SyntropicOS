@@ -199,6 +199,40 @@ static void test_dmx512_short_universe(void)
     TEST_ASSERT_EQUAL(20, syn_dmx512_slave_get_channel(&slave, 1));
 }
 
+static void test_r5_dmx512_partial_footprint_rejected(void)
+{
+    SYN_DMX512_Slave slave;
+    /* Fixture at address 10 with 4-channel footprint (slots 10..13) */
+    syn_dmx512_slave_init(&slave, 10U, 4U);
+
+    /* Case 1: Short universe ends after 9 slots (before fixture start_address) */
+    syn_dmx512_slave_rx_break(&slave);
+    syn_dmx512_slave_rx_byte(&slave, 0x00U);
+    for (uint8_t s = 1U; s <= 9U; s++) {
+        syn_dmx512_slave_rx_byte(&slave, s);
+    }
+    syn_dmx512_slave_rx_break(&slave);
+    TEST_ASSERT_FALSE(syn_dmx512_slave_is_updated(&slave));
+
+    /* Case 2: Short universe ends after 12 slots (only 3 of 4 footprint slots received) */
+    syn_dmx512_slave_rx_byte(&slave, 0x00U);
+    for (uint8_t s = 1U; s <= 12U; s++) {
+        syn_dmx512_slave_rx_byte(&slave, (uint8_t)(0x40U + s));
+    }
+    syn_dmx512_slave_rx_break(&slave);
+    TEST_ASSERT_FALSE(syn_dmx512_slave_is_updated(&slave));
+
+    /* Case 3: Short universe transmits all 13 slots covering full footprint (10..13) */
+    syn_dmx512_slave_rx_byte(&slave, 0x00U);
+    for (uint8_t s = 1U; s <= 13U; s++) {
+        syn_dmx512_slave_rx_byte(&slave, (uint8_t)(0x80U + s));
+    }
+    syn_dmx512_slave_rx_break(&slave);
+    TEST_ASSERT_TRUE(syn_dmx512_slave_is_updated(&slave));
+    TEST_ASSERT_EQUAL_UINT8(0x8AU, syn_dmx512_slave_get_channel(&slave, 0U));
+    TEST_ASSERT_EQUAL_UINT8(0x8DU, syn_dmx512_slave_get_channel(&slave, 3U));
+}
+
 void run_dmx512_tests(void)
 {
     RUN_TEST(test_dmx512_master_init_and_channels);
@@ -207,4 +241,5 @@ void run_dmx512_tests(void)
     RUN_TEST(test_dmx512_slave_init_bounds);
     RUN_TEST(test_dmx512_full_universe_loopback);
     RUN_TEST(test_dmx512_short_universe);
+    RUN_TEST(test_r5_dmx512_partial_footprint_rejected);
 }

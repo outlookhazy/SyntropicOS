@@ -12,15 +12,15 @@
 #ifndef SYN_MAVLINK_H
 #define SYN_MAVLINK_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SYN_MAVLINK_STX_V2 0xFD          /**< MAVLink v2 Start of Frame marker byte (0xFD) */
 #define SYN_MAVLINK_MAX_PAYLOAD_LEN 255U /**< Maximum MAVLink payload length in bytes */

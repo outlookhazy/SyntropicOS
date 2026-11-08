@@ -68,6 +68,7 @@ typedef struct {
 
     bool node_comm_req;  /**< Local application network request */
     bool repeat_msg_req; /**< Repeat message request flag */
+    bool active_wakeup;  /**< Active wakeup bit latched until BUS_SLEEP */
 
     uint32_t msg_cycle_timer;      /**< Message transmission period timer in ms */
     uint32_t timeout_timer;        /**< NM Timeout timer in ms */

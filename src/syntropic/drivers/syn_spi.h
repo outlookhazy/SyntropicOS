@@ -20,6 +20,8 @@ typedef enum {
     SYN_SPI_ROLE_SLAVE       /**< Slave mode */
 } SYN_SPI_Role;
 
+#ifndef SYN_SPI_MODE_DEFINED
+#define SYN_SPI_MODE_DEFINED /**< Guard for SYN_SPI_Mode definition */
 /** @brief SPI clock phase and polarity mode */
 typedef enum {
     SYN_SPI_MODE_0 = 0, /**< CPOL=0, CPHA=0 */
@@ -27,6 +29,9 @@ typedef enum {
     SYN_SPI_MODE_2 = 2, /**< CPOL=1, CPHA=0 */
     SYN_SPI_MODE_3 = 3  /**< CPOL=1, CPHA=1 */
 } SYN_SPI_Mode;
+/** @brief Legacy typedef alias for SYN_SPI_Mode. */
+typedef SYN_SPI_Mode SYN_SPIMode;
+#endif
 
 /** @brief SPI driver instance configuration parameters */
 typedef struct {

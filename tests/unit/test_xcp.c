@@ -35,7 +35,7 @@ static void test_xcp_init_and_connect_disconnect(void)
     cto[0] = SYN_XCP_CMD_GET_STATUS;
     TEST_ASSERT_TRUE(syn_xcp_process_cto(&g_xcp_slave, cto, dto));
     TEST_ASSERT_EQUAL_HEX8(SYN_XCP_PID_RES, dto[0]);
-    TEST_ASSERT_EQUAL_HEX8(0xFF, dto[2]); /* Unlocked resources */
+    TEST_ASSERT_EQUAL_HEX8(0x00, dto[2]); /* 0x00 = all resources unlocked */
 
     /* GET_COMM_MODE_INFO */
     cto[0] = SYN_XCP_CMD_GET_COMM_MODE_INFO;
@@ -352,16 +352,199 @@ static void test_xcp_bounds_and_null_checks(void)
     cto[7] = 0;
     TEST_ASSERT_TRUE(syn_xcp_process_cto(&g_xcp_slave, cto, dto));
 
-    /* 4. syn_xcp_service_daq with *odt_idx >= list->odt_count (line 335) */
+    /* 4. syn_xcp_service_daq with current_odt_idx >= list->odt_count (line 523) */
     g_xcp_slave.daq_lists[0].running = true;
     g_xcp_slave.daq_lists[0].event_channel = 1;
     g_xcp_slave.daq_lists[0].odt_count = 1;
+    g_xcp_slave.daq_lists[0].current_odt_idx = 5U;
     l = 0;
-    o = 5; /* invalid o >= list->odt_count -> line 335 sets o = 0 */
+    o = 0;
     TEST_ASSERT_TRUE(syn_xcp_service_daq(&g_xcp_slave, 1, dto, &l, &o));
+    TEST_ASSERT_EQUAL_UINT8(0U, o);
 
     /* Reset global slave state */
     syn_xcp_init(&g_xcp_slave, 0x1234U);
+}
+
+static uint8_t test_xcp_seed_cb(uint8_t resource, uint8_t seed_out[6], void *ctx)
+{
+    (void)ctx;
+    seed_out[0] = resource;
+    seed_out[1] = 0xA5U;
+    return 8U; /* Clamped to 6U */
+}
+
+static bool test_xcp_unlock_cb(uint8_t resource, const uint8_t *key, uint8_t key_len, void *ctx)
+{
+    (void)ctx;
+    return (key_len == 2U && key[0] == resource && key[1] == 0x5AU);
+}
+
+static void test_r5_a11_xcp_locks_regions_and_multi_daq(void)
+{
+    syn_xcp_init(&g_xcp_slave, 0x1234U);
+    uint8_t ram_buf[16] = {0};
+    uint8_t rom_buf[8] = {0x10U, 0x20U, 0x30U, 0x40U, 0x50U, 0x60U, 0x70U, 0x80U};
+    uint8_t cto[8] = {0};
+    uint8_t dto[8] = {0};
+
+    /* Region registration checks */
+    TEST_ASSERT_FALSE(syn_xcp_register_mem_region(NULL, 0x20000000U, ram_buf, 16U, true));
+    TEST_ASSERT_FALSE(syn_xcp_register_mem_region(&g_xcp_slave, 0x20000000U, NULL, 16U, true));
+    TEST_ASSERT_FALSE(syn_xcp_register_mem_region(&g_xcp_slave, 0x20000000U, ram_buf, 0U, true));
+    TEST_ASSERT_TRUE(
+        syn_xcp_register_mem_region(&g_xcp_slave, 0x20000000U, ram_buf, sizeof(ram_buf), true));
+    TEST_ASSERT_TRUE(
+        syn_xcp_register_mem_region(&g_xcp_slave, 0x08000000U, rom_buf, sizeof(rom_buf), false));
+    TEST_ASSERT_TRUE(syn_xcp_register_mem_region(&g_xcp_slave, 0x30000000U, ram_buf, 4U, true));
+    TEST_ASSERT_TRUE(syn_xcp_register_mem_region(&g_xcp_slave, 0x40000000U, ram_buf, 4U, true));
+    TEST_ASSERT_FALSE(syn_xcp_register_mem_region(&g_xcp_slave, 0x50000000U, ram_buf, 4U, true));
+
+    /* Connect and lock resources */
+    cto[0] = SYN_XCP_CMD_CONNECT;
+    syn_xcp_process_cto(&g_xcp_slave, cto, dto);
+    g_xcp_slave.unlocked_resources = 0U;
+
+    cto[0] = SYN_XCP_CMD_GET_STATUS;
+    syn_xcp_process_cto(&g_xcp_slave, cto, dto);
+    TEST_ASSERT_NOT_EQUAL(0U, dto[2]);
+
+    /* Locked CAL_PAG and DAQ commands must return SYN_XCP_ERR_ACCESS_LOCKED */
+    cto[0] = SYN_XCP_CMD_DOWNLOAD;
+    cto[1] = 2U;
+    syn_xcp_process_cto(&g_xcp_slave, cto, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_ERR_ACCESS_LOCKED, dto[1]);
+
+    cto[0] = SYN_XCP_CMD_SET_DAQ_PTR;
+    syn_xcp_process_cto(&g_xcp_slave, cto, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_ERR_ACCESS_LOCKED, dto[1]);
+
+    cto[0] = SYN_XCP_CMD_START_STOP_SYNCH;
+    syn_xcp_process_cto(&g_xcp_slave, cto, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_ERR_ACCESS_LOCKED, dto[1]);
+
+    uint8_t l_idx = 0U, o_idx = 0U;
+    syn_xcp_daq_event(NULL, 1U);
+    syn_xcp_daq_event(&g_xcp_slave, 1U);
+    TEST_ASSERT_FALSE(syn_xcp_service_daq(&g_xcp_slave, 1U, dto, &l_idx, &o_idx));
+
+    /* Default key verification rejects bad key and overlong key_len */
+    uint8_t over_key[8] = {SYN_XCP_CMD_UNLOCK, 7U, 0, 0, 0, 0, 0, 0};
+    syn_xcp_process_cto(&g_xcp_slave, over_key, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_ERR_CMD_SYNTAX, dto[1]);
+
+    uint8_t bad_key[8] = {SYN_XCP_CMD_UNLOCK, 4U, 0, 0, 0, 0, 0, 0};
+    syn_xcp_process_cto(&g_xcp_slave, bad_key, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_ERR_ACCESS_DENIED, dto[1]);
+
+    /* Custom seed/unlock callbacks */
+    g_xcp_slave.seed_cb = test_xcp_seed_cb;
+    g_xcp_slave.unlock_cb = test_xcp_unlock_cb;
+    uint8_t mask = SYN_XCP_RESOURCE_CAL_PAG | SYN_XCP_RESOURCE_DAQ;
+    uint8_t seed_req[8] = {SYN_XCP_CMD_GET_SEED, 0U, mask, 0, 0, 0, 0, 0};
+    syn_xcp_process_cto(&g_xcp_slave, seed_req, dto);
+    TEST_ASSERT_EQUAL_UINT8(6U, dto[1]);
+
+    uint8_t ok_key[8] = {SYN_XCP_CMD_UNLOCK, 2U, mask, 0x5AU, 0, 0, 0, 0};
+    syn_xcp_process_cto(&g_xcp_slave, ok_key, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_PID_RES, dto[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_RESOURCE_STIM | SYN_XCP_RESOURCE_PGM, dto[1]);
+
+    /* 32-bit wire SET_MTA + DOWNLOAD + SHORT_UPLOAD + host-ptr + bounds/read-only checks */
+    uint8_t mta_ram[8] = {SYN_XCP_CMD_SET_MTA, 0, 0, 0U, 0x04U, 0x00U, 0x00U, 0x20U};
+    syn_xcp_process_cto(&g_xcp_slave, mta_ram, dto);
+    uint8_t dn_ram[8] = {SYN_XCP_CMD_DOWNLOAD, 4U, 0xD1U, 0xD2U, 0xD3U, 0xD4U, 0, 0};
+    syn_xcp_process_cto(&g_xcp_slave, dn_ram, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_PID_RES, dto[0]);
+    TEST_ASSERT_EQUAL_HEX8(0xD4U, ram_buf[7]);
+
+    uint8_t sup_ram[8] = {SYN_XCP_CMD_SHORT_UPLOAD, 4U, 0, 0U, 0x04U, 0x00U, 0x00U, 0x20U};
+    syn_xcp_process_cto(&g_xcp_slave, sup_ram, dto);
+    TEST_ASSERT_EQUAL_HEX8(0xD1U, dto[1]);
+
+    /* Host pointer inside registered region + zero-size upload/download */
+    syn_xcp_set_mta(&g_xcp_slave, 0U, (uintptr_t)&ram_buf[4]);
+    uint8_t up_host[8] = {SYN_XCP_CMD_UPLOAD, 2U, 0, 0, 0, 0, 0, 0};
+    syn_xcp_process_cto(&g_xcp_slave, up_host, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_PID_RES, dto[0]);
+    TEST_ASSERT_EQUAL_HEX8(0xD1U, dto[1]);
+    TEST_ASSERT_EQUAL_HEX8(0xD2U, dto[2]);
+
+    syn_xcp_set_mta(&g_xcp_slave, 0U, (uintptr_t)&ram_buf[0]);
+    uint8_t dn_zero[8] = {SYN_XCP_CMD_DOWNLOAD, 0U, 0, 0, 0, 0, 0, 0};
+    syn_xcp_process_cto(&g_xcp_slave, dn_zero, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_PID_RES, dto[0]);
+    uint8_t up_zero[8] = {SYN_XCP_CMD_UPLOAD, 0U, 0, 0, 0, 0, 0, 0};
+    syn_xcp_process_cto(&g_xcp_slave, up_zero, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_PID_RES, dto[0]);
+
+    /* Write-protected, out-of-range, and unmapped checks */
+    uint8_t mta_ro[8] = {SYN_XCP_CMD_SET_MTA, 0, 0, 0U, 0x00U, 0x00U, 0x00U, 0x08U};
+    syn_xcp_process_cto(&g_xcp_slave, mta_ro, dto);
+    syn_xcp_process_cto(&g_xcp_slave, dn_ram, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_ERR_WRITE_PROTECTED, dto[1]);
+
+    uint8_t mta_oob[8] = {SYN_XCP_CMD_SET_MTA, 0, 0, 0U, 0x0EU, 0x00U, 0x00U, 0x20U};
+    syn_xcp_process_cto(&g_xcp_slave, mta_oob, dto);
+    syn_xcp_process_cto(&g_xcp_slave, dn_ram, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_ERR_OUT_OF_RANGE, dto[1]);
+
+    uint8_t sup_unmap[8] = {SYN_XCP_CMD_SHORT_UPLOAD, 2U, 0, 0U, 0x00U, 0x00U, 0x00U, 0x90U};
+    syn_xcp_process_cto(&g_xcp_slave, sup_unmap, dto);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_ERR_ACCESS_DENIED, dto[1]);
+
+    /* Multi-list & multi-ODT round-robin DAQ via explicit 32-bit WRITE_DAQ addresses */
+    ram_buf[0] = 0x51U;
+    ram_buf[4] = 0x52U;
+    rom_buf[0] = 0x53U;
+
+    uint8_t ptr00[8] = {SYN_XCP_CMD_SET_DAQ_PTR, 0, 0U, 0U, 0U, 0U, 0, 0};
+    uint8_t w00[8] = {SYN_XCP_CMD_WRITE_DAQ, 0, 1U, 0U, 0x00U, 0x00U, 0x00U, 0x20U};
+    syn_xcp_process_cto(&g_xcp_slave, ptr00, dto);
+    syn_xcp_process_cto(&g_xcp_slave, w00, dto);
+
+    uint8_t ptr01[8] = {SYN_XCP_CMD_SET_DAQ_PTR, 0, 0U, 0U, 1U, 0U, 0, 0};
+    uint8_t w01[8] = {SYN_XCP_CMD_WRITE_DAQ, 0, 1U, 0U, 0x04U, 0x00U, 0x00U, 0x20U};
+    syn_xcp_process_cto(&g_xcp_slave, ptr01, dto);
+    syn_xcp_process_cto(&g_xcp_slave, w01, dto);
+
+    uint8_t ptr10[8] = {SYN_XCP_CMD_SET_DAQ_PTR, 0, 1U, 0U, 0U, 0U, 0, 0};
+    uint8_t w10[8] = {SYN_XCP_CMD_WRITE_DAQ, 0, 1U, 0U, 0x00U, 0x00U, 0x00U, 0x08U};
+    syn_xcp_process_cto(&g_xcp_slave, ptr10, dto);
+    syn_xcp_process_cto(&g_xcp_slave, w10, dto);
+
+    uint8_t mode0[8] = {SYN_XCP_CMD_SET_DAQ_LIST_MODE, 1U, 0U, 0U, 1U, 1U, 0U, 0U};
+    uint8_t mode1[8] = {SYN_XCP_CMD_SET_DAQ_LIST_MODE, 1U, 1U, 0U, 1U, 1U, 0U, 0U};
+    syn_xcp_process_cto(&g_xcp_slave, mode0, dto);
+    syn_xcp_process_cto(&g_xcp_slave, mode1, dto);
+
+    uint8_t start_all[8] = {SYN_XCP_CMD_START_STOP_SYNCH, 1U, 0, 0, 0, 0, 0, 0};
+    syn_xcp_process_cto(&g_xcp_slave, start_all, dto);
+
+    TEST_ASSERT_TRUE(syn_xcp_service_daq(&g_xcp_slave, 1U, dto, &l_idx, &o_idx));
+    TEST_ASSERT_EQUAL_UINT8(0U, l_idx);
+    TEST_ASSERT_EQUAL_UINT8(0U, o_idx);
+    TEST_ASSERT_EQUAL_HEX8(0x51U, dto[1]);
+
+    TEST_ASSERT_TRUE(syn_xcp_service_daq(&g_xcp_slave, 1U, dto, &l_idx, &o_idx));
+    TEST_ASSERT_EQUAL_UINT8(1U, l_idx);
+    TEST_ASSERT_EQUAL_UINT8(0U, o_idx);
+    TEST_ASSERT_EQUAL_HEX8(0x53U, dto[1]);
+
+    TEST_ASSERT_TRUE(syn_xcp_service_daq(&g_xcp_slave, 1U, dto, &l_idx, &o_idx));
+    TEST_ASSERT_EQUAL_UINT8(0U, l_idx);
+    TEST_ASSERT_EQUAL_UINT8(1U, o_idx);
+    TEST_ASSERT_EQUAL_HEX8(0x52U, dto[1]);
+    /* End-of-tick drain terminates cleanly without re-stepping prescalers */
+    TEST_ASSERT_FALSE(syn_xcp_service_daq(&g_xcp_slave, 1U, dto, &l_idx, &o_idx));
+
+    /* Explicit syn_xcp_daq_event + bounded while() drain across next tick */
+    syn_xcp_daq_event(&g_xcp_slave, 1U);
+    uint8_t drained = 0U;
+    while (drained < 8U && syn_xcp_service_daq(&g_xcp_slave, 1U, dto, &l_idx, &o_idx)) {
+        drained++;
+    }
+    TEST_ASSERT_EQUAL_UINT8(3U, drained);
 }
 
 void run_xcp_tests(void)
@@ -370,4 +553,5 @@ void run_xcp_tests(void)
     RUN_TEST(test_xcp_mta_upload_download);
     RUN_TEST(test_xcp_daq_list_streaming);
     RUN_TEST(test_xcp_bounds_and_null_checks);
+    RUN_TEST(test_r5_a11_xcp_locks_regions_and_multi_daq);
 }

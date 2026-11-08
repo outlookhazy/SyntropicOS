@@ -7,6 +7,21 @@
 #ifndef SYN_X509_H
 #define SYN_X509_H
 
+#include "../common/syn_defs.h"
+#include "syntropic/crypto/syn_ed25519.h"
+#include "syntropic/crypto/syn_p256.h"
+
+#if (!defined(SYN_USE_X509) || SYN_USE_X509) && (!defined(SYN_USE_ASN1) || SYN_USE_ASN1) && \
+    (!defined(SYN_USE_SHA256) || SYN_USE_SHA256) && SYN_P256_ENABLED && SYN_ED25519_ENABLED
+/** @brief Non-zero when X.509 and required ASN.1/hash/signature dependencies are enabled. */
+#define SYN_X509_ENABLED 1
+#else
+/** @brief Non-zero when X.509 and required ASN.1/hash/signature dependencies are enabled. */
+#define SYN_X509_ENABLED 0
+#endif
+
+#if SYN_X509_ENABLED
+
 #include "syntropic/crypto/syn_asn1.h"
 
 #include <stdbool.h>
@@ -90,5 +105,7 @@ bool syn_x509_validate_chain(const SYN_X509_Cert *cert, const SYN_X509_Cert *roo
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* SYN_X509_ENABLED */
 
 #endif /* SYN_X509_H */

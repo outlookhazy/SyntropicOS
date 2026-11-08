@@ -11,6 +11,7 @@
 #include "hardware/sync.h"
 #include "hardware/watchdog.h"
 #include "pico/stdlib.h"
+#include "syntropic/common/syn_compiler.h"
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/port/syn_port_gpio.h"
 #include "syntropic/port/syn_port_system.h"
@@ -18,24 +19,26 @@
 
 /* ── System Port ────────────────────────────────────────────────────────── */
 
-static uint32_t critical_status = 0;
-static uint32_t critical_nesting = 0;
+static uint32_t critical_status[2];
+static uint32_t critical_nesting[2];
 
 void syn_port_enter_critical(void)
 {
     uint32_t status = save_and_disable_interrupts();
-    if (critical_nesting == 0) {
-        critical_status = status;
+    uint32_t core = get_core_num();
+    if (critical_nesting[core] == 0) {
+        critical_status[core] = status;
     }
-    critical_nesting++;
+    critical_nesting[core]++;
 }
 
 void syn_port_exit_critical(void)
 {
-    if (critical_nesting > 0) {
-        critical_nesting--;
-        if (critical_nesting == 0) {
-            restore_interrupts(critical_status);
+    uint32_t core = get_core_num();
+    if (critical_nesting[core] > 0) {
+        critical_nesting[core]--;
+        if (critical_nesting[core] == 0) {
+            restore_interrupts(critical_status[core]);
         }
     }
 }
@@ -55,12 +58,12 @@ void syn_port_delay_ms(uint32_t ms)
     sleep_ms(ms);
 }
 
-void syn_port_system_reset(void)
+SYN_NORETURN void syn_port_system_reset(void)
 {
     // Reboot immediately using watchdog register control
     watchdog_reboot(0, 0, 0);
-    for (;;)
-        ;
+    for (;;) {
+    }
 }
 
 /* ── GPIO Port ──────────────────────────────────────────────────────────── */

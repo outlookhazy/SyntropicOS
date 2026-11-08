@@ -65,8 +65,10 @@ int main_sched(void)
     SYN_PID_Config cfg = SYN_PID_GAINS(2.0f, 0.5f, 0.1f, 256, 0, 100);
     syn_pid_init(&s_pid, &cfg);
 
-    syn_task_create(&s_tasks[TASK_PID_CONTROL], "PidControl", task_pid_control_func, 1, NULL);
-    syn_task_create(&s_tasks[TASK_TELEMETRY],   "Telemetry",  task_telemetry_func,   2, NULL);
+    syn_task_create(&s_tasks[TASK_PID_CONTROL], "PidControl", task_pid_control_func, SYN_PRIO_HIGH,
+                    NULL);
+    syn_task_create(&s_tasks[TASK_TELEMETRY], "Telemetry", task_telemetry_func, SYN_PRIO_NORMAL,
+                    NULL);
 
     syn_sched_init(&s_sched, s_tasks, TASK_COUNT);
 

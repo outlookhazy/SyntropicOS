@@ -27,6 +27,8 @@
 #ifndef SYN_HYSTERESIS_H
 #define SYN_HYSTERESIS_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 

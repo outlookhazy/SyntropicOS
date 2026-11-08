@@ -1,11 +1,12 @@
 # SyntropicOS Examples Directory
 
-This directory contains MCU HAL and bare-metal C example projects demonstrating SyntropicOS non-blocking drivers, protocol stacks, and coroutine scheduling across multiple target platforms (**Arduino / Portable C**, **STM32 Bare-Metal**, **Raspberry Pi Pico RP2040**, and **ESP32**).
+This directory contains MCU HAL and bare-metal C example projects demonstrating SyntropicOS non-blocking drivers, protocol stacks, and coroutine scheduling across multiple target platforms (**Arduino / Portable C**, **STM32 Bare-Metal**, **WCH CH32V307 RISC-V**, **Raspberry Pi Pico RP2040**, and **ESP32**).
 
 ## Target Platform Legend
 
 - **`[Arduino / Portable C]`** — Cross-platform C99/C++ code compatible with Arduino IDE, PlatformIO, AVR, and bare-metal MCUs.
 - **`[STM32 Bare-Metal]`** — Native STM32 HAL / CMSIS C projects.
+- **`[CH32V307 RISC-V]`** — WCH CH32V307 QingKe V4F RISC-V bare-metal C projects.
 - **`[Pico RP2040]`** — Raspberry Pi Pico SDK / Dual-Core SMP projects.
 - **`[ESP32]`** — ESP32 / ESP-IDF / Arduino-ESP32 OTA projects.
 
@@ -80,6 +81,7 @@ This directory contains MCU HAL and bare-metal C example projects demonstrating 
 - **[`stm32_ppm`](stm32_ppm)** `[STM32 Bare-Metal]` — Pulse-Position Modulation (PPM) Multi-Channel RC Receiver decoder (`syn_ppm`).
 - **[`PicoBlink`](PicoBlink)** `[Pico RP2040 / Arduino]` — Raspberry Pi Pico bare-metal GPIO blink.
 - **[`PicoDualCore`](PicoDualCore)** / **[`pico_dual_core`](pico_dual_core)** `[Pico RP2040 / Arduino]` — RP2040 SMP dual-core cooperative task execution.
+- **[`ch32v307_demo`](ch32v307_demo)** `[CH32V307 RISC-V]` — WCH CH32V307V-EVT-R1 RISC-V demo (GPIO LED, ADC telemetry, CAN 2.0B TX).
 - **[`esp32_ota`](esp32_ota)** `[ESP32 / Arduino]` — ESP32 Firmware Over-The-Air (OTA) update task.
 
 ### DSP & Motion Control
@@ -113,57 +115,3 @@ This directory contains MCU HAL and bare-metal C example projects demonstrating 
 - **[`TaskMailbox`](TaskMailbox)** `[Arduino / Portable C]` — Inter-task message passing via Mailbox queue.
 - **[`TaskWatchdog`](TaskWatchdog)** `[Arduino / Portable C]` — Hardware & software multi-task watchdog supervisor.
 - **[`GpsNmeaParser`](GpsNmeaParser)** `[Arduino / Portable C]` — NMEA 0183 GPS sentence stream parser.
-
-
-
-
-
-
-
-
-
-- **[`stm32_spsc_usart`](stm32_spsc_usart)** — Single-Producer Single-Consumer lock-free ring queue for USART RX ISR.
-- **[`stm32_ringbuf_usart`](stm32_ringbuf_usart)** — Non-blocking ring buffer USART RX ingestion.
-- **[`stm32_uart_mcu_comm`](stm32_uart_mcu_comm)** — Inter-MCU UART packet routing & COBS framing.
-- **[`stm32_crypto_usart`](stm32_crypto_usart)** — Encrypted USART receiver with SHA-256 digest & AES-128.
-- **[`stm32_flash`](stm32_flash)** — Internal MCU flash erase, sector write, and parameter store.
-- **[`stm32_profiler`](stm32_profiler)** — CPU usage & execution time task profiler (`syn_profiler`).
-- **[`stm32_log_console`](stm32_log_console)** — Asynchronous ring-buffered log console.
-- **[`stm32_serial`](stm32_serial)** — Bare-metal serial UART transmit & receive.
-- **[`stm32_json`](stm32_json)** — Zero-malloc JSON parsing & encoding.
-- **[`stm32_ir_remote`](stm32_ir_remote)** — NEC protocol Infrared Remote Control decoder.
-- **[`pico_dual_core`](pico_dual_core)** / **[`PicoDualCore`](PicoDualCore)** — RP2040 SMP dual-core cooperative task execution.
-- **[`PicoBlink`](PicoBlink)** — Raspberry Pi Pico bare-metal GPIO blink.
-- **[`esp32_ota`](esp32_ota)** — ESP32 Firmware Over-The-Air (OTA) update task.
-
-### DSP & Motion Control
-- **[`stm32_stepper`](stm32_stepper)** — Stepper motor trapezoidal speed ramp & position controller.
-- **[`stm32_servo`](stm32_servo)** — RC servo motor 50Hz PWM pulse-width & smooth angle ramp controller.
-- **[`MotionPlanner`](MotionPlanner)** — Trapezoidal S-curve motor motion planner.
-- **[`MotorFSM`](MotorFSM)** — Finite state machine controlling a DC motor ramp profile.
-- **[`PID_TempControl`](PID_TempControl)** — Closed-loop integer PID temperature controller.
-- **[`BiquadFilter`](BiquadFilter)** — Audio & sensor digital biquad IIR filtering.
-- **[`FftSpectrumAnalyzer`](FftSpectrumAnalyzer)** — Real-time FFT spectral decomposition.
-
-
-
-### IoT & Network Protocol Stacks
-- **[`MqttClient`](MqttClient)** — MQTT v3.1.1 network client with QoS0/QoS1 support.
-- **[`CoapClient`](CoapClient)** — CoAP (RFC 7252) UDP client with Option header encoding.
-- **[`WebsocketServer`](WebsocketServer)** — Lightweight WebSocket server handling frames & handshakes.
-- **[`EthernetWebServer`](EthernetWebServer)** — Embedded HTTP 1.1 Web Server.
-- **[`HttpClient`](HttpClient)** — Non-blocking HTTP GET/POST client.
-- **[`DnsResolver`](DnsResolver)** — DNS hostname resolution client.
-- **[`SntpClock`](SntpClock)** — SNTP Network Time Protocol client sync.
-- **[`Telemetry_CBOR`](Telemetry_CBOR)** — Concise Binary Object Representation (CBOR RFC 8949) encoder.
-- **[`stm32_sim800_mqtt`](stm32_sim800_mqtt)** — SIM800 GSM/GPRS Cellular Modem MQTT Client.
-
-### System Core & Utilities
-- **[`Blink`](Blink)** — Basic protothread LED blinker.
-- **[`ButtonEvents`](ButtonEvents)** — Tap gestures, double clicks, and chorded button combos.
-- **[`SensorLogger`](SensorLogger)** — Dual-channel ADC sampling, EMA filtering, and Serial CLI.
-- **[`PersistentSettings`](PersistentSettings)** — Wear-leveled key-value parameter storage.
-- **[`SysMonitor`](SysMonitor)** — Task execution monitor & health logger.
-- **[`TaskMailbox`](TaskMailbox)** — Inter-task message passing via Mailbox queue.
-- **[`TaskWatchdog`](TaskWatchdog)** — Hardware & software multi-task watchdog supervisor.
-- **[`GpsNmeaParser`](GpsNmeaParser)** — NMEA 0183 GPS sentence stream parser.

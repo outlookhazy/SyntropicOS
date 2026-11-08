@@ -201,12 +201,11 @@ static void test_flash_erase_write_read(void)
 
 static void test_adc_reading(void)
 {
-    TEST_ASSERT_EQUAL(SYN_OK, syn_port_adc_init(0));
-    uint16_t val = syn_port_adc_read(0);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_port_adc_init(0U, 1U));
+    uint16_t val = syn_port_adc_read_channel(0U, 0U);
     /* Resolution is 12-bit, so value should be <= 4095 */
-    TEST_ASSERT_TRUE(val <= 4095);
-    TEST_ASSERT_EQUAL_UINT8(12, syn_port_adc_resolution());
-    TEST_ASSERT_EQUAL_UINT16(3300, syn_port_adc_reference_mv());
+    TEST_ASSERT_TRUE(val <= 4095U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_port_adc_deinit(0U));
 }
 
 /* ── FSM (on-MCU verification) ─────────────────────────────────────────── */
@@ -251,10 +250,10 @@ static SYN_PT_Status pt_basic_func(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     pt_basic_counter = 1;
-    PT_YIELD(pt);
+    PT_CONTINUE(pt);
 
     pt_basic_counter = 2;
-    PT_YIELD(pt);
+    PT_CONTINUE(pt);
 
     pt_basic_counter = 3;
 
@@ -270,15 +269,15 @@ static void test_basic_protothread(void)
     SYN_PT_Status s;
 
     s = pt_basic_func(&pt, NULL);
-    TEST_ASSERT_EQUAL(PT_YIELDED, s);
+    TEST_ASSERT_EQUAL(PT_MORE, s);
     TEST_ASSERT_EQUAL_INT(1, pt_basic_counter);
 
     s = pt_basic_func(&pt, NULL);
-    TEST_ASSERT_EQUAL(PT_YIELDED, s);
+    TEST_ASSERT_EQUAL(PT_MORE, s);
     TEST_ASSERT_EQUAL_INT(2, pt_basic_counter);
 
     s = pt_basic_func(&pt, NULL);
-    TEST_ASSERT_EQUAL(PT_EXITED, s);
+    TEST_ASSERT_EQUAL(PT_ENDED, s);
     TEST_ASSERT_EQUAL_INT(3, pt_basic_counter);
 }
 
@@ -303,14 +302,14 @@ static void test_wait_until(void)
     SYN_PT_Status s;
 
     s = pt_wait_func(&pt, NULL);
-    TEST_ASSERT_EQUAL(PT_WAITING, s);
+    TEST_ASSERT_EQUAL(PT_IDLE, s);
 
     s = pt_wait_func(&pt, NULL);
-    TEST_ASSERT_EQUAL(PT_WAITING, s);
+    TEST_ASSERT_EQUAL(PT_IDLE, s);
 
     wait_condition = 1;
     s = pt_wait_func(&pt, NULL);
-    TEST_ASSERT_EQUAL(PT_EXITED, s);
+    TEST_ASSERT_EQUAL(PT_ENDED, s);
 }
 
 static int delay_done = 0;
@@ -328,21 +327,21 @@ static SYN_PT_Status pt_delay_func(SYN_PT *pt, SYN_Task *task)
 static void test_delay_ms(void)
 {
     SYN_Task task;
-    syn_task_create(&task, "delay_test", pt_delay_func, 0, NULL);
+    syn_task_create(&task, "delay_test", pt_delay_func, SYN_PRIO_CRITICAL, NULL);
     delay_done = 0;
 
     SYN_PT pt;
     PT_INIT(&pt);
 
     SYN_PT_Status s = pt_delay_func(&pt, &task);
-    TEST_ASSERT_EQUAL(PT_WAITING, s);
+    TEST_ASSERT_EQUAL(PT_IDLE, s);
     TEST_ASSERT_EQUAL_INT(0, delay_done);
 
     /* Delay 11ms on simulated CPU to advance SysTick */
     syn_port_delay_ms(11);
 
     s = pt_delay_func(&pt, &task);
-    TEST_ASSERT_EQUAL(PT_EXITED, s);
+    TEST_ASSERT_EQUAL(PT_ENDED, s);
     TEST_ASSERT_EQUAL_INT(1, delay_done);
 }
 
@@ -355,7 +354,7 @@ static SYN_PT_Status sched_task_a(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     sched_order[sched_order_idx++] = 1;
-    PT_YIELD(pt);
+    PT_CONTINUE(pt);
     sched_order[sched_order_idx++] = 1;
 
     PT_END(pt);
@@ -367,7 +366,7 @@ static SYN_PT_Status sched_task_b(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     sched_order[sched_order_idx++] = 2;
-    PT_YIELD(pt);
+    PT_CONTINUE(pt);
     sched_order[sched_order_idx++] = 2;
 
     PT_END(pt);
@@ -378,8 +377,8 @@ static void test_scheduler(void)
     SYN_Task tasks[2];
     SYN_Sched sched;
 
-    syn_task_create(&tasks[0], "a", sched_task_a, 0, NULL);
-    syn_task_create(&tasks[1], "b", sched_task_b, 0, NULL);
+    syn_task_create(&tasks[0], "a", sched_task_a, SYN_PRIO_CRITICAL, NULL);
+    syn_task_create(&tasks[1], "b", sched_task_b, SYN_PRIO_CRITICAL, NULL);
     syn_sched_init(&sched, tasks, 2);
 
     sched_order_idx = 0;
@@ -389,10 +388,23 @@ static void test_scheduler(void)
 
     alive = syn_sched_run(&sched);
     TEST_ASSERT_TRUE(alive);
+    TEST_ASSERT_EQUAL_INT(1, sched_order_idx);
+
+    alive = syn_sched_run(&sched);
+    TEST_ASSERT_TRUE(alive);
     TEST_ASSERT_EQUAL_INT(2, sched_order_idx);
 
     alive = syn_sched_run(&sched);
+    TEST_ASSERT_TRUE(alive);
+    TEST_ASSERT_EQUAL_INT(3, sched_order_idx);
+
+    alive = syn_sched_run(&sched);
+    TEST_ASSERT_TRUE(alive);
     TEST_ASSERT_EQUAL_INT(4, sched_order_idx);
+    TEST_ASSERT_EQUAL_INT(1, sched_order[0]);
+    TEST_ASSERT_EQUAL_INT(2, sched_order[1]);
+    TEST_ASSERT_EQUAL_INT(1, sched_order[2]);
+    TEST_ASSERT_EQUAL_INT(2, sched_order[3]);
 
     alive = syn_sched_run(&sched);
     TEST_ASSERT_FALSE(alive);
@@ -408,7 +420,7 @@ static SYN_PT_Status suspend_task_func(SYN_PT *pt, SYN_Task *task)
 
     for (;;) {
         suspend_counter++;
-        PT_YIELD(pt);
+        PT_CONTINUE(pt);
     }
 
     PT_END(pt);
@@ -420,7 +432,7 @@ static void test_suspend_resume(void)
     SYN_Sched sched;
     suspend_counter = 0;
 
-    syn_task_create(&tasks[0], "cnt", suspend_task_func, 0, NULL);
+    syn_task_create(&tasks[0], "cnt", suspend_task_func, SYN_PRIO_CRITICAL, NULL);
     syn_sched_init(&sched, tasks, 1);
 
     syn_sched_run(&sched);
@@ -516,24 +528,17 @@ static void test_spi_flash_jedec_id(void)
     syn_port_gpio_init(PIN_SPI1_CS, SYN_GPIO_OUTPUT);
     syn_port_gpio_write(PIN_SPI1_CS, SYN_GPIO_HIGH); /* CS deasserted */
 
-    /* Init SPI1 — Mode 0, 1 MHz */
-    SYN_SPI_Config cfg;
-    memset(&cfg, 0, sizeof(cfg));
-    cfg.bus = 0; /* SPI1 */
-    cfg.clock_hz = 1000000;
-    cfg.mode = SYN_SPI_MODE_0;
-    cfg.bit_order = 0; /* MSB first */
-
-    SYN_Status rc = syn_port_spi_init(&cfg);
+    /* Init SPI1 — Mode 0, 1 MHz, Master */
+    SYN_Status rc = syn_port_spi_init(0U, 1000000U, 0U, 0U);
     TEST_ASSERT_EQUAL(SYN_OK, rc);
 
     /* Read JEDEC ID: send 0x9F command, read 3 bytes */
     uint8_t tx[4] = {0x9F, 0x00, 0x00, 0x00};
     uint8_t rx[4] = {0};
 
-    syn_port_spi_cs_assert(0, PIN_SPI1_CS);
-    rc = syn_port_spi_transfer(0, tx, rx, 4);
-    syn_port_spi_cs_deassert(0, PIN_SPI1_CS);
+    syn_port_gpio_write(PIN_SPI1_CS, SYN_GPIO_LOW);
+    rc = syn_port_spi_transfer(0U, tx, rx, 4U);
+    syn_port_gpio_write(PIN_SPI1_CS, SYN_GPIO_HIGH);
 
     TEST_ASSERT_EQUAL(SYN_OK, rc);
 

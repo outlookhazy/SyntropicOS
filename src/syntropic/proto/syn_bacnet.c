@@ -144,21 +144,163 @@ SYN_Status syn_bacnet_add_object(SYN_BACnet_Node *node, uint8_t object_type, uin
 
 /* ── Process Incoming APDU Requests ─────────────────────────────────────── */
 
+/**
+ * @brief Encode an IEEE-754 single-precision float in big-endian byte order.
+ * @param out 4-byte destination buffer.
+ * @param val Floating-point value to encode.
+ */
+static void bacnet_put_be_float(uint8_t out[4], float val)
+{
+    uint32_t bits = 0U;
+    memcpy(&bits, &val, sizeof(bits));
+    out[0] = (uint8_t)((bits >> 24U) & 0xFFU);
+    out[1] = (uint8_t)((bits >> 16U) & 0xFFU);
+    out[2] = (uint8_t)((bits >> 8U) & 0xFFU);
+    out[3] = (uint8_t)(bits & 0xFFU);
+}
+
+/**
+ * @brief Decode a big-endian IEEE-754 single-precision float.
+ * @param in 4-byte source buffer.
+ * @return Decoded floating-point value.
+ */
+static float bacnet_get_be_float(const uint8_t in[4])
+{
+    uint32_t bits = ((uint32_t)in[0] << 24U) | ((uint32_t)in[1] << 16U) | ((uint32_t)in[2] << 8U) |
+                    (uint32_t)in[3];
+    float val = 0.0f;
+    memcpy(&val, &bits, sizeof(val));
+    return val;
+}
+
+/**
+ * @brief Extract BACnet object type and instance number from a confirmed request APDU.
+ * @param rx_frame     Received MS/TP frame.
+ * @param out_type     Output 10-bit object type code.
+ * @param out_instance Output 22-bit object instance identifier.
+ */
+static void bacnet_parse_obj_id(const SYN_BACnet_MSTP_Frame *rx_frame, uint16_t *out_type,
+                                uint32_t *out_instance)
+{
+    *out_type = (uint16_t)SYN_BACNET_OBJ_ANALOG_INPUT;
+    *out_instance = 0U;
+    if (rx_frame->data_len >= 9U && rx_frame->payload[4] == 0x0CU) {
+        uint32_t obj_id = ((uint32_t)rx_frame->payload[5] << 24U) |
+                          ((uint32_t)rx_frame->payload[6] << 16U) |
+                          ((uint32_t)rx_frame->payload[7] << 8U) | (uint32_t)rx_frame->payload[8];
+        *out_type = (uint16_t)((obj_id >> 22U) & 0x03FFU);
+        *out_instance = obj_id & 0x003FFFFFU;
+    }
+}
+
+/**
+ * @brief Look up a registered BACnet object by type and instance identifier.
+ * @param node        BACnet node instance.
+ * @param obj_type    Object type code.
+ * @param instance_id Object instance identifier.
+ * @return Matching object pointer, or NULL if not found.
+ */
+static SYN_BACnet_Object *bacnet_find_object(SYN_BACnet_Node *node, uint16_t obj_type,
+                                             uint32_t instance_id)
+{
+    for (size_t i = 0U; i < node->object_count; i++) {
+        if ((uint16_t)node->objects[i].object_type == obj_type &&
+            node->objects[i].instance_id == instance_id) {
+            return &node->objects[i];
+        }
+    }
+    return NULL;
+}
+
+/**
+ * @brief Handle ConfirmedReadProperty APDU and populate Complex-ACK response.
+ * @param node      BACnet node instance.
+ * @param rx_frame  Received MS/TP request frame.
+ * @param invoke_id Request invoke identifier.
+ * @param tx_frame  Output MS/TP response frame.
+ * @param has_tx    Set to true when a response frame is populated.
+ */
+static void bacnet_handle_read_prop(SYN_BACnet_Node *node, const SYN_BACnet_MSTP_Frame *rx_frame,
+                                    uint8_t invoke_id, SYN_BACnet_MSTP_Frame *tx_frame,
+                                    bool *has_tx)
+{
+    uint16_t req_type = 0U;
+    uint32_t req_instance = 0U;
+    bacnet_parse_obj_id(rx_frame, &req_type, &req_instance);
+
+    const SYN_BACnet_Object *obj = bacnet_find_object(node, req_type, req_instance);
+    if (obj == NULL) {
+        return;
+    }
+
+    uint8_t payload[8];
+    payload[0] = 0x30U; /* Complex-ACK APDU */
+    payload[1] = invoke_id;
+    payload[2] = SYN_BACNET_SERVICE_CONFIRMED_READ_PROPERTY;
+    payload[3] = 0x44U; /* Application Tag 4 (Real), length 4 */
+    bacnet_put_be_float(&payload[4], obj->present_value);
+
+    tx_frame->frame_type = SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY;
+    tx_frame->destination_mac = rx_frame->source_mac;
+    tx_frame->source_mac = node->mac_address;
+    tx_frame->data_len = 8U;
+    memcpy(tx_frame->payload, payload, 8U);
+    *has_tx = true;
+}
+
+/**
+ * @brief Handle ConfirmedWriteProperty APDU and populate Simple-ACK response.
+ * @param node      BACnet node instance.
+ * @param rx_frame  Received MS/TP request frame.
+ * @param invoke_id Request invoke identifier.
+ * @param tx_frame  Output MS/TP response frame.
+ * @param has_tx    Set to true when a response frame is populated.
+ */
+static void bacnet_handle_write_prop(SYN_BACnet_Node *node, const SYN_BACnet_MSTP_Frame *rx_frame,
+                                     uint8_t invoke_id, SYN_BACnet_MSTP_Frame *tx_frame,
+                                     bool *has_tx)
+{
+    uint16_t req_type = 0U;
+    uint32_t req_instance = 0U;
+    bacnet_parse_obj_id(rx_frame, &req_type, &req_instance);
+
+    float new_val = 0.0f;
+    if (rx_frame->data_len >= 14U && rx_frame->payload[9] == 0x44U) {
+        new_val = bacnet_get_be_float(&rx_frame->payload[10]);
+    }
+
+    SYN_BACnet_Object *obj = bacnet_find_object(node, req_type, req_instance);
+    if (obj != NULL) {
+        obj->present_value = new_val;
+    }
+
+    uint8_t payload[3];
+    payload[0] = 0x20U; /* Simple-ACK APDU */
+    payload[1] = invoke_id;
+    payload[2] = SYN_BACNET_SERVICE_CONFIRMED_WRITE_PROPERTY;
+
+    tx_frame->frame_type = SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY;
+    tx_frame->destination_mac = rx_frame->source_mac;
+    tx_frame->source_mac = node->mac_address;
+    tx_frame->data_len = 3U;
+    memcpy(tx_frame->payload, payload, 3U);
+    *has_tx = true;
+}
+
 SYN_Status syn_bacnet_node_process(SYN_BACnet_Node *node, const SYN_BACnet_MSTP_Frame *rx_frame,
                                    SYN_BACnet_MSTP_Frame *tx_frame, bool *has_tx)
 {
-    if (!node || !rx_frame || !tx_frame || !has_tx)
+    if (!node || !rx_frame || !tx_frame || !has_tx) {
         return SYN_INVALID_PARAM;
+    }
 
     *has_tx = false;
 
-    /* Ignore frames not addressed to local MAC or Broadcast */
     if (rx_frame->destination_mac != node->mac_address &&
         rx_frame->destination_mac != SYN_BACNET_BROADCAST_MAC) {
         return SYN_OK;
     }
 
-    /* Handle Token / Poll For Master MS/TP control frames */
     if (rx_frame->frame_type == SYN_BACNET_MSTP_FRAME_TOKEN) {
         return SYN_OK;
     }
@@ -168,133 +310,45 @@ SYN_Status syn_bacnet_node_process(SYN_BACnet_Node *node, const SYN_BACnet_MSTP_
             tx_frame->frame_type = SYN_BACNET_MSTP_FRAME_REPLY_TO_POLL_FOR_MASTER;
             tx_frame->destination_mac = rx_frame->source_mac;
             tx_frame->source_mac = node->mac_address;
-            tx_frame->data_len = 0;
+            tx_frame->data_len = 0U;
             *has_tx = true;
         }
         return SYN_OK;
     }
 
-    /* Process APDU Payload */
-    if (rx_frame->data_len < 2) {
+    if (rx_frame->data_len < 2U) {
         return SYN_OK;
     }
 
     uint8_t pdu_type = rx_frame->payload[0] & 0xF0U;
 
-    /* 1. Unconfirmed Request (PDU Type 0x10): Who-Is -> Respond with I-Am */
-    if (pdu_type == 0x10U) {
-        uint8_t service_choice = rx_frame->payload[1];
-        if (service_choice == SYN_BACNET_SERVICE_UNCONFIRMED_WHO_IS) {
-            uint8_t payload[16];
-            payload[0] = 0x10;                                /* Unconfirmed APDU */
-            payload[1] = SYN_BACNET_SERVICE_UNCONFIRMED_I_AM; /* Service Choice I-Am */
+    if (pdu_type == 0x10U && rx_frame->payload[1] == SYN_BACNET_SERVICE_UNCONFIRMED_WHO_IS) {
+        uint8_t payload[8];
+        payload[0] = 0x10U;
+        payload[1] = SYN_BACNET_SERVICE_UNCONFIRMED_I_AM;
+        payload[2] = 0xC4U;
+        payload[3] = (uint8_t)((node->device_id >> 16U) & 0xFFU);
+        payload[4] = (uint8_t)((node->device_id >> 8U) & 0xFFU);
+        payload[5] = (uint8_t)(node->device_id & 0xFFU);
+        payload[6] = 0x21U;
+        payload[7] = 0x05U;
 
-            /* Device Object Identifier (4 bytes) */
-            payload[2] = 0xC4;
-            payload[3] = (uint8_t)((node->device_id >> 16) & 0xFFU);
-            payload[4] = (uint8_t)((node->device_id >> 8) & 0xFFU);
-            payload[5] = (uint8_t)(node->device_id & 0xFFU);
-
-            /* Vendor ID (2 bytes) */
-            payload[6] = 0x21;
-            payload[7] = 0x05;
-
-            tx_frame->frame_type = SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY;
-            tx_frame->destination_mac = SYN_BACNET_BROADCAST_MAC;
-            tx_frame->source_mac = node->mac_address;
-            tx_frame->data_len = 8;
-            memcpy(tx_frame->payload, payload, 8);
-            *has_tx = true;
-            return SYN_OK;
-        }
+        tx_frame->frame_type = SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY;
+        tx_frame->destination_mac = SYN_BACNET_BROADCAST_MAC;
+        tx_frame->source_mac = node->mac_address;
+        tx_frame->data_len = 8U;
+        memcpy(tx_frame->payload, payload, 8U);
+        *has_tx = true;
+        return SYN_OK;
     }
 
-    /* 2. Confirmed Request (PDU Type 0x00) */
-    if (pdu_type == 0x00U && rx_frame->data_len >= 4) {
+    if (pdu_type == 0x00U && rx_frame->data_len >= 4U) {
         uint8_t invoke_id = rx_frame->payload[2];
         uint8_t service_choice = rx_frame->payload[3];
-
         if (service_choice == SYN_BACNET_SERVICE_CONFIRMED_READ_PROPERTY) {
-            /* Decode requested instance_id if payload contains Context Tag 0 */
-            uint32_t req_instance = 0;
-            if (rx_frame->data_len >= 9 && rx_frame->payload[4] == 0x0C) {
-                uint32_t obj_id = ((uint32_t)rx_frame->payload[5] << 24) |
-                                  ((uint32_t)rx_frame->payload[6] << 16) |
-                                  ((uint32_t)rx_frame->payload[7] << 8) |
-                                  (uint32_t)rx_frame->payload[8];
-                req_instance = obj_id & 0x003FFFFFU;
-            }
-
-            /* Look up requested object by instance_id */
-            float val = 0.0f;
-            bool found = false;
-
-            for (size_t i = 0; i < node->object_count; i++) {
-                if (node->objects[i].instance_id == req_instance) {
-                    val = node->objects[i].present_value;
-                    found = true;
-                    break;
-                }
-            }
-
-            if (found) {
-                uint8_t payload[32];
-                payload[0] = 0x30; /* Complex-ACK APDU */
-                payload[1] = invoke_id;
-                payload[2] = SYN_BACNET_SERVICE_CONFIRMED_READ_PROPERTY;
-
-                /* Encoded Present Value Float */
-                payload[3] = 0x44; /* Real tag */
-                memcpy(&payload[4], &val, sizeof(float));
-
-                tx_frame->frame_type = SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY;
-                tx_frame->destination_mac = rx_frame->source_mac;
-                tx_frame->source_mac = node->mac_address;
-                tx_frame->data_len = 8;
-                memcpy(tx_frame->payload, payload, 8);
-                *has_tx = true;
-            }
-            return SYN_OK;
-        }
-
-        if (service_choice == SYN_BACNET_SERVICE_CONFIRMED_WRITE_PROPERTY) {
-            /* WriteProperty APDU: Object ID at payload[4..8], Property Value float at
-             * payload[10..13] */
-            uint32_t req_instance = 0;
-            if (rx_frame->data_len >= 9 && rx_frame->payload[4] == 0x0C) {
-                uint32_t obj_id = ((uint32_t)rx_frame->payload[5] << 24) |
-                                  ((uint32_t)rx_frame->payload[6] << 16) |
-                                  ((uint32_t)rx_frame->payload[7] << 8) |
-                                  (uint32_t)rx_frame->payload[8];
-                req_instance = obj_id & 0x003FFFFFU;
-            }
-
-            float new_val = 0.0f;
-            if (rx_frame->data_len >= 14 && rx_frame->payload[9] == 0x44) {
-                memcpy(&new_val, &rx_frame->payload[10], sizeof(float));
-            }
-
-            /* Update object value */
-            for (size_t i = 0; i < node->object_count; i++) {
-                if (node->objects[i].instance_id == req_instance) {
-                    node->objects[i].present_value = new_val;
-                    break;
-                }
-            }
-
-            /* Return WriteProperty Simple-ACK APDU (PDU Type 0x20) */
-            uint8_t payload[4];
-            payload[0] = 0x20; /* Simple-ACK APDU */
-            payload[1] = invoke_id;
-            payload[2] = SYN_BACNET_SERVICE_CONFIRMED_WRITE_PROPERTY;
-
-            tx_frame->frame_type = SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY;
-            tx_frame->destination_mac = rx_frame->source_mac;
-            tx_frame->source_mac = node->mac_address;
-            tx_frame->data_len = 3;
-            memcpy(tx_frame->payload, payload, 3);
-            *has_tx = true;
-            return SYN_OK;
+            bacnet_handle_read_prop(node, rx_frame, invoke_id, tx_frame, has_tx);
+        } else if (service_choice == SYN_BACNET_SERVICE_CONFIRMED_WRITE_PROPERTY) {
+            bacnet_handle_write_prop(node, rx_frame, invoke_id, tx_frame, has_tx);
         }
     }
 

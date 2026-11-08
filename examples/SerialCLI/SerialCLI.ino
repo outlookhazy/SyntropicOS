@@ -107,15 +107,15 @@ static SYN_PT_Status cli_task(SYN_PT *pt, SYN_Task *task)
     int r;
     PT_BEGIN(pt);
     for (;;) {
-        r = syn_port_serial_read(buf, sizeof(buf));
-        if (r > 0) {
+        while ((r = syn_port_serial_read(buf, sizeof(buf))) > 0) {
             for (int i = 0; i < r; i++) {
                 syn_cli_process_char(&cli, (char)buf[i]);
             }
-            PT_YIELD(pt); // Yield control to other tasks after processing 16 bytes
-        } else {
-            PT_TASK_DELAY_MS(pt, task, 10);
+            if ((size_t)r == sizeof(buf) || Serial.available() > 0) {
+                PT_CONTINUE_IF_NEEDED(pt, task);
+            }
         }
+        PT_TASK_DELAY_MS(pt, task, 10);
     }
     PT_END(pt);
 }
@@ -137,8 +137,8 @@ void setup()
     syn_cli_printf(&cli, "\r\n--- SyntropicOS SerialCLI ---\r\n");
     syn_cli_print_prompt(&cli);
 
-    syn_task_create(&tasks[0], "blink", blink_task, 2, NULL);
-    syn_task_create(&tasks[1], "cli",   cli_task,   1, NULL);
+    syn_task_create(&tasks[0], "blink", blink_task, SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks[1], "cli",   cli_task,   SYN_PRIO_HIGH,   NULL);
     syn_sched_init(&sched, tasks, 2);
 }
 

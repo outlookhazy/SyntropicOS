@@ -132,11 +132,13 @@ typedef struct {
     uint32_t return_pc;  /**< Return program counter */
     uint32_t frame_sp;   /**< Frame operand stack pointer */
     uint16_t local_base; /**< Base index in locals array */
+    uint8_t label_base;  /**< Caller label stack depth on entry */
 } SYN_WASM_CallFrame;
 
 /** @brief WebAssembly control flow label stack entry */
 typedef struct {
     uint8_t opcode;     /**< Opcode: 0x02 block, 0x03 loop, 0x04 if */
+    uint8_t arity;      /**< Branch operand arity (0 for void/loop, 1 for typed block/if) */
     uint32_t target_pc; /**< Target program counter on break */
     uint32_t stack_sp;  /**< Operand stack pointer on entry */
 } SYN_WASM_Label;

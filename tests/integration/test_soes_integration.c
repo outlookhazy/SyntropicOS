@@ -1,107 +1,109 @@
 /**
  * @file test_soes_integration.c
- * @brief Integration test for SyntropicOS EtherCAT Master stack against 3rd-Party
- * OpenEtherCATSociety SOES Slave container.
+ * @brief End-to-end integration test against OpenEtherCATSociety SOES slave container.
  */
 
 #include "mock_port.h"
 #include "syntropic/proto/syn_ethercat.h"
 #include "unity/unity.h"
 
-#include <arpa/inet.h>
-#include <netinet/in.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
 #include <unistd.h>
+
+static bool integration_skip_allowed(void)
+{
+    const char *v = getenv("SYN_ALLOW_SKIP_INTEGRATION");
+    return (v != NULL && strcmp(v, "1") == 0);
+}
+
+static void fail_or_skip(const char *msg)
+{
+    if (integration_skip_allowed()) {
+        TEST_IGNORE_MESSAGE(msg);
+    } else {
+        TEST_FAIL_MESSAGE(msg);
+    }
+}
+
+static SYN_Socket connect_with_retry(const char *host, uint16_t port)
+{
+    for (int attempt = 0; attempt < 15; attempt++) {
+        SYN_Socket s = syn_port_sock_connect_host(host, port);
+        if (s != SYN_SOCKET_INVALID) {
+            return s;
+        }
+        usleep(100000);
+    }
+    return SYN_SOCKET_INVALID;
+}
+
+static size_t recv_ecat_frame(SYN_Socket sock, uint8_t *buf, size_t expected)
+{
+    size_t total = 0U;
+    while (total < expected) {
+        int n = syn_port_sock_recv(sock, buf + total, expected - total, 5000U);
+        if (n <= 0) {
+            break;
+        }
+        total += (size_t)n;
+    }
+    return total;
+}
 
 void setUp(void)
 {
 }
+
 void tearDown(void)
 {
-}
-
-static int connect_to_soes_container(const char *host, int port)
-{
-    return syn_port_sock_connect_host(host, (uint16_t)port);
 }
 
 void test_soes_slave_container_integration(void)
 {
     const char *host = getenv("ETHERCAT_SOES_HOST");
-    if (!host)
+    if (host == NULL) {
         host = "127.0.0.1";
-    int port = 10885;
+    }
+    uint16_t port = 10885U;
 
-    printf("[Integration Test] Connecting to 3rd-Party SOES Slave Daemon at %s:%d...\n", host,
-           port);
-
-    int sock = connect_to_soes_container(host, port);
-    int sv[2] = {-1, -1};
-
-    if (sock < 0) {
-        printf("[Integration Test] Notice: Container server not listening on %s:%d, using loopback "
-               "socketpair...\n",
-               host, port);
-        if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0) {
-            TEST_FAIL_MESSAGE("Failed to create loopback socketpair");
-            return;
-        }
-        sock = sv[0];
+    printf("[Integration Test] Connecting to SOES Slave Daemon at %s:%u...\n", host, port);
+    SYN_Socket sock = connect_with_retry(host, port);
+    if (sock == SYN_SOCKET_INVALID) {
+        fail_or_skip("EtherCAT SOES slave daemon container not reachable");
+        return;
     }
 
-    /* Build SyntropicOS EtherCAT Master frame to query SOES slave node (FPRD Configured Read) */
     SYN_EcatNode node;
-    syn_ecat_init(&node, 0x1001, NULL);
+    syn_ecat_init(&node, 0x1001U, NULL);
 
-    SYN_EcatDatagram dg = {.cmd = SYN_ECAT_CMD_FPRD,
-                           .idx = 0x01,
-                           .addr = 0x10010000,
-                           .m = 0,
-                           .circ = 0,
-                           .irq = 0x0000};
+    SYN_EcatDatagram dg;
+    memset(&dg, 0, sizeof(dg));
+    dg.cmd = SYN_ECAT_CMD_FPRD;
+    dg.idx = 0x01U;
+    dg.addr = 0x10010000U;
 
-    uint8_t payload[4] = {0x00, 0x00, 0x00, 0x00};
+    uint8_t payload[4] = {0x00U, 0x00U, 0x00U, 0x00U};
     uint8_t tx_frame[128];
-    size_t tx_len =
-        syn_ecat_build_datagram_frame(tx_frame, sizeof(tx_frame), &dg, payload, sizeof(payload));
+    size_t tx_len = syn_ecat_build_datagram_frame(tx_frame, sizeof(tx_frame), &dg, payload, 4U);
+    TEST_ASSERT_EQUAL_UINT32(18U, (uint32_t)tx_len);
 
-    TEST_ASSERT_TRUE(tx_len > 0);
-
-    /* Send L2 EtherCAT frame to SOES slave container */
-    ssize_t sent = send(sock, tx_frame, tx_len, 0);
-    TEST_ASSERT_EQUAL(tx_len, (size_t)sent);
-
-    if (sv[1] >= 0) {
-        /* Simulate SOES slave response in loopback mode */
-        uint8_t dummy_rx[128];
-        ssize_t n = recv(sv[1], dummy_rx, sizeof(dummy_rx), 0);
-        if (n > 2) {
-            dummy_rx[n - 2] = 0x01; /* WKC = 1 */
-            dummy_rx[n - 1] = 0x00;
-            send(sv[1], dummy_rx, n, 0);
-        }
-    }
+    int sent = syn_port_sock_send_all(sock, tx_frame, tx_len);
+    TEST_ASSERT_EQUAL_INT((int)tx_len, sent);
 
     uint8_t rx_frame[128];
-    ssize_t recvd = recv(sock, rx_frame, sizeof(rx_frame), 0);
-    TEST_ASSERT_TRUE(recvd > 0);
+    size_t recvd = recv_ecat_frame(sock, rx_frame, tx_len);
+    syn_port_sock_close(sock);
+    TEST_ASSERT_EQUAL_UINT32(18U, (uint32_t)recvd);
 
-    uint16_t wkc = 0;
-    SYN_Status st = syn_ecat_parse_frame(&node, rx_frame, (size_t)recvd, &wkc);
-    TEST_ASSERT_EQUAL(SYN_OK, st);
-    TEST_ASSERT_EQUAL(1, wkc);
-
-    printf("[Integration Test] SOES Slave Datagram Response Verified (WKC = %d) (PASS)\n", wkc);
-
-    if (sv[0] >= 0) {
-        close(sv[0]);
-        close(sv[1]);
-    } else {
-        close(sock);
-    }
+    uint16_t wkc = 0U;
+    SYN_Status st = syn_ecat_parse_frame(&node, rx_frame, recvd, &wkc);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, st);
+    TEST_ASSERT_EQUAL_UINT16(1U, wkc);
+    printf("[Integration Test] SOES Slave Datagram Response Verified (WKC=%u)!\n", wkc);
 }
 
 int main(void)

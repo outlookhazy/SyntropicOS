@@ -54,10 +54,12 @@ size_t syn_workqueue_process(SYN_WorkQueue *wq)
 {
     if (!wq)
         return 0;
+    size_t budget = syn_spsc_queue_count(&wq->queue);
     size_t count = 0;
     SYN_WorkItem item;
 
-    while (syn_spsc_queue_pop(&wq->queue, &item) == SYN_OK) {
+    while (budget > 0U && syn_spsc_queue_pop(&wq->queue, &item) == SYN_OK) {
+        budget--;
         if (item.func != NULL) {
             item.func(item.ctx);
             count++;

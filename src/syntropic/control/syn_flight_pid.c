@@ -16,13 +16,18 @@ SYN_Status syn_flight_init(SYN_Flight_Controller *fc)
     memset(fc, 0, sizeof(*fc));
 
     /* Initialize Rate Loop PID gains (Roll, Pitch, Yaw) */
-    SYN_PID_Config rate_roll_cfg = SYN_PID_GAINS(1.5f, 0.2f, 0.05f, 100, -500, 500);
-    SYN_PID_Config rate_pitch_cfg = SYN_PID_GAINS(1.5f, 0.2f, 0.05f, 100, -500, 500);
-    SYN_PID_Config rate_yaw_cfg = SYN_PID_GAINS(2.0f, 0.1f, 0.0f, 100, -500, 500);
+    SYN_PID_Config rate_roll_cfg =
+        SYN_PID_GAINS(1.5f, 0.2f, 0.05f, 100, Q16_FROM_INT(-500), Q16_FROM_INT(500));
+    SYN_PID_Config rate_pitch_cfg =
+        SYN_PID_GAINS(1.5f, 0.2f, 0.05f, 100, Q16_FROM_INT(-500), Q16_FROM_INT(500));
+    SYN_PID_Config rate_yaw_cfg =
+        SYN_PID_GAINS(2.0f, 0.1f, 0.0f, 100, Q16_FROM_INT(-500), Q16_FROM_INT(500));
 
     /* Initialize Outer Angle Loop P-Gains */
-    SYN_PID_Config angle_roll_cfg = SYN_PID_GAINS(4.5f, 0.0f, 0.0f, 100, -200, 200);
-    SYN_PID_Config angle_pitch_cfg = SYN_PID_GAINS(4.5f, 0.0f, 0.0f, 100, -200, 200);
+    SYN_PID_Config angle_roll_cfg =
+        SYN_PID_GAINS(4.5f, 0.0f, 0.0f, 100, Q16_FROM_INT(-200), Q16_FROM_INT(200));
+    SYN_PID_Config angle_pitch_cfg =
+        SYN_PID_GAINS(4.5f, 0.0f, 0.0f, 100, Q16_FROM_INT(-200), Q16_FROM_INT(200));
 
     syn_pid_init(&fc->pid_rate_roll, &rate_roll_cfg);
     syn_pid_init(&fc->pid_rate_pitch, &rate_pitch_cfg);

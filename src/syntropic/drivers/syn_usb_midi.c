@@ -8,6 +8,29 @@
 
 #include <string.h>
 
+/** Standard USB-MIDI 1.0 Audio Control + MIDI Streaming Descriptor (73 bytes) */
+static const uint8_t MIDI_INTERFACE_DESC[SYN_USB_MIDI_DESC_SIZE] = {
+    /* Interface 0: Standard Audio Control Interface (0 endpoints) */
+    0x09U, 0x04U, 0x00U, 0x00U, 0x00U, 0x01U, 0x01U, 0x00U, 0x00U,
+    /* CS_INTERFACE: Audio Control Header (Streaming interface = 1) */
+    0x09U, 0x24U, 0x01U, 0x00U, 0x01U, 0x09U, 0x00U, 0x01U, 0x01U,
+    /* Interface 1: Standard MIDI Streaming Interface (2 endpoints) */
+    0x09U, 0x04U, 0x01U, 0x00U, 0x02U, 0x01U, 0x03U, 0x00U, 0x00U,
+    /* CS_INTERFACE: MIDI Streaming Header (wTotalLength = 22) */
+    0x07U, 0x24U, 0x01U, 0x00U, 0x01U, 0x16U, 0x00U,
+    /* MIDI IN Jack Descriptor (Embedded, Jack ID 1) */
+    0x06U, 0x24U, 0x02U, 0x01U, 0x01U, 0x00U,
+    /* MIDI OUT Jack Descriptor (Embedded, Jack ID 2, Source = 1) */
+    0x09U, 0x24U, 0x03U, 0x01U, 0x02U, 0x01U, 0x01U, 0x01U, 0x00U,
+    /* Bulk OUT Endpoint Descriptor (offset 49, bEndpointAddress at 51) */
+    0x07U, 0x05U, 0x01U, 0x02U, 0x40U, 0x00U, 0x00U,
+    /* CS_ENDPOINT: MS General (1 Embedded MIDI IN Jack = ID 1) */
+    0x05U, 0x25U, 0x01U, 0x01U, 0x01U,
+    /* Bulk IN Endpoint Descriptor (offset 61, bEndpointAddress at 63) */
+    0x07U, 0x05U, 0x81U, 0x02U, 0x40U, 0x00U, 0x00U,
+    /* CS_ENDPOINT: MS General (1 Embedded MIDI OUT Jack = ID 2) */
+    0x05U, 0x25U, 0x01U, 0x01U, 0x02U};
+
 /**
  * @brief Setup handler callback for USB MIDI class setup requests.
  * @param ctx Class driver context (SYN_USB_MIDI pointer).
@@ -22,7 +45,9 @@ static SYN_Status usb_midi_setup_handler(void *ctx, const SYN_USB_SetupPacket *p
     (void)ctx;
     (void)pkt;
     (void)resp;
-    (void)rlen;
+    if (rlen != NULL) {
+        *rlen = 0U;
+    }
     return SYN_OK;
 }
 
@@ -40,7 +65,8 @@ static void usb_midi_data_out_handler(void *ctx, uint8_t ep, const uint8_t *data
         return;
     }
     if (ep == midi->ep_out) {
-        uint16_t copy_len = len > SYN_USB_MIDI_MAX_PACKET_SIZE ? SYN_USB_MIDI_MAX_PACKET_SIZE : len;
+        uint16_t copy_len =
+            (len > SYN_USB_MIDI_MAX_PACKET_SIZE) ? SYN_USB_MIDI_MAX_PACKET_SIZE : len;
         memcpy(midi->rx_buf, data, copy_len);
         midi->rx_len = copy_len;
     }
@@ -70,8 +96,11 @@ static void usb_midi_data_in_handler(void *ctx, uint8_t ep)
  */
 static SYN_Status usb_midi_configured_handler(void *ctx, uint8_t config)
 {
-    (void)ctx;
+    SYN_USB_MIDI *midi = (SYN_USB_MIDI *)ctx;
     (void)config;
+    if (midi != NULL) {
+        midi->tx_len = 0U;
+    }
     return SYN_OK;
 }
 
@@ -81,8 +110,8 @@ SYN_Status syn_usb_midi_init(SYN_USB_MIDI *midi)
         return SYN_INVALID_PARAM;
     }
     memset(midi, 0, sizeof(*midi));
-    midi->ep_in = 0x81U;  /* Bulk IN Endpoint 1 */
-    midi->ep_out = 0x01U; /* Bulk OUT Endpoint 1 */
+    midi->ep_in = 0x81U;
+    midi->ep_out = 0x01U;
     midi->iface_num = 0U;
     midi->cable_num = 0U;
     return SYN_OK;
@@ -94,18 +123,31 @@ SYN_Status syn_usb_midi_register(SYN_USB_Device *dev, SYN_USB_MIDI *midi)
         return SYN_INVALID_PARAM;
     }
 
+    uint8_t desc_buf[SYN_USB_MIDI_DESC_SIZE];
+    memcpy(desc_buf, MIDI_INTERFACE_DESC, sizeof(MIDI_INTERFACE_DESC));
+    desc_buf[51] = midi->ep_out;
+    desc_buf[63] = midi->ep_in;
+
     SYN_USB_ClassDriver driver;
     memset(&driver, 0, sizeof(driver));
     driver.iface_start = midi->iface_num;
-    driver.iface_count = 2U; /* Control + Streaming interface */
+    driver.iface_count = 2U;
     driver.ctx = midi;
     driver.setup = usb_midi_setup_handler;
     driver.data_out = usb_midi_data_out_handler;
     driver.data_in = usb_midi_data_in_handler;
     driver.configured = usb_midi_configured_handler;
 
-    static const uint8_t midi_desc[9] = {0x09, 0x04, 0x00, 0x00, 0x02, 0x01, 0x03, 0x00, 0x00};
-    return syn_usb_register_class(dev, &driver, midi_desc, (uint16_t)sizeof(midi_desc));
+    SYN_Status st = syn_usb_register_class(dev, &driver, desc_buf, SYN_USB_MIDI_DESC_SIZE);
+    if (st == SYN_OK) {
+        midi->iface_num = dev->classes[dev->class_count - 1U].iface_start;
+        if (!dev->raw_config_override) {
+            uint16_t base = (uint16_t)(dev->config_buf_used - SYN_USB_MIDI_DESC_SIZE);
+            midi->ep_out = dev->config_buf[base + 51U];
+            midi->ep_in = dev->config_buf[base + 63U];
+        }
+    }
+    return st;
 }
 
 /**
@@ -115,7 +157,7 @@ SYN_Status syn_usb_midi_register(SYN_USB_Device *dev, SYN_USB_MIDI *midi)
  * @param status MIDI status byte.
  * @param param1 MIDI parameter 1 byte.
  * @param param2 MIDI parameter 2 byte.
- * @return SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on overflow.
+ * @return SYN_OK on success, SYN_INVALID_PARAM if NULL, SYN_BUSY if TX buffer is full.
  */
 static SYN_Status queue_midi_packet(SYN_USB_MIDI *midi, uint8_t cin, uint8_t status, uint8_t param1,
                                     uint8_t param2)
@@ -123,8 +165,8 @@ static SYN_Status queue_midi_packet(SYN_USB_MIDI *midi, uint8_t cin, uint8_t sta
     if (midi == NULL) {
         return SYN_INVALID_PARAM;
     }
-    if (midi->tx_len + 4U > SYN_USB_MIDI_MAX_PACKET_SIZE) {
-        return SYN_ERROR; /* Buffer full */
+    if ((midi->tx_len + 4U) > SYN_USB_MIDI_MAX_PACKET_SIZE) {
+        return SYN_BUSY;
     }
 
     uint8_t header = (uint8_t)(((midi->cable_num & 0x0FU) << 4) | (cin & 0x0FU));

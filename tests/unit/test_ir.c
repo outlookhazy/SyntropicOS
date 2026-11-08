@@ -406,12 +406,194 @@ static void test_ir_edge_cases(void)
                       syn_ir_encode_frame(&invalid_frame, pulse_buf, 100, &pulse_count));
 }
 
+static void test_r5_ir_sony_single_frame_and_manchester_roundtrip(void)
+{
+    SYN_IR_Decoder decoder;
+    SYN_IR_Frame rx_frame;
+    SYN_IR_Pulse pulses[120];
+    size_t count = 0U;
+
+    /* 1. Raw hardware Sony-12 capture: 12 marks + 11 600us spaces + timeout (1 frame!) */
+    syn_ir_decoder_init(&decoder);
+    TEST_ASSERT_FALSE(syn_ir_decode_pulse(&decoder, 2400U, true, &rx_frame));
+    TEST_ASSERT_FALSE(syn_ir_decode_pulse(&decoder, 600U, false, &rx_frame));
+    /* Command = 0x15 (0010101), Addr = 0x01 (00001) */
+    uint16_t s12_raw = (uint16_t)(0x15U | (0x01U << 7U));
+    for (uint8_t b = 0U; b < 12U; b++) {
+        uint16_t mark = (((s12_raw >> b) & 1U) != 0U) ? 1200U : 600U;
+        TEST_ASSERT_FALSE(syn_ir_decode_pulse(&decoder, mark, true, &rx_frame));
+        if (b < 11U) {
+            TEST_ASSERT_FALSE(syn_ir_decode_pulse(&decoder, 600U, false, &rx_frame));
+        }
+    }
+    TEST_ASSERT_TRUE(syn_ir_decode_timeout(&decoder, &rx_frame));
+    TEST_ASSERT_EQUAL(SYN_IR_PROTO_SONY_12, rx_frame.protocol);
+    TEST_ASSERT_EQUAL_UINT32(0x01U, rx_frame.address);
+    TEST_ASSERT_EQUAL_UINT32(0x15U, rx_frame.command);
+
+    /* 2. Sony-20 fires ONCE (not prematurely at bits 12 and 15) */
+    SYN_IR_Frame s20_tx = {.protocol = SYN_IR_PROTO_SONY_20, .address = 0x125U, .command = 0x3AU};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ir_encode_frame(&s20_tx, pulses, 120U, &count));
+    syn_ir_decoder_init(&decoder);
+    int fire_count = 0;
+    for (size_t i = 0U; i < count; i++) {
+        if (syn_ir_decode_pulse(&decoder, pulses[i].duration_us, pulses[i].is_mark, &rx_frame)) {
+            fire_count++;
+        }
+    }
+    TEST_ASSERT_EQUAL_INT(1, fire_count);
+    TEST_ASSERT_EQUAL(SYN_IR_PROTO_SONY_20, rx_frame.protocol);
+    TEST_ASSERT_EQUAL_UINT32(0x125U, rx_frame.address);
+    TEST_ASSERT_EQUAL_UINT32(0x3AU, rx_frame.command);
+
+    /* 3. RC5 round-trip with toggle=0, toggle=1, ending on mark (cmd=1), long final space, timeout
+     */
+    for (int t = 0; t <= 1; t++) {
+        SYN_IR_Frame rc5_tx = {.protocol = SYN_IR_PROTO_RC5,
+                               .address = 0x1AU,
+                               .command = (t == 0) ? 0x2DU : 0x0CU,
+                               .flags = (t != 0) ? SYN_IR_FLAG_TOGGLE : SYN_IR_FLAG_NONE};
+        TEST_ASSERT_EQUAL(SYN_OK, syn_ir_encode_frame(&rc5_tx, pulses, 120U, &count));
+        syn_ir_decoder_init(&decoder);
+        bool ok = false;
+        for (size_t i = 0U; i < count; i++) {
+            if (syn_ir_decode_pulse(&decoder, pulses[i].duration_us, pulses[i].is_mark,
+                                    &rx_frame)) {
+                ok = true;
+            }
+        }
+        TEST_ASSERT_TRUE(ok);
+        TEST_ASSERT_EQUAL(SYN_IR_PROTO_RC5, rx_frame.protocol);
+        TEST_ASSERT_EQUAL_UINT32(rc5_tx.address, rx_frame.address);
+        TEST_ASSERT_EQUAL_UINT32(rc5_tx.command, rx_frame.command);
+        TEST_ASSERT_EQUAL_UINT8(rc5_tx.flags, rx_frame.flags & SYN_IR_FLAG_TOGGLE);
+    }
+
+    /* RC5 ending on space (cmd=0x0C): test merged >3T idle space AND syn_ir_decode_timeout */
+    SYN_IR_Frame rc5_even = {.protocol = SYN_IR_PROTO_RC5, .address = 0x03U, .command = 0x0CU};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ir_encode_frame(&rc5_even, pulses, 120U, &count));
+    syn_ir_decoder_init(&decoder);
+    for (size_t i = 0U; i + 1U < count; i++) {
+        TEST_ASSERT_FALSE(
+            syn_ir_decode_pulse(&decoder, pulses[i].duration_us, pulses[i].is_mark, &rx_frame));
+    }
+    TEST_ASSERT_TRUE(syn_ir_decode_pulse(&decoder, 5000U, false, &rx_frame));
+    TEST_ASSERT_EQUAL_UINT32(0x0CU, rx_frame.command);
+
+    syn_ir_decoder_init(&decoder);
+    for (size_t i = 0U; i + 1U < count; i++) {
+        TEST_ASSERT_FALSE(
+            syn_ir_decode_pulse(&decoder, pulses[i].duration_us, pulses[i].is_mark, &rx_frame));
+    }
+    TEST_ASSERT_TRUE(syn_ir_decode_timeout(&decoder, &rx_frame));
+    TEST_ASSERT_EQUAL_UINT32(0x0CU, rx_frame.command);
+
+    /* 4. RC6 round-trip with toggle=0 and toggle=1, ending on mark (cmd=0x10) & space (cmd=0x11) */
+    for (int t = 0; t <= 1; t++) {
+        SYN_IR_Frame rc6_tx = {.protocol = SYN_IR_PROTO_RC6,
+                               .address = 0xA5U,
+                               .command = (t == 0) ? 0x10U : 0x5BU,
+                               .flags = (t != 0) ? SYN_IR_FLAG_TOGGLE : SYN_IR_FLAG_NONE};
+        TEST_ASSERT_EQUAL(SYN_OK, syn_ir_encode_frame(&rc6_tx, pulses, 120U, &count));
+        syn_ir_decoder_init(&decoder);
+        bool ok = false;
+        for (size_t i = 0U; i < count; i++) {
+            if (syn_ir_decode_pulse(&decoder, pulses[i].duration_us, pulses[i].is_mark,
+                                    &rx_frame)) {
+                ok = true;
+            }
+        }
+        TEST_ASSERT_TRUE(ok);
+        TEST_ASSERT_EQUAL(SYN_IR_PROTO_RC6, rx_frame.protocol);
+        TEST_ASSERT_EQUAL_UINT32(rc6_tx.address, rx_frame.address);
+        TEST_ASSERT_EQUAL_UINT32(rc6_tx.command, rx_frame.command);
+        TEST_ASSERT_EQUAL_UINT8(rc6_tx.flags, rx_frame.flags & SYN_IR_FLAG_TOGGLE);
+    }
+
+    /* 5. Partial-frame timeouts & Manchester/Sony framing error guards */
+    /* Partial NEC timeout (bit_idx != 32) */
+    syn_ir_decoder_init(&decoder);
+    syn_ir_decode_pulse(&decoder, 9000U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 4500U, false, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 560U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 560U, false, &rx_frame);
+    TEST_ASSERT_FALSE(syn_ir_decode_timeout(&decoder, &rx_frame));
+
+    /* Partial Sony space error (bit_idx == 1) & partial Sony timeout */
+    syn_ir_decoder_init(&decoder);
+    syn_ir_decode_pulse(&decoder, 2400U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 600U, false, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 600U, true, &rx_frame);
+    TEST_ASSERT_FALSE(syn_ir_decode_pulse(&decoder, 2000U, false, &rx_frame));
+
+    syn_ir_decoder_init(&decoder);
+    syn_ir_decode_pulse(&decoder, 2400U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 600U, false, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 600U, true, &rx_frame);
+    TEST_ASSERT_FALSE(syn_ir_decode_timeout(&decoder, &rx_frame));
+
+    /* Partial RC5 timeout (bit_idx != 14) & Manchester framing violation + bad duration */
+    syn_ir_decoder_init(&decoder);
+    syn_ir_decode_pulse(&decoder, 889U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 889U, false, &rx_frame);
+    TEST_ASSERT_FALSE(syn_ir_decode_timeout(&decoder, &rx_frame));
+
+    syn_ir_decoder_init(&decoder);
+    syn_ir_decode_pulse(&decoder, 889U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 889U, false, &rx_frame); /* S1=1 decoded, S2 phase=1 (space) */
+    /* 1778us space violates bi-phase (space followed by space) and tests loop state exit */
+    TEST_ASSERT_FALSE(syn_ir_decode_pulse(&decoder, 1778U, false, &rx_frame));
+
+    syn_ir_decoder_init(&decoder);
+    syn_ir_decode_pulse(&decoder, 889U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 889U, false, &rx_frame);
+    TEST_ASSERT_FALSE(syn_ir_decode_pulse(&decoder, 9000U, true, &rx_frame));
+
+    /* Partial RC6 timeout & RC6 2T Toggle half-bit mismatch (1T instead of 2T at bit_idx == 4) */
+    syn_ir_decoder_init(&decoder);
+    syn_ir_decode_pulse(&decoder, 2666U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 889U, false, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 444U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 888U, false, &rx_frame); /* S=1 + M2 first half */
+    TEST_ASSERT_FALSE(syn_ir_decode_timeout(&decoder, &rx_frame));
+
+    syn_ir_decoder_init(&decoder);
+    syn_ir_decode_pulse(&decoder, 2666U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 889U, false, &rx_frame);
+    /* Start=1 (444M,444S), M2=0 (444S,444M), M1=0 (444S,444M), M0=0 (444S,444M) -> bit_idx == 4 */
+    syn_ir_decode_pulse(&decoder, 444U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 888U, false, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 444U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 444U, false, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 444U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 444U, false, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 444U, true, &rx_frame);
+    /* Now bit_idx == 4 (RC6 2T toggle): feed 1T mark then 1T space -> prev_mark != is_mark */
+    syn_ir_decode_pulse(&decoder, 444U, true, &rx_frame);
+    TEST_ASSERT_FALSE(syn_ir_decode_pulse(&decoder, 444U, false, &rx_frame));
+    TEST_ASSERT_EQUAL(SYN_IR_STATE_IDLE, decoder.state);
+
+    /* Partial Kaseikyo & Denon timeouts */
+    syn_ir_decoder_init(&decoder);
+    syn_ir_decode_pulse(&decoder, 3456U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 1728U, false, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 432U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 432U, false, &rx_frame);
+    TEST_ASSERT_FALSE(syn_ir_decode_timeout(&decoder, &rx_frame));
+
+    syn_ir_decoder_init(&decoder);
+    syn_ir_decode_pulse(&decoder, 310U, true, &rx_frame);
+    syn_ir_decode_pulse(&decoder, 780U, false, &rx_frame);
+    TEST_ASSERT_FALSE(syn_ir_decode_timeout(&decoder, &rx_frame));
+}
+
 void run_ir_tests(void)
 {
     RUN_TEST(test_ir_nec_decode_encode);
     RUN_TEST(test_ir_sony_sircs_decode);
     RUN_TEST(test_ir_rc5_rc6_samsung_kaseikyo_denon);
     RUN_TEST(test_ir_edge_cases);
+    RUN_TEST(test_r5_ir_sony_single_frame_and_manchester_roundtrip);
 }
 
 #endif /* SYN_USE_IR */

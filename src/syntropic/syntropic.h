@@ -63,10 +63,6 @@
 #ifndef SYN_H
 #define SYN_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* ── Try to include user config; fall back to defaults ──────────────────── */
 #if __has_include("syn_config.h")
 #include "syn_config.h"
@@ -161,10 +157,6 @@ extern "C" {
 
 #if !defined(SYN_USE_DMA) || SYN_USE_DMA
 #include "drivers/syn_dma.h"
-#endif
-
-#if !defined(SYN_USE_ADC) || SYN_USE_ADC
-#include "drivers/syn_adc.h"
 #endif
 
 #if !defined(SYN_USE_I2C) || SYN_USE_I2C
@@ -824,10 +816,6 @@ extern "C" {
 
 #if !defined(SYN_USE_PROTOBUF) || SYN_USE_PROTOBUF
 #include "util/syn_protobuf.h"
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* SYN_H */

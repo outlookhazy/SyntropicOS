@@ -100,10 +100,34 @@ void test_adpcm_clamping_and_bounds(void)
     TEST_ASSERT_EQUAL_INT8(0, state.step_index);
 }
 
+static void test_r5_adpcm_corrupt_step_index_clamped(void)
+{
+    SYN_ADPCM_State state;
+    syn_adpcm_init(&state);
+
+    /* Out-of-range step_index < 0 and > 88 must clamp BEFORE table lookup */
+    state.step_index = -50;
+    (void)syn_adpcm_decode_sample(&state, 0x00U);
+    TEST_ASSERT_EQUAL_INT8(0, state.step_index);
+
+    state.step_index = 127;
+    (void)syn_adpcm_decode_sample(&state, 0x07U);
+    TEST_ASSERT_EQUAL_INT8(88, state.step_index);
+
+    state.step_index = -100;
+    (void)syn_adpcm_encode_sample(&state, 500);
+    TEST_ASSERT_TRUE(state.step_index >= 0 && state.step_index <= 88);
+
+    state.step_index = 120;
+    (void)syn_adpcm_encode_sample(&state, -500);
+    TEST_ASSERT_TRUE(state.step_index >= 0 && state.step_index <= 88);
+}
+
 void run_adpcm_tests(void)
 {
     RUN_TEST(test_adpcm_init_and_null_checks);
     RUN_TEST(test_adpcm_encode_decode_sample_roundtrip);
     RUN_TEST(test_adpcm_block_encode_decode);
     RUN_TEST(test_adpcm_clamping_and_bounds);
+    RUN_TEST(test_r5_adpcm_corrupt_step_index_clamped);
 }

@@ -1,5 +1,6 @@
 #include "mocks/mock_port.h"
 #include "syntropic/net/syn_mqtt.h"
+#include "syntropic/sched/syn_sched.h"
 #include "unity/unity.h"
 
 #include <string.h>
@@ -32,7 +33,7 @@ void test_mqtt_connect(void)
     SYN_PT pt;
     PT_INIT(&pt);
 
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &c;
 
     /* 1. Run task first time to trigger connection */
@@ -114,7 +115,7 @@ void test_mqtt_publish_qos1_retry(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &c;
 
     /* 1. Publish QoS 1 */
@@ -165,7 +166,7 @@ void test_mqtt_rx_publish(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &c;
 
     /* Mock incoming PUBLISH frame from broker on topic "cmd/led" with payload "ON" */
@@ -198,7 +199,7 @@ static void test_mqtt_formatting_and_boundaries(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &c;
 
     syn_mqtt_task(&pt, &task);
@@ -222,12 +223,15 @@ static void test_mqtt_formatting_and_boundaries(void)
     c.sock = 11;
     mock_sock_connected = true;
 
-    /* Long payload to exceed retransmit_buf (128 bytes) */
+    /* Long payload to exceed retransmit_buf (128 bytes) -> rejected for QoS 1, allowed for QoS 0 */
     uint8_t long_payload[130];
     memset(long_payload, 'A', sizeof(long_payload));
     SYN_Status st = syn_mqtt_publish(&c, "temp", long_payload, sizeof(long_payload), 1, false);
-    TEST_ASSERT_EQUAL(SYN_OK, st);
-    TEST_ASSERT_EQUAL_INT(0, c.retransmit_len); // retransmit_len is 0
+    TEST_ASSERT_EQUAL(SYN_ERROR, st);
+    TEST_ASSERT_EQUAL_UINT16(0U, c.pending_puback_id);
+    TEST_ASSERT_EQUAL_INT(0, c.retransmit_len);
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_mqtt_publish(&c, "temp", long_payload, sizeof(long_payload), 0, false));
 
     /* 4. Retransmit buffer size guard on subscribe */
     /* Long topic to exceed retransmit_buf (128 bytes) */
@@ -273,7 +277,7 @@ static void test_mqtt_multiplier_overflow(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &c;
 
     /* 5 bytes of remaining length all with MSB set (0x80) */
@@ -305,7 +309,7 @@ static void test_mqtt_publish_edge_cases(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &c;
 
     /* A. len < 2 */
@@ -379,7 +383,7 @@ static void test_mqtt_state_machine_failures(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &c;
 
     mock_sock_connect_fail = true;
@@ -480,7 +484,7 @@ static void test_mqtt_payload_skip_logic(void)
 {
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
 
     /* 1. read_all fails (socket EOF on valid remaining length) */
     mock_port_reset();
@@ -582,7 +586,7 @@ static void test_mqtt_ping_and_mismatch(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &c;
 
     mock_tick_advance(5000);
@@ -669,13 +673,13 @@ static void test_mqtt_pt_end(void)
 
     SYN_PT pt;
     PT_INIT(&pt);
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &c;
 
     /* Set LC to a line that is not a yield switch case to trigger the fallthrough to PT_END */
     pt.lc = 9999;
     SYN_PT_Status status = syn_mqtt_task(&pt, &task);
-    TEST_ASSERT_EQUAL(PT_EXITED, status);
+    TEST_ASSERT_EQUAL(PT_ENDED, status);
 }
 
 static void test_mqtt_explicit_ping(void)
@@ -711,7 +715,7 @@ static void test_mqtt_mid_packet_rx_stalling_timeout(void)
     SYN_PT pt;
     PT_INIT(&pt);
 
-    SYN_Task task;
+    SYN_Task task = {0};
     task.user_data = &c;
 
     syn_mqtt_task(&pt, &task);
@@ -932,7 +936,7 @@ static void test_mqtt_qos2_handshake_and_keepalive_ping(void)
     c.state = SYN_MQTT_DISCONNECTED;
     c.sock = SYN_SOCKET_INVALID;
     PT_INIT(&pt);
-    TEST_ASSERT_EQUAL(PT_WAITING, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
 
     /* 4. Keepalive ping send failure -> lines 618-624 */
     c.state = SYN_MQTT_CONNECTED;
@@ -1047,6 +1051,374 @@ static void test_mqtt5_varint_and_properties(void)
         0, syn_mqtt5_encode_user_prop("key", "val", prop_buf, 4)); /* Small buffer */
 }
 
+static void test_mqtt_has_work_wakeup_and_sustained_rx_yielding(void)
+{
+    uint8_t rx[128];
+    uint8_t tx[128];
+    SYN_MqttClient c;
+    SYN_PT pt;
+
+    /* 1. Wake from PT_WAIT_UNTIL when syn_mqtt_disconnect() sets SYN_MQTT_DISCONNECTED
+     *    externally (hits syn_mqtt.c:597) */
+    mock_port_reset();
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 11;
+    mock_sock_connected = true;
+    c.last_activity_ms = mock_tick_ms;
+
+    SYN_Task task = {0};
+    task.user_data = &c;
+    PT_INIT(&pt);
+
+    /* Parks at PT_WAIT_UNTIL(pt, mqtt_has_work(c)) on line 711 */
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+
+    /* External disconnect transitions c.state -> SYN_MQTT_DISCONNECTED */
+    syn_mqtt_disconnect(&c);
+    TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
+
+    /* Next step evaluates mqtt_has_work(c) -> hits line 597, reconnects and sends CONNECT */
+    mock_sock_tx_len = 0;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_CONNECTING, c.state);
+    TEST_ASSERT_TRUE(mock_sock_tx_len > 0);
+    TEST_ASSERT_EQUAL_HEX8(0x10, mock_sock_tx_buf[0]);
+
+    /* 2. Partial header stalls in SYN_MQTT_RX_REMAINING_LEN, yields at line 711, then
+     *    rx_deadline expires -> mqtt_has_work hits line 603 and resets stalled RX parser */
+    mock_port_reset();
+    mock_tick_ms = 1000;
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 11;
+    mock_sock_connected = true;
+    c.last_activity_ms = mock_tick_ms;
+
+    uint8_t partial_hdr[1] = {0x30}; /* PUBLISH fixed header byte, no remaining length yet */
+    mock_sock_set_response(partial_hdr, sizeof(partial_hdr));
+
+    memset(&task, 0, sizeof(task));
+    task.user_data = &c;
+    PT_INIT(&pt);
+
+    /* Consumes 1 byte -> enters SYN_MQTT_RX_REMAINING_LEN and parks at line 711 */
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_RX_REMAINING_LEN, c.rx_phase);
+
+    /* Before rx_deadline -> stays PT_IDLE */
+    mock_tick_advance(100);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_CONNECTED, c.state);
+
+    /* Advance past rx_deadline (5s < 60s keepalive) -> hits line 603 in mqtt_has_work,
+     * wakes task, disconnects stalled socket, and resets rx_phase to IDLE */
+    mock_tick_ms = c.rx_deadline + 10U;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
+    TEST_ASSERT_EQUAL(SYN_MQTT_RX_IDLE, c.rx_phase);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c.sock);
+
+    /* 3. Sustained TCP RX (>32 poll_rx steps) leaves unread bytes in socket ->
+     *    hits PT_CONTINUE_IF_NEEDED + continue at syn_mqtt.c:707-708 */
+    mock_port_reset();
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 11;
+    mock_sock_connected = true;
+    c.last_activity_ms = mock_tick_ms;
+
+    /* 18 back-to-back 2-byte PINGRESP packets = 36 single-byte poll_rx steps (>32 budget) */
+    uint8_t burst[36];
+    for (size_t i = 0; i < sizeof(burst); i += 2) {
+        burst[i] = 0xD0;
+        burst[i + 1] = 0x00;
+    }
+    mock_sock_set_response(burst, sizeof(burst));
+
+    SYN_Sched sched = {0};
+    memset(&task, 0, sizeof(task));
+    task.user_data = &c;
+    task.sched = &sched;
+    sched.running = &task;
+    sched.share_contended = true;
+    PT_INIT(&pt);
+
+    /* First call consumes 32 bytes (16 PINGRESPs), 4 bytes remain -> yields PT_MORE (707) */
+    TEST_ASSERT_EQUAL(PT_MORE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL_UINT(32, mock_sock_rx_pos);
+
+    /* Second call resumes at continue (708), consumes final 4 bytes -> yields PT_IDLE */
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL_UINT(36, mock_sock_rx_pos);
+    TEST_ASSERT_EQUAL(SYN_MQTT_CONNECTED, c.state);
+}
+
+static void test_mqtt_round3_regressions(void)
+{
+    mock_port_reset();
+
+    static char big_str[65537];
+    memset(big_str, 'x', 65536U);
+    big_str[65536] = '\0';
+
+    uint8_t rx[128];
+    uint8_t tx[32];
+    SYN_MqttClient c;
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 11;
+    mock_sock_connected = true;
+
+    /* 1. R3-N04: publish/subscribe validate NULL, >65535 topic, >268435455 rem_len, and tx_buf_size
+     *    BEFORE mutating packet IDs or QoS 1 retransmit state */
+    c.next_packet_id = 7U;
+    c.pending_puback_id = 0U;
+    c.retransmit_len = 0U;
+
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_publish(NULL, "t", "a", 1, 1, false));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_publish(&c, NULL, "a", 1, 1, false));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_publish(&c, "t", NULL, 4, 1, false));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_publish(&c, big_str, "a", 1, 1, false));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_publish(&c, "t", tx, 268435455U, 1, false));
+    /* Payload 40 exceeds tx[32] */
+    uint8_t forty[40] = {0};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_publish(&c, "topic", forty, sizeof(forty), 1, true));
+    TEST_ASSERT_EQUAL_UINT16(7U, c.next_packet_id);
+    TEST_ASSERT_EQUAL_UINT16(0U, c.pending_puback_id);
+
+    /* Valid publish with empty topic "" exercises mqtt_put_str len == 0 branch */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqtt_publish(&c, "", "ok", 2, 0, true));
+
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_subscribe(NULL, "t", 1));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_subscribe(&c, NULL, 1));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_subscribe(&c, big_str, 1));
+    char topic30[31];
+    memset(topic30, 't', 30U);
+    topic30[30] = '\0';
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_subscribe(&c, topic30, 1));
+    TEST_ASSERT_EQUAL_UINT16(7U, c.next_packet_id);
+
+    /* 2. R3-N15: varint 4-byte continuation rejection, user prop >65535 & NULL buf, connect >65535
+     */
+    uint8_t bad_varint[4] = {0x80U, 0x80U, 0x80U, 0x80U};
+    uint32_t v_out = 0U;
+    size_t b_out = 0U;
+    TEST_ASSERT_FALSE(syn_mqtt_decode_varint(bad_varint, 4U, &v_out, &b_out));
+    TEST_ASSERT_FALSE(syn_mqtt_decode_varint(bad_varint, 4U, NULL, &b_out));
+    TEST_ASSERT_FALSE(syn_mqtt_decode_varint(bad_varint, 4U, &v_out, NULL));
+    TEST_ASSERT_FALSE(syn_mqtt_decode_varint(bad_varint, 0U, &v_out, &b_out));
+
+    uint8_t prop_buf[16];
+    TEST_ASSERT_EQUAL_UINT(0U, syn_mqtt5_encode_user_prop("k", "v", NULL, 16U));
+    TEST_ASSERT_EQUAL_UINT(0U,
+                           syn_mqtt5_encode_user_prop(big_str, "v", prop_buf, sizeof(prop_buf)));
+    TEST_ASSERT_EQUAL_UINT(0U,
+                           syn_mqtt5_encode_user_prop("k", big_str, prop_buf, sizeof(prop_buf)));
+
+    SYN_MqttClient c_big;
+    syn_mqtt_init(&c_big, "broker", 1883, big_str, NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    SYN_PT pt_big;
+    PT_INIT(&pt_big);
+    SYN_Task task_big = {.user_data = &c_big};
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt_big, &task_big));
+    TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c_big.state);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c_big.sock);
+
+    /* 3. R3-N06 & R3-N14: readable socket error (mock_sock_recv_fail) resets session & QoS state
+     *    without spinning, and advances cleanly across 5000ms reconnect backoff */
+    mock_port_reset();
+    uint8_t tx256[256];
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx256, sizeof(tx256));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 11;
+    mock_sock_connected = true;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqtt_publish(&c, "sensors/x", "v", 1, 1, false));
+    TEST_ASSERT_NOT_EQUAL(0U, c.pending_puback_id);
+    TEST_ASSERT_TRUE(c.retransmit_len > 0U);
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = {.user_data = &c};
+    mock_sock_recv_fail = true;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c.sock);
+    TEST_ASSERT_EQUAL_UINT16(0U, c.pending_puback_id);
+    TEST_ASSERT_EQUAL_UINT(0U, c.retransmit_len);
+
+    /* Advance 5000ms so the post-disconnect PT_TASK_DELAY_MS continue path executes */
+    mock_sock_recv_fail = false;
+    mock_tick_advance(5000U);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_CONNECTING, c.state);
+
+    /* 4. R3-N12: mid-flight task restart while CONNECTING closes existing socket on case 0 */
+    TEST_ASSERT_TRUE(mock_sock_connected);
+    PT_INIT(&pt);
+    mock_sock_connect_fail = true;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_FALSE(mock_sock_connected);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c.sock);
+}
+
+static void test_mqtt_round4_regressions(void)
+{
+    mock_port_reset();
+
+    static char big_str[65537];
+    memset(big_str, 'u', 65536U);
+    big_str[65536] = '\0';
+
+    uint8_t rx[128];
+    uint8_t tx[256];
+    SYN_MqttClient c;
+    SYN_PT pt;
+    SYN_Task task = {0};
+
+    /* 1. R4-N11: password without username must omit password flag (0x40) and password string */
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, "orphan_pass", 60, rx, sizeof(rx), tx,
+                  sizeof(tx));
+    task.user_data = &c;
+    PT_INIT(&pt);
+    mock_sock_tx_len = 0U;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_CONNECTING, c.state);
+    /* Header: 0x10, rem_len=15 (10 + 2 + 3), "MQTT"(6), lvl=4(1), flags=0x02(1) at index 9 */
+    TEST_ASSERT_EQUAL_UINT(17U, mock_sock_tx_len);
+    TEST_ASSERT_EQUAL_HEX8(0x02U, mock_sock_tx_buf[9]);
+
+    /* Credential >65535 length guards in mqtt_connect_creds_len */
+    syn_mqtt_init(&c, "broker", 1883, "cid", big_str, "pw", 60, rx, sizeof(rx), tx, sizeof(tx));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
+
+    syn_mqtt_init(&c, "broker", 1883, "cid", "usr", big_str, 60, rx, sizeof(rx), tx, sizeof(tx));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
+
+    /* 2. R4-N11: valid 4-byte remaining length (2,097,152) enters DISCARD without resetting */
+    mock_port_reset();
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 12;
+    mock_sock_connected = true;
+    uint8_t rem4_hdr[] = {0x30U, 0x80U, 0x80U, 0x80U, 0x01U};
+    mock_sock_set_response(rem4_hdr, sizeof(rem4_hdr));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_CONNECTED, c.state);
+    TEST_ASSERT_EQUAL(SYN_MQTT_RX_DISCARD, c.rx_phase);
+    TEST_ASSERT_EQUAL_UINT32(2097152U, c.rx_rem_len);
+
+    /* 3. R4-N11: publish/subscribe QoS bounds & single in-flight QoS 1 slot + uncached timeout */
+    mock_port_reset();
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 12;
+    mock_sock_connected = true;
+
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_publish(&c, "t", "x", 1U, 2U, false));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mqtt_subscribe(&c, "t", 2U));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mqtt_subscribe(&c, "t", 3U));
+
+    uint8_t uncached_payload[130];
+    memset(uncached_payload, 'Q', sizeof(uncached_payload));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_publish(&c, "big", uncached_payload,
+                                                  sizeof(uncached_payload), 1U, false));
+    TEST_ASSERT_EQUAL_UINT16(0U, c.pending_puback_id);
+    TEST_ASSERT_EQUAL_UINT(0U, c.retransmit_len);
+
+    /* Valid cached QoS 1 publish locks slot; concurrent QoS 1 rejected while QoS 0 succeeds */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqtt_publish(&c, "small", "a", 1U, 1U, false));
+    TEST_ASSERT_NOT_EQUAL(0U, c.pending_puback_id);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_publish(&c, "small", "b", 1U, 1U, false));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqtt_publish(&c, "small", "b", 1U, 0U, false));
+
+    /* 4. R4-N11: keep-alive PINGREQ arms ping_pending, PINGRESP clears it, and missing PINGRESP
+     *    resets session after MQTT_ACK_TIMEOUT_MS */
+    mock_port_reset();
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 2, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 12;
+    mock_sock_connected = true;
+    c.last_activity_ms = mock_tick_ms;
+    PT_INIT(&pt);
+
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    mock_tick_advance(2000U);
+    mock_sock_tx_len = 0U;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_TRUE(c.ping_pending);
+    TEST_ASSERT_EQUAL_UINT(2U, mock_sock_tx_len);
+
+    /* Unrelated RX at +3s (> 2s keep-alive, < 5s timeout) wakes task without duplicate PINGREQ */
+    mock_tick_advance(3000U);
+    uint8_t suback_noise[] = {0x90U, 0x03U, 0x00U, 0x01U, 0x00U};
+    mock_sock_set_response(suback_noise, sizeof(suback_noise));
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_TRUE(c.ping_pending);
+    TEST_ASSERT_EQUAL_UINT(2U, mock_sock_tx_len);
+    TEST_ASSERT_EQUAL(SYN_MQTT_CONNECTED, c.state);
+
+    /* PINGRESP arrives at +4s (< 5s timeout) -> clears ping_pending */
+    uint8_t pingresp[] = {0xD0U, 0x00U};
+    mock_sock_set_response(pingresp, sizeof(pingresp));
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_FALSE(c.ping_pending);
+    TEST_ASSERT_EQUAL(SYN_MQTT_CONNECTED, c.state);
+
+    /* Next PINGREQ with no PINGRESP -> wakes at +5000ms and resets session */
+    mock_tick_advance(2000U);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_TRUE(c.ping_pending);
+    mock_tick_advance(5000U);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
+    TEST_ASSERT_FALSE(c.ping_pending);
+}
+
+static void test_r5_n11_mqtt_qos1_retransmit_bounds_and_sub_qos2(void)
+{
+    mock_port_reset();
+    uint8_t rx[128];
+    uint8_t tx[256];
+    SYN_MqttClient c;
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 15;
+    mock_sock_connected = true;
+    c.next_packet_id = 41U;
+
+    /* Exact 128B QoS 1 PUBLISH: 1(hdr) + 2(varint=126? no: rem_len=126 -> 1B varint, total=128B!)
+     * Topic "t" (len=1): hdr_rem = 2 + 1 + 2 = 5.
+     * Payload = 121 -> rem_len = 126 (1-byte varint) -> total_len = 1 + 1 + 126 = 128B (fits!).
+     * Payload = 122 -> rem_len = 127 (1-byte varint) -> total_len = 1 + 1 + 127 = 129B (exceeds!).
+     */
+    uint8_t payload[122];
+    memset(payload, 'M', sizeof(payload));
+
+    mock_sock_tx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_publish(&c, "t", payload, 122U, 1U, false));
+    TEST_ASSERT_EQUAL_UINT(0U, mock_sock_tx_len);
+    TEST_ASSERT_EQUAL_UINT16(41U, c.next_packet_id);
+    TEST_ASSERT_EQUAL_UINT16(0U, c.pending_puback_id);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqtt_publish(&c, "t", payload, 121U, 1U, false));
+    TEST_ASSERT_EQUAL_UINT(128U, mock_sock_tx_len);
+    TEST_ASSERT_EQUAL_UINT(128U, c.retransmit_len);
+    TEST_ASSERT_EQUAL_UINT16(42U, c.pending_puback_id);
+
+    /* Subscribe rejects QoS 2 with SYN_INVALID_PARAM without transmitting */
+    mock_sock_tx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mqtt_subscribe(&c, "sensors/#", 2U));
+    TEST_ASSERT_EQUAL_UINT(0U, mock_sock_tx_len);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqtt_subscribe(&c, "sensors/#", 1U));
+    TEST_ASSERT_TRUE(mock_sock_tx_len > 0U);
+}
+
 void run_mqtt_tests(void)
 {
     RUN_TEST(test_mqtt_connect);
@@ -1072,4 +1444,8 @@ void run_mqtt_tests(void)
     RUN_TEST(test_mqtt_qos2_handshake_and_keepalive_ping);
     RUN_TEST(test_mqtt_subscribe_does_not_corrupt_retransmit_buffer);
     RUN_TEST(test_mqtt5_varint_and_properties);
+    RUN_TEST(test_mqtt_has_work_wakeup_and_sustained_rx_yielding);
+    RUN_TEST(test_mqtt_round3_regressions);
+    RUN_TEST(test_mqtt_round4_regressions);
+    RUN_TEST(test_r5_n11_mqtt_qos1_retransmit_bounds_and_sub_qos2);
 }

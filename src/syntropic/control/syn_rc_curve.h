@@ -14,16 +14,16 @@
 #ifndef SYN_RC_CURVE_H
 #define SYN_RC_CURVE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/util/syn_qmath.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** RC Curve Configuration. */
 typedef struct {

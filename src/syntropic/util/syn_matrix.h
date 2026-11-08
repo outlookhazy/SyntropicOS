@@ -376,7 +376,7 @@ SYN_Status syn_matrix_solve_cholesky(const SYN_Matrix *A, const SYN_Matrix *b, S
  * @param x          Output solution parameter vector (N×1).
  * @param ata_work   Caller-supplied N×N matrix buffer (N*N elements).
  * @param atb_work   Caller-supplied N vector buffer (N elements).
- * @param at_work    Caller-supplied N×M transpose matrix buffer (N*M elements).
+ * @param at_work    Unused legacy parameter (may be NULL).
  * @param solver_lu  Caller-supplied N×N solver matrix buffer (N*N elements).
  * @param solver_y   Caller-supplied N solver vector buffer (N elements).
  * @return SYN_OK on success, SYN_ERROR if AᵀA is singular.

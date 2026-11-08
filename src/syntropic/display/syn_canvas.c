@@ -149,19 +149,47 @@ void syn_canvas_init(SYN_Canvas *c, uint8_t *buf, uint16_t w, uint16_t h, uint8_
     c->clip_h = (int16_t)h;
 
     if (bpp == 1) {
-        c->buf_size = (size_t)((w + 7) / 8) * h;
+        c->buf_size = (size_t)w * (((size_t)h + 7U) / 8U);
     } else {
-        c->buf_size = (size_t)w * h * 2;
+        c->buf_size = (size_t)w * (size_t)h * 2U;
     }
 }
 
 void syn_canvas_set_clip(SYN_Canvas *c, int16_t x, int16_t y, int16_t w, int16_t h)
 {
     SYN_ASSERT(c != NULL);
-    c->clip_x = x;
-    c->clip_y = y;
-    c->clip_w = w;
-    c->clip_h = h;
+    if (w <= 0 || h <= 0) {
+        c->clip_x = 0;
+        c->clip_y = 0;
+        c->clip_w = 0;
+        c->clip_h = 0;
+        return;
+    }
+
+    int32_t x0 = (x < 0) ? 0 : (int32_t)x;
+    int32_t y0 = (y < 0) ? 0 : (int32_t)y;
+    int32_t x1 = (int32_t)x + (int32_t)w;
+    int32_t y1 = (int32_t)y + (int32_t)h;
+
+    if (x1 > (int32_t)c->width) {
+        x1 = (int32_t)c->width;
+    }
+    if (y1 > (int32_t)c->height) {
+        y1 = (int32_t)c->height;
+    }
+
+    if (x0 >= x1 || y0 >= y1) {
+        c->clip_x = 0;
+        c->clip_y = 0;
+        c->clip_w = 0;
+        c->clip_h = 0;
+        return;
+    }
+
+    c->clip_x = (int16_t)x0;
+    c->clip_y = (int16_t)y0;
+    c->clip_w = (int16_t)(x1 - x0);
+    c->clip_h = (int16_t)(y1 - y0);
 }
 
 void syn_canvas_reset_clip(SYN_Canvas *c)
@@ -205,10 +233,17 @@ void syn_canvas_fill(SYN_Canvas *c, uint16_t color)
 
 void syn_canvas_pixel(SYN_Canvas *c, int16_t x, int16_t y, uint16_t color)
 {
-    if (x < c->clip_x || x >= c->clip_x + c->clip_w)
+    if (x < 0 || y < 0 || (uint16_t)x >= c->width || (uint16_t)y >= c->height) {
         return;
-    if (y < c->clip_y || y >= c->clip_y + c->clip_h)
+    }
+    if ((int32_t)x < (int32_t)c->clip_x ||
+        (int32_t)x >= ((int32_t)c->clip_x + (int32_t)c->clip_w)) {
         return;
+    }
+    if ((int32_t)y < (int32_t)c->clip_y ||
+        (int32_t)y >= ((int32_t)c->clip_y + (int32_t)c->clip_h)) {
+        return;
+    }
 
     if (c->bpp == 1) {
         /* Mono: column-major page layout (SSD1306 style).

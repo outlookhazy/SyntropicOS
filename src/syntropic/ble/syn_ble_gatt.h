@@ -30,14 +30,22 @@ extern "C" {
 /**@{*/
 #define SYN_BLE_PROP_READ 0x02U      /**< Read Property */
 #define SYN_BLE_PROP_WRITE_CMD 0x04U /**< Write Command (Without Response) Property */
-#define SYN_BLE_PROP_WRITE 0x08U     /**< Write Request Property */
-#define SYN_BLE_PROP_NOTIFY 0x10U    /**< Notify Property */
-#define SYN_BLE_PROP_INDICATE 0x20U  /**< Indicate Property */
+#define SYN_BLE_PROP_WRITE_NO_RSP \
+    SYN_BLE_PROP_WRITE_CMD          /**< Alias for Write Without Response Property */
+#define SYN_BLE_PROP_WRITE 0x08U    /**< Write Request Property */
+#define SYN_BLE_PROP_NOTIFY 0x10U   /**< Notify Property */
+#define SYN_BLE_PROP_INDICATE 0x20U /**< Indicate Property */
 /**@}*/
 
 #ifndef SYN_BLE_MAX_ATTRIBUTES
 #define SYN_BLE_MAX_ATTRIBUTES 32U /**< Maximum GATT attribute table capacity */
 #endif
+
+#ifndef SYN_BLE_MAX_CCCDS
+#define SYN_BLE_MAX_CCCDS 8U /**< Maximum independent CCCD descriptors per GATT server */
+#endif
+
+#define SYN_BLE_GATT_MAX_ATTR_LEN 64U /**< Maximum single-attribute scratch buffer size */
 
 typedef struct SYN_BLE_GATT_s SYN_BLE_GATT;
 
@@ -64,10 +72,10 @@ typedef struct {
 
 /** GATT Server Instance Context */
 struct SYN_BLE_GATT_s {
-    const SYN_BLE_GATT_Attr *table;              /**< Attribute table array pointer */
-    uint16_t table_len;                          /**< Attribute table entry count */
-    uint16_t cccd_vals[SYN_BLE_MAX_CONNECTIONS]; /**< CCCD state per connection */
-    void *user_data;                             /**< User context pointer */
+    const SYN_BLE_GATT_Attr *table;                                 /**< Attribute table pointer */
+    uint16_t table_len;                                             /**< Entry count */
+    uint16_t cccd_vals[SYN_BLE_MAX_CONNECTIONS][SYN_BLE_MAX_CCCDS]; /**< CCCD state per conn/slot */
+    void *user_data;                                                /**< User context pointer */
 };
 
 /**

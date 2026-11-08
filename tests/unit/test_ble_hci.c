@@ -188,3 +188,28 @@ void test_ble_hci_cmd_complete_short_params(void)
     /* Status must default to 0 when no return params present, not garbage from OOB read */
     TEST_ASSERT_EQUAL_UINT8(0x00, hci.last_cmd_status);
 }
+
+void test_r5_ble_hci_regressions(void)
+{
+    SYN_BLE_HCI hci;
+    SYN_BLE_HCI_Config cfg = {.evt_cb = test_evt_cb, .acl_cb = test_acl_cb, .user_data = NULL};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ble_hci_init(&hci, &cfg));
+
+    /* 16-bit wraparound attack: 4 + 0xFFFC == 0x10000 (wrapped to 0 in uint16_t pre-fix) */
+    acl_called = false;
+    uint8_t wrap_acl_hdr[] = {SYN_BLE_HCI_PKT_ACL, 0x01U, 0x20U, 0xFCU, 0xFFU};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_hci_rx_buf(&hci, wrap_acl_hdr, sizeof(wrap_acl_hdr)));
+    TEST_ASSERT_FALSE(acl_called);
+
+    /* 0xFFFF ACL length also rejected cleanly */
+    uint8_t max_acl_hdr[] = {SYN_BLE_HCI_PKT_ACL, 0x01U, 0x20U, 0xFFU, 0xFFU};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_hci_rx_buf(&hci, max_acl_hdr, sizeof(max_acl_hdr)));
+    TEST_ASSERT_FALSE(acl_called);
+
+    /* Subsequent valid ACL frame resynchronizes cleanly */
+    uint8_t valid_acl[] = {SYN_BLE_HCI_PKT_ACL, 0x05U, 0x20U, 0x02U, 0x00U, 0xABU, 0xCDU};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ble_hci_rx_buf(&hci, valid_acl, sizeof(valid_acl)));
+    TEST_ASSERT_TRUE(acl_called);
+    TEST_ASSERT_EQUAL_UINT16(0x0005U, last_acl_conn);
+    TEST_ASSERT_EQUAL_UINT16(2U, last_acl_len);
+}

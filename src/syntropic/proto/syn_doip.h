@@ -9,8 +9,19 @@
 #ifndef SYNTROPIC_DOIP_H
 #define SYNTROPIC_DOIP_H
 
+#include "syntropic/common/syn_defs.h"
+
+#if (!defined(SYN_USE_DOIP) || SYN_USE_DOIP) && (!defined(SYN_USE_UDS) || SYN_USE_UDS)
+/** @brief Non-zero when DoIP and UDS dependencies are enabled. */
+#define SYN_DOIP_ENABLED 1
+#else
+/** @brief Non-zero when DoIP and UDS dependencies are enabled. */
+#define SYN_DOIP_ENABLED 0
+#endif
+
+#if SYN_DOIP_ENABLED
+
 #include "syntropic/proto/syn_uds.h"
-#include "syntropic/syntropic.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -48,9 +59,14 @@ extern "C" {
 #define SYN_DOIP_NACK_INVALID_PAYLOAD_LENGTH 0x04U /**< Invalid payload length */
 
 /** ISO 13400-2 Routing Activation Response Codes */
-#define SYN_DOIP_ROUTING_SUCCESS 0x00U               /**< Routing activation successful */
+#define SYN_DOIP_ROUTING_SUCCESS 0x10U               /**< Routing activation successful */
 #define SYN_DOIP_ROUTING_DENIED_UNKNOWN_TESTER 0x02U /**< Denied: Unknown tester address */
 #define SYN_DOIP_ROUTING_DENIED_DIFFERENT_PORT 0x04U /**< Denied: Invalid socket port */
+
+/** ISO 13400-2 Diagnostic Message ACK / NACK Codes */
+#define SYN_DOIP_DIAG_ACK_OK 0x00U          /**< Diagnostic message positive ACK */
+#define SYN_DOIP_DIAG_NACK_INVALID_SA 0x02U /**< Invalid source address or unactivated routing */
+#define SYN_DOIP_DIAG_NACK_UNKNOWN_TA 0x03U /**< Unknown target address */
 
 /**
  * @brief ISO 13400-2 DoIP Header Structure (8 bytes)
@@ -128,5 +144,7 @@ bool syn_doip_process_msg(SYN_DoIP_Server *server, SYN_UDS_Server *uds, const ui
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* SYN_DOIP_ENABLED */
 
 #endif /* SYNTROPIC_DOIP_H */

@@ -8,8 +8,11 @@
 
 #include <string.h>
 
-#define LZ4_MIN_MATCH 4U  /**< Minimum byte match length for LZ4 compression */
-#define LZ4_HASH_BITS 12U /**< Log2 size of 4096-entry hash table */
+#define LZ4_MIN_MATCH 4U    /**< Minimum byte match length for LZ4 compression */
+#define LZ4_LASTLITERALS 5U /**< Mandatory trailing literal bytes at end of block */
+#define LZ4_MFLIMIT 12U     /**< Minimum distance from block end to start a match */
+#define LZ4_MIN_LENGTH 13U  /**< Minimum block size eligible for match search */
+#define LZ4_HASH_BITS 12U   /**< Log2 size of 4096-entry hash table */
 
 /**
  * @brief Hash 4 bytes into 12-bit hash index using Knuth multiplicative hash.
@@ -32,6 +35,99 @@ static inline uint32_t lz4_read32(const uint8_t *ptr)
            (((uint32_t)ptr[3]) << 24);
 }
 
+/**
+ * @brief Encode extended LZ4 length bytes (>= 15) into output buffer.
+ * @param op      Current output pointer.
+ * @param out_end End of output buffer.
+ * @param rem     Remaining length after subtracting 15.
+ * @return Updated output pointer, or NULL on buffer overflow.
+ */
+static uint8_t *lz4_write_len(uint8_t *op, const uint8_t *out_end, size_t rem)
+{
+    while (rem >= 255U) {
+        if (op >= out_end) {
+            return NULL;
+        }
+        *op++ = 255U;
+        rem -= 255U;
+    }
+    if (op >= out_end) {
+        return NULL;
+    }
+    *op++ = (uint8_t)rem;
+    return op;
+}
+
+/**
+ * @brief Emit one LZ4 sequence (token, literal run, 16-bit offset, extra match length).
+ * @param op        Current output pointer.
+ * @param out_end   End of output buffer.
+ * @param anchor    Start of literal run.
+ * @param lit_len   Literal run byte count.
+ * @param offset    Backward match offset (1..65535).
+ * @param match_len Match length minus LZ4_MIN_MATCH.
+ * @return Updated output pointer, or NULL on buffer overflow.
+ */
+static uint8_t *lz4_emit_sequence(uint8_t *op, const uint8_t *out_end, const uint8_t *anchor,
+                                  size_t lit_len, size_t offset, size_t match_len)
+{
+    if (op >= out_end) {
+        return NULL;
+    }
+
+    uint8_t lit_tok = (uint8_t)((lit_len >= 15U) ? 15U : lit_len);
+    uint8_t mat_tok = (uint8_t)((match_len >= 15U) ? 15U : match_len);
+    *op++ = (uint8_t)((lit_tok << 4) | mat_tok);
+
+    if (lit_len >= 15U) {
+        op = lz4_write_len(op, out_end, lit_len - 15U);
+        if (op == NULL) {
+            return NULL;
+        }
+    }
+
+    if ((size_t)(out_end - op) < lit_len) {
+        return NULL;
+    }
+    if (lit_len > 0U) {
+        memcpy(op, anchor, lit_len);
+        op += lit_len;
+    }
+
+    if ((size_t)(out_end - op) < 2U) {
+        return NULL;
+    }
+    *op++ = (uint8_t)(offset & 0xFFU);
+    *op++ = (uint8_t)((offset >> 8) & 0xFFU);
+
+    if (match_len >= 15U) {
+        op = lz4_write_len(op, out_end, match_len - 15U);
+    }
+    return op;
+}
+
+/**
+ * @brief Decode extended LZ4 length bytes when nibble equals 15.
+ * @param ip      Current input pointer.
+ * @param in_end  End of compressed input buffer.
+ * @param max_len Maximum valid accumulated length for remaining buffer capacity.
+ * @param len_io  [in,out] Accumulated length.
+ * @return Updated input pointer, or NULL on truncated input or length overflow.
+ */
+static const uint8_t *lz4_read_len(const uint8_t *ip, const uint8_t *in_end, size_t max_len,
+                                   size_t *len_io)
+{
+    uint8_t s = 0U;
+    do {
+        if ((ip >= in_end) || (*len_io > max_len) || ((size_t)*ip > (max_len - *len_io))) {
+            return NULL;
+        }
+        s = *ip++;
+        *len_io += s;
+    } while (s == 255U);
+    return ip;
+}
+
 SYN_Status syn_lz4_init(SYN_Lz4 *ctx)
 {
     if (ctx == NULL) {
@@ -44,7 +140,7 @@ SYN_Status syn_lz4_init(SYN_Lz4 *ctx)
 size_t syn_lz4_compress_bound(size_t input_size)
 {
     if (input_size > (SIZE_MAX - 16U - (input_size / 255U))) {
-        return 0U; /* LCOV_EXCL_LINE: Defensive size_t overflow guard */
+        return 0U;
     }
     return input_size + (input_size / 255U) + 16U;
 }
@@ -56,152 +152,62 @@ size_t syn_lz4_compress(SYN_Lz4 *ctx, const void *src, size_t src_size, void *ds
         return 0U;
     }
 
-    const uint8_t *ip = (const uint8_t *)src;
-    const uint8_t *in_end = ip + src_size;
+    const uint8_t *src_base = (const uint8_t *)src;
+    const uint8_t *ip = src_base;
+    const uint8_t *in_end = src_base + src_size;
     const uint8_t *anchor = ip;
 
     uint8_t *op = (uint8_t *)dst;
-    uint8_t *out_end = op + dst_capacity;
+    const uint8_t *out_end = op + dst_capacity;
 
-    if (src_size < LZ4_MIN_MATCH + 1U) {
-        /* Input too small for matching: store as single literal block */
-        size_t lit_len = src_size;
-        size_t needed = 1U + (lit_len >= 15U ? ((lit_len - 15U) / 255U + 1U) : 0U) + lit_len;
-        if (needed > dst_capacity) {
-            return 0U; /* LCOV_EXCL_LINE: Defensive bounds guard */
-        }
+    if (src_size >= LZ4_MIN_LENGTH) {
+        (void)syn_lz4_init(ctx);
+        const uint8_t *mflimit = in_end - LZ4_MFLIMIT;
+        const uint8_t *match_bound = in_end - LZ4_LASTLITERALS;
 
-        uint8_t token = (uint8_t)((lit_len >= 15U ? 15U : lit_len) << 4);
-        *op++ = token;
+        while (ip <= mflimit) {
+            uint32_t val = lz4_read32(ip);
+            uint32_t hash = lz4_hash4(val);
+            const uint8_t *match = src_base + ctx->hash_table[hash];
+            ctx->hash_table[hash] = (uint16_t)(ip - src_base);
 
-        /* LCOV_EXCL_START */
-        if (lit_len >= 15U) {
-            size_t rem = lit_len - 15U;
-            while (rem >= 255U) {
-                *op++ = 255U;
-                rem -= 255U;
-            }
-            *op++ = (uint8_t)rem;
-        }
-        /* LCOV_EXCL_STOP */
-
-        memcpy(op, ip, lit_len);
-        op += lit_len;
-        return (size_t)(op - (uint8_t *)dst);
-    }
-
-    syn_lz4_init(ctx);
-
-    const uint8_t *match_limit = in_end - 5U;
-    while (ip < match_limit) {
-        uint32_t val = lz4_read32(ip);
-        uint32_t hash = lz4_hash4(val);
-        const uint8_t *match = (const uint8_t *)src + ctx->hash_table[hash];
-
-        ctx->hash_table[hash] = (uint16_t)(ip - (const uint8_t *)src);
-
-        if ((match >= (const uint8_t *)src) && (match < ip) && ((size_t)(ip - match) <= 65535U) &&
-            (lz4_read32(match) == val)) {
-            /* Found a match! Calculate match length */
-            size_t lit_len = (size_t)(ip - anchor);
-            const uint8_t *ref = match + 4;
-            const uint8_t *p = ip + 4;
-
-            while ((p < in_end) && (*p == *ref)) {
-                p++;
-                ref++;
-            }
-
-            size_t match_len = (size_t)(p - ip) - LZ4_MIN_MATCH;
-            size_t offset = (size_t)(ip - match);
-
-            /* Output token */
-            if (op >= out_end)
-                return 0U; /* LCOV_EXCL_LINE: Defensive bounds guard */
-
-            uint8_t token = (uint8_t)(((lit_len >= 15U ? 15U : lit_len) << 4) |
-                                      (match_len >= 15U ? 15U : match_len));
-            *op++ = token;
-
-            /* Output literal extra length */
-            if (lit_len >= 15U) {
-                size_t rem = lit_len - 15U;
-                /* LCOV_EXCL_START */
-                while (rem >= 255U) {
-                    if (op >= out_end)
-                        return 0U;
-                    *op++ = 255U;
-                    rem -= 255U;
+            if ((match < ip) && ((size_t)(ip - match) <= 65535U) && (lz4_read32(match) == val)) {
+                const uint8_t *ref = match + LZ4_MIN_MATCH;
+                const uint8_t *p = ip + LZ4_MIN_MATCH;
+                while ((p < match_bound) && (*p == *ref)) {
+                    p++;
+                    ref++;
                 }
-                /* LCOV_EXCL_STOP */
-                if (op >= out_end)
-                    return 0U; /* LCOV_EXCL_LINE: Defensive bounds guard */
-                *op++ = (uint8_t)rem;
-            }
 
-            /* Copy literals */
-            if ((size_t)(out_end - op) < lit_len)
-                return 0U; /* LCOV_EXCL_LINE: Defensive bounds guard */
-            memcpy(op, anchor, lit_len);
-            op += lit_len;
-
-            /* Output offset (16-bit little-endian) */
-            if ((size_t)(out_end - op) < 2U)
-                return 0U; /* LCOV_EXCL_LINE: Defensive bounds guard */
-            *op++ = (uint8_t)(offset & 0xFFU);
-            *op++ = (uint8_t)((offset >> 8) & 0xFFU);
-
-            /* Output match extra length */
-            if (match_len >= 15U) {
-                size_t rem = match_len - 15U;
-                /* LCOV_EXCL_START */
-                while (rem >= 255U) {
-                    if (op >= out_end)
-                        return 0U;
-                    *op++ = 255U;
-                    rem -= 255U;
-                }
-                /* LCOV_EXCL_STOP */
-                if (op >= out_end)
-                    return 0U; /* LCOV_EXCL_LINE: Defensive bounds guard */
-                *op++ = (uint8_t)rem;
-            }
-
-            ip = p;
-            anchor = ip;
-        } else {
-            ip++;
-        }
-    }
-
-    /* Output remaining literals */
-    size_t last_lit = (size_t)(in_end - anchor);
-    if (last_lit > 0U) {
-        if (op >= out_end)
-            return 0U; /* LCOV_EXCL_LINE: Defensive bounds guard */
-        uint8_t token = (uint8_t)((last_lit >= 15U ? 15U : last_lit) << 4);
-        *op++ = token;
-
-        /* LCOV_EXCL_START */
-        if (last_lit >= 15U) {
-            size_t rem = last_lit - 15U;
-            while (rem >= 255U) {
-                if (op >= out_end)
+                op = lz4_emit_sequence(op, out_end, anchor, (size_t)(ip - anchor),
+                                       (size_t)(ip - match), (size_t)(p - ip) - LZ4_MIN_MATCH);
+                if (op == NULL) {
                     return 0U;
-                *op++ = 255U;
-                rem -= 255U;
+                }
+                ip = p;
+                anchor = ip;
+            } else {
+                ip++;
             }
-            if (op >= out_end)
-                return 0U;
-            *op++ = (uint8_t)rem;
         }
-        /* LCOV_EXCL_STOP */
-
-        if ((size_t)(out_end - op) < last_lit)
-            return 0U; /* LCOV_EXCL_LINE: Defensive bounds guard */
-        memcpy(op, anchor, last_lit);
-        op += last_lit;
     }
+
+    size_t last_lit = (size_t)(in_end - anchor);
+    if (op >= out_end) {
+        return 0U;
+    }
+    *op++ = (uint8_t)(((last_lit >= 15U) ? 15U : last_lit) << 4);
+    if (last_lit >= 15U) {
+        op = lz4_write_len(op, out_end, last_lit - 15U);
+        if (op == NULL) {
+            return 0U;
+        }
+    }
+    if ((size_t)(out_end - op) < last_lit) {
+        return 0U;
+    }
+    memcpy(op, anchor, last_lit);
+    op += last_lit;
 
     return (size_t)(op - (uint8_t *)dst);
 }
@@ -216,63 +222,57 @@ size_t syn_lz4_decompress(const void *src, size_t src_size, void *dst, size_t ds
     const uint8_t *in_end = ip + src_size;
 
     uint8_t *op = (uint8_t *)dst;
-    uint8_t *out_end = op + dst_capacity;
+    const uint8_t *out_end = op + dst_capacity;
 
     while (ip < in_end) {
         uint8_t token = *ip++;
 
         size_t lit_len = (size_t)(token >> 4);
         if (lit_len == 15U) {
-            uint8_t s;
-            /* LCOV_EXCL_START */
-            do {
-                if (ip >= in_end)
-                    return 0U;
-                s = *ip++;
-                lit_len += s;
-            } while (s == 255U);
-            /* LCOV_EXCL_STOP */
+            ip = lz4_read_len(ip, in_end, (size_t)(out_end - op), &lit_len);
+            if (ip == NULL) {
+                return 0U;
+            }
         }
 
-        if ((size_t)(in_end - ip) < lit_len)
+        if (((size_t)(in_end - ip) < lit_len) || ((size_t)(out_end - op) < lit_len)) {
             return 0U;
-        if ((size_t)(out_end - op) < lit_len)
-            return 0U;
+        }
 
-        memcpy(op, ip, lit_len);
-        ip += lit_len;
-        op += lit_len;
+        if (lit_len > 0U) {
+            memcpy(op, ip, lit_len);
+            ip += lit_len;
+            op += lit_len;
+        }
 
         if (ip >= in_end) {
-            /* Final literal sequence complete */
             break;
         }
 
-        if ((size_t)(in_end - ip) < 2U)
+        if ((size_t)(in_end - ip) < 2U) {
             return 0U;
+        }
         size_t offset = (size_t)ip[0] | (((size_t)ip[1]) << 8);
         ip += 2;
 
         if ((offset == 0U) || (offset > (size_t)(op - (uint8_t *)dst))) {
-            return 0U; /* Invalid offset */
+            return 0U;
         }
 
         size_t match_len = (size_t)(token & 0x0FU);
         if (match_len == 15U) {
-            uint8_t s;
-            /* LCOV_EXCL_START */
-            do {
-                if (ip >= in_end)
-                    return 0U;
-                s = *ip++;
-                match_len += s;
-            } while (s == 255U);
-            /* LCOV_EXCL_STOP */
+            size_t rem_out = (size_t)(out_end - op);
+            size_t max_mat = (rem_out >= LZ4_MIN_MATCH) ? (rem_out - LZ4_MIN_MATCH) : 0U;
+            ip = lz4_read_len(ip, in_end, max_mat, &match_len);
+            if (ip == NULL) {
+                return 0U;
+            }
         }
         match_len += LZ4_MIN_MATCH;
 
-        if ((size_t)(out_end - op) < match_len)
-            return 0U; /* LCOV_EXCL_LINE: Defensive match length destination guard */
+        if ((size_t)(out_end - op) < match_len) {
+            return 0U;
+        }
 
         const uint8_t *ref = op - offset;
         for (size_t i = 0U; i < match_len; i++) {

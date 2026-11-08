@@ -5,6 +5,7 @@
 
 #include "mocks/mock_port.h"
 #include "syntropic/proto/syn_mqttsn.h"
+#include "syntropic/sched/syn_sched.h"
 #include "unity/unity.h"
 
 #include <stdio.h>
@@ -248,9 +249,14 @@ void test_mqttsn_register_and_publish(void)
     s_loopback_len = sizeof(regack_0);
     (void)syn_mqttsn_client_step(&zero_topic_client, 250U);
 
-    /* Simulate REGACK */
-    uint8_t regack[7] = {0x07, SYN_MQTTSN_MSG_REGACK, 0x00, 0x01, 0x00,
-                         0x01, SYN_MQTTSN_RC_ACCEPTED};
+    /* Simulate REGACK matching msg_id */
+    uint8_t regack[7] = {0x07,
+                         SYN_MQTTSN_MSG_REGACK,
+                         0x00,
+                         0x01,
+                         (uint8_t)((msg_id >> 8U) & 0xFFU),
+                         (uint8_t)(msg_id & 0xFFU),
+                         SYN_MQTTSN_RC_ACCEPTED};
     (void)memcpy(s_loopback_buf, regack, sizeof(regack));
     s_loopback_len = sizeof(regack);
 
@@ -479,16 +485,16 @@ void test_mqttsn_sleep_and_lifecycle(void)
     SYN_Task task = {.user_data = &client};
     SYN_PT pt;
     PT_INIT(&pt);
-    TEST_ASSERT_EQUAL(PT_YIELDED, syn_mqttsn_client_pt(&pt, &task));
-    TEST_ASSERT_EQUAL(PT_YIELDED, syn_mqttsn_client_pt(&pt, &task));
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqttsn_client_pt(&pt, &task));
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqttsn_client_pt(&pt, &task));
     client.cfg.transport = NULL;
-    TEST_ASSERT_EQUAL(PT_EXITED, syn_mqttsn_client_pt(&pt, &task));
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_mqttsn_client_pt(&pt, &task));
     client.cfg.transport = &s_transport;
 
-    TEST_ASSERT_EQUAL(PT_ENDED, syn_mqttsn_client_pt(NULL, &task));
-    TEST_ASSERT_EQUAL(PT_ENDED, syn_mqttsn_client_pt(&pt, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_mqttsn_client_pt(NULL, &task));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_mqttsn_client_pt(&pt, NULL));
     SYN_Task null_task = {.user_data = NULL};
-    TEST_ASSERT_EQUAL(PT_ENDED, syn_mqttsn_client_pt(&pt, &null_task));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_mqttsn_client_pt(&pt, &null_task));
 
     /* Protothread termination when step returns error */
     SYN_MQTTSN_Client uninit_client;
@@ -496,7 +502,176 @@ void test_mqttsn_sleep_and_lifecycle(void)
     SYN_Task uninit_task = {.user_data = &uninit_client};
     SYN_PT pt_err;
     PT_INIT(&pt_err);
-    TEST_ASSERT_EQUAL(PT_EXITED, syn_mqttsn_client_pt(&pt_err, &uninit_task));
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_mqttsn_client_pt(&pt_err, &uninit_task));
+}
+
+static bool s_mock_mqttsn_has_data_flag = false;
+
+static bool mock_mqttsn_has_data(const void *ctx)
+{
+    (void)ctx;
+    return s_mock_mqttsn_has_data_flag;
+}
+
+static void test_mqttsn_pt_has_data_yielding_and_unhandled_msg(void)
+{
+    mock_port_reset();
+    s_loopback_len = 0U;
+    s_mock_mqttsn_send_fail = false;
+
+    SYN_Transport async_tr = {
+        .send = mock_mqttsn_send,
+        .recv = mock_mqttsn_recv,
+        .has_data = mock_mqttsn_has_data,
+        .ctx = NULL,
+    };
+
+    SYN_MQTTSN_Config cfg = {
+        .client_id = "node-pt",
+        .duration_s = 60U,
+        .transport = &async_tr,
+        .rx_buf = s_rx_buf,
+        .rx_buf_size = sizeof(s_rx_buf),
+        .tx_buf = s_tx_buf,
+        .tx_buf_size = sizeof(s_tx_buf),
+    };
+
+    SYN_MQTTSN_Client client;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_init(&client, &cfg));
+
+    /* Feed unhandled message type (0xFE) to cover default branch (syn_mqttsn.c:609-610) */
+    uint8_t unknown_msg[3] = {0x03U, 0xFEU, 0x00U};
+    (void)memcpy(s_loopback_buf, unknown_msg, sizeof(unknown_msg));
+    s_loopback_len = sizeof(unknown_msg);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_step(&client, 100U));
+
+    /* Exercise syn_mqttsn_client_pt has_data != NULL && syn_transport_has_data() -> PT_MORE
+     * (syn_mqttsn.c:667-670) */
+    SYN_Sched sched = {0};
+    SYN_Task task = {0};
+    task.user_data = &client;
+    task.sched = &sched;
+    sched.running = &task;
+    sched.share_contended = true;
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+
+    /* Idle has_data == true with no RX packet must yield PT_IDLE without spinning */
+    sched.share_contended = false;
+    s_loopback_len = 0U;
+    s_mock_mqttsn_has_data_flag = true;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqttsn_client_pt(&pt, &task));
+
+    /* Consumed RX packet + has_data == true while contended yields PT_MORE */
+    (void)memcpy(s_loopback_buf, unknown_msg, sizeof(unknown_msg));
+    s_loopback_len = sizeof(unknown_msg);
+    sched.share_contended = true;
+    s_mock_mqttsn_has_data_flag = true;
+    TEST_ASSERT_EQUAL(PT_MORE, syn_mqttsn_client_pt(&pt, &task));
+
+    s_mock_mqttsn_has_data_flag = false;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqttsn_client_pt(&pt, &task));
+}
+
+static void test_mqttsn_regack_msg_id_matching_and_reregistration(void)
+{
+    mock_port_reset();
+    s_loopback_len = 0U;
+    s_mock_mqttsn_send_fail = false;
+
+    SYN_MQTTSN_Config cfg = {
+        .client_id = "node-regack",
+        .duration_s = 60U,
+        .transport = &s_transport,
+        .rx_buf = s_rx_buf,
+        .rx_buf_size = sizeof(s_rx_buf),
+        .tx_buf = s_tx_buf,
+        .tx_buf_size = sizeof(s_tx_buf),
+    };
+
+    SYN_MQTTSN_Client client;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_init(&client, &cfg));
+    client.state = SYN_MQTTSN_STATE_CONNECTED;
+
+    /* Back-to-back registrations before any REGACK arrives */
+    uint16_t msg_id_a = 0U;
+    uint16_t msg_id_b = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_register_topic(&client, "sensors/a", &msg_id_a));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_register_topic(&client, "sensors/b", &msg_id_b));
+    TEST_ASSERT_EQUAL(2U, client.topic_count);
+    TEST_ASSERT_NOT_EQUAL(msg_id_a, msg_id_b);
+
+    /* Unmatched MsgId, zero MsgId, and rejected REGACK must not mutate either entry */
+    uint8_t regack_unmatched[7] = {0x07U, SYN_MQTTSN_MSG_REGACK, 0x00U, 0x63U, 0x99U,
+                                   0x99U, SYN_MQTTSN_RC_ACCEPTED};
+    (void)memcpy(s_loopback_buf, regack_unmatched, sizeof(regack_unmatched));
+    s_loopback_len = sizeof(regack_unmatched);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_step(&client, 10U));
+
+    uint8_t regack_zero_id[7] = {0x07U, SYN_MQTTSN_MSG_REGACK, 0x00U, 0x64U, 0x00U,
+                                 0x00U, SYN_MQTTSN_RC_ACCEPTED};
+    (void)memcpy(s_loopback_buf, regack_zero_id, sizeof(regack_zero_id));
+    s_loopback_len = sizeof(regack_zero_id);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_step(&client, 20U));
+
+    uint8_t regack_rejected[7] = {0x07U,
+                                  SYN_MQTTSN_MSG_REGACK,
+                                  0x00U,
+                                  0x65U,
+                                  (uint8_t)((msg_id_a >> 8U) & 0xFFU),
+                                  (uint8_t)(msg_id_a & 0xFFU),
+                                  SYN_MQTTSN_RC_REJ_CONGESTION};
+    (void)memcpy(s_loopback_buf, regack_rejected, sizeof(regack_rejected));
+    s_loopback_len = sizeof(regack_rejected);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_step(&client, 30U));
+    TEST_ASSERT_EQUAL_UINT16(0U, client.topics[0].topic_id);
+    TEST_ASSERT_EQUAL_UINT16(0U, client.topics[1].topic_id);
+
+    /* REGACK for first topic arrives while topic_count == 2 -> updates topics[0], not topics[1] */
+    uint8_t regack_a[7] = {0x07U,
+                           SYN_MQTTSN_MSG_REGACK,
+                           0x00U,
+                           0x11U,
+                           (uint8_t)((msg_id_a >> 8U) & 0xFFU),
+                           (uint8_t)(msg_id_a & 0xFFU),
+                           SYN_MQTTSN_RC_ACCEPTED};
+    (void)memcpy(s_loopback_buf, regack_a, sizeof(regack_a));
+    s_loopback_len = sizeof(regack_a);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_step(&client, 40U));
+    TEST_ASSERT_EQUAL_UINT16(0x0011U, client.topics[0].topic_id);
+    TEST_ASSERT_EQUAL_UINT16(0U, client.topics[0].pending_msg_id);
+    TEST_ASSERT_EQUAL_UINT16(0U, client.topics[1].topic_id);
+
+    /* REGACK for second topic updates topics[1] */
+    uint8_t regack_b[7] = {0x07U,
+                           SYN_MQTTSN_MSG_REGACK,
+                           0x00U,
+                           0x22U,
+                           (uint8_t)((msg_id_b >> 8U) & 0xFFU),
+                           (uint8_t)(msg_id_b & 0xFFU),
+                           SYN_MQTTSN_RC_ACCEPTED};
+    (void)memcpy(s_loopback_buf, regack_b, sizeof(regack_b));
+    s_loopback_len = sizeof(regack_b);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_step(&client, 50U));
+    TEST_ASSERT_EQUAL_UINT16(0x0011U, client.topics[0].topic_id);
+    TEST_ASSERT_EQUAL_UINT16(0x0022U, client.topics[1].topic_id);
+
+    /* Re-register topics[0] after reconnect -> updates topics[0] without clobbering topics[1] */
+    uint16_t msg_id_a2 = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_register_topic(&client, "sensors/a", &msg_id_a2));
+    uint8_t regack_a2[7] = {0x07U,
+                            SYN_MQTTSN_MSG_REGACK,
+                            0x00U,
+                            0x33U,
+                            (uint8_t)((msg_id_a2 >> 8U) & 0xFFU),
+                            (uint8_t)(msg_id_a2 & 0xFFU),
+                            SYN_MQTTSN_RC_ACCEPTED};
+    (void)memcpy(s_loopback_buf, regack_a2, sizeof(regack_a2));
+    s_loopback_len = sizeof(regack_a2);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_step(&client, 60U));
+    TEST_ASSERT_EQUAL_UINT16(0x0033U, client.topics[0].topic_id);
+    TEST_ASSERT_EQUAL_UINT16(0x0022U, client.topics[1].topic_id);
 }
 
 void run_mqttsn_tests(void)
@@ -505,4 +680,6 @@ void run_mqttsn_tests(void)
     RUN_TEST(test_mqttsn_discovery_and_connect);
     RUN_TEST(test_mqttsn_register_and_publish);
     RUN_TEST(test_mqttsn_sleep_and_lifecycle);
+    RUN_TEST(test_mqttsn_pt_has_data_yielding_and_unhandled_msg);
+    RUN_TEST(test_mqttsn_regack_msg_id_matching_and_reregistration);
 }

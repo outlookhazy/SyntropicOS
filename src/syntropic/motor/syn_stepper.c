@@ -30,6 +30,42 @@ static void set_direction(const SYN_Stepper *s, bool forward)
     syn_port_gpio_write(s->dir_pin, lvl);
 }
 
+/**
+ * @brief Update stepper speed ramp state for the elapsed tick interval.
+ * @param s       Stepper instance.
+ * @param dt_tick Elapsed milliseconds since previous tick.
+ * @return Updated step rate in steps per second (at least 1).
+ */
+static uint32_t stepper_update_speed(SYN_Stepper *s, uint32_t dt_tick)
+{
+    uint64_t acc_total = (uint64_t)s->accel * (uint64_t)dt_tick + (uint64_t)s->speed_rem;
+    uint64_t dv = acc_total / 1000ULL;
+    s->speed_rem = (uint32_t)(acc_total % 1000ULL);
+
+    if (s->state == (uint8_t)SYN_STEPPER_ACCEL) {
+        uint64_t next_speed = (uint64_t)s->speed + dv;
+        if (next_speed >= (uint64_t)s->max_speed) {
+            s->speed = s->max_speed;
+            s->speed_rem = 0U;
+            s->state = (uint8_t)SYN_STEPPER_CRUISE;
+        } else {
+            s->speed = (uint32_t)next_speed;
+        }
+        return (s->speed > 0U) ? s->speed : 1U;
+    }
+
+    if (s->state == (uint8_t)SYN_STEPPER_CRUISE) {
+        return s->max_speed;
+    }
+
+    if ((uint64_t)s->speed > dv) {
+        s->speed -= (uint32_t)dv;
+    } else {
+        s->speed = 1U;
+    }
+    return s->speed;
+}
+
 /* ── API ────────────────────────────────────────────────────────────────── */
 
 void syn_stepper_init(SYN_Stepper *s, SYN_GPIO_Pin step_pin, SYN_GPIO_Pin dir_pin)
@@ -77,100 +113,81 @@ void syn_stepper_move(SYN_Stepper *s, int32_t steps)
 {
     SYN_ASSERT(s != NULL);
 
-    if (steps == 0)
+    if (steps == 0 || s->accel == 0U || s->max_speed == 0U) {
         return;
+    }
 
     bool forward = (steps > 0);
-    int32_t abs_steps = forward ? steps : -steps;
+    int64_t steps64 = forward ? (int64_t)steps : -(int64_t)steps;
+    int32_t abs_steps = (steps64 > (int64_t)INT32_MAX) ? INT32_MAX : (int32_t)steps64;
 
     set_direction(s, forward);
 
     s->steps_to_go = abs_steps;
-    s->target = s->position + steps;
+    int64_t target64 = (int64_t)s->position + (int64_t)steps;
+    if (target64 > (int64_t)INT32_MAX) {
+        s->target = INT32_MAX;
+    } else if (target64 < (int64_t)INT32_MIN) {
+        s->target = INT32_MIN;
+    } else {
+        s->target = (int32_t)target64;
+    }
 
     /* Compute deceleration start point:
      * For a symmetric trapezoidal profile, decel starts at half the
      * total steps. If max speed can't be reached, it's a triangle. */
-    int32_t accel_steps = 0;
-    if (s->accel > 0) {
-        /* v² = 2 * a * d → d = v² / (2a) */
-        accel_steps = (int32_t)(((uint64_t)s->max_speed * s->max_speed) / (2u * s->accel));
-        if (accel_steps > abs_steps / 2) {
-            accel_steps = abs_steps / 2;
-        }
-    }
+    uint64_t raw_accel_steps =
+        ((uint64_t)s->max_speed * (uint64_t)s->max_speed) / (2ULL * (uint64_t)s->accel);
+    int32_t half_steps = abs_steps / 2;
+    int32_t accel_steps =
+        (raw_accel_steps > (uint64_t)half_steps) ? half_steps : (int32_t)raw_accel_steps;
     s->decel_start = abs_steps - accel_steps;
 
-    s->speed = 0;
-    s->step_interval = 0;
-    s->last_step_tick = syn_port_get_tick_ms();
+    uint32_t now = syn_port_get_tick_ms();
+    s->speed = 0U;
+    s->speed_rem = 0U;
+    s->step_interval = 0U;
+    s->last_step_tick = now;
+    s->last_tick_ms = now;
     s->state = (uint8_t)SYN_STEPPER_ACCEL;
 }
 
 void syn_stepper_move_to(SYN_Stepper *s, int32_t position)
 {
-    syn_stepper_move(s, position - s->position);
+    SYN_ASSERT(s != NULL);
+    int64_t diff = (int64_t)position - (int64_t)s->position;
+    if (diff > (int64_t)INT32_MAX) {
+        diff = (int64_t)INT32_MAX;
+    } else if (diff < (int64_t)INT32_MIN + 1LL) {
+        diff = (int64_t)INT32_MIN + 1LL;
+    }
+    syn_stepper_move(s, (int32_t)diff);
 }
 
 void syn_stepper_tick(SYN_Stepper *s)
 {
     SYN_ASSERT(s != NULL);
 
-    if (s->state == (uint8_t)SYN_STEPPER_IDLE)
+    if (s->state == (uint8_t)SYN_STEPPER_IDLE || s->accel == 0U || s->max_speed == 0U) {
+        s->state = (uint8_t)SYN_STEPPER_IDLE;
         return;
-
-    uint32_t now = syn_port_get_tick_ms();
-    uint32_t dt = now - s->last_step_tick;
-
-    /* Compute current speed based on state */
-    uint32_t target_speed = 0;
-
-    switch ((SYN_StepperState)s->state) {
-    case SYN_STEPPER_ACCEL:
-        /* Accelerating — increase speed by accel * dt */
-        s->speed += (s->accel * dt) / 1000u;
-        if (s->speed >= s->max_speed) {
-            s->speed = s->max_speed;
-            s->state = (uint8_t)SYN_STEPPER_CRUISE;
-        }
-        target_speed = s->speed;
-        break;
-
-    case SYN_STEPPER_CRUISE:
-        target_speed = s->max_speed;
-        break;
-
-    case SYN_STEPPER_DECEL:
-        if (s->speed > (s->accel * dt) / 1000u) {
-            s->speed -= (s->accel * dt) / 1000u;
-        } else {
-            s->speed = 1; /* minimum speed to finish */
-        }
-        target_speed = s->speed;
-        break;
-
-    /* LCOV_EXCL_START: Defensive bounds check / hardware port fallback */
-    case SYN_STEPPER_IDLE:
-        return;
-        /* LCOV_EXCL_STOP */
     }
 
-    /* Compute step interval from speed */
-    if (target_speed == 0)
-        target_speed = 1;
-    uint32_t interval_ms = 1000u / target_speed;
-    if (interval_ms == 0)
-        interval_ms = 1; /* LCOV_EXCL_LINE: Defensive bounds check / hardware port fallback */
+    uint32_t now = syn_port_get_tick_ms();
+    uint32_t dt_tick = now - s->last_tick_ms;
+    s->last_tick_ms = now;
 
-    /* Time to step? */
-    if (dt >= interval_ms) {
-        /* Generate step pulse */
+    uint32_t target_speed = stepper_update_speed(s, dt_tick);
+    uint32_t interval_ms = 1000U / target_speed;
+    if (interval_ms == 0U) {
+        interval_ms = 1U;
+    }
+
+    uint32_t step_dt = now - s->last_step_tick;
+    if (step_dt >= interval_ms) {
         syn_port_gpio_write(s->step_pin, SYN_GPIO_HIGH);
-        /* In a real system you'd want a tiny delay here,
-         * but for compatibility we just toggle */
         syn_port_gpio_write(s->step_pin, SYN_GPIO_LOW);
 
-        /* Update position */
         if (s->target > s->position) {
             s->position++;
         } else {
@@ -179,18 +196,19 @@ void syn_stepper_tick(SYN_Stepper *s)
         s->steps_to_go--;
         s->last_step_tick = now;
 
-        /* Check if we should start decelerating */
-        if (s->state != (uint8_t)SYN_STEPPER_DECEL &&
-            s->steps_to_go <= (s->decel_start > 0
-                                   ? (int32_t)(((uint64_t)s->speed * s->speed) / (2u * s->accel))
-                                   : 0)) {
-            s->state = (uint8_t)SYN_STEPPER_DECEL;
+        if (s->state != (uint8_t)SYN_STEPPER_DECEL) {
+            uint64_t stop_steps =
+                ((uint64_t)s->speed * (uint64_t)s->speed) / (2ULL * (uint64_t)s->accel);
+            if ((uint64_t)s->steps_to_go <= stop_steps) {
+                s->state = (uint8_t)SYN_STEPPER_DECEL;
+                s->speed_rem = 0U;
+            }
         }
 
-        /* Check if move is complete */
         if (s->steps_to_go <= 0) {
             s->state = (uint8_t)SYN_STEPPER_IDLE;
-            s->speed = 0;
+            s->speed = 0U;
+            s->speed_rem = 0U;
         }
     }
 }

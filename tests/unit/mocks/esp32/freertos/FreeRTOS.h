@@ -7,6 +7,13 @@
 
 typedef void *TaskHandle_t;
 typedef uint32_t TickType_t;
+typedef uint32_t portMUX_TYPE;
+
+#define portMUX_INITIALIZER_UNLOCKED 0U
+#define portENTER_CRITICAL(mux) ((void)(mux))
+#define portEXIT_CRITICAL(mux) ((void)(mux))
+#define portENTER_CRITICAL_SAFE(mux) ((void)(mux))
+#define portEXIT_CRITICAL_SAFE(mux) ((void)(mux))
 
 #define pdMS_TO_TICKS(ms) (ms)
 #define portTICK_PERIOD_MS 1

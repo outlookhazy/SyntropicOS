@@ -75,6 +75,7 @@ void test_igmp_process_query(void)
     uint8_t query_pkt[60] = {0};
     query_pkt[12] = 0x08;
     query_pkt[13] = 0x00; /* IPv4 */
+    query_pkt[14] = 0x45; /* IHL=5 (20B) */
     query_pkt[23] = 2;    /* Protocol = IGMP */
     query_pkt[34] = SYN_IGMP_TYPE_MEMBERSHIP_QUERY;
 
@@ -142,6 +143,7 @@ void test_igmp_non_igmp_packets(void)
     uint8_t udp_pkt[60] = {0};
     udp_pkt[12] = 0x08;
     udp_pkt[13] = 0x00;
+    udp_pkt[14] = 0x45;
     udp_pkt[23] = 17;
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_igmp_process_packet(&igmp, &eth, udp_pkt, 60, NULL, &tx_len));
 
@@ -160,6 +162,7 @@ void test_igmp_non_igmp_packets(void)
     uint8_t query_pkt_null[60] = {0};
     query_pkt_null[12] = 0x08;
     query_pkt_null[13] = 0x00;
+    query_pkt_null[14] = 0x45;
     query_pkt_null[23] = 2;
     query_pkt_null[34] = SYN_IGMP_TYPE_MEMBERSHIP_QUERY;
     TEST_ASSERT_EQUAL_INT(
@@ -169,6 +172,7 @@ void test_igmp_non_igmp_packets(void)
     uint8_t report_pkt[60] = {0};
     report_pkt[12] = 0x08;
     report_pkt[13] = 0x00;
+    report_pkt[14] = 0x45;
     report_pkt[23] = 2;
     report_pkt[34] = SYN_IGMP_TYPE_V2_REPORT;
     TEST_ASSERT_EQUAL_INT(SYN_OK,
@@ -177,4 +181,47 @@ void test_igmp_non_igmp_packets(void)
     /* Build report with custom type (neither V2_REPORT nor V2_LEAVE) */
     TEST_ASSERT_EQUAL_INT(SYN_OK,
                           syn_igmp_build_report(&rejoin_igmp, &eth, 99, MDNS_GROUP, frame, &len));
+}
+
+void test_r5_igmp_regressions(void)
+{
+    SYN_IGMP igmp;
+    SYN_ETH eth;
+    uint8_t frame[60];
+    size_t len = 0;
+
+    syn_igmp_init(&igmp);
+    syn_eth_init(&eth, MAC, MY_IP);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_igmp_join_group(&igmp, &eth, MDNS_GROUP, frame, &len));
+
+    /* 1. Reject IHL < 20 and IHL + 8 exceeding packet length */
+    uint8_t bad_ihl[60] = {0};
+    bad_ihl[12] = 0x08;
+    bad_ihl[13] = 0x00;
+    bad_ihl[14] = 0x44; /* IHL = 16 < 20 */
+    bad_ihl[23] = 2;
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_igmp_process_packet(&igmp, &eth, bad_ihl, 60, frame, &len));
+
+    bad_ihl[14] = 0x4F; /* IHL = 60 -> 14 + 60 + 8 = 82 > 60 */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_igmp_process_packet(&igmp, &eth, bad_ihl, 60, frame, &len));
+
+    /* 2. IGMPv2 Membership Query with RFC 2113 Router Alert option (IHL = 24, IGMP at offset 38) */
+    uint8_t ra_query[60] = {0};
+    ra_query[12] = 0x08;
+    ra_query[13] = 0x00;
+    ra_query[14] = 0x46; /* Version 4, IHL = 6 (24 bytes) */
+    ra_query[23] = 2;    /* Protocol = IGMP */
+    ra_query[34] = 0x94; /* Router Alert option (94 04 00 00) */
+    ra_query[35] = 0x04;
+    ra_query[38] = SYN_IGMP_TYPE_MEMBERSHIP_QUERY;
+
+    uint8_t reply[60] = {0};
+    size_t reply_len = 0;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_igmp_process_packet(&igmp, &eth, ra_query, 60, reply, &reply_len));
+    TEST_ASSERT_EQUAL_UINT32(1U, igmp.queries_received);
+    TEST_ASSERT_EQUAL_size_t(60U, reply_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_IGMP_TYPE_V2_REPORT, reply[34]);
 }

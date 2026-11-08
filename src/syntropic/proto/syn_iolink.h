@@ -137,6 +137,8 @@ typedef struct {
     SYN_IOLink_DirectParams dev_params; /**< Discovered device parameters */
     SYN_IOLink_MSeqType mseq_type;      /**< Active M-Sequence type */
     uint32_t last_cycle_ms;             /**< Timestamp of last cycle execution */
+    uint32_t rx_deadline_ms;            /**< Deadline timestamp for pending async RX frame */
+    bool awaiting_rx;                   /**< True while waiting for device PD response */
 
     uint8_t current_pd_in[SYN_IOLINK_MAX_PD_LEN];  /**< Latest input process data */
     size_t current_pd_in_len;                      /**< Input process data length */

@@ -11,7 +11,7 @@ Before adding SyntropicOS to your codebase, understand three core concepts:
 ### Stackless Protothreads (`syn_pt`)
 Traditional RTOS tasks require separate hardware stacks (512 B to 4 KB RAM per thread). SyntropicOS uses **protothreads** — stackless C coroutines that run on the system's single main stack.
 - **RAM Cost**: Exactly **2 bytes** per thread (`uint16_t lc` continuation variable).
-- **Execution Mechanism**: `PT_BEGIN()` and `PT_END()` implement a Duff's device continuation (`switch(pt->lc)`). When yielding (`PT_WAIT_UNTIL` or `PT_TASK_DELAY_MS`), execution returns to the caller and resumes at the saved line on the next invocation.
+- **Execution Mechanism**: `PT_BEGIN()` and `PT_END()` implement a Duff's device continuation (`switch(pt->lc)`). When yielding (`PT_PASS`, `PT_CONTINUE`, `PT_WAIT_UNTIL`, or `PT_TASK_DELAY_MS`), execution returns its scheduling intent (`PT_IDLE` or `PT_MORE`) to the scheduler and resumes at the saved line on the next dispatch.
 - **Variable Lifetime Rule**: Local function variables do **not** persist across yield points. Persistent variables must be declared as `static`, allocated globally, or stored in a task context structure passed to `syn_task_create()`.
 
 ### Zero-Heap Allocation
@@ -61,9 +61,9 @@ int main(void) {
     static SYN_Task tasks[2];
     static SYN_Sched sched;
 
-    /* 3. Initialize task descriptors (Priority 0 = highest priority) */
-    syn_task_create(&tasks[0], "blink", blink_task, 0, NULL);
-    syn_task_create(&tasks[1], "log",   log_task,   1, NULL);
+    /* 3. Initialize task descriptors (SYN_PRIO_CRITICAL = 0 highest .. SYN_PRIO_LOW = 3) */
+    syn_task_create(&tasks[0], "blink", blink_task, SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks[1], "log",   log_task,   SYN_PRIO_LOW,    NULL);
 
     /* 4. Pass static task array to scheduler */
     syn_sched_init(&sched, tasks, 2);
@@ -210,6 +210,11 @@ Beyond module switches, several modules expose tuning knobs:
 
 | Parameter | Default | Description |
 |---|---|---|
+| `SYN_SCHED_PRIO_LEVELS` | `4` | Number of scheduler priority levels (`SYN_PRIO_CRITICAL = 0` .. `SYN_PRIO_LOW = 3`) |
+| `SYN_SCHED_MAX_WAIT_CRITICAL_MS` | `1U` | Default max starvation wait window for `SYN_PRIO_CRITICAL` (ms) |
+| `SYN_SCHED_MAX_WAIT_HIGH_MS` | `5U` | Default max starvation wait window for `SYN_PRIO_HIGH` (ms) |
+| `SYN_SCHED_MAX_WAIT_NORMAL_MS` | `15U` | Default max starvation wait window for `SYN_PRIO_NORMAL` (ms) |
+| `SYN_SCHED_MAX_WAIT_LOW_MS` | `50U` | Default max starvation wait window for `SYN_PRIO_LOW` (ms) |
 | `SYN_LOG_LEVEL` | `1` (DEBUG) | Compile-time minimum log level (0=TRACE .. 5=FATAL, 6=NONE) |
 | `SYN_LOG_BUF_SIZE` | `192` | Log output buffer size in bytes |
 | `SYN_LOG_TIMESTAMP` | `1` | Include `[tick]` timestamp prefix in log output |

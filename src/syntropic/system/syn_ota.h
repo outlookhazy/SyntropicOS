@@ -42,6 +42,17 @@
 #define SYN_OTA_H
 
 #include "../common/syn_defs.h"
+
+#if (!defined(SYN_USE_OTA) || SYN_USE_OTA) && (!defined(SYN_USE_BOOT) || SYN_USE_BOOT)
+/** @brief Non-zero when OTA subsystem and bootloader dependencies are enabled. */
+#define SYN_OTA_ENABLED 1
+#else
+/** @brief Non-zero when OTA subsystem and bootloader dependencies are enabled. */
+#define SYN_OTA_ENABLED 0
+#endif
+
+#if SYN_OTA_ENABLED
+
 #include "syn_fwboot.h"
 #include "syn_fwimage.h"
 #include "syn_fwupdate.h"
@@ -53,8 +64,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#if !defined(SYN_USE_OTA) || SYN_USE_OTA
 
 /* ── Enums & Types ───────────────────────────────────────────────────────── */
 
@@ -152,7 +161,7 @@ typedef struct {
  *
  * @param mgr          OTA manager instance to initialize.
  * @param boot_mgr     Dual-bank boot manager instance.
- * @param slot_size    Maximum firmware capacity per slot in bytes.
+ * @param slot_size    Total flash capacity per slot in bytes (must exceed header sector size).
  * @param page_buf     Caller-provided page-aligned flash write buffer.
  * @param page_buf_sz  Size of page buffer (must match flash write granularity).
  * @return SYN_OK on success, SYN_INVALID_PARAM on NULL or invalid inputs.
@@ -301,10 +310,10 @@ SYN_Status syn_ota_bind_lwm2m(SYN_OTA_Manager *mgr, void *lwm2m_fw_ctx);
  */
 void syn_ota_sync_lwm2m(SYN_OTA_Manager *mgr);
 
-#endif /* SYN_USE_OTA */
-
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* SYN_OTA_ENABLED */
 
 #endif /* SYN_OTA_H */

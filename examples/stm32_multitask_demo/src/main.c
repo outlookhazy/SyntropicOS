@@ -104,8 +104,8 @@ static SYN_PT_Status task_button_func(SYN_PT *pt)
             g_resources.last_event_tick = syn_port_get_tick_ms();
         }
 
-        /* Debounce delay (100ms) */
-        PT_YIELD(pt);
+        /* Pass turn until next round */
+        PT_PASS(pt);
     }
 
     PT_END(pt);
@@ -173,10 +173,10 @@ static SYN_PT_Status task_usart_func(SYN_PT *pt)
         uint8_t c;
         if (syn_port_serial_read(&c, 1) == 1) {
             syn_cli_process_char(&cli_ctx, (char)c);
+            PT_CONTINUE(pt);
+        } else {
+            PT_PASS(pt);
         }
-
-        /* Yield to allow other protothreads to execute */
-        PT_YIELD(pt);
     }
 
     PT_END(pt);
@@ -207,7 +207,7 @@ static SYN_PT_Status task_ipc_func(SYN_PT *pt)
             g_resources.pending_event = EVENT_NONE;
         }
 
-        PT_YIELD(pt);
+        PT_PASS(pt);
     }
 
     PT_END(pt);
@@ -230,7 +230,7 @@ static SYN_PT_Status task_led_func(SYN_PT *pt)
             interval_ms = 100U;  /* Rapid flash */
         } else if (g_resources.current_mode == SYSTEM_MODE_CONFIG) {
             HAL_GPIO_WritePin(LED_GPIO_PORT, LED_GPIO_PIN, GPIO_PIN_SET); /* Solid ON */
-            PT_YIELD(pt);
+            PT_PASS(pt);
             continue;
         } else {
             interval_ms = 1000U; /* Slow blink */
@@ -241,7 +241,7 @@ static SYN_PT_Status task_led_func(SYN_PT *pt)
             HAL_GPIO_TogglePin(LED_GPIO_PORT, LED_GPIO_PIN);
         }
 
-        PT_YIELD(pt);
+        PT_PASS(pt);
     }
 
     PT_END(pt);
@@ -262,7 +262,7 @@ int main(void)
 
     /* ── Option A: Bare-Metal Cooperative Super-Loop (Used Here) ────────────────
      * In this standalone mode, the super-loop polls each protothread round-robin.
-     * Each task returns PT_YIELDED or PT_WAITING immediately when blocked, allowing
+     * Each task returns PT_MORE or PT_IDLE immediately when yielding, allowing
      * CPU cycles to pass to the next task in nanoseconds (~3-5 cycles context switch).
      */
     while (1) {
@@ -279,19 +279,19 @@ int main(void)
      *   static SYN_Task tasks[4];
      *   static SYN_Sched sched;
      *
-     *   syn_task_create(&tasks[0], "button", task_button_adapter, 3, NULL); // Priority 3
-     *   syn_task_create(&tasks[1], "usart",  task_usart_adapter,  2, NULL); // Priority 2
-     *   syn_task_create(&tasks[2], "ipc",    task_ipc_adapter,    1, NULL); // Priority 1
-     *   syn_task_create(&tasks[3], "led",    task_led_adapter,    0, NULL); // Priority 0
+     *   syn_task_create(&tasks[0], "button", task_button_adapter, SYN_PRIO_HIGH,     NULL);
+     *   syn_task_create(&tasks[1], "usart",  task_usart_adapter,  SYN_PRIO_HIGH,     NULL);
+     *   syn_task_create(&tasks[2], "ipc",    task_ipc_adapter,    SYN_PRIO_CRITICAL, NULL);
+     *   syn_task_create(&tasks[3], "led",    task_led_adapter,    SYN_PRIO_LOW,      NULL);
      *
      *   syn_sched_init(&sched, tasks, 4);
      *   syn_sched_run_forever(&sched);
      *
      * Key Scheduler Operational Differences:
-     *  1. Priority Preemption & Sorting: Higher priority ready tasks run before lower ones.
+     *  1. Priority & Starvation Bounds: Higher priority work runs first, bounded by max_wait_ms.
      *  2. Event-Driven Sleeping: Tasks call PT_BLOCK_EVENT() or PT_TASK_DELAY_MS(),
-     *     marking their state SYN_TASK_BLOCKED/WAITING so the kernel skips polling them.
-     *  3. Tickless Low-Power Sleep: When all tasks are waiting/blocked, syn_sched
+     *     marking their state SYN_TASK_BLOCKED or setting a wakeup deadline so the kernel skips polling them.
+     *  3. Tickless Low-Power Sleep: When all tasks are delayed/blocked, syn_sched
      *     automatically invokes MCU WFI (Wait For Interrupt) to save power.
      */
 

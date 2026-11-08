@@ -6,6 +6,7 @@
  * a GPRS IP context on SIM800 and run SyntropicOS's native syn_mqtt client engine.
  */
 
+#include "port/stm32_hal/port_stm32_hal.h"
 #include "syntropic/log/syn_log.h"
 #include "syntropic/net/syn_mqtt.h"
 #include "syntropic/sched/syn_sched.h"
@@ -19,6 +20,7 @@
 extern UART_HandleTypeDef huart2; /* Modem USART handle */
 
 /* ── Buffers & Contexts ─────────────────────────────────────────────────── */
+static SYN_UART modem_uart;
 static uint8_t modem_rx_backing[256];
 static SYN_Stream modem_rx_stream;
 
@@ -47,6 +49,9 @@ typedef enum {
 static ModemState g_modem_state = MODEM_STATE_POWER_ON;
 static SYN_Socket g_sim800_sock = SYN_SOCKET_INVALID;
 
+static SYN_Task tasks[2];
+static SYN_Sched sched;
+
 /* ── STM32 USART Interrupt Handler ──────────────────────────────────────── */
 
 /**
@@ -57,70 +62,92 @@ void sim800_uart_rx_isr(uint8_t byte)
     syn_stream_put(&modem_rx_stream, byte);
 }
 
+/**
+ * @brief Drain queued outgoing modem bytes from STM32 USART TXE ISR.
+ */
+void sim800_uart_tx_isr(void)
+{
+    syn_uart_tx_isr_flush(&modem_uart);
+}
+
 /* ── SIM800 Non-blocking Protothread Task ───────────────────────────────── */
+
+typedef struct {
+    ModemState state;
+    const char *cmd;
+    uint32_t timeout_ms;
+    SYN_AtRespType expected;
+    const char *line_prefix;
+} ModemCmdStep;
+
+static const ModemCmdStep k_modem_steps[] = {
+    /* 1. Send initial AT command */
+    { MODEM_STATE_CHECK_AT,         "AT\r\n",                2000U,  SYN_AT_RESP_OK,   NULL },
+    /* 2. Verify SIM card insertion (AT+CPIN?) -> +CPIN: READY followed by OK */
+    { MODEM_STATE_CHECK_SIM,        "AT+CPIN?\r\n",          3000U,  SYN_AT_RESP_LINE, "+CPIN: READY" },
+    { MODEM_STATE_CHECK_SIM,        NULL,                    1000U,  SYN_AT_RESP_OK,   NULL },
+    /* 3. Attach GPRS service (AT+CGATT=1) */
+    { MODEM_STATE_ATTACH_GPRS,      "AT+CGATT=1\r\n",        5000U,  SYN_AT_RESP_OK,   NULL },
+    /* 4. Configure APN (AT+CSTT="CMNET") */
+    { MODEM_STATE_SET_APN,          "AT+CSTT=\"CMNET\"\r\n", 3000U,  SYN_AT_RESP_OK,   NULL },
+    /* 5. Bring up wireless connection (AT+CIICR) */
+    { MODEM_STATE_BRINGUP_WIRELESS, "AT+CIICR\r\n",          10000U, SYN_AT_RESP_OK,   NULL },
+};
+
+static bool modem_poll_step(SYN_Timeout *timer, SYN_AtRespType *out_resp)
+{
+    SYN_AtRespType r = syn_at_parser_feed_stream(&at_parser, &modem_rx_stream);
+    *out_resp = r;
+    if (r != SYN_AT_RESP_NONE && r != SYN_AT_RESP_URC) {
+        return true;
+    }
+    return syn_timeout_expired(timer);
+}
+
+static bool modem_step_ok(const ModemCmdStep *step, SYN_AtRespType resp)
+{
+    if (resp != step->expected) {
+        return false;
+    }
+    if (step->line_prefix != NULL) {
+        const char *line = syn_at_parser_get_line(&at_parser);
+        return strncmp(line, step->line_prefix, strlen(step->line_prefix)) == 0;
+    }
+    return true;
+}
 
 static SYN_PT_Status sim800_modem_task(SYN_PT *pt, SYN_Task *task)
 {
     (void)task;
+    (void)g_modem_state;
     (void)g_sim800_sock;
     static SYN_Timeout timer;
     static SYN_AtRespType resp;
+    static size_t step_idx;
+    static const ModemCmdStep *step;
 
     PT_BEGIN(pt);
 
-    /* 1. Send initial AT command */
-    g_modem_state = MODEM_STATE_CHECK_AT;
-    HAL_UART_Transmit(&huart2, (const uint8_t *)"AT\r\n", 4, 100);
-    syn_timeout_start(&timer, 2000);
-
-    PT_WAIT_UNTIL(pt, (resp = syn_at_parser_feed_stream(&at_parser, &modem_rx_stream)) ==
-                          SYN_AT_RESP_OK ||
-                      syn_timeout_expired(&timer));
-
-    if (resp != SYN_AT_RESP_OK) {
-        g_modem_state = MODEM_STATE_FAILED;
-        PT_EXIT(pt);
+    for (step_idx = 0; step_idx < SYN_ARRAY_SIZE(k_modem_steps); step_idx++) {
+        step = &k_modem_steps[step_idx];
+        g_modem_state = step->state;
+        if (step->cmd != NULL) {
+            PT_WAIT_UNTIL(pt, syn_uart_write_async(&modem_uart, (const uint8_t *)step->cmd,
+                                                   strlen(step->cmd)) == SYN_OK);
+            PT_WAIT_UNTIL(pt, syn_uart_tx_complete(&modem_uart));
+        }
+        syn_timeout_start(&timer, step->timeout_ms);
+        PT_WAIT_UNTIL(pt, modem_poll_step(&timer, &resp));
+        if (!modem_step_ok(step, resp)) {
+            g_modem_state = MODEM_STATE_FAILED;
+            PT_EXIT(pt);
+        }
     }
 
-    /* 2. Verify SIM card insertion (AT+CPIN?) */
-    g_modem_state = MODEM_STATE_CHECK_SIM;
-    HAL_UART_Transmit(&huart2, (const uint8_t *)"AT+CPIN?\r\n", 10, 100);
-    syn_timeout_start(&timer, 3000);
-
-    PT_WAIT_UNTIL(pt, (resp = syn_at_parser_feed_stream(&at_parser, &modem_rx_stream)) ==
-                          SYN_AT_RESP_LINE ||
-                      syn_timeout_expired(&timer));
-
-    /* 3. Attach GPRS service (AT+CGATT=1) */
-    g_modem_state = MODEM_STATE_ATTACH_GPRS;
-    HAL_UART_Transmit(&huart2, (const uint8_t *)"AT+CGATT=1\r\n", 12, 100);
-    syn_timeout_start(&timer, 5000);
-
-    PT_WAIT_UNTIL(pt, (resp = syn_at_parser_feed_stream(&at_parser, &modem_rx_stream)) ==
-                          SYN_AT_RESP_OK ||
-                      syn_timeout_expired(&timer));
-
-    /* 4. Configure APN (AT+CSTT="CMNET") */
-    g_modem_state = MODEM_STATE_SET_APN;
-    HAL_UART_Transmit(&huart2, (const uint8_t *)"AT+CSTT=\"CMNET\"\r\n", 17, 100);
-    syn_timeout_start(&timer, 3000);
-
-    PT_WAIT_UNTIL(pt, (resp = syn_at_parser_feed_stream(&at_parser, &modem_rx_stream)) ==
-                          SYN_AT_RESP_OK ||
-                      syn_timeout_expired(&timer));
-
-    /* 5. Bring up wireless connection (AT+CIICR) */
-    g_modem_state = MODEM_STATE_BRINGUP_WIRELESS;
-    HAL_UART_Transmit(&huart2, (const uint8_t *)"AT+CIICR\r\n", 10, 100);
-    syn_timeout_start(&timer, 10000);
-
-    PT_WAIT_UNTIL(pt, (resp = syn_at_parser_feed_stream(&at_parser, &modem_rx_stream)) ==
-                          SYN_AT_RESP_OK ||
-                      syn_timeout_expired(&timer));
-
-    /* 6. Network connected! Set modem state to ready */
+    /* 6. Network connected! Set modem state to ready and resume MQTT task */
     g_modem_state = MODEM_STATE_READY;
     SYN_LOG_I("SIM800", "SIM800 GPRS Wireless Connection Established");
+    syn_task_resume(&tasks[1]);
 
     PT_END(pt);
 }
@@ -140,7 +167,9 @@ int main(void)
     /* Initialize STM32 HAL Hardware Peripherals */
     HAL_Init();
 
-    /* Initialize SyntropicOS Stream & Parser */
+    /* Initialize SyntropicOS UART, Stream & Parser */
+    syn_port_stm32_register_uart(0, &huart2);
+    syn_uart_init(&modem_uart, 0, 115200);
     syn_stream_init(&modem_rx_stream, modem_rx_backing, sizeof(modem_rx_backing));
     syn_at_parser_init(&at_parser, at_line_buf, sizeof(at_line_buf));
 
@@ -151,11 +180,9 @@ int main(void)
     mqtt_client.on_message = on_mqtt_message;
 
     /* Create SyntropicOS Tasks & Scheduler */
-    static SYN_Task tasks[2];
-    static SYN_Sched sched;
-
-    syn_task_create(&tasks[0], "sim800", sim800_modem_task, 0, NULL);
-    syn_task_create(&tasks[1], "mqtt", syn_mqtt_task, 1, &mqtt_client);
+    syn_task_create(&tasks[0], "sim800", sim800_modem_task, SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks[1], "mqtt", syn_mqtt_task, SYN_PRIO_HIGH, &mqtt_client);
+    syn_task_suspend(&tasks[1]);
 
     syn_sched_init(&sched, tasks, 2);
 

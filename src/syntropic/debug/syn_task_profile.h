@@ -25,12 +25,14 @@ extern "C" {
  * @brief Task Execution Profile Metrics Structure.
  */
 typedef struct {
-    const char *task_name;  /**< Pointer to task name string            */
-    uint32_t step_count;    /**< Total number of times task executed    */
-    uint32_t total_time_us; /**< Total accumulated execution time in us */
-    uint32_t max_yield_us;  /**< Maximum continuous execution time in us*/
-    uint32_t last_start_us; /**< Microsecond timestamp of step start    */
-    float cpu_pct;          /**< Computed CPU utilization percentage    */
+    const char *task_name;   /**< Pointer to task name string              */
+    uint32_t step_count;     /**< Total number of times task executed      */
+    uint32_t total_time_us;  /**< Total accumulated execution time in us   */
+    uint32_t window_time_us; /**< Execution time accumulated in window (us)*/
+    uint32_t max_yield_us;   /**< Maximum continuous execution time in us  */
+    uint32_t last_start_us;  /**< Microsecond timestamp of step start      */
+    float cpu_pct;           /**< Computed CPU utilization percentage      */
+    bool step_active;        /**< True when step_start was recorded        */
 } SYN_TaskProfile;
 
 #ifndef SYN_TASK_PROFILE_MAX_TASKS

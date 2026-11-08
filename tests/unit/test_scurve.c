@@ -192,6 +192,19 @@ static void test_scurve_null_and_bounds(void)
     TEST_ASSERT_EQUAL_INT(5, ox);
 }
 
+static void test_r5_scurve3d_large_delta_no_overflow(void)
+{
+    SYN_SCurve3D sc3d;
+    /* 60000^2 + 80000^2 = 10^10 > INT32_MAX; exact 3D Euclidean distance is 100000 */
+    syn_scurve3d_plan(&sc3d, 0, 0, 0, 60000, 80000, 0, 5000, 500, 50);
+    TEST_ASSERT_EQUAL_UINT32(100000U, sc3d.total_dist);
+
+    /* Negative large deltas and INT32_MAX total_dist clamp */
+    syn_scurve3d_plan(&sc3d, 800000000, 800000000, 800000000, -800000000, -800000000, -800000000,
+                      10000000, 1000000, 100000);
+    TEST_ASSERT_EQUAL_UINT32((uint32_t)INT32_MAX, sc3d.total_dist);
+}
+
 void run_scurve_tests(void)
 {
     RUN_TEST(test_scurve_init);
@@ -203,4 +216,5 @@ void run_scurve_tests(void)
     RUN_TEST(test_scurve_tj_reduction);
     RUN_TEST(test_scurve3d_path_planning);
     RUN_TEST(test_scurve_null_and_bounds);
+    RUN_TEST(test_r5_scurve3d_large_delta_no_overflow);
 }

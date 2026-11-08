@@ -30,7 +30,7 @@
  *   syn_wg_init(&wg, &cfg, &sntp, rx, sizeof(rx), tx, sizeof(tx));
  *   wg.on_recv = my_handler;
  *
- *   syn_task_create(&tasks[1], "wg", syn_wg_task, 1, &wg);
+ *   syn_task_create(&tasks[1], "wg", syn_wg_task, SYN_PRIO_HIGH, &wg);
  * @endcode
  * @ingroup syn_net
  */
@@ -116,7 +116,7 @@ typedef struct {
     uint8_t recv_key[32];    /**< ChaCha20-Poly1305 key for incoming      */
     uint64_t send_counter;   /**< Outgoing nonce counter                   */
     uint64_t recv_counter;   /**< Highest received nonce                   */
-    uint32_t recv_bitmap;    /**< Anti-replay sliding window (32 bits)     */
+    uint64_t recv_bitmap;    /**< Anti-replay sliding window (64 bits)     */
     uint32_t sender_index;   /**< Our sender index (in transport headers)  */
     uint32_t receiver_index; /**< Peer's sender index                      */
     uint32_t established_ms; /**< Tick when session was established        */
@@ -145,9 +145,15 @@ typedef struct {
     SYN_WgSession session; /**< Currently active transport session */
 
     /* Handshake state (scratch — only valid during handshake) */
-    uint8_t hs_ephemeral_priv[32]; /**< Ephemeral private key         */
-    uint8_t hs_chaining_key[32];   /**< Noise chaining key (CK)       */
-    uint8_t hs_hash[32];           /**< Noise handshake hash (H)      */
+    uint8_t hs_ephemeral_priv[32]; /**< Ephemeral private key                        */
+    uint8_t hs_chaining_key[32];   /**< Noise chaining key (CK)                      */
+    uint8_t hs_hash[32];           /**< Noise handshake hash (H)                     */
+    uint32_t hs_sender_index;      /**< Pending handshake initiator sender index     */
+    bool rekey_in_progress;        /**< True while negotiating hitless rekey session */
+
+    /* Cumulative tunnel payload counters */
+    uint64_t tx_bytes; /**< Total encrypted tunnel bytes transmitted     */
+    uint64_t rx_bytes; /**< Total decrypted tunnel bytes received        */
 
     /* Timers */
     uint32_t last_sent_ms;      /**< Tick of last data sent             */

@@ -7,63 +7,148 @@
 
 #include <string.h>
 
+/**
+ * @brief Encode a 32-bit unsigned integer using unsigned LEB128 variable-length format.
+ * @param uval    Unsigned 32-bit integer.
+ * @param buf_out Output buffer (at least 5 bytes).
+ * @return Number of bytes written (1..5).
+ */
+static size_t encode_uvarint32(uint32_t uval, uint8_t *buf_out)
+{
+    size_t len = 0U;
+    while (uval >= 0x80U) {
+        buf_out[len++] = (uint8_t)((uval & 0x7FU) | 0x80U);
+        uval >>= 7U;
+    }
+    buf_out[len++] = (uint8_t)(uval & 0x7FU);
+    return len;
+}
+
+/**
+ * @brief Encode a 64-bit signed delta using ZigZag + LEB128 variable-length format.
+ * @param val     Signed 64-bit integer delta.
+ * @param buf_out Output buffer (at least 10 bytes).
+ * @return Number of bytes written (1..10).
+ */
+static size_t encode_varint64(int64_t val, uint8_t *buf_out)
+{
+    uint64_t uval = (val < 0) ? (((uint64_t)(~(uint64_t)val) << 1U) | 1ULL) : ((uint64_t)val << 1U);
+    size_t len = 0U;
+    while (uval >= 0x80ULL) {
+        buf_out[len++] = (uint8_t)((uval & 0x7FULL) | 0x80ULL);
+        uval >>= 7U;
+    }
+    buf_out[len++] = (uint8_t)(uval & 0x7FULL);
+    return len;
+}
+
 size_t syn_blackbox_encode_varint(int32_t val, uint8_t *buf_out)
 {
-    if (!buf_out) {
-        return 0; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
+    if (buf_out == NULL) {
+        return 0U;
     }
 
-    /* ZigZag encoding: maps signed integers to unsigned integers */
-    uint32_t uval = ((uint32_t)val << 1) ^ (uint32_t)(val >> 31);
-    size_t len = 0;
-
-    while (uval >= 0x80) {
-        buf_out[len++] = (uint8_t)((uval & 0x7F) | 0x80);
-        uval >>= 7;
-    }
-    buf_out[len++] = (uint8_t)(uval & 0x7F);
-
-    return len;
+    uint32_t raw = (uint32_t)val;
+    uint32_t uval = (raw << 1U) ^ (0U - (raw >> 31U));
+    return encode_uvarint32(uval, buf_out);
 }
 
 SYN_Status syn_blackbox_init(SYN_Blackbox *bb)
 {
-    if (!bb) {
+    if (bb == NULL) {
         return SYN_INVALID_PARAM;
     }
     memset(bb, 0, sizeof(*bb));
     return SYN_OK;
 }
 
-SYN_Status syn_blackbox_encode_intra(SYN_Blackbox *bb, const SYN_Blackbox_Record *record,
-                                     uint8_t *buf_out, size_t *out_len)
+SYN_Status syn_blackbox_encode_intra_ex(SYN_Blackbox *bb, const SYN_Blackbox_Record *record,
+                                        uint8_t *buf_out, size_t buf_cap, size_t *out_len)
 {
-    if (!bb || !record || !buf_out || !out_len) {
+    if (bb == NULL || record == NULL || buf_out == NULL || out_len == NULL) {
         return SYN_INVALID_PARAM;
     }
 
-    size_t idx = 0;
-    buf_out[idx++] = SYN_BLACKBOX_FRAME_INTRA;
+    uint8_t scratch[SYN_BLACKBOX_MAX_FRAME_SIZE];
+    size_t idx = 0U;
+    scratch[idx++] = SYN_BLACKBOX_FRAME_INTRA;
 
-    idx += syn_blackbox_encode_varint((int32_t)record->iteration, &buf_out[idx]);
-    idx += syn_blackbox_encode_varint((int32_t)record->time_us, &buf_out[idx]);
+    idx += encode_uvarint32(record->iteration, &scratch[idx]);
+    idx += encode_uvarint32(record->time_us, &scratch[idx]);
 
     for (int i = 0; i < 3; i++) {
-        idx += syn_blackbox_encode_varint(record->gyro[i], &buf_out[idx]);
+        idx += syn_blackbox_encode_varint(record->gyro[i], &scratch[idx]);
     }
     for (int i = 0; i < 3; i++) {
-        idx += syn_blackbox_encode_varint(record->accel[i], &buf_out[idx]);
+        idx += syn_blackbox_encode_varint(record->accel[i], &scratch[idx]);
     }
     for (int i = 0; i < 4; i++) {
-        idx += syn_blackbox_encode_varint(record->setpoint[i], &buf_out[idx]);
+        idx += syn_blackbox_encode_varint(record->setpoint[i], &scratch[idx]);
     }
     for (int i = 0; i < 4; i++) {
-        idx += syn_blackbox_encode_varint(record->motor[i], &buf_out[idx]);
+        idx += syn_blackbox_encode_varint(record->motor[i], &scratch[idx]);
     }
 
+    if (idx > buf_cap) {
+        return SYN_INVALID_PARAM;
+    }
+
+    memcpy(buf_out, scratch, idx);
     bb->last_record = *record;
     bb->frame_count++;
-    bb->bytes_written += idx;
+    bb->bytes_written += (uint32_t)idx;
+    *out_len = idx;
+
+    return SYN_OK;
+}
+
+SYN_Status syn_blackbox_encode_intra(SYN_Blackbox *bb, const SYN_Blackbox_Record *record,
+                                     uint8_t *buf_out, size_t *out_len)
+{
+    return syn_blackbox_encode_intra_ex(bb, record, buf_out, SYN_BLACKBOX_MAX_FRAME_SIZE, out_len);
+}
+
+SYN_Status syn_blackbox_encode_delta_ex(SYN_Blackbox *bb, const SYN_Blackbox_Record *record,
+                                        uint8_t *buf_out, size_t buf_cap, size_t *out_len)
+{
+    if (bb == NULL || record == NULL || buf_out == NULL || out_len == NULL) {
+        return SYN_INVALID_PARAM;
+    }
+
+    uint8_t scratch[SYN_BLACKBOX_MAX_FRAME_SIZE];
+    size_t idx = 0U;
+    scratch[idx++] = SYN_BLACKBOX_FRAME_DELTA;
+
+    idx += encode_varint64((int64_t)record->iteration - (int64_t)bb->last_record.iteration,
+                           &scratch[idx]);
+    idx +=
+        encode_varint64((int64_t)record->time_us - (int64_t)bb->last_record.time_us, &scratch[idx]);
+
+    for (int i = 0; i < 3; i++) {
+        idx += syn_blackbox_encode_varint(
+            (int32_t)record->gyro[i] - (int32_t)bb->last_record.gyro[i], &scratch[idx]);
+    }
+    for (int i = 0; i < 3; i++) {
+        idx += syn_blackbox_encode_varint(
+            (int32_t)record->accel[i] - (int32_t)bb->last_record.accel[i], &scratch[idx]);
+    }
+    for (int i = 0; i < 4; i++) {
+        idx += syn_blackbox_encode_varint(
+            (int32_t)record->setpoint[i] - (int32_t)bb->last_record.setpoint[i], &scratch[idx]);
+    }
+    for (int i = 0; i < 4; i++) {
+        idx += syn_blackbox_encode_varint(
+            (int32_t)record->motor[i] - (int32_t)bb->last_record.motor[i], &scratch[idx]);
+    }
+
+    if (idx > buf_cap) {
+        return SYN_INVALID_PARAM;
+    }
+
+    memcpy(buf_out, scratch, idx);
+    bb->last_record = *record;
+    bb->frame_count++;
+    bb->bytes_written += (uint32_t)idx;
     *out_len = idx;
 
     return SYN_OK;
@@ -72,38 +157,5 @@ SYN_Status syn_blackbox_encode_intra(SYN_Blackbox *bb, const SYN_Blackbox_Record
 SYN_Status syn_blackbox_encode_delta(SYN_Blackbox *bb, const SYN_Blackbox_Record *record,
                                      uint8_t *buf_out, size_t *out_len)
 {
-    if (!bb || !record || !buf_out || !out_len) {
-        return SYN_INVALID_PARAM;
-    }
-
-    size_t idx = 0;
-    buf_out[idx++] = SYN_BLACKBOX_FRAME_DELTA;
-
-    idx += syn_blackbox_encode_varint((int32_t)(record->iteration - bb->last_record.iteration),
-                                      &buf_out[idx]);
-    idx += syn_blackbox_encode_varint((int32_t)(record->time_us - bb->last_record.time_us),
-                                      &buf_out[idx]);
-
-    for (int i = 0; i < 3; i++) {
-        idx += syn_blackbox_encode_varint(record->gyro[i] - bb->last_record.gyro[i], &buf_out[idx]);
-    }
-    for (int i = 0; i < 3; i++) {
-        idx +=
-            syn_blackbox_encode_varint(record->accel[i] - bb->last_record.accel[i], &buf_out[idx]);
-    }
-    for (int i = 0; i < 4; i++) {
-        idx += syn_blackbox_encode_varint(record->setpoint[i] - bb->last_record.setpoint[i],
-                                          &buf_out[idx]);
-    }
-    for (int i = 0; i < 4; i++) {
-        idx += syn_blackbox_encode_varint(
-            (int32_t)record->motor[i] - (int32_t)bb->last_record.motor[i], &buf_out[idx]);
-    }
-
-    bb->last_record = *record;
-    bb->frame_count++;
-    bb->bytes_written += idx;
-    *out_len = idx;
-
-    return SYN_OK;
+    return syn_blackbox_encode_delta_ex(bb, record, buf_out, SYN_BLACKBOX_MAX_FRAME_SIZE, out_len);
 }

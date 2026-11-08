@@ -138,6 +138,31 @@ typedef void (*SYN_OCPP_AuthorizationHandler)(const char *id_tag,
 typedef void (*SYN_OCPP_StartTxHandler)(int32_t transaction_id, SYN_OCPP_AuthorizationStatus status,
                                         void *user_ctx);
 
+/** @brief OCPP Client Pending Outbound Action Enumeration. */
+typedef enum {
+    SYN_OCPP_ACTION_NONE = 0,          /**< No outbound Call awaiting CallResult */
+    SYN_OCPP_ACTION_BOOT_NOTIFICATION, /**< Awaiting BootNotification.conf */
+    SYN_OCPP_ACTION_HEARTBEAT,         /**< Awaiting Heartbeat.conf */
+    SYN_OCPP_ACTION_STATUS_NOTIFY,     /**< Awaiting StatusNotification.conf */
+    SYN_OCPP_ACTION_AUTHORIZE,         /**< Awaiting Authorize.conf */
+    SYN_OCPP_ACTION_START_TRANSACTION, /**< Awaiting StartTransaction.conf */
+    SYN_OCPP_ACTION_STOP_TRANSACTION,  /**< Awaiting StopTransaction.conf */
+    SYN_OCPP_ACTION_METER_VALUES,      /**< Awaiting MeterValues.conf */
+    SYN_OCPP_ACTION_DISPLAY_MESSAGE,   /**< Awaiting DisplayMessage.conf */
+    SYN_OCPP_ACTION_V2G_TRANSFER       /**< Awaiting V2GEnergyTransfer.conf */
+} SYN_OCPP_PendingAction;
+
+/** @brief Maximum concurrently tracked outbound OCPP Calls per client. */
+#ifndef SYN_OCPP_MAX_PENDING
+#define SYN_OCPP_MAX_PENDING 4U
+#endif
+
+/** @brief In-flight OCPP outbound Call tracking entry. */
+typedef struct {
+    SYN_OCPP_PendingAction action; /**< Pending OCPP Call action */
+    char unique_id[16];            /**< UniqueId of outbound Call */
+} SYN_OCPP_PendingCall;
+
 /** @brief OCPP Client instance state (EVSE Role). */
 typedef struct {
     SYN_OCPP_Version version;  /**< Negotiated OCPP version (1.6 / 2.0.1 / 2.1) */
@@ -153,7 +178,10 @@ typedef struct {
     char active_id_tag[32];        /**< Active authorized RFID tag */
     uint32_t tx_start_energy_wh;   /**< Meter Wh at transaction start */
 
-    uint32_t message_counter; /**< Monotonic message ID counter */
+    uint32_t message_counter;              /**< Monotonic message ID counter */
+    SYN_OCPP_PendingAction pending_action; /**< Action of most recent outbound Call */
+    char pending_unique_id[32];            /**< UniqueId of most recent outbound Call */
+    SYN_OCPP_PendingCall pending_calls[SYN_OCPP_MAX_PENDING]; /**< Concurrent in-flight Calls */
 
     SYN_OCPP_RegistrationHandler reg_cb;         /**< Registration response callback */
     SYN_OCPP_AuthorizationHandler auth_cb;       /**< Authorization response callback */

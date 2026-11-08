@@ -7,7 +7,9 @@
  */
 
 #include "mocks/mock_port.h"
+#include "syntropic/net/syn_transport_udp.h"
 #include "syntropic/syntropic.h"
+#include "syntropic/util/syn_metrics.h"
 #include "unity/unity.h"
 
 #include <stdio.h>
@@ -20,6 +22,16 @@ void setUp(void)
 {
     mock_port_reset();
     syn_hpclock_msb = 0;
+#if SYN_USE_METRICS && SYN_USE_ROUTER
+    syn_metrics_set_router(NULL);
+#endif
+    syn_transport_udp_set_instance(NULL);
+#if SYN_CLI_CMD_ERRORS
+    syn_cli_set_errlog(NULL);
+#endif
+#if SYN_CLI_CMD_TASKS
+    syn_cli_set_scheduler(NULL);
+#endif
 }
 void tearDown(void)
 { /* nothing */
@@ -228,7 +240,13 @@ void run_iolink_tests(void);
 void run_kinematics_tests(void);
 void run_mqttsn_tests(void);
 void run_tpm2_tests(void);
+void run_backoff_tests(void);
+void run_dsp_tests(void);
+void run_eth_tests(void);
+void run_dhcp_tests(void);
 void run_vad_tests(void);
+void run_str_tests(void);
+void run_fat_tests(void);
 
 #define RUN_TEST_GROUP(file, fn)                           \
     do {                                                   \
@@ -248,6 +266,7 @@ int main(void)
 
     /* Utilities */
     run_ringbuf_tests();
+    run_backoff_tests();
     run_crc_tests();
     run_fsm_tests();
     run_fmt_tests();
@@ -600,12 +619,6 @@ int main(void)
     extern void test_eth_mac_filtering(void);
     extern void test_eth_arp_cache_eviction_overflow(void);
     extern void test_eth_multiprotocol_interleaving(void);
-    extern void test_dhcp_init(void);
-    extern void test_dhcp_build_discover(void);
-    extern void test_dhcp_process_offer_and_ack(void);
-    extern void test_dhcp_coroutine_pt(void);
-    extern void test_dhcp_null_checks(void);
-    extern void test_dhcp_extended_option_parsing(void);
     extern void test_icmp_init(void);
     extern void test_icmp_checksum(void);
     extern void test_icmp_build_echo_request(void);
@@ -633,19 +646,7 @@ int main(void)
     RUN_TEST(test_q15_math_boundaries_and_saturation);
     RUN_TEST(test_cross_format_conversions);
     RUN_TEST(test_q7_mul_and_mac);
-    RUN_TEST(test_nn_activations);
-    RUN_TEST(test_nn_softmax);
-    RUN_TEST(test_nn_attention);
-    RUN_TEST(test_nn_dct_transformer_pipeline);
-    RUN_TEST(test_nn_protothread_coroutine);
-    RUN_TEST(test_nn_conv1d_and_coroutine);
-    RUN_TEST(test_nn_affine_quantization);
-    RUN_TEST(test_nn_pooling_layers);
-    RUN_TEST(test_nn_edge_cases_and_null_checks);
-    extern void test_nn_conv1d_coroutine(void);
-    RUN_TEST(test_nn_conv1d_coroutine);
-    RUN_TEST(test_dsp_dct2_null_params);
-    RUN_TEST(test_dsp_dct2_dc_constant);
+    run_dsp_tests();
     RUN_TEST(test_bldc_6step_init_defaults);
     RUN_TEST(test_bldc_6step_hall_commutation_cw);
     RUN_TEST(test_bldc_6step_invalid_hall_fault);
@@ -750,31 +751,8 @@ int main(void)
     extern void run_usb_host_tests(void);
     run_usb_host_tests();
 
-    RUN_TEST(test_eth_generate_mac);
-    RUN_TEST(test_eth_init);
-    RUN_TEST(test_eth_arp_cache);
-    RUN_TEST(test_eth_build_frame);
-    RUN_TEST(test_eth_process_arp_request);
-    RUN_TEST(test_eth_coroutine_pt);
-    RUN_TEST(test_eth_null_checks);
-    RUN_TEST(test_eth_runt_and_oversized_frames);
-    RUN_TEST(test_eth_mac_filtering);
-    extern void test_eth_arp_lookup_returns_not_found(void);
-    extern void test_eth_arp_cache_lru_eviction(void);
-    extern void test_eth_dispatch_icmp(void);
-    extern void test_eth_dispatch_tcp(void);
-    RUN_TEST(test_eth_arp_lookup_returns_not_found);
-    RUN_TEST(test_eth_arp_cache_lru_eviction);
-    RUN_TEST(test_eth_dispatch_icmp);
-    RUN_TEST(test_eth_dispatch_tcp);
-    RUN_TEST(test_eth_arp_cache_eviction_overflow);
-    RUN_TEST(test_eth_multiprotocol_interleaving);
-    RUN_TEST(test_dhcp_init);
-    RUN_TEST(test_dhcp_build_discover);
-    RUN_TEST(test_dhcp_process_offer_and_ack);
-    RUN_TEST(test_dhcp_coroutine_pt);
-    RUN_TEST(test_dhcp_null_checks);
-    RUN_TEST(test_dhcp_extended_option_parsing);
+    run_eth_tests();
+    run_dhcp_tests();
     RUN_TEST(test_icmp_init);
     RUN_TEST(test_icmp_checksum);
     RUN_TEST(test_icmp_build_echo_request);
@@ -790,6 +768,7 @@ int main(void)
     RUN_TEST(test_netcfg_autoip_fallback);
     RUN_TEST(test_netcfg_link_events);
     RUN_TEST(test_netcfg_coroutine_pt);
+    RUN_TEST(test_netcfg_null_checks);
     RUN_TEST(test_igmp_init);
     RUN_TEST(test_igmp_join_and_leave);
     RUN_TEST(test_igmp_process_query);
@@ -905,6 +884,39 @@ int main(void)
     run_tpm2_tests();
     run_vad_tests();
     run_mutex_tests();
+    run_str_tests();
+    run_fat_tests();
 
-    return UNITY_END();
+    extern void test_r5_autoip_regressions(void);
+    extern void test_r5_blackbox_regressions(void);
+    extern void test_r5_ble_att_regressions(void);
+    extern void test_r5_ble_gap_regressions(void);
+    extern void test_r5_ble_gatt_regressions(void);
+    extern void test_r5_ble_hci_regressions(void);
+    extern void test_r5_ble_l2cap_regressions(void);
+    extern void test_r5_flight_pid_regressions(void);
+    extern void test_r5_icmp_regressions(void);
+    extern void test_r5_igmp_regressions(void);
+    extern void test_r5_rc_failsafe_regressions(void);
+    extern void test_r5_usb_regressions(void);
+    extern void test_r5_usb_cdc_regressions(void);
+    extern void test_r5_usb_hid_regressions(void);
+
+    RUN_TEST(test_r5_autoip_regressions);
+    RUN_TEST(test_r5_blackbox_regressions);
+    RUN_TEST(test_r5_ble_att_regressions);
+    RUN_TEST(test_r5_ble_gap_regressions);
+    RUN_TEST(test_r5_ble_gatt_regressions);
+    RUN_TEST(test_r5_ble_hci_regressions);
+    RUN_TEST(test_r5_ble_l2cap_regressions);
+    RUN_TEST(test_r5_flight_pid_regressions);
+    RUN_TEST(test_r5_icmp_regressions);
+    RUN_TEST(test_r5_igmp_regressions);
+    RUN_TEST(test_r5_rc_failsafe_regressions);
+    RUN_TEST(test_r5_usb_regressions);
+    RUN_TEST(test_r5_usb_cdc_regressions);
+    RUN_TEST(test_r5_usb_hid_regressions);
+
+    int failures = UNITY_END();
+    return (failures == 0) ? 0 : 1;
 }

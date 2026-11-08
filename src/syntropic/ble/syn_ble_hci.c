@@ -107,6 +107,51 @@ static void parse_and_dispatch(SYN_BLE_HCI *hci)
     }
 }
 
+/**
+ * @brief Process one byte in HCI header state with 32-bit length validation.
+ * @param hci HCI driver handle.
+ * @param byte Received byte.
+ * @return SYN_OK on success, SYN_ERROR on frame buffer overflow.
+ */
+static SYN_Status hci_rx_hdr_byte(SYN_BLE_HCI *hci, uint8_t byte)
+{
+    if (hci->rx_idx >= sizeof(hci->rx_buf)) {
+        hci->rx_idx = 0U;
+        hci->rx_state = SYN_BLE_HCI_RX_STATE_TYPE;
+        return SYN_ERROR;
+    }
+
+    hci->rx_buf[hci->rx_idx++] = byte;
+    if (hci->rx_idx < hci->rx_target_len) {
+        return SYN_OK;
+    }
+
+    uint32_t payload_len = 0U;
+    if (hci->rx_pkt_type == SYN_BLE_HCI_PKT_EVT) {
+        payload_len = (uint32_t)hci->rx_buf[1];
+    } else {
+        uint16_t data_len =
+            (uint16_t)((uint16_t)hci->rx_buf[2] | (uint16_t)((uint16_t)hci->rx_buf[3] << 8U));
+        payload_len = (uint32_t)data_len;
+    }
+
+    uint32_t total_len = (uint32_t)hci->rx_target_len + payload_len;
+    if (total_len > (uint32_t)sizeof(hci->rx_buf)) {
+        hci->rx_idx = 0U;
+        hci->rx_state = SYN_BLE_HCI_RX_STATE_TYPE;
+        return SYN_ERROR;
+    }
+
+    hci->rx_target_len = (uint16_t)total_len;
+    if (hci->rx_idx >= hci->rx_target_len) {
+        parse_and_dispatch(hci);
+        hci->rx_state = SYN_BLE_HCI_RX_STATE_TYPE;
+    } else {
+        hci->rx_state = SYN_BLE_HCI_RX_STATE_PAYLOAD;
+    }
+    return SYN_OK;
+}
+
 SYN_Status syn_ble_hci_rx_byte(SYN_BLE_HCI *hci, uint8_t byte)
 {
     if (hci == NULL) {
@@ -117,41 +162,14 @@ SYN_Status syn_ble_hci_rx_byte(SYN_BLE_HCI *hci, uint8_t byte)
     case SYN_BLE_HCI_RX_STATE_TYPE:
         if (byte == SYN_BLE_HCI_PKT_EVT || byte == SYN_BLE_HCI_PKT_ACL) {
             hci->rx_pkt_type = byte;
-            hci->rx_idx = 0;
+            hci->rx_idx = 0U;
             hci->rx_target_len = (byte == SYN_BLE_HCI_PKT_EVT) ? 2U : 4U;
             hci->rx_state = SYN_BLE_HCI_RX_STATE_HDR;
         }
         break;
 
     case SYN_BLE_HCI_RX_STATE_HDR:
-        if (hci->rx_idx < sizeof(hci->rx_buf)) {
-            hci->rx_buf[hci->rx_idx++] = byte;
-            if (hci->rx_idx >= hci->rx_target_len) {
-                if (hci->rx_pkt_type == SYN_BLE_HCI_PKT_EVT) {
-                    uint8_t param_len = hci->rx_buf[1];
-                    hci->rx_target_len += param_len;
-                } else if (hci->rx_pkt_type == SYN_BLE_HCI_PKT_ACL) {
-                    uint16_t data_len = (uint16_t)(hci->rx_buf[2] | (hci->rx_buf[3] << 8U));
-                    hci->rx_target_len += data_len;
-                }
-
-                if (hci->rx_target_len > sizeof(hci->rx_buf)) {
-                    hci->rx_state = SYN_BLE_HCI_RX_STATE_TYPE;
-                    return SYN_ERROR;
-                }
-
-                if (hci->rx_idx >= hci->rx_target_len) {
-                    parse_and_dispatch(hci);
-                    hci->rx_state = SYN_BLE_HCI_RX_STATE_TYPE;
-                } else {
-                    hci->rx_state = SYN_BLE_HCI_RX_STATE_PAYLOAD;
-                }
-            }
-        } else {
-            hci->rx_state = SYN_BLE_HCI_RX_STATE_TYPE;
-            return SYN_ERROR;
-        }
-        break;
+        return hci_rx_hdr_byte(hci, byte);
 
     case SYN_BLE_HCI_RX_STATE_PAYLOAD:
         if (hci->rx_idx < sizeof(hci->rx_buf)) {
@@ -161,12 +179,14 @@ SYN_Status syn_ble_hci_rx_byte(SYN_BLE_HCI *hci, uint8_t byte)
                 hci->rx_state = SYN_BLE_HCI_RX_STATE_TYPE;
             }
         } else {
+            hci->rx_idx = 0U;
             hci->rx_state = SYN_BLE_HCI_RX_STATE_TYPE;
             return SYN_ERROR;
         }
         break;
 
     default:
+        hci->rx_idx = 0U;
         hci->rx_state = SYN_BLE_HCI_RX_STATE_TYPE;
         break;
     }

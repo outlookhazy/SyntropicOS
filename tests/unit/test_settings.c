@@ -331,6 +331,7 @@ static void test_settings_edge_cases(void)
 
 static uint8_t ram_vfs_buf[128];
 static size_t ram_vfs_len = 0;
+static int s_vfs_force_short = 0;
 
 static int settings_vfs_open(SYN_VfsFile *file, const char *path, int flags, void *fs_data)
 {
@@ -350,8 +351,12 @@ static int settings_vfs_close(SYN_VfsFile *file)
 static int settings_vfs_write(SYN_VfsFile *file, const void *buf, size_t len)
 {
     (void)file;
-    if (len > sizeof(ram_vfs_buf))
+    if (s_vfs_force_short != 0) {
+        return 2;
+    }
+    if (len > sizeof(ram_vfs_buf)) {
         len = sizeof(ram_vfs_buf);
+    }
     memcpy(ram_vfs_buf, buf, len);
     ram_vfs_len = len;
     return (int)len;
@@ -360,8 +365,12 @@ static int settings_vfs_write(SYN_VfsFile *file, const void *buf, size_t len)
 static int settings_vfs_read(SYN_VfsFile *file, void *buf, size_t len)
 {
     (void)file;
-    if (len > ram_vfs_len)
+    if (s_vfs_force_short != 0) {
+        return 2;
+    }
+    if (len > ram_vfs_len) {
         len = ram_vfs_len;
+    }
     memcpy(buf, ram_vfs_buf, len);
     return (int)len;
 }
@@ -530,10 +539,10 @@ static void test_settings_init_load_fail(void)
     /* First init writes valid settings to flash */
     syn_settings_init(&store, FLASH_BASE, 2, &data, sizeof(data), &defaults_data);
 
-    /* Second init: syn_param_init returns SYN_OK, but syn_param_load fails because flash read fails
-     * (hits line 50) */
-    mock_flash_fail_at = 8;
-    TestSettings data2 = {0};
+    /* Second init: syn_param_init returns SYN_OK, then transient flash read failure on
+     * syn_param_load restores defaults (line 130) */
+    mock_flash_read_fail_after = 2 * (int32_t)store.store.slots_per_sector + 1;
+    TestSettings data2 = {.velocity = 9999, .accel = 99, .mode = 9};
     SYN_Settings store2;
     TEST_ASSERT_EQUAL(
         SYN_OK, syn_settings_init(&store2, FLASH_BASE, 2, &data2, sizeof(data2), &defaults_data));
@@ -567,6 +576,97 @@ static void test_settings_init_save_fail(void)
     mock_port_reset();
 }
 
+static void test_r5_settings_regressions(void)
+{
+    mock_port_reset();
+    TestSettings data;
+    SYN_Settings store;
+    SYN_DualBankSettings db;
+
+    /* Invalid geometry propagation from syn_param_init */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_settings_init(&store, FLASH_BASE, 0, &data, sizeof(data), &defaults));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_settings_init(&store, FLASH_BASE, 2, &data, 65530U, &defaults));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_settings_dual_bank_init(&db, 0, 2048, 0, &data, sizeof(data), &defaults));
+
+    SYN_DualBankSettings uninit_db;
+    memset(&uninit_db, 0, sizeof(uninit_db));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_settings_dual_bank_save(&uninit_db));
+
+    /* 1. Blank init + immediate reboot before Bank B is ever written (valid_a && !valid_b) */
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_settings_dual_bank_init(&db, 0, 2048, 2, &data, sizeof(data), &defaults));
+    TEST_ASSERT_EQUAL_UINT8(0U, db.active_bank);
+
+    TestSettings rdata = {0};
+    SYN_DualBankSettings rdb;
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_settings_dual_bank_init(&rdb, 0, 2048, 2, &rdata, sizeof(rdata), &defaults));
+    TEST_ASSERT_EQUAL_UINT8(0U, rdb.active_bank);
+    TEST_ASSERT_EQUAL_INT32(500, rdata.velocity);
+
+    /* 2. R5-S11: A (500) -> B (888) -> A (500) revert persists across reboot */
+    change_cb_count = 0;
+    syn_settings_on_change(&rdb.bank_b, on_change, NULL);
+    rdata.velocity = 888;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_save(&rdb));
+    TEST_ASSERT_EQUAL_UINT8(1U, rdb.active_bank);
+    TEST_ASSERT_EQUAL_INT(1, change_cb_count);
+    TEST_ASSERT_EQUAL_UINT16(rdb.bank_a.store.next_seq, rdb.bank_b.store.next_seq);
+
+    /* Revert 888 -> 500 (same value as old Bank A slot 0, must still commit seq=3!) */
+    rdata.velocity = 500;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_save(&rdb));
+    TEST_ASSERT_EQUAL_UINT8(0U, rdb.active_bank);
+    TEST_ASSERT_EQUAL_UINT16(4U, rdb.bank_a.store.next_seq);
+    TEST_ASSERT_EQUAL_UINT16(4U, rdb.bank_b.store.next_seq);
+
+    /* Flash write failure on dual_bank_save leaves active_bank unchanged */
+    rdata.velocity = 777;
+    mock_flash_write_fail_next = true;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_settings_dual_bank_save(&rdb));
+    TEST_ASSERT_EQUAL_UINT8(0U, rdb.active_bank);
+
+    /* Reboot must load reverted 500 from Bank A (seq=3 > Bank B seq=2) */
+    TestSettings rdata2 = {0};
+    SYN_DualBankSettings rdb2;
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_settings_dual_bank_init(&rdb2, 0, 2048, 2, &rdata2, sizeof(rdata2), &defaults));
+    TEST_ASSERT_EQUAL_UINT8(0U, rdb2.active_bank);
+    TEST_ASSERT_EQUAL_INT32(500, rdata2.velocity);
+
+    /* 3. Single-bank recovery: Bank A blank while Bank B holds seq=5 must not overwrite with seq=1
+     */
+    mock_port_reset();
+    SYN_Settings sb;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_init(&sb, 2048, 2, &data, sizeof(data), &defaults));
+    for (int i = 1; i <= 4; i++) {
+        data.velocity = 600 + i;
+        TEST_ASSERT_EQUAL(SYN_OK, syn_settings_save(&sb));
+    }
+    TestSettings bdata = {0};
+    SYN_DualBankSettings bdb;
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_settings_dual_bank_init(&bdb, 0, 2048, 2, &bdata, sizeof(bdata), &defaults));
+    TEST_ASSERT_EQUAL_UINT8(1U, bdb.active_bank);
+    TEST_ASSERT_EQUAL_INT32(604, bdata.velocity);
+    TEST_ASSERT_EQUAL_UINT16(6U, bdb.bank_a.store.next_seq);
+    TEST_ASSERT_EQUAL_UINT16(6U, bdb.bank_b.store.next_seq);
+
+    /* 4. Short VFS read/write error handling */
+    syn_vfs_init();
+    syn_vfs_mount("/cfg", &settings_vfs_ops, NULL);
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_settings_init(&store, FLASH_BASE, 2, &data, sizeof(data), &defaults));
+    s_vfs_force_short = 1;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_settings_export_vfs(&store, "/cfg/short.bin"));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_settings_import_vfs(&store, "/cfg/short.bin", false));
+    s_vfs_force_short = 0;
+    mock_port_reset();
+}
+
 void run_settings_tests(void)
 {
     RUN_TEST(test_settings_init_blank_flash);
@@ -591,4 +691,5 @@ void run_settings_tests(void)
     RUN_TEST(test_settings_init_load_fail);
     RUN_TEST(test_settings_vfs_short_read_write_error);
     RUN_TEST(test_settings_init_save_fail);
+    RUN_TEST(test_r5_settings_regressions);
 }

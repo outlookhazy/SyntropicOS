@@ -114,21 +114,35 @@ typedef struct {
     size_t transferred_bytes;  /**< Bytes transferred so far. */
 } SYN_CANOpenSDOSession;
 
+/** @brief Outbound CANopen transmit FIFO ring capacity (frames). */
+#define SYN_CANOPEN_TX_QUEUE_DEPTH 8U
+
+/** @brief Queued outbound CANopen frame slot. */
+typedef struct {
+    uint32_t cob_id; /**< 11-bit CAN COB-ID */
+    uint8_t data[8]; /**< Frame payload bytes */
+    uint8_t len;     /**< Frame payload length (0..8) */
+} SYN_CANOpenTxSlot;
+
 /**
  * @brief CANopen Node State Handle.
  */
 typedef struct {
-    uint8_t node_id;                    /**< Node-ID */
-    uint8_t nmt_state;                  /**< Current NMT state */
-    uint16_t heartbeat_timer_ms;        /**< Heartbeat timer counter */
-    SYN_CANOpenNodeConfig cfg;          /**< Node configuration copy */
-    const SYN_CANOpenODEntry *od_table; /**< Pointer to Object Dictionary */
-    size_t od_count;                    /**< Number of OD entries */
-    SYN_CANOpenSDOSession sdo_session;  /**< Active SDO session */
-    uint32_t tx_cob_id;                 /**< Pending transmit COB-ID */
-    uint8_t tx_data[8];                 /**< Pending transmit payload */
-    uint8_t tx_len;                     /**< Pending transmit length */
-    bool tx_pending;                    /**< Transmit frame pending flag */
+    uint8_t node_id;                                        /**< Node-ID */
+    uint8_t nmt_state;                                      /**< Current NMT state */
+    uint16_t heartbeat_timer_ms;                            /**< Heartbeat timer counter */
+    SYN_CANOpenNodeConfig cfg;                              /**< Node configuration copy */
+    const SYN_CANOpenODEntry *od_table;                     /**< Pointer to Object Dictionary */
+    size_t od_count;                                        /**< Number of OD entries */
+    SYN_CANOpenSDOSession sdo_session;                      /**< Active SDO session */
+    SYN_CANOpenTxSlot tx_queue[SYN_CANOPEN_TX_QUEUE_DEPTH]; /**< Outbound transmit FIFO ring */
+    uint8_t tx_head;                                        /**< TX FIFO read index */
+    uint8_t tx_tail;                                        /**< TX FIFO write index */
+    uint8_t tx_count;                                       /**< Queued TX frame count */
+    uint32_t tx_cob_id;                                     /**< Front transmit COB-ID */
+    uint8_t tx_data[8];                                     /**< Front transmit payload */
+    uint8_t tx_len;                                         /**< Front transmit length */
+    bool tx_pending;                                        /**< Transmit frame pending flag */
 } SYN_CANOpenNode;
 
 /**

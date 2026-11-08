@@ -1186,6 +1186,7 @@ static void test_matrix_solve_lu_and_cholesky_oversized_dim(void)
     SYN_Matrix x = {.rows = 17, .cols = 1, .data = dummy};
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_matrix_solve_lu(&A, &b, &x));
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_matrix_solve_cholesky(&A, &b, &x));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_matrix_least_squares(&A, &b, &x));
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_matrix_qr(&A, &A, &A));
 
     SYN_Matrix A_rect = {.rows = 2, .cols = 4, .data = dummy};
@@ -1234,6 +1235,33 @@ static void test_matrix_solve_lu_and_cholesky_oversized_dim(void)
     b_sing_ls.data[1] = Q16_ONE;
     b_sing_ls.data[2] = Q16_ONE;
     syn_matrix_least_squares(&A_sing_ls, &b_sing_ls, &x_sing_ls);
+
+    /* Overdetermined m > SYN_SOLVER_MAX_N (12x2 line fit y = 3 + 2*k for k = 0..11) */
+    SYN_MAT_DECL(A12, 12, 2);
+    SYN_MAT_DECL(b12, 12, 1);
+    SYN_MAT_DECL(x12, 2, 1);
+    for (uint8_t k = 0U; k < 12U; k++) {
+        SYN_MAT_AT(&A12, k, 0) = Q16_ONE;
+        SYN_MAT_AT(&A12, k, 1) = Q16_FROM_INT(k);
+        SYN_MAT_AT(&b12, k, 0) = Q16_FROM_INT(3 + 2 * (int)k);
+    }
+    TEST_ASSERT_EQUAL(SYN_OK, syn_matrix_least_squares(&A12, &b12, &x12));
+    ASSERT_Q16_NEAR(Q16_FROM_INT(3), x12.data[0], Q16_TOL * 2);
+    ASSERT_Q16_NEAR(Q16_FROM_INT(2), x12.data[1], Q16_TOL * 2);
+}
+
+static void test_r5_vec_norm_large_and_extremes(void)
+{
+    /* Norm >= 181.02 must not wrap negative: ||(200, 200, 100)|| = 300 */
+    q16_t v300[3] = {Q16_FROM_INT(200), Q16_FROM_INT(-200), Q16_FROM_INT(100)};
+    TEST_ASSERT_INT32_WITHIN(4, Q16_FROM_INT(300), syn_vec_norm(v300, 3U));
+
+    /* Single INT32_MIN element and multi-element saturation (> INT32_MAX) */
+    q16_t vmin[2] = {INT32_MIN, 0};
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_vec_norm(vmin, 2U));
+
+    q16_t vhuge[2] = {Q16_FROM_INT(25000), Q16_FROM_INT(25000)};
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_vec_norm(vhuge, 2U));
 }
 
 void run_matrix_tests(void)
@@ -1283,4 +1311,5 @@ void run_matrix_tests(void)
     RUN_TEST(test_matrix_inv_lu_dimension_mismatch);
     RUN_TEST(test_matrix_vec_normalize_zero_vector);
     RUN_TEST(test_matrix_solve_lu_and_cholesky_oversized_dim);
+    RUN_TEST(test_r5_vec_norm_large_and_extremes);
 }

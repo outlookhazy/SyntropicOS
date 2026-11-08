@@ -640,11 +640,11 @@ static void test_autotune_calc_relay_gains(void)
     TEST_ASSERT_EQUAL_INT32(2400, ki);
     TEST_ASSERT_EQUAL_INT32(37, kd);
 
-    /* Tyreus-Luyben Conservative */
+    /* Tyreus-Luyben Conservative: Kp = Ku / 2.2, Ki = Kp / (2.2 * Pu), Kd = Kp * Pu / 6.3 */
     syn_autotune_calc_relay_gains(1000, 500, SYN_ATUNE_TYREUS_LUYBEN, 100, &kp, &ki, &kd);
-    TEST_ASSERT_EQUAL_INT32(450, kp);
-    TEST_ASSERT_EQUAL_INT32(409, ki);
-    TEST_ASSERT_EQUAL_INT32(35, kd);
+    TEST_ASSERT_EQUAL_INT32(454, kp);
+    TEST_ASSERT_EQUAL_INT32(412, ki);
+    TEST_ASSERT_EQUAL_INT32(36, kd);
 
     /* No-Overshoot Mode */
     syn_autotune_calc_relay_gains(1000, 500, SYN_ATUNE_ZN_NO_OVERSHOOT, 100, &kp, &ki, &kd);
@@ -787,6 +787,73 @@ void test_autotune_relay_hysteresis_and_limit_cycles(void)
     TEST_ASSERT_EQUAL_UINT32(400, at.period_sum); /* lines 451-452 hit */
 }
 
+static void test_r5_autotune_apply_live_pid_and_relay_math(void)
+{
+    mock_tick_ms = 0;
+    mock_pos = 0;
+    last_mock_output = 0;
+
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg =
+        SYN_MOTOR_CTRL_DEFAULTS(((SYN_MotorOutput){.set_output = mock_set_output, .ctx = NULL}),
+                                mock_read_pos, NULL, 1000, 1000);
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+
+    SYN_AutoTune at;
+    SYN_AutoTune_Config cfg = {
+        .mode = SYN_ATUNE_MODE_RELAY,
+        .method = SYN_ATUNE_ZN_CLASSIC,
+        .test_output = 100,
+        .relay_cycles = 1,
+        .gain_multiplier_pct = 100,
+    };
+    syn_autotune_init(&at, &ctrl, &cfg);
+    at.state = SYN_ATUNE_RELAY;
+    at.period_count = 1;
+    at.period_sum = 500;
+    at.amplitude_sum = 200;
+    at.amplitude_count = 1;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL_INT32((at.result.kp * 2000) / 500, at.result.ki);
+
+    at.state = SYN_ATUNE_DONE;
+    at.result.kp = 512;
+    at.result.ki = 1024;
+    at.result.kd = 64;
+    at.result.pid_scale = 8;
+    at.result.ff_kv = 128;
+    at.result.ff_ka = 32;
+    at.result.ff_scale = 10;
+    syn_autotune_apply(&at);
+
+    TEST_ASSERT_EQUAL_INT32(512, ctrl.pid.cfg.kp);
+    TEST_ASSERT_EQUAL_INT32(1024, ctrl.pid.cfg.ki);
+    TEST_ASSERT_EQUAL_INT32(64, ctrl.pid.cfg.kd);
+    TEST_ASSERT_EQUAL_INT32(256, ctrl.pid.cfg.scale);
+    TEST_ASSERT_EQUAL_UINT8(10, ctrl.cfg.ff_scale);
+
+    /* Live closed-loop step uses tuned kp = 512 / 256 = 2.0 */
+    syn_motor_ctrl_set_position(&ctrl, 100);
+    mock_tick_advance(10);
+    syn_motor_ctrl_update(&ctrl);
+    TEST_ASSERT_TRUE(ctrl.pid_output >= 200);
+
+    /* Guard pid_scale / ff_scale >= 31 and large int64 clamp in calc_relay_gains */
+    at.result.pid_scale = 35;
+    at.result.ff_scale = 35;
+    syn_autotune_apply(&at);
+    TEST_ASSERT_EQUAL_UINT8(30, ctrl.cfg.pid_scale);
+    TEST_ASSERT_EQUAL_UINT8(30, ctrl.cfg.ff_scale);
+
+    int32_t kp = 0;
+    int32_t ki = 0;
+    int32_t kd = 0;
+    syn_autotune_calc_relay_gains(INT32_MAX, 1U, SYN_ATUNE_ZN_CLASSIC, 200U, &kp, &ki, &kd);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, ki);
+    syn_autotune_calc_relay_gains(-INT32_MAX, 1U, SYN_ATUNE_ZN_CLASSIC, 200U, &kp, &ki, &kd);
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, ki);
+}
+
 void run_autotune_tests(void)
 {
     RUN_TEST(test_autotune_probe_phase);
@@ -813,4 +880,5 @@ void run_autotune_tests(void)
     RUN_TEST(test_autotune_zn_no_overshoot_and_tyreus_luyben);
     RUN_TEST(test_autotune_calc_relay_gains_zero_tu_and_default_state);
     RUN_TEST(test_autotune_relay_hysteresis_and_limit_cycles);
+    RUN_TEST(test_r5_autotune_apply_live_pid_and_relay_math);
 }

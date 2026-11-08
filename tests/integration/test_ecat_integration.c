@@ -1,25 +1,63 @@
 /**
  * @file test_ecat_integration.c
- * @brief End-to-End Integration test for EtherCAT stack against 3rd-party EtherCAT Daemon
- * container.
+ * @brief End-to-end integration test for EtherCAT stack against pysoem daemon container.
  */
 
 #include "mock_port.h"
 #include "syntropic/proto/syn_ethercat.h"
-#include "syntropic/util/syn_pack.h"
 #include "unity/unity.h"
 
-#include <arpa/inet.h>
-#include <netinet/in.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
 #include <unistd.h>
+
+static bool integration_skip_allowed(void)
+{
+    const char *v = getenv("SYN_ALLOW_SKIP_INTEGRATION");
+    return (v != NULL && strcmp(v, "1") == 0);
+}
+
+static void fail_or_skip(const char *msg)
+{
+    if (integration_skip_allowed()) {
+        TEST_IGNORE_MESSAGE(msg);
+    } else {
+        TEST_FAIL_MESSAGE(msg);
+    }
+}
+
+static SYN_Socket connect_with_retry(const char *host, uint16_t port)
+{
+    for (int attempt = 0; attempt < 15; attempt++) {
+        SYN_Socket s = syn_port_sock_connect_host(host, port);
+        if (s != SYN_SOCKET_INVALID) {
+            return s;
+        }
+        usleep(100000);
+    }
+    return SYN_SOCKET_INVALID;
+}
+
+static size_t recv_ecat_frame(SYN_Socket sock, uint8_t *buf, size_t expected)
+{
+    size_t total = 0U;
+    while (total < expected) {
+        int n = syn_port_sock_recv(sock, buf + total, expected - total, 5000U);
+        if (n <= 0) {
+            break;
+        }
+        total += (size_t)n;
+    }
+    return total;
+}
 
 void setUp(void)
 {
 }
+
 void tearDown(void)
 {
 }
@@ -27,74 +65,46 @@ void tearDown(void)
 void test_ethercat_container_integration(void)
 {
     const char *host = getenv("ETHERCAT_HOST");
-    if (!host)
+    if (host == NULL) {
         host = "127.0.0.1";
-    uint16_t port = 10884;
+    }
+    uint16_t port = 10884U;
 
-    printf("[Integration Test] Connecting to EtherCAT Industrial Server at %s:%d...\n", host, port);
-
-    int sock = syn_port_sock_connect_host(host, port);
-    int peer_sock = sock;
-
-    if (sock < 0) {
-        printf("[Integration Test] Notice: Container server not listening on %s:%d, using loopback "
-               "socketpair...\n",
-               host, port);
-        close(sock);
-        int sv[2];
-        TEST_ASSERT_EQUAL_INT(0, socketpair(AF_UNIX, SOCK_STREAM, 0, sv));
-        sock = sv[0];
-        peer_sock = sv[1];
-    } else {
-        printf("[Integration Test] Connected to EtherCAT Industrial Server Daemon!\n");
+    printf("[Integration Test] Connecting to EtherCAT Server at %s:%u...\n", host, port);
+    SYN_Socket sock = connect_with_retry(host, port);
+    if (sock == SYN_SOCKET_INVALID) {
+        fail_or_skip("EtherCAT pysoem daemon container not reachable");
+        return;
     }
 
-    /* 1. Initialize SyntropicOS EtherCAT node */
     SYN_EcatNode node;
-    syn_ecat_init(&node, 0x1001, NULL);
+    syn_ecat_init(&node, 0x1001U, NULL);
 
-    /* 2. Build Datagram Frame */
     uint8_t tx_frame[64];
-    SYN_EcatDatagram dg = {.cmd = SYN_ECAT_CMD_FPRD,
-                           .idx = 0x01,
-                           .addr = 0x10010000,
-                           .m = 0,
-                           .circ = 0,
-                           .irq = 0x0000};
-    uint8_t payload[4] = {0xAA, 0xBB, 0xCC, 0xDD};
-    size_t tx_len = syn_ecat_build_datagram_frame(tx_frame, sizeof(tx_frame), &dg, payload, 4);
-    TEST_ASSERT_EQUAL_INT(18, tx_len);
+    SYN_EcatDatagram dg;
+    memset(&dg, 0, sizeof(dg));
+    dg.cmd = SYN_ECAT_CMD_FPRD;
+    dg.idx = 0x01U;
+    dg.addr = 0x10010000U;
 
-    ssize_t sent = send(sock, tx_frame, tx_len, 0);
-    TEST_ASSERT_EQUAL_INT(tx_len, sent);
+    uint8_t payload[4] = {0xAAU, 0xBBU, 0xCCU, 0xDDU};
+    size_t tx_len = syn_ecat_build_datagram_frame(tx_frame, sizeof(tx_frame), &dg, payload, 4U);
+    TEST_ASSERT_EQUAL_UINT32(18U, (uint32_t)tx_len);
 
-    /* If using socketpair loopback peer, simulate slave response by setting WKC = 1 */
-    if (peer_sock != sock) {
-        uint8_t loop_buf[64];
-        ssize_t n = recv(peer_sock, loop_buf, sizeof(loop_buf), 0);
-        TEST_ASSERT_TRUE(n >= 18);
-        loop_buf[16] = 0x01; /* WKC = 1 */
-        loop_buf[17] = 0x00;
-        send(peer_sock, loop_buf, n, 0);
-    }
+    int sent = syn_port_sock_send_all(sock, tx_frame, tx_len);
+    TEST_ASSERT_EQUAL_INT((int)tx_len, sent);
 
     uint8_t rx_frame[64];
-    ssize_t recvd = recv(sock, rx_frame, sizeof(rx_frame), 0);
-    TEST_ASSERT_TRUE(recvd >= 18);
+    size_t recvd = recv_ecat_frame(sock, rx_frame, tx_len);
+    syn_port_sock_close(sock);
+    TEST_ASSERT_EQUAL_UINT32(18U, (uint32_t)recvd);
 
-    /* 3. Parse Response with SyntropicOS EtherCAT parser & verify WKC */
-    uint16_t wkc = 0;
-    SYN_Status st = syn_ecat_parse_frame(&node, rx_frame, (size_t)recvd, &wkc);
-    TEST_ASSERT_EQUAL(SYN_OK, st);
-    TEST_ASSERT_EQUAL_UINT16(1, wkc);
-    TEST_ASSERT_EQUAL_UINT16(1, node.wkc_last);
-    printf("[Integration Test] EtherCAT Frame WKC Verified: %d (PASS)\n", wkc);
-
-    close(sock);
-    if (peer_sock != sock) {
-        close(peer_sock);
-    }
-    printf("[Integration Test] End-to-End EtherCAT Integration PASS!\n");
+    uint16_t wkc = 0U;
+    SYN_Status st = syn_ecat_parse_frame(&node, rx_frame, recvd, &wkc);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, st);
+    TEST_ASSERT_EQUAL_UINT16(1U, wkc);
+    TEST_ASSERT_EQUAL_UINT16(1U, node.wkc_last);
+    printf("[Integration Test] End-to-End EtherCAT Integration PASS (WKC=%u)!\n", wkc);
 }
 
 int main(void)

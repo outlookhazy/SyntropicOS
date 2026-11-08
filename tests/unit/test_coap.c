@@ -4,6 +4,7 @@
  */
 
 #include "mocks/mock_port.h"
+#include "syntropic/sched/syn_sched.h"
 #include "syntropic/syntropic.h"
 #include "unity/unity.h"
 
@@ -187,7 +188,7 @@ static void test_coap_serialization_boundaries(void)
     TEST_ASSERT_EQUAL_INT(0, syn_coap_serialize(&msg, NULL, 0, buf,
                                                 9)); // header 4 + payload 5 + marker 1 = 10 needed
 
-    /* 3. Option count > 16 */
+    /* 3. Option count > 16 rejected; 16 options accepted */
     SYN_CoapOption excess_options[18];
     for (int i = 0; i < 18; i++) {
         excess_options[i].num = (uint16_t)(i + 1);
@@ -195,11 +196,11 @@ static void test_coap_serialization_boundaries(void)
         excess_options[i].len = 1;
     }
     msg.payload_len = 0;
-    len = syn_coap_serialize(&msg, excess_options, 18, buf, sizeof(buf));
+    TEST_ASSERT_EQUAL_UINT(0U, syn_coap_serialize(&msg, excess_options, 18, buf, sizeof(buf)));
+    len = syn_coap_serialize(&msg, excess_options, 16, buf, sizeof(buf));
     TEST_ASSERT_TRUE(len > 0);
     st = syn_coap_parse(&resp, parsed_options, 20, &parsed_option_count, buf, len);
     TEST_ASSERT_EQUAL(SYN_OK, st);
-    /* Only 16 options should be encoded */
     TEST_ASSERT_EQUAL_INT(16, parsed_option_count);
 
     /* 4. Parse failures */
@@ -339,6 +340,8 @@ static void test_coap_request_task_failures(void)
     TEST_ASSERT_FALSE(alive);
     TEST_ASSERT_EQUAL(SYN_TIMEOUT, req.status);
     TEST_ASSERT_EQUAL_INT(3, req.backoff.attempts); // attempts went up to 3 (which is > retries)
+    /* RFC 7252 backoff: >= 100ms + 200ms + 400ms = 700ms minimum elapsed across 3 attempts */
+    TEST_ASSERT_GREATER_OR_EQUAL_UINT32(700U, syn_port_get_tick_ms() - start);
 
     /* 5. Request mismatching token */
     mock_port_reset();
@@ -391,11 +394,10 @@ static void test_coap_malformed_parsing(void)
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_coap_parse(&msg, options, 4, &option_count, bad_tkl_buf,
                                                 sizeof(bad_tkl_buf)));
 
-    /* 4. Corrupted extended option length 15 (reserved -> SYN_ERROR) */
-    uint8_t bad_opt_buf[] = {0x40, 0x01, 0x12, 0x34, 0xFF}; /* Payload marker without payload */
-    TEST_ASSERT_EQUAL(
-        SYN_OK, syn_coap_parse(&msg, options, 4, &option_count, bad_opt_buf, sizeof(bad_opt_buf)));
-    TEST_ASSERT_EQUAL_INT(0, msg.payload_len);
+    /* 4. Bare 0xFF payload marker without payload is malformed (RFC 7252 Section 3.1) */
+    uint8_t bad_opt_buf[] = {0x40, 0x01, 0x12, 0x34, 0xFF};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_coap_parse(&msg, options, 4, &option_count, bad_opt_buf,
+                                                sizeof(bad_opt_buf)));
 }
 
 static void test_coap_serialization_overflow_and_socket_failures(void)
@@ -476,14 +478,20 @@ static void test_coap_serialization_overflow_and_socket_failures(void)
 
     /* 9. CoAP task timeout (retries exhausted, line 304) */
     mock_udp_sendto_fail = false;
+    mock_tick_ms = 0;
     syn_coap_request_init(&req, &server_addr, &msg, 1, 1); /* 1ms timeout, 1 retry */
     syn_task_create(&task, "coap_timeout", syn_coap_request_task, 0, &req);
     syn_sched_init(&sched, &task, 1);
     alive = true;
-    while (alive) {
+    while (alive && mock_tick_ms < 100U) {
         alive = syn_sched_run(&sched);
+        if (alive) {
+            mock_tick_advance(1);
+        }
     }
+    TEST_ASSERT_FALSE(alive);
     TEST_ASSERT_EQUAL(SYN_TIMEOUT, req.status);
+    TEST_ASSERT_GREATER_OR_EQUAL_UINT32(3U, mock_tick_ms);
 }
 
 static void test_coap_large_delta_and_length_2byte_ext(void)
@@ -700,17 +708,17 @@ static void test_coap_transport_request_task_and_direct_send(void)
     PT_INIT(&pt);
     SYN_Task task = {.user_data = &treq};
 
-    /* First step yields because rx_buf is empty */
+    /* First step passes because rx_buf is empty */
     tr_ctx.rx_len = 0;
     SYN_PT_Status pst_yield = syn_coap_transport_request_task(&pt, &task);
-    TEST_ASSERT_EQUAL(PT_YIELDED, pst_yield);
+    TEST_ASSERT_EQUAL(PT_IDLE, pst_yield);
 
     /* Stage valid response in tr_ctx.rx_buf and resume task */
     memcpy(tr_ctx.rx_buf, sim_buf, sim_len);
     tr_ctx.rx_len = sim_len;
 
     SYN_PT_Status pst = syn_coap_transport_request_task(&pt, &task);
-    TEST_ASSERT_EQUAL(PT_EXITED, pst);
+    TEST_ASSERT_EQUAL(PT_ENDED, pst);
     TEST_ASSERT_EQUAL(SYN_OK, treq.status);
     TEST_ASSERT_EQUAL(COAP_RESP_CONTENT, treq.resp_msg.code);
     TEST_ASSERT_EQUAL_MEMORY("23.5C", treq.resp_msg.payload, 5);
@@ -719,7 +727,9 @@ static void test_coap_transport_request_task_and_direct_send(void)
 static void test_coaps_client_e2e_dtls13(void)
 {
     MockTransportCtx client_wire = {0};
+    MockTransportCtx server_wire = {0};
     SYN_Transport client_raw_tr = {.send = mock_tr_send, .recv = mock_tr_recv, .ctx = &client_wire};
+    SYN_Transport server_raw_tr = {.send = mock_tr_send, .recv = mock_tr_recv, .ctx = &server_wire};
 
     static const uint8_t psk[32] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
                                     0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
@@ -735,16 +745,22 @@ static void test_coaps_client_e2e_dtls13(void)
         .psk_secret = psk,
         .psk_secret_len = sizeof(psk),
     };
+    SYN_DTLS_Config srv_dtls_cfg = dtls_cfg;
+    srv_dtls_cfg.is_server = true;
 
-    uint8_t dtls_rx[512];
-    uint8_t dtls_tx[512];
+    static uint8_t dtls_rx[512];
+    static uint8_t dtls_tx[512];
+    static uint8_t srv_rx[512];
+    static uint8_t srv_tx[512];
 
     SYN_CoapsClient client;
+    SYN_DTLS_Context server_dtls;
+    SYN_Transport server_dtls_tr;
     TEST_ASSERT_TRUE(syn_coaps_client_init(&client, &dtls_cfg, &client_raw_tr, dtls_rx,
                                            sizeof(dtls_rx), dtls_tx, sizeof(dtls_tx)));
-
-    TEST_ASSERT_TRUE(syn_coaps_client_handshake(&client));
-    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_ESTABLISHED, client.dtls.state);
+    TEST_ASSERT_TRUE(syn_dtls_init(&server_dtls, &srv_dtls_cfg, &server_raw_tr, srv_rx,
+                                   sizeof(srv_rx), srv_tx, sizeof(srv_tx)));
+    syn_dtls_bind_transport(&server_dtls, &server_dtls_tr);
 
     /* Construct CoAP GET /sensors/temperature request */
     SYN_CoapMsg req = {.type = COAP_TYPE_CON,
@@ -762,28 +778,51 @@ static void test_coaps_client_e2e_dtls13(void)
     req_opts[1].val = (const uint8_t *)"temperature";
     req_opts[1].len = 11;
 
+    SYN_CoapMsg client_resp;
+    SYN_CoapOption client_resp_opts[4];
+    size_t client_resp_opt_cnt = 0;
+    uint8_t client_resp_buf[256];
+
+    /* Send request while ServerHello is not yet staged -> sends ClientHello, returns SYN_ERROR */
+    TEST_ASSERT_EQUAL(SYN_ERROR,
+                      syn_coaps_client_send_request(&client, &req, req_opts, 2, &client_resp,
+                                                    client_resp_opts, 4, &client_resp_opt_cnt,
+                                                    client_resp_buf, sizeof(client_resp_buf)));
+    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_CLIENT_HELLO_SENT, client.dtls.state);
+
+    /* Complete real 2-flight DTLS handshake between client and server_dtls */
+    memcpy(server_wire.rx_buf, client_wire.tx_buf, client_wire.tx_len);
+    server_wire.rx_len = client_wire.tx_len;
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&server_dtls));
+    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_ESTABLISHED, server_dtls.state);
+
+    memcpy(client_wire.rx_buf, server_wire.tx_buf, server_wire.tx_len);
+    client_wire.rx_len = server_wire.tx_len;
+    TEST_ASSERT_TRUE(syn_coaps_client_handshake(&client));
+    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_ESTABLISHED, client.dtls.state);
+
     /* 1. Client serializes and sends encrypted CoAPS request over dtls_transport */
     uint8_t client_coap_tx[256];
     size_t coap_tx_len =
         syn_coap_serialize(&req, req_opts, 2, client_coap_tx, sizeof(client_coap_tx));
     TEST_ASSERT_TRUE(coap_tx_len > 0);
 
+    client_wire.tx_len = 0;
     TEST_ASSERT_TRUE(syn_transport_send(&client.dtls_transport, client_coap_tx, coap_tx_len));
     TEST_ASSERT_TRUE(client_wire.tx_len > 0);
 
-    /* Verify encrypted datagram header */
     TEST_ASSERT_EQUAL_HEX8(SYN_DTLS_UNIFIED_FIXED_BIT | SYN_DTLS_UNIFIED_LEN_BIT |
                                SYN_DTLS_EPOCH_APP_DATA,
                            client_wire.tx_buf[0]);
 
-    /* 2. Decrypt on server side */
-    memcpy(client_wire.rx_buf, client_wire.tx_buf, client_wire.tx_len);
-    client_wire.rx_len = client_wire.tx_len;
+    /* 2. Decrypt on server side via server_dtls_tr */
+    memcpy(server_wire.rx_buf, client_wire.tx_buf, client_wire.tx_len);
+    server_wire.rx_len = client_wire.tx_len;
 
     uint8_t server_decrypted[256];
     size_t server_dec_len = 0;
-    TEST_ASSERT_TRUE(syn_transport_recv(&client.dtls_transport, server_decrypted,
-                                        sizeof(server_decrypted), &server_dec_len));
+    TEST_ASSERT_TRUE(syn_transport_recv(&server_dtls_tr, server_decrypted, sizeof(server_decrypted),
+                                        &server_dec_len));
     TEST_ASSERT_EQUAL(coap_tx_len, server_dec_len);
     TEST_ASSERT_EQUAL_MEMORY(client_coap_tx, server_decrypted, server_dec_len);
 
@@ -812,17 +851,12 @@ static void test_coaps_client_e2e_dtls13(void)
     TEST_ASSERT_TRUE(server_resp_coap_len > 0);
 
     /* Server encrypts CoAP response and stages it into client_wire.rx_buf */
-    TEST_ASSERT_TRUE(
-        syn_transport_send(&client.dtls_transport, server_resp_coap, server_resp_coap_len));
-    memcpy(client_wire.rx_buf, client_wire.tx_buf, client_wire.tx_len);
-    client_wire.rx_len = client_wire.tx_len;
+    server_wire.tx_len = 0;
+    TEST_ASSERT_TRUE(syn_transport_send(&server_dtls_tr, server_resp_coap, server_resp_coap_len));
+    memcpy(client_wire.rx_buf, server_wire.tx_buf, server_wire.tx_len);
+    client_wire.rx_len = server_wire.tx_len;
 
     /* 4. Client receives response */
-    SYN_CoapMsg client_resp;
-    SYN_CoapOption client_resp_opts[4];
-    size_t client_resp_opt_cnt = 0;
-    uint8_t client_resp_buf[256];
-
     size_t rx_len = 0;
     TEST_ASSERT_TRUE(syn_transport_recv(&client.dtls_transport, client_resp_buf,
                                         sizeof(client_resp_buf), &rx_len));
@@ -833,11 +867,11 @@ static void test_coaps_client_e2e_dtls13(void)
     TEST_ASSERT_EQUAL(strlen(resp_payload), client_resp.payload_len);
     TEST_ASSERT_EQUAL_MEMORY(resp_payload, client_resp.payload, client_resp.payload_len);
 
-    /* 5. End-to-end syn_coaps_client_send_request with pre-staged encrypted response */
-    TEST_ASSERT_TRUE(
-        syn_transport_send(&client.dtls_transport, server_resp_coap, server_resp_coap_len));
-    memcpy(client_wire.rx_buf, client_wire.tx_buf, client_wire.tx_len);
-    client_wire.rx_len = client_wire.tx_len;
+    /* 5. End-to-end syn_coaps_client_send_request with server-encrypted response */
+    server_wire.tx_len = 0;
+    TEST_ASSERT_TRUE(syn_transport_send(&server_dtls_tr, server_resp_coap, server_resp_coap_len));
+    memcpy(client_wire.rx_buf, server_wire.tx_buf, server_wire.tx_len);
+    client_wire.rx_len = server_wire.tx_len;
 
     TEST_ASSERT_EQUAL(SYN_OK, syn_coaps_client_send_request(
                                   &client, &req, req_opts, 2, &client_resp, client_resp_opts, 4,
@@ -862,7 +896,7 @@ static void test_coap_transport_and_coaps_null_and_bounds_checks(void)
     SYN_CoapTransportRequest r;
     syn_coap_transport_request_init(&r, NULL, NULL, 0, 0);
     SYN_Task task_with_r = {.user_data = &r};
-    TEST_ASSERT_EQUAL(PT_ENDED, syn_coap_transport_request_task(&pt, &task_with_r));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_coap_transport_request_task(&pt, &task_with_r));
     TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
 
     /* Task serialize error */
@@ -870,7 +904,7 @@ static void test_coap_transport_and_coaps_null_and_bounds_checks(void)
     SYN_CoapMsg huge_msg = {.type = COAP_TYPE_CON, .token_len = 9};
     syn_coap_transport_request_init(&r, &dummy_tr, &huge_msg, 0, 0);
     PT_INIT(&pt);
-    TEST_ASSERT_EQUAL(PT_ENDED, syn_coap_transport_request_task(&pt, &task_with_r));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_coap_transport_request_task(&pt, &task_with_r));
     TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
 
     /* Task send fail */
@@ -879,7 +913,7 @@ static void test_coap_transport_and_coaps_null_and_bounds_checks(void)
     SYN_CoapMsg ok_msg = {.type = COAP_TYPE_CON, .token_len = 0};
     syn_coap_transport_request_init(&r, &fail_tr, &ok_msg, 10, 0);
     PT_INIT(&pt);
-    TEST_ASSERT_EQUAL(PT_EXITED, syn_coap_transport_request_task(&pt, &task_with_r));
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_coap_transport_request_task(&pt, &task_with_r));
     TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
 
     /* Null checks for syn_coap_transport_send_request */
@@ -933,6 +967,399 @@ static void test_coap_transport_and_coaps_null_and_bounds_checks(void)
                                                                0, NULL, buf, sizeof(buf)));
 }
 
+typedef struct {
+    uint8_t tx_buf[256];
+    size_t tx_len;
+    uint8_t rx_pkts[4][128];
+    size_t rx_lens[4];
+    size_t rx_head;
+    size_t rx_count;
+} AsyncCoapTransportCtx;
+
+static bool async_coap_tr_send(const uint8_t *data, size_t len, void *ctx)
+{
+    AsyncCoapTransportCtx *m = (AsyncCoapTransportCtx *)ctx;
+    if (m == NULL || len > sizeof(m->tx_buf)) {
+        return false;
+    }
+    memcpy(m->tx_buf, data, len);
+    m->tx_len = len;
+    return true;
+}
+
+static bool async_coap_tr_recv(uint8_t *data, size_t max_len, size_t *out_len, void *ctx)
+{
+    AsyncCoapTransportCtx *m = (AsyncCoapTransportCtx *)ctx;
+    if (m == NULL || m->rx_head >= m->rx_count) {
+        return false;
+    }
+    size_t pkt_len = m->rx_lens[m->rx_head];
+    size_t copy_len = (pkt_len > max_len) ? max_len : pkt_len;
+    memcpy(data, m->rx_pkts[m->rx_head], copy_len);
+    m->rx_head++;
+    *out_len = copy_len;
+    return true;
+}
+
+static bool async_coap_tr_has_data(const void *ctx)
+{
+    const AsyncCoapTransportCtx *m = (const AsyncCoapTransportCtx *)ctx;
+    return (m != NULL) && (m->rx_head < m->rx_count);
+}
+
+static void async_coap_tr_enqueue(AsyncCoapTransportCtx *m, const uint8_t *pkt, size_t len)
+{
+    if (m->rx_count < 4U && len <= sizeof(m->rx_pkts[0])) {
+        memcpy(m->rx_pkts[m->rx_count], pkt, len);
+        m->rx_lens[m->rx_count] = len;
+        m->rx_count++;
+    }
+}
+
+static void test_coap_request_task_null_and_token_filtering(void)
+{
+    mock_port_reset();
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task empty_task = {0};
+
+    /* 1. Null parameter guards (syn_coap.c:301-303) */
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_coap_request_task(NULL, &empty_task));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_coap_request_task(&pt, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_coap_request_task(&pt, &empty_task));
+
+    /* 2. req_msg == NULL guard (syn_coap.c:308-311) */
+    SYN_SockAddr srv_addr = {.ip = {127, 0, 0, 1}, .port = 5683};
+    SYN_CoapRequest req_ctx;
+    syn_coap_request_init(&req_ctx, &srv_addr, NULL, 100, 0);
+    SYN_Task task = {0};
+    task.user_data = &req_ctx;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_coap_request_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_ERROR, req_ctx.status);
+
+    /* 3. Malformed + mismatched-token UDP datagrams yield PT_MORE when contended,
+     *    then continue waiting until matching token arrives (syn_coap.c:358-359) */
+    SYN_CoapMsg req_msg = {.type = COAP_TYPE_CON,
+                           .code = COAP_CODE_GET,
+                           .msg_id = 0x4321,
+                           .token_len = 2,
+                           .token = {0xCA, 0xFE},
+                           .payload = NULL,
+                           .payload_len = 0};
+
+    uint8_t malformed_pkt[2] = {0xFF, 0x00};
+
+    SYN_CoapMsg wrong_tok_msg = {.type = COAP_TYPE_ACK,
+                                 .code = COAP_RESP_CONTENT,
+                                 .msg_id = 0x4321,
+                                 .token_len = 2,
+                                 .token = {0xDE, 0xAD},
+                                 .payload = (const uint8_t *)"no",
+                                 .payload_len = 2};
+    uint8_t wrong_tok_buf[64];
+    size_t wrong_tok_len =
+        syn_coap_serialize(&wrong_tok_msg, NULL, 0, wrong_tok_buf, sizeof(wrong_tok_buf));
+    TEST_ASSERT_TRUE(wrong_tok_len > 0);
+
+    SYN_CoapMsg good_msg = {.type = COAP_TYPE_ACK,
+                            .code = COAP_RESP_CONTENT,
+                            .msg_id = 0x4321,
+                            .token_len = 2,
+                            .token = {0xCA, 0xFE},
+                            .payload = (const uint8_t *)"match",
+                            .payload_len = 5};
+    uint8_t good_buf[64];
+    size_t good_len = syn_coap_serialize(&good_msg, NULL, 0, good_buf, sizeof(good_buf));
+    TEST_ASSERT_TRUE(good_len > 0);
+
+    mock_udp_rx_count = 0;
+    mock_udp_rx_pos = 0;
+    mock_udp_inject_packet(malformed_pkt, sizeof(malformed_pkt), &srv_addr);
+    mock_udp_inject_packet(wrong_tok_buf, wrong_tok_len, &srv_addr);
+    mock_udp_inject_packet(good_buf, good_len, &srv_addr);
+
+    SYN_Sched sched = {0};
+    syn_coap_request_init(&req_ctx, &srv_addr, &req_msg, 100, 0);
+    memset(&task, 0, sizeof(task));
+    task.user_data = &req_ctx;
+    task.sched = &sched;
+    sched.running = &task;
+    sched.share_contended = true;
+    PT_INIT(&pt);
+
+    /* Packet 1 (malformed) -> PT_CONTINUE_IF_NEEDED yields PT_MORE */
+    TEST_ASSERT_EQUAL(PT_MORE, syn_coap_request_task(&pt, &task));
+    /* Packet 2 (wrong token) -> resumes at continue, yields PT_MORE */
+    TEST_ASSERT_EQUAL(PT_MORE, syn_coap_request_task(&pt, &task));
+    /* Packet 3 (matching token) -> resumes at continue, completes SYN_OK */
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_coap_request_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_OK, req_ctx.status);
+    TEST_ASSERT_EQUAL(5, req_ctx.resp_msg.payload_len);
+    TEST_ASSERT_EQUAL_MEMORY("match", req_ctx.resp_msg.payload, 5);
+}
+
+static void test_coap_transport_request_task_has_data_and_token_filtering(void)
+{
+    mock_port_reset();
+
+    AsyncCoapTransportCtx tr_ctx = {0};
+    SYN_Transport tr = {.send = async_coap_tr_send,
+                        .recv = async_coap_tr_recv,
+                        .has_data = async_coap_tr_has_data,
+                        .ctx = &tr_ctx};
+
+    SYN_CoapMsg req = {.type = COAP_TYPE_CON,
+                       .code = COAP_CODE_GET,
+                       .msg_id = 0x5150,
+                       .token_len = 2,
+                       .token = {0xAA, 0x55},
+                       .payload = NULL,
+                       .payload_len = 0};
+
+    /* Queue malformed packet + wrong-token packet; matching response arrives later */
+    uint8_t runt_pkt[2] = {0xFF, 0x01};
+    SYN_CoapMsg bad_tok = {.type = COAP_TYPE_ACK,
+                           .code = COAP_RESP_CONTENT,
+                           .msg_id = 0x5150,
+                           .token_len = 2,
+                           .token = {0x11, 0x22},
+                           .payload = (const uint8_t *)"bad",
+                           .payload_len = 3};
+    uint8_t bad_buf[64];
+    size_t bad_len = syn_coap_serialize(&bad_tok, NULL, 0, bad_buf, sizeof(bad_buf));
+    TEST_ASSERT_TRUE(bad_len > 0);
+
+    async_coap_tr_enqueue(&tr_ctx, runt_pkt, sizeof(runt_pkt));
+    async_coap_tr_enqueue(&tr_ctx, bad_buf, bad_len);
+
+    SYN_CoapTransportRequest treq;
+    syn_coap_transport_request_init(&treq, &tr, &req, 100, 0);
+
+    SYN_Sched sched = {0};
+    SYN_Task task = {0};
+    task.user_data = &treq;
+    task.sched = &sched;
+    sched.running = &task;
+    sched.share_contended = true;
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+
+    /* 1. Runt packet triggers PT_CONTINUE_IF_NEEDED -> PT_MORE (syn_coap.c:444) */
+    TEST_ASSERT_EQUAL(PT_MORE, syn_coap_transport_request_task(&pt, &task));
+    /* 2. Resumes at continue (445), reads wrong-token packet -> PT_MORE (444) */
+    TEST_ASSERT_EQUAL(PT_MORE, syn_coap_transport_request_task(&pt, &task));
+    /* 3. Resumes at continue (445), queue empty, has_data != NULL returns false -> PT_IDLE (448) */
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_coap_transport_request_task(&pt, &task));
+    /* 4. Poll while has_data is still false and before timeout -> stays PT_IDLE */
+    mock_tick_advance(10);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_coap_transport_request_task(&pt, &task));
+
+    /* 5. Enqueue matching-token response -> has_data returns true, wakes and completes SYN_OK */
+    SYN_CoapMsg ok_resp = {.type = COAP_TYPE_ACK,
+                           .code = COAP_RESP_CONTENT,
+                           .msg_id = 0x5150,
+                           .token_len = 2,
+                           .token = {0xAA, 0x55},
+                           .payload = (const uint8_t *)"done",
+                           .payload_len = 4};
+    uint8_t ok_buf[64];
+    size_t ok_len = syn_coap_serialize(&ok_resp, NULL, 0, ok_buf, sizeof(ok_buf));
+    TEST_ASSERT_TRUE(ok_len > 0);
+    async_coap_tr_enqueue(&tr_ctx, ok_buf, ok_len);
+
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_coap_transport_request_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_OK, treq.status);
+    TEST_ASSERT_EQUAL(COAP_RESP_CONTENT, treq.resp_msg.code);
+    TEST_ASSERT_EQUAL(4, treq.resp_msg.payload_len);
+    TEST_ASSERT_EQUAL_MEMORY("done", treq.resp_msg.payload, 4);
+}
+
+static bool always_true_has_data(const void *ctx)
+{
+    (void)ctx;
+    return true;
+}
+
+static void test_coap_round3_regressions(void)
+{
+    mock_port_reset();
+
+    /* 1. R3-N11: syn_coap_request_init sets sock = SYN_SOCKET_INVALID (not 0 / STDIN),
+     *    clamps shift > 16 without UB, and saturates max_attempts when retries == 255 */
+    SYN_SockAddr srv_addr = {.ip = {127, 0, 0, 1}, .port = 5683};
+    SYN_CoapMsg req_msg = {.type = COAP_TYPE_CON, .code = COAP_CODE_GET, .msg_id = 0x1001};
+    SYN_CoapRequest req;
+    syn_coap_request_init(&req, &srv_addr, &req_msg, 100000U, 255U);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, req.sock);
+    TEST_ASSERT_EQUAL_UINT32(0x7FFFFFFFU, req.backoff.max_ms);
+    TEST_ASSERT_EQUAL_UINT8(UINT8_MAX, req.backoff.max_attempts);
+
+    /* 2. R3-N12: mid-flight restart closes previously opened UDP socket on case 0 entry */
+    mock_sock_connected = true;
+    req.sock = 20;
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = {.user_data = &req};
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_coap_request_task(&pt, &task));
+    /* mock_sock_connected was cleared by syn_port_sock_close(20) on entry */
+    TEST_ASSERT_FALSE(mock_sock_connected);
+    TEST_ASSERT_EQUAL(20, req.sock);
+
+    /* 3. R3-N06: UDP recvfrom failure while readable (mock_udp_recv_fail) yields PT_IDLE cleanly */
+    mock_udp_recv_fail = true;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_coap_request_task(&pt, &task));
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_coap_request_task(&pt, &task));
+    mock_udp_recv_fail = false;
+
+    /* 4. R3-N01: transport with has_data() returning true while recv() returns false yields PT_IDLE
+     */
+    AsyncCoapTransportCtx empty_ctx = {0};
+    SYN_Transport buggy_tr = {.send = async_coap_tr_send,
+                              .recv = async_coap_tr_recv,
+                              .has_data = always_true_has_data,
+                              .ctx = &empty_ctx};
+    SYN_CoapTransportRequest treq;
+    syn_coap_transport_request_init(&treq, &buggy_tr, &req_msg, 100U, 0U);
+    SYN_Task ttask = {.user_data = &treq};
+    SYN_PT tpt;
+    PT_INIT(&tpt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_coap_transport_request_task(&tpt, &ttask));
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_coap_transport_request_task(&tpt, &ttask));
+    mock_tick_advance(200U);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_coap_transport_request_task(&tpt, &ttask));
+    TEST_ASSERT_EQUAL(SYN_TIMEOUT, treq.status);
+}
+
+static void test_coap_round4_regressions(void)
+{
+    mock_port_reset();
+
+    /* 1. R4-N12: block->num > 0xFFFFFU and buf == NULL rejected without shift wraparound */
+    uint8_t blk_buf[3];
+    SYN_CoapBlock blk_max = {.num = 0xFFFFFU, .more = true, .szx = 6U};
+    TEST_ASSERT_EQUAL_UINT(0U, syn_coap_encode_block_opt(&blk_max, NULL));
+    TEST_ASSERT_EQUAL_UINT(3U, syn_coap_encode_block_opt(&blk_max, blk_buf));
+
+    SYN_CoapBlock blk_over = {.num = 0x100000U, .more = false, .szx = 0U};
+    TEST_ASSERT_EQUAL_UINT(0U, syn_coap_encode_block_opt(&blk_over, blk_buf));
+
+    SYN_CoapBlock blk_wrap = {.num = 0x10000000U, .more = false, .szx = 0U};
+    TEST_ASSERT_EQUAL_UINT(0U, syn_coap_encode_block_opt(&blk_wrap, blk_buf));
+
+    /* 2. R4-N12: syn_coap_serialize pointer, count, and >65804 option-length validation */
+    uint8_t sbuf[64];
+    SYN_CoapMsg msg = {.type = COAP_TYPE_CON, .code = COAP_CODE_GET, .msg_id = 1U};
+    TEST_ASSERT_EQUAL_UINT(0U, syn_coap_serialize(NULL, NULL, 0U, sbuf, sizeof(sbuf)));
+    TEST_ASSERT_EQUAL_UINT(0U, syn_coap_serialize(&msg, NULL, 0U, NULL, sizeof(sbuf)));
+    TEST_ASSERT_EQUAL_UINT(0U, syn_coap_serialize(&msg, NULL, 1U, sbuf, sizeof(sbuf)));
+
+    SYN_CoapMsg null_pl = {.type = COAP_TYPE_CON, .code = COAP_CODE_POST, .payload_len = 4U};
+    TEST_ASSERT_EQUAL_UINT(0U, syn_coap_serialize(&null_pl, NULL, 0U, sbuf, sizeof(sbuf)));
+
+    SYN_CoapOption zero_opt = {.num = COAP_OPT_OBSERVE, .val = NULL, .len = 0U};
+    TEST_ASSERT_TRUE(syn_coap_serialize(&msg, &zero_opt, 1U, sbuf, sizeof(sbuf)) > 0U);
+
+    SYN_CoapOption null_opt = {.num = COAP_OPT_URI_PATH, .val = NULL, .len = 2U};
+    TEST_ASSERT_EQUAL_UINT(0U, syn_coap_serialize(&msg, &null_opt, 1U, sbuf, sizeof(sbuf)));
+
+    static uint8_t dummy_byte = 0xAAU;
+    SYN_CoapOption huge_opt = {.num = COAP_OPT_URI_PATH, .val = &dummy_byte, .len = 65805U};
+    TEST_ASSERT_EQUAL_UINT(0U, syn_coap_serialize(&msg, &huge_opt, 1U, sbuf, 70000U));
+
+    /* 3. R4-N12: option delta uint16_t overflow (65535 + 1) rejected in syn_coap_parse */
+    /* Option 1: delta nibble 14, ext = 65266 (0xFEF2) -> num = 269 + 65266 = 65535, len = 0
+     * Option 2: delta nibble 1 -> 65535 + 1 overflows uint16_t */
+    uint8_t delta_ovf_pkt[] = {0x40U, 0x01U, 0x00U, 0x01U, 0xE0U, 0xFEU, 0xF2U, 0x10U};
+    SYN_CoapMsg parsed;
+    SYN_CoapOption popts[4];
+    size_t pcnt = 0U;
+    TEST_ASSERT_EQUAL(
+        SYN_ERROR, syn_coap_parse(&parsed, popts, 4U, &pcnt, delta_ovf_pkt, sizeof(delta_ovf_pkt)));
+
+    /* 4. R4-N12: RST and request/empty codes rejected in coap_response_matches */
+    SYN_CoapMsg req = {.type = COAP_TYPE_CON,
+                       .code = COAP_CODE_GET,
+                       .msg_id = 0x7777U,
+                       .token_len = 2U,
+                       .token = {0x42U, 0x24U}};
+    SYN_CoapMsg rst_pkt = {
+        .type = COAP_TYPE_RST, .code = COAP_RESP_CONTENT, .token_len = 2U, .token = {0x42U, 0x24U}};
+    SYN_CoapMsg req_echo = {
+        .type = COAP_TYPE_NON, .code = COAP_CODE_GET, .token_len = 2U, .token = {0x42U, 0x24U}};
+    SYN_CoapMsg ok_resp = {.type = COAP_TYPE_ACK,
+                           .code = COAP_RESP_CONTENT,
+                           .token_len = 2U,
+                           .token = {0x42U, 0x24U},
+                           .payload = (const uint8_t *)"ok",
+                           .payload_len = 2U};
+
+    uint8_t b_rst[32], b_echo[32], b_ok[32], rbuf[64];
+    size_t l_rst = syn_coap_serialize(&rst_pkt, NULL, 0U, b_rst, sizeof(b_rst));
+    size_t l_echo = syn_coap_serialize(&req_echo, NULL, 0U, b_echo, sizeof(b_echo));
+    size_t l_ok = syn_coap_serialize(&ok_resp, NULL, 0U, b_ok, sizeof(b_ok));
+
+    MockTransportCtx mctx = {0};
+    SYN_Transport mtr = {.send = mock_tr_send, .recv = mock_tr_recv, .ctx = &mctx};
+    memcpy(mctx.rx_buf, b_rst, l_rst);
+    mctx.rx_len = l_rst;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_coap_transport_send_request(&mtr, &req, NULL, 0U, &parsed,
+                                                                 popts, 4U, &pcnt, rbuf, 64U));
+    memcpy(mctx.rx_buf, b_echo, l_echo);
+    mctx.rx_len = l_echo;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_coap_transport_send_request(&mtr, &req, NULL, 0U, &parsed,
+                                                                 popts, 4U, &pcnt, rbuf, 64U));
+
+    SYN_SockAddr srv = {.ip = {127, 0, 0, 1}, .port = 5683};
+    mock_udp_rx_count = 0;
+    mock_udp_rx_pos = 0;
+    mock_udp_inject_packet(b_rst, l_rst, &srv);
+    mock_udp_inject_packet(b_echo, l_echo, &srv);
+    mock_udp_inject_packet(b_ok, l_ok, &srv);
+
+    SYN_CoapRequest ureq;
+    syn_coap_request_init(&ureq, &srv, &req, 100U, 0U);
+    SYN_Task utask = {.user_data = &ureq};
+    SYN_PT upt;
+    PT_INIT(&upt);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_coap_request_task(&upt, &utask));
+    TEST_ASSERT_EQUAL(SYN_OK, ureq.status);
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_CONTENT, ureq.resp_msg.code);
+}
+
+static void test_r5_n09_coap_stable_option_sort(void)
+{
+    SYN_CoapMsg req = {.type = COAP_TYPE_CON, .code = COAP_CODE_GET, .msg_id = 0x2222U};
+    SYN_CoapOption opts[4] = {
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"rd", .len = 2U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"dev", .len = 3U},
+        {.num = COAP_OPT_OBSERVE, .val = NULL, .len = 0U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+    };
+    uint8_t buf[64];
+    size_t len = syn_coap_serialize(&req, opts, 4U, buf, sizeof(buf));
+    TEST_ASSERT_TRUE(len > 0U);
+
+    SYN_CoapMsg parsed;
+    SYN_CoapOption popts[4];
+    size_t pcnt = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_coap_parse(&parsed, popts, 4U, &pcnt, buf, len));
+    TEST_ASSERT_EQUAL_UINT32(4U, (uint32_t)pcnt);
+    TEST_ASSERT_EQUAL_UINT16(COAP_OPT_OBSERVE, popts[0].num);
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)popts[0].len);
+    TEST_ASSERT_EQUAL_UINT16(COAP_OPT_URI_PATH, popts[1].num);
+    TEST_ASSERT_EQUAL_UINT32(2U, (uint32_t)popts[1].len);
+    TEST_ASSERT_EQUAL_MEMORY("rd", popts[1].val, 2U);
+    TEST_ASSERT_EQUAL_UINT16(COAP_OPT_URI_PATH, popts[2].num);
+    TEST_ASSERT_EQUAL_UINT32(3U, (uint32_t)popts[2].len);
+    TEST_ASSERT_EQUAL_MEMORY("dev", popts[2].val, 3U);
+    TEST_ASSERT_EQUAL_UINT16(COAP_OPT_URI_PATH, popts[3].num);
+    TEST_ASSERT_EQUAL_UINT32(1U, (uint32_t)popts[3].len);
+    TEST_ASSERT_EQUAL_MEMORY("0", popts[3].val, 1U);
+}
+
 void run_coap_tests(void)
 {
     RUN_TEST(test_coap_serialization);
@@ -947,4 +1374,9 @@ void run_coap_tests(void)
     RUN_TEST(test_coap_transport_request_task_and_direct_send);
     RUN_TEST(test_coaps_client_e2e_dtls13);
     RUN_TEST(test_coap_transport_and_coaps_null_and_bounds_checks);
+    RUN_TEST(test_coap_request_task_null_and_token_filtering);
+    RUN_TEST(test_coap_transport_request_task_has_data_and_token_filtering);
+    RUN_TEST(test_coap_round3_regressions);
+    RUN_TEST(test_coap_round4_regressions);
+    RUN_TEST(test_r5_n09_coap_stable_option_sort);
 }

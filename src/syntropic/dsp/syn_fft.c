@@ -263,8 +263,8 @@ SYN_Status syn_fft_thd(const q16_t *mag, uint16_t n_bins, uint16_t fundamental_b
         return SYN_INVALID_PARAM;
 
     int64_t sum_h2 = 0;
-    for (uint8_t h = 2; h <= max_harmonics + 1; h++) {
-        uint32_t h_bin = (uint32_t)fundamental_bin * h;
+    for (uint16_t h = 2U; h <= (uint16_t)max_harmonics + 1U; h++) {
+        uint32_t h_bin = (uint32_t)fundamental_bin * (uint32_t)h;
         if (h_bin < n_bins) {
             q16_t v_h = mag[h_bin];
             int64_t v_h_q16 = v_h;
@@ -272,7 +272,8 @@ SYN_Status syn_fft_thd(const q16_t *mag, uint16_t n_bins, uint16_t fundamental_b
         }
     }
 
-    q16_t harmonic_rms = q16_sqrt((q16_t)sum_h2);
+    q16_t sum_q16 = (sum_h2 > (int64_t)INT32_MAX) ? INT32_MAX : (q16_t)sum_h2;
+    q16_t harmonic_rms = q16_sqrt(sum_q16);
     /* THD % = (V_harmonics / V_1) * 100 */
     q16_t ratio = q16_div(harmonic_rms, v1);
     *thd_pct = q16_mul(ratio, Q16_FROM_INT(100));

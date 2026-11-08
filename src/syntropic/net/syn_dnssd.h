@@ -189,7 +189,7 @@ SYN_Status syn_dnssd_browser_init(SYN_DnsSd_Browser *browser, const SYN_DnsSd *s
  *
  * @param pt   Protothread pointer.
  * @param task Task descriptor with user_data pointing to SYN_DnsSd_Browser.
- * @return PT_WAITING while running, PT_EXITED when discovery timeout elapses.
+ * @return PT_IDLE while running, PT_ENDED when discovery timeout elapses.
  */
 SYN_PT_Status syn_dnssd_browse_task(SYN_PT *pt, SYN_Task *task);
 
@@ -198,7 +198,7 @@ SYN_PT_Status syn_dnssd_browse_task(SYN_PT *pt, SYN_Task *task);
  *
  * @param pt   Protothread pointer.
  * @param task Task structure with user_data pointing to SYN_DnsSd instance.
- * @return PT_WAITING while running, PT_EXITED when done.
+ * @return PT_IDLE while running, PT_ENDED when done.
  */
 SYN_PT_Status syn_dnssd_task(SYN_PT *pt, SYN_Task *task);
 

@@ -142,8 +142,8 @@ void setup()
     syn_led_blink(&status_led, 200, 200);
 
     /* 3. Register Scheduler Tasks */
-    syn_task_create(&tasks[0], "http",  http_task,  1, &http_client);
-    syn_task_create(&tasks[1], "blink", blink_task, 2, NULL);
+    syn_task_create(&tasks[0], "http",  http_task,  SYN_PRIO_HIGH,   &http_client);
+    syn_task_create(&tasks[1], "blink", blink_task, SYN_PRIO_NORMAL, NULL);
 
     syn_sched_init(&sched, tasks, 2);
 

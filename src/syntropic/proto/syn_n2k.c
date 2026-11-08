@@ -151,29 +151,32 @@ SYN_Status syn_n2k_decode_battery(const SYN_CAN_Frame *frame, SYN_N2K_BatterySta
 SYN_Status syn_n2k_encode_dc_detailed(uint8_t sa, const SYN_N2K_DcDetailedStatus *dc,
                                       SYN_CAN_Frame *frame)
 {
-    if (!dc || !frame)
+    if (!dc || !frame) {
         return SYN_INVALID_PARAM;
+    }
 
     frame->id = syn_j1939_id_pack(6, SYN_N2K_PGN_DC_DETAILED_STATUS, sa, SYN_J1939_ADDR_GLOBAL);
     frame->dlc = 8;
     frame->extended = true;
 
     size_t pos_idx = 0;
+    uint8_t cap_u8 = (dc->capacity_ah_1e1 > 0xFEU) ? 0xFFU : (uint8_t)dc->capacity_ah_1e1;
     syn_pack_u8(frame->data, &pos_idx, dc->sid);
     syn_pack_u8(frame->data, &pos_idx, dc->instance);
     syn_pack_u8(frame->data, &pos_idx, dc->dc_type);
     syn_pack_u8(frame->data, &pos_idx, dc->state_of_charge);
     syn_pack_u8(frame->data, &pos_idx, dc->state_of_health);
     syn_pack_u16_le(frame->data, &pos_idx, dc->time_to_go_min);
-    syn_pack_u8(frame->data, &pos_idx, (uint8_t)dc->capacity_ah_1e1);
+    syn_pack_u8(frame->data, &pos_idx, cap_u8);
 
     return SYN_OK;
 }
 
 SYN_Status syn_n2k_decode_dc_detailed(const SYN_CAN_Frame *frame, SYN_N2K_DcDetailedStatus *dc)
 {
-    if (!frame || !dc || frame->dlc < 8)
+    if (!frame || !dc || frame->dlc < 8) {
         return SYN_INVALID_PARAM;
+    }
 
     size_t pos_idx = 0;
     dc->sid = syn_unpack_u8(frame->data, &pos_idx);
@@ -182,7 +185,71 @@ SYN_Status syn_n2k_decode_dc_detailed(const SYN_CAN_Frame *frame, SYN_N2K_DcDeta
     dc->state_of_charge = syn_unpack_u8(frame->data, &pos_idx);
     dc->state_of_health = syn_unpack_u8(frame->data, &pos_idx);
     dc->time_to_go_min = syn_unpack_u16_le(frame->data, &pos_idx);
+    dc->ripple_voltage = 0xFFFFU;
     dc->capacity_ah_1e1 = (uint16_t)syn_unpack_u8(frame->data, &pos_idx);
+
+    return SYN_OK;
+}
+
+SYN_Status syn_n2k_encode_dc_detailed_fastpacket(uint8_t sa, uint8_t seq_id,
+                                                 const SYN_N2K_DcDetailedStatus *dc,
+                                                 SYN_CAN_Frame frames_out[2])
+{
+    if (dc == NULL || frames_out == NULL) {
+        return SYN_INVALID_PARAM;
+    }
+
+    uint8_t raw[11];
+    size_t pos_idx = 0U;
+    syn_pack_u8(raw, &pos_idx, dc->sid);
+    syn_pack_u8(raw, &pos_idx, dc->instance);
+    syn_pack_u8(raw, &pos_idx, dc->dc_type);
+    syn_pack_u8(raw, &pos_idx, dc->state_of_charge);
+    syn_pack_u8(raw, &pos_idx, dc->state_of_health);
+    syn_pack_u16_le(raw, &pos_idx, dc->time_to_go_min);
+    syn_pack_u16_le(raw, &pos_idx, dc->ripple_voltage);
+    syn_pack_u16_le(raw, &pos_idx, dc->capacity_ah_1e1);
+
+    uint32_t can_id =
+        syn_j1939_id_pack(6U, SYN_N2K_PGN_DC_DETAILED_STATUS, sa, SYN_J1939_ADDR_GLOBAL);
+    uint8_t seq_bits = (uint8_t)((seq_id & 0x07U) << 5U);
+
+    memset(&frames_out[0], 0, sizeof(SYN_CAN_Frame));
+    frames_out[0].id = can_id;
+    frames_out[0].dlc = 8U;
+    frames_out[0].extended = true;
+    frames_out[0].data[0] = (uint8_t)(seq_bits | 0U);
+    frames_out[0].data[1] = 11U;
+    memcpy(&frames_out[0].data[2], &raw[0], 6U);
+
+    memset(&frames_out[1], 0, sizeof(SYN_CAN_Frame));
+    frames_out[1].id = can_id;
+    frames_out[1].dlc = 8U;
+    frames_out[1].extended = true;
+    frames_out[1].data[0] = (uint8_t)(seq_bits | 1U);
+    memcpy(&frames_out[1].data[1], &raw[6], 5U);
+    frames_out[1].data[6] = 0xFFU;
+    frames_out[1].data[7] = 0xFFU;
+
+    return SYN_OK;
+}
+
+SYN_Status syn_n2k_decode_dc_detailed_payload(const uint8_t *payload, size_t len,
+                                              SYN_N2K_DcDetailedStatus *dc)
+{
+    if (payload == NULL || dc == NULL || len < 11U) {
+        return SYN_INVALID_PARAM;
+    }
+
+    size_t pos_idx = 0U;
+    dc->sid = syn_unpack_u8(payload, &pos_idx);
+    dc->instance = syn_unpack_u8(payload, &pos_idx);
+    dc->dc_type = syn_unpack_u8(payload, &pos_idx);
+    dc->state_of_charge = syn_unpack_u8(payload, &pos_idx);
+    dc->state_of_health = syn_unpack_u8(payload, &pos_idx);
+    dc->time_to_go_min = syn_unpack_u16_le(payload, &pos_idx);
+    dc->ripple_voltage = syn_unpack_u16_le(payload, &pos_idx);
+    dc->capacity_ah_1e1 = syn_unpack_u16_le(payload, &pos_idx);
 
     return SYN_OK;
 }
@@ -225,16 +292,15 @@ SYN_Status syn_n2k_fastpacket_process(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Fr
                                       uint32_t target_pgn, const uint8_t **out_payload,
                                       size_t *out_len)
 {
-    if (!rx || !frame || !out_payload || !out_len || frame->dlc < 8)
+    if (!rx || !frame || !out_payload || !out_len || !frame->extended || frame->dlc < 8) {
         return SYN_INVALID_PARAM;
+    }
 
     SYN_J1939_Header hdr;
-    /* LCOV_EXCL_START: Unreachable unpack check (non-null hdr always returns SYN_OK) */
-    if (syn_j1939_id_unpack(frame->id, &hdr) != SYN_OK)
+    (void)syn_j1939_id_unpack(frame->id, &hdr);
+    if (hdr.pgn != target_pgn) {
         return SYN_INVALID_PARAM;
-    /* LCOV_EXCL_STOP */
-    if (hdr.pgn != target_pgn)
-        return SYN_INVALID_PARAM;
+    }
 
     uint8_t seq_frame = frame->data[0];
     uint8_t seq_id = (seq_frame >> 5) & 0x07U;
@@ -243,8 +309,9 @@ SYN_Status syn_n2k_fastpacket_process(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Fr
     /* First frame of a Fast-Packet sequence */
     if (frame_idx == 0) {
         uint8_t total_bytes = frame->data[1];
-        if (total_bytes > sizeof(rx->data))
+        if (total_bytes > sizeof(rx->data)) {
             return SYN_INVALID_PARAM;
+        }
 
         rx->active = true;
         rx->seq_id = seq_id;

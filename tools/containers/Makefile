@@ -22,7 +22,7 @@ export CONTAINER_ENGINE
 CACHE_VOL ?= syntropicos-build-cache
 
 
-.PHONY: help san qemu renode fuzz cov static dox integration format lint misra container-build container-volume container-san container-qemu container-renode container-fuzz container-cov container-static container-dox container-integration container-format container-lint container-misra
+.PHONY: help san tsan qemu renode fuzz cov static dox integration format lint misra container-build container-volume container-san container-tsan container-qemu container-renode container-fuzz container-cov container-static container-dox container-integration container-format container-lint container-misra
 
 help:
 	@echo "SyntropicOS Containerized Execution & Tooling Framework"
@@ -31,6 +31,7 @@ help:
 	@echo "  make lint                  Run AST code quality linter via clang-tidy"
 	@echo "  make misra                 Run MISRA C:2023 safety compliance scan"
 	@echo "  make san                   Run test suite under ASan + UBSan"
+	@echo "  make tsan                  Run test suite under ThreadSanitizer (TSan)"
 	@echo "  make qemu                  Run QEMU ARM Cortex-M4 bare-metal emulation"
 	@echo "  make renode                Run Renode STM32F4 board hardware emulation"
 	@echo "  make fuzz                  Run libFuzzer protocol targets"
@@ -43,6 +44,7 @@ help:
 	@echo "  make container-lint        Run clang-tidy linter inside container"
 	@echo "  make container-misra       Run MISRA C:2023 compliance scan in container"
 	@echo "  make container-san         Execute sanitizer suite inside Podman container"
+	@echo "  make container-tsan        Execute ThreadSanitizer suite inside container"
 	@echo "  make container-qemu        Execute QEMU ARM Cortex-M4 inside Podman container"
 	@echo "  make container-renode      Execute Renode hardware emulation inside container"
 	@echo "  make container-fuzz        Execute libFuzzer suite inside Podman container"
@@ -74,6 +76,9 @@ complexity:
 
 san:
 	@bash $(ROOT_DIR)/tools/containers/run_sanitizers.sh
+
+tsan:
+	@bash $(ROOT_DIR)/tools/tsan/run_tsan.sh
 
 qemu:
 	@bash $(ROOT_DIR)/tests/emulation/run_qemu_arm.sh
@@ -138,6 +143,9 @@ container-complexity: container-build
 container-san: container-build container-volume
 	@$(CONTAINER_RUN) -v $(CACHE_VOL):/workspace/build -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers san JOBS=$(JOBS)
 
+container-tsan: container-build container-volume
+	@$(CONTAINER_RUN) -v $(CACHE_VOL):/workspace/build -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers tsan JOBS=$(JOBS)
+
 container-qemu: container-build container-volume
 	@$(CONTAINER_RUN) -v $(CACHE_VOL):/workspace/build -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers qemu JOBS=$(JOBS)
 
@@ -187,8 +195,8 @@ endif
 
 container-integration: container-build
 	@$(COMPOSE_CMD) -f $(ROOT_DIR)/tests/integration/docker-compose.yml down -v -t 1 --remove-orphans >/dev/null 2>&1 || true
-	@$(COMPOSE_CMD) -f $(ROOT_DIR)/tests/integration/docker-compose.yml up -d --build
-	@$(CONTAINER_RUN) --net=host -v $(ROOT_DIR):/workspace syntropicos-test bash /workspace/tests/integration/run_integration.sh; \
+	@$(COMPOSE_CMD) -f $(ROOT_DIR)/tests/integration/docker-compose.yml up -d --build mosquitto sntp http ws dns can wireguard modbus ethercat-soem ethercat-soes uds isotp doip
+	@$(CONTAINER_RUN) --net=host -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test bash /workspace/tests/integration/run_integration.sh; \
 	EXIT_CODE=$$?; \
 	$(COMPOSE_CMD) -f $(ROOT_DIR)/tests/integration/docker-compose.yml down -v -t 1 --remove-orphans || true; \
 	exit $$EXIT_CODE

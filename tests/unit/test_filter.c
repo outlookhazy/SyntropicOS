@@ -159,6 +159,13 @@ static void test_biquad_process_block(void)
     for (int i = 0; i < 5; i++) {
         TEST_ASSERT_EQUAL_INT32(out_sample[i], out_block[i]);
     }
+
+    /* Low-ratio fc/fs (fc = 0.25 Hz, fs = 20000 Hz) retains 6.28x 64-bit omega precision */
+    SYN_FilterBiquad low_fc;
+    syn_filter_biquad_lowpass(&low_fc, Q16_FROM_FRAC(1, 4), Q16_FROM_INT(20000));
+    SYN_FilterBiquad bp_low;
+    syn_filter_biquad_bandpass(&bp_low, Q16_FROM_FRAC(1, 4), Q16_FROM_INT(20000), Q16_HALF);
+    TEST_ASSERT_TRUE(bp_low.b0 > 0);
 }
 
 static void test_filter_biquad_highpass(void)

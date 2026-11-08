@@ -7,7 +7,6 @@
 
 #include "../util/syn_assert.h"
 
-#include <stdlib.h>
 #include <string.h>
 
 void syn_cia401_init(SYN_CiA401_Device *dev, uint8_t dig_in_bytes, uint8_t dig_out_bytes,
@@ -95,12 +94,13 @@ bool syn_cia401_check_analog_delta(SYN_CiA401_Device *dev, uint8_t *channel)
 {
     SYN_ASSERT(dev != NULL && channel != NULL);
 
-    for (uint8_t i = 0; i < dev->analog_in_count; i++) {
-        int16_t diff = dev->analog_in[i] - dev->prev_analog_in[i];
-        if (diff < 0)
+    for (uint8_t i = 0U; i < dev->analog_in_count; i++) {
+        int32_t diff = (int32_t)dev->analog_in[i] - (int32_t)dev->prev_analog_in[i];
+        if (diff < 0) {
             diff = -diff;
+        }
 
-        if (dev->analog_delta[i] > 0 && diff >= dev->analog_delta[i]) {
+        if (dev->analog_delta[i] > 0 && diff >= (int32_t)dev->analog_delta[i]) {
             dev->prev_analog_in[i] = dev->analog_in[i];
             *channel = i;
             return true;

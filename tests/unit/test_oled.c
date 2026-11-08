@@ -55,7 +55,52 @@ static void test_oled_controllers(void)
     syn_oled_canvas_flush_cb(NULL, 0, NULL);
 }
 
+static void test_r5_oled_flush_layout_and_callback(void)
+{
+    mock_port_reset();
+    SYN_OLED oled;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_oled_init(&oled, 0, 1, 0x3C, 16, 10, SYN_OLED_SSD1306));
+
+    /* 16x10 OLED -> 2 pages * 16 = 32 bytes */
+    uint8_t fb[16 * 2];
+    SYN_Canvas c;
+    syn_canvas_init(&c, fb, 16, 10, 1, syn_oled_canvas_flush_cb, &oled);
+    syn_canvas_clear(&c);
+    syn_canvas_pixel(&c, 0, 0, 1);
+    syn_canvas_pixel(&c, 15, 9, 1);
+    TEST_ASSERT_EQUAL_HEX8(0x01U, fb[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x02U, fb[16 + 15]);
+
+    /* Flush via SYN_Canvas callback (syn_oled_canvas_flush_cb) */
+    syn_canvas_flush(&c);
+
+    /* Partial buffer & smaller-width canvas & 16-bpp rejection */
+    syn_oled_canvas_flush_cb(fb, 8U, &oled);
+    TEST_ASSERT_EQUAL_UINT16(8U, oled.flush_offset);
+    syn_oled_canvas_flush_cb(&fb[8], 24U, &oled);
+    TEST_ASSERT_EQUAL_UINT16(0U, oled.flush_offset);
+    syn_oled_canvas_flush_cb(fb, 0U, &oled);
+    oled.width = 0U;
+    syn_oled_canvas_flush_cb(fb, 8U, &oled);
+    oled.width = 16U;
+
+    uint8_t small_fb[8 * 2];
+    SYN_Canvas small_c;
+    syn_canvas_init(&small_c, small_fb, 8, 10, 1, NULL, NULL);
+    syn_canvas_clear(&small_c);
+    syn_oled_flush_canvas(&oled, &small_c);
+
+    uint8_t rgb_fb[8 * 8 * 2];
+    SYN_Canvas rgb_c;
+    syn_canvas_init(&rgb_c, rgb_fb, 8, 8, 16, NULL, NULL);
+    syn_oled_flush_canvas(&oled, &rgb_c);
+
+    syn_oled_set_invert(&oled, false);
+    syn_oled_set_display_on(&oled, true);
+}
+
 void run_oled_tests(void)
 {
     RUN_TEST(test_oled_controllers);
+    RUN_TEST(test_r5_oled_flush_layout_and_callback);
 }

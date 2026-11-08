@@ -4,13 +4,16 @@
 
 #if !defined(SYN_USE_CLI) || SYN_USE_CLI
 
+#if defined(SYN_USE_FMT) && !SYN_USE_FMT
+#error "syn_cli requires SYN_USE_FMT=1"
+#endif
+
 /**
  * @file syn_cli.c
  * @brief Command-line interpreter implementation.
  */
 
 #include "../port/syn_port_serial.h"
-#include "../util/syn_assert.h"
 #include "../util/syn_fmt.h"
 #include "syn_cli.h"
 
@@ -68,10 +71,11 @@ static void cli_putchar(const SYN_CLI *cli, char ch)
 static void cli_puts(const SYN_CLI *cli, const char *str)
 {
     (void)cli;
-    if (str == NULL)
+    if (str == NULL) {
         return;
+    }
     size_t len = strlen(str);
-    if (len > 0) {
+    if (len > 0U) {
         syn_port_serial_write((const uint8_t *)str, len);
     }
 }
@@ -93,29 +97,119 @@ static int cli_tokenize(char *line, char *argv[], int max_args)
 
     while (*p && argc < max_args) {
         /* Skip whitespace */
-        while (*p == ' ' || *p == '\t')
+        while (*p == ' ' || *p == '\t') {
             p++;
-        if (*p == '\0')
+        }
+        if (*p == '\0') {
             break;
+        }
 
         /* Handle quoted string */
         if (*p == '"') {
             p++; /* skip opening quote */
             argv[argc++] = p;
-            while (*p && *p != '"')
+            while (*p && *p != '"') {
                 p++;
-            if (*p == '"')
+            }
+            if (*p == '"') {
                 *p++ = '\0';
+            }
         } else {
             argv[argc++] = p;
-            while (*p && *p != ' ' && *p != '\t')
+            while (*p && *p != ' ' && *p != '\t') {
                 p++;
-            if (*p)
+            }
+            if (*p) {
                 *p++ = '\0';
+            }
         }
     }
 
     return argc;
+}
+
+/**
+ * @brief Print built-in and user-registered command help table.
+ * @param cli CLI instance.
+ */
+static void cli_print_help(const SYN_CLI *cli)
+{
+    cli_puts(cli, "Available commands:\r\n");
+    cli_puts(cli, "  help           -- Show this help\r\n");
+#if SYN_CLI_CMD_VERSION
+    cli_puts(cli, "  version        -- Show build info\r\n");
+#endif
+#if SYN_CLI_CMD_UPTIME
+    cli_puts(cli, "  uptime         -- Show system uptime\r\n");
+#endif
+#if SYN_CLI_CMD_ERRORS
+    if (s_cli_errlog != NULL) {
+        cli_puts(cli, "  errors         -- Dump error log\r\n");
+    }
+#endif
+#if SYN_CLI_CMD_TASKS
+    if (s_cli_sched != NULL) {
+        cli_puts(cli, "  tasks          -- Show scheduler tasks\r\n");
+    }
+#endif
+
+    if (cli->commands == NULL) {
+        return;
+    }
+
+    for (size_t i = 0U; i < cli->command_count; i++) {
+        if (cli->commands[i].name == NULL) {
+            continue;
+        }
+        cli_puts(cli, "  ");
+        cli_puts(cli, cli->commands[i].name);
+        if (cli->commands[i].help != NULL) {
+            /* Pad to align with built-in entries (15 chars for name) */
+            size_t name_len = strlen(cli->commands[i].name);
+            for (size_t p = name_len; p < 15U; p++) {
+                cli_putchar(cli, ' ');
+            }
+            cli_puts(cli, "-- ");
+            cli_puts(cli, cli->commands[i].help);
+        }
+        cli_puts(cli, "\r\n");
+    }
+}
+
+/**
+ * @brief Search the user command table and execute a matching command.
+ * @param cli  CLI instance.
+ * @param argc Token count.
+ * @param argv Token vector.
+ * @return true if a matching command entry was found, false otherwise.
+ */
+static bool cli_exec_user_command(SYN_CLI *cli, int argc, char *argv[])
+{
+    if (cli->commands == NULL) {
+        return false;
+    }
+
+    for (size_t i = 0U; i < cli->command_count; i++) {
+        if (cli->commands[i].name == NULL) {
+            continue;
+        }
+        if (strcmp(argv[0], cli->commands[i].name) == 0) {
+            if (cli->commands[i].handler != NULL) {
+                int ret = cli->commands[i].handler(argc, argv);
+                if (ret != 0) {
+                    char buf[32];
+                    const char *parts[] = {"Error: ", NULL, "\r\n"};
+                    char num[12];
+                    syn_fmt_int(num, sizeof(num), ret);
+                    parts[1] = num;
+                    syn_fmt_concat(buf, sizeof(buf), parts, 3);
+                    cli_puts(cli, buf);
+                }
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -134,41 +228,7 @@ static void cli_dispatch(SYN_CLI *cli, char *line)
 
     /* Built-in: help */
     if (strcmp(argv[0], "help") == 0 || strcmp(argv[0], "?") == 0) {
-        cli_puts(cli, "Available commands:\r\n");
-
-        /* Built-in help entry */
-        cli_puts(cli, "  help           -- Show this help\r\n");
-#if SYN_CLI_CMD_VERSION
-        cli_puts(cli, "  version        -- Show build info\r\n");
-#endif
-#if SYN_CLI_CMD_UPTIME
-        cli_puts(cli, "  uptime         -- Show system uptime\r\n");
-#endif
-#if SYN_CLI_CMD_ERRORS
-        if (s_cli_errlog != NULL)
-            cli_puts(cli, "  errors         -- Dump error log\r\n");
-#endif
-#if SYN_CLI_CMD_TASKS
-        if (s_cli_sched != NULL)
-            cli_puts(cli, "  tasks          -- Show scheduler tasks\r\n");
-#endif
-
-        for (size_t i = 0; i < cli->command_count; i++) {
-            if (cli->commands[i].name == NULL)
-                continue;
-            cli_puts(cli, "  ");
-            cli_puts(cli, cli->commands[i].name);
-            if (cli->commands[i].help != NULL) {
-                /* Pad to align with built-in entries (15 chars for name) */
-                size_t name_len = strlen(cli->commands[i].name);
-                for (size_t p = name_len; p < 15; p++) {
-                    cli_putchar(cli, ' ');
-                }
-                cli_puts(cli, "-- ");
-                cli_puts(cli, cli->commands[i].help);
-            }
-            cli_puts(cli, "\r\n");
-        }
+        cli_print_help(cli);
         return;
     }
 
@@ -204,23 +264,8 @@ static void cli_dispatch(SYN_CLI *cli, char *line)
     }
 #endif
 
-    /* Search command table */
-    for (size_t i = 0; i < cli->command_count; i++) {
-        if (strcmp(argv[0], cli->commands[i].name) == 0) {
-            if (cli->commands[i].handler != NULL) {
-                int ret = cli->commands[i].handler(argc, argv);
-                if (ret != 0) {
-                    char buf[32];
-                    const char *parts[] = {"Error: ", NULL, "\r\n"};
-                    char num[12];
-                    syn_fmt_int(num, sizeof(num), ret);
-                    parts[1] = num;
-                    syn_fmt_concat(buf, sizeof(buf), parts, 3);
-                    cli_puts(cli, buf);
-                }
-            }
-            return;
-        }
+    if (cli_exec_user_command(cli, argc, argv)) {
+        return;
     }
 
     /* Command not found */
@@ -230,105 +275,219 @@ static void cli_dispatch(SYN_CLI *cli, char *line)
 }
 
 #if SYN_CLI_HISTORY_DEPTH > 0
+/**
+ * @brief Push a non-empty command line into the history ring buffer.
+ * @param cli  CLI instance.
+ * @param line Null-terminated line string.
+ */
 static void cli_history_push(SYN_CLI *cli, const char *line)
 {
-    if (line[0] == '\0')
+    const char *p = line;
+    while (*p == ' ' || *p == '\t') {
+        p++;
+    }
+    if (*p == '\0') {
+        cli->history_read = 0U;
         return;
+    }
 
     /* Don't store duplicates of the last entry */
-    if (cli->history_count > 0) {
-        size_t last = (cli->history_write + SYN_CLI_HISTORY_DEPTH - 1) % SYN_CLI_HISTORY_DEPTH;
+    if (cli->history_count > 0U) {
+        size_t last = (cli->history_write + SYN_CLI_HISTORY_DEPTH - 1U) % SYN_CLI_HISTORY_DEPTH;
         if (strcmp(cli->history[last], line) == 0) {
-            cli->history_read = cli->history_write; /* reset cursor */
+            cli->history_read = 0U;
             return;
         }
     }
 
-    strncpy(cli->history[cli->history_write], line, SYN_CLI_LINE_BUF_SIZE - 1);
-    cli->history[cli->history_write][SYN_CLI_LINE_BUF_SIZE - 1] = '\0';
+    strncpy(cli->history[cli->history_write], line, SYN_CLI_LINE_BUF_SIZE - 1U);
+    cli->history[cli->history_write][SYN_CLI_LINE_BUF_SIZE - 1U] = '\0';
 
-    cli->history_write = (cli->history_write + 1) % SYN_CLI_HISTORY_DEPTH;
+    cli->history_write = (cli->history_write + 1U) % SYN_CLI_HISTORY_DEPTH;
     if (cli->history_count < SYN_CLI_HISTORY_DEPTH) {
         cli->history_count++;
     }
-    cli->history_read = cli->history_write;
+    cli->history_read = 0U;
 }
 #endif
+
+/**
+ * @brief Advance ANSI escape state machine; maps ESC [ A to Ctrl-P (0x10).
+ * @param cli CLI instance.
+ * @param ch  [in,out] Input character (remapped to 0x10 on Up arrow).
+ * @return true if character was consumed by escape parser, false otherwise.
+ */
+static bool cli_filter_escape(SYN_CLI *cli, char *ch)
+{
+    if (cli->escape_state == 1U) {
+        cli->escape_state = (*ch == '[') ? 2U : 0U;
+        return true;
+    }
+    if (cli->escape_state == 2U) {
+        cli->escape_state = 0U;
+        if (*ch == 'A') {
+            *ch = 0x10; /* Map Up arrow to Ctrl-P */
+            return false;
+        }
+        return true; /* Ignore other escape sequences */
+    }
+    if (*ch == 0x1B) {
+        cli->escape_state = 1U;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief Erase all characters currently in the active input buffer.
+ * @param cli CLI instance.
+ */
+static void cli_erase_line(SYN_CLI *cli)
+{
+    while (cli->line_pos > 0U) {
+        cli->line_pos--;
+        if (cli->echo) {
+            cli_puts(cli, "\b \b");
+        }
+    }
+}
+
+/**
+ * @brief Handle Backspace / DEL on the active input buffer.
+ * @param cli CLI instance.
+ */
+static void cli_backspace(SYN_CLI *cli)
+{
+    if (cli->line_pos > 0U) {
+        cli->line_pos--;
+        if (cli->echo) {
+            cli_puts(cli, "\b \b");
+        }
+    }
+}
+
+#if SYN_CLI_HISTORY_DEPTH > 0
+/**
+ * @brief Recall the previous history entry into the active input buffer.
+ * @param cli CLI instance.
+ */
+static void cli_recall_history(SYN_CLI *cli)
+{
+    if (cli->history_count == 0U) {
+        return;
+    }
+    cli_erase_line(cli);
+    if (cli->history_read < cli->history_count) {
+        cli->history_read++;
+    }
+    size_t idx =
+        (cli->history_write + SYN_CLI_HISTORY_DEPTH - cli->history_read) % SYN_CLI_HISTORY_DEPTH;
+    strncpy(cli->line_buf, cli->history[idx], SYN_CLI_LINE_BUF_SIZE - 1U);
+    cli->line_buf[SYN_CLI_LINE_BUF_SIZE - 1U] = '\0';
+    cli->line_pos = strlen(cli->line_buf);
+    if (cli->echo) {
+        cli_puts(cli, cli->line_buf);
+    }
+}
+#endif
+
+/**
+ * @brief Append a printable character (or Tab mapped to space) to the line buffer.
+ * @param cli CLI instance.
+ * @param ch  Character to append.
+ */
+static void cli_append_char(SYN_CLI *cli, char ch)
+{
+    if ((unsigned char)ch < 0x20U && ch != '\t') {
+        return;
+    }
+    if (ch == '\t') {
+        ch = ' ';
+    }
+    if (cli->line_pos < SYN_CLI_LINE_BUF_SIZE - 1U) {
+        cli->line_buf[cli->line_pos++] = ch;
+        if (cli->echo) {
+            cli_putchar(cli, ch);
+        }
+    }
+}
 
 /* ── Public API ─────────────────────────────────────────────────────────── */
 
 void syn_cli_init(SYN_CLI *cli, const SYN_CLI_Command *commands, size_t cmd_count,
                   const char *prompt)
 {
-    SYN_ASSERT(cli != NULL);
+    if (cli == NULL) {
+        return;
+    }
 
     memset(cli, 0, sizeof(*cli));
     cli->commands = commands;
-    cli->command_count = cmd_count;
+    cli->command_count = (commands != NULL) ? cmd_count : 0U;
     cli->prompt = (prompt != NULL) ? prompt : "> ";
     cli->echo = true;
-    cli->line_pos = 0;
+    cli->line_pos = 0U;
 }
 
 void syn_cli_set_echo(SYN_CLI *cli, bool echo)
 {
-    SYN_ASSERT(cli != NULL);
+    if (cli == NULL) {
+        return;
+    }
     cli->echo = echo;
+}
+
+/**
+ * @brief Terminate current input line, push to history, dispatch command, and redraw prompt.
+ * @param cli CLI instance.
+ */
+static void cli_execute_line(SYN_CLI *cli)
+{
+    if (cli->echo) {
+        cli_puts(cli, "\r\n");
+    }
+
+    cli->line_buf[cli->line_pos] = '\0';
+
+#if SYN_CLI_HISTORY_DEPTH > 0
+    cli_history_push(cli, cli->line_buf);
+#endif
+
+    cli->prompt_visible = false;
+    cli->line_pos = 0U;
+
+    cli_dispatch(cli, cli->line_buf);
+
+    syn_cli_print_prompt(cli);
 }
 
 void syn_cli_process_char(SYN_CLI *cli, char ch)
 {
-    SYN_ASSERT(cli != NULL);
-
-    /* ANSI escape sequence parsing (e.g. Up Arrow = \x1B[A) */
-    if (cli->escape_state == 1) {
-        if (ch == '[')
-            cli->escape_state = 2;
-        else
-            cli->escape_state = 0;
+    if (cli == NULL) {
         return;
     }
-    if (cli->escape_state == 2) {
-        cli->escape_state = 0;
-        if (ch == 'A')
-            ch = 0x10; /* Map Up arrow to Ctrl-P */
-        else
-            return; /* Ignore other arrows for now */
+
+    if (cli->last_was_cr) {
+        cli->last_was_cr = false;
+        if (ch == '\n') {
+            return;
+        }
     }
-    if (ch == 0x1B) {
-        cli->escape_state = 1;
+
+    if (cli_filter_escape(cli, &ch)) {
         return;
     }
 
     /* Newline — execute */
     if (ch == '\r' || ch == '\n') {
-        if (cli->echo) {
-            cli_puts(cli, "\r\n");
-        }
-
-        cli->line_buf[cli->line_pos] = '\0';
-
-#if SYN_CLI_HISTORY_DEPTH > 0
-        cli_history_push(cli, cli->line_buf);
-#endif
-
-        cli->prompt_visible = false;
-        cli->line_pos = 0;
-
-        cli_dispatch(cli, cli->line_buf);
-
-        syn_cli_print_prompt(cli);
+        cli->last_was_cr = (ch == '\r');
+        cli_execute_line(cli);
         return;
     }
 
     /* Backspace / DEL */
     if (ch == '\b' || ch == 0x7F) {
-        if (cli->line_pos > 0) {
-            cli->line_pos--;
-            if (cli->echo) {
-                cli_puts(cli, "\b \b"); /* erase character on terminal */
-            }
-        }
+        cli_backspace(cli);
         return;
     }
 
@@ -337,85 +496,56 @@ void syn_cli_process_char(SYN_CLI *cli, char ch)
         if (cli->echo) {
             cli_puts(cli, "^C\r\n");
         }
-        cli->line_pos = 0;
+        cli->line_pos = 0U;
+#if SYN_CLI_HISTORY_DEPTH > 0
+        cli->history_read = 0U;
+#endif
         syn_cli_print_prompt(cli);
         return;
     }
 
     /* Ctrl-U — clear line */
     if (ch == 0x15) {
-        while (cli->line_pos > 0) {
-            cli->line_pos--;
-            if (cli->echo) {
-                cli_puts(cli, "\b \b");
-            }
-        }
+        cli_erase_line(cli);
         return;
     }
 
 #if SYN_CLI_HISTORY_DEPTH > 0
-    /* Up arrow (simplified: Ctrl-P) — previous history */
-    if (ch == 0x10) { /* Ctrl-P */
-        if (cli->history_count > 0) {
-            /* Erase current line */
-            while (cli->line_pos > 0) {
-                cli->line_pos--;
-                if (cli->echo)
-                    cli_puts(cli, "\b \b");
-            }
-            /* Navigate backwards */
-            cli->history_read =
-                (cli->history_read + SYN_CLI_HISTORY_DEPTH - 1) % SYN_CLI_HISTORY_DEPTH;
-            if (cli->history_read >= cli->history_count) {
-                cli->history_read = cli->history_count - 1;
-            }
-            strncpy(cli->line_buf, cli->history[cli->history_read], SYN_CLI_LINE_BUF_SIZE - 1);
-            cli->line_pos = strlen(cli->line_buf);
-            if (cli->echo)
-                cli_puts(cli, cli->line_buf);
-        }
+    /* Up arrow / Ctrl-P — previous history */
+    if (ch == 0x10) {
+        cli_recall_history(cli);
         return;
     }
 #endif
 
-    /* Ignore other control characters */
-    if (ch < 0x20 && ch != '\t') {
-        return;
-    }
-
-    /* Tab — treat as space */
-    if (ch == '\t') {
-        ch = ' ';
-    }
-
-    /* Normal character — append to buffer */
-    if (cli->line_pos < SYN_CLI_LINE_BUF_SIZE - 1) {
-        cli->line_buf[cli->line_pos++] = ch;
-        if (cli->echo) {
-            cli_putchar(cli, ch);
-        }
-    }
-    /* Silently drop if buffer is full */
+    cli_append_char(cli, ch);
 }
 
 void syn_cli_process_line(SYN_CLI *cli, const char *line)
 {
-    SYN_ASSERT(cli != NULL);
-    SYN_ASSERT(line != NULL);
+    if (cli == NULL || line == NULL) {
+        return;
+    }
 
     /* Copy into the line buffer so we can tokenize in-place */
-    strncpy(cli->line_buf, line, SYN_CLI_LINE_BUF_SIZE - 1);
-    cli->line_buf[SYN_CLI_LINE_BUF_SIZE - 1] = '\0';
-    cli->line_pos = 0;
+    strncpy(cli->line_buf, line, SYN_CLI_LINE_BUF_SIZE - 1U);
+    cli->line_buf[SYN_CLI_LINE_BUF_SIZE - 1U] = '\0';
+    cli->line_pos = 0U;
+
+#if SYN_CLI_HISTORY_DEPTH > 0
+    cli_history_push(cli, cli->line_buf);
+#endif
 
     cli_dispatch(cli, cli->line_buf);
 }
 
 void syn_cli_print_prompt(SYN_CLI *cli)
 {
-    SYN_ASSERT(cli != NULL);
+    if (cli == NULL) {
+        return;
+    }
     cli_puts(cli, cli->prompt);
-    if (cli->line_pos > 0) {
+    if (cli->line_pos > 0U) {
         cli->line_buf[cli->line_pos] = '\0';
         cli_puts(cli, cli->line_buf);
     }
@@ -430,7 +560,9 @@ void syn_cli_refresh_prompt(SYN_CLI *cli)
 #if !defined(SYN_CLI_USE_PRINTF) || SYN_CLI_USE_PRINTF
 void syn_cli_printf(SYN_CLI *cli, const char *fmt, ...)
 {
-    SYN_ASSERT(cli != NULL);
+    if (cli == NULL || fmt == NULL) {
+        return;
+    }
 
     bool was_prompt_visible = cli->prompt_visible;
     if (was_prompt_visible) {
@@ -446,7 +578,7 @@ void syn_cli_printf(SYN_CLI *cli, const char *fmt, ...)
     va_end(args);
 
     if (n > 0) {
-        buf[sizeof(buf) - 1] = '\0';
+        buf[sizeof(buf) - 1U] = '\0';
         cli_puts(cli, buf);
     }
 
@@ -460,9 +592,13 @@ void syn_cli_printf(SYN_CLI *cli, const char *fmt, ...)
 /* ── Built-in command implementations ───────────────────────────────────── */
 
 #include "../port/syn_port_system.h"
-#include "../sched/syn_sched.h"
-#include "../system/syn_errlog.h"
 #include "../system/syn_version.h"
+#if SYN_CLI_CMD_ERRORS
+#include "../system/syn_errlog.h"
+#endif
+#if SYN_CLI_CMD_TASKS
+#include "../sched/syn_sched.h"
+#endif
 
 /* Singletons — defined near top of file, setters here */
 
@@ -619,7 +755,7 @@ static void cli_builtin_tasks(const SYN_CLI *cli)
     char num[12];
     cli_puts(cli, "Tasks:\r\n");
 
-    for (uint8_t i = 0; i < s_cli_sched->task_count; i++) {
+    for (size_t i = 0; i < s_cli_sched->task_count; i++) {
         const SYN_Task *t = &s_cli_sched->tasks[i];
         cli_puts(cli, "  ");
         cli_puts(cli, t->name ? t->name : "(unnamed)");
@@ -627,9 +763,8 @@ static void cli_builtin_tasks(const SYN_CLI *cli)
         syn_fmt_uint(num, sizeof(num), t->priority);
         cli_puts(cli, num);
 
-        static const char *const state_names[] = {"  READY",    "  SUSPENDED", "  DEAD",
-                                                  "  DEFERRED", "  BLOCKED",   "  WAITING"};
-        const char *sn = (t->state <= 5) ? state_names[t->state] : "  ???";
+        static const char *const state_names[] = {"  READY", "  SUSPENDED", "  DEAD", "  BLOCKED"};
+        const char *sn = (t->state <= (uint8_t)SYN_TASK_BLOCKED) ? state_names[t->state] : "  ???";
         cli_puts(cli, sn);
         cli_puts(cli, "\r\n");
     }

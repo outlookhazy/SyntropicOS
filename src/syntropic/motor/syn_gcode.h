@@ -84,14 +84,39 @@ typedef enum {
     SYN_GCODE_COOLANT_MIST = 2   /**< M7: Mist coolant on */
 } SYN_GCode_CoolantMode;
 
+/**
+ * @brief Non-modal action commands (Group 0).
+ */
+typedef enum {
+    SYN_GCODE_NONMODAL_NONE = 0,   /**< No non-modal action in block */
+    SYN_GCODE_NONMODAL_DWELL = 4,  /**< G4: Dwell pause without altering motion mode */
+    SYN_GCODE_NONMODAL_HOME = 28,  /**< G28: Return to machine home position */
+    SYN_GCODE_NONMODAL_OFFSET = 92 /**< G92: Preset work coordinate system offset */
+} SYN_GCode_NonModal;
+
 /* ── Parsed Block Representation ────────────────────────────────────────── */
 
 /**
  * @brief Parsed RS-274 G-Code line block.
  */
 typedef struct {
-    bool has_g;      /**< True if G-code was present */
-    uint32_t g_code; /**< Numeric G-code (e.g. 0, 1, 2, 3, 90, 91) */
+    bool has_g;      /**< True if at least one G-code word was present */
+    uint32_t g_code; /**< Last numeric G-code parsed in block */
+
+    bool has_motion;                  /**< True if Group 1 motion G-code (G0..G3) was present */
+    SYN_GCode_MotionMode motion_mode; /**< Parsed Group 1 motion mode */
+
+    bool has_plane;        /**< True if Group 2 plane G-code (G17..G19) was present */
+    SYN_GCode_Plane plane; /**< Parsed Group 2 working plane */
+
+    bool has_dist_mode;               /**< True if Group 3 distance G-code (G90/G91) was present */
+    SYN_GCode_DistanceMode dist_mode; /**< Parsed Group 3 distance mode */
+
+    bool has_units;        /**< True if Group 6 units G-code (G20/G21) was present */
+    SYN_GCode_Units units; /**< Parsed Group 6 unit system */
+
+    bool has_non_modal;           /**< True if Group 0 non-modal G-code (G4/G28/G92) was present */
+    SYN_GCode_NonModal non_modal; /**< Parsed Group 0 non-modal command */
 
     bool has_m;      /**< True if M-code was present */
     uint32_t m_code; /**< Numeric M-code (e.g. 3, 4, 5, 8, 9, 30) */
@@ -147,6 +172,11 @@ typedef void (*SYN_GCode_CoolantCb)(SYN_GCode_CoolantMode mode, void *user_data)
 typedef void (*SYN_GCode_ToolCb)(uint32_t tool_num, void *user_data);
 
 /**
+ * @brief Dwell (G4) notification callback.
+ */
+typedef void (*SYN_GCode_DwellCb)(float seconds, void *user_data);
+
+/**
  * @brief G-Code controller configuration.
  */
 typedef struct {
@@ -159,6 +189,7 @@ typedef struct {
     SYN_GCode_SpindleCb on_spindle; /**< Spindle callback */
     SYN_GCode_CoolantCb on_coolant; /**< Coolant callback */
     SYN_GCode_ToolCb on_tool;       /**< Tool change callback */
+    SYN_GCode_DwellCb on_dwell;     /**< Dwell (G4) callback */
     void *user_data;                /**< User context pointer */
 } SYN_GCode_Config;
 
@@ -182,6 +213,8 @@ typedef struct SYN_GCode_Controller {
     float feedrate;       /**< Active feedrate (units/sec) */
     float spindle_speed;  /**< Active spindle speed (RPM) */
     uint32_t active_tool; /**< Active tool number */
+    uint32_t dwell_steps; /**< Remaining discrete step ticks for active G4 dwell */
+    uint32_t dwell_ms;    /**< Pending G4 dwell duration in milliseconds for task PT */
 
     bool move_in_progress; /**< Motion move currently in execution */
 } SYN_GCode_Controller;

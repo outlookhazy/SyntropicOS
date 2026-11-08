@@ -140,8 +140,55 @@ static void test_heartbeat_errlog(void)
     TEST_ASSERT_TRUE(syn_errlog_count(&errlog) > entries_after_lost);
 }
 
+static void hb_ctx_inc(uint8_t node_id, void *ctx)
+{
+    (void)node_id;
+    uint32_t *counter = (uint32_t *)ctx;
+    (*counter)++;
+}
+
+static void test_r5_a18_heartbeat_separate_lost_and_found_ctx(void)
+{
+    mock_transport_reset();
+    mock_tick_ms = 0U;
+
+    SYN_Transport hbt = {.send = rt_send, .recv = rt_recv, .ctx = NULL};
+    SYN_RouterHandler hbh[8];
+    SYN_Router hbr;
+    syn_router_init(&hbr, 0x01U, &hbt, hbh, 8U);
+
+    SYN_HB_Peer peers[2];
+    SYN_Heartbeat hb;
+    syn_heartbeat_init(&hb, &hbr, peers, 2U, 500U, 1000U);
+
+    uint32_t lost_counter = 10U;
+    uint32_t found_counter = 20U;
+    syn_heartbeat_on_peer_lost(&hb, hb_ctx_inc, &lost_counter);
+    syn_heartbeat_on_peer_found(&hb, hb_ctx_inc, &found_counter);
+    TEST_ASSERT_TRUE(syn_heartbeat_add_peer(&hb, 0x07U));
+
+    mock_tick_ms += 1100U;
+    rt_rx_rdy = false;
+    syn_heartbeat_update(&hb);
+    TEST_ASSERT_EQUAL_UINT32(11U, lost_counter);
+    TEST_ASSERT_EQUAL_UINT32(20U, found_counter);
+
+    rt_rx_buf[0] = 0x07U;
+    rt_rx_buf[1] = 0x01U;
+    rt_rx_buf[2] = SYN_MSG_HEARTBEAT;
+    rt_rx_buf[3] = 0U;
+    rt_rx_buf[4] = 0U;
+    rt_rx_buf[5] = 0U;
+    rt_rx_len = 6U;
+    rt_rx_rdy = true;
+    syn_router_poll(&hbr);
+    TEST_ASSERT_EQUAL_UINT32(11U, lost_counter);
+    TEST_ASSERT_EQUAL_UINT32(21U, found_counter);
+}
+
 void run_heartbeat_tests(void)
 {
     RUN_TEST(test_heartbeat);
     RUN_TEST(test_heartbeat_errlog);
+    RUN_TEST(test_r5_a18_heartbeat_separate_lost_and_found_ctx);
 }

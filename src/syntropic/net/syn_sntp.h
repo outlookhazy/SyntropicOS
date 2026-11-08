@@ -20,7 +20,7 @@
  *   syn_sntp_init(&sntp, &ntp_server, 3600);  // re-sync every hour
  *
  *   // Register as a scheduler task:
- *   syn_task_create(&tasks[0], "sntp", syn_sntp_task, 2, &sntp);
+ *   syn_task_create(&tasks[0], "sntp", syn_sntp_task, SYN_PRIO_NORMAL, &sntp);
  *
  *   // Later, read the time:
  *   if (syn_sntp_is_synced(&sntp)) {
@@ -85,6 +85,7 @@ typedef struct {
     uint32_t sync_interval_s; /**< Re-sync interval in seconds        */
 
     bool synced;            /**< true after first successful sync   */
+    bool cycle_ok;          /**< true when current sync cycle succeeded */
     uint32_t recv_deadline; /**< Tick deadline for non-blocking recv */
     SYN_Backoff backoff;    /**< Retry backoff state                */
 
@@ -124,7 +125,7 @@ SYN_Status syn_sntp_query(SYN_SNTP *sntp);
  *
  * @param pt   Protothread.
  * @param task Task descriptor.
- * @return PT status (PT_WAITING, PT_YIELDED, or PT_ENDED).
+ * @return PT status (PT_IDLE, PT_MORE, PT_EXITED, or PT_ENDED).
  */
 SYN_PT_Status syn_sntp_task(SYN_PT *pt, SYN_Task *task);
 

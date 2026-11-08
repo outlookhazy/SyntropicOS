@@ -138,28 +138,29 @@ static void test_transport_tcp_recv_oversized(void)
     TEST_ASSERT_FALSE(ok); /* oversized → reset to state 0 */
 }
 
-/** recv: zero-length (empty) packet — exercises lines 92-93 */
+/** recv: zero-length (empty) packet completes in a single call */
 static void test_transport_tcp_recv_empty_packet(void)
 {
+    mock_port_reset();
     SYN_Transport t;
     SYN_TransportTcp tcp;
     syn_transport_tcp_init(&t, &tcp, 1);
     mock_sock_connected = true;
 
-    /* Length = 0x0000: feed both bytes at once so state machine gets high+low */
+    /* Length = 0x0000: completes immediately after reading 2-byte header */
     uint8_t rx[] = {0x00, 0x00};
     mock_sock_set_response(rx, sizeof(rx));
 
     uint8_t out[16];
     size_t out_len = 99;
-
-    /* Call recv 3 times to walk through states 0→1→2(empty→done) */
-    bool ok = false;
-    for (int i = 0; i < 4 && !ok; i++) {
-        ok = syn_transport_recv(&t, out, sizeof(out), &out_len);
-    }
-    TEST_ASSERT_TRUE(ok);
+    TEST_ASSERT_TRUE(syn_transport_recv(&t, out, sizeof(out), &out_len));
     TEST_ASSERT_EQUAL_size_t(0, out_len);
+    TEST_ASSERT_EQUAL_UINT8(0, tcp.state);
+
+    /* Zero-length send writes 2-byte header only */
+    mock_sock_tx_len = 0;
+    TEST_ASSERT_TRUE(syn_transport_send(&t, NULL, 0));
+    TEST_ASSERT_EQUAL_UINT32(2, mock_sock_tx_len);
 }
 /** recv: completed packet larger than output buffer — exercises lines 109-110 */
 static void test_transport_tcp_recv_outbuf_too_small(void)
@@ -199,16 +200,19 @@ static void test_transport_tcp_invalid_socket(void)
 
 static void test_transport_tcp_has_data(void)
 {
+    mock_port_reset();
     SYN_Transport t;
     SYN_TransportTcp tcp;
     syn_transport_tcp_init(&t, &tcp, 1);
     mock_sock_connected = true;
 
-    /* Socket invalid -> false */
+    /* Socket invalid or NULL context -> false */
     SYN_Transport t_inv;
     SYN_TransportTcp tcp_inv;
     syn_transport_tcp_init(&t_inv, &tcp_inv, SYN_SOCKET_INVALID);
     TEST_ASSERT_FALSE(syn_transport_has_data(&t_inv));
+    SYN_Transport t_null_ctx = {.has_data = t.has_data, .ctx = NULL};
+    TEST_ASSERT_FALSE(syn_transport_has_data(&t_null_ctx));
     TEST_ASSERT_FALSE(syn_transport_has_data(NULL));
     TEST_ASSERT_FALSE(syn_transport_send(NULL, NULL, 0));
     SYN_Transport t_nosend = {0};
@@ -222,17 +226,84 @@ static void test_transport_tcp_has_data(void)
     mock_sock_set_response(rx, sizeof(rx));
     TEST_ASSERT_TRUE(syn_transport_has_data(&t));
 
-    /* Partial packet in progress (tcp.state > 0) -> true */
+    /* Partial packet in progress (tcp.state > 0) with NO unread socket bytes -> MUST be false
+     * (R3-N01 regression: prevents cooperative PT_MORE / PT_WAIT_UNTIL spin) */
     uint8_t out[16];
-    size_t out_len;
-    syn_transport_recv(&t, out, sizeof(out), &out_len);
+    size_t out_len = 0;
+    TEST_ASSERT_FALSE(syn_transport_recv(&t, out, sizeof(out), &out_len));
     TEST_ASSERT_TRUE(tcp.state > 0);
-    mock_port_reset();
-    TEST_ASSERT_TRUE(syn_transport_has_data(&t));
+    TEST_ASSERT_FALSE(syn_transport_has_data(&t));
 
-    /* t->has_data == NULL hook -> line 112 */
+    /* Arrival of remaining bytes makes has_data true again */
+    uint8_t rem[] = {1, 2, 3, 4, 5};
+    mock_sock_set_response(rem, sizeof(rem));
+    TEST_ASSERT_TRUE(syn_transport_has_data(&t));
+    TEST_ASSERT_TRUE(syn_transport_recv(&t, out, sizeof(out), &out_len));
+    TEST_ASSERT_EQUAL_size_t(5, out_len);
+
+    /* t->has_data == NULL hook -> true */
     t.has_data = NULL;
     TEST_ASSERT_TRUE(syn_transport_has_data(&t));
+}
+
+static void test_transport_tcp_eof_and_recv_error(void)
+{
+    mock_port_reset();
+    SYN_Transport t;
+    SYN_TransportTcp tcp;
+    syn_transport_tcp_init(&t, &tcp, 5);
+    mock_sock_connected = true;
+
+    /* 1. Partial header followed by EOF (n == 0) closes and invalidates socket */
+    uint8_t hdr1[] = {0x00};
+    mock_sock_set_response(hdr1, 1);
+    uint8_t out[16];
+    size_t out_len = 0;
+    TEST_ASSERT_FALSE(syn_transport_recv(&t, out, sizeof(out), &out_len));
+    TEST_ASSERT_EQUAL_UINT8(1, tcp.state);
+
+    mock_sock_eof_on_empty = true;
+    TEST_ASSERT_TRUE(syn_transport_has_data(&t));
+    TEST_ASSERT_FALSE(syn_transport_recv(&t, out, sizeof(out), &out_len));
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, tcp.sock);
+    TEST_ASSERT_EQUAL_UINT8(0, tcp.state);
+    TEST_ASSERT_FALSE(syn_transport_has_data(&t));
+
+    /* 2. Readable socket returning recv < 0 (mock_sock_recv_fail) closes and invalidates socket */
+    mock_port_reset();
+    syn_transport_tcp_init(&t, &tcp, 6);
+    mock_sock_connected = true;
+    mock_sock_recv_fail = true;
+    TEST_ASSERT_TRUE(syn_transport_has_data(&t));
+    TEST_ASSERT_FALSE(syn_transport_recv(&t, out, sizeof(out), &out_len));
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, tcp.sock);
+    TEST_ASSERT_EQUAL_UINT8(0, tcp.state);
+    TEST_ASSERT_FALSE(syn_transport_has_data(&t));
+}
+
+static void test_transport_tcp_null_data_and_oversized_close(void)
+{
+    mock_port_reset();
+    SYN_Transport t;
+    SYN_TransportTcp tcp;
+    syn_transport_tcp_init(&t, &tcp, 7);
+    mock_sock_connected = true;
+
+    /* R4-N02: len > 0 with data == NULL rejected before writing 2-byte length header */
+    TEST_ASSERT_FALSE(syn_transport_send(&t, NULL, 4));
+    TEST_ASSERT_EQUAL_size_t(0, mock_sock_tx_len);
+
+    /* R4-N02: payload_len (129) > sizeof(tcp.rx_buf) (128) closes socket to prevent desync */
+    uint8_t stream[] = {0x00, 0x81, 0x00, 0x02, 'O', 'K'};
+    mock_sock_set_response(stream, sizeof(stream));
+
+    uint8_t out[16];
+    size_t out_len = 0;
+    TEST_ASSERT_FALSE(syn_transport_recv(&t, out, sizeof(out), &out_len));
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, tcp.sock);
+    TEST_ASSERT_EQUAL_UINT8(0, tcp.state);
+    TEST_ASSERT_FALSE(mock_sock_connected);
+    TEST_ASSERT_FALSE(syn_transport_recv(&t, out, sizeof(out), &out_len));
 }
 
 void run_transport_tcp_tests(void)
@@ -247,4 +318,6 @@ void run_transport_tcp_tests(void)
     RUN_TEST(test_transport_tcp_recv_outbuf_too_small);
     RUN_TEST(test_transport_tcp_invalid_socket);
     RUN_TEST(test_transport_tcp_has_data);
+    RUN_TEST(test_transport_tcp_eof_and_recv_error);
+    RUN_TEST(test_transport_tcp_null_data_and_oversized_close);
 }

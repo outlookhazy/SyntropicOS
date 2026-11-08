@@ -8,6 +8,18 @@
 #define SYN_MODBUS_MASTER_H
 
 #include "../common/syn_defs.h"
+
+#if (!defined(SYN_USE_MODBUS_MASTER) || SYN_USE_MODBUS_MASTER) && \
+    (!defined(SYN_USE_MODBUS) || SYN_USE_MODBUS)
+/** @brief Non-zero when Modbus Master and Modbus RTU dependencies are enabled. */
+#define SYN_MODBUS_MASTER_ENABLED 1
+#else
+/** @brief Non-zero when Modbus Master and Modbus RTU dependencies are enabled. */
+#define SYN_MODBUS_MASTER_ENABLED 0
+#endif
+
+#if SYN_MODBUS_MASTER_ENABLED
+
 #include "syn_modbus.h"
 
 #ifdef __cplusplus
@@ -255,5 +267,7 @@ SYN_Status syn_modbus_master_queue_step(SYN_ModbusMaster *m, SYN_ModbusMasterQue
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* SYN_MODBUS_MASTER_ENABLED */
 
 #endif /* SYN_MODBUS_MASTER_H */

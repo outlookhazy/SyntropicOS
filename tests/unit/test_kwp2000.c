@@ -229,8 +229,9 @@ void test_kwp2000_routine_control(void)
 {
     syn_kwp2000_init(&g_kwp_server);
     syn_kwp2000_set_routine_handler(&g_kwp_server, test_kwp_routine_cb, NULL);
+    g_kwp_server.security_unlocked = true;
 
-    uint8_t req[] = {0x31, 0x01};
+    uint8_t req[] = {0x31, 0x01, 0x55};
     uint8_t resp[16];
     uint16_t resp_len = 0;
 
@@ -246,6 +247,7 @@ void test_kwp2000_download_and_transfer_data(void)
 {
     syn_kwp2000_init(&g_kwp_server);
     syn_kwp2000_set_memory_handler(&g_kwp_server, test_kwp_mem_cb, NULL);
+    g_kwp_server.security_unlocked = true;
 
     uint8_t req_dl[] = {0x34, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10};
     uint8_t resp[16];
@@ -359,6 +361,7 @@ void test_kwp2000_rejections_and_nrc_branches(void)
     TEST_ASSERT_EQUAL(SYN_KWP2000_NRC_CONDITIONS_NOT_CORRECT, resp[2]);
 
     /* Rejected Routine Control */
+    g_kwp_server.security_unlocked = true;
     syn_kwp2000_set_routine_handler(&g_kwp_server, test_kwp_routine_reject_cb, NULL);
     uint8_t req_rt[] = {0x31, 0x05};
     TEST_ASSERT_EQUAL(SYN_OK, syn_kwp2000_process_request(&g_kwp_server, req_rt, sizeof(req_rt),
@@ -368,6 +371,8 @@ void test_kwp2000_rejections_and_nrc_branches(void)
     /* Rejected Memory Write */
     syn_kwp2000_set_memory_handler(&g_kwp_server, test_kwp_mem_reject_cb, NULL);
     g_kwp_server.is_downloading = true;
+    g_kwp_server.expected_block_seq = 1U;
+    g_kwp_server.download_size = 16U;
     uint8_t req_tx[] = {0x36, 0x01, 0xAA};
     TEST_ASSERT_EQUAL(SYN_OK, syn_kwp2000_process_request(&g_kwp_server, req_tx, sizeof(req_tx),
                                                           resp, sizeof(resp), &resp_len));
@@ -554,6 +559,7 @@ static bool test_kwp_routine_overflow_cb(uint8_t routine_id, const uint8_t *in_d
 void test_kwp2000_routine_control_resp_overflow(void)
 {
     syn_kwp2000_init(&g_kwp_server);
+    g_kwp_server.security_unlocked = true;
     syn_kwp2000_set_routine_handler(&g_kwp_server, test_kwp_routine_overflow_cb, NULL);
 
     uint8_t req[] = {0x31, 0x01};
@@ -564,6 +570,158 @@ void test_kwp2000_routine_control_resp_overflow(void)
     TEST_ASSERT_EQUAL(SYN_OK, st);
     TEST_ASSERT_EQUAL(0x7F, tiny_resp[0]);
     TEST_ASSERT_EQUAL(SYN_KWP2000_NRC_INCORRECT_MESSAGE_LENGTH, tiny_resp[2]);
+}
+
+void test_r5_a09_writes_security_transfer_bounds_and_s3_refresh(void)
+{
+    syn_kwp2000_init(&g_kwp_server);
+    uint8_t lid_val[2] = {0x11, 0x22};
+    uint8_t lid_ro[2] = {0x33, 0x44};
+    uint8_t cid_val[3] = {0xAA, 0xBB, 0xCC};
+    uint8_t cid_ro[3] = {0xDD, 0xEE, 0xFF};
+    uint8_t resp[32];
+    uint16_t resp_len = 0;
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kwp2000_register_lid(&g_kwp_server, 0x10U, lid_val, 2U, true));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kwp2000_register_lid(&g_kwp_server, 0x11U, lid_ro, 2U, false));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kwp2000_register_cid(&g_kwp_server, 0xF100U, cid_val, 3U, true));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kwp2000_register_cid(&g_kwp_server, 0xF101U, cid_ro, 3U, false));
+
+    /* Short, unknown, read-only, wrong-length, and security-locked LID/CID writes */
+    uint8_t short_lid[] = {0x3B, 0x10};
+    syn_kwp2000_process_request(&g_kwp_server, short_lid, sizeof(short_lid), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
+
+    uint8_t unk_lid[] = {0x3B, 0x99, 0x01, 0x02};
+    syn_kwp2000_process_request(&g_kwp_server, unk_lid, sizeof(unk_lid), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_REQUEST_OUT_OF_RANGE, resp[2]);
+
+    uint8_t ro_lid[] = {0x3B, 0x11, 0x01, 0x02};
+    syn_kwp2000_process_request(&g_kwp_server, ro_lid, sizeof(ro_lid), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_REQUEST_OUT_OF_RANGE, resp[2]);
+
+    uint8_t len_lid[] = {0x3B, 0x10, 0x01};
+    syn_kwp2000_process_request(&g_kwp_server, len_lid, sizeof(len_lid), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
+
+    uint8_t wr_lid[] = {0x3B, 0x10, 0x77, 0x88};
+    syn_kwp2000_process_request(&g_kwp_server, wr_lid, sizeof(wr_lid), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_SECURITY_ACCESS_DENIED, resp[2]);
+
+    uint8_t short_cid[] = {0x2E, 0xF1, 0x00};
+    syn_kwp2000_process_request(&g_kwp_server, short_cid, sizeof(short_cid), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
+
+    uint8_t unk_cid[] = {0x2E, 0xF9, 0x99, 0x01};
+    syn_kwp2000_process_request(&g_kwp_server, unk_cid, sizeof(unk_cid), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_REQUEST_OUT_OF_RANGE, resp[2]);
+
+    uint8_t ro_cid[] = {0x2E, 0xF1, 0x01, 0x01, 0x02, 0x03};
+    syn_kwp2000_process_request(&g_kwp_server, ro_cid, sizeof(ro_cid), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_REQUEST_OUT_OF_RANGE, resp[2]);
+
+    uint8_t len_cid[] = {0x2E, 0xF1, 0x00, 0x01, 0x02};
+    syn_kwp2000_process_request(&g_kwp_server, len_cid, sizeof(len_cid), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
+
+    uint8_t wr_cid[] = {0x2E, 0xF1, 0x00, 0x01, 0x02, 0x03};
+    syn_kwp2000_process_request(&g_kwp_server, wr_cid, sizeof(wr_cid), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_SECURITY_ACCESS_DENIED, resp[2]);
+
+    /* Unprivileged 0x31 routine succeeds while locked; privileged routine_cb rejects with 0x33 */
+    uint8_t req_rt[] = {0x31, 0x01};
+    syn_kwp2000_process_request(&g_kwp_server, req_rt, sizeof(req_rt), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0x71, resp[0]);
+
+    syn_kwp2000_set_routine_handler(&g_kwp_server, test_kwp_routine_reject_cb, NULL);
+    syn_kwp2000_process_request(&g_kwp_server, req_rt, sizeof(req_rt), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_SECURITY_ACCESS_DENIED, resp[2]);
+    syn_kwp2000_set_routine_handler(&g_kwp_server, NULL, NULL);
+
+    /* Locked 0x34 must fail with NRC 0x33 */
+    uint8_t req_dl5[] = {0x34, 0x00, 0x00, 0x00, 0x00};
+    syn_kwp2000_process_request(&g_kwp_server, req_dl5, sizeof(req_dl5), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_SECURITY_ACCESS_DENIED, resp[2]);
+
+    /* Enter extended session, unlock security, verify S3 refresh on non-TesterPresent traffic */
+    uint8_t sess_ext[] = {0x10, SYN_KWP2000_SESSION_EXTENDED};
+    syn_kwp2000_process_request(&g_kwp_server, sess_ext, sizeof(sess_ext), resp, sizeof(resp),
+                                &resp_len);
+    uint8_t key_ok[] = {0x27, 0x02, 0xC5, 0xC9};
+    syn_kwp2000_process_request(&g_kwp_server, key_ok, sizeof(key_ok), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_TRUE(g_kwp_server.security_unlocked);
+
+    syn_kwp2000_tick(&g_kwp_server, 4000U);
+    TEST_ASSERT_EQUAL_UINT32(4000U, g_kwp_server.s3_timer_ms);
+
+    /* Valid 0x3B and 0x2E writes refresh s3_timer_ms to 0 and mutate target buffers */
+    syn_kwp2000_process_request(&g_kwp_server, wr_lid, sizeof(wr_lid), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_UINT32(0U, g_kwp_server.s3_timer_ms);
+    TEST_ASSERT_EQUAL_HEX8(0x7B, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x77, lid_val[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x88, lid_val[1]);
+
+    syn_kwp2000_process_request(&g_kwp_server, wr_cid, sizeof(wr_cid), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0x6E, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x03, cid_val[2]);
+
+    /* Routine without callback succeeds with 2-byte response when unlocked */
+    syn_kwp2000_process_request(&g_kwp_server, req_rt, sizeof(req_rt), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0x71, resp[0]);
+    TEST_ASSERT_EQUAL_UINT16(2U, resp_len);
+
+    /* RequestDownload (5-byte unbounded and 9-byte bounded) + 0x36 sequence & size checks */
+    syn_kwp2000_process_request(&g_kwp_server, req_dl5, sizeof(req_dl5), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0x74, resp[0]);
+    uint8_t tx_ok1[] = {0x36, 0x01, 0xAA, 0xBB};
+    syn_kwp2000_process_request(&g_kwp_server, tx_ok1, sizeof(tx_ok1), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0x76, resp[0]);
+
+    uint8_t req_dl4b[] = {0x34, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04};
+    syn_kwp2000_process_request(&g_kwp_server, req_dl4b, sizeof(req_dl4b), resp, sizeof(resp),
+                                &resp_len);
+    uint8_t tx_bad_seq[] = {0x36, 0x02, 0x01};
+    syn_kwp2000_process_request(&g_kwp_server, tx_bad_seq, sizeof(tx_bad_seq), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_CONDITIONS_NOT_CORRECT, resp[2]);
+
+    uint8_t tx_over[] = {0x36, 0x01, 0x01, 0x02, 0x03, 0x04, 0x05};
+    syn_kwp2000_process_request(&g_kwp_server, tx_over, sizeof(tx_over), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_REQUEST_OUT_OF_RANGE, resp[2]);
+
+    /* 0x10 session transition relocks security_unlocked and aborts active download */
+    syn_kwp2000_process_request(&g_kwp_server, sess_ext, sizeof(sess_ext), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_FALSE(g_kwp_server.security_unlocked);
+    TEST_ASSERT_FALSE(g_kwp_server.is_downloading);
+
+    /* Not downloading 0x36 check + reset tick without reset_cb */
+    syn_kwp2000_process_request(&g_kwp_server, tx_ok1, sizeof(tx_ok1), resp, sizeof(resp),
+                                &resp_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_CONDITIONS_NOT_CORRECT, resp[2]);
+    g_kwp_server.pending_reset_type = 0x01U;
+    syn_kwp2000_tick(&g_kwp_server, 10U);
+    TEST_ASSERT_EQUAL_UINT8(0U, g_kwp_server.pending_reset_type);
 }
 
 void test_kwp2000_s3_session_timeout(void)
@@ -613,4 +771,5 @@ void run_kwp2000_tests(void)
     RUN_TEST(test_kwp2000_security_access_resp_overflow);
     RUN_TEST(test_kwp2000_routine_control_resp_overflow);
     RUN_TEST(test_kwp2000_s3_session_timeout);
+    RUN_TEST(test_r5_a09_writes_security_transfer_bounds_and_s3_refresh);
 }

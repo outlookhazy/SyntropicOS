@@ -191,6 +191,80 @@ static void test_stepper_motor_output_adapter(void)
     TEST_ASSERT_FALSE(syn_stepper_is_moving(&s));
 }
 
+static void test_r5_stepper_zero_accel_and_incremental_dt(void)
+{
+    mock_tick_ms = 0;
+    SYN_Stepper s;
+    syn_stepper_init(&s, 5, 6);
+
+    /* Move before set_speed (accel == 0) must safely no-op without divide-by-zero */
+    syn_stepper_move(&s, 10);
+    TEST_ASSERT_FALSE(syn_stepper_is_moving(&s));
+    syn_stepper_move_to(&s, 25);
+    TEST_ASSERT_FALSE(syn_stepper_is_moving(&s));
+
+    /* Corrupt accel = 0 while moving transitions cleanly to IDLE */
+    syn_stepper_set_speed(&s, 2000, 500);
+    syn_stepper_move(&s, 10);
+    s.accel = 0U;
+    syn_stepper_tick(&s);
+    TEST_ASSERT_FALSE(syn_stepper_is_moving(&s));
+
+    /* Incremental dt integration: 100 sps^2 over ten 1ms ticks yields 1 sps (not quadratic sum) */
+    syn_stepper_set_speed(&s, 2000, 100);
+    syn_stepper_move(&s, 4);
+    for (int i = 0; i < 10; i++) {
+        mock_tick_advance(1);
+        syn_stepper_tick(&s);
+    }
+    TEST_ASSERT_EQUAL_UINT32(1U, s.speed);
+
+    /* High max_speed (> 1000 sps -> interval_ms == 0 clamped to 1ms) + CRUISE state transition */
+    syn_stepper_set_speed(&s, 2000, 50000);
+    syn_stepper_move(&s, 500);
+    mock_tick_advance(50);
+    syn_stepper_tick(&s);
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_STEPPER_CRUISE, s.state);
+    TEST_ASSERT_EQUAL_UINT32(2000U, s.speed);
+    mock_tick_advance(1);
+    syn_stepper_tick(&s);
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_STEPPER_CRUISE, s.state);
+    syn_stepper_stop(&s);
+    syn_stepper_set_position(&s, 0);
+
+    syn_stepper_move_to(&s, 6);
+    int ticks = 0;
+    while (syn_stepper_is_moving(&s) && ticks < 500) {
+        mock_tick_advance(1);
+        syn_stepper_tick(&s);
+        ticks++;
+    }
+    TEST_ASSERT_FALSE(syn_stepper_is_moving(&s));
+    TEST_ASSERT_EQUAL_INT32(6, syn_stepper_position(&s));
+
+    /* Large move_to clamping without signed overflow */
+    syn_stepper_set_position(&s, 1500000000);
+    syn_stepper_move_to(&s, -1500000000);
+    TEST_ASSERT_TRUE(syn_stepper_is_moving(&s));
+    syn_stepper_stop(&s);
+
+    syn_stepper_set_position(&s, -1500000000);
+    syn_stepper_move_to(&s, 1500000000);
+    TEST_ASSERT_TRUE(syn_stepper_is_moving(&s));
+    syn_stepper_stop(&s);
+
+    /* Target saturation when relative move exceeds INT32_MAX / INT32_MIN */
+    syn_stepper_set_position(&s, 1500000000);
+    syn_stepper_move(&s, 1500000000);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, s.target);
+    syn_stepper_stop(&s);
+
+    syn_stepper_set_position(&s, -1500000000);
+    syn_stepper_move(&s, -1500000000);
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, s.target);
+    syn_stepper_stop(&s);
+}
+
 void run_stepper_tests(void)
 {
     RUN_TEST(test_stepper);
@@ -201,4 +275,5 @@ void run_stepper_tests(void)
     RUN_TEST(test_stepper_zero_move);
     RUN_TEST(test_stepper_reverse_move);
     RUN_TEST(test_stepper_motor_output_adapter);
+    RUN_TEST(test_r5_stepper_zero_accel_and_incremental_dt);
 }

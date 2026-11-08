@@ -13,6 +13,8 @@
 extern "C" {
 #endif
 
+#ifndef SYN_QUATERNION_TYPE_DEFINED
+#define SYN_QUATERNION_TYPE_DEFINED /**< Guard for SYN_Quaternion typedef */
 /** @brief 3D Quaternion representation (w + xi + yj + zk). */
 typedef struct {
     q16_t w; /**< Scalar component (w) */
@@ -20,6 +22,7 @@ typedef struct {
     q16_t y; /**< Vector y component  */
     q16_t z; /**< Vector z component  */
 } SYN_Quaternion;
+#endif
 
 /** @brief 3D Euler attitude angles (in radians, Q16.16). */
 typedef struct {

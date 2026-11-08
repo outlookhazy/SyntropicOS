@@ -218,6 +218,48 @@ static void test_fmt_hex_parse_and_bounds(void)
     TEST_ASSERT_EQUAL_size_t(0, syn_fmt_concat(buf, 0, NULL, 0));
 }
 
+static void test_r5_fmt_null_and_zero_buf(void)
+{
+    char buf[32];
+    const uint8_t data[2] = {0x12U, 0x34U};
+    const char *parts_with_null[3] = {"Hi", NULL, "!"};
+
+    TEST_ASSERT_EQUAL_size_t(0U, syn_fmt_uint(NULL, 16U, 42U));
+    TEST_ASSERT_EQUAL_size_t(0U, syn_fmt_int(NULL, 16U, -42));
+    TEST_ASSERT_EQUAL_size_t(0U, syn_fmt_hex(NULL, 16U, 0xBEEFU, 4U));
+    TEST_ASSERT_EQUAL_size_t(0U, syn_fmt_q16(NULL, 16U, Q16_ONE, 2U));
+    TEST_ASSERT_EQUAL_size_t(0U, syn_fmt_hexdump(NULL, 16U, data, 2U));
+    TEST_ASSERT_EQUAL_size_t(0U, syn_fmt_fixed(NULL, 16U, 123, 2U));
+    TEST_ASSERT_EQUAL_size_t(0U, syn_fmt_concat(NULL, 16U, parts_with_null, 3U));
+
+    /* NULL input arrays with non-zero count */
+    buf[0] = 'X';
+    TEST_ASSERT_EQUAL_size_t(0U, syn_fmt_hexdump(buf, sizeof(buf), NULL, 2U));
+    TEST_ASSERT_EQUAL_CHAR('\0', buf[0]);
+
+    buf[0] = 'X';
+    TEST_ASSERT_EQUAL_size_t(0U, syn_fmt_concat(buf, sizeof(buf), NULL, 2U));
+    TEST_ASSERT_EQUAL_CHAR('\0', buf[0]);
+
+    /* Concat with NULL fragment skipped */
+    TEST_ASSERT_EQUAL_size_t(3U, syn_fmt_concat(buf, sizeof(buf), parts_with_null, 3U));
+    TEST_ASSERT_EQUAL_STRING("Hi!", buf);
+
+    /* Zero fractional places and INT32_MIN edge cases */
+    TEST_ASSERT_EQUAL_size_t(1U, syn_fmt_uint(buf, sizeof(buf), 0U));
+    TEST_ASSERT_EQUAL_STRING("0", buf);
+    TEST_ASSERT_EQUAL_size_t(11U, syn_fmt_int(buf, sizeof(buf), INT32_MIN));
+    TEST_ASSERT_EQUAL_STRING("-2147483648", buf);
+    TEST_ASSERT_EQUAL_size_t(1U, syn_fmt_q16(buf, sizeof(buf), Q16_FROM_INT(5), 0U));
+    TEST_ASSERT_EQUAL_STRING("5", buf);
+    TEST_ASSERT_EQUAL_size_t(2U, syn_fmt_fixed(buf, sizeof(buf), 42, 0U));
+    TEST_ASSERT_EQUAL_STRING("42", buf);
+
+    /* syn_fmt_parse_uint NULL guard and valid parse */
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_fmt_parse_uint(NULL));
+    TEST_ASSERT_EQUAL_UINT32(4290U, syn_fmt_parse_uint("4290xyz"));
+}
+
 void run_fmt_tests(void)
 {
     RUN_TEST(test_fmt);
@@ -232,4 +274,5 @@ void run_fmt_tests(void)
     RUN_TEST(test_fmt_fixed_truncation);
     RUN_TEST(test_fmt_concat_truncation);
     RUN_TEST(test_fmt_hex_parse_and_bounds);
+    RUN_TEST(test_r5_fmt_null_and_zero_buf);
 }

@@ -121,7 +121,34 @@ void test_usb_midi_buffer_overflow(void)
 {
     syn_usb_midi_init(&g_midi);
     g_midi.tx_len = SYN_USB_MIDI_MAX_PACKET_SIZE;
-    TEST_ASSERT_EQUAL(SYN_ERROR, syn_usb_midi_send_note_on(&g_midi, 0, 60, 100));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_usb_midi_send_note_on(&g_midi, 0, 60, 100));
+}
+
+static void test_r5_usb_midi_regressions(void)
+{
+    static const uint8_t dev_desc[18] = {18,   1,    0x00, 0x02, 0, 0, 0, 64, 0xFE,
+                                         0xCA, 0x01, 0x00, 0,    1, 1, 2, 0,  1};
+    syn_usb_init(&g_usb_dev, dev_desc);
+    syn_usb_midi_init(&g_midi);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_usb_midi_register(&g_usb_dev, &g_midi));
+    TEST_ASSERT_EQUAL_UINT16(9U + SYN_USB_MIDI_DESC_SIZE, g_usb_dev.config_desc_len);
+    TEST_ASSERT_EQUAL_UINT8(2U, g_usb_dev.config_buf[4]);
+
+    SYN_USB_ClassDriver *drv = &g_usb_dev.classes[0];
+    SYN_USB_SetupPacket pkt = {0};
+    uint8_t resp[8];
+    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(&g_midi, &pkt, resp, NULL));
+    TEST_ASSERT_EQUAL(SYN_OK, drv->configured(NULL, 0U));
+
+    for (uint8_t i = 0U; i < 16U; i++) {
+        TEST_ASSERT_EQUAL(SYN_OK, syn_usb_midi_send_note_on(&g_midi, 0U, (uint8_t)(40U + i), 90U));
+    }
+    TEST_ASSERT_EQUAL_UINT16(64U, g_midi.tx_len);
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_usb_midi_send_note_on(&g_midi, 0U, 72U, 90U));
+    TEST_ASSERT_EQUAL_UINT8(40U, g_midi.tx_buf[2]);
+
+    drv->data_in(&g_midi, g_midi.ep_in);
+    TEST_ASSERT_EQUAL_UINT16(0U, g_midi.tx_len);
 }
 
 void run_usb_midi_tests(void)
@@ -129,4 +156,5 @@ void run_usb_midi_tests(void)
     RUN_TEST(test_usb_midi_init_and_null_checks);
     RUN_TEST(test_usb_midi_send_events);
     RUN_TEST(test_usb_midi_buffer_overflow);
+    RUN_TEST(test_r5_usb_midi_regressions);
 }

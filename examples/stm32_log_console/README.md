@@ -50,7 +50,7 @@ SYN_LOG_W(TAG, "Warning: Voltage low");      // WARN  (Level 3)
 SYN_LOG_E(TAG, "Error: Timeout status=%d", s); // ERROR (Level 4)
 
 // Binary Hex Dump
-SYN_LOG_HEX(TAG, "RX Packet", buffer, len);
+syn_log_hexdump(TAG, buffer, len);
 ```
 
 ---

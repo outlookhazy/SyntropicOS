@@ -5,6 +5,7 @@
 
 #include "mocks/mock_port.h"
 #include "syntropic/drivers/syn_hpclock.h"
+#include "syntropic/drivers/syn_rtc.h"
 #include "syntropic/drivers/syn_timesync.h"
 #include "syntropic/syntropic.h"
 #include "unity/unity.h"
@@ -166,7 +167,7 @@ static void test_timesync_holdover_expiration(void)
     pps.msb_1 = 0;
     pps.lsb = 0;
     pps.msb_2 = 0;
-    syn_timesync_bind_pps(&tsync, &pps, 100);
+    syn_timesync_bind_pps(&tsync, &pps, 1700000100ULL);
 
     /* Event 15 seconds after PPS (exceeds 10s max holdover) */
     SYN_HPTimestamp event_ts;
@@ -177,10 +178,62 @@ static void test_timesync_holdover_expiration(void)
     SYN_UTCTimestamp utc;
     syn_timesync_resolve_utc(&tsync, &event_ts, &utc);
 
-    /* Should degrade to UNSYNCED (since RTC not mocked in this test) */
+#if SYN_TIMESYNC_HAS_RTC
+    /* With RTC disciplined during bind_pps, expired holdover degrades to Tier 3 (RTC_SYNCED) */
+    TEST_ASSERT_EQUAL(SYN_TIME_SOURCE_RTC_SYNCED, utc.source);
+    TEST_ASSERT_EQUAL_UINT32(1000000000U, utc.uncertainty_ns);
+
+    /* Without RTC sync, expired holdover degrades to Tier 4 (UNSYNCED) */
+    tsync.rtc_synced = false;
+    syn_timesync_resolve_utc(&tsync, &event_ts, &utc);
+#endif
     TEST_ASSERT_EQUAL(SYN_TIME_SOURCE_UNSYNCED, utc.source);
     TEST_ASSERT_EQUAL_UINT32(0xFFFFFFFFU, utc.uncertainty_ns);
 }
+
+#if SYN_TIMESYNC_HAS_RTC
+static void test_timesync_rtc_fallback(void)
+{
+    /* Pre-populate valid RTC date/time prior to syn_timesync_init */
+    mock_rtc_time.year = 2025;
+    mock_rtc_time.month = 6;
+    mock_rtc_time.day = 15;
+    mock_rtc_time.weekday = 0;
+    mock_rtc_time.hour = 12;
+    mock_rtc_time.minute = 0;
+    mock_rtc_time.second = 0;
+
+    uint32_t expected_epoch = syn_rtc_to_epoch(&mock_rtc_time);
+
+    SYN_TimeSync tsync;
+    syn_timesync_init(&tsync);
+    TEST_ASSERT_TRUE(tsync.rtc_synced);
+    TEST_ASSERT_FALSE(tsync.has_pps_lock);
+
+    SYN_HPTimestamp event_ts = {.msb_1 = 0, .lsb = 16000, .msb_2 = 0};
+    SYN_UTCTimestamp utc;
+
+    /* Before PPS lock, valid RTC resolves at Tier 3 (SYN_TIME_SOURCE_RTC_SYNCED) */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_timesync_resolve_utc(&tsync, &event_ts, &utc));
+    TEST_ASSERT_EQUAL(SYN_TIME_SOURCE_RTC_SYNCED, utc.source);
+    TEST_ASSERT_EQUAL_UINT64(expected_epoch, utc.sec);
+    TEST_ASSERT_EQUAL_UINT32(0U, utc.nsec);
+    TEST_ASSERT_EQUAL_UINT32(1000000000U, utc.uncertainty_ns);
+
+    /* Simulate RTC hardware read failure: degrades cleanly to Tier 4 (UNSYNCED) */
+    mock_rtc_init_ok = false;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_timesync_resolve_utc(&tsync, &event_ts, &utc));
+    TEST_ASSERT_EQUAL(SYN_TIME_SOURCE_UNSYNCED, utc.source);
+    TEST_ASSERT_EQUAL_UINT32(0xFFFFFFFFU, utc.uncertainty_ns);
+
+    /* Also verify bind_pps handles RTC set failure gracefully */
+    SYN_HPTimestamp pps = {.msb_1 = 0, .lsb = 32000, .msb_2 = 0};
+    tsync.rtc_synced = false;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_timesync_bind_pps(&tsync, &pps, 1700000200ULL));
+    TEST_ASSERT_FALSE(tsync.rtc_synced);
+    mock_rtc_init_ok = true;
+}
+#endif
 
 static void test_timesync_to_epoch_ns_helper(void)
 {
@@ -205,6 +258,8 @@ static void test_timesync_to_epoch_ns_helper(void)
 
 static void test_timesync_null_params(void)
 {
+    syn_timesync_init(NULL);
+
     SYN_TimeSync tsync;
     syn_timesync_init(&tsync);
 
@@ -251,6 +306,9 @@ void run_timesync_tests(void)
     RUN_TEST(test_timesync_drift_ppm_measurement);
     RUN_TEST(test_timesync_holdover_uncertainty_growth);
     RUN_TEST(test_timesync_holdover_expiration);
+#if SYN_TIMESYNC_HAS_RTC
+    RUN_TEST(test_timesync_rtc_fallback);
+#endif
     RUN_TEST(test_timesync_to_epoch_ns_helper);
     RUN_TEST(test_timesync_null_params);
     RUN_TEST(test_timesync_is_pps_locked);

@@ -93,15 +93,16 @@ typedef struct SYN_Button {
     uint16_t double_click_ms; /**< Max gap between clicks (ms, default 250) */
 
     /* State */
-    SYN_FSM fsm;          /**< Button FSM (uses syn_fsm)     */
-    uint8_t events;       /**< Pending events bitmask        */
-    bool raw_pressed;     /**< Last raw GPIO reading         */
-    bool pressed;         /**< Debounced pressed state       */
-    bool in_combo;        /**< True while button is part of active combo */
-    uint8_t click_count;  /**< Consecutive click counter     */
-    uint32_t state_tick;  /**< Tick when state was entered    */
-    uint32_t repeat_tick; /**< Tick of last repeat event      */
-    uint32_t click_tick;  /**< Tick of last release event     */
+    SYN_FSM fsm;             /**< Button FSM (uses syn_fsm)     */
+    volatile uint8_t events; /**< Pending events bitmask        */
+    bool raw_pressed;        /**< Last raw GPIO reading         */
+    bool pressed;            /**< Debounced pressed state       */
+    bool in_combo;           /**< True while button is part of active combo */
+    uint8_t click_count;     /**< Consecutive click counter     */
+    uint32_t state_tick;     /**< Tick when state was entered    */
+    uint32_t repeat_tick;    /**< Tick of last repeat event      */
+    uint32_t click_tick;     /**< Tick of last release event     */
+    uint32_t now_tick;       /**< Tick snapshot for current update */
 
     /* Callbacks */
     SYN_ButtonCallback on_press;        /**< Press callback                */
@@ -126,11 +127,11 @@ typedef struct SYN_Button {
 
 /** @brief Combination button descriptor for simultaneous multi-button presses. */
 typedef struct SYN_ButtonCombo {
-    const SYN_Button **buttons;  /**< Array of pointers to monitored buttons */
+    SYN_Button *const *buttons;  /**< Array of pointers to monitored buttons */
     size_t count;                /**< Number of buttons in combination      */
     SYN_ButtonCallback on_combo; /**< Callback when all buttons are held   */
     void *on_combo_ctx;          /**< Callback context                      */
-    bool active;                 /**< True while combination is active     */
+    bool active;                 /**< Latched true until all buttons release */
     uint8_t events;              /**< Pending events                        */
 } SYN_ButtonCombo;
 
@@ -234,15 +235,16 @@ void syn_button_on_multi_click(SYN_Button *btn, SYN_ButtonCallback cb, void *ctx
 /**
  * @brief Initialize a combination button descriptor.
  *
- * Fires callback when ALL specified buttons are simultaneously in debounced pressed state.
+ * Fires callback when ALL specified buttons are simultaneously in debounced pressed state,
+ * and keeps the combination latched active until ALL member buttons are released.
  *
  * @param combo    Combo descriptor.
- * @param buttons  Array of pointers to initialized SYN_Button descriptors.
+ * @param buttons  Array of mutable pointers to initialized SYN_Button descriptors.
  * @param count    Number of buttons in array.
  * @param cb       Combo callback.
  * @param ctx      User context.
  */
-void syn_button_combo_init(SYN_ButtonCombo *combo, const SYN_Button **buttons, size_t count,
+void syn_button_combo_init(SYN_ButtonCombo *combo, SYN_Button *const *buttons, size_t count,
                            SYN_ButtonCallback cb, void *ctx);
 
 /**
@@ -279,7 +281,7 @@ void syn_button_service(SYN_Button *buttons, size_t count);
  */
 static inline bool syn_button_is_pressed(const SYN_Button *btn)
 {
-    return btn->pressed;
+    return (btn != NULL) && btn->pressed;
 }
 
 /**
@@ -289,6 +291,9 @@ static inline bool syn_button_is_pressed(const SYN_Button *btn)
  */
 static inline uint32_t syn_button_held_ms(const SYN_Button *btn)
 {
+    if (btn == NULL) {
+        return 0U;
+    }
     return syn_port_get_tick_ms() - btn->state_tick;
 }
 
@@ -299,7 +304,7 @@ static inline uint32_t syn_button_held_ms(const SYN_Button *btn)
  */
 static inline uint8_t syn_button_clicks(const SYN_Button *btn)
 {
-    return btn->click_count;
+    return (btn != NULL) ? btn->click_count : 0U;
 }
 
 /**
@@ -322,32 +327,61 @@ static inline bool syn_button_combo_is_active(const SYN_ButtonCombo *combo)
  */
 static inline uint8_t syn_button_poll_events(SYN_Button *btn)
 {
+    if (btn == NULL) {
+        return 0U;
+    }
+    syn_port_enter_critical();
     uint8_t e = btn->events;
-    btn->events = 0;
+    btn->events = 0U;
+    syn_port_exit_critical();
     return e;
+}
+
+/**
+ * @brief Atomically test and clear matching pending button event bits.
+ *
+ * @param btn   Button descriptor (or NULL).
+ * @param mask  Bitmask of SYN_BUTTON_EVT_* bits to match and consume.
+ * @return true if any bit in @p mask was set and cleared, false otherwise.
+ */
+static inline bool syn_button_consume_event(SYN_Button *btn, uint8_t mask)
+{
+    if (btn == NULL) {
+        return false;
+    }
+    bool matched = false;
+    syn_port_enter_critical();
+    if ((btn->events & mask) != 0U) {
+        btn->events &= (uint8_t)~mask;
+        matched = true;
+    }
+    syn_port_exit_critical();
+    return matched;
 }
 
 /* ── Protothread integration ────────────────────────────────────────────── */
 
 /** Block until the button is pressed (debounced). */
-#define PT_WAIT_BUTTON_PRESS(pt, btn)                       \
-    PT_WAIT_UNTIL(pt, (btn)->events &SYN_BUTTON_EVT_PRESS); \
-    (btn)->events &= (uint8_t)~SYN_BUTTON_EVT_PRESS
+#define PT_WAIT_BUTTON_PRESS(pt, btn) \
+    PT_WAIT_UNTIL((pt), syn_button_consume_event((btn), SYN_BUTTON_EVT_PRESS))
 
-/** Block task execution (SYN_TASK_BLOCKED) until the button is pressed (debounced). */
-#define PT_BUTTON_BLOCK_PRESS(pt, task, btn)                              \
-    PT_BLOCK_CONDITION(pt, task, ((btn)->events & SYN_BUTTON_EVT_PRESS)); \
-    (btn)->events &= (uint8_t)~SYN_BUTTON_EVT_PRESS
+/**
+ * @brief Block task execution (SYN_TASK_BLOCKED) until the button is pressed (debounced).
+ * @note Producer/ISR calling syn_button_update() must call syn_task_resume(task) on state change.
+ */
+#define PT_BUTTON_BLOCK_PRESS(pt, task, btn) \
+    PT_BLOCK_CONDITION((pt), (task), syn_button_consume_event((btn), SYN_BUTTON_EVT_PRESS))
 
 /** Block until the button is released. */
-#define PT_WAIT_BUTTON_RELEASE(pt, btn)                       \
-    PT_WAIT_UNTIL(pt, (btn)->events &SYN_BUTTON_EVT_RELEASE); \
-    (btn)->events &= (uint8_t)~SYN_BUTTON_EVT_RELEASE
+#define PT_WAIT_BUTTON_RELEASE(pt, btn) \
+    PT_WAIT_UNTIL((pt), syn_button_consume_event((btn), SYN_BUTTON_EVT_RELEASE))
 
-/** Block task execution (SYN_TASK_BLOCKED) until the button is released. */
-#define PT_BUTTON_BLOCK_RELEASE(pt, task, btn)                              \
-    PT_BLOCK_CONDITION(pt, task, ((btn)->events & SYN_BUTTON_EVT_RELEASE)); \
-    (btn)->events &= (uint8_t)~SYN_BUTTON_EVT_RELEASE
+/**
+ * @brief Block task execution (SYN_TASK_BLOCKED) until the button is released.
+ * @note Producer/ISR calling syn_button_update() must call syn_task_resume(task) on state change.
+ */
+#define PT_BUTTON_BLOCK_RELEASE(pt, task, btn) \
+    PT_BLOCK_CONDITION((pt), (task), syn_button_consume_event((btn), SYN_BUTTON_EVT_RELEASE))
 
 #ifdef __cplusplus
 }

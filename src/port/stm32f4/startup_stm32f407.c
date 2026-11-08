@@ -47,7 +47,7 @@ void PendSV_Handler(void) __attribute__((weak, alias("Default_Handler")));
 void Reset_Handler(void)
 {
     /* Copy .data from flash to SRAM */
-    uint32_t *src = &_sidata;
+    const uint32_t *src = &_sidata;
     uint32_t *dst = &_sdata;
     while ((uintptr_t)dst < (uintptr_t)&_edata) {
         *dst++ = *src++;

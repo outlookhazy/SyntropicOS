@@ -37,22 +37,15 @@ flowchart LR
 static SYN_PID pid;
 
 void control_init(void) {
-    // Configure PID gains: Kp = 2.5, Ki = 0.5, Kd = 0.1, Output Range: 0 to 100% PWM
-    SYN_PID_Config cfg = {
-        .Kp = Q16_FROM_FLOAT(2.5f),
-        .Ki = Q16_FROM_FLOAT(0.5f),
-        .Kd = Q16_FROM_FLOAT(0.1f),
-        .out_min = 0,
-        .out_max = 1000, // 0 to 100.0% PWM
-        .integral_min = -500,
-        .integral_max = 500
-    };
+    // Configure PID gains: kp = 2.5, ki = 0.5/s, kd = 0.1, scale = 256, Output: 0..1000
+    SYN_PID_Config cfg = SYN_PID_GAINS(2.5, 0.5, 0.1, 256, 0, 1000);
+    cfg.integral_max = 500;
     syn_pid_init(&pid, &cfg);
 }
 
-uint16_t control_step(int32_t setpoint, int32_t current_reading) {
+uint16_t control_step(int32_t setpoint, int32_t current_reading, uint32_t dt_ms) {
     // Compute control output step
-    int32_t output = syn_pid_update(&pid, setpoint, current_reading);
+    int32_t output = syn_pid_update(&pid, setpoint, current_reading, dt_ms);
     return (uint16_t)output;
 }
 ```
@@ -70,7 +63,8 @@ static SYN_Stepper stepper;
 
 void stepper_init(void) {
     // Initialize pin 4 (step), pin 5 (dir), max_speed = 1000 steps/s, accel = 500 steps/s²
-    syn_stepper_init(&stepper, 4, 5, 1000, 500);
+    syn_stepper_init(&stepper, 4, 5);
+    syn_stepper_set_speed(&stepper, 1000, 500);
 }
 
 void move_relative(int32_t steps) {
@@ -79,7 +73,7 @@ void move_relative(int32_t steps) {
 
 void main_timer_isr(void) {
     // Serves step generation (call at fixed interrupt interval e.g. 10 kHz)
-    syn_stepper_update(&stepper);
+    syn_stepper_tick(&stepper);
 }
 ```
 
@@ -178,7 +172,7 @@ void scara_pick_and_place_demo(void) {
     /* Define target 6D pose */
     SYN_Pose6D target = {
         .position = {.x = Q16_FROM_INT(250), .y = Q16_FROM_INT(100), .z = Q16_FROM_INT(20)},
-        .orientation = {.roll = 0, .pitch = 0, .yaw = Q16_PI_4}
+        .orientation = {.roll = 0, .pitch = 0, .yaw = Q16_PI / 4}
     };
 
     q16_t q1 = 0, q2 = 0, d3 = 0, q4 = 0;

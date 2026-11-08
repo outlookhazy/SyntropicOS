@@ -5,34 +5,25 @@
 
 #include "syn_nn.h"
 
-#include <math.h>
-
 /**
- * @brief Apply activation and quantization to Q16.16 accumulator.
- * @param acc Q16.16 accumulator value.
+ * @brief Apply non-linear activation function to a Q16.16 value.
+ * @param acc Q16.16 input value.
  * @param act Activation function enum.
- * @param quant Pointer to quantization parameters structure.
- * @return Quantized Q7 output byte.
+ * @return Activated Q16.16 value.
  */
-static q7_t apply_activation_quant(q16_t acc, SYN_NN_Activation act, const syn_nn_quant_t *quant)
+static q16_t apply_activation_q16(q16_t acc, SYN_NN_Activation act)
 {
-    if (quant != NULL && quant->multiplier > 0) {
-        int64_t scaled = (int64_t)acc * quant->multiplier;
-        acc = (q16_t)(scaled >> (16 + quant->shift));
-        if (quant->zero_point != 0) {
-            acc += (q16_t)quant->zero_point << 8;
-        }
-    }
-
     switch (act) {
     case SYN_NN_ACT_RELU:
-        if (acc < 0)
+        if (acc < 0) {
             acc = 0;
+        }
         break;
 
     case SYN_NN_ACT_LEAKY_RELU:
-        if (acc < 0)
+        if (acc < 0) {
             acc = acc >> 4;
+        }
         break;
 
     case SYN_NN_ACT_SIGMOID:
@@ -60,7 +51,37 @@ static q7_t apply_activation_quant(q16_t acc, SYN_NN_Activation act, const syn_n
         break;
     }
 
-    return q16_to_q7(acc);
+    return acc;
+}
+
+/**
+ * @brief Apply activation and quantization to Q16.16 accumulator.
+ * @param acc Q16.16 accumulator value.
+ * @param act Activation function enum.
+ * @param quant Pointer to quantization parameters structure.
+ * @return Quantized Q7 output byte.
+ */
+static q7_t apply_activation_quant(q16_t acc, SYN_NN_Activation act, const syn_nn_quant_t *quant)
+{
+    if (quant != NULL && quant->multiplier > 0U) {
+        uint8_t shift = (quant->shift > 31U) ? 31U : quant->shift;
+        int64_t scaled = (int64_t)acc * (int64_t)quant->multiplier;
+        acc = (q16_t)(scaled >> (16U + (uint32_t)shift));
+    }
+
+    acc = apply_activation_q16(acc, act);
+    int32_t out = (int32_t)q16_to_q7(acc);
+
+    if (quant != NULL) {
+        out += (int32_t)quant->zero_point;
+        if (out > 127) {
+            out = 127;
+        } else if (out < -128) {
+            out = -128;
+        }
+    }
+
+    return (q7_t)out;
 }
 
 /**
@@ -72,48 +93,12 @@ static q7_t apply_activation_quant(q16_t acc, SYN_NN_Activation act, const syn_n
  */
 static q7_t apply_activation_q7(q16_t acc, SYN_NN_Activation act, uint8_t out_shift)
 {
-    if (out_shift > 0 && out_shift <= 16) {
-        acc = acc >> out_shift;
+    if (out_shift > 0U) {
+        uint8_t shift = (out_shift > 31U) ? 31U : out_shift;
+        acc = (q16_t)((int64_t)acc >> shift);
     }
 
-    switch (act) {
-    case SYN_NN_ACT_RELU:
-        if (acc < 0)
-            acc = 0;
-        break;
-
-    case SYN_NN_ACT_LEAKY_RELU:
-        if (acc < 0)
-            acc = acc >> 4; /* Leaky slope = 0.0625 */
-        break;
-
-    case SYN_NN_ACT_SIGMOID:
-        /* Fixed-point piecewise linear Sigmoid approximation: [0.0, 1.0] in Q16 */
-        if (acc <= Q16_FROM_INT(-4)) {
-            acc = 0;
-        } else if (acc >= Q16_FROM_INT(4)) {
-            acc = Q16_ONE;
-        } else {
-            acc = Q16_HALF + (acc >> 3);
-        }
-        break;
-
-    case SYN_NN_ACT_TANH:
-        /* Fixed-point piecewise linear TanH approximation: [-1.0, 1.0] in Q16 */
-        if (acc <= Q16_FROM_INT(-2)) {
-            acc = -Q16_ONE;
-        } else if (acc >= Q16_FROM_INT(2)) {
-            acc = Q16_ONE;
-        } else {
-            acc = acc >> 1;
-        }
-        break;
-
-    case SYN_NN_ACT_NONE:
-    default:
-        break;
-    }
-    return q16_to_q7(acc);
+    return q16_to_q7(apply_activation_q16(acc, act));
 }
 
 SYN_Status syn_nn_dense_q7(const q7_t *inputs, size_t num_inputs, const q7_t *weights,
@@ -143,23 +128,21 @@ SYN_PT_Status syn_nn_dense_pt(SYN_PT *pt, const q7_t *inputs, size_t num_inputs,
                               size_t num_outputs, SYN_NN_Activation act, uint8_t out_shift,
                               size_t *current_neuron, size_t chunk_size)
 {
+    if (pt == NULL) {
+        return PT_EXITED;
+    }
     PT_BEGIN(pt);
 
     if (!inputs || !weights || !outputs || !current_neuron || num_inputs == 0 || num_outputs == 0) {
         PT_EXIT(pt);
     }
 
-    if (chunk_size == 0) {
-        chunk_size = num_outputs;
-    }
-
     *current_neuron = 0;
 
     while (*current_neuron < num_outputs) {
-        size_t end = *current_neuron + chunk_size;
-        if (end > num_outputs) {
-            end = num_outputs;
-        }
+        size_t rem = num_outputs - *current_neuron;
+        size_t step = (chunk_size == 0U || chunk_size > rem) ? rem : chunk_size;
+        size_t end = *current_neuron + step;
 
         for (size_t i = *current_neuron; i < end; i++) {
             q16_t acc = (biases != NULL) ? biases[i] : 0;
@@ -175,7 +158,7 @@ SYN_PT_Status syn_nn_dense_pt(SYN_PT *pt, const q7_t *inputs, size_t num_inputs,
         *current_neuron = end;
 
         if (*current_neuron < num_outputs) {
-            PT_YIELD(pt);
+            PT_CONTINUE(pt);
         }
     }
 
@@ -201,24 +184,21 @@ SYN_Status syn_nn_softmax_q7(const q7_t *inputs, q7_t *outputs, size_t num_input
         }
     }
 
-    /* Compute exp(x - max) approximation in Q16.16 */
-    double sum = 0.0;
-    double exp_vals[64];
+    /* Compute exp(x - max) in Q16.16 fixed-point */
+    q16_t exp_vals[64];
+    uint32_t sum = 0U;
 
-    for (size_t i = 0; i < num_inputs; i++) {
-        double diff = (double)(inputs[i] - max_val) / 128.0;
-        exp_vals[i] = exp(diff);
-        sum += exp_vals[i];
+    for (size_t i = 0U; i < num_inputs; i++) {
+        int32_t diff_q7 = (int32_t)inputs[i] - (int32_t)max_val;
+        q16_t exp_q16 = q16_exp((q16_t)(diff_q7 * 512));
+        exp_vals[i] = exp_q16;
+        sum += (uint32_t)exp_q16;
     }
 
-    if (sum <= 0.0) {
-        sum = 1.0; /* LCOV_EXCL_LINE: Defensive bounds check / hardware port fallback */
-    }
-
-    /* Normalize so sum equals 127 in Q7 (+1.0) */
-    for (size_t i = 0; i < num_inputs; i++) {
-        double prob = exp_vals[i] / sum;
-        outputs[i] = Q7_FROM_FLOAT((float)prob);
+    /* Normalize so sum maps to +1.0 (127 in Q7) */
+    for (size_t i = 0U; i < num_inputs; i++) {
+        uint32_t scaled = ((uint32_t)exp_vals[i] * 128U) / sum;
+        outputs[i] = (scaled > 127U) ? (q7_t)127 : (q7_t)scaled;
     }
 
     return SYN_OK;
@@ -230,6 +210,8 @@ SYN_Status syn_nn_attention_q7(const q7_t *q, const q7_t *k, const q7_t *v, size
     if (!q || !k || !v || !out || seq_len == 0 || d_k == 0 || d_v == 0 || seq_len > 32) {
         return SYN_INVALID_PARAM;
     }
+
+    uint8_t shift = (attn_shift > 31U) ? 31U : attn_shift;
 
     /* Process attention for each query token */
     for (size_t i = 0; i < seq_len; i++) {
@@ -245,8 +227,8 @@ SYN_Status syn_nn_attention_q7(const q7_t *q, const q7_t *k, const q7_t *v, size
                 acc = q7_mac(acc, q_i[m], k_j[m]);
             }
 
-            if (attn_shift > 0) {
-                acc = acc >> attn_shift;
+            if (shift > 0U) {
+                acc = (q16_t)((int64_t)acc >> shift);
             }
 
             attn_scores[j] = q16_to_q7(acc);
@@ -310,6 +292,9 @@ SYN_PT_Status syn_nn_conv1d_pt(SYN_PT *pt, const q7_t *inputs, size_t seq_len, s
                                SYN_NN_Activation act, uint8_t out_shift, size_t *current_step,
                                size_t chunk_size)
 {
+    if (pt == NULL) {
+        return PT_EXITED;
+    }
     PT_BEGIN(pt);
 
     if (!inputs || !weights || !outputs || !current_step || seq_len == 0 || num_channels == 0 ||
@@ -319,13 +304,11 @@ SYN_PT_Status syn_nn_conv1d_pt(SYN_PT *pt, const q7_t *inputs, size_t seq_len, s
 
     *current_step = 0;
 
-    while (*current_step < ((seq_len - kernel_size) / stride + 1)) {
-        size_t out_steps = (seq_len - kernel_size) / stride + 1;
-        size_t step_chunk = (chunk_size == 0) ? out_steps : chunk_size;
-        size_t end = *current_step + step_chunk;
-        if (end > out_steps) {
-            end = out_steps;
-        }
+    while (*current_step < ((seq_len - kernel_size) / stride + 1U)) {
+        size_t out_steps = (seq_len - kernel_size) / stride + 1U;
+        size_t rem = out_steps - *current_step;
+        size_t step = (chunk_size == 0U || chunk_size > rem) ? rem : chunk_size;
+        size_t end = *current_step + step;
 
         for (size_t s = *current_step; s < end; s++) {
             size_t t_start = s * stride;
@@ -350,7 +333,7 @@ SYN_PT_Status syn_nn_conv1d_pt(SYN_PT *pt, const q7_t *inputs, size_t seq_len, s
         *current_step = end;
 
         if (*current_step < out_steps) {
-            PT_YIELD(pt);
+            PT_CONTINUE(pt);
         }
     }
 

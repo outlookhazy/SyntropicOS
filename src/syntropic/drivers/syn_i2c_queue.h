@@ -52,10 +52,13 @@ typedef struct {
  */
 typedef struct {
     SYN_I2C_Transaction ring[SYN_I2C_QUEUE_MAX_DEPTH]; /**< Transaction ring buffer */
+    uint32_t configured_clock_hz;                      /**< Last configured bus speed in Hz */
     uint16_t head;                                     /**< Head index (pop position) */
     uint16_t tail;                                     /**< Tail index (push position) */
     uint16_t count;                                    /**< Current enqueued count */
     uint8_t bus;                                       /**< Target I2C bus index */
+    uint8_t configured_bus;                            /**< Last configured bus index */
+    bool bus_configured;                               /**< True once bus clock initialized */
     bool active;                                       /**< Transaction in progress */
     bool initialized;                                  /**< Initialization flag */
 } SYN_I2C_Queue;
@@ -72,7 +75,7 @@ SYN_Status syn_i2c_queue_init(SYN_I2C_Queue *q, uint8_t bus);
  * @brief Enqueue a transaction for non-blocking execution.
  * @param q  Pointer to initialized queue handle.
  * @param tx Transaction descriptor.
- * @return SYN_OK if enqueued, SYN_FULL if queue is full, SYN_INVALID_PARAM on invalid inputs.
+ * @return SYN_OK if enqueued, SYN_BUSY if queue is full, SYN_INVALID_PARAM on invalid inputs.
  */
 SYN_Status syn_i2c_queue_enqueue(SYN_I2C_Queue *q, const SYN_I2C_Transaction *tx);
 

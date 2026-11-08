@@ -54,6 +54,8 @@
 #ifndef SYN_PID_H
 #define SYN_PID_H
 
+#include "../common/syn_defs.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 

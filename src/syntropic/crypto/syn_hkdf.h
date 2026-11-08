@@ -8,9 +8,31 @@
 #ifndef SYN_HKDF_H
 #define SYN_HKDF_H
 
+#include "../common/syn_defs.h"
+
+#if (!defined(SYN_USE_HKDF) || SYN_USE_HKDF) && (!defined(SYN_USE_SHA256) || SYN_USE_SHA256)
+/** @brief Non-zero when HKDF-SHA256 and SHA-256 dependencies are enabled. */
+#define SYN_HKDF_ENABLED 1
+#else
+/** @brief Non-zero when HKDF-SHA256 and SHA-256 dependencies are enabled. */
+#define SYN_HKDF_ENABLED 0
+#endif
+
+#if SYN_HKDF_ENABLED && (!defined(SYN_USE_SHA512) || SYN_USE_SHA512)
+/** @brief Non-zero when HKDF-SHA384 and HKDF-SHA512 extensions are enabled. */
+#define SYN_HKDF_SHA512_ENABLED 1
+#else
+/** @brief Non-zero when HKDF-SHA384 and HKDF-SHA512 extensions are enabled. */
+#define SYN_HKDF_SHA512_ENABLED 0
+#endif
+
+#if SYN_HKDF_ENABLED
+
 #include "syn_hmac.h"
 #include "syn_sha256.h"
+#if SYN_HKDF_SHA512_ENABLED
 #include "syn_sha512.h"
+#endif
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -82,6 +104,8 @@ bool syn_hkdf(const uint8_t *salt, size_t salt_len, const uint8_t *ikm, size_t i
 bool syn_hkdf_expand_label(const uint8_t *secret, size_t secret_len, const char *label,
                            size_t label_len, const uint8_t *context, size_t context_len,
                            uint8_t *out, size_t out_len);
+
+#if SYN_HKDF_SHA512_ENABLED
 
 /**
  * @brief HKDF-SHA384 Extract step (RFC 5869 Section 2.2).
@@ -193,8 +217,12 @@ bool syn_hkdf_sha512_expand_label(const uint8_t *secret, size_t secret_len, cons
                                   size_t label_len, const uint8_t *context, size_t context_len,
                                   uint8_t *out, size_t out_len);
 
+#endif /* SYN_HKDF_SHA512_ENABLED */
+
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* SYN_HKDF_ENABLED */
 
 #endif /* SYN_HKDF_H */

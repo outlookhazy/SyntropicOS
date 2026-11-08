@@ -145,9 +145,9 @@ void setup()
     syn_sntp_init(&sntp_client, &ntp_server_addr, 10);
 
     /* 5. Register Tasks */
-    syn_task_create(&tasks[0], "sntp",  syn_sntp_task, 1, &sntp_client);
-    syn_task_create(&tasks[1], "blink", blink_task,    2, NULL);
-    syn_task_create(&tasks[2], "clock", clock_task,    3, NULL);
+    syn_task_create(&tasks[0], "sntp",  syn_sntp_task, SYN_PRIO_HIGH,   &sntp_client);
+    syn_task_create(&tasks[1], "blink", blink_task,    SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks[2], "clock", clock_task,    SYN_PRIO_LOW,    NULL);
 
     syn_sched_init(&sched, tasks, 3);
 

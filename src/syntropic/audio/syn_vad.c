@@ -113,10 +113,10 @@ SYN_VAD_State syn_vad_process_frame(SYN_VAD *vad, const int16_t *samples, size_t
 
     for (size_t i = 0U; i < num_samples; i++) {
         int16_t s = samples[i];
-        int32_t s32 = (int32_t)s;
-        energy_acc += (uint64_t)(s32 * s32);
+        int64_t s64 = (int64_t)s;
+        energy_acc += (uint64_t)(s64 * s64);
 
-        int32_t diff = (int32_t)s - (int32_t)prev_sample;
+        int64_t diff = (int64_t)s - (int64_t)prev_sample;
         hf_energy_acc += (uint64_t)(diff * diff);
 
         if ((s >= 0 && prev_sample < 0) || (s < 0 && prev_sample >= 0)) {
@@ -129,10 +129,10 @@ SYN_VAD_State syn_vad_process_frame(SYN_VAD *vad, const int16_t *samples, size_t
     uint32_t hf_energy = (uint32_t)(hf_energy_acc / num_samples);
 
     /* Instantaneous Speech Trigger Evaluation */
-    uint32_t threshold = vad->noise_floor * vad->energy_threshold_multiplier;
+    uint64_t threshold = (uint64_t)vad->noise_floor * (uint64_t)vad->energy_threshold_multiplier;
     bool instant_speech = false;
 
-    if (frame_energy > threshold && zcr_count >= vad->min_zcr_threshold &&
+    if ((uint64_t)frame_energy > threshold && zcr_count >= vad->min_zcr_threshold &&
         zcr_count <= vad->max_zcr_threshold) {
         instant_speech = true;
     }
@@ -149,7 +149,8 @@ SYN_VAD_State syn_vad_process_frame(SYN_VAD *vad, const int16_t *samples, size_t
         vad->attack_counter = 0U;
 
         /* Update background noise floor using Exponential Moving Average (alpha = 1/32) */
-        vad->noise_floor = (vad->noise_floor * 31U + frame_energy) / 32U;
+        vad->noise_floor =
+            (uint32_t)(((uint64_t)vad->noise_floor * 31ULL + (uint64_t)frame_energy) / 32ULL);
         if (vad->noise_floor < SYN_VAD_MIN_NOISE_FLOOR) {
             vad->noise_floor = SYN_VAD_MIN_NOISE_FLOOR;
         }

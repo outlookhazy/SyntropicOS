@@ -5,11 +5,24 @@
 
 #include "syn_p256.h"
 
-#if !defined(SYN_USE_HMAC_DRBG) || SYN_USE_HMAC_DRBG
+#if SYN_P256_ENABLED
+
 #include "syn_hmac_drbg.h"
-#endif
 
 #include <string.h>
+
+/**
+ * @brief Zeroize sensitive stack buffers without compiler dead-store elimination.
+ * @param v Buffer pointer.
+ * @param n Number of bytes to zeroize.
+ */
+static void syn_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
 
 /* NIST P-256 Curve Constants (Little-Endian 32-bit Words: limbs[0] is least significant) */
 
@@ -534,8 +547,11 @@ static void point_double(P256_Point *r, const P256_Point *p)
  * @param[in] qx Input Affine point X coordinate.
  * @param[in] qy Input Affine point Y coordinate.
  */
-static void point_add_mixed(P256_Point *r, const P256_Point *p, const bignum256 qx,
-                            const bignum256 qy)
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((noinline))
+#endif
+static void
+point_add_mixed(P256_Point *r, const P256_Point *p, const bignum256 qx, const bignum256 qy)
 {
     bignum256 z1_sqr, u2, z1_cube, s2, h, rr;
     p256_mod_p_sqr(z1_sqr, p->z);
@@ -686,17 +702,16 @@ static void point_scalar_mul_affine(P256_Point *r, const bignum256 k, const bign
 {
     point_set_infinity(r);
 
-    /* Precompute table: table[0] = Infinity, table[1] = 1*P, ..., table[15] = 15*P */
-    P256_Point table[16];
-    point_set_infinity(&table[0]);
+    /* Precompute table: table[0] = 1*P, ..., table[14] = 15*P (nibble 0 uses Infinity directly) */
+    P256_Point table[15];
 
-    bn_copy(table[1].x, px);
-    bn_copy(table[1].y, py);
-    memset(table[1].z, 0, sizeof(table[1].z));
-    table[1].z[0] = 1U;
-    table[1].infinity = false;
+    bn_copy(table[0].x, px);
+    bn_copy(table[0].y, py);
+    memset(table[0].z, 0, sizeof(table[0].z));
+    table[0].z[0] = 1U;
+    table[0].infinity = false;
 
-    for (int i = 2; i < 16; i++) {
+    for (int i = 1; i < 15; i++) {
         point_add_mixed(&table[i], &table[i - 1], px, py);
     }
 
@@ -709,16 +724,18 @@ static void point_scalar_mul_affine(P256_Point *r, const bignum256 k, const bign
 
         uint32_t nibble = (k[n / 8] >> ((n % 8) * 4)) & 0x0FU;
 
-        /* Constant-time select from table[0..15] based on nibble */
+        /* Constant-time select from Infinity (0) or table[0..14] (1..15) based on nibble */
         P256_Point term;
         point_set_infinity(&term);
-        for (uint32_t v = 0; v < 16; v++) {
+        for (uint32_t v = 1U; v < 16U; v++) {
             uint32_t match = (uint32_t)(nibble == v);
             uint32_t mask = 0U - match;
-            point_cmov(&term, &table[v], mask);
+            point_cmov(&term, &table[v - 1U], mask);
         }
         point_add(r, r, &term);
+        syn_secure_zero(&term, sizeof(term));
     }
+    syn_secure_zero(table, sizeof(table));
 }
 
 /* ── Public API Implementation ───────────────────────────────────────────── */
@@ -766,6 +783,7 @@ bool syn_p256_base_mul(const uint8_t scalar[SYN_P256_BYTE_LEN], uint8_t pub_x[SY
     bn_from_bytes(k, scalar);
 
     if (bn_is_zero(k) || bn_cmp(k, P256_N) >= 0) {
+        syn_secure_zero(k, sizeof(k));
         return false;
     }
 
@@ -777,6 +795,10 @@ bool syn_p256_base_mul(const uint8_t scalar[SYN_P256_BYTE_LEN], uint8_t pub_x[SY
 
     bn_to_bytes(pub_x, rx);
     bn_to_bytes(pub_y, ry);
+    syn_secure_zero(k, sizeof(k));
+    syn_secure_zero(&res, sizeof(res));
+    syn_secure_zero(rx, sizeof(rx));
+    syn_secure_zero(ry, sizeof(ry));
     return true;
 }
 
@@ -796,6 +818,7 @@ bool syn_p256_point_mul(const uint8_t scalar[SYN_P256_BYTE_LEN],
     bn_from_bytes(k, scalar);
 
     if (bn_is_zero(k) || bn_cmp(k, P256_N) >= 0) {
+        syn_secure_zero(k, sizeof(k));
         return false;
     }
 
@@ -811,6 +834,10 @@ bool syn_p256_point_mul(const uint8_t scalar[SYN_P256_BYTE_LEN],
 
     bn_to_bytes(rx, out_x);
     bn_to_bytes(ry, out_y);
+    syn_secure_zero(k, sizeof(k));
+    syn_secure_zero(&res, sizeof(res));
+    syn_secure_zero(out_x, sizeof(out_x));
+    syn_secure_zero(out_y, sizeof(out_y));
     return true;
 }
 
@@ -820,7 +847,9 @@ bool syn_p256_ecdh(const uint8_t priv_key[SYN_P256_BYTE_LEN],
                    uint8_t shared_secret[SYN_P256_BYTE_LEN])
 {
     uint8_t dummy_y[SYN_P256_BYTE_LEN];
-    return syn_p256_point_mul(priv_key, peer_pub_x, peer_pub_y, shared_secret, dummy_y);
+    bool ok = syn_p256_point_mul(priv_key, peer_pub_x, peer_pub_y, shared_secret, dummy_y);
+    syn_secure_zero(dummy_y, sizeof(dummy_y));
+    return ok;
 }
 
 bool syn_p256_sign_ecdsa(const uint8_t priv_key[SYN_P256_BYTE_LEN],
@@ -832,9 +861,17 @@ bool syn_p256_sign_ecdsa(const uint8_t priv_key[SYN_P256_BYTE_LEN],
         return false;
     }
 
+    bignum256 d;
+    bn_from_bytes(d, priv_key);
+    if (bn_is_zero(d) || bn_cmp(d, P256_N) >= 0) {
+        syn_secure_zero(d, sizeof(d));
+        return false;
+    }
+
     /* 1. R = k * G */
     uint8_t rx[SYN_P256_BYTE_LEN], ry[SYN_P256_BYTE_LEN];
     if (!syn_p256_base_mul(nonce_k, rx, ry)) {
+        syn_secure_zero(d, sizeof(d));
         return false;
     }
 
@@ -842,11 +879,10 @@ bool syn_p256_sign_ecdsa(const uint8_t priv_key[SYN_P256_BYTE_LEN],
     bn_from_bytes(bn_r, rx);
 
     /* 2. s = k^-1 * (e + d * r) mod n */
-    bignum256 k, k_inv, d, e, xr, num, s;
+    bignum256 k, k_inv, e, xr, num, s;
     bn_from_bytes(k, nonce_k);
     p256_mod_n_inv(k_inv, k);
 
-    bn_from_bytes(d, priv_key);
     bn_from_bytes(e, hash);
     while (bn_cmp(e, P256_N) >= 0) {
         bn_sub_raw(e, e, P256_N);
@@ -861,13 +897,21 @@ bool syn_p256_sign_ecdsa(const uint8_t priv_key[SYN_P256_BYTE_LEN],
     }
 
     p256_mod_n_mul(s, k_inv, num);
-    if (bn_is_zero(s)) {
-        return false;
+    bool ok = !bn_is_zero(s);
+    if (ok) {
+        bn_to_bytes(r_out, bn_r);
+        bn_to_bytes(s_out, s);
     }
 
-    bn_to_bytes(r_out, bn_r);
-    bn_to_bytes(s_out, s);
-    return true;
+    syn_secure_zero(rx, sizeof(rx));
+    syn_secure_zero(ry, sizeof(ry));
+    syn_secure_zero(d, sizeof(d));
+    syn_secure_zero(k, sizeof(k));
+    syn_secure_zero(k_inv, sizeof(k_inv));
+    syn_secure_zero(xr, sizeof(xr));
+    syn_secure_zero(num, sizeof(num));
+    syn_secure_zero(s, sizeof(s));
+    return ok;
 }
 
 bool syn_p256_sign_ecdsa_deterministic(const uint8_t priv_key[SYN_P256_BYTE_LEN],
@@ -875,7 +919,7 @@ bool syn_p256_sign_ecdsa_deterministic(const uint8_t priv_key[SYN_P256_BYTE_LEN]
                                        uint8_t r_out[SYN_P256_BYTE_LEN],
                                        uint8_t s_out[SYN_P256_BYTE_LEN])
 {
-#if !defined(SYN_USE_HMAC_DRBG) || SYN_USE_HMAC_DRBG
+#if SYN_HMAC_DRBG_ENABLED
     if (priv_key == NULL || hash == NULL || r_out == NULL || s_out == NULL) {
         return false;
     }
@@ -896,10 +940,7 @@ bool syn_p256_sign_ecdsa_deterministic(const uint8_t priv_key[SYN_P256_BYTE_LEN]
     }
 
     syn_hmac_drbg_wipe(&drbg);
-    volatile uint8_t *vp = (volatile uint8_t *)nonce_k;
-    for (size_t i = 0U; i < sizeof(nonce_k); i++) {
-        vp[i] = 0U;
-    }
+    syn_secure_zero(nonce_k, sizeof(nonce_k));
     return success;
 #else
     (void)priv_key;
@@ -970,3 +1011,5 @@ bool syn_p256_verify_ecdsa(const uint8_t hash[SYN_P256_BYTE_LEN],
 
     return (bn_cmp(rx, bn_r) == 0);
 }
+
+#endif /* SYN_P256_ENABLED */

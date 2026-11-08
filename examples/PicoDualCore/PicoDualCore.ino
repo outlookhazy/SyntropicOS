@@ -18,6 +18,11 @@
  *   - Spinlocks & Barrier:  https://outlookhazy.github.io/SyntropicOS/syntropic/group__syn__sched/ (syn_spinlock.h)
  */
 
+/* Note: Arduino IDE compiles library .c units without -I<sketch_dir>, so a
+ * sketch-local syn_config.h applies only to headers included in this sketch TU
+ * (such as SYN_MAILBOX_DEFINE). Build-wide SYN_USE_* or buffer-sizing overrides
+ * across library .c files require placing syn_config.h in libraries/SyntropicOS/src/
+ * or passing -I / -D flags via platformio.ini build_flags or platform.local.txt. */
 #include "syn_config.h"
 #include <SyntropicOS.h>
 #include <syntropic/sched/syn_sched.h>
@@ -69,6 +74,7 @@ static SYN_PT_Status producer_task(SYN_PT *pt, SYN_Task *task)
 
         ok = syn_mailbox_post(&cross_core_mbox, &msg);
 
+        syn_port_spinlock_acquire(SYN_SPINLOCK_UART);
         if (ok) {
             SYN_LOG_I(TAG_C0, "POST seq=%lu val=%lu",
                       (unsigned long)msg.seq,
@@ -77,6 +83,7 @@ static SYN_PT_Status producer_task(SYN_PT *pt, SYN_Task *task)
             SYN_LOG_W(TAG_C0, "MBOX FULL (overflow=%lu)",
                       (unsigned long)syn_mailbox_overflows(&cross_core_mbox));
         }
+        syn_port_spinlock_release(SYN_SPINLOCK_UART);
 
         PT_TASK_DELAY_MS(pt, task, 200);
     }
@@ -100,7 +107,6 @@ static SYN_PT_Status consumer_task(SYN_PT *pt, SYN_Task *task)
 {
     static DualCoreMsg rx;
     static uint16_t rate;
-    static uint16_t prev_rate = 0;
 
     PT_BEGIN(pt);
     for (;;) {
@@ -114,10 +120,14 @@ static SYN_PT_Status consumer_task(SYN_PT *pt, SYN_Task *task)
             led.on_ms  = rate;
             led.off_ms = rate;
 
+            syn_port_spinlock_acquire(SYN_SPINLOCK_UART);
             SYN_LOG_I(TAG_C1, "RECV seq=%lu val=%lu blink=%ums",
                       (unsigned long)rx.seq,
                       (unsigned long)rx.value,
                       (unsigned)rate);
+            syn_port_spinlock_release(SYN_SPINLOCK_UART);
+
+            PT_CONTINUE_IF_NEEDED(pt, task);
         }
 
         PT_TASK_DELAY_MS(pt, task, 50);
@@ -141,11 +151,13 @@ static SYN_PT_Status led_task(SYN_PT *pt, SYN_Task *task)
 static void core1_entry(void)
 {
     /* Initialize Core 1 scheduler and run forever */
-    syn_task_create(&tasks1[0], "consumer", consumer_task, 0, NULL);
-    syn_task_create(&tasks1[1], "led",      led_task,      1, NULL);
+    syn_task_create(&tasks1[0], "consumer", consumer_task, SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks1[1], "led",      led_task,      SYN_PRIO_HIGH,   NULL);
     syn_sched_init(&sched1, tasks1, 2);
 
+    syn_port_spinlock_acquire(SYN_SPINLOCK_UART);
     SYN_LOG_I(TAG_C1, "Core 1 scheduler started");
+    syn_port_spinlock_release(SYN_SPINLOCK_UART);
 
     syn_sched_run_forever(&sched1);
 }
@@ -202,10 +214,12 @@ void setup()
     multicore_launch_core1(core1_entry);
 
     /* Core 0 scheduler setup */
-    syn_task_create(&tasks0[0], "producer", producer_task, 0, NULL);
+    syn_task_create(&tasks0[0], "producer", producer_task, SYN_PRIO_CRITICAL, NULL);
     syn_sched_init(&sched0, tasks0, 1);
 
+    syn_port_spinlock_acquire(SYN_SPINLOCK_UART);
     SYN_LOG_I(TAG_C0, "Core 0 scheduler started");
+    syn_port_spinlock_release(SYN_SPINLOCK_UART);
 }
 
 void loop()

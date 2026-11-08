@@ -8,11 +8,14 @@
 #define SYN_COAP_H
 
 #include "../common/syn_defs.h"
+#include "syn_dtls.h"
+
+#if !defined(SYN_USE_COAP) || SYN_USE_COAP
+
 #include "../port/syn_port_socket.h"
 #include "../pt/syn_pt.h"
 #include "../sched/syn_task.h"
 #include "../util/syn_backoff.h"
-#include "syn_dtls.h"
 #include "syn_transport.h"
 
 #include <stdbool.h>
@@ -185,13 +188,14 @@ typedef struct {
     uint8_t resp_buf[256];          /**< Raw response packet buffer             */
     size_t resp_len;                /**< Raw response length in bytes           */
 
-    /* ── Execution state (must survive across PT_YIELD) ── */
-    SYN_Socket sock;     /**< UDP socket handle                     */
-    uint8_t tx_buf[256]; /**< Serialized request (persists across retries) */
-    size_t tx_len;       /**< Length of serialized request           */
-    uint32_t start_ms;   /**< Tick at start of current send attempt */
-    SYN_Backoff backoff; /**< Retransmit backoff state              */
-    SYN_Status status;   /**< Final result (SYN_OK / SYN_TIMEOUT / SYN_ERROR) */
+    /* ── Execution state (must survive across yields) ── */
+    SYN_Socket sock;        /**< UDP socket handle                     */
+    uint8_t tx_buf[256];    /**< Serialized request (persists across retries) */
+    size_t tx_len;          /**< Length of serialized request           */
+    uint32_t start_ms;      /**< Tick at start of current send attempt */
+    uint32_t attempt_delay; /**< Timeout duration for current attempt (ms) */
+    SYN_Backoff backoff;    /**< Retransmit backoff state              */
+    SYN_Status status;      /**< Final result (SYN_OK / SYN_TIMEOUT / SYN_ERROR) */
 } SYN_CoapRequest;
 
 /**
@@ -233,11 +237,12 @@ typedef struct {
     size_t resp_len;                /**< Raw response length in bytes */
 
     /* ── Execution state ── */
-    uint8_t tx_buf[256]; /**< Serialized request buffer */
-    size_t tx_len;       /**< Serialized request length */
-    uint32_t start_ms;   /**< Timestamp of current attempt */
-    SYN_Backoff backoff; /**< Retransmit backoff state */
-    SYN_Status status;   /**< Final request status */
+    uint8_t tx_buf[256];    /**< Serialized request buffer */
+    size_t tx_len;          /**< Serialized request length */
+    uint32_t start_ms;      /**< Timestamp of current attempt */
+    uint32_t attempt_delay; /**< Timeout duration for current attempt (ms) */
+    SYN_Backoff backoff;    /**< Retransmit backoff state */
+    SYN_Status status;      /**< Final request status */
 } SYN_CoapTransportRequest;
 
 /**
@@ -281,13 +286,18 @@ SYN_Status syn_coap_transport_send_request(SYN_Transport *transport, const SYN_C
 
 /* ── CoAP over DTLS 1.3 (coaps://) ───────────────────────────────────────── */
 
+/** @brief Forward declaration for CoAP over DTLS 1.3 client context. */
+typedef struct SYN_CoapsClient SYN_CoapsClient;
+
+#if SYN_DTLS_ENABLED
+
 /**
  * @brief CoAP over DTLS 1.3 Client Session (RFC 7252 Section 12.1.2 & RFC 9147).
  */
-typedef struct {
+struct SYN_CoapsClient {
     SYN_DTLS_Context dtls;        /**< Underlying DTLS 1.3 protocol engine */
     SYN_Transport dtls_transport; /**< DTLS transport adapter */
-} SYN_CoapsClient;
+};
 
 /**
  * @brief Initialize a CoAP over DTLS 1.3 Client.
@@ -331,8 +341,12 @@ SYN_Status syn_coaps_client_send_request(SYN_CoapsClient *client, const SYN_Coap
                                          size_t max_resp_opts, size_t *resp_opt_cnt,
                                          uint8_t *resp_buf, size_t resp_buf_sz);
 
+#endif /* SYN_DTLS_ENABLED */
+
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* SYN_USE_COAP */
 
 #endif /* SYN_COAP_H */
