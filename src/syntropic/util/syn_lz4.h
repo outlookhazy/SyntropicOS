@@ -27,11 +27,14 @@ extern "C" {
 /**
  * @brief LZ4 Compression Workspace Context.
  *
- * Must be allocated by caller (on stack or static storage) and initialized
- * with syn_lz4_init() before calling syn_lz4_compress().
+ * Must be allocated by caller and initialized with syn_lz4_init() before
+ * calling syn_lz4_compress().
+ *
+ * @warning Default SYN_Lz4 workspace is 8 KB (4096 x uint16_t) and must be
+ *          allocated in static/BSS storage rather than on a 1024 B task stack.
  */
 typedef struct {
-    uint16_t hash_table[SYN_LZ4_HASH_SIZE]; /**< 4096-entry hash table (8 KB) */
+    uint16_t hash_table[SYN_LZ4_HASH_SIZE]; /**< Hash table indexed by 4-byte sequence hash */
 } SYN_Lz4;
 
 /**

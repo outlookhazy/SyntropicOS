@@ -904,6 +904,14 @@ int main(void)
     extern void test_tier_a_usb_regressions(void);
     extern void test_tier_a_usb_cdc_regressions(void);
     extern void test_tier_a_usb_hid_regressions(void);
+    extern void test_tier_a_igmp_regressions(void);
+    extern void test_tier_a_icmp_regressions(void);
+    extern void test_tier_a_autoip_regressions(void);
+    extern void test_tier_a_crsf_short_payload_guards(void);
+    extern void test_tier_a_sbus_footer_flags_and_resync(void);
+    extern void test_tier_a_ibus_duplicate_header1_recovery(void);
+    extern void test_tier_a_msp_header_resync_and_null_payload(void);
+    extern void test_pro08_mavlink_large_payload_and_bounds(void);
 
     RUN_TEST(test_r5_autoip_regressions);
     RUN_TEST(test_r5_blackbox_regressions);
@@ -922,6 +930,14 @@ int main(void)
     RUN_TEST(test_tier_a_usb_regressions);
     RUN_TEST(test_tier_a_usb_cdc_regressions);
     RUN_TEST(test_tier_a_usb_hid_regressions);
+    RUN_TEST(test_tier_a_igmp_regressions);
+    RUN_TEST(test_tier_a_icmp_regressions);
+    RUN_TEST(test_tier_a_autoip_regressions);
+    RUN_TEST(test_tier_a_crsf_short_payload_guards);
+    RUN_TEST(test_tier_a_sbus_footer_flags_and_resync);
+    RUN_TEST(test_tier_a_ibus_duplicate_header1_recovery);
+    RUN_TEST(test_tier_a_msp_header_resync_and_null_payload);
+    RUN_TEST(test_pro08_mavlink_large_payload_and_bounds);
 
     int failures = UNITY_END();
     return (failures == 0) ? 0 : 1;

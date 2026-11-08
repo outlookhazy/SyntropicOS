@@ -810,6 +810,110 @@ static void test_r5_fat_regressions(void)
     syn_vfs_init();
 }
 
+static void test_tier_a_fat_bpb_and_chain_bounds(void)
+{
+    /* 1. BPB num_fats == 0 and 32-bit layout overflow guards */
+    format_fat16_superfloppy(0U);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fat_init(0U, 1U));
+
+    format_fat32_mbr(2U);
+    syn_poke_u32_le(0x80000001UL, s_disk[2], 36U);
+    syn_poke_u32_le(0x1000UL, s_disk[2], 32U);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fat_init(0U, 1U));
+
+    format_fat32_mbr(2U);
+    syn_poke_u32_le(0xFFFFFFFFUL, s_disk[2], 32U);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fat_init(0U, 1U));
+
+    /* 2. FAT32 invalid root_cluster (< 2 and out-of-range) */
+    format_fat32_mbr(2U);
+    syn_poke_u32_le(0U, s_disk[2], 44U);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fat_init(0U, 1U));
+
+    format_fat32_mbr(2U);
+    syn_poke_u32_le(500U, s_disk[2], 44U);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fat_init(0U, 1U));
+
+    /* 3. Corrupt chain entry (0xFFF7 bad cluster) and cyclic chain bound */
+    format_fat16_superfloppy(2U);
+    memcpy(&s_disk[3][0], "BADCHAINBIN", 11U);
+    s_disk[3][11] = 0x20U;
+    syn_poke_u16_le(2U, s_disk[3], 26U);
+    syn_poke_u32_le(32768UL, s_disk[3], 28U);
+    syn_poke_u16_le(0xFFF7U, s_disk[1], 4U);
+    memcpy(s_disk[2], s_disk[1], SECTOR_BYTES);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fat_init(0U, 1U));
+    int fd = syn_vfs_open("/sd/badchain.bin", SYN_O_RDWR);
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, fd);
+
+    uint8_t io_buf[16] = {0};
+    TEST_ASSERT_EQUAL_INT32(512, syn_vfs_seek(fd, 512, SYN_SEEK_SET));
+    TEST_ASSERT_EQUAL_INT(-2, syn_vfs_read(fd, io_buf, sizeof(io_buf)));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_vfs_write(fd, io_buf, sizeof(io_buf)));
+
+    /* Cyclic chain 2 -> 3 -> 2 must terminate cleanly at total_clusters hops */
+    syn_poke_u16_le(3U, s_disk[1], 4U);
+    syn_poke_u16_le(2U, s_disk[1], 6U);
+    memcpy(s_disk[2], s_disk[1], SECTOR_BYTES);
+    TEST_ASSERT_EQUAL_INT32(20000, syn_vfs_seek(fd, 20000, SYN_SEEK_SET));
+    TEST_ASSERT_EQUAL_INT(-2, syn_vfs_read(fd, io_buf, sizeof(io_buf)));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_vfs_write(fd, io_buf, sizeof(io_buf)));
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd));
+
+    syn_vfs_init();
+}
+
+static void test_tier_a_fat_io_and_seek_bounds(void)
+{
+    format_fat16_superfloppy(2U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fat_init(0U, 1U));
+
+    int fd = syn_vfs_open("/sd/tiny.bin", SYN_O_CREAT | SYN_O_RDWR);
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, fd);
+    TEST_ASSERT_EQUAL_INT(4, syn_vfs_write(fd, "ABCD", 4U));
+
+    uint8_t rx[8] = {0};
+    TEST_ASSERT_EQUAL_INT32(0, syn_vfs_seek(fd, 0, SYN_SEEK_SET));
+    TEST_ASSERT_EQUAL_INT(4, syn_vfs_read(fd, rx, (size_t)0x7FFFFFFFUL + 16U));
+    TEST_ASSERT_EQUAL_MEMORY("ABCD", rx, 4U);
+
+    /* Subtraction clamp prevents 32-bit offset + len wraparound */
+    TEST_ASSERT_EQUAL_INT32(2, syn_vfs_seek(fd, 2, SYN_SEEK_SET));
+    TEST_ASSERT_EQUAL_INT(2, syn_vfs_read(fd, rx, ~(size_t)0U));
+    TEST_ASSERT_EQUAL_MEMORY("CD", rx, 2U);
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd));
+
+    /* Write length clamps (INT_MAX and UINT32_MAX - offset) + >2GiB seek guard */
+    memcpy(&s_disk[3][32], "HUGE    BIN", 11U);
+    s_disk[3][32 + 11] = 0x20U;
+    syn_poke_u16_le(0U, s_disk[3], 32U + 26U);
+    syn_poke_u32_le(0xFFFFFFFCUL, s_disk[3], 32U + 28U);
+    for (uint32_t c = 3U; c < 30U; c++) {
+        syn_poke_u16_le(0xFFFFU, s_disk[1], c * 2U);
+    }
+
+    fd = syn_vfs_open("/sd/huge.bin", SYN_O_WRONLY);
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, fd);
+    uint8_t tx[8] = {0};
+    TEST_ASSERT_EQUAL_INT(-2, syn_vfs_write(fd, tx, (size_t)0x7FFFFFFFUL + 16U));
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd));
+
+    fd = syn_vfs_open("/sd/huge.bin", SYN_O_WRONLY | SYN_O_APPEND);
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, fd);
+    TEST_ASSERT_EQUAL_INT(-2, syn_vfs_write(fd, tx, 16U));
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd));
+
+    fd = syn_vfs_open("/sd/huge.bin", SYN_O_RDONLY);
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, fd);
+    TEST_ASSERT_EQUAL_INT32(-2, syn_vfs_seek(fd, 0, SYN_SEEK_END));
+    TEST_ASSERT_EQUAL_INT32(100, syn_vfs_seek(fd, 100, SYN_SEEK_SET));
+    TEST_ASSERT_EQUAL_INT32(-2, syn_vfs_seek(fd, 0x7FFFFFFF, SYN_SEEK_CUR));
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd));
+
+    syn_vfs_init();
+}
+
 void run_fat_tests(void)
 {
     RUN_TEST(test_fat_init_and_bpb_errors);
@@ -818,4 +922,6 @@ void run_fat_tests(void)
     RUN_TEST(test_fat_io_and_allocation_errors);
     RUN_TEST(test_fat32_mbr_and_chained_root_dir);
     RUN_TEST(test_r5_fat_regressions);
+    RUN_TEST(test_tier_a_fat_bpb_and_chain_bounds);
+    RUN_TEST(test_tier_a_fat_io_and_seek_bounds);
 }

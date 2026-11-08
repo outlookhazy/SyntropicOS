@@ -466,6 +466,49 @@ void test_r5_gcode_feedrate_and_strict_validation(void)
     TEST_ASSERT_FLOAT_WITHIN(0.001f, 5.0f, ctrl.current_pos.x);
 }
 
+void test_tier_a_gcode_long_fraction_and_dwell_overflow(void)
+{
+    SYN_GCode_Block block;
+
+    /* 45 fractional digits must not overflow frac_part / div to Inf / Inf = NaN */
+    const char *long_frac = "G1 X12.123456789012345678901234567890123456789012345 Y-0.5 F120.0";
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_parse_line(long_frac, &block));
+    TEST_ASSERT_TRUE(isfinite(block.x));
+    TEST_ASSERT_TRUE(isfinite(block.y));
+    TEST_ASSERT_TRUE(isfinite(block.f));
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 12.123457f, block.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, -0.5f, block.y);
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 120.0f, block.f);
+
+    /* Integer part exceeding FLT_MAX must fail parsing instead of propagating +Inf */
+    const char *huge_int = "G1 X9999999999999999999999999999999999999999999.0";
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_parse_line(huge_int, &block));
+
+    /* Tiny positive dwell rounds minimum count to 1U; huge dwell saturates to UINT32_MAX */
+    SYN_GCode_Config cfg = {.step_resolution = 1.0f, .on_dwell = on_test_dwell};
+    SYN_GCode_Controller ctrl;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_init(&ctrl, &cfg));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G4 P0.0001"));
+    TEST_ASSERT_EQUAL_UINT32(1U, ctrl.dwell_steps);
+    TEST_ASSERT_EQUAL_UINT32(1U, ctrl.dwell_ms);
+
+    ctrl.cfg.step_resolution = 0.001f;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G4 P50000000.0"));
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, ctrl.dwell_steps);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, ctrl.dwell_ms);
+
+    /* Non-finite dwell in a hand-constructed block clamps safely to 0 */
+    SYN_GCode_Block nan_dwell = {
+        .has_non_modal = true,
+        .non_modal = SYN_GCODE_NONMODAL_DWELL,
+        .has_p = true,
+        .p = NAN,
+    };
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_block(&ctrl, &nan_dwell));
+    TEST_ASSERT_EQUAL_UINT32(0U, ctrl.dwell_steps);
+    TEST_ASSERT_EQUAL_UINT32(0U, ctrl.dwell_ms);
+}
+
 void run_gcode_tests(void)
 {
     RUN_TEST(test_gcode_init_and_validation);
@@ -474,4 +517,5 @@ void run_gcode_tests(void)
     RUN_TEST(test_gcode_protothread);
     RUN_TEST(test_gcode_r4_p13_regressions);
     RUN_TEST(test_r5_gcode_feedrate_and_strict_validation);
+    RUN_TEST(test_tier_a_gcode_long_fraction_and_dwell_overflow);
 }

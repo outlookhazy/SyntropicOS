@@ -183,6 +183,31 @@ void test_r5_base64_strict_padding_and_pad_bits(void)
     TEST_ASSERT_TRUE(syn_base64url_encode((const uint8_t *)"a", 1, enc, sizeof(enc), false, NULL));
 }
 
+static void test_tier_a_base64_size_overflow_guards(void)
+{
+    char enc[16] = {0};
+    const uint8_t bin[4] = {1U, 2U, 3U, 4U};
+    size_t len = 0U;
+
+    /* UTL-06a: Overflowing lengths must return 0 / false instead of wrapping size_t */
+    TEST_ASSERT_EQUAL_size_t(0U, syn_base64_calc_encoded_size(SIZE_MAX));
+    TEST_ASSERT_EQUAL_size_t(0U, syn_base64_calc_encoded_size(SYN_BASE64_MAX_RAW_LEN + 1U));
+    TEST_ASSERT_TRUE(syn_base64_calc_encoded_size(SYN_BASE64_MAX_RAW_LEN) > 0U);
+
+    TEST_ASSERT_EQUAL_size_t(0U, syn_base64_calc_max_decoded_size(SIZE_MAX));
+    TEST_ASSERT_EQUAL_size_t(6U, syn_base64_calc_max_decoded_size(5U));
+
+    TEST_ASSERT_FALSE(syn_base64_encode(bin, SIZE_MAX, enc, sizeof(enc), &len));
+    TEST_ASSERT_FALSE(syn_base64_encode(bin, SYN_BASE64_MAX_RAW_LEN + 1U, enc, SIZE_MAX, &len));
+    TEST_ASSERT_FALSE(syn_base64url_encode(bin, SIZE_MAX, enc, SIZE_MAX, false, &len));
+    TEST_ASSERT_FALSE(syn_base64url_encode(bin, SIZE_MAX, enc, SIZE_MAX, true, &len));
+
+    /* Base64URL empty payload (rem == 0) without padding */
+    TEST_ASSERT_TRUE(syn_base64url_encode(bin, 0U, enc, sizeof(enc), false, &len));
+    TEST_ASSERT_EQUAL_size_t(0U, len);
+    TEST_ASSERT_EQUAL_STRING("", enc);
+}
+
 void run_base64_tests(void)
 {
     RUN_TEST(test_base64_rfc4648_standard_test_vectors);
@@ -190,4 +215,5 @@ void run_base64_tests(void)
     RUN_TEST(test_base64_whitespace_and_newlines);
     RUN_TEST(test_base64_null_and_bounds_checks);
     RUN_TEST(test_r5_base64_strict_padding_and_pad_bits);
+    RUN_TEST(test_tier_a_base64_size_overflow_guards);
 }

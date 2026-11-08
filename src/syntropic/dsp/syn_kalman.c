@@ -53,9 +53,82 @@ SYN_Status syn_kalman_init(SYN_Kalman *kf, const SYN_Kalman_Config *cfg)
     return SYN_OK;
 }
 
+/**
+ * @brief Check that a matrix descriptor, backing buffer, and dimensions are valid.
+ * @param m    Matrix descriptor to validate.
+ * @param rows Expected row count.
+ * @param cols Expected column count.
+ * @return True if matrix is non-NULL with matching dimensions and non-NULL data.
+ */
+static bool kalman_mat_matches(const SYN_Matrix *m, uint8_t rows, uint8_t cols)
+{
+    return (m != NULL) && (m->data != NULL) && (m->rows == rows) && (m->cols == cols);
+}
+
+/**
+ * @brief Validate that a Kalman filter instance has an initialized state configuration.
+ * @param kf Kalman filter instance.
+ * @return True if kf and kf->cfg are non-NULL with valid dimensions and state matrices.
+ */
+static bool kalman_cfg_ready(const SYN_Kalman *kf)
+{
+    if ((kf == NULL) || (kf->cfg == NULL)) {
+        return false;
+    }
+    const SYN_Kalman_Config *c = kf->cfg;
+    if ((c->n_state == 0U) || (c->n_state > SYN_KALMAN_MAX_STATE) || (c->n_meas == 0U) ||
+        (c->n_meas > SYN_KALMAN_MAX_MEAS)) {
+        return false;
+    }
+    return kalman_mat_matches(c->x, c->n_state, 1U) &&
+           kalman_mat_matches(c->P, c->n_state, c->n_state) &&
+           kalman_mat_matches(c->F, c->n_state, c->n_state) &&
+           kalman_mat_matches(c->Q, c->n_state, c->n_state);
+}
+
+/**
+ * @brief Validate configuration and scratch matrices required by syn_kalman_predict.
+ * @param kf Kalman filter instance.
+ * @return True if predict can execute safely, false otherwise.
+ */
+static bool kalman_predict_valid(const SYN_Kalman *kf)
+{
+    if (!kalman_cfg_ready(kf)) {
+        return false;
+    }
+    uint8_t ns = kf->cfg->n_state;
+    return kalman_mat_matches(kf->temp_n1, ns, 1U) && kalman_mat_matches(kf->temp_nn_1, ns, ns) &&
+           kalman_mat_matches(kf->temp_nn_2, ns, ns);
+}
+
+/**
+ * @brief Validate configuration, measurement vector, and scratch buffers for syn_kalman_update.
+ * @param kf Kalman filter instance.
+ * @param z  Measurement vector (n_meas x 1).
+ * @return True if update can execute safely, false otherwise.
+ */
+static bool kalman_update_valid(const SYN_Kalman *kf, const SYN_Matrix *z)
+{
+    if (!kalman_predict_valid(kf)) {
+        return false;
+    }
+    const SYN_Kalman_Config *c = kf->cfg;
+    uint8_t ns = c->n_state;
+    uint8_t nm = c->n_meas;
+    if (!kalman_mat_matches(z, nm, 1U) || !kalman_mat_matches(c->H, nm, ns) ||
+        !kalman_mat_matches(c->R, nm, nm)) {
+        return false;
+    }
+    return kalman_mat_matches(kf->temp_nm, ns, nm) && kalman_mat_matches(kf->temp_mn, nm, ns) &&
+           kalman_mat_matches(kf->temp_mm, nm, nm) && kalman_mat_matches(kf->temp_mm_2, nm, nm) &&
+           kalman_mat_matches(kf->temp_m1, nm, 1U);
+}
+
 void syn_kalman_predict(SYN_Kalman *kf)
 {
-    SYN_ASSERT(kf != NULL && kf->cfg != NULL);
+    if (!kalman_predict_valid(kf)) {
+        return;
+    }
 
     const SYN_Kalman_Config *c = kf->cfg;
 
@@ -73,7 +146,9 @@ void syn_kalman_predict(SYN_Kalman *kf)
 
 SYN_Status syn_kalman_update(SYN_Kalman *kf, const SYN_Matrix *z)
 {
-    SYN_ASSERT(kf != NULL && z != NULL);
+    if (!kalman_update_valid(kf, z)) {
+        return SYN_INVALID_PARAM;
+    }
 
     const SYN_Kalman_Config *c = kf->cfg;
     uint8_t ns = c->n_state;

@@ -565,6 +565,31 @@ static void test_r5_ota_regressions(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_ota_finish(&s_ota_mgr, NULL, 0U));
 }
 
+/**
+ * @brief Verify OTA page_buf_sz > UINT16_MAX rejection and chunk_sz wraparound protection.
+ */
+static void test_tier_a_ota_bounds_wraparound(void)
+{
+    ota_test_setup();
+
+    /* Reject page_buf_sz > UINT16_MAX to prevent uint16_t truncation */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_ota_init(&s_ota_mgr, &s_boot_mgr, TEST_SLOT_SIZE,
+                                                      s_page_buf, (size_t)UINT16_MAX + 1U));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_init(&s_ota_mgr, &s_boot_mgr, TEST_SLOT_SIZE, s_page_buf,
+                                           sizeof(s_page_buf)));
+    s_boot_mgr.active_slot = SYN_FW_SLOT_A;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_begin(&s_ota_mgr, 128U, 1U, 0U));
+
+    uint8_t small[32] = {0xAAU};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_write_chunk(&s_ota_mgr, small, sizeof(small)));
+
+    /* SIZE_MAX chunk_sz must not wrap ingested + chunk_sz past expected_total_sz */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ota_write_chunk(&s_ota_mgr, small, SIZE_MAX));
+    TEST_ASSERT_EQUAL(SYN_OTA_STATE_ERROR, syn_ota_get_state(&s_ota_mgr));
+    TEST_ASSERT_EQUAL(SYN_OTA_ERR_OUT_OF_SPACE, syn_ota_get_last_error(&s_ota_mgr));
+}
+
 void run_ota_tests(void)
 {
     RUN_TEST(test_ota_init_and_param_validation);
@@ -576,4 +601,5 @@ void run_ota_tests(void)
     RUN_TEST(test_ota_lwm2m_integration);
     RUN_TEST(test_ota_flash_faults_and_coverage);
     RUN_TEST(test_r5_ota_regressions);
+    RUN_TEST(test_tier_a_ota_bounds_wraparound);
 }

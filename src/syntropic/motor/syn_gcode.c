@@ -27,6 +27,10 @@
 #define SYN_GCODE_SEC_PER_MIN 60.0f
 /** @brief Millimeters per inch conversion factor for G20 */
 #define SYN_GCODE_MM_PER_INCH 25.4f
+/** @brief Maximum significant fractional digits accumulated in float scanner */
+#define SYN_GCODE_MAX_FRAC_DIGITS 9U
+/** @brief Maximum exact single-precision float representable in uint32_t */
+#define SYN_GCODE_MAX_U32_FLOAT 4294967040.0f
 
 /* ── Fast ASCII Number Scanners ─────────────────────────────────────────── */
 
@@ -40,6 +44,36 @@ static const char *skip_whitespace(const char *p)
     while (*p != '\0' && (isspace((unsigned char)*p) || *p == '\r' || *p == '\n')) {
         p++;
     }
+    return p;
+}
+
+/**
+ * @brief Scan optional decimal fraction digits, capping float accumulation to avoid Inf/Inf NaN.
+ * @param p          Pointer positioned at optional '.' character.
+ * @param has_digits Updated to true if at least one fractional digit is consumed.
+ * @param out_frac   Receives fractional value in [0.0f, 1.0f).
+ * @return Pointer past any fractional digits.
+ */
+static const char *parse_frac_part(const char *p, bool *has_digits, float *out_frac)
+{
+    float frac_part = 0.0f;
+    float div = 1.0f;
+    uint8_t frac_digits = 0U;
+
+    if (*p == '.') {
+        p++;
+        while ((*p >= '0') && (*p <= '9')) {
+            if (frac_digits < SYN_GCODE_MAX_FRAC_DIGITS) {
+                frac_part = (frac_part * 10.0f) + (float)(*p - '0');
+                div *= 10.0f;
+                frac_digits++;
+            }
+            *has_digits = true;
+            p++;
+        }
+    }
+
+    *out_frac = frac_part / div;
     return p;
 }
 
@@ -62,29 +96,21 @@ static const char *parse_float_val(const char *p, float *out_val)
 
     float int_part = 0.0f;
     bool has_digits = false;
-    while (*p >= '0' && *p <= '9') {
+    while ((*p >= '0') && (*p <= '9')) {
         int_part = (int_part * 10.0f) + (float)(*p - '0');
         has_digits = true;
         p++;
     }
 
-    float frac_part = 0.0f;
-    float div = 1.0f;
-    if (*p == '.') {
-        p++;
-        while (*p >= '0' && *p <= '9') {
-            frac_part = (frac_part * 10.0f) + (float)(*p - '0');
-            div *= 10.0f;
-            has_digits = true;
-            p++;
-        }
-    }
+    float frac_val = 0.0f;
+    p = parse_frac_part(p, &has_digits, &frac_val);
 
-    if (!has_digits) {
+    float res = sign * (int_part + frac_val);
+    if (!has_digits || !isfinite(res)) {
         return NULL;
     }
 
-    *out_val = sign * (int_part + (frac_part / div));
+    *out_val = res;
     return p;
 }
 
@@ -314,16 +340,16 @@ SYN_Status syn_gcode_init(SYN_GCode_Controller *ctrl, const SYN_GCode_Config *cf
         ctrl->cfg = *cfg;
     }
 
-    if (ctrl->cfg.default_feedrate <= 0.0f) {
+    if (!isfinite(ctrl->cfg.default_feedrate) || (ctrl->cfg.default_feedrate <= 0.0f)) {
         ctrl->cfg.default_feedrate = SYN_GCODE_DEFAULT_FEEDRATE / SYN_GCODE_SEC_PER_MIN;
     }
-    if (ctrl->cfg.max_acceleration <= 0.0f) {
+    if (!isfinite(ctrl->cfg.max_acceleration) || (ctrl->cfg.max_acceleration <= 0.0f)) {
         ctrl->cfg.max_acceleration = SYN_GCODE_DEFAULT_ACCEL;
     }
-    if (ctrl->cfg.max_jerk <= 0.0f) {
+    if (!isfinite(ctrl->cfg.max_jerk) || (ctrl->cfg.max_jerk <= 0.0f)) {
         ctrl->cfg.max_jerk = SYN_GCODE_DEFAULT_JERK;
     }
-    if (ctrl->cfg.step_resolution <= 0.0f) {
+    if (!isfinite(ctrl->cfg.step_resolution) || (ctrl->cfg.step_resolution <= 0.0f)) {
         ctrl->cfg.step_resolution = SYN_GCODE_DEFAULT_STEP_RES;
     }
 
@@ -462,6 +488,20 @@ static void gcode_execute_home(SYN_GCode_Controller *ctrl, const SYN_GCode_Block
 }
 
 /**
+ * @brief Convert a positive float count to uint32_t with rounding and saturation.
+ * @param val Positive float count.
+ * @return Rounded count in [1U, UINT32_MAX].
+ */
+static uint32_t gcode_round_pos_u32(float val)
+{
+    if (!isfinite(val) || (val >= SYN_GCODE_MAX_U32_FLOAT)) {
+        return UINT32_MAX;
+    }
+    uint32_t rounded = (uint32_t)(val + 0.5f);
+    return (rounded > 0U) ? rounded : 1U;
+}
+
+/**
  * @brief Execute G4 non-modal dwell command.
  * @param ctrl  Controller instance.
  * @param block Effective parsed block.
@@ -469,14 +509,16 @@ static void gcode_execute_home(SYN_GCode_Controller *ctrl, const SYN_GCode_Block
 static void gcode_execute_dwell(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block)
 {
     float dwell_s = block->has_p ? block->p : 0.0f;
+    if (!isfinite(dwell_s) || (dwell_s < 0.0f)) {
+        dwell_s = 0.0f;
+    }
     if (ctrl->cfg.on_dwell != NULL) {
         ctrl->cfg.on_dwell(dwell_s, ctrl->cfg.user_data);
     }
-    if (dwell_s > 0.0f) {
-        uint32_t steps = (uint32_t)((dwell_s / ctrl->cfg.step_resolution) + 0.5f);
-        uint32_t ms = (uint32_t)((dwell_s * 1000.0f) + 0.5f);
-        ctrl->dwell_steps = (steps > 0U) ? steps : 1U;
-        ctrl->dwell_ms = (ms > 0U) ? ms : 1U;
+    if ((dwell_s > 0.0f) && isfinite(ctrl->cfg.step_resolution) &&
+        (ctrl->cfg.step_resolution > 0.0f)) {
+        ctrl->dwell_steps = gcode_round_pos_u32(dwell_s / ctrl->cfg.step_resolution);
+        ctrl->dwell_ms = gcode_round_pos_u32(dwell_s * 1000.0f);
     } else {
         ctrl->dwell_steps = 0U;
         ctrl->dwell_ms = 0U;
@@ -642,11 +684,14 @@ static bool gcode_has_classified_group(const SYN_GCode_Block *block)
 static void gcode_apply_aux_words(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block,
                                   float scale)
 {
-    if (block->has_f && block->f > 0.0f) {
+    if (block->has_f && isfinite(block->f) && (block->f > 0.0f)) {
         /* Convert G94 units/min feedrate to mm/sec */
-        ctrl->feedrate = (block->f * scale) / SYN_GCODE_SEC_PER_MIN;
+        float feed_mm_s = (block->f * scale) / SYN_GCODE_SEC_PER_MIN;
+        if (isfinite(feed_mm_s)) {
+            ctrl->feedrate = feed_mm_s;
+        }
     }
-    if (block->has_s && block->s >= 0.0f) {
+    if (block->has_s && isfinite(block->s) && (block->s >= 0.0f)) {
         ctrl->spindle_speed = block->s;
     }
     if (block->has_t) {

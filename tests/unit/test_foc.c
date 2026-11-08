@@ -208,6 +208,43 @@ static void test_foc_deadtime_compensation(void)
     TEST_ASSERT_EQUAL_INT32(Q16_HALF - dt_offset, da);
 }
 
+static void test_tier_a_foc_large_amplitude_and_high_vbus_svpwm(void)
+{
+    /* Large balanced 3-phase amplitude (20000.0) without int32_t overflow in a + 2*b or s3b */
+    SYN_FOC_ABC abc_large = {Q16_FROM_INT(20000), Q16_FROM_INT(-10000), Q16_FROM_INT(-10000)};
+    SYN_FOC_AB ab_large = {0, 0};
+    SYN_FOC_ABC abc_rt = {0, 0, 0};
+
+    syn_foc_clarke(&abc_large, &ab_large);
+    TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(20000), ab_large.alpha);
+    ASSERT_Q16_NEAR(0, ab_large.beta, 4);
+
+    /* Large beta (25000.0): sqrt(3)*25000 = 43301 > 32767, but b = +21650.7 fits in Q16.16 */
+    SYN_FOC_AB ab_beta = {0, Q16_FROM_INT(25000)};
+    syn_foc_inv_clarke(&ab_beta, &abc_rt);
+    ASSERT_Q16_NEAR(Q16_FROM_INT(21650) + Q16_FROM_FRAC(7, 10), abc_rt.b, Q16_TOL);
+    ASSERT_Q16_NEAR(-(Q16_FROM_INT(21650) + Q16_FROM_FRAC(7, 10)), abc_rt.c, Q16_TOL);
+
+    /* Extreme positive and negative Clarke saturation to [INT32_MIN, INT32_MAX] */
+    SYN_FOC_ABC abc_pos_sat = {INT32_MAX, INT32_MAX, 0};
+    syn_foc_clarke(&abc_pos_sat, &ab_large);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, ab_large.beta);
+
+    SYN_FOC_ABC abc_neg_sat = {INT32_MIN, INT32_MIN, 0};
+    syn_foc_clarke(&abc_neg_sat, &ab_large);
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, ab_large.beta);
+
+    /* High DC bus (800V) SVPWM: q16_div preserves exact 0.6875 / 0.3125 duty */
+    SYN_FOC_AB ab_hv = {Q16_FROM_INT(200), 0};
+    q16_t duty_a = 0;
+    q16_t duty_b = 0;
+    q16_t duty_c = 0;
+    syn_foc_svpwm(&ab_hv, Q16_FROM_INT(800), &duty_a, &duty_b, &duty_c);
+    ASSERT_Q16_NEAR(Q16_FROM_FRAC(6875, 10000), duty_a, 2);
+    ASSERT_Q16_NEAR(Q16_FROM_FRAC(3125, 10000), duty_b, 2);
+    ASSERT_Q16_NEAR(Q16_FROM_FRAC(3125, 10000), duty_c, 2);
+}
+
 void run_foc_tests(void)
 {
     RUN_TEST(test_clarke_balanced);
@@ -218,4 +255,5 @@ void run_foc_tests(void)
     RUN_TEST(test_foc_fast_and_field_weakening);
     RUN_TEST(test_foc_edge_cases);
     RUN_TEST(test_foc_deadtime_compensation);
+    RUN_TEST(test_tier_a_foc_large_amplitude_and_high_vbus_svpwm);
 }

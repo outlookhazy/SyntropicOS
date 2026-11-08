@@ -434,6 +434,85 @@ static void test_r5_fft_thd_max_harmonics_255(void)
     TEST_ASSERT_TRUE(thd_pct > Q16_FROM_INT(100));
 }
 
+static void test_tier_a_biquad_saturation_and_fc_clamping(void)
+{
+    SYN_FilterBiquad f;
+    q16_t q = Q16_ONE;
+    q16_t fs = Q16_FROM_INT(1000);
+
+    /* NUM-01a: Accumulator saturation prevents positive/negative sign wraparound */
+    syn_filter_biquad_init(&f, Q16_FROM_INT(16), 0, 0, 0, 0);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_filter_biquad_update(&f, Q16_FROM_INT(4096)));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, syn_filter_biquad_update(&f, Q16_FROM_INT(-4096)));
+
+    q16_t blk_in[2] = {Q16_FROM_INT(4096), Q16_FROM_INT(-4096)};
+    q16_t blk_out[2] = {0, 0};
+    syn_filter_biquad_reset(&f);
+    syn_filter_biquad_process_block(&f, blk_in, blk_out, 2U);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, blk_out[0]);
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, blk_out[1]);
+
+    /* NUM-01b: Invalid fs <= 0 falls back safely to unity passthrough across all 6 designs */
+    syn_filter_biquad_lowpass(&f, Q16_FROM_INT(100), 0);
+    TEST_ASSERT_EQUAL_INT32(Q16_ONE, f.b0);
+    syn_filter_biquad_highpass(&f, Q16_FROM_INT(100), -Q16_ONE);
+    TEST_ASSERT_EQUAL_INT32(Q16_ONE, f.b0);
+    syn_filter_biquad_bandpass(&f, Q16_FROM_INT(100), 0, q);
+    TEST_ASSERT_EQUAL_INT32(Q16_ONE, f.b0);
+    syn_filter_biquad_notch(&f, Q16_FROM_INT(100), 0, q);
+    TEST_ASSERT_EQUAL_INT32(Q16_ONE, f.b0);
+    syn_filter_biquad_allpass(&f, Q16_FROM_INT(100), 0, q);
+    TEST_ASSERT_EQUAL_INT32(Q16_ONE, f.b0);
+    syn_filter_biquad_peaking_eq(&f, Q16_FROM_INT(100), 0, Q16_FROM_INT(3), q);
+    TEST_ASSERT_EQUAL_INT32(Q16_ONE, f.b0);
+
+    /* NUM-01c: Out-of-range fc <= 0 and fc >= fs/2 clamped so poles stay inside unit circle */
+    syn_filter_biquad_lowpass(&f, 0, fs);
+    TEST_ASSERT_TRUE(q16_abs(f.a2) <= Q16_ONE);
+    syn_filter_biquad_lowpass(&f, Q16_FROM_INT(600), fs);
+    TEST_ASSERT_TRUE(q16_abs(f.a2) <= Q16_ONE);
+    syn_filter_biquad_highpass(&f, Q16_FROM_INT(500), fs);
+    TEST_ASSERT_TRUE(q16_abs(f.a2) <= Q16_ONE);
+    syn_filter_biquad_bandpass(&f, Q16_FROM_INT(700), fs, q);
+    TEST_ASSERT_TRUE(q16_abs(f.a2) <= Q16_ONE);
+    syn_filter_biquad_notch(&f, Q16_FROM_INT(700), fs, q);
+    TEST_ASSERT_TRUE(q16_abs(f.a2) <= Q16_ONE);
+    syn_filter_biquad_allpass(&f, Q16_FROM_INT(700), fs, q);
+    TEST_ASSERT_TRUE(q16_abs(f.a2) <= Q16_ONE);
+    syn_filter_biquad_peaking_eq(&f, Q16_FROM_INT(700), fs, Q16_FROM_INT(6), q);
+    TEST_ASSERT_TRUE(q16_abs(f.a2) <= Q16_ONE);
+}
+
+static void test_tier_a_fft_large_window_and_peak_bins(void)
+{
+    /* NUM-02a: Window generation for n = 8192 (> 5215) must not overflow Q16 angle math */
+    static q16_t win_large[8192];
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_window_hanning(win_large, 8192U));
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FRAC(1, 50), 0, win_large[0]);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FRAC(1, 50), Q16_ONE, win_large[4096]);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FRAC(1, 50), 0, win_large[8191]);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_window_hamming(win_large, 8192U));
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FRAC(1, 50), Q16_ONE, win_large[4096]);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_window_blackman(win_large, 8192U));
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FRAC(1, 50), Q16_ONE, win_large[4096]);
+
+    /* NUM-02a: syn_fft_find_peaks with n_bins = 32769 ((n_bins-1)*2 == 65536) avoids overflow */
+    static q16_t mag_large[32769];
+    for (uint32_t i = 0U; i < 32769U; i++) {
+        mag_large[i] = 0;
+    }
+    mag_large[16384] = Q16_FROM_INT(10);
+    SYN_FFTPeak pk;
+    uint8_t found = 0U;
+    SYN_Status st = syn_fft_find_peaks(mag_large, 32769U, Q16_FROM_INT(16384), &pk, 1U, &found);
+    TEST_ASSERT_EQUAL(SYN_OK, st);
+    TEST_ASSERT_EQUAL_UINT8(1U, found);
+    TEST_ASSERT_EQUAL_UINT16(16384U, pk.bin);
+    TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(4096), pk.freq_hz);
+}
+
 void run_biquad_tests(void)
 {
     RUN_TEST(test_biquad_filter);
@@ -441,6 +520,7 @@ void run_biquad_tests(void)
     RUN_TEST(test_biquad_cascade);
     RUN_TEST(test_trig_math);
     RUN_TEST(test_r5_biquad_high_cutoff_no_overflow);
+    RUN_TEST(test_tier_a_biquad_saturation_and_fc_clamping);
 }
 
 void run_fft_tests(void)
@@ -454,4 +534,5 @@ void run_fft_tests(void)
     RUN_TEST(test_fft_windows);
     RUN_TEST(test_fft_spectrum_analytics);
     RUN_TEST(test_r5_fft_thd_max_harmonics_255);
+    RUN_TEST(test_tier_a_fft_large_window_and_peak_bins);
 }

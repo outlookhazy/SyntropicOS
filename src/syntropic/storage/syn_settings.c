@@ -60,6 +60,26 @@ static SYN_Status probe_bank(SYN_Settings *s, uint32_t flash_base, uint8_t secto
 }
 
 /**
+ * @brief Attempt to load a bank's active slot into RAM and synchronize sequence counters.
+ * @param db       Dual-bank settings instance.
+ * @param bank_idx Bank index (0 for Bank A, 1 for Bank B).
+ * @param seq      Winning sequence number for the selected bank.
+ * @param data     Shared RAM settings buffer.
+ * @return true if syn_param_load succeeded, false otherwise.
+ */
+static bool try_activate_bank(SYN_DualBankSettings *db, uint8_t bank_idx, uint16_t seq, void *data)
+{
+    SYN_Settings *chosen = (bank_idx == 0U) ? &db->bank_a : &db->bank_b;
+    if (syn_param_load(&chosen->store, data) != SYN_OK) {
+        return false;
+    }
+    db->active_bank = bank_idx;
+    db->bank_a.store.next_seq = (uint16_t)(seq + 1U);
+    db->bank_b.store.next_seq = (uint16_t)(seq + 1U);
+    return true;
+}
+
+/**
  * @brief Select active dual-bank image, load RAM buffer, and synchronize next_seq.
  * @param db        Dual-bank settings instance.
  * @param valid_a   True if Bank A holds a valid slot.
@@ -73,35 +93,34 @@ static void select_dual_bank(SYN_DualBankSettings *db, bool valid_a, bool valid_
 {
     uint16_t seq_a = (uint16_t)(db->bank_a.store.next_seq - 1U);
     uint16_t seq_b = (uint16_t)(db->bank_b.store.next_seq - 1U);
+    bool prefer_b = valid_b && (!valid_a || ((int16_t)(seq_b - seq_a) > 0));
 
-    if (valid_a && valid_b) {
-        if ((int16_t)(seq_b - seq_a) > 0) {
-            (void)syn_param_load(&db->bank_b.store, data);
-            db->active_bank = 1U;
-            db->bank_a.store.next_seq = (uint16_t)(seq_b + 1U);
-            db->bank_b.store.next_seq = (uint16_t)(seq_b + 1U);
-        } else {
-            (void)syn_param_load(&db->bank_a.store, data);
-            db->active_bank = 0U;
-            db->bank_a.store.next_seq = (uint16_t)(seq_a + 1U);
-            db->bank_b.store.next_seq = (uint16_t)(seq_a + 1U);
-        }
-    } else if (valid_b) {
-        (void)syn_param_load(&db->bank_b.store, data);
-        db->active_bank = 1U;
-        db->bank_a.store.next_seq = (uint16_t)(seq_b + 1U);
-        db->bank_b.store.next_seq = (uint16_t)(seq_b + 1U);
-    } else if (valid_a) {
-        (void)syn_param_load(&db->bank_a.store, data);
-        db->active_bank = 0U;
-        db->bank_a.store.next_seq = (uint16_t)(seq_a + 1U);
-        db->bank_b.store.next_seq = (uint16_t)(seq_a + 1U);
-    } else {
-        memcpy(data, defaults, data_size);
-        (void)syn_param_save(&db->bank_a.store, data);
-        db->active_bank = 0U;
-        db->bank_b.store.next_seq = db->bank_a.store.next_seq;
+    if (prefer_b && try_activate_bank(db, 1U, seq_b, data)) {
+        return;
     }
+    if (valid_a && try_activate_bank(db, 0U, seq_a, data)) {
+        return;
+    }
+    if (!prefer_b && valid_b && try_activate_bank(db, 1U, seq_b, data)) {
+        return;
+    }
+
+    memcpy(data, defaults, data_size);
+    (void)syn_param_save(&db->bank_a.store, data);
+    db->active_bank = 0U;
+    db->bank_b.store.next_seq = db->bank_a.store.next_seq;
+}
+
+/**
+ * @brief Restore live RAM settings from flash store or ROM defaults after failed import.
+ * @param s Settings instance to restore.
+ */
+static void restore_settings_ram(SYN_Settings *s)
+{
+    if (syn_param_load(&s->store, s->data) != SYN_OK) {
+        memcpy(s->data, s->defaults, s->data_size);
+    }
+    s->checksum = compute_crc(s->data, s->data_size);
 }
 
 /* ── API ────────────────────────────────────────────────────────────────── */
@@ -254,10 +273,20 @@ SYN_Status syn_settings_import_vfs(SYN_Settings *s, const char *filepath, bool s
         return SYN_ERROR;
     }
 
+    int32_t end_pos = syn_vfs_seek(fd, 0, SYN_SEEK_END);
+    if (end_pos >= 0) {
+        if (((uint32_t)end_pos != (uint32_t)s->data_size) ||
+            (syn_vfs_seek(fd, 0, SYN_SEEK_SET) != 0)) {
+            (void)syn_vfs_close(fd);
+            return SYN_ERROR;
+        }
+    }
+
     int read_bytes = syn_vfs_read(fd, s->data, s->data_size);
-    syn_vfs_close(fd);
+    (void)syn_vfs_close(fd);
 
     if ((read_bytes < 0) || ((size_t)read_bytes != s->data_size)) {
+        restore_settings_ram(s);
         return SYN_ERROR;
     }
 

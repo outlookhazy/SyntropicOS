@@ -482,6 +482,70 @@ static void test_vfs_unmount_shift_and_null_checks(void)
     syn_vfs_init();
 }
 
+static const char *tier_a_last_path = NULL;
+static void *tier_a_last_fs_data = NULL;
+
+static int tier_a_capture_open(SYN_VfsFile *file, const char *path, int flags, void *fs_data)
+{
+    (void)file;
+    (void)flags;
+    tier_a_last_path = path;
+    tier_a_last_fs_data = fs_data;
+    return 0;
+}
+
+static void test_tier_a_vfs_busy_unmount_root_and_readdir(void)
+{
+    syn_vfs_init();
+    TEST_ASSERT_EQUAL(SYN_OK, syn_vfs_mount("/flash", &mock_full_ops, NULL));
+
+    /* Busy unmount rejected while a file descriptor is open */
+    int fd = syn_vfs_open("/flash/log.bin", SYN_O_RDONLY);
+    TEST_ASSERT_TRUE(fd >= 0);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_vfs_unmount("/flash"));
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd));
+
+    /* Busy unmount rejected while a directory descriptor is open, and NULL ent guard */
+    int dd = syn_vfs_opendir("/flash");
+    TEST_ASSERT_TRUE(dd >= 0);
+    TEST_ASSERT_EQUAL_INT(-1, syn_vfs_readdir(dd, NULL));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_vfs_unmount("/flash"));
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_closedir(dd));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_vfs_unmount("/flash"));
+
+    /* Root "/" prefix mount + nested "/sub" longest-prefix resolution */
+    static const SYN_VfsOps capture_ops = {.open = tier_a_capture_open, .close = mock_close};
+    int root_tag = 1;
+    int sub_tag = 2;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_vfs_mount("/sub", &capture_ops, &sub_tag));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_vfs_mount("/", &capture_ops, &root_tag));
+
+    int fd_root = syn_vfs_open("/hello.txt", SYN_O_RDONLY);
+    TEST_ASSERT_TRUE(fd_root >= 0);
+    TEST_ASSERT_EQUAL_STRING("/hello.txt", tier_a_last_path);
+    TEST_ASSERT_EQUAL_PTR(&root_tag, tier_a_last_fs_data);
+
+    int fd_slash = syn_vfs_open("/", SYN_O_RDONLY);
+    TEST_ASSERT_TRUE(fd_slash >= 0);
+    TEST_ASSERT_EQUAL_STRING("/", tier_a_last_path);
+    TEST_ASSERT_EQUAL_PTR(&root_tag, tier_a_last_fs_data);
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd_slash));
+
+    int fd_sub = syn_vfs_open("/sub/item.txt", SYN_O_RDONLY);
+    TEST_ASSERT_TRUE(fd_sub >= 0);
+    TEST_ASSERT_EQUAL_STRING("/item.txt", tier_a_last_path);
+    TEST_ASSERT_EQUAL_PTR(&sub_tag, tier_a_last_fs_data);
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd_sub));
+
+    /* Idle "/sub" unmounts cleanly even while "/" still holds fd_root open */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_vfs_unmount("/sub"));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_vfs_unmount("/"));
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd_root));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_vfs_unmount("/"));
+
+    syn_vfs_init();
+}
+
 void run_vfs_tests(void)
 {
     RUN_TEST(test_vfs_basic);
@@ -490,4 +554,5 @@ void run_vfs_tests(void)
     RUN_TEST(test_vfs_unmount_stat_rename);
     RUN_TEST(test_vfs_duplicate_mount_and_unmount_nonexistent);
     RUN_TEST(test_vfs_unmount_shift_and_null_checks);
+    RUN_TEST(test_tier_a_vfs_busy_unmount_root_and_readdir);
 }

@@ -129,8 +129,9 @@ static uart_inst_t *get_uart_instance(SYN_UARTInstance instance)
 SYN_Status syn_port_uart_init(SYN_UARTInstance instance, uint32_t baudrate)
 {
     uart_inst_t *uart = get_uart_instance(instance);
-    if (!uart)
+    if (uart == NULL || baudrate == 0U) {
         return SYN_INVALID_PARAM;
+    }
 
     uart_init(uart, baudrate);
 
@@ -159,9 +160,13 @@ SYN_Status syn_port_uart_transmit(SYN_UARTInstance instance, const uint8_t *data
                                   uint32_t timeout_ms)
 {
     uart_inst_t *uart = get_uart_instance(instance);
-    if (!uart)
+    if (uart == NULL || (len > 0U && data == NULL)) {
         return SYN_INVALID_PARAM;
+    }
     (void)timeout_ms; // Timeout ignored (SDK blocking transmit does not timeout)
+    if (len == 0U) {
+        return SYN_OK;
+    }
 
     uart_write_blocking(uart, data, len);
     return SYN_OK;
@@ -171,17 +176,24 @@ SYN_Status syn_port_uart_receive(SYN_UARTInstance instance, uint8_t *data, size_
                                  size_t *received, uint32_t timeout_ms)
 {
     uart_inst_t *uart = get_uart_instance(instance);
-    if (!uart)
+    if (uart == NULL || (len > 0U && data == NULL)) {
         return SYN_INVALID_PARAM;
+    }
+    if (len == 0U) {
+        if (received != NULL) {
+            *received = 0U;
+        }
+        return SYN_OK;
+    }
 
-    size_t count = 0;
+    size_t count = 0U;
     uint32_t start_ms = syn_port_get_tick_ms();
 
     while (count < len) {
         if (uart_is_readable(uart)) {
             data[count++] = uart_getc(uart);
         } else {
-            if (timeout_ms > 0 && (syn_port_get_tick_ms() - start_ms) >= timeout_ms) {
+            if (timeout_ms > 0U && (syn_port_get_tick_ms() - start_ms) >= timeout_ms) {
                 break;
             }
             // Yield CPU slightly
@@ -189,16 +201,18 @@ SYN_Status syn_port_uart_receive(SYN_UARTInstance instance, uint8_t *data, size_
         }
     }
 
-    if (received)
+    if (received != NULL) {
         *received = count;
-    return (count > 0) ? SYN_OK : SYN_TIMEOUT;
+    }
+    return (count > 0U) ? SYN_OK : SYN_TIMEOUT;
 }
 
 SYN_Status syn_port_uart_transmit_byte(SYN_UARTInstance instance, uint8_t byte)
 {
     uart_inst_t *uart = get_uart_instance(instance);
-    if (!uart)
+    if (uart == NULL) {
         return SYN_INVALID_PARAM;
+    }
     uart_putc(uart, (char)byte);
     return SYN_OK;
 }
@@ -206,12 +220,13 @@ SYN_Status syn_port_uart_transmit_byte(SYN_UARTInstance instance, uint8_t byte)
 SYN_Status syn_port_uart_receive_byte(SYN_UARTInstance instance, uint8_t *byte, uint32_t timeout_ms)
 {
     uart_inst_t *uart = get_uart_instance(instance);
-    if (!uart)
+    if (uart == NULL || byte == NULL) {
         return SYN_INVALID_PARAM;
+    }
 
     uint32_t start_ms = syn_port_get_tick_ms();
     while (!uart_is_readable(uart)) {
-        if (timeout_ms > 0 && (syn_port_get_tick_ms() - start_ms) >= timeout_ms) {
+        if (timeout_ms > 0U && (syn_port_get_tick_ms() - start_ms) >= timeout_ms) {
             return SYN_TIMEOUT;
         }
     }
@@ -233,7 +248,10 @@ SYN_WEAK SYN_Status syn_port_serial_init(uint32_t baudrate)
 
 SYN_WEAK int syn_port_serial_write(const uint8_t *data, size_t len)
 {
-    for (size_t i = 0; i < len; i++) {
+    if (len > 0U && data == NULL) {
+        return -1;
+    }
+    for (size_t i = 0U; i < len; i++) {
         putchar_raw(data[i]);
     }
     return (int)len;
@@ -241,11 +259,15 @@ SYN_WEAK int syn_port_serial_write(const uint8_t *data, size_t len)
 
 SYN_WEAK int syn_port_serial_read(uint8_t *buf, size_t max_len)
 {
-    size_t count = 0;
+    if (max_len > 0U && buf == NULL) {
+        return -1;
+    }
+    size_t count = 0U;
     while (count < max_len) {
         int ch = getchar_timeout_us(0); /* non-blocking */
-        if (ch == PICO_ERROR_TIMEOUT)
+        if (ch == PICO_ERROR_TIMEOUT) {
             break;
+        }
         buf[count++] = (uint8_t)ch;
     }
     return (int)count;

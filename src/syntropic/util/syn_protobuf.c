@@ -8,6 +8,9 @@
 
 #include <string.h>
 
+#define PB_MAX_FIELD_NUMBER 0x1FFFFFFFU /**< Maximum valid 29-bit Protobuf field number */
+#define PB_MAX_WIRE_TYPE 5U             /**< Maximum valid Protobuf wire type ID */
+
 SYN_Status syn_pb_encoder_init(SYN_PB_Encoder *enc, uint8_t *buf, size_t capacity)
 {
     if ((enc == NULL) || (buf == NULL) || (capacity == 0U)) {
@@ -24,14 +27,17 @@ SYN_Status syn_pb_encode_varint(SYN_PB_Encoder *enc, uint64_t value)
     if (enc == NULL) {
         return SYN_INVALID_PARAM;
     }
+    size_t saved_offset = enc->offset;
     while (value >= 0x80U) {
         if (enc->offset >= enc->capacity) {
-            return SYN_ERROR; /* LCOV_EXCL_LINE: Defensive capacity guard */
+            enc->offset = saved_offset;
+            return SYN_ERROR;
         }
         enc->buf[enc->offset++] = (uint8_t)((value & 0x7FU) | 0x80U);
-        value >>= 7;
+        value >>= 7U;
     }
     if (enc->offset >= enc->capacity) {
+        enc->offset = saved_offset;
         return SYN_ERROR;
     }
     enc->buf[enc->offset++] = (uint8_t)(value & 0x7FU);
@@ -40,10 +46,11 @@ SYN_Status syn_pb_encode_varint(SYN_PB_Encoder *enc, uint64_t value)
 
 SYN_Status syn_pb_encode_tag(SYN_PB_Encoder *enc, uint32_t field_number, uint8_t wire_type)
 {
-    if ((enc == NULL) || (field_number == 0U)) {
+    if ((enc == NULL) || (field_number == 0U) || (field_number > PB_MAX_FIELD_NUMBER) ||
+        (wire_type > PB_MAX_WIRE_TYPE)) {
         return SYN_INVALID_PARAM;
     }
-    uint32_t key = (field_number << 3) | (wire_type & 0x07U);
+    uint64_t key = (((uint64_t)field_number) << 3U) | (uint64_t)(wire_type & 0x07U);
     return syn_pb_encode_varint(enc, key);
 }
 
@@ -52,10 +59,15 @@ SYN_Status syn_pb_encode_int32(SYN_PB_Encoder *enc, uint32_t field_number, int32
     if (enc == NULL) {
         return SYN_INVALID_PARAM;
     }
+    size_t saved_offset = enc->offset;
     if (syn_pb_encode_tag(enc, field_number, SYN_PB_WIRE_VARINT) != SYN_OK) {
         return SYN_ERROR;
     }
-    return syn_pb_encode_varint(enc, (uint64_t)(int64_t)value);
+    if (syn_pb_encode_varint(enc, (uint64_t)(int64_t)value) != SYN_OK) {
+        enc->offset = saved_offset;
+        return SYN_ERROR;
+    }
+    return SYN_OK;
 }
 
 SYN_Status syn_pb_encode_uint32(SYN_PB_Encoder *enc, uint32_t field_number, uint32_t value)
@@ -63,10 +75,15 @@ SYN_Status syn_pb_encode_uint32(SYN_PB_Encoder *enc, uint32_t field_number, uint
     if (enc == NULL) {
         return SYN_INVALID_PARAM;
     }
+    size_t saved_offset = enc->offset;
     if (syn_pb_encode_tag(enc, field_number, SYN_PB_WIRE_VARINT) != SYN_OK) {
         return SYN_ERROR;
     }
-    return syn_pb_encode_varint(enc, value);
+    if (syn_pb_encode_varint(enc, value) != SYN_OK) {
+        enc->offset = saved_offset;
+        return SYN_ERROR;
+    }
+    return SYN_OK;
 }
 
 SYN_Status syn_pb_encode_bool(SYN_PB_Encoder *enc, uint32_t field_number, bool value)
@@ -79,16 +96,18 @@ SYN_Status syn_pb_encode_fixed32(SYN_PB_Encoder *enc, uint32_t field_number, uin
     if (enc == NULL) {
         return SYN_INVALID_PARAM;
     }
+    size_t saved_offset = enc->offset;
     if (syn_pb_encode_tag(enc, field_number, SYN_PB_WIRE_FIXED32) != SYN_OK) {
         return SYN_ERROR;
     }
-    if (enc->offset + 4U > enc->capacity) {
-        return SYN_ERROR; /* LCOV_EXCL_LINE: Defensive capacity guard */
+    if ((enc->offset > enc->capacity) || ((enc->capacity - enc->offset) < 4U)) {
+        enc->offset = saved_offset;
+        return SYN_ERROR;
     }
     enc->buf[enc->offset++] = (uint8_t)(value & 0xFFU);
-    enc->buf[enc->offset++] = (uint8_t)((value >> 8) & 0xFFU);
-    enc->buf[enc->offset++] = (uint8_t)((value >> 16) & 0xFFU);
-    enc->buf[enc->offset++] = (uint8_t)((value >> 24) & 0xFFU);
+    enc->buf[enc->offset++] = (uint8_t)((value >> 8U) & 0xFFU);
+    enc->buf[enc->offset++] = (uint8_t)((value >> 16U) & 0xFFU);
+    enc->buf[enc->offset++] = (uint8_t)((value >> 24U) & 0xFFU);
     return SYN_OK;
 }
 
@@ -98,17 +117,18 @@ SYN_Status syn_pb_encode_bytes(SYN_PB_Encoder *enc, uint32_t field_number, const
     if ((enc == NULL) || (bytes == NULL)) {
         return SYN_INVALID_PARAM;
     }
+    size_t saved_offset = enc->offset;
     if (syn_pb_encode_tag(enc, field_number, SYN_PB_WIRE_LENGTH_DELIMITED) != SYN_OK) {
         return SYN_ERROR;
     }
-    if (syn_pb_encode_varint(enc, len) != SYN_OK) {
-        return SYN_ERROR; /* LCOV_EXCL_LINE: Defensive varint guard */
+    if ((syn_pb_encode_varint(enc, len) != SYN_OK) || (len > (enc->capacity - enc->offset))) {
+        enc->offset = saved_offset;
+        return SYN_ERROR;
     }
-    if (len > enc->capacity - enc->offset) {
-        return SYN_ERROR; /* LCOV_EXCL_LINE: Defensive capacity guard */
+    if (len > 0U) {
+        memcpy(&enc->buf[enc->offset], bytes, len);
+        enc->offset += len;
     }
-    memcpy(&enc->buf[enc->offset], bytes, len);
-    enc->offset += len;
     return SYN_OK;
 }
 
@@ -161,12 +181,21 @@ SYN_Status syn_pb_decode_tag(SYN_PB_Decoder *dec, SYN_PB_Tag *tag)
     if (dec->offset >= dec->size) {
         return SYN_ERROR; /* End of stream */
     }
-    uint64_t key = 0;
+    size_t saved_offset = dec->offset;
+    uint64_t key = 0U;
     if (syn_pb_decode_varint(dec, &key) != SYN_OK) {
+        dec->offset = saved_offset;
         return SYN_ERROR;
     }
-    tag->field_number = (uint32_t)(key >> 3);
-    tag->wire_type = (uint8_t)(key & 0x07U);
+    uint64_t field_num = key >> 3U;
+    uint8_t wt = (uint8_t)(key & 0x07U);
+    if ((field_num == 0ULL) || (field_num > (uint64_t)PB_MAX_FIELD_NUMBER) ||
+        (wt > PB_MAX_WIRE_TYPE)) {
+        dec->offset = saved_offset;
+        return SYN_ERROR;
+    }
+    tag->field_number = (uint32_t)field_num;
+    tag->wire_type = wt;
     return SYN_OK;
 }
 
@@ -175,7 +204,7 @@ SYN_Status syn_pb_decode_fixed32(SYN_PB_Decoder *dec, uint32_t *value)
     if ((dec == NULL) || (value == NULL)) {
         return SYN_INVALID_PARAM;
     }
-    if (dec->offset + 4U > dec->size) {
+    if ((dec->size < 4U) || (dec->offset > (dec->size - 4U))) {
         return SYN_ERROR;
     }
     uint32_t val = ((uint32_t)dec->buf[dec->offset]) |

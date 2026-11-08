@@ -335,6 +335,22 @@ static void test_lfs_init_config_invalid_params(void)
     syn_lfs_init_config(&cfg, &syn_cfg);
 }
 
+static void test_tier_a_lfs_readdir_null_guards(void)
+{
+    mock_lfs_reset();
+    const SYN_VfsOps *ops = syn_lfs_get_ops();
+    lfs_t dummy_lfs;
+    SYN_VfsDir dir;
+    SYN_VfsDirEnt ent;
+
+    memset(&dir, 0, sizeof(dir));
+    memset(&ent, 0, sizeof(ent));
+    TEST_ASSERT_EQUAL_INT(0, ops->opendir(&dir, "dir", &dummy_lfs));
+    TEST_ASSERT_EQUAL_INT(-1, ops->readdir(NULL, &ent));
+    TEST_ASSERT_EQUAL_INT(-1, ops->readdir(&dir, NULL));
+    TEST_ASSERT_EQUAL_INT(0, ops->closedir(&dir));
+}
+
 void run_lfs_tests(void)
 {
     RUN_TEST(test_lfs_init_config);
@@ -344,4 +360,5 @@ void run_lfs_tests(void)
     RUN_TEST(test_lfs_vfs_dir);
     RUN_TEST(test_lfs_vfs_dir_errors);
     RUN_TEST(test_lfs_init_config_invalid_params);
+    RUN_TEST(test_tier_a_lfs_readdir_null_guards);
 }

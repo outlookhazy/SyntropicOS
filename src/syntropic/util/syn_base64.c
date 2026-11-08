@@ -73,22 +73,41 @@ static uint8_t decode_char(char c, bool url_mode)
     return decode_special_char(c, url_mode);
 }
 
+/**
+ * @brief Compute required output buffer capacity for Base64URL encoding.
+ * @param src_len      Raw input length in bytes.
+ * @param with_padding True when '=' padding characters are emitted.
+ * @return Required capacity including NUL byte, or 0 on size_t overflow.
+ */
+static size_t base64url_calc_req_len(size_t src_len, bool with_padding)
+{
+    if (src_len > SYN_BASE64_MAX_RAW_LEN) {
+        return 0U;
+    }
+    if (with_padding) {
+        return syn_base64_calc_encoded_size(src_len);
+    }
+    size_t rem = src_len % 3U;
+    size_t tail = (rem == 0U) ? 0U : (rem + 1U);
+    return ((src_len / 3U) * 4U) + tail + 1U;
+}
+
 bool syn_base64_encode(const uint8_t *src, size_t src_len, char *dst, size_t dst_size,
                        size_t *out_len)
 {
-    if (dst == NULL || (src == NULL && src_len > 0)) {
+    if ((dst == NULL) || ((src == NULL) && (src_len > 0U))) {
         return false;
     }
 
     size_t req_len = syn_base64_calc_encoded_size(src_len);
-    if (dst_size < req_len) {
+    if ((req_len == 0U) || (dst_size < req_len)) {
         return false;
     }
 
-    size_t in_pos = 0;
-    size_t out_pos = 0;
+    size_t in_pos = 0U;
+    size_t out_pos = 0U;
 
-    while (in_pos + 2U < src_len) {
+    while ((src_len - in_pos) >= 3U) {
         uint32_t triple = ((uint32_t)src[in_pos] << 16U) | ((uint32_t)src[in_pos + 1U] << 8U) |
                           (uint32_t)src[in_pos + 2U];
         dst[out_pos++] = B64_STD_TABLE[(triple >> 18U) & 0x3FU];
@@ -125,20 +144,19 @@ bool syn_base64_encode(const uint8_t *src, size_t src_len, char *dst, size_t dst
 bool syn_base64url_encode(const uint8_t *src, size_t src_len, char *dst, size_t dst_size,
                           bool with_padding, size_t *out_len)
 {
-    if (dst == NULL || (src == NULL && src_len > 0)) {
+    if ((dst == NULL) || ((src == NULL) && (src_len > 0U))) {
         return false;
     }
 
-    size_t in_pos = 0;
-    size_t out_pos = 0;
+    size_t in_pos = 0U;
+    size_t out_pos = 0U;
 
-    size_t req_len =
-        with_padding ? syn_base64_calc_encoded_size(src_len) : (((src_len * 4U) + 2U) / 3U) + 1U;
-    if (dst_size < req_len) {
+    size_t req_len = base64url_calc_req_len(src_len, with_padding);
+    if ((req_len == 0U) || (dst_size < req_len)) {
         return false;
     }
 
-    while (in_pos + 2U < src_len) {
+    while ((src_len - in_pos) >= 3U) {
         uint32_t triple = ((uint32_t)src[in_pos] << 16U) | ((uint32_t)src[in_pos + 1U] << 8U) |
                           (uint32_t)src[in_pos + 2U];
         dst[out_pos++] = B64_URL_TABLE[(triple >> 18U) & 0x3FU];

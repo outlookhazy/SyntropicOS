@@ -360,6 +360,50 @@ static void test_r5_param_regressions(void)
     mock_port_reset();
 }
 
+static void test_tier_a_param_torn_slot_skip(void)
+{
+    mock_port_reset();
+    SYN_ParamStore store;
+    TestParams p1 = {.brightness = 0xFFFFU, .offset = -1, .mode = 0xFFU, ._pad = 0xFFU};
+    TestParams p2 = {.brightness = 0xAAAAU, .offset = 123, .mode = 0x55U, ._pad = 0xFFU};
+    TestParams p3 = {.brightness = 0x5555U, .offset = -45, .mode = 0xAAU, ._pad = 0xFFU};
+
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_param_init(&store, 0U, 2U, sizeof(TestParams)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_param_save(&store, &p1));
+    TEST_ASSERT_EQUAL_UINT8(0U, store.active_sector);
+    TEST_ASSERT_EQUAL_UINT16(0U, store.active_slot);
+
+    /* Simulate torn NOR write in slot 1 (payload dirtied with 0x00, header uncommitted 0xFF) */
+    uint32_t slot1_payload = (uint32_t)store.slot_size + (uint32_t)sizeof(SYN_ParamSlotHeader);
+    mock_flash[slot1_payload] = 0x00U;
+
+    SYN_ParamStore reboot_store;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_param_init(&reboot_store, 0U, 2U, sizeof(TestParams)));
+    TEST_ASSERT_EQUAL_UINT16(0U, reboot_store.active_slot);
+
+    /* Next save must skip dirty slot 1 and land cleanly at slot 2 without NOR bit-AND corruption */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_param_save(&reboot_store, &p2));
+    TEST_ASSERT_EQUAL_UINT8(0U, reboot_store.active_sector);
+    TEST_ASSERT_EQUAL_UINT16(2U, reboot_store.active_slot);
+
+    TestParams loaded = {0};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_param_load(&reboot_store, &loaded));
+    TEST_ASSERT_EQUAL_UINT16(0xAAAAU, loaded.brightness);
+    TEST_ASSERT_EQUAL_INT16(123, loaded.offset);
+
+    /* Dirty all remaining slots in sector 0 -> next save must wrap and erase sector 1 */
+    for (uint16_t sl = 3U; sl < reboot_store.slots_per_sector; sl++) {
+        mock_flash[(uint32_t)sl * reboot_store.slot_size + 20U] = 0x5AU;
+    }
+    TEST_ASSERT_EQUAL(SYN_OK, syn_param_save(&reboot_store, &p3));
+    TEST_ASSERT_EQUAL_UINT8(1U, reboot_store.active_sector);
+    TEST_ASSERT_EQUAL_UINT16(0U, reboot_store.active_slot);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_param_load(&reboot_store, &loaded));
+    TEST_ASSERT_EQUAL_UINT16(0x5555U, loaded.brightness);
+
+    mock_port_reset();
+}
+
 void run_param_tests(void)
 {
     RUN_TEST(test_param_store);
@@ -373,4 +417,5 @@ void run_param_tests(void)
     RUN_TEST(test_param_power_loss_recovery);
     RUN_TEST(test_param_sequence_number_wrap);
     RUN_TEST(test_r5_param_regressions);
+    RUN_TEST(test_tier_a_param_torn_slot_skip);
 }

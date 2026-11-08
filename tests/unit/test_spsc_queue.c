@@ -210,6 +210,19 @@ static void test_r5_spsc_queue_pthread_stress(void)
 #endif
 }
 
+static void test_tier_a_spsc_queue_capacity_overflow_guard(void)
+{
+    TestMsg buf[4];
+    SYN_SPSC_Queue q;
+
+    /* UTL-06a: capacity * elem_size > SIZE_MAX must fail syn_spsc_queue_init */
+    size_t overflow_cap = (SIZE_MAX / sizeof(TestMsg)) + 1U;
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_spsc_queue_init(&q, buf, sizeof(TestMsg), overflow_cap));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_spsc_queue_init(&q, buf, sizeof(TestMsg), SIZE_MAX));
+}
+
 void run_spsc_queue_tests(void)
 {
     RUN_TEST(test_spsc_queue_push_pop_count);
@@ -217,4 +230,5 @@ void run_spsc_queue_tests(void)
     RUN_TEST(test_spsc_queue_full_overflow_and_wraparound);
     RUN_TEST(test_spsc_queue_peek_and_clear);
     RUN_TEST(test_r5_spsc_queue_pthread_stress);
+    RUN_TEST(test_tier_a_spsc_queue_capacity_overflow_guard);
 }

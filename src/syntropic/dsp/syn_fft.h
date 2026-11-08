@@ -17,8 +17,11 @@ extern "C" {
 /**
  * @brief Computes the in-place Radix-2 Decimation-in-Time FFT.
  *
- * n must be a power of 2 (e.g., 8, 16, 32, 64, 128, 256). Max supported
- * size is 256.
+ * n must be a power of 2 in [2, 256] (e.g., 8, 16, 32, 64, 128, 256).
+ *
+ * @note Butterfly stages are **unscaled** (coherent gain = N; DC/bin magnitudes
+ *       scale by n). Maintain input amplitude headroom |x[k]| < 32768 / n in
+ *       Q16.16 (e.g., |x[k]| < 128.0 for n = 256) to avoid int32_t overflow.
  *
  * @param real Array of real parts (size n).
  * @param imag Array of imaginary parts (size n).

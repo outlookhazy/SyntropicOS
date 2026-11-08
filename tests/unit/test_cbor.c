@@ -853,6 +853,82 @@ static void test_r5_n01_cbor_collection_bounds_and_skip(void)
     TEST_ASSERT_EQUAL_size_t(sizeof(u64_bytes), r.pos);
 }
 
+static void test_tier_a_cbor_skip_simple_tag_and_int64_bounds(void)
+{
+    /* UTL-02a: skip_major7 info==24 (0xF8 1-byte simple value) advances 1 byte cleanly */
+    static const uint8_t simple24_ok[] = {0xF8u, 0x20u, 0x05u};
+    syn_cbor_reader_init(&r, simple24_ok, sizeof(simple24_ok));
+    syn_cbor_skip(&r);
+    TEST_ASSERT_TRUE(syn_cbor_reader_ok(&r));
+    TEST_ASSERT_EQUAL_UINT64(5u, syn_cbor_read_uint(&r));
+    TEST_ASSERT_TRUE(syn_cbor_reader_done(&r));
+
+    /* Truncated 0xF8 simple value fails cleanly */
+    static const uint8_t simple24_trunc[] = {0xF8u};
+    syn_cbor_reader_init(&r, simple24_trunc, sizeof(simple24_trunc));
+    syn_cbor_skip(&r);
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+
+    /* Reserved major 7 info 28..31 (0xFC..0xFF) rejected by skip_major7 */
+    for (uint8_t hdr = 0xFCu; hdr != 0x00u; hdr++) {
+        uint8_t bad_m7[2] = {hdr, 0x01u};
+        syn_cbor_reader_init(&r, bad_m7, sizeof(bad_m7));
+        syn_cbor_skip(&r);
+        TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+    }
+
+    /* UTL-02b: Major 6 semantic tag (e.g. Tag 1 epoch + Tag 32 URI) skips enclosed item */
+    static const uint8_t tagged_epoch[] = {0xC1u, 0x1Au, 0x51u, 0x4Bu, 0x67u, 0xB0u, 0x09u};
+    syn_cbor_reader_init(&r, tagged_epoch, sizeof(tagged_epoch));
+    syn_cbor_skip(&r);
+    TEST_ASSERT_TRUE(syn_cbor_reader_ok(&r));
+    TEST_ASSERT_EQUAL_UINT64(9u, syn_cbor_read_uint(&r));
+    TEST_ASSERT_TRUE(syn_cbor_reader_done(&r));
+
+    static const uint8_t tagged_uri[] = {0xD8u, 0x20u, 0x63u, 'f', 'o', 'o', 0x07u};
+    syn_cbor_reader_init(&r, tagged_uri, sizeof(tagged_uri));
+    syn_cbor_skip(&r);
+    TEST_ASSERT_TRUE(syn_cbor_reader_ok(&r));
+    TEST_ASSERT_EQUAL_UINT64(7u, syn_cbor_read_uint(&r));
+
+    /* Truncated Major 6 tag with no enclosed item or reserved info fails */
+    static const uint8_t trunc_tag[] = {0xC1u};
+    syn_cbor_reader_init(&r, trunc_tag, sizeof(trunc_tag));
+    syn_cbor_skip(&r);
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+
+    static const uint8_t reserved_tag[] = {0xDCu, 0x01u};
+    syn_cbor_reader_init(&r, reserved_tag, sizeof(reserved_tag));
+    syn_cbor_skip(&r);
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+
+    /* UTL-02c: syn_cbor_read_int boundary and overflow rejection */
+    const uint8_t u_max[9] = {0x1Bu, 0x7Fu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu};
+    syn_cbor_reader_init(&r, u_max, sizeof(u_max));
+    TEST_ASSERT_EQUAL_INT64(INT64_MAX, syn_cbor_read_int(&r));
+    TEST_ASSERT_TRUE(syn_cbor_reader_ok(&r));
+
+    const uint8_t u_ovr[9] = {0x1Bu, 0x80u, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u};
+    syn_cbor_reader_init(&r, u_ovr, sizeof(u_ovr));
+    TEST_ASSERT_EQUAL_INT64(0, syn_cbor_read_int(&r));
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+
+    const uint8_t n_min[9] = {0x3Bu, 0x7Fu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu};
+    syn_cbor_reader_init(&r, n_min, sizeof(n_min));
+    TEST_ASSERT_EQUAL_INT64(INT64_MIN, syn_cbor_read_int(&r));
+    TEST_ASSERT_TRUE(syn_cbor_reader_ok(&r));
+
+    const uint8_t n_ovr[9] = {0x3Bu, 0x80u, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u};
+    syn_cbor_reader_init(&r, n_ovr, sizeof(n_ovr));
+    TEST_ASSERT_EQUAL_INT64(0, syn_cbor_read_int(&r));
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+
+    static const uint8_t n_trunc[] = {0x38u};
+    syn_cbor_reader_init(&r, n_trunc, sizeof(n_trunc));
+    TEST_ASSERT_EQUAL_INT64(0, syn_cbor_read_int(&r));
+    TEST_ASSERT_FALSE(syn_cbor_reader_ok(&r));
+}
+
 void run_cbor_tests(void)
 {
     /* Encoder */
@@ -908,4 +984,5 @@ void run_cbor_tests(void)
     RUN_TEST(test_cbor_write_text_cstr);
     RUN_TEST(test_cbor_peek_at_eof_and_write_already_overflowed);
     RUN_TEST(test_r5_n01_cbor_collection_bounds_and_skip);
+    RUN_TEST(test_tier_a_cbor_skip_simple_tag_and_int64_bounds);
 }

@@ -269,6 +269,79 @@ void test_r5_protobuf_varint_10th_byte_and_u64_len(void)
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_skip_field(&g_dec, SYN_PB_WIRE_LENGTH_DELIMITED));
 }
 
+static void test_tier_a_protobuf_tag_bounds_and_atomic_encode_rollback(void)
+{
+    SYN_PB_Tag tag;
+    uint8_t small[4];
+    const uint8_t payload[6] = {1U, 2U, 3U, 4U, 5U, 6U};
+
+    /* UTL-04a: Decode rejects field_number == 0, > 0x1FFFFFFF, and wire_type > 5 */
+    const uint8_t tag_zero[1] = {0x00U};
+    syn_pb_decoder_init(&g_dec, tag_zero, sizeof(tag_zero));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_decode_tag(&g_dec, &tag));
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)g_dec.offset);
+
+    /* key = (0x20000000ULL << 3) = 0x100000000ULL -> varint: 0x80, 0x80, 0x80, 0x80, 0x10 */
+    const uint8_t tag_over_max[5] = {0x80U, 0x80U, 0x80U, 0x80U, 0x10U};
+    syn_pb_decoder_init(&g_dec, tag_over_max, sizeof(tag_over_max));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_decode_tag(&g_dec, &tag));
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)g_dec.offset);
+
+    /* field 1, wire_type 6 (0x0E) -> invalid wire_type > 5 */
+    const uint8_t tag_bad_wt[1] = {0x0EU};
+    syn_pb_decoder_init(&g_dec, tag_bad_wt, sizeof(tag_bad_wt));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_decode_tag(&g_dec, &tag));
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)g_dec.offset);
+
+    /* Max valid field number 0x1FFFFFFF round-trips */
+    syn_pb_encoder_init(&g_enc, g_buf, sizeof(g_buf));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_pb_encode_tag(&g_enc, 0x20000000U, 0U));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_pb_encode_tag(&g_enc, 1U, 6U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_pb_encode_uint32(&g_enc, 0x1FFFFFFFU, 7U));
+    syn_pb_decoder_init(&g_dec, g_buf, g_enc.offset);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_pb_decode_tag(&g_dec, &tag));
+    TEST_ASSERT_EQUAL_HEX32(0x1FFFFFFFU, tag.field_number);
+
+    /* UTL-04b: Atomic offset rollback when tag fits but payload overflows */
+    syn_pb_encoder_init(&g_enc, small, 2U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_pb_encode_bool(&g_enc, 1U, false));
+    size_t mark = g_enc.offset; /* 2 bytes used, 0 remaining; test with 3-byte cap next */
+    TEST_ASSERT_EQUAL_UINT32(2U, (uint32_t)mark);
+    /* Tag itself fails when 0 bytes remain: offset stays 2 */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_encode_int32(&g_enc, 2U, 10));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_encode_uint32(&g_enc, 2U, 10U));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_encode_fixed32(&g_enc, 2U, 10U));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_encode_bytes(&g_enc, 2U, payload, 2U));
+    TEST_ASSERT_EQUAL_UINT32(2U, (uint32_t)g_enc.offset);
+
+    /* Now leave 1..2 bytes after mark so tag (1B) succeeds and payload fails -> rolls back! */
+    syn_pb_encoder_init(&g_enc, small, 3U);
+    g_enc.offset = 1U; /* 2 bytes left */
+    /* Multi-byte varint overflow inside loop (3-byte varint 0x10000 in 1B left after tag) */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_encode_uint32(&g_enc, 2U, 0x10000U));
+    TEST_ASSERT_EQUAL_UINT32(1U, (uint32_t)g_enc.offset);
+
+    /* Negative int32 (10-byte varint) fails after 1-byte tag -> rolls back to 1 */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_encode_int32(&g_enc, 2U, -1));
+    TEST_ASSERT_EQUAL_UINT32(1U, (uint32_t)g_enc.offset);
+
+    /* fixed32 needs 4B after 1B tag (only 1B left) -> rolls back to 1 */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_encode_fixed32(&g_enc, 2U, 0x11223344U));
+    TEST_ASSERT_EQUAL_UINT32(1U, (uint32_t)g_enc.offset);
+
+    /* bytes with 2-byte length varint (300) failing in encode_varint after 1B tag -> rollback */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_encode_bytes(&g_enc, 2U, g_buf, 300U));
+    TEST_ASSERT_EQUAL_UINT32(1U, (uint32_t)g_enc.offset);
+
+    /* bytes where tag (1B) + len varint (1B) fit in 2B, but 6B payload overflows -> rollback */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_pb_encode_bytes(&g_enc, 2U, payload, sizeof(payload)));
+    TEST_ASSERT_EQUAL_UINT32(1U, (uint32_t)g_enc.offset);
+
+    /* Zero-length bytes succeeds cleanly */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_pb_encode_bytes(&g_enc, 2U, payload, 0U));
+    TEST_ASSERT_EQUAL_UINT32(3U, (uint32_t)g_enc.offset);
+}
+
 void run_protobuf_tests(void)
 {
     RUN_TEST(test_protobuf_init_and_null_checks);
@@ -277,4 +350,5 @@ void run_protobuf_tests(void)
     RUN_TEST(test_protobuf_overflow_and_errors);
     RUN_TEST(test_protobuf_decode_bytes_large_length);
     RUN_TEST(test_r5_protobuf_varint_10th_byte_and_u64_len);
+    RUN_TEST(test_tier_a_protobuf_tag_bounds_and_atomic_encode_rollback);
 }

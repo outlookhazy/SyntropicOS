@@ -50,9 +50,27 @@ uint32_t syn_port_get_tick_us(void)
     return (uint32_t)esp_timer_get_time();
 }
 
+/**
+ * @brief Convert milliseconds to FreeRTOS ticks, clamping non-zero sub-tick durations to 1 tick.
+ *
+ * @param ms Duration in milliseconds.
+ * @return FreeRTOS tick count (at least 1 when ms > 0).
+ */
+static TickType_t esp32_ms_to_ticks(uint32_t ms)
+{
+    if (ms == 0U) {
+        return 0U;
+    }
+    TickType_t ticks = pdMS_TO_TICKS(ms);
+    return (ticks == 0U) ? (TickType_t)1U : ticks;
+}
+
 void syn_port_delay_ms(uint32_t ms)
 {
-    vTaskDelay(pdMS_TO_TICKS(ms));
+    if (ms == 0U) {
+        return;
+    }
+    vTaskDelay(esp32_ms_to_ticks(ms));
 }
 
 SYN_NORETURN void syn_port_system_reset(void)
@@ -80,8 +98,12 @@ SYN_Status syn_port_random_fill(void *buf, size_t len)
 
 SYN_Status syn_port_gpio_init(SYN_GPIO_Pin pin, SYN_GPIO_Mode mode)
 {
-    gpio_config_t io_conf = {};
-    io_conf.pin_bit_mask = (1ULL << pin);
+    if ((uint32_t)pin >= 64U) {
+        return SYN_INVALID_PARAM;
+    }
+
+    gpio_config_t io_conf = {0};
+    io_conf.pin_bit_mask = (1ULL << (uint32_t)pin);
     io_conf.intr_type = GPIO_INTR_DISABLE;
 
     switch (mode) {
@@ -91,7 +113,7 @@ SYN_Status syn_port_gpio_init(SYN_GPIO_Pin pin, SYN_GPIO_Mode mode)
         io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
         break;
     case SYN_GPIO_OUTPUT:
-        io_conf.mode = GPIO_MODE_OUTPUT;
+        io_conf.mode = GPIO_MODE_INPUT_OUTPUT;
         io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
         io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
         break;
@@ -106,7 +128,7 @@ SYN_Status syn_port_gpio_init(SYN_GPIO_Pin pin, SYN_GPIO_Mode mode)
         io_conf.pull_down_en = GPIO_PULLDOWN_ENABLE;
         break;
     case SYN_GPIO_OUTPUT_OD:
-        io_conf.mode = GPIO_MODE_OUTPUT_OD;
+        io_conf.mode = GPIO_MODE_INPUT_OUTPUT_OD;
         io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
         io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
         break;
@@ -164,8 +186,9 @@ static uart_port_t get_uart_port(SYN_UARTInstance instance)
 SYN_WEAK SYN_Status syn_port_uart_init(SYN_UARTInstance instance, uint32_t baudrate)
 {
     uart_port_t port = get_uart_port(instance);
-    if (port == UART_NUM_MAX)
+    if (port == UART_NUM_MAX || baudrate == 0U || baudrate > 0x7FFFFFFFU) {
         return SYN_INVALID_PARAM;
+    }
 
     uart_config_t uart_config = {
         .baud_rate = (int)baudrate,
@@ -201,32 +224,60 @@ SYN_WEAK SYN_Status syn_port_uart_transmit(SYN_UARTInstance instance, const uint
                                            size_t len, uint32_t timeout_ms)
 {
     uart_port_t port = get_uart_port(instance);
-    if (port == UART_NUM_MAX)
+    if (port == UART_NUM_MAX || (len > 0U && data == NULL)) {
         return SYN_INVALID_PARAM;
+    }
+    if (len == 0U) {
+        return SYN_OK;
+    }
 
-    int written = uart_write_bytes(port, (const char *)data, len);
-    if (written < 0)
-        return SYN_INVALID_PARAM;
-
-    esp_err_t err =
-        uart_wait_tx_done(port, timeout_ms == 0 ? portMAX_DELAY : pdMS_TO_TICKS(timeout_ms));
-    return (err == ESP_OK) ? SYN_OK : SYN_TIMEOUT;
+    uint32_t start_ms = syn_port_get_tick_ms();
+    size_t offset = 0U;
+    while (offset < len) {
+        size_t chunk = ((len - offset) > 128U) ? 128U : (len - offset);
+        int written = uart_write_bytes(port, (const char *)&data[offset], chunk);
+        if (written < 0) {
+            return SYN_INVALID_PARAM;
+        }
+        TickType_t wait_ticks = portMAX_DELAY;
+        if (timeout_ms > 0U) {
+            uint32_t elapsed = syn_port_get_tick_ms() - start_ms;
+            if (elapsed >= timeout_ms) {
+                return SYN_TIMEOUT;
+            }
+            wait_ticks = esp32_ms_to_ticks(timeout_ms - elapsed);
+        }
+        if (uart_wait_tx_done(port, wait_ticks) != ESP_OK) {
+            return SYN_TIMEOUT;
+        }
+        offset += (size_t)written;
+    }
+    return SYN_OK;
 }
 
 SYN_WEAK SYN_Status syn_port_uart_receive(SYN_UARTInstance instance, uint8_t *data, size_t len,
                                           size_t *received, uint32_t timeout_ms)
 {
     uart_port_t port = get_uart_port(instance);
-    if (port == UART_NUM_MAX)
+    if (port == UART_NUM_MAX || (len > 0U && data == NULL)) {
         return SYN_INVALID_PARAM;
+    }
+    if (len == 0U) {
+        if (received != NULL) {
+            *received = 0U;
+        }
+        return SYN_OK;
+    }
 
-    int read = uart_read_bytes(port, data, len,
-                               timeout_ms == 0 ? portMAX_DELAY : pdMS_TO_TICKS(timeout_ms));
-    if (read < 0)
+    TickType_t wait_ticks = (timeout_ms == 0U) ? portMAX_DELAY : esp32_ms_to_ticks(timeout_ms);
+    int read = uart_read_bytes(port, data, (uint32_t)len, wait_ticks);
+    if (read < 0) {
         return SYN_TIMEOUT;
+    }
 
-    if (received)
+    if (received != NULL) {
         *received = (size_t)read;
+    }
     return (read > 0) ? SYN_OK : SYN_TIMEOUT;
 }
 

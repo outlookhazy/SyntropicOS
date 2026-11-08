@@ -32,47 +32,70 @@ void syn_errlog_init(SYN_ErrLog *log, SYN_ErrEntry *entries, size_t capacity, ui
 
 void syn_errlog_record(SYN_ErrLog *log, uint16_t code, SYN_ErrSeverity severity, uint32_t context)
 {
-    if (!log->enabled)
+    if (log == NULL) {
         return;
+    }
+
+    uint32_t ts = syn_port_get_tick_ms();
+
+    syn_port_enter_critical();
+    if (!log->enabled || log->entries == NULL || log->capacity == 0U) {
+        syn_port_exit_critical();
+        return;
+    }
 
     SYN_ErrEntry *e = &log->entries[log->head];
     e->code = code;
     e->severity = (uint8_t)severity;
     e->context = context;
-    e->timestamp = syn_port_get_tick_ms();
+    e->timestamp = ts;
     e->boot_count = log->boot_count;
 
     log->head++;
-    if (log->head >= log->capacity)
-        log->head = 0;
+    if (log->head >= log->capacity) {
+        log->head = 0U;
+    }
     log->total_count++;
+    syn_port_exit_critical();
 }
 
 bool syn_errlog_read(const SYN_ErrLog *log, size_t index, SYN_ErrEntry *out)
 {
+    if (log == NULL) {
+        return false;
+    }
     SYN_ASSERT(out != NULL);
 
+    syn_port_enter_critical();
     size_t avail = syn_errlog_available(log);
-    if (index >= avail)
+    if (index >= avail) {
+        syn_port_exit_critical();
         return false;
+    }
 
     size_t start;
     if (log->total_count <= log->capacity) {
-        start = 0;
+        start = 0U;
     } else {
         start = log->head; /* oldest entry */
     }
 
     size_t actual = (start + index) % log->capacity;
     *out = log->entries[actual];
+    syn_port_exit_critical();
     return true;
 }
 
 void syn_errlog_clear(SYN_ErrLog *log)
 {
-    log->head = 0;
-    log->total_count = 0;
+    if (log == NULL) {
+        return;
+    }
+    syn_port_enter_critical();
+    log->head = 0U;
+    log->total_count = 0U;
     memset(log->entries, 0, sizeof(SYN_ErrEntry) * log->capacity);
+    syn_port_exit_critical();
 }
 
 const SYN_ErrEntry *syn_errlog_latest(const SYN_ErrLog *log)

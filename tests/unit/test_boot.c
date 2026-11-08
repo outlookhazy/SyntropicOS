@@ -147,6 +147,33 @@ static void test_boot_null_checks(void)
     TEST_ASSERT_FALSE(syn_boot_is_safe_mode(NULL));
 }
 
+/**
+ * @brief Verify fail_count saturates at UINT16_MAX instead of wrapping to 0.
+ */
+static void test_tier_a_boot_fail_count_saturation(void)
+{
+    memset(mock_flash, 0xFF, sizeof(mock_flash));
+
+    SYN_ParamStore store;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_param_init(&store, 0U, 2U, sizeof(SYN_BootData)));
+
+    SYN_BootData seeded = {
+        .boot_count = 500U,
+        .fail_count = UINT16_MAX,
+        .was_healthy = 0U,
+        .last_reset = SYN_RESET_WATCHDOG,
+    };
+    TEST_ASSERT_EQUAL(SYN_OK, syn_param_save(&store, &seeded));
+
+    SYN_ParamStore reboot_store;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_param_init(&reboot_store, 0U, 2U, sizeof(SYN_BootData)));
+
+    SYN_Boot boot;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_boot_init(&boot, &reboot_store, 3U));
+    TEST_ASSERT_EQUAL_UINT16(UINT16_MAX, syn_boot_fail_count(&boot));
+    TEST_ASSERT_TRUE(syn_boot_is_safe_mode(&boot));
+}
+
 void run_boot_tests(void)
 {
     RUN_TEST(test_boot);
@@ -154,4 +181,5 @@ void run_boot_tests(void)
     RUN_TEST(test_boot_log_events_no_errlog);
     RUN_TEST(test_boot_log_events_with_errlog);
     RUN_TEST(test_boot_null_checks);
+    RUN_TEST(test_tier_a_boot_fail_count_saturation);
 }

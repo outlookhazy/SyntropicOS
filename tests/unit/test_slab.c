@@ -215,10 +215,32 @@ static void test_r5_slab_alignment_and_double_free(void)
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_slab_free(&slab, hi65));
 }
 
+static void test_tier_a_slab_zero_and_overflow_block_size(void)
+{
+    uintptr_t backing[32];
+    SYN_SlabAllocator slab;
+    size_t counts[] = {1U};
+
+    /* UTL-05: Zero block size rejected */
+    size_t zero_sizes[] = {0U};
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_slab_init(&slab, backing, sizeof(backing), zero_sizes, counts, 1U));
+
+    /* UTL-05: Near-SIZE_MAX block size cannot wrap SLAB_ALIGN_PTR to 0 */
+    size_t wrap_sizes1[] = {SIZE_MAX};
+    size_t wrap_sizes2[] = {SIZE_MAX - (sizeof(void *) - 2U)};
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_slab_init(&slab, backing, sizeof(backing), wrap_sizes1, counts, 1U));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_slab_init(&slab, backing, sizeof(backing), wrap_sizes2, counts, 1U));
+    TEST_ASSERT_NULL(syn_slab_alloc(&slab, 4U));
+}
+
 void run_slab_tests(void)
 {
     RUN_TEST(test_slab_alloc_free_stats);
     RUN_TEST(test_slab_edge_cases_and_exhaustion);
     RUN_TEST(test_slab_null_params);
     RUN_TEST(test_r5_slab_alignment_and_double_free);
+    RUN_TEST(test_tier_a_slab_zero_and_overflow_block_size);
 }

@@ -220,6 +220,47 @@ static void test_interpolator_bezier(void)
     (void)syn_interpolator_eval_at_time(&interp, 0.0f, &pos, &vel);
 }
 
+static void test_tier_a_interpolator_nan_inf_and_step_overflow(void)
+{
+    SYN_Interpolator interp;
+    syn_interpolator_init(&interp);
+
+    SYN_Vector3F origin = {0.0f, 0.0f, 0.0f};
+    SYN_Vector3F dest = {10.0f, 0.0f, 0.0f};
+    SYN_Vector3F nan_vec = {NAN, 0.0f, 0.0f};
+    SYN_Vector3F inf_vec = {INFINITY, 0.0f, 0.0f};
+
+    /* Reject NaN / Inf vectors and scalar motion parameters across linear, circular, and bezier */
+    SYN_Status st;
+    st = syn_interpolator_plan_linear(&interp, nan_vec, dest, 10.0f, 50.0f, 100.0f, 0.1f);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+
+    st = syn_interpolator_plan_linear(&interp, origin, dest, NAN, 50.0f, 100.0f, 0.1f);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+
+    st = syn_interpolator_plan_linear(&interp, origin, dest, 10.0f, INFINITY, 100.0f, 0.1f);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+
+    st = syn_interpolator_plan_circular(&interp, origin, dest, inf_vec, true, 10.0f, 50.0f, 100.0f,
+                                        0.1f);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+
+    st = syn_interpolator_plan_bezier(&interp, origin, nan_vec, dest, dest, 10.0f, 50.0f, 100.0f,
+                                      0.1f);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+
+    /* Reject step counts exceeding INT32_MAX so uint32_t / int32_t casts never overflow */
+    SYN_Vector3F far_target = {3.0e6f, 0.0f, 0.0f};
+    st = syn_interpolator_plan_linear(&interp, origin, far_target, 100.0f, 500.0f, 1000.0f, 0.001f);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+    TEST_ASSERT_EQUAL(SYN_INTERP_MODE_IDLE, interp.mode);
+
+    /* Saturate extreme S-curve rate ratios (>= INT32_MAX) and zero accel/jerk safely */
+    st = syn_interpolator_plan_linear(&interp, origin, dest, 100.0f, 0.0f, 5.0e6f, 0.001f);
+    TEST_ASSERT_EQUAL(SYN_OK, st);
+    TEST_ASSERT_EQUAL_UINT32(10000U, interp.total_steps);
+}
+
 void run_interpolator_tests(void)
 {
     RUN_TEST(test_interpolator_linear_planning);
@@ -229,4 +270,5 @@ void run_interpolator_tests(void)
     RUN_TEST(test_interpolator_out_of_bounds_extrapolation);
     RUN_TEST(test_scurve3d);
     RUN_TEST(test_interpolator_bezier);
+    RUN_TEST(test_tier_a_interpolator_nan_inf_and_step_overflow);
 }

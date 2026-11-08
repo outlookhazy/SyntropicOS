@@ -153,6 +153,36 @@ static void test_coredump_read_flash_fail(void)
     mock_port_reset();
 }
 
+/**
+ * @brief Verify unaligned, underflowed, or out-of-range SP skips stack copy safely.
+ */
+static void test_tier_a_coredump_invalid_sp_bounds(void)
+{
+    mock_port_reset();
+    SYN_FaultContext ctx;
+    SYN_CoreDump dump;
+
+    /* Downward stack overflow below SRAM start */
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.pc = 0x08004000UL;
+    ctx.sp = 0x1FFFFFF0UL;
+    syn_coredump_save(&ctx);
+    TEST_ASSERT_TRUE(syn_coredump_read(&dump));
+    TEST_ASSERT_EQUAL_UINT32(0U, dump.stack_bytes);
+
+    /* NULL / ROM SP outside SRAM */
+    ctx.sp = 0x00000000UL;
+    syn_coredump_save(&ctx);
+    TEST_ASSERT_TRUE(syn_coredump_read(&dump));
+    TEST_ASSERT_EQUAL_UINT32(0U, dump.stack_bytes);
+
+    /* Near end of SRAM without room for SYN_COREDUMP_STACK_SIZE */
+    ctx.sp = SYN_COREDUMP_RAM_END - 64UL;
+    syn_coredump_save(&ctx);
+    TEST_ASSERT_TRUE(syn_coredump_read(&dump));
+    TEST_ASSERT_EQUAL_UINT32(0U, dump.stack_bytes);
+}
+
 void run_coredump_tests(void)
 {
     RUN_TEST(test_coredump_save_and_read);
@@ -162,4 +192,5 @@ void run_coredump_tests(void)
     RUN_TEST(test_coredump_clear);
     RUN_TEST(test_coredump_save_null);
     RUN_TEST(test_coredump_read_flash_fail);
+    RUN_TEST(test_tier_a_coredump_invalid_sp_bounds);
 }

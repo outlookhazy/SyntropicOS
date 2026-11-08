@@ -247,9 +247,14 @@ static int syn_lfs_vfs_opendir(SYN_VfsDir *dir, const char *path, void *fs_data)
 
 static int syn_lfs_vfs_readdir(SYN_VfsDir *dir, SYN_VfsDirEnt *ent)
 {
-    SYN_LfsDirCtx *ctx = (SYN_LfsDirCtx *)dir->fs_dir;
-    if (!ctx)
+    if ((dir == NULL) || (ent == NULL)) {
         return -1;
+    }
+
+    SYN_LfsDirCtx *ctx = (SYN_LfsDirCtx *)dir->fs_dir;
+    if (ctx == NULL) {
+        return -1;
+    }
 
     struct lfs_info info;
     int ret = lfs_dir_read(ctx->lfs, &ctx->dir, &info);

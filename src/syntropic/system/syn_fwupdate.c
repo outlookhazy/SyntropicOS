@@ -281,7 +281,8 @@ SYN_Status syn_fwupdate_write(SYN_FwUpdate *upd, const uint8_t *data, size_t len
         return SYN_OK;
     }
 
-    if (upd->bytes_written + upd->page_buf_used + len > upd->max_size) {
+    uint64_t buffered = (uint64_t)upd->bytes_written + (uint64_t)upd->page_buf_used;
+    if (buffered > (uint64_t)upd->max_size || len > (size_t)((uint64_t)upd->max_size - buffered)) {
         upd->error = true;
         return SYN_ERROR;
     }

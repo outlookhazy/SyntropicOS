@@ -339,6 +339,71 @@ static void test_kalman_2state_update(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_kalman_update(&kf, &z));
 }
 
+static void test_tier_a_kalman_null_scratch_and_param_guards(void)
+{
+    SYN_Kalman kf = {0};
+    SYN_Kalman_Config cfg = {0};
+
+    SYN_MAT_DECL(x, 2, 1);
+    SYN_MAT_DECL(P, 2, 2);
+    SYN_MAT_DECL(F, 2, 2);
+    SYN_MAT_DECL(Qn, 2, 2);
+    SYN_MAT_DECL(H, 1, 2);
+    SYN_MAT_DECL(R, 1, 1);
+    SYN_MAT_DECL(z, 1, 1);
+    SYN_MAT_DECL(z_bad, 2, 1);
+    SYN_KALMAN_SCRATCH_DECL(s, 2, 1);
+
+    syn_matrix_identity(&F);
+    syn_matrix_identity(&P);
+    syn_matrix_identity(&Qn);
+    syn_matrix_identity(&R);
+    syn_matrix_zero(&x);
+    syn_matrix_zero(&H);
+    H.data[0] = Q16_ONE;
+
+    cfg.x = &x;
+    cfg.P = &P;
+    cfg.F = &F;
+    cfg.Q = &Qn;
+    cfg.H = &H;
+    cfg.R = &R;
+    cfg.n_state = 2;
+    cfg.n_meas = 1;
+
+    /* NUM-03a: NULL kf or uninitialized cfg handled safely */
+    syn_kalman_predict(NULL);
+    syn_kalman_predict(&kf);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_kalman_update(NULL, &z));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_kalman_update(&kf, &z));
+
+    /* NUM-03b respected: syn_kalman_init succeeds before scratch assignment */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kalman_init(&kf, &cfg));
+
+    /* NUM-03a: Calling predict/update with NULL scratch buffers fails safely without crash */
+    x.data[0] = Q16_FROM_INT(3);
+    syn_kalman_predict(&kf);
+    TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(3), x.data[0]);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_kalman_update(&kf, &z));
+
+    /* Assign scratch, then verify NULL/mismatched z, missing update-only scratch, and bad cfg */
+    SYN_KALMAN_SCRATCH_ASSIGN(&kf, s);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_kalman_update(&kf, NULL));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_kalman_update(&kf, &z_bad));
+
+    kf.temp_m1 = NULL;
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_kalman_update(&kf, &z));
+    SYN_KALMAN_SCRATCH_ASSIGN(&kf, s);
+
+    cfg.n_state = 0U;
+    syn_kalman_predict(&kf);
+    cfg.n_state = 2U;
+
+    z.data[0] = Q16_FROM_INT(3);
+    syn_kalman_predict(&kf);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kalman_update(&kf, &z));
+}
+
 void run_kalman_tests(void)
 {
     RUN_TEST(test_kalman_init_valid);
@@ -347,4 +412,5 @@ void run_kalman_tests(void)
     RUN_TEST(test_kalman_predict_grows_P);
     RUN_TEST(test_kalman_singular_S_matrix_update_fail);
     RUN_TEST(test_kalman_2state_update);
+    RUN_TEST(test_tier_a_kalman_null_scratch_and_param_guards);
 }

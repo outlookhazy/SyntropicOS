@@ -125,15 +125,21 @@ SYN_CborType syn_cbor_peek_type(const SYN_CborReader *r)
  */
 static bool skip_major7(SYN_CborReader *r, uint8_t info)
 {
+    if (info >= 28u) {
+        r->ok = false;
+        return false;
+    }
     size_t skip_bytes = 0u;
-    if (info == 25u) {
+    if (info == 24u) {
+        skip_bytes = 1u;
+    } else if (info == 25u) {
         skip_bytes = 2u;
     } else if (info == 26u) {
         skip_bytes = 4u;
     } else if (info == 27u) {
         skip_bytes = 8u;
     }
-    if (r->len - r->pos < skip_bytes) {
+    if ((r->len - r->pos) < skip_bytes) {
         r->ok = false;
         return false;
     }
@@ -193,6 +199,10 @@ static bool skip_step(SYN_CborReader *r, uint8_t b, size_t *pending, uint8_t *de
     }
     if (major == 5u) {
         return skip_push(r, decode_arg(r, info), 2u, pending, depth);
+    }
+    if (major == 6u) {
+        (void)decode_arg(r, info);
+        return skip_push(r, 1u, 1u, pending, depth);
     }
     (void)decode_arg(r, info);
     return r->ok;
@@ -289,11 +299,13 @@ int64_t syn_cbor_read_int(SYN_CborReader *r)
     uint8_t major = b >> 5u;
     uint8_t info = b & 0x1Fu;
 
-    if (major == 0u) {
-        return (int64_t)decode_arg(r, info);
-    }
-    if (major == 1u) {
-        return (int64_t)(-1 - (int64_t)decode_arg(r, info));
+    if ((major == 0u) || (major == 1u)) {
+        uint64_t arg = decode_arg(r, info);
+        if ((!r->ok) || (arg > (uint64_t)INT64_MAX)) {
+            r->ok = false;
+            return 0;
+        }
+        return (major == 0u) ? (int64_t)arg : (-1 - (int64_t)arg);
     }
     r->ok = false;
     return 0;

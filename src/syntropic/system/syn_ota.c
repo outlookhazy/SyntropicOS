@@ -105,7 +105,8 @@ static SYN_LwM2M_FirmwareResult ota_map_lwm2m_result(SYN_OTA_State state, SYN_OT
 SYN_Status syn_ota_init(SYN_OTA_Manager *mgr, SYN_FwBootManager *boot_mgr, uint32_t slot_size,
                         uint8_t *page_buf, size_t page_buf_sz)
 {
-    if (mgr == NULL || boot_mgr == NULL || page_buf == NULL || page_buf_sz < 16U) {
+    if (mgr == NULL || boot_mgr == NULL || page_buf == NULL || page_buf_sz < 16U ||
+        page_buf_sz > (size_t)UINT16_MAX) {
         return SYN_INVALID_PARAM;
     }
 
@@ -322,7 +323,9 @@ SYN_Status syn_ota_write_chunk(SYN_OTA_Manager *mgr, const uint8_t *chunk, size_
         return SYN_INVALID_PARAM;
     }
 
-    if ((syn_ota_bytes_ingested(mgr) + chunk_sz) > mgr->expected_total_sz) {
+    uint32_t ingested = syn_ota_bytes_ingested(mgr);
+    if (ingested > mgr->expected_total_sz ||
+        chunk_sz > (size_t)(mgr->expected_total_sz - ingested)) {
         syn_ota_abort(mgr, SYN_OTA_ERR_OUT_OF_SPACE);
         return SYN_ERROR;
     }

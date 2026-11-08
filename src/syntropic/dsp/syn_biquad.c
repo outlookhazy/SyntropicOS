@@ -39,6 +39,23 @@ void syn_filter_biquad_reset(SYN_FilterBiquad *f)
     f->y2 = 0;
 }
 
+/**
+ * @brief Shift a Q32.32 accumulator to Q16.16 with signed 32-bit saturation.
+ * @param acc Signed 64-bit Q32.32 accumulator.
+ * @return Saturated Q16.16 sample in [INT32_MIN, INT32_MAX].
+ */
+static inline q16_t biquad_sat_q16(int64_t acc)
+{
+    int64_t shifted = acc >> 16;
+    if (shifted > (int64_t)INT32_MAX) {
+        return INT32_MAX;
+    }
+    if (shifted < (int64_t)INT32_MIN) {
+        return INT32_MIN;
+    }
+    return (q16_t)shifted;
+}
+
 q16_t syn_filter_biquad_update(SYN_FilterBiquad *f, q16_t sample)
 {
     SYN_ASSERT(f != NULL);
@@ -47,8 +64,8 @@ q16_t syn_filter_biquad_update(SYN_FilterBiquad *f, q16_t sample)
     int64_t acc = ((int64_t)f->b0 * sample) + ((int64_t)f->b1 * f->x1) + ((int64_t)f->b2 * f->x2) -
                   ((int64_t)f->a1 * f->y1) - ((int64_t)f->a2 * f->y2);
 
-    /* Shift back to Q16.16 */
-    q16_t output = (q16_t)(acc >> 16);
+    /* Shift back to Q16.16 with saturation */
+    q16_t output = biquad_sat_q16(acc);
 
     /* Update history */
     f->x2 = f->x1;
@@ -72,7 +89,7 @@ void syn_filter_biquad_process_block(SYN_FilterBiquad *f, const q16_t *in, q16_t
         q16_t sample = in[i];
         int64_t acc = ((int64_t)b0 * sample) + ((int64_t)b1 * x1) + ((int64_t)b2 * x2) -
                       ((int64_t)a1 * y1) - ((int64_t)a2 * y2);
-        q16_t output = (q16_t)(acc >> 16);
+        q16_t output = biquad_sat_q16(acc);
         x2 = x1;
         x1 = sample;
         y2 = y1;
@@ -87,23 +104,37 @@ void syn_filter_biquad_process_block(SYN_FilterBiquad *f, const q16_t *in, q16_t
 }
 
 /**
- * @brief Compute angular cutoff frequency omega = 2*pi*fc/fs in Q16.16.
- * @param fc Cutoff frequency in Q16.16 Hz.
- * @param fs Sample frequency in Q16.16 Hz (must be > 0).
- * @return Angular frequency omega in Q16.16 radians/sample.
+ * @brief Validate sample rate, clamp cutoff to (0, fs/2), and compute omega = 2*pi*fc/fs.
+ * @param f         Biquad filter instance (set to unity passthrough if fs <= 3).
+ * @param fc        Cutoff frequency in Q16.16 Hz.
+ * @param fs        Sample frequency in Q16.16 Hz.
+ * @param omega_out [out] Angular frequency omega in Q16.16 radians/sample.
+ * @return True if fs is valid and omega_out was populated, false if passthrough was set.
  */
-static inline q16_t biquad_calc_omega(q16_t fc, q16_t fs)
+static bool biquad_prepare_omega(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t *omega_out)
 {
-    return (q16_t)(((int64_t)Q16_2_PI * (int64_t)fc) / (int64_t)fs);
+    if (fs <= 3) {
+        syn_filter_biquad_init(f, Q16_ONE, 0, 0, 0, 0);
+        return false;
+    }
+    q16_t nyq_max = (fs >> 1) - 1;
+    q16_t clamped_fc = fc;
+    if (clamped_fc < 1) {
+        clamped_fc = 1;
+    } else if (clamped_fc > nyq_max) {
+        clamped_fc = nyq_max;
+    }
+    *omega_out = (q16_t)(((int64_t)Q16_2_PI * (int64_t)clamped_fc) / (int64_t)fs);
+    return true;
 }
 
 void syn_filter_biquad_lowpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs)
 {
     SYN_ASSERT(f != NULL);
-    SYN_ASSERT(fs > 0);
-
-    /* omega = (2 * PI * fc) / fs */
-    q16_t omega = biquad_calc_omega(fc, fs);
+    q16_t omega = 0;
+    if (!biquad_prepare_omega(f, fc, fs, &omega)) {
+        return;
+    }
 
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
@@ -132,9 +163,10 @@ void syn_filter_biquad_lowpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs)
 void syn_filter_biquad_highpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs)
 {
     SYN_ASSERT(f != NULL);
-    SYN_ASSERT(fs > 0);
-
-    q16_t omega = biquad_calc_omega(fc, fs);
+    q16_t omega = 0;
+    if (!biquad_prepare_omega(f, fc, fs, &omega)) {
+        return;
+    }
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 
@@ -162,10 +194,11 @@ void syn_filter_biquad_highpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs)
 void syn_filter_biquad_bandpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)
 {
     SYN_ASSERT(f != NULL);
-    SYN_ASSERT(fs > 0);
     SYN_ASSERT(q > 0);
-
-    q16_t omega = biquad_calc_omega(fc, fs);
+    q16_t omega = 0;
+    if (!biquad_prepare_omega(f, fc, fs, &omega)) {
+        return;
+    }
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 
@@ -191,10 +224,11 @@ void syn_filter_biquad_bandpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q
 void syn_filter_biquad_notch(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)
 {
     SYN_ASSERT(f != NULL);
-    SYN_ASSERT(fs > 0);
     SYN_ASSERT(q > 0);
-
-    q16_t omega = biquad_calc_omega(fc, fs);
+    q16_t omega = 0;
+    if (!biquad_prepare_omega(f, fc, fs, &omega)) {
+        return;
+    }
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 
@@ -220,10 +254,11 @@ void syn_filter_biquad_notch(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)
 void syn_filter_biquad_allpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)
 {
     SYN_ASSERT(f != NULL);
-    SYN_ASSERT(fs > 0);
     SYN_ASSERT(q > 0);
-
-    q16_t omega = biquad_calc_omega(fc, fs);
+    q16_t omega = 0;
+    if (!biquad_prepare_omega(f, fc, fs, &omega)) {
+        return;
+    }
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 
@@ -248,10 +283,11 @@ void syn_filter_biquad_allpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)
 void syn_filter_biquad_peaking_eq(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t gain_db, q16_t q)
 {
     SYN_ASSERT(f != NULL);
-    SYN_ASSERT(fs > 0);
     SYN_ASSERT(q > 0);
-
-    q16_t omega = biquad_calc_omega(fc, fs);
+    q16_t omega = 0;
+    if (!biquad_prepare_omega(f, fc, fs, &omega)) {
+        return;
+    }
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 

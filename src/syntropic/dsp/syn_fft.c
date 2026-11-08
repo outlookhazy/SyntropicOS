@@ -150,16 +150,25 @@ SYN_Status syn_dsp_fft(q16_t *real, q16_t *imag, uint16_t n)
     return SYN_OK;
 }
 
+/**
+ * @brief Compute window phase angle 2*pi*i/(n-1) in Q16.16 without 32-bit overflow.
+ * @param i Sample index in [0, n - 1].
+ * @param n Window length (must be > 1).
+ * @return Phase angle in [0, Q16_2_PI].
+ */
+static inline q16_t fft_window_angle(uint16_t i, uint16_t n)
+{
+    return (q16_t)(((int64_t)Q16_2_PI * (int64_t)i) / (int64_t)((uint32_t)n - 1U));
+}
+
 SYN_Status syn_fft_window_hanning(q16_t *out, uint16_t n)
 {
-    if (out == NULL || n <= 1)
+    if ((out == NULL) || (n <= 1U)) {
         return SYN_INVALID_PARAM;
+    }
 
-    q16_t two_pi = Q16_2_PI;
-    q16_t inv_n1 = q16_inv(Q16_FROM_INT(n - 1));
-
-    for (uint16_t i = 0; i < n; i++) {
-        q16_t theta = q16_mul(q16_mul(two_pi, Q16_FROM_INT(i)), inv_n1);
+    for (uint16_t i = 0U; i < n; i++) {
+        q16_t theta = fft_window_angle(i, n);
         q16_t cos_t = q16_cos_fast(theta);
         out[i] = q16_mul(Q16_HALF, Q16_ONE - cos_t);
     }
@@ -168,16 +177,15 @@ SYN_Status syn_fft_window_hanning(q16_t *out, uint16_t n)
 
 SYN_Status syn_fft_window_hamming(q16_t *out, uint16_t n)
 {
-    if (out == NULL || n <= 1)
+    if ((out == NULL) || (n <= 1U)) {
         return SYN_INVALID_PARAM;
+    }
 
-    q16_t two_pi = Q16_2_PI;
-    q16_t inv_n1 = q16_inv(Q16_FROM_INT(n - 1));
     q16_t a0 = Q16_FROM_FRAC(54, 100);
     q16_t a1 = Q16_FROM_FRAC(46, 100);
 
-    for (uint16_t i = 0; i < n; i++) {
-        q16_t theta = q16_mul(q16_mul(two_pi, Q16_FROM_INT(i)), inv_n1);
+    for (uint16_t i = 0U; i < n; i++) {
+        q16_t theta = fft_window_angle(i, n);
         q16_t cos_t = q16_cos_fast(theta);
         out[i] = a0 - q16_mul(a1, cos_t);
     }
@@ -186,19 +194,18 @@ SYN_Status syn_fft_window_hamming(q16_t *out, uint16_t n)
 
 SYN_Status syn_fft_window_blackman(q16_t *out, uint16_t n)
 {
-    if (out == NULL || n <= 1)
+    if ((out == NULL) || (n <= 1U)) {
         return SYN_INVALID_PARAM;
+    }
 
-    q16_t two_pi = Q16_2_PI;
-    q16_t inv_n1 = q16_inv(Q16_FROM_INT(n - 1));
     q16_t a0 = Q16_FROM_FRAC(42, 100);
     q16_t a1 = Q16_FROM_FRAC(50, 100);
     q16_t a2 = Q16_FROM_FRAC(8, 100);
 
-    for (uint16_t i = 0; i < n; i++) {
-        q16_t theta = q16_mul(q16_mul(two_pi, Q16_FROM_INT(i)), inv_n1);
+    for (uint16_t i = 0U; i < n; i++) {
+        q16_t theta = fft_window_angle(i, n);
         q16_t cos_t1 = q16_cos_fast(theta);
-        q16_t cos_t2 = q16_cos_fast(q16_mul(Q16_FROM_INT(2), theta));
+        q16_t cos_t2 = q16_cos_fast((q16_t)((int64_t)theta * 2LL));
         out[i] = a0 - q16_mul(a1, cos_t1) + q16_mul(a2, cos_t2);
     }
     return SYN_OK;
@@ -223,14 +230,15 @@ SYN_Status syn_fft_find_peaks(const q16_t *mag, uint16_t n_bins, q16_t sample_ra
         return SYN_INVALID_PARAM;
     }
 
-    uint8_t count = 0;
-    q16_t bin_resolution = q16_div(sample_rate_hz, Q16_FROM_INT((n_bins - 1) * 2));
+    uint8_t count = 0U;
+    uint32_t fft_size = ((uint32_t)n_bins - 1U) * 2U;
 
-    for (uint16_t k = 1; k < n_bins - 1 && count < max_peaks; k++) {
-        if (mag[k] > mag[k - 1] && mag[k] > mag[k + 1]) {
+    for (uint16_t k = 1U; (k < (uint16_t)(n_bins - 1U)) && (count < max_peaks); k++) {
+        if ((mag[k] > mag[k - 1U]) && (mag[k] > mag[k + 1U])) {
             peaks[count].bin = k;
             peaks[count].magnitude = mag[k];
-            peaks[count].freq_hz = q16_mul(Q16_FROM_INT(k), bin_resolution);
+            peaks[count].freq_hz =
+                (q16_t)(((int64_t)sample_rate_hz * (int64_t)k) / (int64_t)fft_size);
             count++;
         }
     }

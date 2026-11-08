@@ -64,18 +64,18 @@ void syn_coredump_save(const SYN_FaultContext *ctx)
     /** @endcond */
 
 #if SYN_COREDUMP_CAPTURE_STACK
-    {
-        const uint8_t *sp = (const uint8_t *)(uintptr_t)ctx->sp;
-        if (sp != NULL) {
-            size_t to_copy = SYN_COREDUMP_STACK_SIZE;
-            dump.stack_bytes = (uint32_t)to_copy;
-            memcpy(dump.stack, sp, to_copy);
-        } else {
-            dump.stack_bytes = 0;
+    if (ctx->sp >= SYN_COREDUMP_RAM_START &&
+        ctx->sp <= (SYN_COREDUMP_RAM_END - (uint32_t)SYN_COREDUMP_STACK_SIZE)) {
+        const uint8_t *sp_bytes = (const uint8_t *)(uintptr_t)ctx->sp;
+        for (size_t i = 0U; i < (size_t)SYN_COREDUMP_STACK_SIZE; i++) {
+            dump.stack[i] = sp_bytes[i];
         }
+        dump.stack_bytes = (uint32_t)SYN_COREDUMP_STACK_SIZE;
+    } else {
+        dump.stack_bytes = 0U;
     }
 #else
-    dump.stack_bytes = 0;
+    dump.stack_bytes = 0U;
 #endif
 
     dump.uptime_ms = syn_port_get_tick_ms();

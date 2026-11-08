@@ -198,131 +198,185 @@ static bool json_parse_scalar_token(SYN_JsonToken *tok, const char *val_start, s
     return false;
 }
 
+/** @brief Maximum supported JSON object nesting depth (iterative state bound). */
+#define SYN_JSON_MAX_DEPTH 8U
+
 /**
- * @brief Recursive JSON object parser.
- *
- * Tokenizes key-value pairs at the given depth.
- *
- * @param r      JSON reader instance.
- * @param p      Current position.
- * @param end    End of buffer.
- * @param depth  Current nesting depth.
- * @return Pointer past the object.
+ * @brief Parse a JSON object member key and colon separator, positioning at value start.
+ * @param p       Current buffer cursor at start of member key.
+ * @param end     One-past-end of JSON buffer.
+ * @param key_out [out] Null-terminated key string pointer.
+ * @return Cursor positioned at start of member value, or NULL on syntax error.
  */
-static char *parse_object(SYN_JsonReader *r, char *p, const char *end, uint8_t depth)
+static char *json_parse_member_header(char *p, const char *end, const char **key_out)
 {
+    p = parse_string(p, end, key_out);
+    if (p == NULL) {
+        return NULL;
+    }
     p = skip_ws(p, end);
-    if (p >= end || *p != '{')
-        return NULL; /* LCOV_EXCL_LINE: Unreachable guard; caller verifies leading '{' before
-                        calling parse_object */
-    p++;             /* skip '{' */
+    if ((p >= end) || (*p != ':')) {
+        return NULL;
+    }
+    p = skip_ws(p + 1, end);
+    return (p < end) ? p : NULL;
+}
+
+/**
+ * @brief Parse or skip a non-object JSON member value (array, string, or scalar).
+ * @param r     JSON reader instance.
+ * @param p     Current buffer cursor at start of value.
+ * @param end   One-past-end of JSON buffer.
+ * @param key   Null-terminated member key string.
+ * @param depth Current object nesting depth.
+ * @return Cursor past the parsed value, or NULL on syntax error.
+ */
+static char *json_parse_non_object_value(SYN_JsonReader *r, char *p, const char *end,
+                                         const char *key, uint8_t depth)
+{
+    if (r->token_count >= SYN_JSON_MAX_TOKENS) {
+        return skip_value(p, end);
+    }
+    if (*p == '[') {
+        SYN_JsonToken *tok = &r->tokens[r->token_count++];
+        tok->type = SYN_JSON_ARRAY;
+        tok->key = key;
+        tok->value = NULL;
+        tok->int_val = 0;
+        tok->depth = depth;
+        return skip_value(p, end);
+    }
+    if (*p == '"') {
+        const char *val = NULL;
+        p = parse_string(p, end, &val);
+        if (p == NULL) {
+            return NULL;
+        }
+        SYN_JsonToken *tok = &r->tokens[r->token_count++];
+        tok->type = SYN_JSON_STRING;
+        tok->key = key;
+        tok->value = val;
+        tok->int_val = 0;
+        tok->depth = depth;
+        return p;
+    }
+
+    const char *val_start = p;
+    p = skip_value(p, end);
+    if (p >= end) {
+        return NULL;
+    }
+
+    size_t vlen = (size_t)(p - val_start);
+    char saved = *p;
+    *p = '\0';
+
+    SYN_JsonToken *tok = &r->tokens[r->token_count];
+    tok->key = key;
+    tok->value = val_start;
+    tok->depth = depth;
+    if (!json_parse_scalar_token(tok, val_start, vlen)) {
+        *p = saved;
+        return NULL;
+    }
+    r->token_count++;
+
+    if ((saved == ',') || (saved == '}') || (saved == ']')) {
+        *p = saved;
+    } else {
+        p++;
+    }
+    return p;
+}
+
+/**
+ * @brief Advance past post-value delimiters and pop closed object frames iteratively.
+ * @param p     Current buffer cursor after a member value or at an empty object brace.
+ * @param end   One-past-end of JSON buffer.
+ * @param depth [in,out] Current open-object nesting depth.
+ * @param done  [out] Set to true when the root object closes.
+ * @return Updated cursor after ',' or root '}', or NULL on syntax/truncation error.
+ */
+static char *json_consume_delimiter(char *p, const char *end, uint8_t *depth, bool *done)
+{
+    for (;;) {
+        p = skip_ws(p, end);
+        if (p >= end) {
+            return NULL;
+        }
+        if (*p == ',') {
+            return p + 1;
+        }
+        if (*p != '}') {
+            return NULL;
+        }
+        p++;
+        if (*depth == 0U) {
+            *done = true;
+            return p;
+        }
+        (*depth)--;
+    }
+}
+
+/**
+ * @brief Iterative bounded-depth JSON object parser.
+ *
+ * Tokenizes key-value pairs up to SYN_JSON_MAX_DEPTH without recursion.
+ *
+ * @param r   JSON reader instance.
+ * @param p   Current position (caller verified leading '{').
+ * @param end End of buffer.
+ * @return Pointer past the root closing '}', or NULL on error.
+ */
+static char *parse_object(SYN_JsonReader *r, char *p, const char *end)
+{
+    uint8_t depth = 0U;
+    bool done = false;
+    p++; /* skip root '{' */
 
     for (;;) {
         p = skip_ws(p, end);
-        if (p >= end)
+        if (p >= end) {
             return NULL;
-        if (*p == '}')
-            return p + 1;
+        }
+        if (*p == '}') {
+            p = json_consume_delimiter(p, end, &depth, &done);
+            if ((p == NULL) || done) {
+                return p;
+            }
+            continue;
+        }
 
-        /* Parse key */
         const char *key = NULL;
-        p = parse_string(p, end, &key);
-        if (p == NULL)
+        p = json_parse_member_header(p, end, &key);
+        if (p == NULL) {
             return NULL;
+        }
 
-        p = skip_ws(p, end);
-        if (p >= end || *p != ':')
-            return NULL;
-        p++; /* skip ':' */
-
-        p = skip_ws(p, end);
-        if (p >= end)
-            return NULL;
-
-        /* Check if we have room for another token */
-        if (r->token_count >= SYN_JSON_MAX_TOKENS) {
-            /* Skip the value */
-            p = skip_value(p, end);
-            if (p == NULL)
-                return NULL; /* LCOV_EXCL_LINE: Skip value failure after max token overflow */
-        } else if (*p == '{') {
-            /* Nested object — add a marker token and recurse */
+        if ((*p == '{') && (r->token_count < SYN_JSON_MAX_TOKENS)) {
+            if ((depth + 1U) >= SYN_JSON_MAX_DEPTH) {
+                return NULL;
+            }
             SYN_JsonToken *tok = &r->tokens[r->token_count++];
             tok->type = SYN_JSON_OBJECT;
             tok->key = key;
             tok->value = NULL;
             tok->int_val = 0;
             tok->depth = depth;
-
-            p = parse_object(r, p, end, depth + 1);
-            if (p == NULL)
-                return NULL;
-        } else if (*p == '[') {
-            /* Array — add a marker token, skip for now */
-            SYN_JsonToken *tok = &r->tokens[r->token_count++];
-            tok->type = SYN_JSON_ARRAY;
-            tok->key = key;
-            tok->value = NULL;
-            tok->int_val = 0;
-            tok->depth = depth;
-
-            p = skip_value(p - 0, end); /* skip_value handles '[' */
-            if (p == NULL)
-                return NULL;
-        } else if (*p == '"') {
-            /* String value */
-            const char *val = NULL;
-            p = parse_string(p, end, &val);
-            if (p == NULL)
-                return NULL;
-
-            SYN_JsonToken *tok = &r->tokens[r->token_count++];
-            tok->type = SYN_JSON_STRING;
-            tok->key = key;
-            tok->value = val;
-            tok->int_val = 0;
-            tok->depth = depth;
-        } else {
-            /* Number, bool, or null */
-            const char *val_start = p;
-            p = skip_value(p, end);
-            if (p == NULL || p >= end)
-                return NULL;
-
-            size_t vlen = (size_t)(p - val_start);
-            char saved = *p;
-            *p = '\0';
-
-            SYN_JsonToken *tok = &r->tokens[r->token_count];
-            tok->key = key;
-            tok->value = val_start;
-            tok->depth = depth;
-            if (!json_parse_scalar_token(tok, val_start, vlen)) {
-                *p = saved;
-                return NULL;
-            }
-            r->token_count++;
-
-            /* Restore delimiter if needed for further parsing, or advance past NUL-ed whitespace */
-            if (saved == ',' || saved == '}' || saved == ']') {
-                *p = saved;
-            } else {
-                p++;
-            }
-        }
-
-        /* Next element or end of object */
-        p = skip_ws(p, end);
-        if (p >= end)
-            return NULL; /* LCOV_EXCL_LINE: Unexpected end of buffer while expecting delimiter or
-                            closing brace */
-        if (*p == ',') {
+            depth++;
             p++;
             continue;
         }
-        if (*p == '}')
-            return p + 1;
-        return NULL; /* unexpected char */
+
+        p = json_parse_non_object_value(r, p, end, key, depth);
+        if (p == NULL) {
+            return NULL;
+        }
+        p = json_consume_delimiter(p, end, &depth, &done);
+        if ((p == NULL) || done) {
+            return p;
+        }
     }
 }
 
@@ -347,7 +401,7 @@ bool syn_json_parse(SYN_JsonReader *r, char *json, size_t len)
         return false;
     }
 
-    const char *result = parse_object(r, p, end, 0);
+    const char *result = parse_object(r, p, end);
     r->valid = (result != NULL);
     return r->valid;
 }
@@ -428,18 +482,26 @@ bool syn_json_get_str(const SYN_JsonReader *r, const char *key, char *out, size_
 
 bool syn_json_get_int(const SYN_JsonReader *r, const char *key, int32_t *out)
 {
-    const SYN_JsonToken *tok = syn_json_find(r, key);
-    if (tok == NULL || tok->type != SYN_JSON_NUMBER)
+    if ((r == NULL) || (key == NULL) || (out == NULL)) {
         return false;
+    }
+    const SYN_JsonToken *tok = syn_json_find(r, key);
+    if ((tok == NULL) || (tok->type != SYN_JSON_NUMBER)) {
+        return false;
+    }
     *out = tok->int_val;
     return true;
 }
 
 bool syn_json_get_bool(const SYN_JsonReader *r, const char *key, bool *out)
 {
-    const SYN_JsonToken *tok = syn_json_find(r, key);
-    if (tok == NULL || tok->type != SYN_JSON_BOOL)
+    if ((r == NULL) || (key == NULL) || (out == NULL)) {
         return false;
+    }
+    const SYN_JsonToken *tok = syn_json_find(r, key);
+    if ((tok == NULL) || (tok->type != SYN_JSON_BOOL)) {
+        return false;
+    }
     *out = (tok->int_val != 0);
     return true;
 }

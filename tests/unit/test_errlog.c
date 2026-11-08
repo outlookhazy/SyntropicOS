@@ -96,7 +96,38 @@ static void test_errlog(void)
     TEST_ASSERT_EQUAL_HEX16(0x0004, latest_wrapped->code);
 }
 
+/**
+ * @brief Verify critical-section protection and NULL guards in syn_errlog.
+ */
+static void test_tier_a_errlog_critical_section(void)
+{
+    mock_port_reset();
+
+    SYN_ErrEntry entries[2];
+    SYN_ErrLog elog;
+    SYN_ErrEntry out;
+
+    /* NULL guards */
+    syn_errlog_record(NULL, 0x0010U, SYN_ERR_ERROR, 0U);
+    syn_errlog_clear(NULL);
+    TEST_ASSERT_FALSE(syn_errlog_read(NULL, 0U, &out));
+
+    syn_errlog_init(&elog, entries, 2U, 1U);
+    int before = mock_critical_enter_count;
+    syn_errlog_record(&elog, 0x00AAU, SYN_ERR_WARNING, 7U);
+    TEST_ASSERT_EQUAL_INT(before + 1, mock_critical_enter_count);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    TEST_ASSERT_TRUE(syn_errlog_read(&elog, 0U, &out));
+    TEST_ASSERT_EQUAL_HEX16(0x00AAU, out.code);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    syn_errlog_clear(&elog);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+}
+
 void run_errlog_tests(void)
 {
     RUN_TEST(test_errlog);
+    RUN_TEST(test_tier_a_errlog_critical_section);
 }

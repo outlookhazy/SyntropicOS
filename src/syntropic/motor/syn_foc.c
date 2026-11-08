@@ -16,6 +16,8 @@
 #include "../util/syn_assert.h"
 #include "syn_foc.h"
 
+#include <stdint.h>
+
 /** @brief Precomputed √3 in Q16.16 (≈ 1.73205). */
 #define Q16_SQRT3 113512
 
@@ -28,6 +30,22 @@
 /** @brief Precomputed √3/2 in Q16.16 (≈ 0.86603). */
 #define Q16_SQRT3_OVER_2 56756
 
+/**
+ * @brief Saturate a 64-bit signed intermediate value to the 32-bit Q16.16 range.
+ * @param val 64-bit signed intermediate value.
+ * @return Saturated Q16.16 value in [INT32_MIN, INT32_MAX].
+ */
+static inline q16_t foc_sat_q16(int64_t val)
+{
+    if (val > (int64_t)INT32_MAX) {
+        return INT32_MAX;
+    }
+    if (val < (int64_t)INT32_MIN) {
+        return INT32_MIN;
+    }
+    return (q16_t)val;
+}
+
 /* ── Clarke transform ───────────────────────────────────────────────────── */
 
 void syn_foc_clarke(const SYN_FOC_ABC *abc, SYN_FOC_AB *ab)
@@ -39,8 +57,10 @@ void syn_foc_clarke(const SYN_FOC_ABC *abc, SYN_FOC_AB *ab)
      *   α = a
      *   β = (a + 2b) / √3 = (a + 2b) * (1/√3)
      */
+    int64_t sum_a2b = (int64_t)abc->a + (2LL * (int64_t)abc->b);
+
     ab->alpha = abc->a;
-    ab->beta = q16_mul(abc->a + 2 * abc->b, Q16_INV_SQRT3);
+    ab->beta = foc_sat_q16((sum_a2b * (int64_t)Q16_INV_SQRT3) >> Q16_SHIFT);
 }
 
 void syn_foc_inv_clarke(const SYN_FOC_AB *ab, SYN_FOC_ABC *abc)
@@ -54,11 +74,11 @@ void syn_foc_inv_clarke(const SYN_FOC_AB *ab, SYN_FOC_ABC *abc)
      *   c = (-α - √3·β) / 2
      *   where √3 ≈ 1.73205 (113512 in Q16.16)
      */
-    q16_t s3b = q16_mul(ab->beta, Q16_SQRT3);
+    int64_t s3b = ((int64_t)ab->beta * (int64_t)Q16_SQRT3) >> Q16_SHIFT;
 
     abc->a = ab->alpha;
-    abc->b = (-ab->alpha + s3b) / 2;
-    abc->c = (-ab->alpha - s3b) / 2;
+    abc->b = foc_sat_q16((-(int64_t)ab->alpha + s3b) / 2LL);
+    abc->c = foc_sat_q16((-(int64_t)ab->alpha - s3b) / 2LL);
 }
 
 /* ── Park transform ─────────────────────────────────────────────────────── */
@@ -128,6 +148,20 @@ bool syn_foc_field_weakening(q16_t v_d, q16_t v_q, q16_t v_max, q16_t *id_cmd)
 
 /* ── SVPWM ──────────────────────────────────────────────────────────────── */
 
+/**
+ * @brief Normalize a zero-sequence-shifted phase voltage to PWM duty in [0, Q16_ONE].
+ * @param v_phase  Phase reference voltage (Q16.16).
+ * @param v_offset Neutral zero-sequence offset widened to 64 bits.
+ * @param v_bus    DC bus voltage (Q16.16, > 0).
+ * @return Clamped duty cycle in [0, Q16_ONE].
+ */
+static inline q16_t foc_svpwm_duty(q16_t v_phase, int64_t v_offset, q16_t v_bus)
+{
+    q16_t v_shifted = foc_sat_q16((int64_t)v_phase + v_offset);
+    int64_t duty = (int64_t)q16_div(v_shifted, v_bus) + (int64_t)Q16_HALF;
+    return q16_clamp(foc_sat_q16(duty), 0, Q16_ONE);
+}
+
 void syn_foc_svpwm(const SYN_FOC_AB *ab, q16_t v_bus, q16_t *duty_a, q16_t *duty_b, q16_t *duty_c)
 {
     SYN_ASSERT(ab != NULL && duty_a != NULL && duty_b != NULL && duty_c != NULL);
@@ -144,13 +178,11 @@ void syn_foc_svpwm(const SYN_FOC_AB *ab, q16_t v_bus, q16_t *duty_a, q16_t *duty
     q16_t v_min = SYN_MIN(va, SYN_MIN(vb, vc));
     q16_t v_max = SYN_MAX(va, SYN_MAX(vb, vc));
 
-    q16_t v_offset = -(v_max + v_min) / 2;
+    int64_t v_offset = -(((int64_t)v_max + (int64_t)v_min) / 2LL);
 
-    /* Use single reciprocal division for 3-phase PWM normalization */
-    q16_t inv_v_bus = q16_inv(v_bus);
-    *duty_a = q16_clamp(q16_mul(va + v_offset, inv_v_bus) + Q16_HALF, 0, Q16_ONE);
-    *duty_b = q16_clamp(q16_mul(vb + v_offset, inv_v_bus) + Q16_HALF, 0, Q16_ONE);
-    *duty_c = q16_clamp(q16_mul(vc + v_offset, inv_v_bus) + Q16_HALF, 0, Q16_ONE);
+    *duty_a = foc_svpwm_duty(va, v_offset, v_bus);
+    *duty_b = foc_svpwm_duty(vb, v_offset, v_bus);
+    *duty_c = foc_svpwm_duty(vc, v_offset, v_bus);
 }
 
 /**

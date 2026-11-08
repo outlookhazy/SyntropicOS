@@ -494,6 +494,46 @@ static void test_r5_n13_json_exact_bool_and_invalid_scalars(void)
     TEST_ASSERT_FALSE(bval);
 }
 
+static void test_tier_a_json_read_null_out_and_bounded_depth(void)
+{
+    SYN_JsonReader r;
+    int32_t iv = 0;
+    bool bv = false;
+
+    char base[] = "{\"n\":42,\"b\":true}";
+    TEST_ASSERT_TRUE(syn_json_parse(&r, base, strlen(base)));
+
+    /* UTL-03a: NULL pointer guards on syn_json_get_int and syn_json_get_bool */
+    TEST_ASSERT_FALSE(syn_json_get_int(NULL, "n", &iv));
+    TEST_ASSERT_FALSE(syn_json_get_int(&r, NULL, &iv));
+    TEST_ASSERT_FALSE(syn_json_get_int(&r, "n", NULL));
+
+    TEST_ASSERT_FALSE(syn_json_get_bool(NULL, "b", &bv));
+    TEST_ASSERT_FALSE(syn_json_get_bool(&r, NULL, &bv));
+    TEST_ASSERT_FALSE(syn_json_get_bool(&r, "b", NULL));
+
+    /* UTL-03a: Iterative object parser accepts max depth 8 and empty nested objects */
+    char depth8_ok[] = "{\"d1\":{\"d2\":{\"d3\":{\"d4\":{\"d5\":{\"d6\":{\"d7\":{\"leaf\":9}}}}}}},"
+                       "\"empty\":{},\"tail\":77}";
+    TEST_ASSERT_TRUE(syn_json_parse(&r, depth8_ok, strlen(depth8_ok)));
+    TEST_ASSERT_TRUE(syn_json_get_int(&r, "tail", &iv));
+    TEST_ASSERT_EQUAL_INT32(77, iv);
+
+    /* Unclosed outer brace after empty nested object fails cleanly */
+    char empty_nested_eof[] = "{\"empty\":{} ";
+    TEST_ASSERT_FALSE(syn_json_parse(&r, empty_nested_eof, strlen(empty_nested_eof)));
+
+    /* Deeply nested objects (depth > 8: 9 and 16 levels) rejected without recursion */
+    char depth9_bad[] = "{\"a\":{\"b\":{\"c\":{\"d\":{\"e\":{\"f\":{\"g\":{\"h\":{\"i\":1}}}}}}}}}";
+    TEST_ASSERT_FALSE(syn_json_parse(&r, depth9_bad, strlen(depth9_bad)));
+    TEST_ASSERT_FALSE(r.valid);
+
+    char depth16_bad[] =
+        "{\"a\":{\"b\":{\"c\":{\"d\":{\"e\":{\"f\":{\"g\":{\"h\":"
+        "{\"i\":{\"j\":{\"k\":{\"l\":{\"m\":{\"n\":{\"o\":{\"p\":1}}}}}}}}}}}}}}}}";
+    TEST_ASSERT_FALSE(syn_json_parse(&r, depth16_bad, strlen(depth16_bad)));
+}
+
 void run_json_read_tests(void)
 {
     RUN_TEST(test_json_read_simple_object);
@@ -524,4 +564,5 @@ void run_json_read_tests(void)
     RUN_TEST(test_json_read_string_escape_sequences);
     RUN_TEST(test_json_read_integer_saturation_and_unpadded_eof);
     RUN_TEST(test_r5_n13_json_exact_bool_and_invalid_scalars);
+    RUN_TEST(test_tier_a_json_read_null_out_and_bounded_depth);
 }

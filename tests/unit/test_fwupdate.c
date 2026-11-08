@@ -789,6 +789,25 @@ static void test_r5_fwboot_and_fwupdate_regressions(void)
     mock_port_reset();
 }
 
+/**
+ * @brief Verify syn_fwupdate_write prevents size_t wraparound on huge chunk lengths.
+ */
+static void test_tier_a_fwupdate_len_wraparound(void)
+{
+    mock_port_reset();
+    static uint8_t pbuf[64];
+    SYN_FwUpdate upd;
+    uint8_t chunk[16] = {0x55U};
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_begin(&upd, SLOT_A_ADDR, SLOT_SIZE, pbuf, sizeof(pbuf)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_write(&upd, chunk, sizeof(chunk)));
+
+    /* SIZE_MAX length would wrap 32-bit (bytes_written + page_buf_used + len) */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_write(&upd, chunk, SIZE_MAX));
+    TEST_ASSERT_TRUE(upd.error);
+    mock_port_reset();
+}
+
 void run_fwupdate_tests(void)
 {
     /* Image header */
@@ -822,4 +841,5 @@ void run_fwupdate_tests(void)
 #if defined(SYN_FW_USE_AES_GCM) && SYN_FW_USE_AES_GCM
     RUN_TEST(test_fwupdate_aes_gcm_streaming_decryption_and_tamper);
 #endif
+    RUN_TEST(test_tier_a_fwupdate_len_wraparound);
 }

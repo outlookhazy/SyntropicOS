@@ -12,16 +12,47 @@
 #define LZ4_LASTLITERALS 5U /**< Mandatory trailing literal bytes at end of block */
 #define LZ4_MFLIMIT 12U     /**< Minimum distance from block end to start a match */
 #define LZ4_MIN_LENGTH 13U  /**< Minimum block size eligible for match search */
-#define LZ4_HASH_BITS 12U   /**< Log2 size of 4096-entry hash table */
+
+#if (SYN_LZ4_HASH_SIZE < 64U) || (SYN_LZ4_HASH_SIZE > 65536U) || \
+    ((SYN_LZ4_HASH_SIZE & (SYN_LZ4_HASH_SIZE - 1U)) != 0U)
+#error "SYN_LZ4_HASH_SIZE must be a power of two in [64, 65536]"
+#endif
+
+/** Index bitmask derived from SYN_LZ4_HASH_SIZE */
+#define LZ4_HASH_MASK (SYN_LZ4_HASH_SIZE - 1U)
+
+#if SYN_LZ4_HASH_SIZE == 64U
+#define LZ4_HASH_BITS 6U /**< Log2 size of hash table */
+#elif SYN_LZ4_HASH_SIZE == 128U
+#define LZ4_HASH_BITS 7U /**< Log2 size of hash table */
+#elif SYN_LZ4_HASH_SIZE == 256U
+#define LZ4_HASH_BITS 8U /**< Log2 size of hash table */
+#elif SYN_LZ4_HASH_SIZE == 512U
+#define LZ4_HASH_BITS 9U /**< Log2 size of hash table */
+#elif SYN_LZ4_HASH_SIZE == 1024U
+#define LZ4_HASH_BITS 10U /**< Log2 size of hash table */
+#elif SYN_LZ4_HASH_SIZE == 2048U
+#define LZ4_HASH_BITS 11U /**< Log2 size of hash table */
+#elif SYN_LZ4_HASH_SIZE == 4096U
+#define LZ4_HASH_BITS 12U /**< Log2 size of hash table */
+#elif SYN_LZ4_HASH_SIZE == 8192U
+#define LZ4_HASH_BITS 13U /**< Log2 size of hash table */
+#elif SYN_LZ4_HASH_SIZE == 16384U
+#define LZ4_HASH_BITS 14U /**< Log2 size of hash table */
+#elif SYN_LZ4_HASH_SIZE == 32768U
+#define LZ4_HASH_BITS 15U /**< Log2 size of hash table */
+#else
+#define LZ4_HASH_BITS 16U /**< Log2 size of hash table */
+#endif
 
 /**
- * @brief Hash 4 bytes into 12-bit hash index using Knuth multiplicative hash.
+ * @brief Hash 4 bytes into bounded table index using Knuth multiplicative hash.
  * @param val 32-bit integer word to hash.
- * @return 12-bit hash index (0..4095).
+ * @return Hash index in [0, SYN_LZ4_HASH_SIZE - 1].
  */
 static inline uint32_t lz4_hash4(uint32_t val)
 {
-    return (val * 2654435761U) >> (32U - LZ4_HASH_BITS);
+    return ((val * 2654435761U) >> (32U - LZ4_HASH_BITS)) & LZ4_HASH_MASK;
 }
 
 /**

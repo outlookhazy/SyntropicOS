@@ -667,6 +667,108 @@ static void test_r5_settings_regressions(void)
     mock_port_reset();
 }
 
+static int32_t s_tier_a_seek_len = 0;
+static int s_tier_a_rewind_fail = 0;
+
+static int32_t tier_a_vfs_seek(SYN_VfsFile *file, int32_t offset, int whence)
+{
+    (void)file;
+    (void)offset;
+    if (whence == SYN_SEEK_END) {
+        return s_tier_a_seek_len;
+    }
+    if ((whence == SYN_SEEK_SET) && (s_tier_a_rewind_fail != 0)) {
+        return -1;
+    }
+    return 0;
+}
+
+static const SYN_VfsOps tier_a_vfs_ops = {.open = settings_vfs_open,
+                                          .close = settings_vfs_close,
+                                          .read = settings_vfs_read,
+                                          .write = settings_vfs_write,
+                                          .seek = tier_a_vfs_seek};
+
+static void test_tier_a_settings_dual_bank_and_vfs_guards(void)
+{
+    mock_port_reset();
+    TestSettings data;
+    SYN_DualBankSettings db;
+
+    /* 1. Bank A (seq=1) + Bank B (seq=2, vel=888) + Bank A (seq=3, vel=999):
+     *    Fail Bank A load in select_dual_bank -> must fall back to Bank B (888) */
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_settings_dual_bank_init(&db, 0U, 2048U, 2U, &data, sizeof(data), &defaults));
+    data.velocity = 888;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_save(&db));
+    data.velocity = 999;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_save(&db));
+
+    int32_t slots = 2 * (int32_t)db.bank_a.store.slots_per_sector;
+    mock_flash_read_fail_after = (slots + 2) + (slots + 1);
+    TestSettings fb_data = {.velocity = 12345};
+    SYN_DualBankSettings fb_db;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_init(&fb_db, 0U, 2048U, 2U, &fb_data,
+                                                          sizeof(fb_data), &defaults));
+    TEST_ASSERT_EQUAL_UINT8(1U, fb_db.active_bank);
+    TEST_ASSERT_EQUAL_INT32(888, fb_data.velocity);
+
+    /* 2. Only Bank A valid (seq=1), fail Bank A load -> must fall back to defaults (500) */
+    mock_port_reset();
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_settings_dual_bank_init(&db, 0U, 2048U, 2U, &data, sizeof(data), &defaults));
+    mock_flash_read_fail_after = (slots + 1) + slots;
+    fb_data.velocity = -9999;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_init(&fb_db, 0U, 2048U, 2U, &fb_data,
+                                                          sizeof(fb_data), &defaults));
+    TEST_ASSERT_EQUAL_UINT8(0U, fb_db.active_bank);
+    TEST_ASSERT_EQUAL_INT32(500, fb_data.velocity);
+
+    /* 3. Seekable VFS size check (oversized/undersized/rewind-fail) + short-read RAM restore */
+    mock_port_reset();
+    syn_vfs_init();
+    TEST_ASSERT_EQUAL(SYN_OK, syn_vfs_mount("/scfg", &tier_a_vfs_ops, NULL));
+    SYN_Settings store;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_settings_init(&store, FLASH_BASE, 2U, &data, sizeof(data), &defaults));
+    data.velocity = 777;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_save(&store));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_export_vfs(&store, "/scfg/ok.bin"));
+
+    /* Oversized file rejected before touching data */
+    s_tier_a_seek_len = (int32_t)sizeof(data) + 4;
+    s_tier_a_rewind_fail = 0;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_settings_import_vfs(&store, "/scfg/ok.bin", false));
+    TEST_ASSERT_EQUAL_INT32(777, data.velocity);
+
+    /* Rewind failure rejected */
+    s_tier_a_seek_len = (int32_t)sizeof(data);
+    s_tier_a_rewind_fail = 1;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_settings_import_vfs(&store, "/scfg/ok.bin", false));
+    s_tier_a_rewind_fail = 0;
+
+    /* Valid size + import succeeds */
+    TestSettings imported = {0};
+    SYN_Settings store2;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_init(&store2, FLASH_BASE + 2048U, 2U, &imported,
+                                                sizeof(imported), &defaults));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_import_vfs(&store2, "/scfg/ok.bin", false));
+    TEST_ASSERT_EQUAL_INT32(777, imported.velocity);
+
+    /* Short read restores from flash store (777), or from defaults (500) if flash load fails */
+    memset(ram_vfs_buf, 0xEE, sizeof(ram_vfs_buf));
+    s_vfs_force_short = 1;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_settings_import_vfs(&store, "/scfg/ok.bin", false));
+    TEST_ASSERT_EQUAL_INT32(777, data.velocity);
+
+    memset(&mock_flash[FLASH_BASE], 0x00, 2048U);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_settings_import_vfs(&store, "/scfg/ok.bin", false));
+    TEST_ASSERT_EQUAL_INT32(500, data.velocity);
+
+    s_vfs_force_short = 0;
+    mock_port_reset();
+}
+
 void run_settings_tests(void)
 {
     RUN_TEST(test_settings_init_blank_flash);
@@ -692,4 +794,5 @@ void run_settings_tests(void)
     RUN_TEST(test_settings_vfs_short_read_write_error);
     RUN_TEST(test_settings_init_save_fail);
     RUN_TEST(test_r5_settings_regressions);
+    RUN_TEST(test_tier_a_settings_dual_bank_and_vfs_guards);
 }

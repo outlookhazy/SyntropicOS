@@ -72,6 +72,83 @@ static SYN_Vector3F interp_eval_bezier_deriv(SYN_Vector3F p0, SYN_Vector3F p1, S
     return d;
 }
 
+/** @brief Largest exact single-precision float <= INT32_MAX (2147483520.0f). */
+#define SYN_INTERP_MAX_I32_FLOAT 2147483520.0f
+
+/**
+ * @brief Check that all three components of a 3D vector are finite floats.
+ * @param v Input 3D vector.
+ * @return true if x, y, and z are all finite, false otherwise.
+ */
+static bool interp_vec_is_finite(SYN_Vector3F v)
+{
+    return isfinite(v.x) && isfinite(v.y) && isfinite(v.z);
+}
+
+/**
+ * @brief Validate common scalar motion parameters for trajectory planning.
+ * @param feedrate  Target feedrate (> 0, finite).
+ * @param max_accel Maximum acceleration (>= 0, finite).
+ * @param max_jerk  Maximum jerk (>= 0, finite).
+ * @param step_res  Spatial step resolution (> 0, finite).
+ * @return true if all scalar parameters are valid, false otherwise.
+ */
+static bool interp_scalars_valid(float feedrate, float max_accel, float max_jerk, float step_res)
+{
+    return isfinite(feedrate) && (feedrate > 0.0f) && isfinite(max_accel) && (max_accel >= 0.0f) &&
+           isfinite(max_jerk) && (max_jerk >= 0.0f) && isfinite(step_res) && (step_res > 0.0f);
+}
+
+/**
+ * @brief Convert a non-negative float rate to int32_t with saturation to INT32_MAX.
+ * @param val Non-negative float value (e.g., feedrate / step_res).
+ * @return Saturated int32_t value in [0, INT32_MAX].
+ */
+static int32_t interp_clamp_rate_i32(float val)
+{
+    if (!isfinite(val) || (val >= SYN_INTERP_MAX_I32_FLOAT)) {
+        return INT32_MAX;
+    }
+    if (val <= 0.0f) {
+        return 0;
+    }
+    return (int32_t)val;
+}
+
+/**
+ * @brief Finalize discrete step count and S-curve profile for a planned trajectory.
+ * @param interp    Interpolator instance.
+ * @param total_len Computed path length in user units.
+ * @param feedrate  Target feedrate in units/sec.
+ * @param max_accel Maximum acceleration in units/sec^2.
+ * @param max_jerk  Maximum jerk in units/sec^3.
+ * @param step_res  Spatial resolution per step.
+ * @return SYN_OK on success, or SYN_INVALID_PARAM if step count exceeds INT32_MAX.
+ */
+static SYN_Status interp_configure_steps(SYN_Interpolator *interp, float total_len, float feedrate,
+                                         float max_accel, float max_jerk, float step_res)
+{
+    float raw_steps = total_len / step_res;
+    if (!isfinite(total_len) || !isfinite(raw_steps) || (raw_steps > SYN_INTERP_MAX_I32_FLOAT)) {
+        interp->mode = SYN_INTERP_MODE_IDLE;
+        return SYN_INVALID_PARAM;
+    }
+
+    interp->total_length = total_len;
+    interp->total_steps = (uint32_t)raw_steps;
+    if (interp->total_steps == 0U) {
+        interp->total_steps = 1U;
+    }
+    interp->target_feedrate = feedrate;
+
+    syn_scurve_init(&interp->scurve, 0);
+    syn_scurve_set_constraints(&interp->scurve, interp_clamp_rate_i32(feedrate / step_res),
+                               interp_clamp_rate_i32(max_accel / step_res),
+                               interp_clamp_rate_i32(max_jerk / step_res));
+    syn_scurve_set_target(&interp->scurve, (int32_t)interp->total_steps);
+    return SYN_OK;
+}
+
 void syn_interpolator_init(SYN_Interpolator *interp)
 {
     SYN_ASSERT(interp != NULL);
@@ -84,7 +161,8 @@ SYN_Status syn_interpolator_plan_linear(SYN_Interpolator *interp, SYN_Vector3F s
                                         float max_jerk, float step_res)
 {
     SYN_ASSERT(interp != NULL);
-    if (feedrate <= 0.0f || step_res <= 0.0f) {
+    if (!interp_vec_is_finite(start) || !interp_vec_is_finite(target) ||
+        !interp_scalars_valid(feedrate, max_accel, max_jerk, step_res)) {
         return SYN_INVALID_PARAM;
     }
 
@@ -98,26 +176,13 @@ SYN_Status syn_interpolator_plan_linear(SYN_Interpolator *interp, SYN_Vector3F s
     float dy = target.y - start.y;
     float dz = target.z - start.z;
 
-    interp->total_length = sqrtf((dx * dx) + (dy * dy) + (dz * dz));
-    if (interp->total_length < 1e-6f) {
+    float total_len = sqrtf((dx * dx) + (dy * dy) + (dz * dz));
+    if (total_len < 1e-6f) {
         interp->mode = SYN_INTERP_MODE_IDLE;
         return SYN_OK;
     }
 
-    interp->total_steps = (uint32_t)(interp->total_length / step_res);
-    if (interp->total_steps == 0U) {
-        interp->total_steps = 1U;
-    }
-
-    interp->target_feedrate = feedrate;
-
-    /* Initialize S-Curve generator for position scaling */
-    syn_scurve_init(&interp->scurve, 0);
-    syn_scurve_set_constraints(&interp->scurve, (int32_t)(feedrate / step_res),
-                               (int32_t)(max_accel / step_res), (int32_t)(max_jerk / step_res));
-    syn_scurve_set_target(&interp->scurve, (int32_t)interp->total_steps);
-
-    return SYN_OK;
+    return interp_configure_steps(interp, total_len, feedrate, max_accel, max_jerk, step_res);
 }
 
 SYN_Status syn_interpolator_plan_circular(SYN_Interpolator *interp, SYN_Vector3F start,
@@ -126,8 +191,11 @@ SYN_Status syn_interpolator_plan_circular(SYN_Interpolator *interp, SYN_Vector3F
                                           float max_jerk, float step_res)
 {
     SYN_ASSERT(interp != NULL);
-    if (feedrate <= 0.0f || step_res <= 0.0f)
+    if (!interp_vec_is_finite(start) || !interp_vec_is_finite(target) ||
+        !interp_vec_is_finite(center_offset) ||
+        !interp_scalars_valid(feedrate, max_accel, max_jerk, step_res)) {
         return SYN_INVALID_PARAM;
+    }
 
     memset(interp, 0, sizeof(SYN_Interpolator));
     interp->mode = is_cw ? SYN_INTERP_MODE_CIRCULAR_CW : SYN_INTERP_MODE_CIRCULAR_CCW;
@@ -142,10 +210,11 @@ SYN_Status syn_interpolator_plan_circular(SYN_Interpolator *interp, SYN_Vector3F
 
     float rx = -center_offset.x;
     float ry = -center_offset.y;
-    interp->radius = sqrtf(rx * rx + ry * ry);
+    interp->radius = sqrtf((rx * rx) + (ry * ry));
 
-    if (interp->radius < 1e-6f)
+    if (!isfinite(interp->radius) || (interp->radius < 1e-6f)) {
         return SYN_INVALID_PARAM;
+    }
 
     interp->start_angle = atan2f(-center_offset.y, -center_offset.x);
     float end_angle = atan2f(target.y - cy, target.x - cx);
@@ -165,23 +234,9 @@ SYN_Status syn_interpolator_plan_circular(SYN_Interpolator *interp, SYN_Vector3F
     }
 
     interp->sweep_angle = sweep;
-    interp->total_length = fabsf(sweep) * interp->radius;
+    float total_len = fabsf(sweep) * interp->radius;
 
-    interp->total_steps = (uint32_t)(interp->total_length / step_res);
-    /* LCOV_EXCL_START: Minimum step count clamp for arc interpolation */
-    if (interp->total_steps == 0)
-        interp->total_steps = 1;
-    /* LCOV_EXCL_STOP */
-
-    interp->target_feedrate = feedrate;
-
-    /* Initialize S-Curve generator */
-    syn_scurve_init(&interp->scurve, 0);
-    syn_scurve_set_constraints(&interp->scurve, (int32_t)(feedrate / step_res),
-                               (int32_t)(max_accel / step_res), (int32_t)(max_jerk / step_res));
-    syn_scurve_set_target(&interp->scurve, (int32_t)interp->total_steps);
-
-    return SYN_OK;
+    return interp_configure_steps(interp, total_len, feedrate, max_accel, max_jerk, step_res);
 }
 
 bool syn_interpolator_step(SYN_Interpolator *interp, SYN_Vector3F *out_pos)
@@ -364,8 +419,10 @@ SYN_Status syn_interpolator_plan_bezier(SYN_Interpolator *interp, SYN_Vector3F p
                                         SYN_Vector3F p2, SYN_Vector3F p3, float feedrate,
                                         float max_accel, float max_jerk, float step_res)
 {
-    if (interp == NULL || feedrate <= 0.0f || max_accel <= 0.0f || max_jerk <= 0.0f ||
-        step_res <= 0.0f) {
+    if ((interp == NULL) || !interp_vec_is_finite(p0) || !interp_vec_is_finite(p1) ||
+        !interp_vec_is_finite(p2) || !interp_vec_is_finite(p3) ||
+        !interp_scalars_valid(feedrate, max_accel, max_jerk, step_res) || (max_accel <= 0.0f) ||
+        (max_jerk <= 0.0f)) {
         return SYN_INVALID_PARAM;
     }
 
@@ -397,17 +454,7 @@ SYN_Status syn_interpolator_plan_bezier(SYN_Interpolator *interp, SYN_Vector3F p
         return SYN_OK;
     }
 
-    interp->total_steps = (uint32_t)(approx_len / step_res);
-    if (interp->total_steps == 0U) {
-        interp->total_steps = 1U;
-    }
-    interp->target_feedrate = feedrate;
-
-    syn_scurve_init(&interp->scurve, 0);
-    syn_scurve_set_constraints(&interp->scurve, (int32_t)(feedrate / step_res),
-                               (int32_t)(max_accel / step_res), (int32_t)(max_jerk / step_res));
-    syn_scurve_set_target(&interp->scurve, (int32_t)interp->total_steps);
-    return SYN_OK;
+    return interp_configure_steps(interp, approx_len, feedrate, max_accel, max_jerk, step_res);
 }
 
 #endif /* SYN_USE_INTERPOLATOR */

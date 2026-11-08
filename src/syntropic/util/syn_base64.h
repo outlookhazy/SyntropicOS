@@ -45,28 +45,37 @@
 extern "C" {
 #endif
 
+/** @brief Maximum raw input length representable in Base64 without size_t overflow. */
+#define SYN_BASE64_MAX_RAW_LEN (((SIZE_MAX - 4U) / 4U) * 3U)
+
 /**
  * @brief Calculate the buffer size needed for standard Base64 encoding.
  *
  * Includes padding (`=`) and space for the null terminator.
  *
  * @param raw_len Number of raw binary bytes.
- * @return Total character buffer capacity needed (including null terminator).
+ * @return Total character buffer capacity needed (including null terminator), or 0 on overflow.
  */
 static inline size_t syn_base64_calc_encoded_size(size_t raw_len)
 {
-    return (((raw_len + 2U) / 3U) * 4U) + 1U;
+    if (raw_len > SYN_BASE64_MAX_RAW_LEN) {
+        return 0U;
+    }
+    return ((raw_len / 3U) * 4U) + (((raw_len % 3U) != 0U) ? 4U : 0U) + 1U;
 }
 
 /**
  * @brief Calculate the maximum binary buffer size needed to decode a Base64 string.
  *
  * @param b64_len Number of characters in Base64 string.
- * @return Maximum number of binary bytes after decoding.
+ * @return Maximum number of binary bytes after decoding, or 0 on overflow.
  */
 static inline size_t syn_base64_calc_max_decoded_size(size_t b64_len)
 {
-    return ((b64_len + 3U) / 4U) * 3U;
+    if (b64_len > ((SIZE_MAX / 3U) * 4U)) {
+        return 0U;
+    }
+    return ((b64_len / 4U) * 3U) + (((b64_len % 4U) != 0U) ? 3U : 0U);
 }
 
 /**

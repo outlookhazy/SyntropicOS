@@ -54,6 +54,14 @@ extern "C" {
 #define SYN_COREDUMP_STACK_SIZE 128 /**< Bytes of stack to capture  */
 #endif
 
+#ifndef SYN_COREDUMP_RAM_START
+#define SYN_COREDUMP_RAM_START 0x20000000UL /**< Start of valid SRAM for stack capture */
+#endif
+
+#ifndef SYN_COREDUMP_RAM_END
+#define SYN_COREDUMP_RAM_END 0x20400000UL /**< End of valid SRAM (exclusive) */
+#endif
+
 #ifndef SYN_COREDUMP_FLASH_ADDR
 #error "SYN_COREDUMP_FLASH_ADDR must be defined to the reserved flash sector address"
 #endif

@@ -100,6 +100,76 @@ static bool read_slot(const SYN_ParamStore *store, uint8_t sector, uint16_t slot
 }
 
 /**
+ * @brief Check whether every byte in a flash parameter slot is erased (0xFF).
+ * @param store  Parameter store instance.
+ * @param sector Sector index.
+ * @param slot   Slot index within @p sector.
+ * @param erased [out] Set to true if all bytes in the slot equal 0xFF.
+ * @return SYN_OK on successful read, SYN_ERROR on flash read failure.
+ */
+static SYN_Status is_slot_erased(const SYN_ParamStore *store, uint8_t sector, uint16_t slot,
+                                 bool *erased)
+{
+    uint32_t addr = slot_addr(store, sector, slot);
+    uint16_t remaining = store->slot_size;
+    uint8_t chunk[32];
+
+    *erased = true;
+    while (remaining > 0U) {
+        uint16_t len = (remaining > (uint16_t)sizeof(chunk)) ? (uint16_t)sizeof(chunk) : remaining;
+        if (syn_port_flash_read(addr, chunk, len) != SYN_OK) {
+            return SYN_ERROR;
+        }
+        for (uint16_t i = 0U; i < len; i++) {
+            if (chunk[i] != 0xFFU) {
+                *erased = false;
+                return SYN_OK;
+            }
+        }
+        addr += len;
+        remaining = (uint16_t)(remaining - len);
+    }
+    return SYN_OK;
+}
+
+/**
+ * @brief Locate the next erased (0xFF) slot or advance and erase the next sector.
+ * @param store    Parameter store instance.
+ * @param out_sec  [out] Selected target sector index.
+ * @param out_slot [out] Selected target slot index.
+ * @return SYN_OK on success, or flash read/erase error status.
+ */
+static SYN_Status prepare_next_slot(const SYN_ParamStore *store, uint8_t *out_sec,
+                                    uint16_t *out_slot)
+{
+    if (!store->has_active_slot) {
+        *out_sec = 0U;
+        *out_slot = 0U;
+        return syn_port_flash_erase(store->flash_base);
+    }
+
+    uint8_t sec = store->active_sector;
+    for (uint32_t sl = (uint32_t)store->active_slot + 1UL; sl < (uint32_t)store->slots_per_sector;
+         sl++) {
+        bool erased = false;
+        SYN_Status st = is_slot_erased(store, sec, (uint16_t)sl, &erased);
+        if (st != SYN_OK) {
+            return st;
+        }
+        if (erased) {
+            *out_sec = sec;
+            *out_slot = (uint16_t)sl;
+            return SYN_OK;
+        }
+    }
+
+    sec = (uint8_t)((sec + 1U) % store->sector_count);
+    *out_sec = sec;
+    *out_slot = 0U;
+    return syn_port_flash_erase(store->flash_base + ((uint32_t)sec * store->sector_size));
+}
+
+/**
  * @brief Scan all sectors and slots for the highest valid sequence number.
  * @param store    Parameter store instance.
  * @param best_out [out] Winning sequence number when found.
@@ -110,16 +180,17 @@ static bool scan_best_slot(SYN_ParamStore *store, uint16_t *best_out)
     uint16_t best_seq = 0U;
     bool found = false;
     SYN_ParamSlotHeader hdr;
+    uint32_t total_slots = (uint32_t)store->sector_count * (uint32_t)store->slots_per_sector;
 
-    for (uint8_t sec = 0U; sec < store->sector_count; sec++) {
-        for (uint16_t sl = 0U; sl < store->slots_per_sector; sl++) {
-            if (read_slot(store, sec, sl, &hdr, NULL)) {
-                if (!found || ((int16_t)(hdr.seq - best_seq) > 0)) {
-                    best_seq = hdr.seq;
-                    store->active_sector = sec;
-                    store->active_slot = sl;
-                    found = true;
-                }
+    for (uint32_t idx = 0U; idx < total_slots; idx++) {
+        uint8_t sec = (uint8_t)(idx / (uint32_t)store->slots_per_sector);
+        uint16_t sl = (uint16_t)(idx % (uint32_t)store->slots_per_sector);
+        if (read_slot(store, sec, sl, &hdr, NULL)) {
+            if (!found || ((int16_t)(hdr.seq - best_seq) > 0)) {
+                best_seq = hdr.seq;
+                store->active_sector = sec;
+                store->active_slot = sl;
+                found = true;
             }
         }
     }
@@ -149,8 +220,9 @@ SYN_Status syn_param_init(SYN_ParamStore *store, uint32_t flash_base, uint8_t se
         return SYN_INVALID_PARAM;
     }
 
+    uint32_t max_slots = store->sector_size / aligned_slot;
     store->slot_size = (uint16_t)aligned_slot;
-    store->slots_per_sector = (uint16_t)(store->sector_size / aligned_slot);
+    store->slots_per_sector = (max_slots > 0xFFFFUL) ? 0xFFFFU : (uint16_t)max_slots;
 
     uint16_t best_seq = 0U;
     if (scan_best_slot(store, &best_seq)) {
@@ -188,27 +260,11 @@ SYN_Status syn_param_save(SYN_ParamStore *store, const void *data)
         return SYN_INVALID_PARAM;
     }
 
-    uint8_t sec = store->active_sector;
-    uint16_t sl = store->active_slot;
-
-    if (store->has_active_slot) {
-        sl++;
-        if (sl >= store->slots_per_sector) {
-            sl = 0U;
-            sec = (uint8_t)((sec + 1U) % store->sector_count);
-
-            SYN_Status err =
-                syn_port_flash_erase(store->flash_base + ((uint32_t)sec * store->sector_size));
-            if (err != SYN_OK) {
-                return err;
-            }
-        }
-    } else {
-        SYN_Status err =
-            syn_port_flash_erase(store->flash_base + ((uint32_t)sec * store->sector_size));
-        if (err != SYN_OK) {
-            return err;
-        }
+    uint8_t sec = 0U;
+    uint16_t sl = 0U;
+    SYN_Status err = prepare_next_slot(store, &sec, &sl);
+    if (err != SYN_OK) {
+        return err;
     }
 
     SYN_ParamSlotHeader hdr;
@@ -219,12 +275,10 @@ SYN_Status syn_param_save(SYN_ParamStore *store, const void *data)
     hdr.crc = syn_crc16_ccitt(data, store->data_size);
 
     uint32_t addr = slot_addr(store, sec, sl);
-    SYN_Status err = syn_port_flash_write(addr + (uint32_t)sizeof(hdr), data, store->data_size);
-    if (err != SYN_OK) {
-        return err;
+    err = syn_port_flash_write(addr + (uint32_t)sizeof(hdr), data, store->data_size);
+    if (err == SYN_OK) {
+        err = syn_port_flash_write(addr, &hdr, sizeof(hdr));
     }
-
-    err = syn_port_flash_write(addr, &hdr, sizeof(hdr));
     if (err != SYN_OK) {
         return err;
     }

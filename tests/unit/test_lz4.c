@@ -248,6 +248,31 @@ static void test_r5_lz4_mflimit_and_lastliterals(void)
         0U, (uint32_t)syn_lz4_compress(&g_lz4, incomp20, sizeof(incomp20), tiny_dst, 1U));
 }
 
+static void test_tier_a_lz4_hash_bounds_and_workspace_roundtrip(void)
+{
+    /* UTL-01: Verify hash table sizing invariant and high-entropy + match round-trip */
+    TEST_ASSERT_TRUE(SYN_LZ4_HASH_SIZE >= 64U);
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)(SYN_LZ4_HASH_SIZE & (SYN_LZ4_HASH_SIZE - 1U)));
+    TEST_ASSERT_EQUAL_UINT32((uint32_t)(SYN_LZ4_HASH_SIZE * sizeof(uint16_t)),
+                             (uint32_t)sizeof(SYN_Lz4));
+
+    uint8_t payload[512];
+    uint8_t comp[600];
+    uint8_t decomp[512];
+    for (size_t i = 0U; i < 256U; i++) {
+        payload[i] = (uint8_t)((i * 131U) ^ 0xA5U);
+    }
+    memcpy(payload + 256U, payload, 256U);
+
+    size_t csz = syn_lz4_compress(&g_lz4, payload, sizeof(payload), comp, sizeof(comp));
+    TEST_ASSERT_TRUE(csz > 0U);
+    TEST_ASSERT_TRUE(csz < sizeof(payload));
+
+    size_t dsz = syn_lz4_decompress(comp, csz, decomp, sizeof(decomp));
+    TEST_ASSERT_EQUAL_UINT32((uint32_t)sizeof(payload), (uint32_t)dsz);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(payload, decomp, sizeof(payload));
+}
+
 void run_lz4_tests(void)
 {
     RUN_TEST(test_lz4_init_and_null_checks);
@@ -258,4 +283,5 @@ void run_lz4_tests(void)
     RUN_TEST(test_lz4_short_input_long_literal);
     RUN_TEST(test_lz4_buffer_overflow_and_corrupt_rejection);
     RUN_TEST(test_r5_lz4_mflimit_and_lastliterals);
+    RUN_TEST(test_tier_a_lz4_hash_bounds_and_workspace_roundtrip);
 }

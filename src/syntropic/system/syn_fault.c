@@ -9,6 +9,7 @@
  * @brief CPU Hard Fault / Post-Mortem Diagnostics implementation.
  */
 
+#include "../common/syn_compiler.h"
 #include "../util/syn_assert.h"
 #include "syn_fault.h"
 
@@ -30,7 +31,9 @@ void syn_fault_capture(const SYN_FaultContext *ctx)
 {
     if (ctx != NULL) {
         g_fault_dump.context = *ctx;
+        SYN_COMPILER_BARRIER();
         g_fault_dump.signature = SYN_FAULT_SIGNATURE;
+        SYN_COMPILER_BARRIER();
     }
 }
 
@@ -39,10 +42,11 @@ bool syn_fault_check_and_log(SYN_ErrLog *errlog)
     if (g_fault_dump.signature == SYN_FAULT_SIGNATURE) {
         if (errlog != NULL) {
             /* Record as SYN_ERR_FATAL with pc as context */
-            syn_errlog_record(errlog, 0xFA17, SYN_ERR_FATAL, g_fault_dump.context.pc);
+            syn_errlog_record(errlog, 0xFA17U, SYN_ERR_FATAL, g_fault_dump.context.pc);
         }
         /* Clear signature so it doesn't log on subsequent boots */
-        g_fault_dump.signature = 0;
+        g_fault_dump.signature = 0U;
+        SYN_COMPILER_BARRIER();
         return true;
     }
     return false;

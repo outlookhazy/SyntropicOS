@@ -50,10 +50,12 @@ SYN_Status syn_boot_init(SYN_Boot *boot, SYN_ParamStore *store, uint16_t safe_th
     boot->data.boot_count++;
 
     /* Check if last boot was healthy */
-    if (!boot->data.was_healthy) {
-        boot->data.fail_count++;
+    if (boot->data.was_healthy == 0U) {
+        if (boot->data.fail_count < UINT16_MAX) {
+            boot->data.fail_count++;
+        }
     } else {
-        boot->data.fail_count = 0;
+        boot->data.fail_count = 0U;
     }
 
     /* Mark this boot as NOT yet healthy */

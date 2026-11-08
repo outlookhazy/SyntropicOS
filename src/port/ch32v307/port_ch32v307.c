@@ -55,6 +55,7 @@
 #define RCC_APB2PCENR (*(volatile uint32_t *)(RCC_BASE + 0x18))
 #define RCC_APB1PCENR (*(volatile uint32_t *)(RCC_BASE + 0x1C))
 
+#define RCC_AFIOEN (1UL << 0)
 #define RCC_IOPAEN (1U << 2)
 #define RCC_IOPBEN (1U << 3)
 #define RCC_IOPCEN (1U << 4)
@@ -242,6 +243,14 @@ typedef struct {
 #define ADC_STATR_EOC (1U << 1)
 
 /* ── EXTI ───────────────────────────────────────────────────────────────── */
+
+typedef struct {
+    volatile uint32_t EVCR;
+    volatile uint32_t PCFR1;
+    volatile uint32_t EXTICR[4];
+} AFIO_TypeDef;
+
+#define AFIO ((AFIO_TypeDef *)(APB2_BASE + 0x0000UL))
 
 typedef struct {
     volatile uint32_t INTENR;
@@ -494,6 +503,9 @@ SYN_Status syn_port_gpio_toggle(SYN_GPIO_Pin pin)
 
 SYN_Status syn_port_uart_init(SYN_UARTInstance instance, uint32_t baudrate)
 {
+    if (baudrate == 0U) {
+        return SYN_INVALID_PARAM;
+    }
     if (instance != 0) {
         return SYN_NOT_IMPLEMENTED;
     }
@@ -1035,12 +1047,14 @@ SYN_Status syn_port_adc_deinit(uint8_t adc_id)
 /* Single-shot polled conversion on ADC1 channel. */
 uint16_t syn_port_adc_read_channel(uint8_t adc_id, uint8_t channel)
 {
-    (void)channel;
-    if (adc_id != 0)
+    if (adc_id != 0U || channel > 17U) {
         return 0U;
+    }
 
+    ADC1->RSQR1 &= ~(0xFUL << 20);
+    ADC1->RSQR3 = (uint32_t)channel & 0x1FUL;
     ADC1->CTLR2 |= ADC_CTLR2_SWSTART;
-    while (!(ADC1->STATR & ADC_STATR_EOC)) {
+    while ((ADC1->STATR & ADC_STATR_EOC) == 0U) {
     }
     return (uint16_t)ADC1->RDATAR;
 }
@@ -1080,13 +1094,29 @@ SYN_Status syn_port_adc_start_dma_scan(uint8_t adc_id, uint16_t *dest, size_t nu
 
 SYN_Status syn_port_exti_configure(SYN_GPIO_Pin pin, SYN_EXTI_Edge edge)
 {
-    uint32_t pin_idx = pin & 0x0FU;
+    uint32_t port_idx = (uint32_t)pin >> 4U;
+    uint32_t pin_idx = (uint32_t)pin & 0x0FU;
+
+    if (port_idx >= NUM_GPIO_PORTS ||
+        (edge != SYN_EXTI_RISING && edge != SYN_EXTI_FALLING && edge != SYN_EXTI_BOTH)) {
+        return SYN_INVALID_PARAM;
+    }
+
+    RCC_APB2PCENR |= RCC_AFIOEN;
+    uint32_t exti_reg = pin_idx >> 2U;
+    uint32_t exti_shift = (pin_idx & 0x03U) * 4U;
+    AFIO->EXTICR[exti_reg] =
+        (AFIO->EXTICR[exti_reg] & ~(0xFUL << exti_shift)) | (port_idx << exti_shift);
 
     if (edge == SYN_EXTI_RISING || edge == SYN_EXTI_BOTH) {
-        EXTI->RTENR |= (1U << pin_idx);
+        EXTI->RTENR |= (1UL << pin_idx);
+    } else {
+        EXTI->RTENR &= ~(1UL << pin_idx);
     }
     if (edge == SYN_EXTI_FALLING || edge == SYN_EXTI_BOTH) {
-        EXTI->FTENR |= (1U << pin_idx);
+        EXTI->FTENR |= (1UL << pin_idx);
+    } else {
+        EXTI->FTENR &= ~(1UL << pin_idx);
     }
     return SYN_OK;
 }
@@ -1128,31 +1158,90 @@ typedef struct {
 
 #define DMA1 ((DMA_TypeDef *)(AHB1_BASE + 0x0000))
 
+/**
+ * @brief Encode DMA element width into CH32V307 CFGR PSIZE/MSIZE bits.
+ *
+ * @param data_size Element width (1, 2, or 4 bytes).
+ * @param out_bits  [out] Encoded CFGR PSIZE|MSIZE bitmask.
+ * @return SYN_OK on valid element width, SYN_INVALID_PARAM otherwise.
+ */
+static SYN_Status ch32_dma_encode_size(SYN_DMA_Size data_size, uint32_t *out_bits)
+{
+    if (data_size == SYN_DMA_SIZE_8BIT) {
+        *out_bits = 0UL;
+        return SYN_OK;
+    }
+    if (data_size == SYN_DMA_SIZE_16BIT) {
+        *out_bits = (1UL << 8) | (1UL << 10);
+        return SYN_OK;
+    }
+    if (data_size == SYN_DMA_SIZE_32BIT) {
+        *out_bits = (2UL << 8) | (2UL << 10);
+        return SYN_OK;
+    }
+    return SYN_INVALID_PARAM;
+}
+
+/**
+ * @brief Program CH32V307 DMA channel address registers and direction/increment bits.
+ *
+ * @param ch         Target hardware DMA channel register block.
+ * @param xfer       Transfer request descriptor.
+ * @param inout_cfgr [in,out] Channel CFGR value updated with DIR/MEM2MEM/PINC/MINC.
+ * @return SYN_OK on valid direction, SYN_INVALID_PARAM otherwise.
+ */
+static SYN_Status ch32_dma_setup_route(DMA_Channel_TypeDef *ch, const SYN_PortDmaTransfer *xfer,
+                                       uint32_t *inout_cfgr)
+{
+    bool pinc = xfer->src_inc;
+    bool minc = xfer->dst_inc;
+
+    if (xfer->dir == SYN_DMA_DIR_MEM_TO_PERIPH) {
+        ch->PADDR = (uint32_t)(uintptr_t)xfer->dst;
+        ch->MADDR = (uint32_t)(uintptr_t)xfer->src;
+        *inout_cfgr |= (1UL << 4);
+        pinc = xfer->dst_inc;
+        minc = xfer->src_inc;
+    } else if (xfer->dir == SYN_DMA_DIR_PERIPH_TO_MEM || xfer->dir == SYN_DMA_DIR_MEM_TO_MEM) {
+        ch->PADDR = (uint32_t)(uintptr_t)xfer->src;
+        ch->MADDR = (uint32_t)(uintptr_t)xfer->dst;
+        if (xfer->dir == SYN_DMA_DIR_MEM_TO_MEM) {
+            *inout_cfgr |= (1UL << 14);
+        }
+    } else {
+        return SYN_INVALID_PARAM;
+    }
+
+    if (pinc) {
+        *inout_cfgr |= (1UL << 6);
+    }
+    if (minc) {
+        *inout_cfgr |= (1UL << 7);
+    }
+    return SYN_OK;
+}
+
 SYN_Status syn_port_dma_start(const SYN_PortDmaTransfer *xfer)
 {
-    if (xfer == NULL || xfer->channel_id >= 7U) {
+    if (xfer == NULL || xfer->channel_id >= 7U || xfer->src == NULL || xfer->dst == NULL ||
+        xfer->count == 0U || xfer->count > 0xFFFFU) {
+        return SYN_INVALID_PARAM;
+    }
+
+    uint32_t cfgr = 0UL;
+    if (ch32_dma_encode_size(xfer->data_size, &cfgr) != SYN_OK) {
         return SYN_INVALID_PARAM;
     }
 
     DMA_Channel_TypeDef *ch = &DMA1->CH[xfer->channel_id];
-    ch->CFGR &= ~1U;
+    ch->CFGR &= ~1UL;
 
-    ch->PADDR = (uint32_t)xfer->src;
-    ch->MADDR = (uint32_t)xfer->dst;
-    ch->CNTR = (uint32_t)xfer->count;
-
-    uint32_t cfgr = 0U;
-    if (xfer->dir == SYN_DMA_DIR_MEM_TO_MEM) {
-        cfgr |= (1U << 14);
-    } else if (xfer->dir == SYN_DMA_DIR_MEM_TO_PERIPH) {
-        cfgr |= (1U << 4);
+    if (ch32_dma_setup_route(ch, xfer, &cfgr) != SYN_OK) {
+        return SYN_INVALID_PARAM;
     }
-    if (xfer->src_inc)
-        cfgr |= (1U << 6);
-    if (xfer->dst_inc)
-        cfgr |= (1U << 7);
 
-    ch->CFGR = cfgr | 1U;
+    ch->CNTR = (uint32_t)xfer->count;
+    ch->CFGR = cfgr | 1UL;
     return SYN_OK;
 }
 
@@ -1205,7 +1294,19 @@ typedef struct {
     volatile uint32_t Buffer2NextDescAddr;
 } ETH_DMADescTypeDef;
 
+#define ETH_MAC_BASE 0x40028000UL
 #define ETH_DMA_BASE 0x40029000UL
+
+typedef struct {
+    volatile uint32_t MACCR;
+    volatile uint32_t MACFFR;
+    volatile uint32_t MACHTHR;
+    volatile uint32_t MACHTLR;
+    volatile uint32_t MACMIIAR;
+    volatile uint32_t MACMIIDR;
+    volatile uint32_t MACFCR;
+    volatile uint32_t MACVLANTR;
+} ETH_MAC_TypeDef;
 
 typedef struct {
     volatile uint32_t BMR;
@@ -1218,77 +1319,91 @@ typedef struct {
     volatile uint32_t IER;
 } ETH_DMA_TypeDef;
 
+#define ETH_MAC ((ETH_MAC_TypeDef *)ETH_MAC_BASE)
 #define ETH_DMA ((ETH_DMA_TypeDef *)ETH_DMA_BASE)
 
-#define ETH_DMATXDESC_OWN (1U << 31)
-#define ETH_DMARXDESC_OWN (1U << 31)
+#define ETH_MACCR_RE (1UL << 2)
+#define ETH_MACCR_TE (1UL << 3)
 
-#define ETH_TX_DESC_NUM 4
-#define ETH_RX_DESC_NUM 4
-#define ETH_MAX_PACKET_SIZE 1536
+#define ETH_DMATXDESC_OWN (1UL << 31)
+#define ETH_DMATXDESC_LS (1UL << 29)
+#define ETH_DMATXDESC_FS (1UL << 28)
+#define ETH_DMATXDESC_TCH (1UL << 20)
+#define ETH_DMARXDESC_OWN (1UL << 31)
+#define ETH_DMARXDESC_RCH (1UL << 14)
+
+#define ETH_TX_DESC_NUM 4U
+#define ETH_RX_DESC_NUM 4U
+#define ETH_MAX_PACKET_SIZE 1536U
 
 static ETH_DMADescTypeDef DMATxDscrTab[ETH_TX_DESC_NUM] __attribute__((aligned(4)));
 static ETH_DMADescTypeDef DMARxDscrTab[ETH_RX_DESC_NUM] __attribute__((aligned(4)));
 static uint8_t Rx_Buff[ETH_RX_DESC_NUM][ETH_MAX_PACKET_SIZE] __attribute__((aligned(4)));
 static uint8_t Tx_Buff[ETH_TX_DESC_NUM][ETH_MAX_PACKET_SIZE] __attribute__((aligned(4)));
 
-static uint32_t s_tx_desc_idx = 0;
-static uint32_t s_rx_desc_idx = 0;
+static uint32_t s_tx_desc_idx = 0U;
+static uint32_t s_rx_desc_idx = 0U;
 
 SYN_Status syn_port_eth_init(const uint8_t mac_addr[6])
 {
     (void)mac_addr;
 
-    /* Enable Ethernet MAC & PHY clock */
-    RCC_AHBCNTR |= (1U << 14);
+    /* Enable Ethernet MAC, TX, & RX clocks */
+    RCC_AHBCNTR |= (1UL << 14) | (1UL << 15) | (1UL << 16);
 
     /* Software Reset ETH DMA */
-    ETH_DMA->BMR |= (1U << 0);
-    while (ETH_DMA->BMR & (1U << 0)) {
+    ETH_DMA->BMR |= (1UL << 0);
+    while ((ETH_DMA->BMR & (1UL << 0)) != 0UL) {
     }
 
-    /* Setup Tx DMA Descriptors */
-    for (uint32_t i = 0; i < ETH_TX_DESC_NUM; i++) {
-        DMATxDscrTab[i].Status = 0;
-        DMATxDscrTab[i].ControlBufferSize = 0;
+    s_tx_desc_idx = 0U;
+    s_rx_desc_idx = 0U;
+
+    /* Setup Tx DMA Descriptors (ring-chained via Buffer2NextDescAddr) */
+    for (uint32_t i = 0U; i < ETH_TX_DESC_NUM; i++) {
+        DMATxDscrTab[i].Status = ETH_DMATXDESC_TCH;
+        DMATxDscrTab[i].ControlBufferSize = 0UL;
         DMATxDscrTab[i].Buffer1Addr = (uint32_t)(uintptr_t)&Tx_Buff[i][0];
         DMATxDscrTab[i].Buffer2NextDescAddr =
-            (uint32_t)(uintptr_t)&DMATxDscrTab[(i + 1) % ETH_TX_DESC_NUM];
+            (uint32_t)(uintptr_t)&DMATxDscrTab[(i + 1U) % ETH_TX_DESC_NUM];
     }
     ETH_DMA->TDLAR = (uint32_t)(uintptr_t)&DMATxDscrTab[0];
 
-    /* Setup Rx DMA Descriptors */
-    for (uint32_t i = 0; i < ETH_RX_DESC_NUM; i++) {
+    /* Setup Rx DMA Descriptors (ring-chained via ETH_DMARXDESC_RCH) */
+    for (uint32_t i = 0U; i < ETH_RX_DESC_NUM; i++) {
         DMARxDscrTab[i].Status = ETH_DMARXDESC_OWN;
-        DMARxDscrTab[i].ControlBufferSize = ETH_MAX_PACKET_SIZE;
+        DMARxDscrTab[i].ControlBufferSize = ETH_DMARXDESC_RCH | (uint32_t)ETH_MAX_PACKET_SIZE;
         DMARxDscrTab[i].Buffer1Addr = (uint32_t)(uintptr_t)&Rx_Buff[i][0];
         DMARxDscrTab[i].Buffer2NextDescAddr =
-            (uint32_t)(uintptr_t)&DMARxDscrTab[(i + 1) % ETH_RX_DESC_NUM];
+            (uint32_t)(uintptr_t)&DMARxDscrTab[(i + 1U) % ETH_RX_DESC_NUM];
     }
     ETH_DMA->RDLAR = (uint32_t)(uintptr_t)&DMARxDscrTab[0];
 
+    /* Enable MAC transmitter and receiver before starting DMA engines */
+    ETH_MAC->MACCR |= ETH_MACCR_TE | ETH_MACCR_RE;
+
     /* Start Ethernet Transmission & Reception DMA engines */
-    ETH_DMA->OMR |= (1U << 13) | (1U << 1); /* ST (Start Tx) | SR (Start Rx) */
+    ETH_DMA->OMR |= (1UL << 13) | (1UL << 1); /* ST (Start Tx) | SR (Start Rx) */
     return SYN_OK;
 }
 
 SYN_Status syn_port_eth_tx(const void *frame, size_t len)
 {
-    if (frame == NULL || len == 0 || len > ETH_MAX_PACKET_SIZE) {
+    if (frame == NULL || len == 0U || len > ETH_MAX_PACKET_SIZE) {
         return SYN_INVALID_PARAM;
     }
 
     ETH_DMADescTypeDef *desc = &DMATxDscrTab[s_tx_desc_idx];
-    if (desc->Status & ETH_DMATXDESC_OWN) {
+    if ((desc->Status & ETH_DMATXDESC_OWN) != 0UL) {
         return SYN_BUSY;
     }
 
     memcpy(Tx_Buff[s_tx_desc_idx], frame, len);
     desc->ControlBufferSize = (uint32_t)len;
-    desc->Status = ETH_DMATXDESC_OWN;
+    desc->Status = ETH_DMATXDESC_OWN | ETH_DMATXDESC_TCH | ETH_DMATXDESC_FS | ETH_DMATXDESC_LS;
 
-    ETH_DMA->TPDR = 0; /* Transmit poll demand */
-    s_tx_desc_idx = (s_tx_desc_idx + 1) % ETH_TX_DESC_NUM;
+    ETH_DMA->TPDR = 0UL; /* Transmit poll demand */
+    s_tx_desc_idx = (s_tx_desc_idx + 1U) % ETH_TX_DESC_NUM;
     return SYN_OK;
 }
 
@@ -1299,12 +1414,12 @@ SYN_Status syn_port_eth_rx(void *buf, size_t max_len, size_t *out_len)
     }
 
     ETH_DMADescTypeDef *desc = &DMARxDscrTab[s_rx_desc_idx];
-    if (desc->Status & ETH_DMARXDESC_OWN) {
-        *out_len = 0;
+    if ((desc->Status & ETH_DMARXDESC_OWN) != 0UL) {
+        *out_len = 0U;
         return SYN_BUSY;
     }
 
-    size_t pkt_len = (desc->Status >> 16) & 0x3FFF;
+    size_t pkt_len = (size_t)((desc->Status >> 16U) & 0x3FFFUL);
     if (pkt_len > max_len) {
         pkt_len = max_len;
     }
@@ -1312,10 +1427,11 @@ SYN_Status syn_port_eth_rx(void *buf, size_t max_len, size_t *out_len)
     memcpy(buf, Rx_Buff[s_rx_desc_idx], pkt_len);
     *out_len = pkt_len;
 
+    desc->ControlBufferSize = ETH_DMARXDESC_RCH | (uint32_t)ETH_MAX_PACKET_SIZE;
     desc->Status = ETH_DMARXDESC_OWN;
-    ETH_DMA->RPDR = 0; /* Receive poll demand */
+    ETH_DMA->RPDR = 0UL; /* Receive poll demand */
 
-    s_rx_desc_idx = (s_rx_desc_idx + 1) % ETH_RX_DESC_NUM;
+    s_rx_desc_idx = (s_rx_desc_idx + 1U) % ETH_RX_DESC_NUM;
     return SYN_OK;
 }
 

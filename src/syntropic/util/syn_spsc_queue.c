@@ -27,7 +27,8 @@ static inline size_t spsc_advance(size_t idx, size_t capacity)
 
 SYN_Status syn_spsc_queue_init(SYN_SPSC_Queue *q, void *elem_buf, size_t elem_size, size_t capacity)
 {
-    if (q == NULL || elem_buf == NULL || elem_size == 0U || capacity < 2U) {
+    if ((q == NULL) || (elem_buf == NULL) || (elem_size == 0U) || (capacity < 2U) ||
+        (capacity > (SIZE_MAX / elem_size))) {
         return SYN_INVALID_PARAM;
     }
 

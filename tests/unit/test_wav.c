@@ -125,10 +125,57 @@ void test_wav_parse_invalid_magics_and_truncated(void)
                       syn_wav_parse_header(huge_chunk_wav, sizeof(huge_chunk_wav), &info));
 }
 
+void test_tier_a_wav_undersized_fmt_odd_pad_and_adpcm_overflow(void)
+{
+    SYN_WAV_Info info;
+
+    /* Reject 'fmt ' chunk with chunk_size = 4 (< 16 minimum) instead of overreading next chunk */
+    uint8_t short_fmt_wav[44];
+    memset(short_fmt_wav, 0, sizeof(short_fmt_wav));
+    memcpy(&short_fmt_wav[0], "RIFF", 4U);
+    short_fmt_wav[4] = 36U;
+    memcpy(&short_fmt_wav[8], "WAVEfmt ", 8U);
+    short_fmt_wav[16] = 4U;
+    short_fmt_wav[20] = 1U;
+    short_fmt_wav[22] = 1U;
+    memcpy(&short_fmt_wav[24], "data", 4U);
+    short_fmt_wav[28] = 16U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_wav_parse_header(short_fmt_wav, sizeof(short_fmt_wav), &info));
+
+    /* Odd-sized JUNK chunk ending right at buffer_size (missing pad byte) stops without wrap */
+    uint8_t odd_tail_wav[45];
+    memset(odd_tail_wav, 0, sizeof(odd_tail_wav));
+    memcpy(&odd_tail_wav[0], "RIFF", 4U);
+    odd_tail_wav[4] = 37U;
+    memcpy(&odd_tail_wav[8], "WAVEJUNK", 8U);
+    odd_tail_wav[16] = 25U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_wav_parse_header(odd_tail_wav, sizeof(odd_tail_wav), &info));
+
+    /* IMA ADPCM with data_size = 0x80000000 saturates total_samples to UINT32_MAX instead of 0 */
+    uint8_t adpcm_huge_wav[44];
+    memset(adpcm_huge_wav, 0, sizeof(adpcm_huge_wav));
+    memcpy(&adpcm_huge_wav[0], "RIFF", 4U);
+    adpcm_huge_wav[4] = 36U;
+    memcpy(&adpcm_huge_wav[8], "WAVEfmt ", 8U);
+    adpcm_huge_wav[16] = 16U;
+    adpcm_huge_wav[20] = 0x11U;
+    adpcm_huge_wav[22] = 1U;
+    adpcm_huge_wav[24] = 0x40U;
+    adpcm_huge_wav[25] = 0x1FU;
+    adpcm_huge_wav[29] = 0x10U;
+    adpcm_huge_wav[32] = 1U;
+    adpcm_huge_wav[34] = 4U;
+    memcpy(&adpcm_huge_wav[36], "data", 4U);
+    adpcm_huge_wav[43] = 0x80U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_wav_parse_header(adpcm_huge_wav, sizeof(adpcm_huge_wav), &info));
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, info.total_samples);
+}
+
 void run_wav_tests(void)
 {
     RUN_TEST(test_wav_parse_null_and_bounds_checks);
     RUN_TEST(test_wav_parse_pcm_valid_header);
     RUN_TEST(test_wav_parse_ima_adpcm_header);
     RUN_TEST(test_wav_parse_invalid_magics_and_truncated);
+    RUN_TEST(test_tier_a_wav_undersized_fmt_odd_pad_and_adpcm_overflow);
 }

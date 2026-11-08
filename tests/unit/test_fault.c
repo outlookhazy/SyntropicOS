@@ -64,9 +64,33 @@ static void test_fault_capture_null(void)
     syn_fault_capture(NULL);
 }
 
+/**
+ * @brief Verify consecutive fault capture and log cycle preserves PC across compiler barrier.
+ */
+static void test_tier_a_fault_capture_barrier_integrity(void)
+{
+    SYN_ErrEntry err_buf[2];
+    SYN_ErrLog elog;
+    syn_errlog_init(&elog, err_buf, 2U, 7U);
+
+    SYN_FaultContext ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.pc = 0x0800CAFEUL;
+    ctx.lr = 0x0800BEEFUL;
+
+    syn_fault_capture(&ctx);
+    TEST_ASSERT_TRUE(syn_fault_check_and_log(&elog));
+
+    SYN_ErrEntry entry;
+    TEST_ASSERT_TRUE(syn_errlog_read(&elog, 0U, &entry));
+    TEST_ASSERT_EQUAL_UINT32(0x0800CAFEUL, entry.context);
+    TEST_ASSERT_FALSE(syn_fault_check_and_log(&elog));
+}
+
 void run_fault_tests(void)
 {
     RUN_TEST(test_fault_check_and_log);
     RUN_TEST(test_fault_null_log);
     RUN_TEST(test_fault_capture_null);
+    RUN_TEST(test_tier_a_fault_capture_barrier_integrity);
 }

@@ -36,6 +36,7 @@
  *   SYN_MAT_DECL(H,  N_MEAS,  N_STATE); // Measurement model
  *   SYN_MAT_DECL(R,  N_MEAS,  N_MEAS);  // Measurement noise
  *   SYN_MAT_DECL(z,  N_MEAS,  1);       // Measurement vector
+ *   SYN_KALMAN_SCRATCH_DECL(scratch, N_STATE, N_MEAS);
  *
  *   cfg.x = &x;  cfg.P = &P;  cfg.F = &F;
  *   cfg.Q = &Q;  cfg.H = &H;  cfg.R = &R;
@@ -51,6 +52,7 @@
  *   SYN_MAT_AT(&H, 0, 0) = Q16_ONE;
  *
  *   syn_kalman_init(&kf, &cfg);
+ *   SYN_KALMAN_SCRATCH_ASSIGN(&kf, scratch);
  *
  *   // In control loop:
  *   z.data[0] = sensor_reading;

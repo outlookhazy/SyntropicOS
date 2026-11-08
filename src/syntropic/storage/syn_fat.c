@@ -17,6 +17,7 @@
 #include "../util/syn_pack.h"
 #include "syn_fat.h"
 
+#include <limits.h>
 #include <string.h>
 
 /** @brief Logging tag for the FAT filesystem adapter. */
@@ -104,6 +105,21 @@ static uint32_t find_partition_start(const uint8_t *sector0)
 }
 
 /**
+ * @brief Check whether @p cluster is within the volume's allocatable cluster range.
+ * @param vol     Mounted FAT volume metadata.
+ * @param cluster Cluster index to validate.
+ * @return true if @p cluster is in [2, total_clusters + 1] and below reserved markers.
+ */
+static bool is_valid_cluster(const FAT_Volume *vol, uint32_t cluster)
+{
+    uint32_t max_valid = vol->is_fat32 ? 0x0FFFFFF6U : 0xFFF6U;
+    if ((cluster < 2U) || (cluster > max_valid)) {
+        return false;
+    }
+    return ((cluster - 2U) < vol->total_clusters);
+}
+
+/**
  * @brief Compute derived sector offsets and total allocatable clusters for @p vol.
  * @param vol          [in,out] Volume metadata structure.
  * @param bpb          512-byte boot sector buffer.
@@ -112,37 +128,43 @@ static uint32_t find_partition_start(const uint8_t *sector0)
  */
 static bool fat_compute_layout(FAT_Volume *vol, const uint8_t *bpb, uint32_t volume_start)
 {
-    vol->fat_start_sector = volume_start + vol->reserved_sectors;
-
-    if (vol->is_fat32) {
-        vol->root_start_sector = 0U;
-        vol->root_sectors = 0U;
-        vol->data_start_sector = vol->fat_start_sector + (vol->num_fats * vol->fat_sectors);
-    } else {
-        vol->root_start_sector = vol->fat_start_sector + (vol->num_fats * vol->fat_sectors);
-        vol->root_sectors = (((uint32_t)vol->fat16_root_entries * 32U) + 511U) / 512U;
-        vol->data_start_sector = vol->root_start_sector + vol->root_sectors;
+    if ((vol->fat_sectors == 0U) || (vol->num_fats == 0U)) {
+        return false;
     }
+
+    uint64_t fat_start = (uint64_t)volume_start + (uint64_t)vol->reserved_sectors;
+    uint64_t all_fats = (uint64_t)vol->num_fats * (uint64_t)vol->fat_sectors;
+    uint64_t root_secs =
+        vol->is_fat32 ? 0ULL : ((((uint64_t)vol->fat16_root_entries * 32ULL) + 511ULL) / 512ULL);
+    uint64_t root_start = vol->is_fat32 ? 0ULL : (fat_start + all_fats);
+    uint64_t data_start = fat_start + all_fats + root_secs;
 
     uint32_t total_sec = (uint32_t)syn_peek_u16_le(bpb, 19);
     if (total_sec == 0U) {
         total_sec = syn_peek_u32_le(bpb, 32);
     }
 
-    uint32_t non_data_sec = vol->data_start_sector - volume_start;
-    if (total_sec <= non_data_sec || vol->fat_sectors == 0U || vol->num_fats == 0U) {
+    uint64_t non_data_sec = (uint64_t)vol->reserved_sectors + all_fats + root_secs;
+    uint64_t vol_end = (uint64_t)volume_start + (uint64_t)total_sec;
+    if ((vol_end > (uint64_t)UINT32_MAX) || ((uint64_t)total_sec <= non_data_sec)) {
         return false;
     }
 
-    vol->total_clusters = (total_sec - non_data_sec) / (uint32_t)vol->sectors_per_cluster;
-    uint32_t fat_cap = (vol->fat_sectors * 512U) / (vol->is_fat32 ? 4U : 2U);
-    if (vol->total_clusters == 0U || fat_cap <= 2U) {
+    vol->fat_start_sector = (uint32_t)fat_start;
+    vol->root_start_sector = (uint32_t)root_start;
+    vol->root_sectors = (uint32_t)root_secs;
+    vol->data_start_sector = (uint32_t)data_start;
+
+    uint64_t clusters = ((uint64_t)total_sec - non_data_sec) / (uint64_t)vol->sectors_per_cluster;
+    uint64_t fat_cap = ((uint64_t)vol->fat_sectors * 512ULL) / (vol->is_fat32 ? 4ULL : 2ULL);
+    if ((clusters == 0ULL) || (fat_cap <= 2ULL)) {
         return false;
     }
-    if (vol->total_clusters > (fat_cap - 2U)) {
-        vol->total_clusters = fat_cap - 2U;
+    if (clusters > (fat_cap - 2ULL)) {
+        clusters = fat_cap - 2ULL;
     }
 
+    vol->total_clusters = (uint32_t)clusters;
     return true;
 }
 
@@ -184,18 +206,13 @@ static bool fat_parse_bpb(FAT_Volume *vol, const uint8_t *bpb, uint32_t volume_s
         vol->is_fat32 = true;
     }
 
-    return fat_compute_layout(vol, bpb, volume_start);
-}
-
-/**
- * @brief Check whether @p cluster is within the volume's allocatable cluster range.
- * @param vol     Mounted FAT volume metadata.
- * @param cluster Cluster index to validate.
- * @return true if @p cluster is in [2, total_clusters + 1].
- */
-static bool is_valid_cluster(const FAT_Volume *vol, uint32_t cluster)
-{
-    return (cluster >= 2U && cluster < (vol->total_clusters + 2U));
+    if (!fat_compute_layout(vol, bpb, volume_start)) {
+        return false;
+    }
+    if (vol->is_fat32 && !is_valid_cluster(vol, vol->root_cluster)) {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -587,6 +604,9 @@ static bool get_cluster_for_offset(const FAT_Volume *vol, uint32_t start_cluster
 
     uint32_t curr_cluster = start_cluster;
     for (uint32_t i = 0U; i < target_idx; i++) {
+        if (i >= vol->total_clusters) {
+            return false;
+        }
         uint32_t next = 0U;
         if (!read_fat_entry(vol, curr_cluster, &next)) {
             return false;
@@ -594,6 +614,9 @@ static bool get_cluster_for_offset(const FAT_Volume *vol, uint32_t start_cluster
         if (next >= eof_val) {
             *out_cluster = curr_cluster;
             return true;
+        }
+        if (!is_valid_cluster(vol, next)) {
+            return false;
         }
         curr_cluster = next;
     }
@@ -816,6 +839,23 @@ static int syn_fat_vfs_close(SYN_VfsFile *file)
 }
 
 /**
+ * @brief Clamp a requested I/O transfer length to INT_MAX and an unsigned 32-bit remainder.
+ * @param len     Caller-requested byte count.
+ * @param max_rem Maximum allowable 32-bit byte span from current file offset.
+ * @return Clamped byte count guaranteed to fit in both int and max_rem.
+ */
+static size_t fat_clamp_io_len(size_t len, uint32_t max_rem)
+{
+    if (len > (size_t)INT_MAX) {
+        len = (size_t)INT_MAX;
+    }
+    if (len > (size_t)max_rem) {
+        len = (size_t)max_rem;
+    }
+    return len;
+}
+
+/**
  * @brief VFS read callback reading sequential bytes from a FAT file.
  * @param file VFS file descriptor.
  * @param buf  Destination buffer.
@@ -838,9 +878,7 @@ static int syn_fat_vfs_read(SYN_VfsFile *file, void *buf, size_t len)
     if (!is_valid_cluster(&g_vol, ctx->start_cluster)) {
         return -2;
     }
-    if (ctx->offset + len > ctx->size) {
-        len = ctx->size - ctx->offset;
-    }
+    len = fat_clamp_io_len(len, ctx->size - ctx->offset);
 
     uint8_t sec_buf[512];
     uint32_t bytes_read = 0U;
@@ -888,6 +926,9 @@ static int fat_resolve_write_cluster(uint32_t start_cluster, uint32_t target_idx
     uint32_t eof_val = g_vol.is_fat32 ? 0x0FFFFFF8U : 0xFFF8U;
 
     for (uint32_t i = 0U; i < target_idx; i++) {
+        if (i >= g_vol.total_clusters) {
+            return SYN_INVALID_PARAM;
+        }
         uint32_t next = 0U;
         if (!read_fat_entry(&g_vol, curr_cluster, &next)) {
             return -5;
@@ -905,6 +946,9 @@ static int fat_resolve_write_cluster(uint32_t start_cluster, uint32_t target_idx
             }
             curr_cluster = new_cluster;
         } else {
+            if (!is_valid_cluster(&g_vol, next)) {
+                return SYN_INVALID_PARAM;
+            }
             curr_cluster = next;
         }
     }
@@ -966,6 +1010,24 @@ static int fat_write_sector_step(SYN_FatFileCtx *ctx, const uint8_t *src, size_t
 }
 
 /**
+ * @brief Persist updated file size to the file's directory entry on SD media.
+ * @param ctx     Open file context.
+ * @param sec_buf Caller-owned 512-byte sector scratch buffer.
+ * @return 0 on success, or -7 on SD read/write failure.
+ */
+static int fat_sync_dir_size(const SYN_FatFileCtx *ctx, uint8_t sec_buf[512])
+{
+    if (syn_sd_read(&g_sd, ctx->dir_sector, sec_buf) != SYN_OK) {
+        return -7;
+    }
+    syn_poke_u32_le(ctx->size, sec_buf, ctx->dir_offset + 28U);
+    if (syn_sd_write(&g_sd, ctx->dir_sector, sec_buf) != SYN_OK) {
+        return -7;
+    }
+    return 0;
+}
+
+/**
  * @brief VFS write callback writing sequential bytes and extending clusters as needed.
  * @param file VFS file descriptor.
  * @param buf  Source buffer.
@@ -984,6 +1046,7 @@ static int syn_fat_vfs_write(SYN_VfsFile *file, const void *buf, size_t len)
     if (((uint32_t)ctx->flags & (uint32_t)SYN_O_APPEND) != 0U) {
         ctx->offset = ctx->size;
     }
+    len = fat_clamp_io_len(len, UINT32_MAX - ctx->offset);
     if (len == 0U) {
         return 0;
     }
@@ -1008,12 +1071,9 @@ static int syn_fat_vfs_write(SYN_VfsFile *file, const void *buf, size_t len)
         bytes_written += chunk;
     }
 
-    if (syn_sd_read(&g_sd, ctx->dir_sector, sec_buf) != SYN_OK) {
-        return -7;
-    }
-    syn_poke_u32_le(ctx->size, sec_buf, ctx->dir_offset + 28U);
-    if (syn_sd_write(&g_sd, ctx->dir_sector, sec_buf) != SYN_OK) {
-        return -7;
+    int sync_rc = fat_sync_dir_size(ctx, sec_buf);
+    if (sync_rc < 0) {
+        return sync_rc;
     }
 
     return (int)bytes_written;
@@ -1033,13 +1093,13 @@ static int32_t syn_fat_vfs_seek(SYN_VfsFile *file, int32_t offset, int whence)
     }
     SYN_FatFileCtx *ctx = (SYN_FatFileCtx *)file->fs_file;
 
-    int32_t target_offset = 0;
+    int64_t target_offset = 0;
     if (whence == SYN_SEEK_SET) {
-        target_offset = offset;
+        target_offset = (int64_t)offset;
     } else if (whence == SYN_SEEK_CUR) {
-        target_offset = (int32_t)ctx->offset + offset;
+        target_offset = (int64_t)ctx->offset + (int64_t)offset;
     } else if (whence == SYN_SEEK_END) {
-        target_offset = (int32_t)ctx->size + offset;
+        target_offset = (int64_t)ctx->size + (int64_t)offset;
     } else {
         return -2;
     }
@@ -1047,8 +1107,11 @@ static int32_t syn_fat_vfs_seek(SYN_VfsFile *file, int32_t offset, int whence)
     if (target_offset < 0) {
         target_offset = 0;
     }
-    if ((uint32_t)target_offset > ctx->size) {
-        target_offset = (int32_t)ctx->size;
+    if (target_offset > (int64_t)ctx->size) {
+        target_offset = (int64_t)ctx->size;
+    }
+    if (target_offset > (int64_t)INT32_MAX) {
+        return -2;
     }
 
     ctx->offset = (uint32_t)target_offset;

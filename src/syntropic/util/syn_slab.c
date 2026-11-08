@@ -68,16 +68,19 @@ SYN_Status syn_slab_init(SYN_SlabAllocator *slab, void *backing_memory, size_t t
     memset(slab, 0, sizeof(*slab));
     slab->backing_memory = (uint8_t *)aligned_addr;
     slab->total_memory_size = total_size - adjust;
-    slab->num_classes = num_classes;
 
     uint8_t *curr_ptr = slab->backing_memory;
     size_t remaining_size = slab->total_memory_size;
+    const size_t max_raw_block = SIZE_MAX - (sizeof(void *) - 1U);
 
     for (size_t i = 0U; i < num_classes; i++) {
+        if ((block_sizes[i] == 0U) || (block_sizes[i] > max_raw_block)) {
+            return SYN_INVALID_PARAM;
+        }
         size_t b_size =
             (block_sizes[i] < sizeof(void *)) ? sizeof(void *) : SLAB_ALIGN_PTR(block_sizes[i]);
         size_t count = blocks_per_class[i];
-        if (count == 0U || b_size > (remaining_size / count)) {
+        if ((count == 0U) || (b_size > (remaining_size / count))) {
             return SYN_INVALID_PARAM;
         }
         size_t req_size = b_size * count;
@@ -102,6 +105,7 @@ SYN_Status syn_slab_init(SYN_SlabAllocator *slab, void *backing_memory, size_t t
         remaining_size -= req_size;
     }
 
+    slab->num_classes = num_classes;
     return SYN_OK;
 }
 

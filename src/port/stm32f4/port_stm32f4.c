@@ -197,12 +197,17 @@ typedef struct {
 } FLASH_TypeDef;
 
 #define FLASH ((FLASH_TypeDef *)0x40023C00)
-#define FLASH_SR_BSY (1U << 16)
-#define FLASH_CR_PG (1U << 0)
-#define FLASH_CR_SER (1U << 1)
-#define FLASH_CR_STRT (1U << 16)
-#define FLASH_CR_LOCK (1U << 31)
-#define FLASH_CR_PSIZE_BYTE (0U << 8)
+#define FLASH_ACR_ICEN (1UL << 9)
+#define FLASH_ACR_DCEN (1UL << 10)
+#define FLASH_ACR_ICRST (1UL << 11)
+#define FLASH_ACR_DCRST (1UL << 12)
+#define FLASH_SR_ERR_MASK 0xF2UL
+#define FLASH_SR_BSY (1UL << 16)
+#define FLASH_CR_PG (1UL << 0)
+#define FLASH_CR_SER (1UL << 1)
+#define FLASH_CR_STRT (1UL << 16)
+#define FLASH_CR_LOCK (1UL << 31)
+#define FLASH_CR_PSIZE_BYTE (0UL << 8)
 #define FLASH_KEY1 0x45670123UL
 #define FLASH_KEY2 0xCDEF89ABUL
 
@@ -307,8 +312,9 @@ typedef struct {
 #define CAN1_BASE 0x40006400UL
 #define CAN1 ((CAN_TypeDef *)CAN1_BASE)
 
-#define CAN_MCR_INRQ (1U << 0)
-#define CAN_MSR_INAK (1U << 0)
+#define CAN_MCR_INRQ (1UL << 0)
+#define CAN_MCR_SLEEP (1UL << 1)
+#define CAN_MSR_INAK (1UL << 0)
 #define CAN_TSR_TME0 (1U << 26)
 #define CAN_TIR_TXRQ (1U << 0)
 #define CAN_TIR_IDE (1U << 2)
@@ -514,11 +520,12 @@ SYN_GPIO_State syn_port_gpio_read(SYN_GPIO_Pin pin)
 SYN_Status syn_port_gpio_toggle(SYN_GPIO_Pin pin)
 {
     uint8_t port_idx = pin >> 4;
-    if (port_idx >= NUM_GPIO_PORTS)
+    if (port_idx >= NUM_GPIO_PORTS) {
         return SYN_INVALID_PARAM;
+    }
     GPIO_TypeDef *gpio = gpio_ports[port_idx];
-    uint8_t bit = GPIO_BIT(pin);
-    gpio->ODR ^= (1U << bit);
+    uint32_t mask = (1UL << GPIO_BIT(pin));
+    gpio->BSRR = ((gpio->ODR & mask) != 0UL) ? (mask << 16U) : mask;
     return SYN_OK;
 }
 
@@ -528,8 +535,9 @@ SYN_Status syn_port_gpio_toggle(SYN_GPIO_Pin pin)
 
 SYN_Status syn_port_uart_init(SYN_UARTInstance inst, uint32_t baud)
 {
-    if (inst >= 5)
+    if (inst >= 5U || baud == 0U) {
         return SYN_INVALID_PARAM;
+    }
     USART_TypeDef *uart = usart_instances[inst];
 
     /* Enable clock */
@@ -953,19 +961,35 @@ static SYN_Status flash_wait_bsy(void)
     return (timeout > 0) ? SYN_OK : SYN_TIMEOUT;
 }
 
-/* STM32F4 sector map (first 5 sectors of bank 1) */
+/**
+ * @brief Flush STM32F4 ART Accelerator instruction and data caches after flash mutation.
+ */
+static void flash_flush_art_cache(void)
+{
+    uint32_t acr = FLASH->ACR;
+    FLASH->ACR = acr & ~(FLASH_ACR_ICEN | FLASH_ACR_DCEN);
+    FLASH->ACR |= (FLASH_ACR_ICRST | FLASH_ACR_DCRST);
+    FLASH->ACR &= ~(FLASH_ACR_ICRST | FLASH_ACR_DCRST);
+    FLASH->ACR = acr;
+}
+
+/* STM32F407VG sector map (Sectors 0..11, 1 MB total) */
 static const struct {
     uint32_t addr;
     uint32_t size;
 } flash_sectors[] = {
-    {0x08000000, 16 * 1024},  /* Sector 0 */
-    {0x08004000, 16 * 1024},  /* Sector 1 */
-    {0x08008000, 16 * 1024},  /* Sector 2 */
-    {0x0800C000, 16 * 1024},  /* Sector 3 */
-    {0x08010000, 64 * 1024},  /* Sector 4 */
-    {0x08020000, 128 * 1024}, /* Sector 5 */
-    {0x08040000, 128 * 1024}, /* Sector 6 */
-    {0x08060000, 128 * 1024}, /* Sector 7 */
+    {0x08000000UL, 16UL * 1024UL},  /* Sector 0 */
+    {0x08004000UL, 16UL * 1024UL},  /* Sector 1 */
+    {0x08008000UL, 16UL * 1024UL},  /* Sector 2 */
+    {0x0800C000UL, 16UL * 1024UL},  /* Sector 3 */
+    {0x08010000UL, 64UL * 1024UL},  /* Sector 4 */
+    {0x08020000UL, 128UL * 1024UL}, /* Sector 5 */
+    {0x08040000UL, 128UL * 1024UL}, /* Sector 6 */
+    {0x08060000UL, 128UL * 1024UL}, /* Sector 7 */
+    {0x08080000UL, 128UL * 1024UL}, /* Sector 8 */
+    {0x080A0000UL, 128UL * 1024UL}, /* Sector 9 */
+    {0x080C0000UL, 128UL * 1024UL}, /* Sector 10 */
+    {0x080E0000UL, 128UL * 1024UL}, /* Sector 11 */
 };
 #define NUM_FLASH_SECTORS (sizeof(flash_sectors) / sizeof(flash_sectors[0]))
 
@@ -982,8 +1006,9 @@ static int flash_find_sector(uint32_t addr)
 SYN_Status syn_port_flash_erase(uint32_t addr)
 {
     int sector = flash_find_sector(addr);
-    if (sector < 0)
+    if (sector < 0) {
         return SYN_INVALID_PARAM;
+    }
 
     flash_unlock();
     SYN_Status s = flash_wait_bsy();
@@ -992,26 +1017,47 @@ SYN_Status syn_port_flash_erase(uint32_t addr)
         return s;
     }
 
+    FLASH->SR = FLASH_SR_ERR_MASK;
+
     /* Sector erase, byte-size programming */
-    FLASH->CR = FLASH_CR_SER | ((uint32_t)sector << 3) | FLASH_CR_PSIZE_BYTE;
+    FLASH->CR = FLASH_CR_SER | ((uint32_t)sector << 3U) | FLASH_CR_PSIZE_BYTE;
     FLASH->CR |= FLASH_CR_STRT;
 
     s = flash_wait_bsy();
-    FLASH->CR = 0;
+    if ((FLASH->SR & FLASH_SR_ERR_MASK) != 0UL) {
+        FLASH->SR = FLASH_SR_ERR_MASK;
+        s = SYN_ERROR;
+    }
+    FLASH->CR = 0UL;
     flash_lock();
+    if (s == SYN_OK) {
+        flash_flush_art_cache();
+    }
 
     return s;
 }
 
 SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
 {
+    if (len == 0U) {
+        return SYN_OK;
+    }
+    if (buf == NULL) {
+        return SYN_INVALID_PARAM;
+    }
     /* Flash is memory-mapped — just read directly */
-    memcpy(buf, (const void *)addr, len);
+    memcpy(buf, (const void *)(uintptr_t)addr, len);
     return SYN_OK;
 }
 
 SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
 {
+    if (len == 0U) {
+        return SYN_OK;
+    }
+    if (buf == NULL) {
+        return SYN_INVALID_PARAM;
+    }
     const uint8_t *src = (const uint8_t *)buf;
 
     flash_unlock();
@@ -1021,21 +1067,25 @@ SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
         return s;
     }
 
+    FLASH->SR = FLASH_SR_ERR_MASK;
+
     /* Byte programming */
     FLASH->CR = FLASH_CR_PG | FLASH_CR_PSIZE_BYTE;
 
-    for (size_t i = 0; i < len; i++) {
-        *(volatile uint8_t *)(addr + i) = src[i];
+    for (size_t i = 0U; i < len; i++) {
+        *(volatile uint8_t *)(uintptr_t)(addr + (uint32_t)i) = src[i];
         s = flash_wait_bsy();
-        if (s != SYN_OK) {
-            FLASH->CR = 0;
+        if (s != SYN_OK || (FLASH->SR & FLASH_SR_ERR_MASK) != 0UL) {
+            FLASH->SR = FLASH_SR_ERR_MASK;
+            FLASH->CR = 0UL;
             flash_lock();
-            return s;
+            return (s != SYN_OK) ? s : SYN_ERROR;
         }
     }
 
-    FLASH->CR = 0;
+    FLASH->CR = 0UL;
     flash_lock();
+    flash_flush_art_cache();
 
     return SYN_OK;
 }
@@ -1163,32 +1213,41 @@ void syn_port_exti_clear_pending(SYN_GPIO_Pin pin)
 bool syn_port_can_init(uint8_t port, uint32_t bitrate)
 {
     (void)port;
+    if (bitrate == 0U) {
+        return false;
+    }
 
     /* Enable CAN1 clock */
-    RCC_APB1ENR |= (1U << 25);
+    RCC_APB1ENR |= (1UL << 25);
 
-    /* Enter init mode */
-    CAN1->MCR |= CAN_MCR_INRQ;
-    uint32_t timeout = 100000;
-    while (!(CAN1->MSR & CAN_MSR_INAK) && timeout--) { /* spin */
+    /* Exit sleep mode and enter init mode */
+    CAN1->MCR = (CAN1->MCR & ~CAN_MCR_SLEEP) | CAN_MCR_INRQ;
+    uint32_t timeout = 100000U;
+    while (((CAN1->MSR & CAN_MSR_INAK) == 0UL) && (--timeout > 0U)) { /* spin */
     }
-    if (!timeout)
+    if (timeout == 0U) {
         return false;
+    }
 
-    /* Set bit timing (rough: 16MHz / (1+BS1+BS2) / prescaler = bitrate)
-     * For 500kbps at 16MHz: prescaler=2, BS1=13, BS2=2 => 16/(1+13+2)/2 = 500k */
-    uint32_t prescaler = SYSTEM_CLOCK_HZ / (16 * bitrate);
-    if (prescaler < 1)
-        prescaler = 1;
-    CAN1->BTR = ((2 - 1) << 20) |  /* SJW = 2 */
-                ((13 - 1) << 16) | /* BS1 = 13 */
-                ((2 - 1) << 0);    /* Prescaler */
-    (void)prescaler;               /* Use computed prescaler in production */
+    /* Bit timing: APB1_CLOCK_HZ / (1 + BS1 + BS2) / prescaler = bitrate (16 tq/bit) */
+    uint32_t prescaler = (APB1_CLOCK_HZ / 16UL) / bitrate;
+    if (prescaler < 1UL) {
+        prescaler = 1UL;
+    } else if (prescaler > 1024UL) {
+        prescaler = 1024UL;
+    }
+    CAN1->BTR = ((2UL - 1UL) << 24) |          /* SJW = 2 tq (bits 25:24) */
+                ((2UL - 1UL) << 20) |          /* TS2 = 2 tq (bits 22:20) */
+                ((13UL - 1UL) << 16) |         /* TS1 = 13 tq (bits 19:16) */
+                ((prescaler - 1UL) & 0x3FFUL); /* BRP (bits 9:0) */
 
     /* Leave init mode */
     CAN1->MCR &= ~CAN_MCR_INRQ;
-    timeout = 100000;
-    while ((CAN1->MSR & CAN_MSR_INAK) && timeout--) { /* spin */
+    timeout = 100000U;
+    while (((CAN1->MSR & CAN_MSR_INAK) != 0UL) && (--timeout > 0U)) { /* spin */
+    }
+    if (timeout == 0U) {
+        return false;
     }
 
     return true;

@@ -17,8 +17,10 @@
 static SYN_VfsMount g_mounts[SYN_VFS_MAX_MOUNTS]; /**< Mount table.           */
 static size_t g_mount_count = 0;                  /**< Number of active mounts. */
 
-static SYN_VfsFile g_files[SYN_VFS_MAX_OPEN_FILES]; /**< Open file handles.     */
-static SYN_VfsDir g_dirs[SYN_VFS_MAX_OPEN_DIRS];    /**< Open directory handles. */
+static SYN_VfsFile g_files[SYN_VFS_MAX_OPEN_FILES];       /**< Open file handles.          */
+static SYN_VfsDir g_dirs[SYN_VFS_MAX_OPEN_DIRS];          /**< Open directory handles.     */
+static const char *g_file_mounts[SYN_VFS_MAX_OPEN_FILES]; /**< Owning mount prefix per fd. */
+static const char *g_dir_mounts[SYN_VFS_MAX_OPEN_DIRS];   /**< Owning mount prefix per dd. */
 
 void syn_vfs_init(void)
 {
@@ -26,6 +28,8 @@ void syn_vfs_init(void)
     memset(g_mounts, 0, sizeof(g_mounts));
     memset(g_files, 0, sizeof(g_files));
     memset(g_dirs, 0, sizeof(g_dirs));
+    memset(g_file_mounts, 0, sizeof(g_file_mounts));
+    memset(g_dir_mounts, 0, sizeof(g_dir_mounts));
 }
 
 SYN_Status syn_vfs_mount(const char *prefix, const SYN_VfsOps *ops, void *fs_data)
@@ -58,6 +62,26 @@ SYN_Status syn_vfs_mount(const char *prefix, const SYN_VfsOps *ops, void *fs_dat
     return SYN_OK;
 }
 
+/**
+ * @brief Check whether any open file or directory belongs to a mount prefix.
+ * @param prefix Mount path prefix to check.
+ * @return true if at least one descriptor is open on the mount, false otherwise.
+ */
+static bool is_mount_busy(const char *prefix)
+{
+    for (int i = 0; i < SYN_VFS_MAX_OPEN_FILES; i++) {
+        if (g_files[i].is_open && (strcmp(g_file_mounts[i], prefix) == 0)) {
+            return true;
+        }
+    }
+    for (int i = 0; i < SYN_VFS_MAX_OPEN_DIRS; i++) {
+        if (g_dirs[i].is_open && (strcmp(g_dir_mounts[i], prefix) == 0)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 SYN_Status syn_vfs_unmount(const char *prefix)
 {
     SYN_ASSERT(prefix != NULL);
@@ -66,11 +90,14 @@ SYN_Status syn_vfs_unmount(const char *prefix)
                                      fallback */
     }
 
-    for (size_t i = 0; i < g_mount_count; i++) {
+    for (size_t i = 0U; i < g_mount_count; i++) {
         if (strcmp(g_mounts[i].prefix, prefix) == 0) {
+            if (is_mount_busy(prefix)) {
+                return SYN_ERROR;
+            }
             /* Shift down remaining mounts */
-            for (size_t j = i; j < g_mount_count - 1; j++) {
-                g_mounts[j] = g_mounts[j + 1];
+            for (size_t j = i; j < g_mount_count - 1U; j++) {
+                g_mounts[j] = g_mounts[j + 1U];
             }
             g_mount_count--;
             memset(&g_mounts[g_mount_count], 0, sizeof(SYN_VfsMount));
@@ -82,6 +109,26 @@ SYN_Status syn_vfs_unmount(const char *prefix)
 }
 
 /**
+ * @brief Check whether an absolute path matches a mount point prefix boundary.
+ * @param m    Mount entry to test.
+ * @param path Candidate path string.
+ * @return true if path is within mount m, false otherwise.
+ */
+static bool mount_prefix_matches(const SYN_VfsMount *m, const char *path)
+{
+    size_t len = m->prefix_len;
+    for (size_t k = 0U; k < len; k++) {
+        if (path[k] != m->prefix[k]) {
+            return false;
+        }
+    }
+    if ((len == 1U) && (m->prefix[0] == '/')) {
+        return true;
+    }
+    return (path[len] == '\0') || (path[len] == '/');
+}
+
+/**
  * @brief Find the mount point for a given path.
  * @param path      Absolute path.
  * @param rel_path  [out] Relative path within the mount.
@@ -90,37 +137,30 @@ SYN_Status syn_vfs_unmount(const char *prefix)
 static const SYN_VfsMount *find_mount(const char *path, const char **rel_path)
 {
     /* LCOV_EXCL_START: Defensive NULL check; callers call SYN_ASSERT */
-    if (path == NULL)
+    if (path == NULL) {
         return NULL;
+    }
     /* LCOV_EXCL_STOP */
 
-    size_t longest_match = 0;
+    size_t longest_match = 0U;
     const SYN_VfsMount *matched = NULL;
 
-    for (size_t i = 0; i < g_mount_count; i++) {
+    for (size_t i = 0U; i < g_mount_count; i++) {
         size_t len = g_mounts[i].prefix_len;
-        bool match = true;
-        for (size_t k = 0; k < len; k++) {
-            if (path[k] != g_mounts[i].prefix[k]) {
-                match = false;
-                break;
-            }
-        }
-        if (match) {
-            /* Prefix match. Check if boundary is slash or end of string */
-            if (path[len] == '\0' || path[len] == '/') {
-                if (len > longest_match) {
-                    longest_match = len;
-                    matched = &g_mounts[i];
-                }
-            }
+        if (mount_prefix_matches(&g_mounts[i], path) && (len > longest_match)) {
+            longest_match = len;
+            matched = &g_mounts[i];
         }
     }
 
-    if (matched) {
-        *rel_path = path + longest_match;
-        if (**rel_path == '\0') {
-            *rel_path = "/";
+    if (matched != NULL) {
+        if ((longest_match == 1U) && (matched->prefix[0] == '/')) {
+            *rel_path = path;
+        } else {
+            *rel_path = path + longest_match;
+            if (**rel_path == '\0') {
+                *rel_path = "/";
+            }
         }
     }
 
@@ -179,10 +219,12 @@ int syn_vfs_open(const char *path, int flags)
     g_files[fd].ops = m->ops;
     g_files[fd].fs_file = NULL;
     g_files[fd].is_open = true;
+    g_file_mounts[fd] = m->prefix;
 
     int ret = m->ops->open(&g_files[fd], rel_path, flags, m->fs_data);
     if (ret < 0) {
         g_files[fd].is_open = false;
+        g_file_mounts[fd] = NULL;
         return ret;
     }
 
@@ -201,6 +243,7 @@ int syn_vfs_close(int fd)
     }
 
     g_files[fd].is_open = false;
+    g_file_mounts[fd] = NULL;
     return ret;
 }
 
@@ -295,10 +338,12 @@ int syn_vfs_opendir(const char *path)
     g_dirs[dd].ops = m->ops;
     g_dirs[dd].fs_dir = NULL;
     g_dirs[dd].is_open = true;
+    g_dir_mounts[dd] = m->prefix;
 
     int ret = m->ops->opendir(&g_dirs[dd], rel_path, m->fs_data);
     if (ret < 0) {
         g_dirs[dd].is_open = false;
+        g_dir_mounts[dd] = NULL;
         return ret;
     }
 
@@ -307,7 +352,7 @@ int syn_vfs_opendir(const char *path)
 
 int syn_vfs_readdir(int dd, SYN_VfsDirEnt *ent)
 {
-    if (dd < 0 || dd >= SYN_VFS_MAX_OPEN_DIRS || !g_dirs[dd].is_open) {
+    if ((ent == NULL) || (dd < 0) || (dd >= SYN_VFS_MAX_OPEN_DIRS) || !g_dirs[dd].is_open) {
         return -1;
     }
     if (!g_dirs[dd].ops->readdir) {
@@ -328,6 +373,7 @@ int syn_vfs_closedir(int dd)
     }
 
     g_dirs[dd].is_open = false;
+    g_dir_mounts[dd] = NULL;
     return ret;
 }
 
