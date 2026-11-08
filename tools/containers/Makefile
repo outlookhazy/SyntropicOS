@@ -22,36 +22,45 @@ export CONTAINER_ENGINE
 CACHE_VOL ?= syntropicos-build-cache
 
 
-.PHONY: help san tsan qemu renode fuzz cov static dox integration format lint misra container-build container-volume container-san container-tsan container-qemu container-renode container-fuzz container-cov container-static container-dox container-integration container-format container-lint container-misra
+.PHONY: help \
+	test format lint misra stack size complexity san tsan qemu renode fuzz \
+	cov static dox pio valgrind analyzer flawfinder integration examples \
+	container-build container-volume container-test container-format \
+	container-lint container-misra container-stack container-size \
+	container-complexity container-san container-tsan container-qemu \
+	container-renode container-fuzz container-cov container-static \
+	container-dox container-pio container-valgrind container-analyzer \
+	container-flawfinder container-integration container-examples
 
 help:
-	@echo "SyntropicOS Containerized Execution & Tooling Framework"
-	@echo "--------------------------------------------------------"
-	@echo "  make format                Check code formatting via clang-format"
-	@echo "  make lint                  Run AST code quality linter via clang-tidy"
-	@echo "  make misra                 Run MISRA C:2023 safety compliance scan"
-	@echo "  make san                   Run test suite under ASan + UBSan"
-	@echo "  make tsan                  Run test suite under ThreadSanitizer (TSan)"
-	@echo "  make qemu                  Run QEMU ARM Cortex-M4 bare-metal emulation"
-	@echo "  make renode                Run Renode STM32F4 board hardware emulation"
-	@echo "  make fuzz                  Run libFuzzer protocol targets"
-	@echo "  make cov                   Generate test coverage analysis & HTML report"
-	@echo "  make static                Run Cppcheck & Clang scan-build static analysis"
-	@echo "  make dox                   Run Doxygen API documentation coverage check"
-	@echo "  make integration           Run 3rd-party container integration tests"
-	@echo "  make container-build       Build testing container image via Podman/Docker"
-	@echo "  make container-format      Run clang-format formatting check in container"
-	@echo "  make container-lint        Run clang-tidy linter inside container"
-	@echo "  make container-misra       Run MISRA C:2023 compliance scan in container"
-	@echo "  make container-san         Execute sanitizer suite inside Podman container"
-	@echo "  make container-tsan        Execute ThreadSanitizer suite inside container"
-	@echo "  make container-qemu        Execute QEMU ARM Cortex-M4 inside Podman container"
-	@echo "  make container-renode      Execute Renode hardware emulation inside container"
-	@echo "  make container-fuzz        Execute libFuzzer suite inside Podman container"
-	@echo "  make container-cov         Execute coverage analysis inside Podman container"
-	@echo "  make container-static      Execute static analysis inside Podman container"
-	@echo "  make container-dox         Execute doxygen coverage inside Podman container"
-	@echo "  make container-integration Execute 3rd-party container integration suite"
+	@echo "SyntropicOS Containerized Verification & Tooling"
+	@echo "------------------------------------------------"
+	@echo "  make container-build       Build verification container image (Podman/Docker)"
+	@echo "  make container-test        Run Unity test suite & LCOV coverage in container"
+	@echo "  make container-cov         Generate LCOV line/branch coverage report"
+	@echo "  make container-format      Check code formatting via clang-format (FIX=1 to apply)"
+	@echo "  make container-lint        Run AST linter (clang-tidy + protothread switch check)"
+	@echo "  make container-misra       Run MISRA C:2023 compliance scan"
+	@echo "  make container-static      Run Cppcheck & Clang scan-build static analysis"
+	@echo "  make container-analyzer    Run GCC -fanalyzer deep interprocedural analysis"
+	@echo "  make container-flawfinder  Run CWE security lexical scan"
+	@echo "  make container-stack       Verify static stack frame bounds & zero VLAs"
+	@echo "  make container-size        Report per-module Flash/RAM object footprint"
+	@echo "  make container-complexity  Enforce cyclomatic complexity V(G) <= 15"
+	@echo "  make container-san         Run test suite under ASan + UBSan"
+	@echo "  make container-tsan        Run test suite under ThreadSanitizer (TSan)"
+	@echo "  make container-valgrind    Run test suite under Valgrind Memcheck"
+	@echo "  make container-fuzz        Run libFuzzer protocol fuzzing targets"
+	@echo "  make container-qemu        Run QEMU ARM Cortex-M4 bare-metal emulation"
+	@echo "  make container-renode      Run Renode STM32F4 board hardware emulation"
+	@echo "  make container-examples    Cross-compile all examples & lean config profiles"
+	@echo "  make container-pio         Cross-compile PlatformIO multi-MCU matrix"
+	@echo "  make container-integration Run 3rd-party container integration suite"
+	@echo "  make container-dox         Verify Doxygen API documentation (0 warnings)"
+	@echo "  make clean                 Remove host build/coverage/doxygen artifacts"
+	@echo "  make install-hooks         Configure Git .githooks pre-commit hook"
+	@echo ""
+	@echo "Note: Omit 'container-' prefix when inside the container or using a native toolchain."
 
 test:
 	@make -C $(ROOT_DIR) -f tests/Makefile.unity test
