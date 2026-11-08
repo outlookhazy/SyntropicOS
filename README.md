@@ -22,7 +22,7 @@ Deeply embedded systems present a fundamental architectural choice:
 2. **Preemptive RTOS (FreeRTOS, Zephyr)**: Multi-tasking where every task requires an allocated stack (512 B to 4 KB RAM per task). On microcontrollers with 2 KB to 16 KB total RAM, allocating thread stacks severely constrains memory. Preemptive switches also introduce race conditions, mutex contention, context-switch overhead, and potential stack overflows.
 3. **The SyntropicOS Approach**: A cooperative OS built around **stackless coroutines (protothreads `syn_pt`)**. Tasks execute sequentially on a single system stack while syntax macros handle yielding and resumption. Continuation state costs **2 bytes of RAM per thread** (`uint16_t lc`). Memory allocation is **100% static** (zero `malloc()`), preventing runtime heap fragmentation.
 
-SyntropicOS is not the first system to use stackless coroutines — Contiki OS (created by Adam Dunkels, who invented protothreads) popularized them for microcontrollers. The difference is that **every SyntropicOS module is built from the ground up with the cooperative model in mind**. All 70+ drivers, protocol stacks, and subsystems expose non-blocking `_poll()`, `_update()`, or `_process()` APIs that yield cooperatively. There are no blocking wrappers around third-party libraries or hidden busy-waits inside module code.
+SyntropicOS is not the first system to use stackless coroutines — Contiki OS (created by Adam Dunkels, who invented protothreads) popularized them for microcontrollers. The difference is that **every SyntropicOS module is built from the ground up with the cooperative model in mind**. Every driver, protocol stack, and subsystem exposes non-blocking `_poll()`, `_update()`, or `_process()` APIs that yield cooperatively. There are no blocking wrappers around third-party libraries or hidden busy-waits inside module code.
 
 ---
 
@@ -66,7 +66,7 @@ Every driver and protocol module in SyntropicOS is written from scratch as a coo
 | **Concurrency** | Cooperative stackless coroutines (`syn_pt`). Continuation state costs **2 bytes RAM** per thread. |
 | **Scheduler** | Cooperative task runner (`syn_sched`). Task descriptors (`SYN_Task`) cost **44 bytes RAM** per task on 32-bit targets (80 bytes on 64-bit targets; standalone `SYN_PT` is **2 bytes**). |
 | **Memory Allocation** | **100% Zero-Heap / Static Allocation**. No `malloc()` or dynamic pool fragmentation over long runtimes. |
-| **Execution Model** | All 70+ drivers & protocol stacks are written as **non-blocking state machines**. |
+| **Execution Model** | Every driver & protocol stack is written as a **non-blocking state machine**. |
 | **Compatibility** | Standard **C99**. Compiles with GCC, Clang, IAR, Keil, STM32CubeIDE, and Arduino IDE. |
 
 ---
@@ -170,12 +170,23 @@ SyntropicOS includes over 50 complete hardware and SDK examples across bare-meta
 ## Containerized Verification Workflow
 
 ```bash
-make test         # Run Unity unit test suite (2000+ unit tests passing)
-make san          # Execute AddressSanitizer & UBSan memory safety audit
-make qemu         # Bare-metal ARM Cortex-M4 boot emulation
-make fuzz         # Run LLVM libFuzzer protocol targets (COBS, Modbus, MQTT, HTTP)
-make cov          # Generates LCOV HTML code coverage reports
-make static       # Run Cppcheck and Clang scan-build static analysis
-make dox          # Build Doxygen API documentation (0 warnings tolerance)
-make integration  # Run E2E tests against 8 genuine production container daemons
+make container-test         # Run Unity unit test suite & LCOV coverage
+make container-format       # Check C99 formatting via clang-format (FIX=1 to apply)
+make container-lint         # Run clang-tidy AST linter & protothread switch check
+make container-static       # Run Cppcheck and Clang scan-build static analysis
+make container-san          # Execute AddressSanitizer & UBSan memory safety suite
+make container-qemu         # Bare-metal ARM Cortex-M4 boot & test emulation
+make container-examples     # Cross-compile all examples & lean syn_config.h profiles
+make container-fuzz         # Run LLVM libFuzzer protocol targets
+make container-dox          # Build Doxygen API documentation (0 warnings tolerance)
+make container-integration  # Run E2E tests against containerized service daemons
 ```
+
+---
+
+## Contributing & License
+
+Contributions, bug reports, and new MCU ports or standards-based protocol modules are welcome. Please read **[CONTRIBUTING.md](CONTRIBUTING.md)** for core architectural invariants (zero-heap C99, non-blocking protothreads, HAL isolation, vendor-neutral specification compliance), coding style, and containerized verification steps before opening a pull request. To report a security vulnerability privately, see **[SECURITY.md](SECURITY.md)**.
+
+Licensed under the **[Apache License 2.0](LICENSE)**.
+

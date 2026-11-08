@@ -4,48 +4,49 @@ SyntropicOS features a multi-tiered test and quality assurance architecture rang
 
 ## Containerized Testing Workflow
 
-All testing targets are fully containerized using **Podman** / **Docker**, providing isolated, repeatable execution environments across all developer platforms and CI/CD pipelines.
+All verification targets run inside an isolated **Podman** / **Docker** image (`syntropicos-test`) across developer hosts and CI/CD pipelines. Omit the `container-` prefix only when already inside the container or using an equivalent native toolchain.
 
-| Make Target | Containerized Target | Description |
+| Containerized Target | In-Container / Native Target | Description |
 | :--- | :--- | :--- |
-| `make test` | `make container-test` | Runs host Unity unit test suite (2000+ unit tests) |
-| `make san` | `make container-san` | Executes unit tests with AddressSanitizer (ASan) & UBSan |
-| `make qemu` | `make container-qemu` | Bare-metal QEMU Cortex-M4 startup & RAM verification |
-| `make fuzz` | `make container-fuzz` | Runs LLVM `libFuzzer` protocol targets (COBS, Modbus, MQTT, HTTP, IR) |
-| `make cov` | `make container-cov` | Generates LCOV line and branch code coverage summaries (`build/cov/coverage_src.info`) |
-| `make static` | `make container-static` | Performs Cppcheck and Clang `scan-build` static analysis |
-| `make dox` | `make container-dox` | Builds Doxygen API documentation and verifies zero warnings |
-| `make integration` | `make container-integration` | Executes E2E tests against genuine 3rd-party container daemons |
+| `make container-test` | `make test` | Runs Unity unit test suite & LCOV coverage |
+| `make container-format` | `make format` | Checks C99 formatting via `clang-format` (`FIX=1` to apply) |
+| `make container-lint` | `make lint` | Runs `clang-tidy` AST linter & protothread `switch` check |
+| `make container-san` | `make san` | Executes unit tests under AddressSanitizer (ASan) & UBSan |
+| `make container-qemu` | `make qemu` | Bare-metal QEMU ARM Cortex-M4 startup & test verification |
+| `make container-renode` | `make renode` | Renode STM32F4 board-level peripheral emulation |
+| `make container-examples` | `make examples` | Cross-compiles all examples & lean `syn_config.h` profiles |
+| `make container-fuzz` | `make fuzz` | Runs LLVM `libFuzzer` protocol targets |
+| `make container-cov` | `make cov` | Generates LCOV line and branch coverage summaries (`build/cov/coverage_src.info`) |
+| `make container-static` | `make static` | Performs Cppcheck and Clang `scan-build` static analysis |
+| `make container-dox` | `make dox` | Builds Doxygen API documentation and enforces zero warnings |
+| `make container-integration` | `make integration` | Executes E2E tests against containerized 3rd-party service daemons |
 
 ---
 
 ## Tier 1: Unity Unit Tests (`tests/unit/`)
 
-Fast, host-compiled unit test suite powered by the **Unity** framework. Tests schedulers, data structures, protothreads, DSP, fixed-point math, and protocol codecs against weak port mocks (`mock_port.c`).
+Fast, host-compiled unit test suite powered by the **Unity** framework. Tests schedulers, data structures, protothreads, DSP, fixed-point math, crypto, and protocol codecs against weak port mocks (`mock_port.c`).
 
 ```bash
-make test
-# Or containerized:
 make container-test
 ```
 
 ---
 
-## Tier 2: QEMU Bare-Metal Emulation (`tests/qemu/`)
+## Tier 2: Bare-Metal Hardware Emulation (`tests/emulation/`)
 
-Verifies ARM Cortex-M4 bare-metal startup, vector tables, link-time memory sections, and hardware initialization inside a **QEMU `lm3s6965evb`** system emulator.
+Verifies ARM Cortex-M4 bare-metal startup, vector tables, link-time memory sections, and peripheral drivers inside **QEMU (`lm3s6965evb`)** and **Renode (`STM32F4`)** system emulators.
 
 ```bash
-make qemu
-# Or containerized:
 make container-qemu
+make container-renode
 ```
 
 ---
 
-## Tier 3: 3rd-Party Production Daemon Integration (`tests/integration/`)
+## Tier 3: 3rd-Party Daemon Integration (`tests/integration/`)
 
-Validates SyntropicOS network and protocol client stacks by connecting directly to **genuine production-grade container daemons** orchestrated via `docker-compose` / `podman-compose` (no synthetic stubs):
+Validates SyntropicOS network and fieldbus stacks by connecting directly to containerized service daemons orchestrated via `docker-compose` / `podman-compose`:
 
 | Protocol Component | Service Daemon | Image / Context | Test Driver |
 | :--- | :--- | :--- | :--- |
@@ -54,13 +55,13 @@ Validates SyntropicOS network and protocol client stacks by connecting directly 
 | **HTTP REST** (`syn_http`) | Nginx Web Server | `docker.io/library/nginx:alpine` | `test_http_integration.c` |
 | **WebSockets** (`syn_websocket`) | Node.js `ws` Echo Server | `Node 18 Alpine (ws)` | `test_ws_integration.c` |
 | **DNS Resolver** (`syn_dns`) | CoreDNS Name Server | `docker.io/coredns/coredns:latest` | `test_dns_integration.c` |
-| **CANopen / CiA 402** (`syn_canopen`) | SocketCAN Daemon | `Debian (can-utils/vcan0)` | `test_can_integration.c` |
+| **CAN / ISO-TP / UDS / CANopen** | SocketCAN Responder Daemons | `Debian (can-utils/vcan0)` | `test_can_integration.c` |
 | **WireGuard VPN** (`syn_wg`) | Linux WireGuard Server | `Debian (wireguard-tools)` | `test_wg_integration.c` |
 | **Modbus TCP** (`syn_modbus`) | Python Modbus Daemon | `Python 3.11 Slim` | `test_modbus_integration.c` |
+| **EtherCAT Slave** (`syn_ethercat`) | SOEM Master & SOES Reference | `Debian (SOEM / SOES)` | `test_ecat_integration.c`, `test_soes_integration.c` |
+| **OCPP 1.6J** (`syn_ocpp`) | WebSocket CSMS Server | `Node Alpine (ws)` | `test_ocpp_integration.c` |
 
 ```bash
-make integration
-# Or containerized:
 make container-integration
 ```
 
@@ -68,39 +69,45 @@ make container-integration
 
 ## Tier 4: Sanitizers, Coverage, Fuzzing & Static Analysis
 
-### 1. Runtime Sanitizers (ASan & UBSan)
-Instrument binaries with AddressSanitizer and UndefinedBehaviorSanitizer to catch memory leaks, out-of-bound pointer accesses, and uninitialized reads:
+### 1. Runtime Sanitizers (ASan, UBSan, TSan, Valgrind)
+Instrument binaries to catch out-of-bounds memory accesses, undefined behavior, data races, and uninitialized reads:
 
 ```bash
-make san
+make container-san
+make container-tsan
+make container-valgrind
 ```
 
 ### 2. Code & Branch Coverage
-Generates detailed line and branch coverage summaries using `lcov` (`build/cov/coverage_src.info`):
+Generates detailed line and branch coverage summaries using `lcov` (`build/cov/coverage_src.info` inside the container build cache):
 
 ```bash
-make cov
+make container-cov
 ```
 
 ### 3. Protocol Fuzzing
 Uses LLVM `libFuzzer` to mutate protocol packet buffers at high speed:
 
 ```bash
-make fuzz
+make container-fuzz
 ```
 
-### 4. Static Analysis
-Runs Cppcheck and Clang `scan-build` over all `src/syntropic/` sources:
+### 4. Static Analysis, MISRA, Stack & Complexity Bounds
+Runs Cppcheck, Clang `scan-build`, GCC `-fanalyzer`, MISRA C:2023 checks, static stack-frame verification, and cyclomatic complexity gates over `src/syntropic/`:
 
 ```bash
-make static
+make container-static
+make container-analyzer
+make container-misra
+make container-stack
+make container-complexity
 ```
 
 ### 5. Doxygen Documentation Verification
 Builds API documentation and enforces zero warning tolerance:
 
 ```bash
-make dox
+make container-dox
 ```
 
 ---

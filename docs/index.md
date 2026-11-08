@@ -18,7 +18,7 @@ Deeply embedded systems present a fundamental architectural choice:
 2. **Preemptive RTOS (FreeRTOS, Zephyr)**: Multi-tasking where every task requires an allocated stack (512 B to 4 KB RAM per task). On microcontrollers with 2 KB to 16 KB total RAM, allocating thread stacks severely constrains memory. Preemptive switches also introduce race conditions, mutex contention, context-switch overhead, and potential stack overflows.
 3. **The SyntropicOS Approach**: A cooperative OS built around **stackless coroutines (protothreads `syn_pt`)**. Tasks execute sequentially on a single system stack while syntax macros handle yielding and resumption. Continuation state costs **2 bytes of RAM per thread** (`uint16_t lc`). Memory allocation is **100% static** (zero `malloc()`), preventing runtime heap fragmentation.
 
-SyntropicOS is not the first system to use stackless coroutines — Contiki OS (created by Adam Dunkels, who invented protothreads) popularized them for microcontrollers. The difference is that **every SyntropicOS module is built from the ground up with the cooperative model in mind**. All 70+ drivers, protocol stacks, and subsystems expose non-blocking `_poll()`, `_update()`, or `_process()` APIs that yield cooperatively. There are no blocking wrappers around third-party libraries or hidden busy-waits inside module code.
+SyntropicOS is not the first system to use stackless coroutines — Contiki OS (created by Adam Dunkels, who invented protothreads) popularized them for microcontrollers. The difference is that **every SyntropicOS module is built from the ground up with the cooperative model in mind**. Every driver, protocol stack, and subsystem exposes non-blocking `_poll()`, `_update()`, or `_process()` APIs that yield cooperatively. There are no blocking wrappers around third-party libraries or hidden busy-waits inside module code.
 
 ---
 
@@ -62,7 +62,7 @@ Every driver and protocol module in SyntropicOS is written from scratch as a coo
 | **Concurrency** | Cooperative protothreads (`syn_pt`). Continuation state costs **2 bytes RAM** per thread. |
 | **Task Scheduler** | Cooperative task runner (`syn_sched`). Task descriptors (`SYN_Task`) cost **44 bytes RAM** per task on 32-bit targets (80 bytes on 64-bit targets; standalone `SYN_PT` is **2 bytes**). |
 | **Memory Allocation** | **100% Zero-Heap / Static Allocation**. No `malloc()` or dynamic pool fragmentation over long runtimes. |
-| **Execution Model** | All 70+ drivers & protocol stacks are written as **non-blocking state machines**. |
+| **Execution Model** | Every driver & protocol stack is written as a **non-blocking state machine**. |
 | **Compatibility** | Standard **C99**. Compiles with GCC, Clang, IAR, Keil, STM32CubeIDE, and Arduino IDE. |
 
 ---
