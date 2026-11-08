@@ -52,6 +52,9 @@ extern "C" {
 /** @brief Default SyncManager 0/1 CoE mailbox buffer length in bytes */
 #define SYN_ECAT_MBOX_SIZE 128U
 
+/** @brief Minimum master TX/RX buffer capacity required for CoE mailbox frames (14 + 128 bytes) */
+#define SYN_ECAT_COE_MIN_BUF_SIZE (14U + SYN_ECAT_MBOX_SIZE)
+
 /* ── EtherCAT Commands ─────────────────────────────────────────────────── */
 
 /** EtherCAT Datagram Commands Enum. */
@@ -290,17 +293,20 @@ typedef struct {
     bool frame_rx_ready;        /**< Receive frame ready from PHY */
 
     /* Scratch state for non-blocking task drivers & hardware polling */
-    SYN_PT sub_pt;          /**< Sub-protothread handle for nested tasks */
-    uint8_t pdo_count;      /**< Scratch PDO count for discovery */
-    uint16_t pdo_entry_idx; /**< Scratch PDO entry loop index (uint16_t prevents 255 wrap) */
-    uint16_t pdo_map_idx;   /**< Scratch PDO mapping index */
-    uint32_t pdo_sdo_val;   /**< Scratch SDO read value */
-    size_t pdo_read_len;    /**< Scratch SDO read length */
-    uint32_t total_rx_bits; /**< Accumulated RxPDO bits */
-    uint32_t total_tx_bits; /**< Accumulated TxPDO bits */
-    uint16_t poll_retries;  /**< Retry counter for hardware status polling loops */
-    SYN_PT dir_pt;          /**< Child protothread state for PDO direction discovery */
-    bool sdo_ok;            /**< Completion status of last nested SDO read task */
+    SYN_PT sub_pt;           /**< Sub-protothread handle for nested tasks */
+    uint8_t pdo_count;       /**< Scratch PDO count for discovery */
+    uint8_t pdo_assign_cnt;  /**< Scratch assigned PDO object count (0x1C12:0 / 0x1C13:0) */
+    uint16_t pdo_assign_idx; /**< Scratch SyncManager PDO assignment loop index */
+    uint16_t pdo_entry_idx;  /**< Scratch PDO entry loop index (uint16_t prevents 255 wrap) */
+    uint16_t pdo_map_idx;    /**< Scratch PDO mapping index */
+    uint32_t pdo_sdo_val;    /**< Scratch SDO read value */
+    uint8_t pdo_sdo_buf[4];  /**< Endian-safe scratch SDO read buffer */
+    size_t pdo_read_len;     /**< Scratch SDO read length */
+    uint32_t total_rx_bits;  /**< Accumulated RxPDO bits */
+    uint32_t total_tx_bits;  /**< Accumulated TxPDO bits */
+    uint16_t poll_retries;   /**< Retry counter for hardware status polling loops */
+    SYN_PT dir_pt;           /**< Child protothread state for PDO direction discovery */
+    bool sdo_ok;             /**< Completion status of last nested SDO read task */
 } SYN_EcatMaster;
 
 /* ── EtherCAT Master Transport & Protothread Tasks ─────────────────────── */
@@ -435,11 +441,15 @@ SYN_PT_Status syn_ecat_master_discover_pdo_mapping_task(SYN_PT *pt, SYN_EcatMast
 /**
  * @brief Initialize EtherCAT Master instance context.
  *
+ * Cyclic and register-only masters require at least 64 bytes for @p tx_buf_size and
+ * @p rx_buf_size. Masters using CoE SDO mailbox operations require at least
+ * SYN_ECAT_COE_MIN_BUF_SIZE (142 bytes).
+ *
  * @param m Pointer to master handle.
  * @param tx_buf Pointer to static transmit frame buffer.
- * @param tx_buf_size Capacity of transmit frame buffer.
+ * @param tx_buf_size Capacity of transmit frame buffer (>= 64 bytes; >= 142 bytes for CoE).
  * @param rx_buf Pointer to static receive frame buffer.
- * @param rx_buf_size Capacity of receive frame buffer.
+ * @param rx_buf_size Capacity of receive frame buffer (>= 64 bytes; >= 142 bytes for CoE).
  * @param output_image Output process image buffer pointer.
  * @param output_size Output process image byte size.
  * @param input_image Input process image buffer pointer.
@@ -556,6 +566,8 @@ SYN_Status syn_ecat_decode_read_al_status(SYN_EcatMaster *m, size_t rx_len, SYN_
 #define SYN_ESC_REG_SM0 0x0800U              /**< SyncManager 0 Base (8 bytes per SM) */
 #define SYN_ESC_REG_DC_SYSTEM_TIME 0x0900U   /**< DC System Time (64-bit) */
 #define SYN_ESC_REG_DC_SYSTEM_OFFSET 0x0920U /**< DC System Time Offset */
+#define SYN_ESC_REG_DC_ACT 0x0981U           /**< DC Cyclic Unit / SYNC0 Activation */
+#define SYN_ESC_REG_DC_START_TIME 0x0990U    /**< DC Start Time Cyclic Operation (64-bit) */
 #define SYN_ESC_REG_DC_SYNC0_CYCLE 0x09A0U   /**< DC SYNC0 Cycle Time */
 
 /* ── Multi-Datagram Frame Builder & Parser ─────────────────────────────── */

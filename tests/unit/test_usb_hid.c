@@ -245,3 +245,50 @@ void test_r5_usb_hid_regressions(void)
     TEST_ASSERT_TRUE(syn_usb_hid_tx_ready(&hid));
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_hid_send_report(&hid, rep2, sizeof(rep2)));
 }
+
+void test_tier_a_usb_hid_regressions(void)
+{
+    /* 1. Boot Mouse protocol=2 patches bInterfaceSubClass=1 and bInterfaceProtocol=2 */
+    SYN_USB_Device dev;
+    SYN_USB_HID hid;
+    syn_usb_init(&dev, TEST_DEVICE_DESC);
+    syn_usb_hid_init(&hid);
+    hid.protocol = 2U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_hid_register(&dev, &hid, SYN_USB_HID_MOUSE_REPORT_DESC,
+                                                       sizeof(SYN_USB_HID_MOUSE_REPORT_DESC)));
+    TEST_ASSERT_EQUAL_UINT8(0x01U, dev.config_buf[9U + 6U]);
+    TEST_ASSERT_EQUAL_UINT8(0x02U, dev.config_buf[9U + 7U]);
+
+    /* 2. Mouse click stages press report and auto-queues zero release report on data_in */
+    SYN_USB_ClassDriver *drv = &dev.classes[0];
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_hid_mouse_click(&hid, SYN_USB_HID_MOUSE_BTN_LEFT));
+    TEST_ASSERT_EQUAL_UINT16(4U, hid.tx_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_USB_HID_MOUSE_BTN_LEFT, hid.tx_buf[0]);
+    TEST_ASSERT_TRUE(hid.release_pending);
+
+    /* Busy click while press is still staged returns SYN_BUSY without corrupting state */
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_usb_hid_mouse_click(&hid, SYN_USB_HID_MOUSE_BTN_RIGHT));
+
+    /* First IN completion stages the 4-byte button-release report */
+    drv->data_in(&hid, hid.ep_in);
+    TEST_ASSERT_FALSE(hid.release_pending);
+    TEST_ASSERT_EQUAL_UINT16(4U, hid.tx_len);
+    TEST_ASSERT_EQUAL_UINT8(0U, hid.tx_buf[0]);
+    TEST_ASSERT_FALSE(syn_usb_hid_tx_ready(&hid));
+
+    /* Second IN completion finishes the click cycle cleanly */
+    drv->data_in(&hid, hid.ep_in);
+    TEST_ASSERT_TRUE(syn_usb_hid_tx_ready(&hid));
+
+    /* Zero-button click does not arm a duplicate release report */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_hid_mouse_click(&hid, 0U));
+    TEST_ASSERT_FALSE(hid.release_pending);
+    drv->data_in(&hid, hid.ep_in);
+    TEST_ASSERT_TRUE(syn_usb_hid_tx_ready(&hid));
+
+    /* Unknown class-specific request routed to HID interface returns SYN_OK */
+    uint8_t resp[8];
+    uint16_t rlen = 0U;
+    SYN_USB_SetupPacket pkt = {0x21U, 0xFFU, 0U, 0U, 0U};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+}

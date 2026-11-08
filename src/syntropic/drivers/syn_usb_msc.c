@@ -241,6 +241,67 @@ static void msc_handle_write10(SYN_USB_MSC *msc)
 }
 
 /**
+ * @brief Handle SCSI REQUEST SENSE (0x03) command with CDB allocation length clamping.
+ * @param msc Pointer to USB MSC instance.
+ */
+static void msc_handle_request_sense(SYN_USB_MSC *msc)
+{
+    uint16_t alloc_len = msc->cbw.CBWCB[4];
+    uint16_t resp_len = (alloc_len < 18U) ? alloc_len : 18U;
+    memset(msc->sector_buf, 0, 18U);
+    msc->sector_buf[0] = 0x70U;
+    msc->sector_buf[2] = msc->sense_key;
+    msc->sector_buf[7] = 10U;
+    msc->sector_buf[12] = msc->sense_asc;
+    msc->sense_key = SYN_SCSI_SENSE_NONE;
+    msc->sense_asc = 0x00U;
+    msc_start_short_in(msc, resp_len);
+}
+
+/**
+ * @brief Handle SCSI INQUIRY (0x12) command, rejecting EVPD/PageCode and clamping alloc_len.
+ * @param msc Pointer to USB MSC instance.
+ */
+static void msc_handle_inquiry(SYN_USB_MSC *msc)
+{
+    if (((msc->cbw.CBWCB[1] & 0x01U) != 0U) || (msc->cbw.CBWCB[2] != 0U)) {
+        msc_fail_cbw(msc, 1U, SYN_SCSI_SENSE_ILLEGAL_REQUEST, 0x24U);
+        return;
+    }
+
+    uint16_t alloc_len = (uint16_t)(((uint16_t)msc->cbw.CBWCB[3] << 8) | msc->cbw.CBWCB[4]);
+    uint16_t resp_len = (alloc_len < 36U) ? alloc_len : 36U;
+    memset(msc->sector_buf, 0, 36U);
+    msc->sector_buf[1] = 0x80U;
+    msc->sector_buf[2] = 0x04U;
+    msc->sector_buf[3] = 0x02U;
+    msc->sector_buf[4] = 31U;
+    memcpy(&msc->sector_buf[8], "SYNTROPI", 8U);
+    memcpy(&msc->sector_buf[16], "USB MSC STORAGE ", 16U);
+    memcpy(&msc->sector_buf[32], "1.00", 4U);
+    msc->sense_key = SYN_SCSI_SENSE_NONE;
+    msc->sense_asc = 0x00U;
+    msc_start_short_in(msc, resp_len);
+}
+
+/**
+ * @brief Handle SCSI MODE SENSE (6) (0x1A) command with CDB allocation length clamping.
+ * @param msc Pointer to USB MSC instance.
+ */
+static void msc_handle_mode_sense6(SYN_USB_MSC *msc)
+{
+    uint16_t alloc_len = msc->cbw.CBWCB[4];
+    uint16_t resp_len = (alloc_len < 4U) ? alloc_len : 4U;
+    msc->sector_buf[0] = 0x03U;
+    msc->sector_buf[1] = 0x00U;
+    msc->sector_buf[2] = (msc->media.write_blocks == NULL) ? 0x80U : 0x00U;
+    msc->sector_buf[3] = 0x00U;
+    msc->sense_key = SYN_SCSI_SENSE_NONE;
+    msc->sense_asc = 0x00U;
+    msc_start_short_in(msc, resp_len);
+}
+
+/**
  * @brief Handle SCSI READ CAPACITY (10) command.
  * @param msc Pointer to USB MSC instance.
  */
@@ -329,6 +390,7 @@ static SYN_Status usb_msc_setup_handler(void *ctx, const SYN_USB_SetupPacket *pk
         msc->tx_len = 0U;
         msc->xfer_blocks_rem = 0U;
         msc->sector_offset = 0U;
+        msc->data_in_len = 0U;
     }
     return SYN_OK;
 }
@@ -390,6 +452,9 @@ static SYN_Status usb_msc_configured_handler(void *ctx, uint8_t config)
     if (msc != NULL) {
         msc->bot_state = SYN_USB_MSC_BOT_IDLE;
         msc->tx_len = 0U;
+        msc->xfer_blocks_rem = 0U;
+        msc->sector_offset = 0U;
+        msc->data_in_len = 0U;
     }
     return SYN_OK;
 }
@@ -499,38 +564,15 @@ SYN_Status syn_usb_msc_process_cbw(SYN_USB_MSC *msc, const uint8_t cbw_raw[31])
     }
 
     case SYN_SCSI_REQUEST_SENSE:
-        memset(msc->sector_buf, 0, 18U);
-        msc->sector_buf[0] = 0x70U;
-        msc->sector_buf[2] = msc->sense_key;
-        msc->sector_buf[7] = 10U;
-        msc->sector_buf[12] = msc->sense_asc;
-        msc->sense_key = SYN_SCSI_SENSE_NONE;
-        msc->sense_asc = 0x00U;
-        msc_start_short_in(msc, 18U);
+        msc_handle_request_sense(msc);
         break;
 
     case SYN_SCSI_INQUIRY:
-        memset(msc->sector_buf, 0, 36U);
-        msc->sector_buf[1] = 0x80U;
-        msc->sector_buf[2] = 0x04U;
-        msc->sector_buf[3] = 0x02U;
-        msc->sector_buf[4] = 31U;
-        memcpy(&msc->sector_buf[8], "SYNTROPI", 8U);
-        memcpy(&msc->sector_buf[16], "USB MSC STORAGE ", 16U);
-        memcpy(&msc->sector_buf[32], "1.00", 4U);
-        msc->sense_key = SYN_SCSI_SENSE_NONE;
-        msc->sense_asc = 0x00U;
-        msc_start_short_in(msc, 36U);
+        msc_handle_inquiry(msc);
         break;
 
     case SYN_SCSI_MODE_SENSE_6:
-        msc->sector_buf[0] = 0x03U;
-        msc->sector_buf[1] = 0x00U;
-        msc->sector_buf[2] = (msc->media.write_blocks == NULL) ? 0x80U : 0x00U;
-        msc->sector_buf[3] = 0x00U;
-        msc->sense_key = SYN_SCSI_SENSE_NONE;
-        msc->sense_asc = 0x00U;
-        msc_start_short_in(msc, 4U);
+        msc_handle_mode_sense6(msc);
         break;
 
     case SYN_SCSI_READ_CAPACITY_10:

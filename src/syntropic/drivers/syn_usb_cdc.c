@@ -5,6 +5,8 @@
 
 #include "syntropic/drivers/syn_usb_cdc.h"
 
+#include "syntropic/port/syn_port_system.h"
+
 #include <string.h>
 
 /** Standard CDC Interface Descriptor Assembly (2 interfaces, 3 endpoints, 66 bytes) */
@@ -67,10 +69,14 @@ static void cdc_class_data_out(void *ctx, uint8_t ep, const uint8_t *data, uint1
     if ((cdc == NULL) || (data == NULL) || (len == 0U) || (ep != cdc->ep_out)) {
         return;
     }
+    syn_port_enter_critical();
     uint16_t space = (uint16_t)(sizeof(cdc->rx_buf) - cdc->rx_len);
     uint16_t copy = (len < space) ? len : space;
-    memcpy(&cdc->rx_buf[cdc->rx_len], data, copy);
-    cdc->rx_len = (uint16_t)(cdc->rx_len + copy);
+    if (copy > 0U) {
+        memcpy(&cdc->rx_buf[cdc->rx_len], data, copy);
+        cdc->rx_len = (uint16_t)(cdc->rx_len + copy);
+    }
+    syn_port_exit_critical();
 }
 
 /**
@@ -225,8 +231,10 @@ SYN_Status syn_usb_cdc_read(SYN_USB_CDC *cdc, void *buf, size_t max_len, size_t 
         return SYN_INVALID_PARAM;
     }
 
+    syn_port_enter_critical();
     uint16_t available = cdc->rx_len;
     if (available == 0U) {
+        syn_port_exit_critical();
         *out_len = 0U;
         return SYN_OK;
     }
@@ -236,15 +244,15 @@ SYN_Status syn_usb_cdc_read(SYN_USB_CDC *cdc, void *buf, size_t max_len, size_t 
     }
 
     memcpy(buf, cdc->rx_buf, available);
-    *out_len = available;
-
     if (available < cdc->rx_len) {
         memmove(cdc->rx_buf, &cdc->rx_buf[available], (size_t)(cdc->rx_len - available));
         cdc->rx_len = (uint16_t)(cdc->rx_len - available);
     } else {
         cdc->rx_len = 0U;
     }
+    syn_port_exit_critical();
 
+    *out_len = available;
     return SYN_OK;
 }
 

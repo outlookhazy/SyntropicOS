@@ -58,7 +58,8 @@ typedef struct {
 void syn_workqueue_init(SYN_WorkQueue *wq, SYN_WorkItem *buf, size_t capacity);
 
 /**
- * @brief Post a work item. ISR-safe (single producer).
+ * @brief Post a work item. ISR-safe (single local-core producer; cross-core
+ *        messaging uses `syn_ipc`).
  *
  * @param wq   Pointer to work queue context.
  * @param func Callback function to defer.

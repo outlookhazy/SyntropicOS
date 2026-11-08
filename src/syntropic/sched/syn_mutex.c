@@ -100,6 +100,36 @@ static void mutex_unlink_held(SYN_Task *owner, const SYN_Mutex *mutex)
     }
 }
 
+#if !defined(SYN_USE_SCHED) || SYN_USE_SCHED
+static bool mutex_is_tracked_in_held(const SYN_Sched *sched, const SYN_Task *task)
+{
+    for (size_t i = 0U; i < sched->task_count; i++) {
+        for (const SYN_Mutex *m = sched->tasks[i].held_mutexes; m != NULL; m = m->next_held) {
+            for (size_t j = 0U; j < SYN_MUTEX_MAX_WAITERS; j++) {
+                if (m->waiters[j] == task) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+static void mutex_wake_evicted_waiters(const SYN_Sched *sched)
+{
+    if (sched == NULL) {
+        return;
+    }
+    uint8_t clr = (uint8_t)~(SYN_SCHED_FLAG_PASSED | SYN_SCHED_FLAG_MUTEX_WAIT);
+    for (size_t i = 0U; i < sched->task_count; i++) {
+        SYN_Task *t = &sched->tasks[i];
+        if (mutex_waiter_is_active(t) && !mutex_is_tracked_in_held(sched, t)) {
+            t->sched_flags = (uint8_t)((t->sched_flags & clr) | SYN_SCHED_FLAG_MORE);
+        }
+    }
+}
+#endif
+
 static void mutex_contend_waiter(SYN_Mutex *mutex, SYN_Task *task)
 {
     if (task != NULL && mutex->owner != NULL) {
@@ -209,6 +239,9 @@ SYN_Status syn_mutex_unlock(SYN_Mutex *mutex, SYN_Task *task)
         if (prev_owner != NULL) {
             mutex_unlink_held(prev_owner, mutex);
             mutex->next_held = NULL;
+#if !defined(SYN_USE_SCHED) || SYN_USE_SCHED
+            mutex_wake_evicted_waiters(prev_owner->sched);
+#endif
             mutex_recompute_owner_prio(prev_owner);
         }
     }

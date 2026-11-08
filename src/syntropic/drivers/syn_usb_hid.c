@@ -104,7 +104,13 @@ static void hid_class_data_in(void *ctx, uint8_t ep)
 {
     SYN_USB_HID *hid = (SYN_USB_HID *)ctx;
     if ((hid != NULL) && (ep == hid->ep_in)) {
-        hid->tx_len = 0U;
+        if (hid->release_pending) {
+            memset(hid->tx_buf, 0, 4U);
+            hid->tx_len = 4U;
+            hid->release_pending = false;
+        } else {
+            hid->tx_len = 0U;
+        }
     }
 }
 
@@ -132,6 +138,8 @@ SYN_Status syn_usb_hid_register(SYN_USB_Device *dev, SYN_USB_HID *hid, const uin
 
     uint8_t desc_buf[sizeof(HID_INTERFACE_DESC)];
     memcpy(desc_buf, HID_INTERFACE_DESC, sizeof(HID_INTERFACE_DESC));
+    desc_buf[6] = (hid->protocol != 0U) ? 0x01U : 0x00U;
+    desc_buf[7] = hid->protocol;
     desc_buf[16] = (uint8_t)(report_desc_len & 0xFFU);
     desc_buf[17] = (uint8_t)((report_desc_len >> 8) & 0xFFU);
     desc_buf[20] = hid->ep_in;
@@ -171,6 +179,7 @@ SYN_Status syn_usb_hid_send_report(SYN_USB_HID *hid, const void *report, size_t 
 
     memcpy(hid->tx_buf, report, len);
     hid->tx_len = (uint16_t)len;
+    hid->release_pending = false;
 
     return SYN_OK;
 }

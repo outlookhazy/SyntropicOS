@@ -278,7 +278,73 @@ static uint8_t ecat_slave_read_low_reg(const SYN_EcatNode *node, uint16_t reg)
 }
 
 /**
- * @brief Read slave SII data, SyncManager status, mailbox, or PDO DPRAM byte.
+ * @brief Read serialized FMMU register byte (0x0600..0x063F).
+ * @param node EtherCAT slave node instance.
+ * @param reg Physical ESC register offset.
+ * @return Serialized FMMU register byte.
+ */
+static uint8_t ecat_slave_read_fmmu_byte(const SYN_EcatNode *node, uint16_t reg)
+{
+    const SYN_EcatFMMUConfig *f = &node->fmmu[(reg - SYN_ESC_REG_FMMU0) / 16U];
+    uint8_t b = (uint8_t)((reg - SYN_ESC_REG_FMMU0) % 16U);
+    uint8_t raw[16] = {0};
+    store32_le(&raw[0], f->logical_start);
+    store16_le(&raw[4], f->length);
+    raw[6] = f->logical_start_bit;
+    raw[7] = f->logical_end_bit;
+    store16_le(&raw[8], f->phys_start_addr);
+    raw[10] = f->phys_start_bit;
+    raw[11] = f->type;
+    raw[12] = f->enable ? 1U : 0U;
+    return raw[b];
+}
+
+/**
+ * @brief Read serialized SyncManager register byte (0x0800..0x081F).
+ * @param node EtherCAT slave node instance.
+ * @param reg Physical ESC register offset.
+ * @return Serialized SyncManager register byte.
+ */
+static uint8_t ecat_slave_read_sm_byte(const SYN_EcatNode *node, uint16_t reg)
+{
+    if (reg == 0x080DU) {
+        return node->mbox_in_full ? 0x08U : 0x00U;
+    }
+    const SYN_EcatSMConfig *sm = &node->sm[(reg - SYN_ESC_REG_SM0) / 8U];
+    uint8_t b = (uint8_t)((reg - SYN_ESC_REG_SM0) % 8U);
+    uint8_t raw[8] = {0};
+    store16_le(&raw[0], sm->start_addr);
+    store16_le(&raw[2], sm->length);
+    raw[4] = sm->control;
+    raw[6] = sm->enable;
+    return raw[b];
+}
+
+/**
+ * @brief Read slave mailbox or PDO DPRAM byte (0x1000..0x117F).
+ * @param node EtherCAT slave node instance.
+ * @param reg Physical DPRAM offset.
+ * @return Byte value at requested DPRAM address, or 0 if unmapped.
+ */
+static uint8_t ecat_slave_read_dpram_byte(const SYN_EcatNode *node, uint16_t reg)
+{
+    if (reg >= 0x1000U && reg < (0x1000U + SYN_ECAT_MBOX_SIZE)) {
+        return node->mbox_out[reg - 0x1000U];
+    }
+    if (reg >= 0x1080U && reg < (0x1080U + SYN_ECAT_MBOX_SIZE)) {
+        return node->mbox_in[reg - 0x1080U];
+    }
+    if (reg >= 0x1100U && reg < (0x1100U + SYN_ECAT_PDO_BUF_SIZE)) {
+        return node->pdo_out[reg - 0x1100U];
+    }
+    if (reg >= 0x1140U && reg < (0x1140U + SYN_ECAT_PDO_BUF_SIZE)) {
+        return node->pdo_in[reg - 0x1140U];
+    }
+    return 0x00U;
+}
+
+/**
+ * @brief Read slave SII data, FMMU/SyncManager config, mailbox, or PDO DPRAM byte.
  * @param node EtherCAT slave node instance.
  * @param reg Physical ESC register or DPRAM offset.
  * @return Byte value at requested ESC address.
@@ -293,19 +359,13 @@ static uint8_t ecat_slave_read_esc_byte(const SYN_EcatNode *node, uint16_t reg)
         uint8_t shift = (uint8_t)((reg - 0x0508U) * 8U);
         return (uint8_t)((w >> shift) & 0xFFU);
     }
-    if (reg == 0x080DU) {
-        return node->mbox_in_full ? 0x08U : 0x00U;
+    if (reg >= SYN_ESC_REG_FMMU0 && reg < (SYN_ESC_REG_FMMU0 + 64U)) {
+        return ecat_slave_read_fmmu_byte(node, reg);
     }
-    if (reg >= 0x1080U && reg < (0x1080U + SYN_ECAT_MBOX_SIZE)) {
-        return node->mbox_in[reg - 0x1080U];
+    if (reg >= SYN_ESC_REG_SM0 && reg < (SYN_ESC_REG_SM0 + 32U)) {
+        return ecat_slave_read_sm_byte(node, reg);
     }
-    if (reg >= 0x1100U && reg < (0x1100U + SYN_ECAT_PDO_BUF_SIZE)) {
-        return node->pdo_out[reg - 0x1100U];
-    }
-    if (reg >= 0x1140U && reg < (0x1140U + SYN_ECAT_PDO_BUF_SIZE)) {
-        return node->pdo_in[reg - 0x1140U];
-    }
-    return 0x00U;
+    return ecat_slave_read_dpram_byte(node, reg);
 }
 
 /**
@@ -403,10 +463,14 @@ static void ecat_slave_write_fmmu_sm(SYN_EcatNode *node, uint16_t phys_addr, con
 static void ecat_slave_write_dpram(SYN_EcatNode *node, uint16_t phys_addr, const uint8_t *src,
                                    uint16_t len)
 {
-    if (phys_addr == 0x1000U && len >= 12U) {
-        uint16_t copy_len = (len > SYN_ECAT_MBOX_SIZE) ? SYN_ECAT_MBOX_SIZE : len;
-        memcpy(node->mbox_out, src, copy_len);
-        ecat_slave_handle_coe_sdo(node);
+    if (phys_addr >= 0x1000U && phys_addr < (0x1000U + SYN_ECAT_MBOX_SIZE)) {
+        uint16_t off = (uint16_t)(phys_addr - 0x1000U);
+        uint16_t avail = (uint16_t)(SYN_ECAT_MBOX_SIZE - off);
+        uint16_t copy_len = (len > avail) ? avail : len;
+        memcpy(&node->mbox_out[off], src, copy_len);
+        if (off == 0U && copy_len >= 12U) {
+            ecat_slave_handle_coe_sdo(node);
+        }
         return;
     }
     if (phys_addr >= 0x1100U && phys_addr < (0x1100U + SYN_ECAT_PDO_BUF_SIZE)) {
@@ -494,10 +558,16 @@ static uint16_t ecat_slave_exec_phys_rw(SYN_EcatNode *node, uint8_t mode, uint16
         return 1U;
     }
     uint8_t prev[SYN_ECAT_PDO_BUF_SIZE];
-    uint16_t cp = (len > SYN_ECAT_PDO_BUF_SIZE) ? SYN_ECAT_PDO_BUF_SIZE : len;
-    ecat_slave_phys_read(node, reg, prev, cp);
-    ecat_slave_phys_write(node, reg, data, cp);
-    memcpy(data, prev, cp);
+    uint16_t off = 0U;
+    while (off < len) {
+        uint16_t rem = (uint16_t)(len - off);
+        uint16_t cp = (rem > SYN_ECAT_PDO_BUF_SIZE) ? SYN_ECAT_PDO_BUF_SIZE : rem;
+        uint16_t cur_reg = (uint16_t)(reg + off);
+        ecat_slave_phys_read(node, cur_reg, prev, cp);
+        ecat_slave_phys_write(node, cur_reg, &data[off], cp);
+        memcpy(&data[off], prev, cp);
+        off = (uint16_t)(off + cp);
+    }
     return 3U;
 }
 
@@ -532,18 +602,24 @@ static void ecat_slave_apply_fmmu(SYN_EcatNode *node, const SYN_EcatFMMUConfig *
     bool do_wr = (cmd != SYN_ECAT_CMD_LRD) && ((f->type & 0x02U) != 0U);
     bool do_rd = (cmd != SYN_ECAT_CMD_LWR) && ((f->type & 0x01U) != 0U);
 
-    if (do_wr) {
-        uint16_t cp = (slice_len > SYN_ECAT_PDO_BUF_SIZE) ? SYN_ECAT_PDO_BUF_SIZE : slice_len;
-        memcpy(wr_buf, &data[dg_off], cp);
-        *did_wr = true;
-    }
-    if (do_rd) {
-        ecat_slave_phys_read(node, phys, &data[dg_off], slice_len);
-        *did_rd = true;
-    }
-    if (do_wr) {
-        uint16_t cp = (slice_len > SYN_ECAT_PDO_BUF_SIZE) ? SYN_ECAT_PDO_BUF_SIZE : slice_len;
-        ecat_slave_phys_write(node, phys, wr_buf, cp);
+    uint16_t off = 0U;
+    while (off < slice_len) {
+        uint16_t rem = (uint16_t)(slice_len - off);
+        uint16_t cp = (rem > SYN_ECAT_PDO_BUF_SIZE) ? SYN_ECAT_PDO_BUF_SIZE : rem;
+        uint16_t cur_dg = (uint16_t)(dg_off + off);
+        uint16_t cur_phys = (uint16_t)(phys + off);
+        if (do_wr) {
+            memcpy(wr_buf, &data[cur_dg], cp);
+            *did_wr = true;
+        }
+        if (do_rd) {
+            ecat_slave_phys_read(node, cur_phys, &data[cur_dg], cp);
+            *did_rd = true;
+        }
+        if (do_wr) {
+            ecat_slave_phys_write(node, cur_phys, wr_buf, cp);
+        }
+        off = (uint16_t)(off + cp);
     }
 }
 
@@ -1030,12 +1106,16 @@ size_t syn_ecat_encode_coe_sdo_read(SYN_EcatMaster *m, uint16_t station_addr, ui
 /**
  * @brief Validate and extract CoE SDO expedited upload response payload from mailbox data.
  * @param mbox_data Received SM1 mailbox buffer bytes.
+ * @param check_idx True to verify SDO index/subindex match when response index is non-zero.
+ * @param exp_idx Expected SDO Object Dictionary index.
+ * @param exp_sub Expected SDO subindex.
  * @param out_data Destination buffer for extracted SDO payload.
  * @param max_len Capacity of out_data in bytes.
  * @param out_len Output extracted payload length in bytes.
  * @return SYN_OK on valid expedited SDO upload response, SYN_ERROR otherwise.
  */
-static SYN_Status ecat_parse_coe_sdo_payload(const uint8_t *mbox_data, void *out_data,
+static SYN_Status ecat_parse_coe_sdo_payload(const uint8_t *mbox_data, bool check_idx,
+                                             uint16_t exp_idx, uint8_t exp_sub, void *out_data,
                                              size_t max_len, size_t *out_len)
 {
     uint8_t mbox_type = mbox_data[5] & 0x0FU;
@@ -1050,6 +1130,11 @@ static SYN_Status ecat_parse_coe_sdo_payload(const uint8_t *mbox_data, void *out
         return SYN_ERROR;
     }
 
+    uint16_t resp_idx = load16_le(&mbox_data[9]);
+    if (check_idx && resp_idx != 0U && (resp_idx != exp_idx || mbox_data[11] != exp_sub)) {
+        return SYN_ERROR;
+    }
+
     size_t payload_len = ((sdo_hdr & 0x01U) != 0U) ? (size_t)(4U - ((sdo_hdr >> 2U) & 0x03U)) : 4U;
     if (payload_len > max_len) {
         payload_len = max_len;
@@ -1059,8 +1144,21 @@ static SYN_Status ecat_parse_coe_sdo_payload(const uint8_t *mbox_data, void *out
     return SYN_OK;
 }
 
-SYN_Status syn_ecat_decode_coe_sdo_response(SYN_EcatMaster *m, size_t rx_len, void *out_data,
-                                            size_t max_len, size_t *out_len)
+/**
+ * @brief Decode CoE SDO upload response datagram with optional index/subindex verification.
+ * @param m Pointer to master handle.
+ * @param rx_len Received frame length.
+ * @param check_idx True to verify SDO index/subindex match when response index is non-zero.
+ * @param exp_idx Expected SDO Object Dictionary index.
+ * @param exp_sub Expected SDO subindex.
+ * @param out_data Output destination buffer.
+ * @param max_len Maximum output buffer capacity.
+ * @param out_len Pointer to receive read byte count.
+ * @return SYN_OK on success, error status otherwise.
+ */
+static SYN_Status ecat_decode_coe_sdo_common(SYN_EcatMaster *m, size_t rx_len, bool check_idx,
+                                             uint16_t exp_idx, uint8_t exp_sub, void *out_data,
+                                             size_t max_len, size_t *out_len)
 {
     if (m == NULL || m->rx_buf == NULL || out_data == NULL || out_len == NULL || rx_len < 14U) {
         return SYN_INVALID_PARAM;
@@ -1070,11 +1168,18 @@ SYN_Status syn_ecat_decode_coe_sdo_response(SYN_EcatMaster *m, size_t rx_len, vo
     SYN_EcatDatagramResult res;
     if (syn_ecat_frame_parse_next(m->rx_buf, rx_len, &offset, &res)) {
         if (res.wkc >= 1U && res.data_len >= 16U) {
-            return ecat_parse_coe_sdo_payload(res.data, out_data, max_len, out_len);
+            return ecat_parse_coe_sdo_payload(res.data, check_idx, exp_idx, exp_sub, out_data,
+                                              max_len, out_len);
         }
     }
 
     return SYN_ERROR;
+}
+
+SYN_Status syn_ecat_decode_coe_sdo_response(SYN_EcatMaster *m, size_t rx_len, void *out_data,
+                                            size_t max_len, size_t *out_len)
+{
+    return ecat_decode_coe_sdo_common(m, rx_len, false, 0U, 0U, out_data, max_len, out_len);
 }
 
 /* ── Phase 4: Cyclic Process Data Exchange Implementation ───────────────── */
@@ -1085,9 +1190,14 @@ size_t syn_ecat_encode_cyclic(SYN_EcatMaster *m)
         return 0;
     }
 
+    uint16_t xfer_size = (m->output_size >= m->input_size) ? m->output_size : m->input_size;
     syn_ecat_frame_begin(m->tx_buf, m->tx_buf_size);
-    return syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_LRW, 0x10U,
-                                       m->logical_addr, m->output_image, m->output_size, false);
+    size_t flen = syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_LRW, 0x10U,
+                                              m->logical_addr, NULL, xfer_size, false);
+    if (flen > 0U && m->output_image != NULL) {
+        memcpy(&m->tx_buf[12], m->output_image, m->output_size);
+    }
+    return flen;
 }
 
 SYN_Status syn_ecat_decode_cyclic(SYN_EcatMaster *m, size_t rx_len)
@@ -1100,8 +1210,9 @@ SYN_Status syn_ecat_decode_cyclic(SYN_EcatMaster *m, size_t rx_len)
     SYN_EcatDatagramResult res;
     if (syn_ecat_frame_parse_next(m->rx_buf, rx_len, &offset, &res)) {
         m->wkc_last = res.wkc;
-        if (res.wkc >= 1U && res.wkc >= m->wkc_expected) {
-            if (m->input_image != NULL && m->input_size > 0U && res.data_len >= m->input_size) {
+        if (res.wkc >= 1U && res.wkc >= m->wkc_expected &&
+            (m->input_size == 0U || res.data_len >= m->input_size)) {
+            if (m->input_image != NULL && m->input_size > 0U) {
                 memcpy(m->input_image, res.data, m->input_size);
             }
             m->cycle_count++;
@@ -1151,13 +1262,25 @@ size_t syn_ecat_encode_dc_configure(SYN_EcatMaster *m, uint16_t station_addr,
     }
 
     syn_ecat_frame_begin(m->tx_buf, m->tx_buf_size);
-    uint32_t addr = ((uint32_t)station_addr << 16) | SYN_ESC_REG_DC_SYNC0_CYCLE;
-    uint8_t payload[8];
-    store32_le(&payload[0], sync0_cycle_ns);
-    store32_le(&payload[4], (uint32_t)sync0_shift_ns);
+    uint32_t base = (uint32_t)station_addr << 16U;
+    uint8_t cyc_buf[4];
+    uint8_t shift_buf[8];
+    uint8_t act_buf[2];
+    uint64_t shift_u64 = (uint64_t)(int64_t)sync0_shift_ns;
 
-    return syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_FPWR, 0x0A, addr,
-                                       payload, 8, false);
+    store32_le(cyc_buf, sync0_cycle_ns);
+    store32_le(&shift_buf[0], (uint32_t)(shift_u64 & 0xFFFFFFFFULL));
+    store32_le(&shift_buf[4], (uint32_t)((shift_u64 >> 32U) & 0xFFFFFFFFULL));
+    store16_le(act_buf, (sync0_cycle_ns > 0U) ? 0x0003U : 0x0000U);
+
+    if (syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_FPWR, 0x0AU,
+                                    base | SYN_ESC_REG_DC_SYNC0_CYCLE, cyc_buf, 4U, false) == 0U ||
+        syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_FPWR, 0x0BU,
+                                    base | SYN_ESC_REG_DC_START_TIME, shift_buf, 8U, false) == 0U) {
+        return 0;
+    }
+    return syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_FPWR, 0x0CU,
+                                       base | SYN_ESC_REG_DC_ACT, act_buf, 2U, false);
 }
 
 /* ── EtherCAT Master Transport & Protothread Tasks ─────────────────────── */
@@ -1529,8 +1652,8 @@ SYN_PT_Status syn_ecat_master_sdo_read_task(SYN_PT *pt, SYN_EcatMaster *m, uint1
     m->frame_rx_ready = false;
     PT_WAIT_UNTIL(pt, m->frame_rx_ready);
 
-    if (syn_ecat_decode_coe_sdo_response(m, m->rx_frame_len, out_data, max_len, out_len) ==
-        SYN_OK) {
+    if (ecat_decode_coe_sdo_common(m, m->rx_frame_len, true, index, subindex, out_data, max_len,
+                                   out_len) == SYN_OK) {
         m->sdo_ok = true;
     }
     if (!m->sdo_ok) {
@@ -1555,44 +1678,45 @@ static SYN_PT_Status ecat_discover_pdo_dir_task(SYN_PT *pt, SYN_EcatMaster *m,
 {
     PT_BEGIN(pt);
 
-    m->pdo_count = 0;
-    m->pdo_sdo_val = 0;
+    m->pdo_assign_cnt = 0U;
+    memset(m->pdo_sdo_buf, 0, sizeof(m->pdo_sdo_buf));
     PT_SPAWN(pt, &m->sub_pt,
-             syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, assign_idx, 0,
-                                           &m->pdo_sdo_val, 1, &m->pdo_read_len));
+             syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, assign_idx, 0U,
+                                           m->pdo_sdo_buf, 1U, &m->pdo_read_len));
     if (!m->sdo_ok) {
         PT_EXIT(pt);
     }
-    m->pdo_count = (uint8_t)m->pdo_sdo_val;
+    m->pdo_assign_cnt = m->pdo_sdo_buf[0];
 
-    if (m->pdo_count > 0U) {
-        m->pdo_sdo_val = 0;
+    for (m->pdo_assign_idx = 1U; m->pdo_assign_idx <= m->pdo_assign_cnt; m->pdo_assign_idx++) {
+        memset(m->pdo_sdo_buf, 0, sizeof(m->pdo_sdo_buf));
         PT_SPAWN(pt, &m->sub_pt,
-                 syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, assign_idx, 1,
-                                               &m->pdo_sdo_val, 2, &m->pdo_read_len));
+                 syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, assign_idx,
+                                               (uint8_t)m->pdo_assign_idx, m->pdo_sdo_buf, 2U,
+                                               &m->pdo_read_len));
         if (!m->sdo_ok) {
             PT_EXIT(pt);
         }
-        m->pdo_map_idx = (uint16_t)m->pdo_sdo_val;
+        m->pdo_map_idx = load16_le(m->pdo_sdo_buf);
         if (m->pdo_map_idx != 0U) {
-            m->pdo_sdo_val = 0;
+            memset(m->pdo_sdo_buf, 0, sizeof(m->pdo_sdo_buf));
             PT_SPAWN(pt, &m->sub_pt,
-                     syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, m->pdo_map_idx, 0,
-                                                   &m->pdo_sdo_val, 1, &m->pdo_read_len));
+                     syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, m->pdo_map_idx, 0U,
+                                                   m->pdo_sdo_buf, 1U, &m->pdo_read_len));
             if (!m->sdo_ok) {
                 PT_EXIT(pt);
             }
-            m->pdo_count = (uint8_t)m->pdo_sdo_val;
+            m->pdo_count = m->pdo_sdo_buf[0];
             for (m->pdo_entry_idx = 1U; m->pdo_entry_idx <= m->pdo_count; m->pdo_entry_idx++) {
-                m->pdo_sdo_val = 0;
+                memset(m->pdo_sdo_buf, 0, sizeof(m->pdo_sdo_buf));
                 PT_SPAWN(pt, &m->sub_pt,
                          syn_ecat_master_sdo_read_task(&m->sub_pt, m, station_addr, m->pdo_map_idx,
-                                                       (uint8_t)m->pdo_entry_idx, &m->pdo_sdo_val,
-                                                       4, &m->pdo_read_len));
+                                                       (uint8_t)m->pdo_entry_idx, m->pdo_sdo_buf,
+                                                       4U, &m->pdo_read_len));
                 if (!m->sdo_ok) {
                     PT_EXIT(pt);
                 }
-                *out_bits += (m->pdo_sdo_val & 0xFFU);
+                *out_bits += (load32_le(m->pdo_sdo_buf) & 0xFFU);
             }
         }
     }

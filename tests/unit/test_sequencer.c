@@ -233,10 +233,54 @@ static void test_sequencer_mid_step_stop_and_restart(void)
     TEST_ASSERT_TRUE(syn_seq_is_done(&restart_seq));
 }
 
+static void test_tier_a_sequencer_step0_restart_and_delay_clamp(void)
+{
+    /* SCHED-4a: Step 0 calling syn_seq_start(seq) re-executes step 0 before entering delay */
+    mock_tick_ms = 0U;
+    seq_action_count = 0;
+    g_restarted_once = false;
+
+    SYN_Sequencer seq0;
+    SYN_SeqStep step0_restart[1] = {
+        {seq_restart_once_action, &seq0, 50U},
+    };
+    syn_seq_init(&seq0, step0_restart, 1U);
+    syn_seq_start(&seq0);
+
+    /* Update 1: step 0 runs, restarts at step 0, runs step 0 a 2nd time, then enters WAITING */
+    TEST_ASSERT_FALSE(syn_seq_update(&seq0));
+    TEST_ASSERT_EQUAL_INT(2, seq_action_count);
+    TEST_ASSERT_EQUAL_INT(SYN_SEQ_WAITING, seq0.state);
+
+    mock_tick_advance(50U);
+    TEST_ASSERT_TRUE(syn_seq_update(&seq0));
+    TEST_ASSERT_TRUE(syn_seq_is_done(&seq0));
+
+    /* SCHED-4b: delay_ms > 0x7FFFFFFFU clamps to 0x7FFFFFFFU so multi-ms ticks never miss expiry */
+    mock_tick_ms = 100U;
+    seq_action_count = 0;
+    static const SYN_SeqStep clamp_steps[2] = {
+        {NULL, NULL, UINT32_MAX},
+        {seq_action_a, NULL, 0U},
+    };
+    SYN_Sequencer clamp_seq;
+    syn_seq_init(&clamp_seq, clamp_steps, 2U);
+    syn_seq_start(&clamp_seq);
+    TEST_ASSERT_FALSE(syn_seq_update(&clamp_seq));
+    TEST_ASSERT_EQUAL_INT(SYN_SEQ_WAITING, clamp_seq.state);
+
+    mock_tick_ms = 100U + 0x7FFFFFFEU;
+    TEST_ASSERT_FALSE(syn_seq_update(&clamp_seq));
+    mock_tick_ms = 100U + 0x80000005U;
+    TEST_ASSERT_TRUE(syn_seq_update(&clamp_seq));
+    TEST_ASSERT_EQUAL_INT(1, seq_action_count);
+}
+
 void run_sequencer_tests(void)
 {
     RUN_TEST(test_sequencer);
     RUN_TEST(test_sequencer_update_when_done);
     RUN_TEST(test_sequencer_getters_and_uninitialized_update);
     RUN_TEST(test_sequencer_mid_step_stop_and_restart);
+    RUN_TEST(test_tier_a_sequencer_step0_restart_and_delay_clamp);
 }

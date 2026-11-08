@@ -79,12 +79,19 @@ SYN_Status syn_usb_cdc_handle_setup(SYN_USB_CDC *cdc, const SYN_USB_SetupPacket 
                                     uint8_t *resp, size_t *rlen);
 
 /**
- * @brief Write bytes to USB CDC Bulk IN transmit buffer.
+ * @brief Stage bytes in the USB CDC Bulk IN transmit buffer.
+ *
+ * @note Port-decoupled staging contract: copies up to `sizeof(cdc->tx_buf)` (128 B)
+ *       into `cdc->tx_buf` and sets `cdc->tx_len`. The platform USB ISR or polling
+ *       loop transmits `cdc->tx_buf` on `cdc->ep_in` and invokes the class `data_in`
+ *       callback upon hardware completion to clear `cdc->tx_len`. Callers requiring
+ *       atomic whole-frame rejection above 128 B should use `SYN_Transport` via
+ *       `syn_transport_from_usb_cdc()`.
  *
  * @param cdc  Pointer to USB CDC instance.
  * @param data Pointer to data bytes.
  * @param len  Byte length.
- * @return SYN_OK on success.
+ * @return SYN_OK on success, SYN_BUSY if a staged packet is still pending.
  */
 SYN_Status syn_usb_cdc_write(SYN_USB_CDC *cdc, const void *data, size_t len);
 

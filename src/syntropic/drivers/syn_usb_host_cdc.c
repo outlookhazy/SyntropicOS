@@ -116,6 +116,8 @@ static SYN_Status host_cdc_probe(void *ctx, uint8_t dev_addr, const uint8_t *ifa
     }
 
     hcdc->connected = true;
+    (void)syn_port_usb_host_submit_data(hcdc->pipe_bulk_in, hcdc->rx_buf,
+                                        (uint16_t)sizeof(hcdc->rx_buf), true);
     return SYN_OK;
 }
 
@@ -223,6 +225,10 @@ SYN_Status syn_usb_host_cdc_write(SYN_USB_HostCDC *hcdc, const void *data, size_
         return SYN_INVALID_PARAM;
     }
 
+    if (!syn_usb_host_cdc_tx_ready(hcdc)) {
+        return SYN_BUSY;
+    }
+
     if (len > sizeof(hcdc->tx_buf)) {
         len = sizeof(hcdc->tx_buf);
     }
@@ -269,5 +275,8 @@ bool syn_usb_host_cdc_rx_available(const SYN_USB_HostCDC *hcdc)
 
 bool syn_usb_host_cdc_tx_ready(const SYN_USB_HostCDC *hcdc)
 {
-    return (hcdc != NULL) && (hcdc->tx_len == 0U);
+    if ((hcdc == NULL) || (hcdc->tx_len != 0U)) {
+        return false;
+    }
+    return (hcdc->pipe_bulk_out == 0U) || syn_port_usb_host_xfer_done(hcdc->pipe_bulk_out);
 }

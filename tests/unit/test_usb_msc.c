@@ -378,9 +378,76 @@ static void test_r5_usb_msc_regressions(void)
     s_fail_write_on_lba = -1;
 }
 
+static void test_tier_a_usb_msc_regressions(void)
+{
+    static const uint8_t dev_desc[18] = {18,   1,    0x00, 0x02, 0, 0, 0, 64, 0xFE,
+                                         0xCA, 0x01, 0x00, 0,    1, 1, 2, 0,  1};
+    syn_usb_init(&g_usb_dev, dev_desc);
+    syn_usb_msc_init(&g_msc);
+    syn_usb_msc_register(&g_usb_dev, &g_msc);
+    SYN_USB_ClassDriver *drv = &g_usb_dev.classes[0];
+
+    uint8_t cbw[31];
+
+    /* 1. INQUIRY with EVPD=1 or non-zero Page Code -> CHECK CONDITION (Illegal Request / 0x24) */
+    uint8_t cdb_evpd[6] = {SYN_SCSI_INQUIRY, 0x01U, 0x80U, 0x00U, 36U, 0x00U};
+    build_cbw(cbw, 0x50U, 36U, 0x80U, 6U, cdb_evpd);
+    drv->data_out(&g_msc, g_msc.ep_out, cbw, 31U);
+    TEST_ASSERT_EQUAL_UINT8(SYN_USB_MSC_BOT_CSW, g_msc.bot_state);
+    TEST_ASSERT_EQUAL_UINT8(1U, g_msc.csw.bCSWStatus);
+    TEST_ASSERT_EQUAL_UINT8(SYN_SCSI_SENSE_ILLEGAL_REQUEST, g_msc.sense_key);
+    TEST_ASSERT_EQUAL_UINT8(0x24U, g_msc.sense_asc);
+    drv->data_in(&g_msc, g_msc.ep_in);
+
+    uint8_t cdb_page[6] = {SYN_SCSI_INQUIRY, 0x00U, 0x01U, 0x00U, 36U, 0x00U};
+    build_cbw(cbw, 0x51U, 36U, 0x80U, 6U, cdb_page);
+    drv->data_out(&g_msc, g_msc.ep_out, cbw, 31U);
+    TEST_ASSERT_EQUAL_UINT8(1U, g_msc.csw.bCSWStatus);
+    TEST_ASSERT_EQUAL_UINT8(0x24U, g_msc.sense_asc);
+    drv->data_in(&g_msc, g_msc.ep_in);
+
+    /* 2. Short CDB allocation length clamping on REQUEST_SENSE, INQUIRY, and MODE_SENSE_6 */
+    uint8_t cdb_sense_short[6] = {SYN_SCSI_REQUEST_SENSE, 0U, 0U, 0U, 8U, 0U};
+    build_cbw(cbw, 0x52U, 18U, 0x80U, 6U, cdb_sense_short);
+    drv->data_out(&g_msc, g_msc.ep_out, cbw, 31U);
+    TEST_ASSERT_EQUAL_UINT16(8U, g_msc.tx_len);
+    drv->data_in(&g_msc, g_msc.ep_in);
+    TEST_ASSERT_EQUAL_UINT32(10U, g_msc.csw.dCSWDataResidue);
+    drv->data_in(&g_msc, g_msc.ep_in);
+
+    uint8_t cdb_inq_short[6] = {SYN_SCSI_INQUIRY, 0U, 0U, 0U, 12U, 0U};
+    build_cbw(cbw, 0x53U, 36U, 0x80U, 6U, cdb_inq_short);
+    drv->data_out(&g_msc, g_msc.ep_out, cbw, 31U);
+    TEST_ASSERT_EQUAL_UINT16(12U, g_msc.tx_len);
+    drv->data_in(&g_msc, g_msc.ep_in);
+    TEST_ASSERT_EQUAL_UINT32(24U, g_msc.csw.dCSWDataResidue);
+    drv->data_in(&g_msc, g_msc.ep_in);
+
+    uint8_t cdb_ms_short[6] = {SYN_SCSI_MODE_SENSE_6, 0U, 0x3FU, 0U, 2U, 0U};
+    build_cbw(cbw, 0x54U, 4U, 0x80U, 6U, cdb_ms_short);
+    drv->data_out(&g_msc, g_msc.ep_out, cbw, 31U);
+    TEST_ASSERT_EQUAL_UINT16(2U, g_msc.tx_len);
+    drv->data_in(&g_msc, g_msc.ep_in);
+    TEST_ASSERT_EQUAL_UINT32(2U, g_msc.csw.dCSWDataResidue);
+    drv->data_in(&g_msc, g_msc.ep_in);
+
+    /* 3. BOMSR (0xFF) and configured callback clear data_in_len */
+    g_msc.data_in_len = 36U;
+    SYN_USB_SetupPacket bomsr = {.bmRequestType = 0x21U, .bRequest = 0xFFU};
+    uint8_t resp[4] = {0};
+    uint16_t rlen = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(&g_msc, &bomsr, resp, &rlen));
+    TEST_ASSERT_EQUAL_UINT16(0U, g_msc.data_in_len);
+
+    g_msc.data_in_len = 18U;
+    TEST_ASSERT_EQUAL(SYN_OK, drv->configured(&g_msc, 1U));
+    TEST_ASSERT_EQUAL_UINT16(0U, g_msc.data_in_len);
+}
+
 void run_usb_msc_tests(void)
 {
     RUN_TEST(test_usb_msc_init_and_null_checks);
     RUN_TEST(test_usb_msc_process_cbw_scsi_commands);
     RUN_TEST(test_r5_usb_msc_regressions);
+    RUN_TEST(test_tier_a_usb_msc_regressions);
 }

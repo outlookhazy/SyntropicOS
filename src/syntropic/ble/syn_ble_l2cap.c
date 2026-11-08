@@ -150,6 +150,11 @@ SYN_Status syn_ble_l2cap_process_acl(SYN_BLE_L2CAP *l2cap, uint16_t conn_handle,
     return SYN_INVALID_PARAM;
 }
 
+/** @brief Maximum L2CAP PDU bytes (including 4-byte header) fitting in HCI ACL TX buffer. */
+#define L2CAP_MAX_TX_PDU                                                                        \
+    (((SYN_BLE_HCI_TX_BUF_SIZE - 5U) < SYN_BLE_L2CAP_BUF_SIZE) ? (SYN_BLE_HCI_TX_BUF_SIZE - 5U) \
+                                                               : SYN_BLE_L2CAP_BUF_SIZE)
+
 SYN_Status syn_ble_l2cap_encode_pdu(uint16_t conn_handle, uint16_t cid, const uint8_t *payload,
                                     uint16_t len, uint8_t *tx_buf, uint16_t *tx_len)
 {
@@ -164,7 +169,7 @@ SYN_Status syn_ble_l2cap_encode_pdu(uint16_t conn_handle, uint16_t cid, const ui
     l2cap_hdr[3] = (uint8_t)((cid >> 8U) & 0xFFU);
 
     uint8_t l2cap_pdu[SYN_BLE_L2CAP_BUF_SIZE];
-    if ((uint32_t)len + 4U > sizeof(l2cap_pdu)) {
+    if ((uint32_t)len + 4U > (uint32_t)L2CAP_MAX_TX_PDU) {
         return SYN_ERROR;
     }
 

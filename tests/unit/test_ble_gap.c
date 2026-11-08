@@ -297,4 +297,62 @@ void test_r5_ble_gap_regressions(void)
                                                           sizeof(empty_ad)));
     TEST_ASSERT_TRUE(gap_evt_called);
     TEST_ASSERT_EQUAL_INT8(0, last_rssi);
+
+    /* BLE2-2: 1-byte truncated adv report (< 2B) + Num_Reports > 25 + striped 2-report batch */
+    uint8_t one_byte[1] = {SYN_BLE_HCI_LE_SUBEVT_ADV_REPORT};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_gap_process_hci_evt(&gap, SYN_BLE_HCI_EVT_LE_META,
+                                                             one_byte, sizeof(one_byte)));
+
+    uint8_t too_many[4] = {SYN_BLE_HCI_LE_SUBEVT_ADV_REPORT, 26U, 0U, 0U};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_gap_process_hci_evt(&gap, SYN_BLE_HCI_EVT_LE_META,
+                                                             too_many, sizeof(too_many)));
+
+    uint8_t multi_rep[] = {
+        SYN_BLE_HCI_LE_SUBEVT_ADV_REPORT,
+        0x02U, /* Num_Reports = 2 */
+        0x00U,
+        0x03U, /* Event_Type[2] */
+        0x00U,
+        0x01U, /* Address_Type[2] */
+        0xA1U,
+        0xA2U,
+        0xA3U,
+        0xA4U,
+        0xA5U,
+        0xA6U, /* Address[0] */
+        0xB1U,
+        0xB2U,
+        0xB3U,
+        0xB4U,
+        0xB5U,
+        0xB6U, /* Address[1] */
+        0x02U,
+        0x01U, /* Data_Length[2] = {2, 1} */
+        0xAAU,
+        0xBBU, /* Data[0] */
+        0xCCU, /* Data[1] */
+        (uint8_t)-42,
+        (uint8_t)-67 /* RSSI[2] */
+    };
+    last_rssi = 0;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ble_gap_process_hci_evt(&gap, SYN_BLE_HCI_EVT_LE_META, multi_rep,
+                                                          sizeof(multi_rep)));
+    TEST_ASSERT_EQUAL_INT8(-67, last_rssi);
+
+    /* BLE2-4: Reject NULL adv data with len > 0, and clear advertising on Peripheral connect */
+    uint8_t tx_buf[64];
+    uint16_t tx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_ble_gap_set_adv_data(&gap, NULL, 4U, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ble_gap_set_adv_enable(&gap, true, tx_buf, &tx_len));
+    TEST_ASSERT_TRUE(gap.advertising);
+
+    uint8_t periph_conn[19] = {SYN_BLE_HCI_LE_SUBEVT_CONN_COMPLETE,
+                               0x00U,
+                               0x01U,
+                               0x00U,
+                               0x01U, /* Role = 0x01 (Peripheral) */
+                               0x00U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ble_gap_process_hci_evt(&gap, SYN_BLE_HCI_EVT_LE_META,
+                                                          periph_conn, sizeof(periph_conn)));
+    TEST_ASSERT_FALSE(gap.advertising);
 }

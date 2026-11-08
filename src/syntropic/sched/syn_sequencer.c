@@ -60,6 +60,7 @@ void syn_seq_start(SYN_Sequencer *seq)
         return;        /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
     }
     seq->current = 0;
+    seq->run_gen++;
     seq->state = SYN_SEQ_RUNNING;
 }
 
@@ -80,6 +81,7 @@ void syn_seq_stop(SYN_Sequencer *seq)
 static void execute_step(SYN_Sequencer *seq)
 {
     uint16_t step_idx = seq->current;
+    uint8_t start_gen = seq->run_gen;
     const SYN_SeqStep *step = &seq->steps[step_idx];
 
     /* Execute action if present */
@@ -87,8 +89,8 @@ static void execute_step(SYN_Sequencer *seq)
         step->action(step->ctx);
     }
 
-    /* Respect state/step changes requested inside action callback (e.g. stop/restart) */
-    if (seq->state != SYN_SEQ_RUNNING || seq->current != step_idx) {
+    /* Respect state/restart changes requested inside action callback (including step-0 restart) */
+    if (seq->state != SYN_SEQ_RUNNING || seq->run_gen != start_gen) {
         return;
     }
 
@@ -114,8 +116,10 @@ bool syn_seq_update(SYN_Sequencer *seq)
     }
 
     if (seq->state == SYN_SEQ_WAITING) {
+        uint32_t raw_delay = seq->steps[seq->current].delay_ms;
+        uint32_t target_delay = (raw_delay > 0x7FFFFFFFU) ? 0x7FFFFFFFU : raw_delay;
         uint32_t elapsed = syn_port_get_tick_ms() - seq->wait_start;
-        if (elapsed < seq->steps[seq->current].delay_ms) {
+        if (elapsed < target_delay) {
             return false; /* still waiting */
         }
         /* Delay complete — advance */

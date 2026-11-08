@@ -1177,6 +1177,81 @@ void test_r5_n05_dtls_handshake_and_reflection_rejection(void)
     TEST_ASSERT_EQUAL(SYN_DTLS_STATE_ESTABLISHED, client.state);
 }
 
+static void test_tier_a_dtls_psk_seq_and_secret_scrub(void)
+{
+    DuplexDatagramWire dw;
+    DtlsEndpointIo c_io, s_io;
+    SYN_Transport c_tr, s_tr;
+    dtls_duplex_init(&dw, &c_io, &s_io, &c_tr, &s_tr, false);
+
+    /* DTLS-3: NULL or 0-length PSK must fail closed */
+    static const uint8_t psk[32] = {0x5A, 0x6B, 0x7C, 0x8D};
+    static const uint8_t zeros[SYN_DTLS_SECRET_LEN] = {0};
+    SYN_DTLS_Context client, server;
+
+    SYN_DTLS_Config null_psk = {.mode = SYN_DTLS_AUTH_MODE_PSK,
+                                .cipher_suite = SYN_DTLS_CIPHER_SUITE_AES_128_GCM_SHA256,
+                                .psk_secret = NULL,
+                                .psk_secret_len = 16U};
+    TEST_ASSERT_TRUE(syn_dtls_init(&client, &null_psk, &c_tr, g_dc_rx_buf, sizeof(g_dc_rx_buf),
+                                   g_dc_tx_buf, sizeof(g_dc_tx_buf)));
+    TEST_ASSERT_FALSE(syn_dtls_handshake(&client));
+    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_ERROR, client.state);
+
+    SYN_DTLS_Config zero_len_psk = null_psk;
+    zero_len_psk.psk_secret = psk;
+    zero_len_psk.psk_secret_len = 0U;
+    TEST_ASSERT_TRUE(syn_dtls_init(&client, &zero_len_psk, &c_tr, g_dc_rx_buf, sizeof(g_dc_rx_buf),
+                                   g_dc_tx_buf, sizeof(g_dc_tx_buf)));
+    TEST_ASSERT_FALSE(syn_dtls_handshake(&client));
+    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_ERROR, client.state);
+
+    /* Valid handshake -> DTLS-5 secret scrub + DTLS-2 TX backpressure & 48-bit seq limit */
+    SYN_DTLS_Config c_cfg = {.mode = SYN_DTLS_AUTH_MODE_PSK,
+                             .cipher_suite = SYN_DTLS_CIPHER_SUITE_AES_128_GCM_SHA256,
+                             .psk_secret = psk,
+                             .psk_secret_len = sizeof(psk)};
+    SYN_DTLS_Config s_cfg = c_cfg;
+    s_cfg.is_server = true;
+
+    dtls_duplex_init(&dw, &c_io, &s_io, &c_tr, &s_tr, false);
+    TEST_ASSERT_TRUE(syn_dtls_init(&client, &c_cfg, &c_tr, g_dc_rx_buf, sizeof(g_dc_rx_buf),
+                                   g_dc_tx_buf, sizeof(g_dc_tx_buf)));
+    TEST_ASSERT_TRUE(syn_dtls_init(&server, &s_cfg, &s_tr, g_ds_rx_buf, sizeof(g_ds_rx_buf),
+                                   g_ds_tx_buf, sizeof(g_ds_tx_buf)));
+    pair_dtls_handshake(&client, &server);
+
+    TEST_ASSERT_EQUAL_MEMORY(zeros, client.ecdhe_priv, sizeof(client.ecdhe_priv));
+    TEST_ASSERT_EQUAL_MEMORY(zeros, client.client_handshake_secret, SYN_DTLS_SECRET_LEN);
+    TEST_ASSERT_EQUAL_MEMORY(zeros, client.server_handshake_secret, SYN_DTLS_SECRET_LEN);
+    TEST_ASSERT_EQUAL_MEMORY(zeros, client.master_secret, SYN_DTLS_SECRET_LEN);
+    TEST_ASSERT_EQUAL_MEMORY(zeros, server.ecdhe_priv, sizeof(server.ecdhe_priv));
+    TEST_ASSERT_EQUAL_MEMORY(zeros, server.master_secret, SYN_DTLS_SECRET_LEN);
+
+    /* 200 failed sends (> 128 half-window) must NOT burn sequence numbers */
+    static const char msg[] = "DTLS backpressure resilience";
+    dw.c2s.fail_send = true;
+    for (size_t i = 0U; i < 200U; i++) {
+        TEST_ASSERT_FALSE(syn_dtls_send(&client, (const uint8_t *)msg, strlen(msg)));
+    }
+    TEST_ASSERT_EQUAL_UINT64(0ULL, client.client_seq_num);
+
+    dw.c2s.fail_send = false;
+    TEST_ASSERT_TRUE(syn_dtls_send(&client, (const uint8_t *)msg, strlen(msg)));
+    TEST_ASSERT_EQUAL_UINT64(1ULL, client.client_seq_num);
+
+    uint8_t rx_buf[64] = {0};
+    size_t rx_len = 0U;
+    TEST_ASSERT_TRUE(syn_dtls_recv(&server, rx_buf, sizeof(rx_buf), &rx_len));
+    TEST_ASSERT_EQUAL(strlen(msg), rx_len);
+    TEST_ASSERT_EQUAL_MEMORY(msg, rx_buf, rx_len);
+
+    /* RFC 9147 §4.5.3: 48-bit sequence exhaustion (> 0xFFFFFFFFFFFFULL) fails closed */
+    client.client_seq_num = 0x1000000000000ULL;
+    TEST_ASSERT_FALSE(syn_dtls_send(&client, (const uint8_t *)msg, strlen(msg)));
+    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_ERROR, client.state);
+}
+
 void run_dtls_tests(void)
 {
     RUN_TEST(test_dtls_sliding_window_anti_replay);
@@ -1186,4 +1261,5 @@ void run_dtls_tests(void)
     RUN_TEST(test_dtls_null_and_bounds_checks);
     RUN_TEST(test_dtls_round4_seq_wrap_cid_epoch_spill_and_auth);
     RUN_TEST(test_r5_n05_dtls_handshake_and_reflection_rejection);
+    RUN_TEST(test_tier_a_dtls_psk_seq_and_secret_scrub);
 }

@@ -1877,6 +1877,241 @@ static void test_r5_a07_master_slave_loopback_and_wkc_sdo_guards(void)
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_ecat_slave_process_frame(&slave, wire, 32U, &wkc));
 }
 
+static void test_tier_a_ethercat_regressions(void)
+{
+    SYN_EcatMaster m;
+    uint8_t tx[256] = {0};
+    uint8_t rx[256] = {0};
+    uint8_t wire[256] = {0};
+    uint8_t out_img[8] = {0xA1U, 0xB2U};
+    uint8_t in_img[8] = {0};
+
+    /* 1. ECAT-1a: Asymmetric LRW (output_size=2 < input_size=6) + truncated RX rejection */
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_ecat_master_init(&m, tx, sizeof(tx), rx, sizeof(rx), out_img, 2U, in_img, 6U));
+    m.logical_addr = 0x00010000U;
+    m.wkc_expected = 1U;
+
+    size_t flen = syn_ecat_encode_cyclic(&m);
+    TEST_ASSERT_EQUAL_size_t(20U, flen); /* 14B overhead + max(2, 6) = 20B */
+    TEST_ASSERT_EQUAL_HEX8(0xA1U, tx[12]);
+    TEST_ASSERT_EQUAL_HEX8(0xB2U, tx[13]);
+    TEST_ASSERT_EQUAL_HEX8(0x00U, tx[17]);
+
+    /* Truncated cyclic RX (data_len = 2 < input_size = 6) MUST fail even when WKC >= expected */
+    syn_ecat_frame_begin(rx, sizeof(rx));
+    uint8_t short_in[2] = {0x11U, 0x22U};
+    size_t rlen = syn_ecat_frame_add_datagram(rx, sizeof(rx), SYN_ECAT_CMD_LRW, 0x10U,
+                                              m.logical_addr, short_in, 2U, false);
+    rx[rlen - 2U] = 3U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ecat_decode_cyclic(&m, rlen));
+    TEST_ASSERT_EQUAL_UINT32(1U, m.wkc_errors);
+
+    /* Full 6B cyclic RX succeeds */
+    syn_ecat_frame_begin(rx, sizeof(rx));
+    uint8_t full_in[6] = {0x10U, 0x20U, 0x30U, 0x40U, 0x50U, 0x60U};
+    rlen = syn_ecat_frame_add_datagram(rx, sizeof(rx), SYN_ECAT_CMD_LRW, 0x10U, m.logical_addr,
+                                       full_in, 6U, false);
+    rx[rlen - 2U] = 3U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_decode_cyclic(&m, rlen));
+    TEST_ASSERT_EQUAL_HEX8(0x60U, in_img[5]);
+
+    /* output_image == NULL zero-pad & tx_buf_size overflow & input_size == 0 */
+    m.output_image = NULL;
+    TEST_ASSERT_EQUAL_size_t(20U, syn_ecat_encode_cyclic(&m));
+    m.tx_buf_size = 16U;
+    TEST_ASSERT_EQUAL_size_t(0U, syn_ecat_encode_cyclic(&m));
+    m.tx_buf_size = sizeof(tx);
+    m.input_size = 0U;
+    m.input_image = NULL;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_decode_cyclic(&m, rlen));
+
+    /* 2. ECAT-3: Chained DC SYNC0 configuration (0x09A0 4B, 0x0990 8B, 0x0981 2B = 52B) */
+    m.tx_buf_size = 16U;
+    TEST_ASSERT_EQUAL_size_t(0U, syn_ecat_encode_dc_configure(&m, 0x1001U, 1000000U, -2500));
+    m.tx_buf_size = 30U;
+    TEST_ASSERT_EQUAL_size_t(0U, syn_ecat_encode_dc_configure(&m, 0x1001U, 1000000U, -2500));
+    m.tx_buf_size = 44U;
+    TEST_ASSERT_EQUAL_size_t(0U, syn_ecat_encode_dc_configure(&m, 0x1001U, 1000000U, -2500));
+    m.tx_buf_size = sizeof(tx);
+
+    flen = syn_ecat_encode_dc_configure(&m, 0x1001U, 1000000U, -2500);
+    TEST_ASSERT_EQUAL_size_t(52U, flen);
+    size_t off = 2U;
+    SYN_EcatDatagramResult dgr;
+    TEST_ASSERT_TRUE(syn_ecat_frame_parse_next(tx, flen, &off, &dgr));
+    TEST_ASSERT_EQUAL_HEX32(0x100109A0U, dgr.addr);
+    TEST_ASSERT_EQUAL_UINT16(4U, dgr.data_len);
+    TEST_ASSERT_TRUE(syn_ecat_frame_parse_next(tx, flen, &off, &dgr));
+    TEST_ASSERT_EQUAL_HEX32(0x10010990U, dgr.addr);
+    TEST_ASSERT_EQUAL_UINT16(8U, dgr.data_len);
+    TEST_ASSERT_EQUAL_HEX8(0xFFU, dgr.data[7]); /* Sign-extended negative shift */
+    TEST_ASSERT_TRUE(syn_ecat_frame_parse_next(tx, flen, &off, &dgr));
+    TEST_ASSERT_EQUAL_HEX32(0x10010981U, dgr.addr);
+    TEST_ASSERT_EQUAL_HEX16(0x0003U, ecat_test_load16_le(dgr.data));
+
+    flen = syn_ecat_encode_dc_configure(&m, 0x1001U, 0U, 0);
+    TEST_ASSERT_EQUAL_size_t(52U, flen);
+    off = 38U;
+    TEST_ASSERT_TRUE(syn_ecat_frame_parse_next(tx, flen, &off, &dgr));
+    TEST_ASSERT_EQUAL_HEX16(0x0000U, ecat_test_load16_le(dgr.data));
+
+    /* 3. ECAT-4a: Multi-PDO discovery (0x1600 + 0x1601 + 0x0000) & SDO cross-talk rejection */
+    uint8_t c12_cnt = 3U;
+    uint16_t c12_1 = 0x1600U;
+    uint16_t c12_2 = 0x1601U;
+    uint16_t c12_3 = 0x0000U;
+    uint8_t m1600_cnt = 1U;
+    uint32_t m1600_1 = 0x60400010U; /* 16 bits */
+    uint8_t m1601_cnt = 1U;
+    uint32_t m1601_1 = 0x607A0020U; /* 32 bits -> total Rx = 48 bits = 6 bytes */
+    uint8_t c13_cnt = 2U;
+    uint16_t c13_1 = 0x1A00U;
+    uint16_t c13_2 = 0x1A01U;
+    uint8_t m1a00_cnt = 1U;
+    uint32_t m1a00_1 = 0x60410010U; /* 16 bits */
+    uint8_t m1a01_cnt = 1U;
+    uint32_t m1a01_1 = 0x60640020U; /* 32 bits -> total Tx = 48 bits = 6 bytes */
+
+    const SYN_CANOpenODEntry pdo_od[] = {
+        {0x1C12U, 0U, SYN_CANOPEN_TYPE_U8, SYN_CANOPEN_ACCESS_RO, &c12_cnt, 1U},
+        {0x1C12U, 1U, SYN_CANOPEN_TYPE_U16, SYN_CANOPEN_ACCESS_RO, &c12_1, 2U},
+        {0x1C12U, 2U, SYN_CANOPEN_TYPE_U16, SYN_CANOPEN_ACCESS_RO, &c12_2, 2U},
+        {0x1C12U, 3U, SYN_CANOPEN_TYPE_U16, SYN_CANOPEN_ACCESS_RO, &c12_3, 2U},
+        {0x1600U, 0U, SYN_CANOPEN_TYPE_U8, SYN_CANOPEN_ACCESS_RO, &m1600_cnt, 1U},
+        {0x1600U, 1U, SYN_CANOPEN_TYPE_U32, SYN_CANOPEN_ACCESS_RO, &m1600_1, 4U},
+        {0x1601U, 0U, SYN_CANOPEN_TYPE_U8, SYN_CANOPEN_ACCESS_RO, &m1601_cnt, 1U},
+        {0x1601U, 1U, SYN_CANOPEN_TYPE_U32, SYN_CANOPEN_ACCESS_RO, &m1601_1, 4U},
+        {0x1C13U, 0U, SYN_CANOPEN_TYPE_U8, SYN_CANOPEN_ACCESS_RO, &c13_cnt, 1U},
+        {0x1C13U, 1U, SYN_CANOPEN_TYPE_U16, SYN_CANOPEN_ACCESS_RO, &c13_1, 2U},
+        {0x1C13U, 2U, SYN_CANOPEN_TYPE_U16, SYN_CANOPEN_ACCESS_RO, &c13_2, 2U},
+        {0x1A00U, 0U, SYN_CANOPEN_TYPE_U8, SYN_CANOPEN_ACCESS_RO, &m1a00_cnt, 1U},
+        {0x1A00U, 1U, SYN_CANOPEN_TYPE_U32, SYN_CANOPEN_ACCESS_RO, &m1a00_1, 4U},
+        {0x1A01U, 0U, SYN_CANOPEN_TYPE_U8, SYN_CANOPEN_ACCESS_RO, &m1a01_cnt, 1U},
+        {0x1A01U, 1U, SYN_CANOPEN_TYPE_U32, SYN_CANOPEN_ACCESS_RO, &m1a01_1, 4U},
+    };
+    SYN_CANOpenNode od_node;
+    SYN_CANOpenNodeConfig co_cfg = {.node_id = 1U, .heartbeat_ms = 0U};
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_canopen_init(&od_node, &co_cfg, pdo_od, sizeof(pdo_od) / sizeof(pdo_od[0])));
+
+    SYN_EcatNode slave;
+    syn_ecat_init(&slave, 0x1001U, &od_node);
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    uint16_t rx_bytes = 0U;
+    uint16_t tx_bytes = 0U;
+    while (syn_ecat_master_discover_pdo_mapping_task(&pt, &m, 0x1001U, &rx_bytes, &tx_bytes) ==
+           PT_IDLE) {
+        ecat_loopback_step(&m, &slave, wire);
+    }
+    TEST_ASSERT_EQUAL_UINT16(6U, rx_bytes);
+    TEST_ASSERT_EQUAL_UINT16(6U, tx_bytes);
+
+    /* Stale mailbox SDO response with mismatched index or subindex MUST abort sdo_read_task */
+    for (int sub_mismatch = 0; sub_mismatch < 2; sub_mismatch++) {
+        PT_INIT(&pt);
+        uint32_t sdo_val = 0xDEADBEEFU;
+        size_t sdo_len = 0U;
+        TEST_ASSERT_EQUAL(PT_IDLE, syn_ecat_master_sdo_read_task(&pt, &m, 0x1001U, 0x1C12U, 1U,
+                                                                 &sdo_val, 4U, &sdo_len));
+        ecat_test_feed_ack(&m, rx);
+        TEST_ASSERT_EQUAL(PT_IDLE, syn_ecat_master_sdo_read_task(&pt, &m, 0x1001U, 0x1C12U, 1U,
+                                                                 &sdo_val, 4U, &sdo_len));
+        const uint8_t *tx_ptr = NULL;
+        size_t tx_l = 0U;
+        TEST_ASSERT_TRUE(syn_ecat_master_pop_tx_frame(&m, &tx_ptr, &tx_l));
+        syn_ecat_frame_begin(rx, sizeof(rx));
+        uint8_t sm1_rdy[1] = {0x08U};
+        rlen = syn_ecat_frame_add_datagram(rx, sizeof(rx), SYN_ECAT_CMD_FPRD, 1U, 0x1001080DU,
+                                           sm1_rdy, 1U, false);
+        rx[rlen - 2U] = 1U;
+        TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_master_set_rx_frame(&m, rx, rlen));
+
+        TEST_ASSERT_EQUAL(PT_IDLE, syn_ecat_master_sdo_read_task(&pt, &m, 0x1001U, 0x1C12U, 1U,
+                                                                 &sdo_val, 4U, &sdo_len));
+        TEST_ASSERT_TRUE(syn_ecat_master_pop_tx_frame(&m, &tx_ptr, &tx_l));
+        uint8_t stale[16] = {0};
+        ecat_test_store16_le(&stale[0], 10U);
+        stale[5] = 0x03U;
+        ecat_test_store16_le(&stale[6], (SYN_ECAT_COE_TYPE_SDO_RESP & 0x0FU) << 12U);
+        stale[8] = 0x47U;
+        ecat_test_store16_le(&stale[9], (sub_mismatch == 0) ? 0x1C13U : 0x1C12U);
+        stale[11] = (sub_mismatch == 0) ? 1U : 2U;
+        ecat_test_store16_le(&stale[12], 0x1A00U);
+        syn_ecat_frame_begin(rx, sizeof(rx));
+        rlen = syn_ecat_frame_add_datagram(rx, sizeof(rx), SYN_ECAT_CMD_FPRD, 1U, 0x10011080U,
+                                           stale, 16U, false);
+        rx[rlen - 2U] = 1U;
+        TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_master_set_rx_frame(&m, rx, rlen));
+
+        TEST_ASSERT_EQUAL(PT_EXITED, syn_ecat_master_sdo_read_task(&pt, &m, 0x1001U, 0x1C12U, 1U,
+                                                                   &sdo_val, 4U, &sdo_len));
+        TEST_ASSERT_EQUAL_HEX32(0xDEADBEEFU, sdo_val);
+    }
+
+    /* 4. ECAT-6: FMMU/SM register readback & 128B chunked FPRW / FMMU LRW (> 64B) */
+    uint16_t wkc = 0U;
+    SYN_EcatSMConfig sm_cfg = {
+        .start_addr = 0x1000U, .length = 128U, .control = 0x26U, .enable = 1U};
+    flen = syn_ecat_encode_write_sm(&m, 0x1001U, 0U, &sm_cfg);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_slave_process_frame(&slave, tx, flen, &wkc));
+
+    flen = syn_ecat_encode_read_reg(&m, 0x1001U, SYN_ESC_REG_SM0, 8U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_slave_process_frame(&slave, tx, flen, &wkc));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_master_set_rx_frame(&m, tx, flen));
+    uint8_t sm_rb[8] = {0};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_decode_read_reg(&m, flen, sm_rb, 8U));
+    TEST_ASSERT_EQUAL_HEX16(0x1000U, ecat_test_load16_le(&sm_rb[0]));
+    TEST_ASSERT_EQUAL_HEX16(128U, ecat_test_load16_le(&sm_rb[2]));
+    TEST_ASSERT_EQUAL_HEX8(0x26U, sm_rb[4]);
+    TEST_ASSERT_EQUAL_HEX8(0x01U, sm_rb[6]);
+
+    SYN_EcatFMMUConfig f_en = {.logical_start = 0x00040000U,
+                               .length = 128U,
+                               .logical_end_bit = 7U,
+                               .phys_start_addr = 0x1000U,
+                               .type = 0x03U,
+                               .enable = true};
+    SYN_EcatFMMUConfig f_dis = {.enable = false};
+    flen = syn_ecat_encode_write_fmmu(&m, 0x1001U, 0U, &f_en);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_slave_process_frame(&slave, tx, flen, &wkc));
+    flen = syn_ecat_encode_write_fmmu(&m, 0x1001U, 1U, &f_dis);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_slave_process_frame(&slave, tx, flen, &wkc));
+
+    flen = syn_ecat_encode_read_reg(&m, 0x1001U, SYN_ESC_REG_FMMU0, 32U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_slave_process_frame(&slave, tx, flen, &wkc));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_master_set_rx_frame(&m, tx, flen));
+    uint8_t fmmu_rb[32] = {0};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_decode_read_reg(&m, flen, fmmu_rb, 32U));
+    TEST_ASSERT_EQUAL_HEX16(128U, ecat_test_load16_le(&fmmu_rb[4]));
+    TEST_ASSERT_EQUAL_HEX8(1U, fmmu_rb[12]);
+    TEST_ASSERT_EQUAL_HEX8(0U, fmmu_rb[16U + 12U]);
+
+    /* 128B chunked FPRW & 128B FMMU LRW across full mbox_out[0..127] */
+    memset(slave.mbox_out, 0x5AU, sizeof(slave.mbox_out));
+    uint8_t big_wr[128];
+    for (uint16_t i = 0U; i < 128U; i++) {
+        big_wr[i] = (uint8_t)(0x80U + i);
+    }
+    syn_ecat_frame_begin(wire, sizeof(wire));
+    flen = syn_ecat_frame_add_datagram(wire, sizeof(wire), SYN_ECAT_CMD_FPRW, 1U, 0x10011000U,
+                                       big_wr, 128U, false);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_slave_process_frame(&slave, wire, flen, &wkc));
+    TEST_ASSERT_EQUAL_HEX8(0x5AU, wire[12U + 127U]);                      /* Read old byte 127 */
+    TEST_ASSERT_EQUAL_HEX8((uint8_t)(0x80U + 127U), slave.mbox_out[127]); /* Wrote new byte 127 */
+
+    uint8_t big_lrw[128];
+    memset(big_lrw, 0x33U, sizeof(big_lrw));
+    syn_ecat_frame_begin(wire, sizeof(wire));
+    flen = syn_ecat_frame_add_datagram(wire, sizeof(wire), SYN_ECAT_CMD_LRW, 2U, 0x00040000U,
+                                       big_lrw, 128U, false);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_slave_process_frame(&slave, wire, flen, &wkc));
+    TEST_ASSERT_EQUAL_HEX8((uint8_t)(0x80U + 127U), wire[12U + 127U]);
+    TEST_ASSERT_EQUAL_HEX8(0x33U, slave.mbox_out[127]);
+}
+
 void run_ethercat_tests(void)
 {
     RUN_TEST(test_ecat_init_and_esm);
@@ -1897,4 +2132,5 @@ void run_ethercat_tests(void)
     RUN_TEST(test_ecat_sii_sdo_decode_failure_and_3byte_sdo);
     RUN_TEST(test_ecat_r4_p09_regressions);
     RUN_TEST(test_r5_a07_master_slave_loopback_and_wkc_sdo_guards);
+    RUN_TEST(test_tier_a_ethercat_regressions);
 }

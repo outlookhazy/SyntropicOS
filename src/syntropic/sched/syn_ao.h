@@ -63,8 +63,9 @@ void syn_ao_init(SYN_ActiveObject *ao, SYN_Task *task, const char *name, SYN_Pri
 /**
  * @brief Post an event to the Active Object's mailbox.
  *
- * Thread-safe and ISR-safe. Protects the mailbox write and blocked-task wakeup
- * using critical sections.
+ * Thread-safe and ISR-safe on the local core. Protects the mailbox write and
+ * blocked-task wakeup using critical sections (for cross-core messaging, use
+ * `syn_ipc`).
  *
  * @param ao   Active Object instance.
  * @param sig  Signal identifier.

@@ -17,7 +17,7 @@
 static bool host_cdc_transport_send(const uint8_t *data, size_t len, void *ctx)
 {
     SYN_USB_HostCDC *hcdc = (SYN_USB_HostCDC *)ctx;
-    if ((hcdc == NULL) || (data == NULL) || (len == 0U)) {
+    if ((hcdc == NULL) || (data == NULL) || (len == 0U) || (len > sizeof(hcdc->tx_buf))) {
         return false;
     }
     return (syn_usb_host_cdc_write(hcdc, data, len) == SYN_OK);

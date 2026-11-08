@@ -1328,6 +1328,65 @@ void test_r5_n05_tls_handshake_reflection_and_fatal_error(void)
     TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, client.state);
 }
 
+static void test_tier_a_tls_seq_backpressure_and_secret_scrub(void)
+{
+    DuplexWire dw;
+    EndpointIo c_io, s_io;
+    SYN_Transport c_tr, s_tr;
+    duplex_init(&dw, &c_io, &s_io, &c_tr, &s_tr, false);
+
+    static const uint8_t psk[32] = {0x12, 0x34, 0x56, 0x78};
+    static const uint8_t zeros[SYN_TLS_SECRET_LEN] = {0};
+    SYN_TLS_Config c_cfg = {.mode = SYN_TLS_AUTH_MODE_PSK,
+                            .cipher_suite = SYN_TLS_CIPHER_SUITE_AES_128_GCM_SHA256,
+                            .psk_secret = psk,
+                            .psk_secret_len = sizeof(psk)};
+    SYN_TLS_Config s_cfg = c_cfg;
+    s_cfg.is_server = true;
+
+    SYN_TLS_Context client, server;
+    TEST_ASSERT_TRUE(syn_tls_init(&client, &c_cfg, &c_tr, g_c_rx_buf, sizeof(g_c_rx_buf),
+                                  g_c_tx_buf, sizeof(g_c_tx_buf)));
+    TEST_ASSERT_TRUE(syn_tls_init(&server, &s_cfg, &s_tr, g_s_rx_buf, sizeof(g_s_rx_buf),
+                                  g_s_tx_buf, sizeof(g_s_tx_buf)));
+    pair_tls_handshake(&client, &server);
+
+    /* TLS-4: Ephemeral private key and handshake/master secrets scrubbed upon ESTABLISHED */
+    TEST_ASSERT_EQUAL_MEMORY(zeros, client.my_privkey, sizeof(client.my_privkey));
+    TEST_ASSERT_EQUAL_MEMORY(zeros, client.client_handshake_secret, SYN_TLS_SECRET_LEN);
+    TEST_ASSERT_EQUAL_MEMORY(zeros, client.server_handshake_secret, SYN_TLS_SECRET_LEN);
+    TEST_ASSERT_EQUAL_MEMORY(zeros, client.master_secret, SYN_TLS_SECRET_LEN);
+    TEST_ASSERT_EQUAL_MEMORY(zeros, server.my_privkey, sizeof(server.my_privkey));
+    TEST_ASSERT_EQUAL_MEMORY(zeros, server.master_secret, SYN_TLS_SECRET_LEN);
+
+    /* TLS-2: Non-blocking TX backpressure must not desynchronize AEAD sequence counter */
+    static const char msg[] = "Backpressure-safe TLS 1.3 record";
+    dw.c2s.fail_send = true;
+    TEST_ASSERT_FALSE(syn_tls_send(&client, (const uint8_t *)msg, strlen(msg)));
+    TEST_ASSERT_EQUAL_UINT64(0ULL, client.client_seq_num);
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_ESTABLISHED, client.state);
+
+    dw.c2s.fail_send = false;
+    TEST_ASSERT_TRUE(syn_tls_send(&client, (const uint8_t *)msg, strlen(msg)));
+    TEST_ASSERT_EQUAL_UINT64(1ULL, client.client_seq_num);
+
+    uint8_t rx_buf[64] = {0};
+    size_t rx_len = 0U;
+    TEST_ASSERT_TRUE(syn_tls_recv(&server, rx_buf, sizeof(rx_buf), &rx_len));
+    TEST_ASSERT_EQUAL(strlen(msg), rx_len);
+    TEST_ASSERT_EQUAL_MEMORY(msg, rx_buf, rx_len);
+
+    /* TLS-2: RFC 8446 §5.3 UINT64_MAX sequence exhaustion terminates connection */
+    TEST_ASSERT_TRUE(syn_tls_send(&client, (const uint8_t *)msg, strlen(msg)));
+    server.server_seq_num = UINT64_MAX;
+    TEST_ASSERT_FALSE(syn_tls_recv(&server, rx_buf, sizeof(rx_buf), &rx_len));
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, server.state);
+
+    client.client_seq_num = UINT64_MAX;
+    TEST_ASSERT_FALSE(syn_tls_send(&client, (const uint8_t *)msg, strlen(msg)));
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, client.state);
+}
+
 void run_tls_tests(void)
 {
     RUN_TEST(test_tls_psk_mode_handshake_and_record_crypto);
@@ -1340,4 +1399,5 @@ void run_tls_tests(void)
     RUN_TEST(test_tls_aes_ccm_cipher_suites);
     RUN_TEST(test_tls_round4_aad_framing_and_bounds);
     RUN_TEST(test_r5_n05_tls_handshake_reflection_and_fatal_error);
+    RUN_TEST(test_tier_a_tls_seq_backpressure_and_secret_scrub);
 }

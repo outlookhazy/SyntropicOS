@@ -327,3 +327,42 @@ void test_r5_usb_regressions(void)
                           syn_usb_register_class(&dev2, &raw_cls, short_desc, sizeof(short_desc)));
     TEST_ASSERT_EQUAL_UINT8(2U, dev2.classes[0].iface_start);
 }
+
+void test_tier_a_usb_regressions(void)
+{
+    SYN_USB_Device dev;
+    SYN_USB_CDC cdc;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_init(&dev, TEST_DEVICE_DESC));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_cdc_init(&cdc));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_cdc_register(&dev, &cdc));
+
+    uint8_t resp[16] = {0xFFU, 0xFFU};
+    uint16_t rlen = 0U;
+
+    /* Standard GET_STATUS to Interface (0x81) stays in Chapter 9 core and returns 0x0000 */
+    SYN_USB_SetupPacket pkt = {.bmRequestType = 0x81U,
+                               .bRequest = SYN_USB_REQ_GET_STATUS,
+                               .wValue = 0U,
+                               .wIndex = 0U,
+                               .wLength = 2U};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_UINT16(2U, rlen);
+    TEST_ASSERT_EQUAL_UINT8(0x00U, resp[0]);
+    TEST_ASSERT_EQUAL_UINT8(0x00U, resp[1]);
+
+    /* Standard GET_STATUS to Endpoint (0x82) returns 0x0000; Device (0x80) returns 0x0001 */
+    pkt.bmRequestType = 0x82U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_UINT8(0x00U, resp[0]);
+
+    pkt.bmRequestType = 0x80U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_UINT8(0x01U, resp[0]);
+
+    /* Vendor request to interface (0x41) is not misrouted to CDC class setup */
+    pkt.bmRequestType = 0x41U;
+    pkt.bRequest = SYN_USB_CDC_GET_LINE_CODING;
+    pkt.wLength = 7U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_UINT16(0U, rlen);
+}

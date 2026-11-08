@@ -207,4 +207,13 @@ void test_r5_ble_l2cap_regressions(void)
     uint16_t tx_len = 0U;
     TEST_ASSERT_EQUAL(SYN_OK,
                       syn_ble_l2cap_encode_pdu(0x0001U, 0x0004U, NULL, 0U, tx_buf, &tx_len));
+
+    /* BLE2-3a: Max payload fits SYN_BLE_HCI_TX_BUF_SIZE (247B -> 256B), 248B rejected */
+    uint8_t max_pay[248] = {0};
+    uint8_t hci_tx[SYN_BLE_HCI_TX_BUF_SIZE];
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ble_l2cap_encode_pdu(0x0001U, 0x0004U, max_pay, 247U, hci_tx, &tx_len));
+    TEST_ASSERT_EQUAL_UINT16(SYN_BLE_HCI_TX_BUF_SIZE, tx_len);
+    TEST_ASSERT_EQUAL(SYN_ERROR,
+                      syn_ble_l2cap_encode_pdu(0x0001U, 0x0004U, max_pay, 248U, hci_tx, &tx_len));
 }

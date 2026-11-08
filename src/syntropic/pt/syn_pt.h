@@ -373,23 +373,15 @@ static inline bool syn_pt_arm_us_deadline(uint32_t *target, uint32_t now, uint32
  * @param grp   Pointer to SYN_EventGroup.
  * @param mask  Bitmask of event flags to wait for (any of them).
  */
-#define PT_BLOCK_EVENT(pt, task, grp, mask)                 \
-    do {                                                    \
-        syn_port_enter_critical();                          \
-        (task)->wait_event = (SYN_EventFlags *)(grp);       \
-        (task)->wait_mask = (mask);                         \
-        SYN_PT_STATE_BARRIER();                             \
-        syn_port_exit_critical();                           \
-        while ((task)->wait_event != NULL) {                \
-            syn_port_enter_critical();                      \
-            if ((task)->state == (uint8_t)SYN_TASK_READY) { \
-                (task)->state = (uint8_t)SYN_TASK_BLOCKED;  \
-                SYN_PT_STATE_BARRIER();                     \
-            }                                               \
-            syn_port_exit_critical();                       \
-            PT_PASS(pt);                                    \
-        }                                                   \
-        (task)->wait_mask = 0U;                             \
+#define PT_BLOCK_EVENT(pt, task, grp, mask)                                                      \
+    do {                                                                                         \
+        if (syn_task_arm_event_wait((task), (SYN_EventFlags *)(grp), (mask), false, 0U, NULL)) { \
+            while ((task)->wait_event != NULL) {                                                 \
+                syn_task_park_blocked((task));                                                   \
+                PT_PASS(pt);                                                                     \
+            }                                                                                    \
+            (task)->wait_mask = 0U;                                                              \
+        }                                                                                        \
     } while (0)
 
 /**
@@ -410,44 +402,24 @@ static inline bool syn_pt_arm_us_deadline(uint32_t *target, uint32_t now, uint32
  * @param timeout_ms  Timeout duration in milliseconds.
  * @param out_flags   Pointer to uint32_t receiving matched flags (or 0 on timeout).
  */
-#define PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, grp, mask, timeout_ms, out_flags)   \
-    do {                                                                          \
-        syn_port_enter_critical();                                                \
-        if (!syn_pt_arm_ms_deadline(&(task)->delay_until, syn_port_get_tick_ms(), \
-                                    (uint32_t)(timeout_ms))) {                    \
-            syn_port_exit_critical();                                             \
-            uint32_t _syn_evt_imm = 0U;                                           \
-            uint32_t *_syn_ef_out = (out_flags);                                  \
-            (void)syn_event_flags_wait((SYN_EventFlags *)(grp), (mask),           \
-                                       (uint32_t)SYN_EVENT_FLAGS_WAIT_ANY |       \
-                                           (uint32_t)SYN_EVENT_FLAGS_AUTO_CLEAR,  \
-                                       &_syn_evt_imm);                            \
-            if (_syn_ef_out != NULL) {                                            \
-                *_syn_ef_out = _syn_evt_imm;                                      \
-            }                                                                     \
-        } else {                                                                  \
-            (task)->wait_event = (SYN_EventFlags *)(grp);                         \
-            (task)->wait_mask = (mask);                                           \
-            SYN_PT_STATE_BARRIER();                                               \
-            syn_port_exit_critical();                                             \
-            while ((task)->wait_event != NULL) {                                  \
-                syn_port_enter_critical();                                        \
-                if ((task)->state == (uint8_t)SYN_TASK_READY) {                   \
-                    (task)->state = (uint8_t)SYN_TASK_BLOCKED;                    \
-                    SYN_PT_STATE_BARRIER();                                       \
-                }                                                                 \
-                syn_port_exit_critical();                                         \
-                PT_PASS(pt);                                                      \
-            }                                                                     \
-            (task)->delay_until = 0U;                                             \
-            {                                                                     \
-                uint32_t *_syn_ef_out = (out_flags);                              \
-                if (_syn_ef_out != NULL) {                                        \
-                    *_syn_ef_out = (task)->wait_mask;                             \
-                }                                                                 \
-            }                                                                     \
-            (task)->wait_mask = 0U;                                               \
-        }                                                                         \
+#define PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, grp, mask, timeout_ms, out_flags)    \
+    do {                                                                           \
+        uint32_t *_syn_ef_out = (out_flags);                                       \
+        if (syn_task_arm_event_wait((task), (SYN_EventFlags *)(grp), (mask), true, \
+                                    (uint32_t)(timeout_ms), _syn_ef_out)) {        \
+            while ((task)->wait_event != NULL) {                                   \
+                syn_task_park_blocked((task));                                     \
+                PT_PASS(pt);                                                       \
+            }                                                                      \
+            (task)->delay_until = 0U;                                              \
+            {                                                                      \
+                uint32_t *_syn_ef_post = (out_flags);                              \
+                if (_syn_ef_post != NULL) {                                        \
+                    *_syn_ef_post = (task)->wait_mask;                             \
+                }                                                                  \
+            }                                                                      \
+            (task)->wait_mask = 0U;                                                \
+        }                                                                          \
     } while (0)
 
 /**

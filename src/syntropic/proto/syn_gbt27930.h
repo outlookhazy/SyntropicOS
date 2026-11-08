@@ -137,6 +137,8 @@ typedef struct {
     bool cml_sent;                           /**< Charger transmitted CML capability frame */
     bool cml_received;                       /**< BMS received CML charger capability */
     bool cts_received;                       /**< BMS received CTS time sync frame */
+    bool bro_received;                       /**< Charger received BRO (0x00 or 0xAA) from BMS */
+    bool crm_aa_retransmit;                  /**< Charger queued CRM(0xAA) retransmit on BRM */
     bool ready_tx_sent;                      /**< Local BRO(0xAA)/CRO(0xAA) transmitted */
     bool stop_tx_sent;                       /**< Local BST/CST stop frame transmitted */
     bool peer_stopped;                       /**< Peer BST/CST stop frame received */
@@ -144,6 +146,7 @@ typedef struct {
     uint8_t tx_substep;                      /**< Periodic multi-PGN schedule index */
     uint32_t timer_ms;                       /**< Periodic transmit timer */
     uint32_t timeout_ms;                     /**< Phase timeout timer */
+    uint32_t bcl_timeout_ms;                 /**< Charger 1000 ms BCL demand watchdog timer */
     uint8_t stop_reason;                     /**< Stop reason code */
     uint8_t fault_code;                      /**< Error/Fault code */
     uint8_t sync_time_bcd[7];                /**< Charger BCD timestamp for CTS (optional) */

@@ -269,6 +269,43 @@ static void test_r4_timer_zero_period_clamp_and_null_guards(void)
     TEST_ASSERT_EQUAL_UINT32(1U, tmr.period_ms);
 }
 
+static int g_cb_crit_depth = -1;
+
+static void timer_self_stop_cb(SYN_Timer *t, void *ctx)
+{
+    int *cnt = (int *)ctx;
+    g_cb_crit_depth = mock_critical_depth;
+    (*cnt)++;
+    syn_timer_stop(t);
+}
+
+static void test_tier_a_timer_critical_section_and_self_stop(void)
+{
+    /* SCHED-5: Callback executes outside critical section and self-stop is not clobbered */
+    SYN_Timer tmr;
+    int fires = 0;
+    mock_port_reset();
+    mock_tick_ms = 1000U;
+    g_cb_crit_depth = -1;
+
+    int cs_before = mock_critical_enter_count;
+    syn_timer_init(&tmr, 25U, true, timer_self_stop_cb, &fires);
+    syn_timer_start(&tmr);
+    TEST_ASSERT_GREATER_THAN(cs_before, mock_critical_enter_count);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    mock_tick_ms = 1025U;
+    syn_timer_service(&tmr, 1U);
+    TEST_ASSERT_EQUAL_INT(1, fires);
+    TEST_ASSERT_EQUAL_INT(0, g_cb_crit_depth);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+    TEST_ASSERT_FALSE(syn_timer_is_active(&tmr));
+
+    mock_tick_ms = 1050U;
+    syn_timer_service(&tmr, 1U);
+    TEST_ASSERT_EQUAL_INT(1, fires);
+}
+
 void run_timer_tests(void)
 {
     RUN_TEST(test_software_timer);
@@ -279,4 +316,5 @@ void run_timer_tests(void)
     RUN_TEST(test_timer_next_expiry_uint32_max_clamp_and_edges);
     RUN_TEST(test_timer_period_int32_max_clamp);
     RUN_TEST(test_r4_timer_zero_period_clamp_and_null_guards);
+    RUN_TEST(test_tier_a_timer_critical_section_and_self_stop);
 }

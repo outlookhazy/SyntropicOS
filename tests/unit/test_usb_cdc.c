@@ -234,3 +234,34 @@ void test_r5_usb_cdc_regressions(void)
     TEST_ASSERT_EQUAL_UINT32(6U, (uint32_t)rlen);
     TEST_ASSERT_FALSE(syn_transport_has_data(&tr));
 }
+
+void test_tier_a_usb_cdc_regressions(void)
+{
+    SYN_USB_Device dev;
+    SYN_USB_CDC cdc;
+    SYN_Transport tr;
+    syn_usb_init(&dev, TEST_DEVICE_DESC);
+    syn_usb_cdc_init(&cdc);
+    syn_usb_cdc_register(&dev, &cdc);
+    syn_transport_from_usb_cdc(&tr, &cdc);
+
+    /* 1. Transport rejects oversized (> 128 B) send instead of silently truncating */
+    uint8_t oversized[129];
+    memset(oversized, 0xAAU, sizeof(oversized));
+    TEST_ASSERT_FALSE(syn_transport_send(&tr, oversized, sizeof(oversized)));
+    TEST_ASSERT_EQUAL_UINT16(0U, cdc.tx_len);
+
+    /* Transport also rejects send when staging buffer is already occupied */
+    TEST_ASSERT_TRUE(syn_transport_send(&tr, oversized, 64U));
+    TEST_ASSERT_FALSE(syn_transport_send(&tr, oversized, 16U));
+    dev.classes[0].data_in(&cdc, cdc.ep_in);
+    TEST_ASSERT_EQUAL_UINT16(0U, cdc.tx_len);
+
+    /* 2. Full RX buffer drops extra OUT packet cleanly without UB */
+    dev.classes[0].data_out(&cdc, cdc.ep_out, oversized, 128U);
+    TEST_ASSERT_EQUAL_UINT16(128U, cdc.rx_len);
+    const uint8_t extra[4] = {1U, 2U, 3U, 4U};
+    dev.classes[0].data_out(&cdc, cdc.ep_out, extra, sizeof(extra));
+    TEST_ASSERT_EQUAL_UINT16(128U, cdc.rx_len);
+    TEST_ASSERT_EQUAL_UINT8(0xAAU, cdc.rx_buf[127]);
+}

@@ -60,5 +60,9 @@ SYN_Status syn_usb_hid_mouse_move(SYN_USB_HID *hid, int8_t x, int8_t y)
 
 SYN_Status syn_usb_hid_mouse_click(SYN_USB_HID *hid, uint8_t buttons)
 {
-    return syn_usb_hid_mouse_send(hid, buttons, 0, 0, 0);
+    SYN_Status st = syn_usb_hid_mouse_send(hid, buttons, 0, 0, 0);
+    if ((st == SYN_OK) && (buttons != 0U)) {
+        hid->release_pending = true;
+    }
+    return st;
 }

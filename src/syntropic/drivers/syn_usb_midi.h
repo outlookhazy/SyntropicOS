@@ -79,12 +79,18 @@ SYN_Status syn_usb_midi_init(SYN_USB_MIDI *midi);
 SYN_Status syn_usb_midi_register(SYN_USB_Device *dev, SYN_USB_MIDI *midi);
 
 /**
- * @brief Encode and queue a Note On MIDI message.
+ * @brief Encode and queue a Note On MIDI message into the Bulk IN staging buffer.
+ *
+ * @note Port-decoupled staging contract: appends a 4-byte USB-MIDI Event Packet into
+ *       `midi->tx_buf` (`midi->tx_len` up to 64 B so up to 16 events batch per packet).
+ *       The platform USB ISR transmits `midi->tx_buf` on `midi->ep_in` and invokes the
+ *       class `data_in` callback upon completion to clear `midi->tx_len`.
+ *
  * @param midi Pointer to USB MIDI instance.
  * @param channel MIDI Channel (0..15).
  * @param note MIDI Note Number (0..127).
  * @param velocity Note Velocity (0..127).
- * @return SYN_OK on success, SYN_INVALID_PARAM if invalid.
+ * @return SYN_OK on success, SYN_BUSY if staging buffer is full, SYN_INVALID_PARAM if invalid.
  */
 SYN_Status syn_usb_midi_send_note_on(SYN_USB_MIDI *midi, uint8_t channel, uint8_t note,
                                      uint8_t velocity);
@@ -127,6 +133,23 @@ SYN_Status syn_usb_midi_send_pitch_bend(SYN_USB_MIDI *midi, uint8_t channel, int
  * @return SYN_OK on success, SYN_INVALID_PARAM if NULL.
  */
 SYN_Status syn_usb_midi_parse_packet(const uint8_t raw_bytes[4], SYN_USB_MIDI_Packet *packet);
+
+/**
+ * @brief Read received USB-MIDI bytes from the Bulk OUT receive buffer.
+ * @param midi    Pointer to USB MIDI instance.
+ * @param buf     Destination buffer.
+ * @param max_len Maximum bytes to copy.
+ * @param out_len Output pointer receiving actual bytes read.
+ * @return SYN_OK on success, SYN_INVALID_PARAM if NULL.
+ */
+SYN_Status syn_usb_midi_read(SYN_USB_MIDI *midi, void *buf, size_t max_len, size_t *out_len);
+
+/**
+ * @brief Check whether unread USB-MIDI OUT bytes are queued in rx_buf.
+ * @param midi Pointer to USB MIDI instance.
+ * @return true when unread bytes are available.
+ */
+bool syn_usb_midi_rx_available(const SYN_USB_MIDI *midi);
 
 #ifdef __cplusplus
 }

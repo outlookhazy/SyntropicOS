@@ -263,6 +263,18 @@ static bool derive_tls13_hs_secrets(SYN_TLS_Context *ctx)
 }
 
 /**
+ * @brief Wipe ephemeral X25519 private key and intermediate handshake secrets once established.
+ * @param ctx TLS context pointer.
+ */
+static void tls_scrub_handshake_secrets(SYN_TLS_Context *ctx)
+{
+    syn_secure_zero(ctx->my_privkey, sizeof(ctx->my_privkey));
+    syn_secure_zero(ctx->client_handshake_secret, sizeof(ctx->client_handshake_secret));
+    syn_secure_zero(ctx->server_handshake_secret, sizeof(ctx->server_handshake_secret));
+    syn_secure_zero(ctx->master_secret, sizeof(ctx->master_secret));
+}
+
+/**
  * @brief Derive TLS 1.3 application traffic secrets, keys, and IVs after ServerFinished.
  * @param ctx TLS context pointer.
  */
@@ -834,8 +846,12 @@ static bool tls_send_server_flight(SYN_TLS_Context *ctx)
         return false;
     }
 
-    ctx->state = (ctx->config.mode == SYN_TLS_AUTH_MODE_MTLS) ? SYN_TLS_STATE_FINISHED_SENT
-                                                              : SYN_TLS_STATE_ESTABLISHED;
+    if (ctx->config.mode == SYN_TLS_AUTH_MODE_MTLS) {
+        ctx->state = SYN_TLS_STATE_FINISHED_SENT;
+    } else {
+        tls_scrub_handshake_secrets(ctx);
+        ctx->state = SYN_TLS_STATE_ESTABLISHED;
+    }
     return true;
 }
 
@@ -1070,6 +1086,7 @@ static bool tls_server_handshake_step(SYN_TLS_Context *ctx)
             ctx->state = SYN_TLS_STATE_ERROR;
             return false;
         }
+        tls_scrub_handshake_secrets(ctx);
         ctx->state = SYN_TLS_STATE_ESTABLISHED;
         return true;
     }
@@ -1158,6 +1175,7 @@ bool syn_tls_handshake(SYN_TLS_Context *ctx)
         return false;
     }
 
+    tls_scrub_handshake_secrets(ctx);
     ctx->state = SYN_TLS_STATE_ESTABLISHED;
     return true;
 }
@@ -1187,23 +1205,18 @@ SYN_PT_Status syn_tls_task(SYN_PT *pt, SYN_Task *task)
     PT_END(pt);
 }
 
-bool syn_tls_send(SYN_TLS_Context *ctx, const uint8_t *data, size_t len)
+/** @cond INTERNAL */
+/**
+ * @brief Encrypt and transmit a single TLS 1.3 application record, advancing seq only on send.
+ * @param ctx  Established TLS context.
+ * @param data Plaintext payload buffer.
+ * @param len  Plaintext byte count (> 0 and <= SYN_TLS_RECORD_MAX_PAYLOAD).
+ * @return true if record encrypted and accepted by underlying transport.
+ */
+static bool tls_transmit_app_record(SYN_TLS_Context *ctx, const uint8_t *data, size_t len)
 {
-    if (ctx == NULL || ctx->state == SYN_TLS_STATE_ERROR || (data == NULL && len > 0U)) {
-        return false;
-    }
-
-    if (ctx->state != SYN_TLS_STATE_ESTABLISHED) {
-        if (!syn_tls_handshake(ctx) || ctx->state != SYN_TLS_STATE_ESTABLISHED) {
-            return false;
-        }
-    }
-
-    if (len == 0U) {
-        return true;
-    }
-
-    if (len > SYN_TLS_RECORD_MAX_PAYLOAD) {
+    if (ctx->client_seq_num == UINT64_MAX) {
+        ctx->state = SYN_TLS_STATE_ERROR;
         return false;
     }
 
@@ -1231,15 +1244,41 @@ bool syn_tls_send(SYN_TLS_Context *ctx, const uint8_t *data, size_t len)
     const uint8_t *tx_iv = ctx->config.is_server ? ctx->server_app_iv : ctx->client_app_iv;
 
     uint8_t nonce[12];
-    construct_tls13_nonce(tx_iv, ctx->client_seq_num++, nonce);
-
+    construct_tls13_nonce(tx_iv, ctx->client_seq_num, nonce);
     tls_record_encrypt(ctx, tx_key, nonce, record_buf, out_ct, pt_with_ct_len, out_ct,
                        out_ct + pt_with_ct_len);
-
     syn_secure_zero(nonce, sizeof(nonce));
 
-    size_t total_record_len = TLS_RECORD_HEADER_LEN + ciphertext_len;
-    return syn_transport_send(ctx->underlying_transport, record_buf, total_record_len);
+    if (!syn_transport_send(ctx->underlying_transport, record_buf,
+                            TLS_RECORD_HEADER_LEN + ciphertext_len)) {
+        return false;
+    }
+    ctx->client_seq_num++;
+    return true;
+}
+/** @endcond */
+
+bool syn_tls_send(SYN_TLS_Context *ctx, const uint8_t *data, size_t len)
+{
+    if (ctx == NULL || ctx->state == SYN_TLS_STATE_ERROR || (data == NULL && len > 0U)) {
+        return false;
+    }
+
+    if (ctx->state != SYN_TLS_STATE_ESTABLISHED) {
+        if (!syn_tls_handshake(ctx) || ctx->state != SYN_TLS_STATE_ESTABLISHED) {
+            return false;
+        }
+    }
+
+    if (len == 0U) {
+        return true;
+    }
+
+    if (len > SYN_TLS_RECORD_MAX_PAYLOAD) {
+        return false;
+    }
+
+    return tls_transmit_app_record(ctx, data, len);
 }
 
 /**
@@ -1291,6 +1330,50 @@ static bool tls_strip_inner_content_type(const uint8_t *pt_buf, size_t pt_with_c
     return true;
 }
 
+/** @cond INTERNAL */
+/**
+ * @brief Validate, decrypt, and commit an inbound TLS 1.3 application record.
+ * @param ctx     Established TLS context.
+ * @param rx_len  Bytes received into ctx->rx_buf.
+ * @param data    Caller destination buffer.
+ * @param max_len Caller destination capacity.
+ * @param out_len [out] Decrypted plaintext byte count.
+ * @return true on authentic record decryption, false on fatal error.
+ */
+static bool tls_decrypt_rx_record(SYN_TLS_Context *ctx, size_t rx_len, uint8_t *data,
+                                  size_t max_len, size_t *out_len)
+{
+    size_t tag_sz = tls_tag_len(ctx);
+    size_t pt_with_ct_len = 0U;
+    if (ctx->server_seq_num == UINT64_MAX ||
+        !tls_parse_record_header(ctx->rx_buf, rx_len, tag_sz, &pt_with_ct_len)) {
+        ctx->state = SYN_TLS_STATE_ERROR;
+        return false;
+    }
+
+    const uint8_t *rx_key = ctx->config.is_server ? ctx->client_app_key : ctx->server_app_key;
+    const uint8_t *rx_iv = ctx->config.is_server ? ctx->client_app_iv : ctx->server_app_iv;
+
+    uint8_t nonce[12];
+    construct_tls13_nonce(rx_iv, ctx->server_seq_num, nonce);
+
+    uint8_t *decrypted_buf = ctx->rx_buf + TLS_RECORD_HEADER_LEN;
+    bool ok = tls_record_decrypt(ctx, rx_key, nonce, ctx->rx_buf, decrypted_buf, pt_with_ct_len,
+                                 decrypted_buf + pt_with_ct_len, decrypted_buf);
+    syn_secure_zero(nonce, sizeof(nonce));
+
+    size_t app_len = 0U;
+    if (!ok || !tls_strip_inner_content_type(decrypted_buf, pt_with_ct_len, &app_len)) {
+        syn_secure_zero(decrypted_buf, pt_with_ct_len);
+        ctx->state = SYN_TLS_STATE_ERROR;
+        return false;
+    }
+
+    tls_commit_decrypted_record(ctx, decrypted_buf, app_len, data, max_len, out_len);
+    return true;
+}
+/** @endcond */
+
 bool syn_tls_recv(SYN_TLS_Context *ctx, uint8_t *data, size_t max_len, size_t *out_len)
 {
     if (ctx == NULL || data == NULL || out_len == NULL) {
@@ -1319,33 +1402,7 @@ bool syn_tls_recv(SYN_TLS_Context *ctx, uint8_t *data, size_t max_len, size_t *o
         return false;
     }
 
-    size_t tag_sz = tls_tag_len(ctx);
-    size_t pt_with_ct_len = 0U;
-    if (!tls_parse_record_header(ctx->rx_buf, rx_len, tag_sz, &pt_with_ct_len)) {
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
-    }
-
-    const uint8_t *rx_key = ctx->config.is_server ? ctx->client_app_key : ctx->server_app_key;
-    const uint8_t *rx_iv = ctx->config.is_server ? ctx->client_app_iv : ctx->server_app_iv;
-
-    uint8_t nonce[12];
-    construct_tls13_nonce(rx_iv, ctx->server_seq_num, nonce);
-
-    uint8_t *decrypted_buf = ctx->rx_buf + TLS_RECORD_HEADER_LEN;
-    bool ok = tls_record_decrypt(ctx, rx_key, nonce, ctx->rx_buf, decrypted_buf, pt_with_ct_len,
-                                 decrypted_buf + pt_with_ct_len, decrypted_buf);
-    syn_secure_zero(nonce, sizeof(nonce));
-
-    size_t app_len = 0U;
-    if (!ok || !tls_strip_inner_content_type(decrypted_buf, pt_with_ct_len, &app_len)) {
-        syn_secure_zero(decrypted_buf, pt_with_ct_len);
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
-    }
-
-    tls_commit_decrypted_record(ctx, decrypted_buf, app_len, data, max_len, out_len);
-    return true;
+    return tls_decrypt_rx_record(ctx, rx_len, data, max_len, out_len);
 }
 
 #endif /* SYN_TLS_ENABLED */

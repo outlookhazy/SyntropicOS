@@ -591,6 +591,180 @@ static void test_r5_a01_full_loopback_and_timeout_isolation(void)
     TEST_ASSERT_EQUAL_UINT8(0x01U, b2.fault_code);
 }
 
+static void test_tier_a_gbt27930_regressions(void)
+{
+    SYN_CAN_Frame f;
+    SYN_CAN_Frame tx;
+    SYN_J1939_Header hdr;
+
+    /* 1. GBT-1 & GBT-3: J1939 SA/DA filtering + CRM(0x00) prerequisite before CRM(0xAA) */
+    gbt27930_test_setup();
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_start_handshake(&g_bms));
+
+    memset(&f, 0, sizeof(f));
+    f.extended = true;
+    f.dlc = 8U;
+
+    /* Premature CRM(0xAA) before CRM(0x00) rejected */
+    f.id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_CRM, SYN_GBT27930_ADDR_CHARGER,
+                             SYN_GBT27930_ADDR_BMS);
+    f.data[0] = 0xAAU;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_bms, &f));
+    TEST_ASSERT_EQUAL_INT(SYN_GBT27930_STATE_HANDSHAKE, g_bms.state);
+
+    /* Spoofed SA (0x99) and mismatched DA (0x12) ignored; broadcast DA (0xFF) accepted */
+    f.data[0] = 0x00U;
+    f.id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_CRM, 0x99U, SYN_GBT27930_ADDR_BMS);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_bms, &f));
+    TEST_ASSERT_FALSE(g_bms.crm00_received);
+
+    f.id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_CRM, SYN_GBT27930_ADDR_CHARGER, 0x12U);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_bms, &f));
+    TEST_ASSERT_FALSE(g_bms.crm00_received);
+
+    f.id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_CRM, SYN_GBT27930_ADDR_CHARGER, 0xFFU);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_bms, &f));
+    TEST_ASSERT_TRUE(g_bms.crm00_received);
+
+    /* Repeated CRM(0x00) does NOT reset 5s recognition timeout */
+    for (int i = 0; i < 11; i++) {
+        TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_bms, &f));
+        (void)syn_gbt27930_step(&g_bms, 500U, &tx);
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_GBT27930_STATE_ERROR, g_bms.state);
+
+    /* 2. GBT-3: Duplicate BRM in PARAM_CONFIG triggers CRM(0xAA) retransmit; CTS/CML alternate
+     * until BRO */
+    gbt27930_test_setup();
+    g_charger.state = SYN_GBT27930_STATE_PARAM_CONFIG;
+
+    SYN_CAN_Frame brm;
+    memset(&brm, 0, sizeof(brm));
+    brm.extended = true;
+    brm.id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_BRM, SYN_GBT27930_ADDR_BMS,
+                               SYN_GBT27930_ADDR_CHARGER);
+    brm.dlc = 4U; /* Short BRM ignored */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_charger, &brm));
+    TEST_ASSERT_FALSE(g_charger.crm_aa_retransmit);
+
+    brm.dlc = 8U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_charger, &brm));
+    TEST_ASSERT_TRUE(g_charger.crm_aa_retransmit);
+    TEST_ASSERT_TRUE(syn_gbt27930_step(&g_charger, 250U, &tx));
+    syn_j1939_id_unpack(tx.id, &hdr);
+    TEST_ASSERT_EQUAL_HEX32(SYN_GBT27930_PGN_CRM, hdr.pgn);
+    TEST_ASSERT_EQUAL_HEX8(0xAAU, tx.data[0]);
+
+    /* Receive BCP (unpacking max_cell_volt_v, max_temp_c, soc_percent) + repeated BCP/BRO(0x00) */
+    SYN_CAN_Frame bcp;
+    memset(&bcp, 0, sizeof(bcp));
+    bcp.extended = true;
+    bcp.dlc = 8U;
+    bcp.id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_BCP, SYN_GBT27930_ADDR_BMS,
+                               SYN_GBT27930_ADDR_CHARGER);
+    bcp.data[4] = 0xA4U;
+    bcp.data[5] = 0x01U; /* 420 (4.20V) */
+    bcp.data[6] = 95U;
+    bcp.data[7] = 62U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_charger, &bcp));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_charger, &bcp));
+    TEST_ASSERT_EQUAL_UINT16(420U, g_charger.bms_cfg.max_cell_volt_v);
+    TEST_ASSERT_EQUAL_UINT16(95U, g_charger.bms_cfg.max_temp_c);
+    TEST_ASSERT_EQUAL_UINT8(62U, g_charger.telemetry.soc_percent);
+
+    /* Before BRO arrives, Charger keeps alternating CTS and CML even after bcp_received && cml_sent
+     */
+    TEST_ASSERT_TRUE(syn_gbt27930_step(&g_charger, 250U, &tx)); /* CTS */
+    TEST_ASSERT_TRUE(syn_gbt27930_step(&g_charger, 250U, &tx)); /* CML -> cml_sent = true */
+    TEST_ASSERT_TRUE(syn_gbt27930_step(&g_charger, 250U, &tx)); /* Still CTS (no BRO yet!) */
+    syn_j1939_id_unpack(tx.id, &hdr);
+    TEST_ASSERT_EQUAL_HEX32(SYN_GBT27930_PGN_CTS, hdr.pgn);
+
+    /* Repeated CML on BMS & repeated BRO(0x00) on Charger */
+    g_bms.state = SYN_GBT27930_STATE_PARAM_CONFIG;
+    TEST_ASSERT_TRUE(syn_gbt27930_step(&g_charger, 250U, &tx)); /* CML */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_bms, &tx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_bms, &tx));
+
+    SYN_CAN_Frame bro00;
+    memset(&bro00, 0, sizeof(bro00));
+    bro00.extended = true;
+    bro00.dlc = 1U;
+    bro00.id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_BRO, SYN_GBT27930_ADDR_BMS,
+                                 SYN_GBT27930_ADDR_CHARGER);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_charger, &bro00));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_charger, &bro00));
+    TEST_ASSERT_TRUE(syn_gbt27930_step(&g_charger, 250U, &tx)); /* Now emits CRO(0x00) */
+    syn_j1939_id_unpack(tx.id, &hdr);
+    TEST_ASSERT_EQUAL_HEX32(SYN_GBT27930_PGN_CRO, hdr.pgn);
+
+    /* 3. GBT-2 & GBT-4: Separate BCL (1s) vs BCS (5s) watchdogs, BSM/BCS fields, sub-period timer &
+     * UINT32_MAX saturation */
+    gbt27930_test_setup();
+    g_charger.state = SYN_GBT27930_STATE_CHARGING;
+
+    SYN_CAN_Frame bcl;
+    memset(&bcl, 0, sizeof(bcl));
+    bcl.extended = true;
+    bcl.dlc = 5U;
+    bcl.id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_BCL, SYN_GBT27930_ADDR_BMS,
+                               SYN_GBT27930_ADDR_CHARGER);
+
+    /* Continuous BCL without BCS stays alive past 1000ms (up to 4950ms), then faults at 5000ms */
+    for (int i = 0; i < 11; i++) {
+        TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_charger, &bcl));
+        (void)syn_gbt27930_step(&g_charger, 450U, &tx);
+        TEST_ASSERT_EQUAL_INT(SYN_GBT27930_STATE_CHARGING, g_charger.state);
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_charger, &bcl));
+    (void)syn_gbt27930_step(&g_charger, 100U, &tx);
+    TEST_ASSERT_EQUAL_INT(SYN_GBT27930_STATE_ERROR, g_charger.state);
+
+    /* Continuous BCS without BCL faults at 1000ms */
+    gbt27930_test_setup();
+    g_charger.state = SYN_GBT27930_STATE_CHARGING;
+    SYN_CAN_Frame bcs;
+    memset(&bcs, 0, sizeof(bcs));
+    bcs.extended = true;
+    bcs.dlc = 8U;
+    bcs.id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_BCS, SYN_GBT27930_ADDR_BMS,
+                               SYN_GBT27930_ADDR_CHARGER);
+    bcs.data[4] = 0x9FU;
+    bcs.data[5] = 0x01U; /* 415 */
+    bcs.data[7] = 33U;   /* 33 min remaining */
+    for (int i = 0; i < 5; i++) {
+        TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_charger, &bcs));
+        (void)syn_gbt27930_step(&g_charger, 200U, &tx);
+    }
+    TEST_ASSERT_EQUAL_UINT16(415U, g_charger.telemetry.max_cell_volt_v);
+    TEST_ASSERT_EQUAL_UINT16(33U, g_charger.telemetry.remaining_time_min);
+    TEST_ASSERT_EQUAL_INT(SYN_GBT27930_STATE_ERROR, g_charger.state);
+
+    /* BSM short DLC ignored, valid 7B BSM unpacked; sub-interval step + UINT32_MAX saturation */
+    gbt27930_test_setup();
+    g_charger.state = SYN_GBT27930_STATE_CHARGING;
+    SYN_CAN_Frame bsm;
+    memset(&bsm, 0, sizeof(bsm));
+    bsm.extended = true;
+    bsm.id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_BSM, SYN_GBT27930_ADDR_BMS,
+                               SYN_GBT27930_ADDR_CHARGER);
+    bsm.dlc = 3U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_charger, &bsm));
+    bsm.dlc = 7U;
+    bsm.data[1] = 82U;
+    bsm.data[3] = 74U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gbt27930_process_rx_frame(&g_charger, &bsm));
+    TEST_ASSERT_EQUAL_UINT8(82U, g_charger.telemetry.max_cell_temp_c);
+    TEST_ASSERT_EQUAL_UINT8(74U, g_charger.telemetry.min_cell_temp_c);
+
+    TEST_ASSERT_FALSE(syn_gbt27930_step(&g_charger, 30U, &tx));
+    TEST_ASSERT_TRUE(syn_gbt27930_step(&g_charger, 30U, &tx));
+    TEST_ASSERT_EQUAL_UINT32(10U, g_charger.timer_ms);
+
+    TEST_ASSERT_TRUE(syn_gbt27930_step(&g_charger, UINT32_MAX, &tx));
+    TEST_ASSERT_EQUAL_INT(SYN_GBT27930_STATE_ERROR, g_charger.state);
+}
+
 void run_gbt27930_tests(void)
 {
     RUN_TEST(test_gbt27930_init_and_idle);
@@ -602,6 +776,7 @@ void run_gbt27930_tests(void)
     RUN_TEST(test_gbt27930_timeouts);
     RUN_TEST(test_gbt27930_short_dlc_branches);
     RUN_TEST(test_r5_a01_full_loopback_and_timeout_isolation);
+    RUN_TEST(test_tier_a_gbt27930_regressions);
 }
 
 #endif /* SYN_USE_GBT27930 */

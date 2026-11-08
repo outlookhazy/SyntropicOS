@@ -289,6 +289,44 @@ SYN_Status syn_usb_set_raw_config_desc(SYN_USB_Device *dev, const uint8_t *desc,
     return SYN_OK;
 }
 
+/**
+ * @brief Check whether an EP0 Setup packet should be dispatched to a registered class driver.
+ *
+ * Routes Class-type requests (bmRequestType[6:5] == 1) and Standard Interface-targeted
+ * GET_DESCRIPTOR requests (e.g. HID Report Descriptor 0x22 on bmRequestType == 0x81).
+ * Standard Device/Interface requests such as SET_ADDRESS, SET_CONFIGURATION, and GET_STATUS
+ * stay in the USB Chapter 9 core.
+ *
+ * @param pkt Setup packet pointer.
+ * @return true when class-level routing applies.
+ */
+static bool usb_is_class_routed_setup(const SYN_USB_SetupPacket *pkt)
+{
+    uint8_t req_type = (uint8_t)(pkt->bmRequestType & 0x60U);
+    uint8_t recipient = (uint8_t)(pkt->bmRequestType & 0x1FU);
+    if (req_type == 0x20U) {
+        return true;
+    }
+    return (req_type == 0x00U) && (recipient == 0x01U) &&
+           (pkt->bRequest == SYN_USB_REQ_GET_DESCRIPTOR);
+}
+
+/**
+ * @brief Apply SET_CONFIGURATION state transition and notify registered class drivers.
+ * @param dev        Pointer to USB device context.
+ * @param config_val Configuration value from wValue[7:0].
+ */
+static void usb_apply_configuration(SYN_USB_Device *dev, uint8_t config_val)
+{
+    dev->config_value = config_val;
+    dev->state = (config_val != 0U) ? SYN_USB_STATE_CONFIGURED : SYN_USB_STATE_ADDRESS;
+    for (uint8_t i = 0U; i < dev->class_count; i++) {
+        if (dev->classes[i].configured != NULL) {
+            (void)dev->classes[i].configured(dev->classes[i].ctx, config_val);
+        }
+    }
+}
+
 SYN_Status syn_usb_process_setup(SYN_USB_Device *dev, const SYN_USB_SetupPacket *pkt, uint8_t *resp,
                                  uint16_t *rlen)
 {
@@ -297,10 +335,9 @@ SYN_Status syn_usb_process_setup(SYN_USB_Device *dev, const SYN_USB_SetupPacket 
     }
 
     *rlen = 0U;
-    uint8_t req_type = (uint8_t)(pkt->bmRequestType & 0x60U);
     uint8_t recipient = (uint8_t)(pkt->bmRequestType & 0x1FU);
 
-    if ((req_type == 0x20U) || (recipient == 0x01U)) {
+    if (usb_is_class_routed_setup(pkt)) {
         bool handled = false;
         SYN_Status cls_st = usb_route_class_setup(dev, pkt, resp, rlen, &handled);
         if (handled) {
@@ -315,13 +352,7 @@ SYN_Status syn_usb_process_setup(SYN_USB_Device *dev, const SYN_USB_SetupPacket 
         return SYN_OK;
 
     case SYN_USB_REQ_SET_CONFIGURATION:
-        dev->config_value = (uint8_t)(pkt->wValue & 0xFFU);
-        dev->state = (dev->config_value != 0U) ? SYN_USB_STATE_CONFIGURED : SYN_USB_STATE_ADDRESS;
-        for (uint8_t i = 0U; i < dev->class_count; i++) {
-            if (dev->classes[i].configured != NULL) {
-                (void)dev->classes[i].configured(dev->classes[i].ctx, dev->config_value);
-            }
-        }
+        usb_apply_configuration(dev, (uint8_t)(pkt->wValue & 0xFFU));
         return SYN_OK;
 
     case SYN_USB_REQ_GET_CONFIGURATION:
@@ -330,7 +361,7 @@ SYN_Status syn_usb_process_setup(SYN_USB_Device *dev, const SYN_USB_SetupPacket 
         return SYN_OK;
 
     case SYN_USB_REQ_GET_STATUS:
-        resp[0] = 0x01U;
+        resp[0] = (recipient == 0x00U) ? 0x01U : 0x00U;
         resp[1] = 0x00U;
         *rlen = 2U;
         return SYN_OK;

@@ -27,6 +27,8 @@
 #include "../port/syn_port_system.h"
 #include "syn_pt.h"
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -93,8 +95,14 @@ typedef struct {
  */
 static inline void pt_sem_signal(SYN_PT_Sem *sem)
 {
+    if (sem == NULL) {
+        return;
+    }
     syn_port_enter_critical();
-    sem->count++;
+    int16_t cur = sem->count;
+    if (cur < INT16_MAX) {
+        sem->count = (int16_t)(cur + 1);
+    }
     syn_port_exit_critical();
 }
 

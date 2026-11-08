@@ -83,6 +83,11 @@ SYN_Status syn_ble_l2cap_disconnect(SYN_BLE_L2CAP *l2cap, uint16_t conn_handle);
 
 /**
  * @brief Process incoming ACL packet from HCI layer.
+ *
+ * If @p conn_handle is not yet registered via syn_ble_l2cap_connect(), an unused
+ * connection slot is allocated automatically on the first start-fragment ACL frame
+ * (returning SYN_ERROR when all SYN_BLE_MAX_CONNECTIONS slots are occupied).
+ *
  * @param l2cap Context handle pointer.
  * @param conn_handle Connection handle.
  * @param pb_bc_flags Packet boundary/broadcast flags.

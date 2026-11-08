@@ -534,4 +534,30 @@ void test_r5_ble_gatt_regressions(void)
 {
     check_gatt_permissions_and_cccd();
     check_gatt_discovery();
+
+    /* BLE-1a: Responses/ErrorRsp (0x01, 0x03, 0x1B) and Confirmations (0x1E) must NOT
+     * emit ATT_ERROR_RSP */
+    SYN_BLE_GATT gatt;
+    uint8_t resp[64];
+    uint16_t resp_len = 99U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ble_gatt_init(&gatt, test_gatt_table, 4U, NULL));
+
+    static const uint8_t silent_ops[4] = {0x01U, 0x03U, 0x1BU, 0x1EU};
+    for (size_t i = 0U; i < 4U; i++) {
+        uint8_t pdu[3] = {silent_ops[i], 0x00U, 0x00U};
+        resp_len = 99U;
+        TEST_ASSERT_EQUAL(SYN_OK,
+                          syn_ble_gatt_process_att_pdu(&gatt, 1U, pdu, 3U, resp, &resp_len));
+        TEST_ASSERT_EQUAL_UINT16(0U, resp_len);
+    }
+
+    /* BLE-4: Notify enforces ATT_MTU - 3 (20B) and rejects NULL val with non-zero len */
+    uint8_t val20[21] = {0};
+    uint8_t tx_buf[64];
+    uint16_t tx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ble_gatt_notify(&gatt, 1U, 0x0002U, val20, 20U, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_ble_gatt_notify(&gatt, 1U, 0x0002U, val20, 21U, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_ble_gatt_notify(&gatt, 1U, 0x0002U, NULL, 5U, tx_buf, &tx_len));
 }

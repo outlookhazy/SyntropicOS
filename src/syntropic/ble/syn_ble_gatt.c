@@ -660,6 +660,10 @@ SYN_Status syn_ble_gatt_process_att_pdu(SYN_BLE_GATT *gatt, uint16_t conn_handle
         return gatt_handle_write_cmd(gatt, conn_handle, att_pdu, pdu_len, resp_len);
 
     default:
+        if (((opcode & 0x01U) != 0U) || (opcode == 0x1EU)) {
+            *resp_len = 0U;
+            return SYN_OK;
+        }
         return syn_ble_att_encode_error_rsp(opcode, 0x0000U, SYN_BLE_ATT_ERR_REQ_NOT_SUPPORTED,
                                             resp_buf, resp_len);
     }
@@ -669,7 +673,8 @@ SYN_Status syn_ble_gatt_notify(SYN_BLE_GATT *gatt, uint16_t conn_handle, uint16_
                                const uint8_t *val, uint16_t val_len, uint8_t *tx_buf,
                                uint16_t *tx_len)
 {
-    if (gatt == NULL || tx_buf == NULL || tx_len == NULL) {
+    if (gatt == NULL || tx_buf == NULL || tx_len == NULL ||
+        val_len > (SYN_BLE_ATT_MTU_DEFAULT - 3U)) {
         return SYN_INVALID_PARAM;
     }
 

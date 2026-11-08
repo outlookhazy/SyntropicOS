@@ -42,6 +42,7 @@ typedef struct {
     uint16_t rx_len;                             /**< Unread OUT report byte length */
     uint8_t idle_rate;                           /**< Active HID idle rate */
     uint8_t active_protocol;                     /**< Active HID protocol */
+    bool release_pending; /**< Auto-release mouse report queued for next IN completion */
 } SYN_USB_HID;
 
 /**
@@ -65,12 +66,17 @@ SYN_Status syn_usb_hid_register(SYN_USB_Device *dev, SYN_USB_HID *hid, const uin
                                 uint16_t report_desc_len);
 
 /**
- * @brief Queue an IN report for transmission to host.
+ * @brief Stage an IN report in the HID Interrupt IN transmit buffer.
+ *
+ * @note Port-decoupled staging contract: copies up to `SYN_USB_HID_MAX_REPORT_SIZE` (64 B)
+ *       into `hid->tx_buf` and sets `hid->tx_len`. The platform USB ISR transmits
+ *       `hid->tx_buf` on `hid->ep_in` and invokes the class `data_in` callback upon
+ *       completion to clear `hid->tx_len` (or advance a queued auto-release report).
  *
  * @param hid Pointer to USB HID instance.
  * @param report Pointer to report data.
  * @param len Report byte length.
- * @return SYN_OK on success.
+ * @return SYN_OK on success, SYN_BUSY if a staged report is still pending.
  */
 SYN_Status syn_usb_hid_send_report(SYN_USB_HID *hid, const void *report, size_t len);
 

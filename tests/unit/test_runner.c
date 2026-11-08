@@ -901,6 +901,9 @@ int main(void)
     extern void test_r5_usb_regressions(void);
     extern void test_r5_usb_cdc_regressions(void);
     extern void test_r5_usb_hid_regressions(void);
+    extern void test_tier_a_usb_regressions(void);
+    extern void test_tier_a_usb_cdc_regressions(void);
+    extern void test_tier_a_usb_hid_regressions(void);
 
     RUN_TEST(test_r5_autoip_regressions);
     RUN_TEST(test_r5_blackbox_regressions);
@@ -916,6 +919,9 @@ int main(void)
     RUN_TEST(test_r5_usb_regressions);
     RUN_TEST(test_r5_usb_cdc_regressions);
     RUN_TEST(test_r5_usb_hid_regressions);
+    RUN_TEST(test_tier_a_usb_regressions);
+    RUN_TEST(test_tier_a_usb_cdc_regressions);
+    RUN_TEST(test_tier_a_usb_hid_regressions);
 
     int failures = UNITY_END();
     return (failures == 0) ? 0 : 1;

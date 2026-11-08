@@ -151,10 +151,57 @@ static void test_r5_usb_midi_regressions(void)
     TEST_ASSERT_EQUAL_UINT16(0U, g_midi.tx_len);
 }
 
+static void test_tier_a_usb_midi_regressions(void)
+{
+    static const uint8_t dev_desc[18] = {18,   1,    0x00, 0x02, 0, 0, 0, 64, 0xFE,
+                                         0xCA, 0x01, 0x00, 0,    1, 1, 2, 0,  1};
+    syn_usb_init(&g_usb_dev, dev_desc);
+    syn_usb_midi_init(&g_midi);
+    syn_usb_midi_register(&g_usb_dev, &g_midi);
+    SYN_USB_ClassDriver *drv = &g_usb_dev.classes[0];
+
+    size_t out_len = 99U;
+    uint8_t buf[16] = {0};
+    TEST_ASSERT_FALSE(syn_usb_midi_rx_available(NULL));
+    TEST_ASSERT_FALSE(syn_usb_midi_rx_available(&g_midi));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_usb_midi_read(NULL, buf, sizeof(buf), &out_len));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_usb_midi_read(&g_midi, NULL, sizeof(buf), &out_len));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_usb_midi_read(&g_midi, buf, sizeof(buf), NULL));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_usb_midi_read(&g_midi, buf, sizeof(buf), &out_len));
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)out_len);
+
+    /* Append two 4-byte MIDI OUT packets without overwriting unread event #1 */
+    const uint8_t pkt1[4] = {0x09U, 0x90U, 0x3CU, 0x64U};
+    const uint8_t pkt2[4] = {0x08U, 0x80U, 0x3CU, 0x00U};
+    drv->data_out(&g_midi, g_midi.ep_out, pkt1, 4U);
+    drv->data_out(&g_midi, g_midi.ep_out, pkt2, 4U);
+    TEST_ASSERT_TRUE(syn_usb_midi_rx_available(&g_midi));
+    TEST_ASSERT_EQUAL_UINT16(8U, g_midi.rx_len);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_usb_midi_read(&g_midi, buf, 4U, &out_len));
+    TEST_ASSERT_EQUAL_UINT32(4U, (uint32_t)out_len);
+    TEST_ASSERT_EQUAL_MEMORY(pkt1, buf, 4U);
+    TEST_ASSERT_TRUE(syn_usb_midi_rx_available(&g_midi));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_usb_midi_read(&g_midi, buf, sizeof(buf), &out_len));
+    TEST_ASSERT_EQUAL_UINT32(4U, (uint32_t)out_len);
+    TEST_ASSERT_EQUAL_MEMORY(pkt2, buf, 4U);
+    TEST_ASSERT_FALSE(syn_usb_midi_rx_available(&g_midi));
+
+    /* Full 64-byte RX buffer drops overflow bytes cleanly */
+    uint8_t full_blk[SYN_USB_MIDI_MAX_PACKET_SIZE];
+    memset(full_blk, 0x77U, sizeof(full_blk));
+    drv->data_out(&g_midi, g_midi.ep_out, full_blk, sizeof(full_blk));
+    TEST_ASSERT_EQUAL_UINT16(SYN_USB_MIDI_MAX_PACKET_SIZE, g_midi.rx_len);
+    drv->data_out(&g_midi, g_midi.ep_out, pkt1, 4U);
+    TEST_ASSERT_EQUAL_UINT16(SYN_USB_MIDI_MAX_PACKET_SIZE, g_midi.rx_len);
+}
+
 void run_usb_midi_tests(void)
 {
     RUN_TEST(test_usb_midi_init_and_null_checks);
     RUN_TEST(test_usb_midi_send_events);
     RUN_TEST(test_usb_midi_buffer_overflow);
     RUN_TEST(test_r5_usb_midi_regressions);
+    RUN_TEST(test_tier_a_usb_midi_regressions);
 }

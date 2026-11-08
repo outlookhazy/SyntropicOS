@@ -750,11 +750,12 @@ static bool sched_timer_wakeup_at(const SYN_Timer *timers, size_t count, uint32_
         if (!timers[i].active) {
             continue;
         }
-        if ((int32_t)(now - timers[i].target_tick) >= 0) {
+        uint32_t target = timers[i].target_tick;
+        if ((int32_t)(now - target) >= 0) {
             any_ready_now = true;
             continue;
         }
-        sched_track_earliest(timers[i].target_tick, &earliest);
+        sched_track_earliest(target, &earliest);
     }
 
     *out_earliest = earliest;

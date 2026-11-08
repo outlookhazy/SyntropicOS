@@ -120,6 +120,50 @@ typedef struct SYN_Task {
     uint32_t wait_mask;             /**< Bitmask of event flags to wait for       */
 } SYN_Task;
 
+/** @cond INTERNAL */
+static inline bool syn_task_arm_event_wait(SYN_Task *task, SYN_EventFlags *grp, uint32_t mask,
+                                           bool use_timeout, uint32_t timeout_ms,
+                                           uint32_t *out_matched)
+{
+    if (out_matched != NULL) {
+        *out_matched = 0U;
+    }
+    if ((task == NULL) || (grp == NULL) || (mask == 0U)) {
+        return false;
+    }
+
+    syn_port_enter_critical();
+    if (syn_event_flags_wait(
+            grp, mask, (uint32_t)SYN_EVENT_FLAGS_WAIT_ANY | (uint32_t)SYN_EVENT_FLAGS_AUTO_CLEAR,
+            out_matched) == SYN_OK) {
+        syn_port_exit_critical();
+        return false;
+    }
+
+    if (use_timeout &&
+        !syn_pt_arm_ms_deadline(&task->delay_until, syn_port_get_tick_ms(), timeout_ms)) {
+        syn_port_exit_critical();
+        return false;
+    }
+
+    task->wait_event = grp;
+    task->wait_mask = mask;
+    SYN_PT_STATE_BARRIER();
+    syn_port_exit_critical();
+    return true;
+}
+
+static inline void syn_task_park_blocked(SYN_Task *task)
+{
+    syn_port_enter_critical();
+    if (task->state == (uint8_t)SYN_TASK_READY) {
+        task->state = (uint8_t)SYN_TASK_BLOCKED;
+        SYN_PT_STATE_BARRIER();
+    }
+    syn_port_exit_critical();
+}
+/** @endcond */
+
 #ifdef __cplusplus
 }
 #endif

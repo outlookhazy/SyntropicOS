@@ -189,6 +189,67 @@ static void test_r5_pt_block_event_with_timeout_null_out(void)
     TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
 }
 
+static uint32_t g_tier_a_evt_step;
+static uint32_t g_tier_a_evt_out;
+
+static SYN_PT_Status pt_tier_a_event_edge_fn(SYN_PT *pt, SYN_Task *task)
+{
+    PT_BEGIN(pt);
+    /* mask == 0 and grp == NULL must not wedge task in SYN_TASK_BLOCKED */
+    PT_BLOCK_EVENT(pt, task, &g_block_ef, 0U);
+    PT_BLOCK_EVENT(pt, task, NULL, 0x01U);
+    g_tier_a_evt_out = 0xDEADBEEFU;
+    PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, NULL, 0x04U, 25U, &g_tier_a_evt_out);
+    TEST_ASSERT_EQUAL_UINT32(0U, g_tier_a_evt_out);
+    TEST_ASSERT_EQUAL_UINT32(0U, task->delay_until);
+    g_tier_a_evt_step = 1U;
+
+    /* Immediate-consume fast path when flags are already set */
+    PT_BLOCK_EVENT(pt, task, &g_block_ef, 0x01U);
+    PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, &g_block_ef, 0x02U, 50U, &g_tier_a_evt_out);
+    g_tier_a_evt_step = 2U;
+    PT_END(pt);
+}
+
+static void test_tier_a_pt_sem_and_event_guards(void)
+{
+    /* SCHED-1: pt_sem_signal NULL guard and INT16_MAX saturation */
+    SYN_PT_Sem sem;
+    PT_SEM_INIT(&sem, 0);
+    pt_sem_signal(NULL);
+    PT_SEM_SIGNAL(&sem);
+    TEST_ASSERT_EQUAL_INT16(1, PT_SEM_COUNT(&sem));
+    sem.count = INT16_MAX;
+    PT_SEM_SIGNAL(&sem);
+    TEST_ASSERT_EQUAL_INT16(INT16_MAX, PT_SEM_COUNT(&sem));
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    /* Direct NULL task guard coverage on syn_task_arm_event_wait */
+    uint32_t direct_out = 0xFFU;
+    TEST_ASSERT_FALSE(syn_task_arm_event_wait(NULL, &g_block_ef, 0x01U, false, 0U, &direct_out));
+    TEST_ASSERT_EQUAL_UINT32(0U, direct_out);
+
+    /* SCHED-2: mask==0 / grp==NULL guards + single-dispatch immediate consume */
+    SYN_Task task;
+    SYN_Sched sched;
+    mock_port_reset();
+    g_tier_a_evt_step = 0U;
+    g_tier_a_evt_out = 0U;
+    syn_event_flags_init(&g_block_ef);
+    syn_event_flags_set(&g_block_ef, 0x03U);
+
+    syn_task_create(&task, "tier_a_evt", pt_tier_a_event_edge_fn, 0, NULL);
+    syn_sched_init(&sched, &task, 1);
+
+    /* Single dispatch runs straight through all guards + pre-set flags to PT_END */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(2U, g_tier_a_evt_step);
+    TEST_ASSERT_EQUAL_UINT32(0x02U, g_tier_a_evt_out);
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_event_flags_get(&g_block_ef));
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEAD, task.state);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+}
+
 void run_event_flags_tests(void)
 {
     RUN_TEST(test_event_flags_set_clear_wait);
@@ -197,4 +258,5 @@ void run_event_flags_tests(void)
     RUN_TEST(test_event_flags_rmw_critical_sections);
     RUN_TEST(test_pt_block_event_critical_section);
     RUN_TEST(test_r5_pt_block_event_with_timeout_null_out);
+    RUN_TEST(test_tier_a_pt_sem_and_event_guards);
 }

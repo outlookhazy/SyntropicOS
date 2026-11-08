@@ -30,6 +30,17 @@ static uint16_t gbt_unpack_u16_le(const uint8_t *src)
     return (uint16_t)((uint16_t)src[0] | ((uint16_t)src[1] << 8U));
 }
 
+/**
+ * @brief Saturating 32-bit unsigned millisecond accumulator.
+ * @param a Current timer value in ms.
+ * @param b Elapsed step delta in ms.
+ * @return Saturated sum (capped at UINT32_MAX).
+ */
+static uint32_t gbt_sat_add_u32(uint32_t a, uint32_t b)
+{
+    return (a > (UINT32_MAX - b)) ? UINT32_MAX : (a + b);
+}
+
 void syn_gbt27930_init(SYN_GBT27930_Session *session, SYN_GBT27930_Role role)
 {
     if (session == NULL) {
@@ -51,6 +62,7 @@ SYN_Status syn_gbt27930_start_handshake(SYN_GBT27930_Session *session)
     session->state = SYN_GBT27930_STATE_HANDSHAKE;
     session->timer_ms = 0U;
     session->timeout_ms = 0U;
+    session->bcl_timeout_ms = 0U;
     session->ready_for_charging = false;
     session->peer_ready_for_charging = false;
     session->crm00_received = false;
@@ -59,6 +71,8 @@ SYN_Status syn_gbt27930_start_handshake(SYN_GBT27930_Session *session)
     session->cml_sent = false;
     session->cml_received = false;
     session->cts_received = false;
+    session->bro_received = false;
+    session->crm_aa_retransmit = false;
     session->ready_tx_sent = false;
     session->stop_tx_sent = false;
     session->peer_stopped = false;
@@ -77,6 +91,7 @@ void syn_gbt27930_stop_charging(SYN_GBT27930_Session *session, uint8_t reason)
     session->stop_reason = reason;
     session->timer_ms = 0U;
     session->timeout_ms = 0U;
+    session->bcl_timeout_ms = 0U;
     session->tx_substep = 0U;
     session->stop_tx_sent = false;
     session->peer_stopped = false;
@@ -144,16 +159,13 @@ static void gbt_handle_error_rx(SYN_GBT27930_Session *session, const SYN_CAN_Fra
 static void gbt_rx_bms_handshake(SYN_GBT27930_Session *session, uint32_t pgn,
                                  const SYN_CAN_Frame *frame)
 {
-    if (pgn == SYN_GBT27930_PGN_CHM && frame->dlc >= 1U) {
-        session->timeout_ms = 0U;
-        return;
-    }
-
     if (pgn == SYN_GBT27930_PGN_CRM && frame->dlc >= 1U) {
         if (frame->data[0] == 0x00U) {
+            if (!session->crm00_received) {
+                session->timeout_ms = 0U;
+            }
             session->crm00_received = true;
-            session->timeout_ms = 0U;
-        } else if (frame->data[0] == 0xAAU) {
+        } else if (frame->data[0] == 0xAAU && session->crm00_received) {
             session->state = SYN_GBT27930_STATE_PARAM_CONFIG;
             session->timeout_ms = 0U;
             session->tx_substep = 0U;
@@ -176,7 +188,6 @@ static void gbt_rx_bms_config(SYN_GBT27930_Session *session, uint32_t pgn,
     if (pgn == SYN_GBT27930_PGN_CTS && frame->dlc >= 7U) {
         memcpy(session->sync_time_bcd, frame->data, 7U);
         session->cts_received = true;
-        session->timeout_ms = 0U;
         return;
     }
 
@@ -185,22 +196,21 @@ static void gbt_rx_bms_config(SYN_GBT27930_Session *session, uint32_t pgn,
         session->charger_cfg.min_output_volt_v = gbt_unpack_u16_le(&frame->data[2]);
         session->charger_cfg.max_output_curr_a = gbt_unpack_u16_le(&frame->data[4]);
         session->charger_cfg.min_output_curr_a = gbt_unpack_u16_le(&frame->data[6]);
+        if (!session->cml_received) {
+            session->timeout_ms = 0U;
+            session->tx_substep = 0U;
+        }
         session->cml_received = true;
-        session->timeout_ms = 0U;
-        session->tx_substep = 0U;
         return;
     }
 
-    if (pgn == SYN_GBT27930_PGN_CRO && frame->dlc >= 1U) {
-        if (frame->data[0] == 0x00U) {
-            session->timeout_ms = 0U;
-        } else if (frame->data[0] == 0xAAU) {
-            session->peer_ready_for_charging = true;
-            session->timeout_ms = 0U;
-            if (session->ready_for_charging && session->ready_tx_sent) {
-                session->state = SYN_GBT27930_STATE_CHARGING;
-                session->tx_substep = 0U;
-            }
+    if (pgn == SYN_GBT27930_PGN_CRO && frame->dlc >= 1U && frame->data[0] == 0xAAU) {
+        session->peer_ready_for_charging = true;
+        session->timeout_ms = 0U;
+        if (session->ready_for_charging && session->ready_tx_sent) {
+            session->state = SYN_GBT27930_STATE_CHARGING;
+            session->tx_substep = 0U;
+            session->bcl_timeout_ms = 0U;
         }
     }
 }
@@ -257,49 +267,99 @@ static void gbt_rx_bms(SYN_GBT27930_Session *session, uint32_t pgn, const SYN_CA
 }
 
 /**
- * @brief Process charger-side handshake and configuration frames (BHM, BRM, BCP, BRO).
+ * @brief Process charger-side handshake frames (BHM, BRM).
  * @param session GB/T 27930 session instance.
  * @param pgn Unpacked J1939 parameter group number.
  * @param frame Received CAN frame.
  */
-static void gbt_rx_charger_handshake_config(SYN_GBT27930_Session *session, uint32_t pgn,
-                                            const SYN_CAN_Frame *frame)
+static void gbt_rx_charger_handshake(SYN_GBT27930_Session *session, uint32_t pgn,
+                                     const SYN_CAN_Frame *frame)
 {
-    if (session->state == SYN_GBT27930_STATE_HANDSHAKE) {
-        if (pgn == SYN_GBT27930_PGN_BHM && frame->dlc >= 2U) {
-            session->bms_cfg.max_charge_volt_v = gbt_unpack_u16_le(&frame->data[0]);
-            session->timeout_ms = 0U;
-        } else if (pgn == SYN_GBT27930_PGN_BRM && frame->dlc >= 8U) {
-            session->bms_cfg.battery_type = frame->data[3];
-            session->bms_cfg.rated_capacity_ah = gbt_unpack_u16_le(&frame->data[4]);
-            session->bms_cfg.rated_voltage_v = gbt_unpack_u16_le(&frame->data[6]);
-            session->brm_received = true;
-            session->timeout_ms = 0U;
-        }
+    if (pgn == SYN_GBT27930_PGN_BHM && frame->dlc >= 2U) {
+        session->bms_cfg.max_charge_volt_v = gbt_unpack_u16_le(&frame->data[0]);
+    } else if (pgn == SYN_GBT27930_PGN_BRM && frame->dlc >= 8U) {
+        session->bms_cfg.battery_type = frame->data[3];
+        session->bms_cfg.rated_capacity_ah = gbt_unpack_u16_le(&frame->data[4]);
+        session->bms_cfg.rated_voltage_v = gbt_unpack_u16_le(&frame->data[6]);
+        session->brm_received = true;
+        session->timeout_ms = 0U;
+    }
+}
+
+/**
+ * @brief Process charger-side parameter configuration frames (duplicate BRM, BCP, BRO).
+ * @param session GB/T 27930 session instance.
+ * @param pgn Unpacked J1939 parameter group number.
+ * @param frame Received CAN frame.
+ */
+static void gbt_rx_charger_config(SYN_GBT27930_Session *session, uint32_t pgn,
+                                  const SYN_CAN_Frame *frame)
+{
+    if (pgn == SYN_GBT27930_PGN_BRM && !session->bcp_received && frame->dlc >= 8U) {
+        session->crm_aa_retransmit = true;
         return;
     }
 
-    if (pgn == SYN_GBT27930_PGN_BCP && frame->dlc >= 6U) {
+    if (pgn == SYN_GBT27930_PGN_BCP && frame->dlc >= 8U) {
         session->bms_cfg.max_charge_volt_v = gbt_unpack_u16_le(&frame->data[0]);
         session->bms_cfg.max_charge_curr_a = gbt_unpack_u16_le(&frame->data[2]);
+        session->bms_cfg.max_cell_volt_v = gbt_unpack_u16_le(&frame->data[4]);
+        session->bms_cfg.max_temp_c = frame->data[6];
+        session->telemetry.soc_percent = frame->data[7];
+        if (!session->bcp_received) {
+            session->timeout_ms = 0U;
+        }
         session->bcp_received = true;
-        session->timeout_ms = 0U;
+        session->crm_aa_retransmit = false;
     } else if (pgn == SYN_GBT27930_PGN_BRO && frame->dlc >= 1U) {
         if (frame->data[0] == 0x00U) {
-            session->timeout_ms = 0U;
+            if (!session->bro_received) {
+                session->timeout_ms = 0U;
+            }
+            session->bro_received = true;
         } else if (frame->data[0] == 0xAAU) {
+            session->bro_received = true;
             session->peer_ready_for_charging = true;
             session->timeout_ms = 0U;
             if (session->ready_for_charging && session->ready_tx_sent) {
                 session->state = SYN_GBT27930_STATE_CHARGING;
                 session->tx_substep = 0U;
+                session->bcl_timeout_ms = 0U;
             }
         }
     }
 }
 
 /**
- * @brief Process charger runtime frames (BCL, BCS, BST, BSD, BEM).
+ * @brief Process charger-side active charging telemetry frames (BCL, BCS, BSM).
+ * @param session GB/T 27930 session instance.
+ * @param pgn Unpacked J1939 parameter group number.
+ * @param frame Received CAN frame.
+ */
+static void gbt_rx_charger_charging(SYN_GBT27930_Session *session, uint32_t pgn,
+                                    const SYN_CAN_Frame *frame)
+{
+    if (pgn == SYN_GBT27930_PGN_BCL && frame->dlc >= 5U) {
+        session->telemetry.volt_demand_v = gbt_unpack_u16_le(&frame->data[0]);
+        session->telemetry.curr_demand_a = gbt_unpack_u16_le(&frame->data[2]);
+        session->telemetry.charge_mode = frame->data[4];
+        session->bcl_timeout_ms = 0U;
+    } else if (pgn == SYN_GBT27930_PGN_BCS && frame->dlc >= 8U) {
+        session->telemetry.measured_volt_v = gbt_unpack_u16_le(&frame->data[0]);
+        session->telemetry.measured_curr_a = gbt_unpack_u16_le(&frame->data[2]);
+        session->telemetry.max_cell_volt_v =
+            (uint16_t)(gbt_unpack_u16_le(&frame->data[4]) & 0x0FFFU);
+        session->telemetry.soc_percent = frame->data[6];
+        session->telemetry.remaining_time_min = frame->data[7];
+        session->timeout_ms = 0U;
+    } else if (pgn == SYN_GBT27930_PGN_BSM && frame->dlc >= 7U) {
+        session->telemetry.max_cell_temp_c = frame->data[1];
+        session->telemetry.min_cell_temp_c = frame->data[3];
+    }
+}
+
+/**
+ * @brief Process charger stop, statistics, and error frames (BST, BSD, BEM).
  * @param session GB/T 27930 session instance.
  * @param pgn Unpacked J1939 parameter group number.
  * @param frame Received CAN frame.
@@ -307,19 +367,7 @@ static void gbt_rx_charger_handshake_config(SYN_GBT27930_Session *session, uint3
 static void gbt_rx_charger_runtime(SYN_GBT27930_Session *session, uint32_t pgn,
                                    const SYN_CAN_Frame *frame)
 {
-    if (pgn == SYN_GBT27930_PGN_BCL && session->state == SYN_GBT27930_STATE_CHARGING &&
-        frame->dlc >= 5U) {
-        session->telemetry.volt_demand_v = gbt_unpack_u16_le(&frame->data[0]);
-        session->telemetry.curr_demand_a = gbt_unpack_u16_le(&frame->data[2]);
-        session->telemetry.charge_mode = frame->data[4];
-        session->timeout_ms = 0U;
-    } else if (pgn == SYN_GBT27930_PGN_BCS && session->state == SYN_GBT27930_STATE_CHARGING &&
-               frame->dlc >= 7U) {
-        session->telemetry.measured_volt_v = gbt_unpack_u16_le(&frame->data[0]);
-        session->telemetry.measured_curr_a = gbt_unpack_u16_le(&frame->data[2]);
-        session->telemetry.soc_percent = frame->data[6];
-        session->timeout_ms = 0U;
-    } else if (pgn == SYN_GBT27930_PGN_BST) {
+    if (pgn == SYN_GBT27930_PGN_BST) {
         gbt_handle_stop_rx(session, frame);
     } else if (pgn == SYN_GBT27930_PGN_BSD &&
                (session->state == SYN_GBT27930_STATE_STOPPING ||
@@ -345,11 +393,17 @@ static void gbt_rx_charger_runtime(SYN_GBT27930_Session *session, uint32_t pgn,
  */
 static void gbt_rx_charger(SYN_GBT27930_Session *session, uint32_t pgn, const SYN_CAN_Frame *frame)
 {
-    if ((session->state == SYN_GBT27930_STATE_HANDSHAKE &&
-         (pgn == SYN_GBT27930_PGN_BHM || pgn == SYN_GBT27930_PGN_BRM)) ||
-        (session->state == SYN_GBT27930_STATE_PARAM_CONFIG &&
-         (pgn == SYN_GBT27930_PGN_BCP || pgn == SYN_GBT27930_PGN_BRO))) {
-        gbt_rx_charger_handshake_config(session, pgn, frame);
+    if (session->state == SYN_GBT27930_STATE_HANDSHAKE &&
+        (pgn == SYN_GBT27930_PGN_BHM || pgn == SYN_GBT27930_PGN_BRM)) {
+        gbt_rx_charger_handshake(session, pgn, frame);
+    } else if (session->state == SYN_GBT27930_STATE_PARAM_CONFIG &&
+               (pgn == SYN_GBT27930_PGN_BRM || pgn == SYN_GBT27930_PGN_BCP ||
+                pgn == SYN_GBT27930_PGN_BRO)) {
+        gbt_rx_charger_config(session, pgn, frame);
+    } else if (session->state == SYN_GBT27930_STATE_CHARGING &&
+               (pgn == SYN_GBT27930_PGN_BCL || pgn == SYN_GBT27930_PGN_BCS ||
+                pgn == SYN_GBT27930_PGN_BSM)) {
+        gbt_rx_charger_charging(session, pgn, frame);
     } else {
         gbt_rx_charger_runtime(session, pgn, frame);
     }
@@ -363,6 +417,14 @@ SYN_Status syn_gbt27930_process_rx_frame(SYN_GBT27930_Session *session, const SY
 
     SYN_J1939_Header hdr;
     (void)syn_j1939_id_unpack(frame->id, &hdr);
+
+    uint8_t local_sa = (session->role == SYN_GBT27930_ROLE_BMS) ? SYN_GBT27930_ADDR_BMS
+                                                                : SYN_GBT27930_ADDR_CHARGER;
+    uint8_t peer_sa = (session->role == SYN_GBT27930_ROLE_BMS) ? SYN_GBT27930_ADDR_CHARGER
+                                                               : SYN_GBT27930_ADDR_BMS;
+    if (hdr.sa != peer_sa || (hdr.da != local_sa && hdr.da != 0xFFU)) {
+        return SYN_OK;
+    }
 
     if (session->role == SYN_GBT27930_ROLE_BMS) {
         gbt_rx_bms(session, hdr.pgn, frame);
@@ -402,7 +464,7 @@ static bool gbt_tx_bms_early(SYN_GBT27930_Session *session, uint8_t sa, uint8_t 
     }
 
     if (!session->ready_for_charging) {
-        if (session->cml_received && (session->tx_substep & 1U) == 1U) {
+        if (session->cml_received && (session->tx_substep & 1U) == 0U) {
             tx_frame->id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_BRO, sa, da);
             tx_frame->data[0] = 0x00U;
         } else {
@@ -424,7 +486,46 @@ static bool gbt_tx_bms_early(SYN_GBT27930_Session *session, uint8_t sa, uint8_t 
         session->state = SYN_GBT27930_STATE_CHARGING;
         session->tx_substep = 0U;
         session->timeout_ms = 0U;
+        session->bcl_timeout_ms = 0U;
     }
+    return true;
+}
+
+/**
+ * @brief Build periodic BMS charging telemetry frame (BCL -> BCS -> BSM).
+ * @param session GB/T 27930 session instance.
+ * @param sa Source CAN node address.
+ * @param da Destination CAN node address.
+ * @param tx_frame Output CAN frame buffer.
+ * @return true when a CAN frame was populated for transmission.
+ */
+static bool gbt_tx_bms_charging(SYN_GBT27930_Session *session, uint8_t sa, uint8_t da,
+                                SYN_CAN_Frame *tx_frame)
+{
+    uint8_t slot = (uint8_t)(session->tx_substep % 3U);
+    if (slot == 0U) {
+        tx_frame->id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_BCL, sa, da);
+        gbt_pack_u16_le(&tx_frame->data[0], session->telemetry.volt_demand_v);
+        gbt_pack_u16_le(&tx_frame->data[2], session->telemetry.curr_demand_a);
+        tx_frame->data[4] = session->telemetry.charge_mode;
+    } else if (slot == 1U) {
+        tx_frame->id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_BCS, sa, da);
+        gbt_pack_u16_le(&tx_frame->data[0], session->telemetry.measured_volt_v);
+        gbt_pack_u16_le(&tx_frame->data[2], session->telemetry.measured_curr_a);
+        gbt_pack_u16_le(&tx_frame->data[4], session->telemetry.max_cell_volt_v);
+        tx_frame->data[6] = session->telemetry.soc_percent;
+        tx_frame->data[7] = (uint8_t)(session->telemetry.remaining_time_min & 0xFFU);
+    } else {
+        tx_frame->id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_BSM, sa, da);
+        tx_frame->data[0] = 0x01U;
+        tx_frame->data[1] = session->telemetry.max_cell_temp_c;
+        tx_frame->data[2] = 0x01U;
+        tx_frame->data[3] = session->telemetry.min_cell_temp_c;
+        tx_frame->data[4] = 0x01U;
+        tx_frame->data[5] = 0x00U;
+        tx_frame->data[6] = 0x10U;
+    }
+    session->tx_substep++;
     return true;
 }
 
@@ -446,21 +547,7 @@ static bool gbt_tx_bms(SYN_GBT27930_Session *session, uint8_t sa, uint8_t da,
 
     switch (session->state) {
     case SYN_GBT27930_STATE_CHARGING:
-        if ((session->tx_substep & 1U) == 0U) {
-            tx_frame->id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_BCL, sa, da);
-            gbt_pack_u16_le(&tx_frame->data[0], session->telemetry.volt_demand_v);
-            gbt_pack_u16_le(&tx_frame->data[2], session->telemetry.curr_demand_a);
-            tx_frame->data[4] = session->telemetry.charge_mode;
-        } else {
-            tx_frame->id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_BCS, sa, da);
-            gbt_pack_u16_le(&tx_frame->data[0], session->telemetry.measured_volt_v);
-            gbt_pack_u16_le(&tx_frame->data[2], session->telemetry.measured_curr_a);
-            gbt_pack_u16_le(&tx_frame->data[4], session->telemetry.max_cell_volt_v);
-            tx_frame->data[6] = session->telemetry.soc_percent;
-            tx_frame->data[7] = (uint8_t)(session->telemetry.remaining_time_min & 0xFFU);
-        }
-        session->tx_substep++;
-        return true;
+        return gbt_tx_bms_charging(session, sa, da, tx_frame);
 
     case SYN_GBT27930_STATE_STOPPING:
         tx_frame->id = syn_j1939_id_pack(4U, SYN_GBT27930_PGN_BST, sa, da);
@@ -528,6 +615,13 @@ static bool gbt_tx_charger_early(SYN_GBT27930_Session *session, uint8_t sa, uint
         return true;
     }
 
+    if (session->crm_aa_retransmit) {
+        tx_frame->id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_CRM, sa, da);
+        tx_frame->data[0] = 0xAAU;
+        session->crm_aa_retransmit = false;
+        return true;
+    }
+
     if (session->ready_for_charging) {
         tx_frame->id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_CRO, sa, da);
         tx_frame->data[0] = 0xAAU;
@@ -536,11 +630,12 @@ static bool gbt_tx_charger_early(SYN_GBT27930_Session *session, uint8_t sa, uint
             session->state = SYN_GBT27930_STATE_CHARGING;
             session->tx_substep = 0U;
             session->timeout_ms = 0U;
+            session->bcl_timeout_ms = 0U;
         }
         return true;
     }
 
-    if (session->bcp_received && session->cml_sent) {
+    if (session->bcp_received && session->cml_sent && session->bro_received) {
         tx_frame->id = syn_j1939_id_pack(6U, SYN_GBT27930_PGN_CRO, sa, da);
         tx_frame->data[0] = 0x00U;
         session->tx_substep++;
@@ -628,6 +723,25 @@ static bool gbt_tx_charger(SYN_GBT27930_Session *session, uint8_t sa, uint8_t da
 }
 
 /**
+ * @brief Compute periodic TX interval in milliseconds for current session state.
+ * @param session GB/T 27930 session instance.
+ * @return Periodic transmit interval in milliseconds.
+ */
+static uint32_t gbt_get_tx_interval_ms(const SYN_GBT27930_Session *session)
+{
+    if (session->state == SYN_GBT27930_STATE_CHARGING) {
+        return (session->role == SYN_GBT27930_ROLE_BMS) ? 25U : 50U;
+    }
+    if (session->state == SYN_GBT27930_STATE_STOPPING) {
+        return 10U;
+    }
+    if (session->state == SYN_GBT27930_STATE_ERROR) {
+        return 100U;
+    }
+    return 250U;
+}
+
+/**
  * @brief Evaluate phase timeout and bounded STATE_END completion.
  * @param session GB/T 27930 session instance.
  * @return false if session transitioned to IDLE and needs no TX, true otherwise.
@@ -639,8 +753,15 @@ static bool gbt_check_phase_bounds(SYN_GBT27930_Session *session)
         session->state = SYN_GBT27930_STATE_IDLE;
         return false;
     }
-    uint32_t limit_ms = (session->state == SYN_GBT27930_STATE_CHARGING) ? 1000U : 5000U;
-    if (session->state != SYN_GBT27930_STATE_ERROR && session->timeout_ms >= limit_ms) {
+    uint32_t limit_ms =
+        (session->state == SYN_GBT27930_STATE_CHARGING && session->role == SYN_GBT27930_ROLE_BMS)
+            ? 1000U
+            : 5000U;
+    bool bcl_expired = (session->state == SYN_GBT27930_STATE_CHARGING) &&
+                       (session->role == SYN_GBT27930_ROLE_CHARGER) &&
+                       (session->bcl_timeout_ms >= 1000U);
+    if (session->state != SYN_GBT27930_STATE_ERROR &&
+        (session->timeout_ms >= limit_ms || bcl_expired)) {
         session->state = SYN_GBT27930_STATE_ERROR;
         session->fault_code = 0x01U;
     }
@@ -653,25 +774,21 @@ bool syn_gbt27930_step(SYN_GBT27930_Session *session, uint32_t dt_ms, SYN_CAN_Fr
         return false;
     }
 
-    session->timer_ms += dt_ms;
-    session->timeout_ms += dt_ms;
+    session->timer_ms = gbt_sat_add_u32(session->timer_ms, dt_ms);
+    session->timeout_ms = gbt_sat_add_u32(session->timeout_ms, dt_ms);
+    if (session->role == SYN_GBT27930_ROLE_CHARGER &&
+        session->state == SYN_GBT27930_STATE_CHARGING) {
+        session->bcl_timeout_ms = gbt_sat_add_u32(session->bcl_timeout_ms, dt_ms);
+    }
     if (!gbt_check_phase_bounds(session)) {
         return false;
     }
 
-    uint32_t interval_ms = 250U;
-    if (session->state == SYN_GBT27930_STATE_CHARGING) {
-        interval_ms = (session->role == SYN_GBT27930_ROLE_BMS) ? 25U : 50U;
-    } else if (session->state == SYN_GBT27930_STATE_STOPPING) {
-        interval_ms = 10U;
-    } else if (session->state == SYN_GBT27930_STATE_ERROR) {
-        interval_ms = 100U;
-    }
-
+    uint32_t interval_ms = gbt_get_tx_interval_ms(session);
     if (session->timer_ms < interval_ms) {
         return false;
     }
-    session->timer_ms = 0U;
+    session->timer_ms = (dt_ms < interval_ms) ? (session->timer_ms - interval_ms) : 0U;
 
     memset(tx_frame, 0, sizeof(*tx_frame));
     tx_frame->extended = true;

@@ -6,6 +6,8 @@
 
 #include "syn_usb_midi.h"
 
+#include "syntropic/port/syn_port_system.h"
+
 #include <string.h>
 
 /** Standard USB-MIDI 1.0 Audio Control + MIDI Streaming Descriptor (73 bytes) */
@@ -61,15 +63,18 @@ static SYN_Status usb_midi_setup_handler(void *ctx, const SYN_USB_SetupPacket *p
 static void usb_midi_data_out_handler(void *ctx, uint8_t ep, const uint8_t *data, uint16_t len)
 {
     SYN_USB_MIDI *midi = (SYN_USB_MIDI *)ctx;
-    if ((midi == NULL) || (data == NULL) || (len == 0U)) {
+    if ((midi == NULL) || (data == NULL) || (len == 0U) || (ep != midi->ep_out)) {
         return;
     }
-    if (ep == midi->ep_out) {
-        uint16_t copy_len =
-            (len > SYN_USB_MIDI_MAX_PACKET_SIZE) ? SYN_USB_MIDI_MAX_PACKET_SIZE : len;
-        memcpy(midi->rx_buf, data, copy_len);
-        midi->rx_len = copy_len;
+
+    syn_port_enter_critical();
+    uint16_t space = (uint16_t)(sizeof(midi->rx_buf) - midi->rx_len);
+    uint16_t copy_len = (len < space) ? len : space;
+    if (copy_len > 0U) {
+        memcpy(&midi->rx_buf[midi->rx_len], data, copy_len);
+        midi->rx_len = (uint16_t)(midi->rx_len + copy_len);
     }
+    syn_port_exit_critical();
 }
 
 /**
@@ -231,4 +236,40 @@ SYN_Status syn_usb_midi_parse_packet(const uint8_t raw_bytes[4], SYN_USB_MIDI_Pa
     packet->midi1 = raw_bytes[2];
     packet->midi2 = raw_bytes[3];
     return SYN_OK;
+}
+
+SYN_Status syn_usb_midi_read(SYN_USB_MIDI *midi, void *buf, size_t max_len, size_t *out_len)
+{
+    if ((midi == NULL) || (buf == NULL) || (out_len == NULL)) {
+        return SYN_INVALID_PARAM;
+    }
+
+    syn_port_enter_critical();
+    uint16_t available = midi->rx_len;
+    if (available == 0U) {
+        syn_port_exit_critical();
+        *out_len = 0U;
+        return SYN_OK;
+    }
+
+    if (max_len < available) {
+        available = (uint16_t)max_len;
+    }
+
+    memcpy(buf, midi->rx_buf, available);
+    if (available < midi->rx_len) {
+        memmove(midi->rx_buf, &midi->rx_buf[available], (size_t)(midi->rx_len - available));
+        midi->rx_len = (uint16_t)(midi->rx_len - available);
+    } else {
+        midi->rx_len = 0U;
+    }
+    syn_port_exit_critical();
+
+    *out_len = available;
+    return SYN_OK;
+}
+
+bool syn_usb_midi_rx_available(const SYN_USB_MIDI *midi)
+{
+    return (midi != NULL) && (midi->rx_len > 0U);
 }

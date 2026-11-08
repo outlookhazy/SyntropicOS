@@ -509,6 +509,46 @@ static void test_r5_usb_host_regressions(void)
     TEST_ASSERT_FALSE(syn_transport_has_data(&tr));
 }
 
+static void test_tier_a_usb_host_cdc_regressions(void)
+{
+    mock_usb_host_reset();
+    SYN_USB_Host host;
+    SYN_USB_HostCDC hcdc;
+    SYN_Transport tr;
+    syn_usb_host_init(&host);
+    syn_usb_host_cdc_init(&hcdc);
+    syn_usb_host_cdc_register(&host, &hcdc);
+    syn_transport_from_usb_host_cdc(&tr, &hcdc);
+
+    /* Seed MOCK_USB_HOST_XFER_BUF prior to probe so initial Bulk-IN kick is exercised */
+    memcpy(mock_usb_host_xfer_buf, "BOOT_RX", 7U);
+    mock_usb_host_xfer_len = 7U;
+    uint8_t iface1_desc[] = {0x09U, 0x04U, 0x01U, 0x00U, 0x02U, 0x0AU, 0x00U, 0x00U,
+                             0x00U, 0x07U, 0x05U, 0x01U, 0x02U, 0x40U, 0x00U, 0x00U,
+                             0x07U, 0x05U, 0x81U, 0x02U, 0x40U, 0x00U, 0x00U};
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          host.classes[0].probe(&hcdc, 1U, iface1_desc, sizeof(iface1_desc)));
+    TEST_ASSERT_EQUAL_MEMORY("BOOT_RX", hcdc.rx_buf, 7U);
+
+    /* TX DMA busy guard: pipe_bulk_out != 0 with xfer_complete=false -> !tx_ready & SYN_BUSY */
+    mock_usb_host_xfer_complete = false;
+    TEST_ASSERT_FALSE(syn_usb_host_cdc_tx_ready(&hcdc));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_usb_host_cdc_write(&hcdc, "BUSY", 4U));
+    mock_usb_host_xfer_complete = true;
+    TEST_ASSERT_TRUE(syn_usb_host_cdc_tx_ready(&hcdc));
+
+    /* Oversized (> 128 B) transport frame rejected without silent truncation */
+    uint8_t big_pkt[129];
+    memset(big_pkt, 0x33U, sizeof(big_pkt));
+    TEST_ASSERT_FALSE(syn_transport_send(&tr, big_pkt, sizeof(big_pkt)));
+    TEST_ASSERT_EQUAL_UINT16(0U, hcdc.tx_len);
+
+    /* Second write while first is staged returns SYN_BUSY / transport false */
+    TEST_ASSERT_TRUE(syn_transport_send(&tr, big_pkt, 32U));
+    TEST_ASSERT_FALSE(syn_usb_host_cdc_tx_ready(&hcdc));
+    TEST_ASSERT_FALSE(syn_transport_send(&tr, big_pkt, 8U));
+}
+
 void run_usb_host_tests(void)
 {
     RUN_TEST(test_usb_host_init_and_state);
@@ -519,4 +559,5 @@ void run_usb_host_tests(void)
     RUN_TEST(test_usb_host_null_checks);
     RUN_TEST(test_usb_host_subordinate_descriptor_overflow);
     RUN_TEST(test_r5_usb_host_regressions);
+    RUN_TEST(test_tier_a_usb_host_cdc_regressions);
 }

@@ -712,6 +712,60 @@ static void test_mutex_transitive_inheritance_and_probe(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m3, &tasks[0]));
 }
 
+static void test_tier_a_mutex_evicted_waiter_wakeup_isolation(void)
+{
+    /* SCHED-3: Unlocking m2 wakes > SYN_MUTEX_MAX_WAITERS evicted waiters to WORK rank
+     * without stripping SYN_SCHED_FLAG_MUTEX_WAIT or inheritance boost from m1! */
+    SYN_Mutex m1;
+    SYN_Mutex m2;
+    SYN_Task tasks[8];
+    SYN_Sched sched;
+
+    PT_MUTEX_INIT(&m1);
+    PT_MUTEX_INIT(&m2);
+    mock_tick_ms = 0U;
+
+    syn_task_create(&tasks[0], "own1", dummy_pt_fn, SYN_PRIO_LOW, NULL);
+    syn_task_create(&tasks[1], "w_m1", dummy_pt_fn, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&tasks[2], "own2", dummy_pt_fn, SYN_PRIO_LOW, NULL);
+    for (size_t i = 0U; i < SYN_MUTEX_MAX_WAITERS; i++) {
+        syn_task_create(&tasks[3U + i], "c_norm", dummy_pt_fn, SYN_PRIO_NORMAL, NULL);
+    }
+    syn_task_create(&tasks[7], "c_evict", dummy_pt_fn, SYN_PRIO_LOW, NULL);
+    syn_sched_init(&sched, tasks, 8U);
+
+    /* Lock m1 with own1, contend m1 with w_m1 -> own1 boosted to HIGH */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m1, &tasks[0]));
+    tasks[1].sched_flags = SYN_SCHED_FLAG_PASSED;
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m1, &tasks[1]));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, tasks[0].priority);
+
+    /* Lock m2 with own2; contend first with LOW c_evict, then 4 NORMAL tasks to evict c_evict */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m2, &tasks[2]));
+    tasks[7].sched_flags = SYN_SCHED_FLAG_PASSED;
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m2, &tasks[7]));
+    for (size_t i = 0U; i < SYN_MUTEX_MAX_WAITERS; i++) {
+        tasks[3U + i].sched_flags = SYN_SCHED_FLAG_PASSED;
+        TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m2, &tasks[3U + i]));
+    }
+
+    /* Unlock m2: all 4 tracked waiters AND evicted tasks[7] promote to MORE */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m2, &tasks[2]));
+    for (size_t i = 0U; i < SYN_MUTEX_MAX_WAITERS; i++) {
+        TEST_ASSERT_TRUE((tasks[3U + i].sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
+    }
+    TEST_ASSERT_TRUE((tasks[7].sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[7].sched_flags & SYN_SCHED_FLAG_PASSED);
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[7].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+
+    /* Unrelated m1 waiter w_m1 keeps MUTEX_WAIT and own1 keeps HIGH boost! */
+    TEST_ASSERT_TRUE((tasks[1].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, tasks[0].priority);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m1, &tasks[0]));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[0].priority);
+}
+
 void run_mutex_tests(void)
 {
     RUN_TEST(test_mutex_init_and_query);
@@ -727,4 +781,5 @@ void run_mutex_tests(void)
     RUN_TEST(test_r4_mutex_unlock_share_refresh_and_multi_waiter_wake);
     RUN_TEST(test_r4_mutex_manual_boost_stale_waiter_and_full_array);
     RUN_TEST(test_mutex_transitive_inheritance_and_probe);
+    RUN_TEST(test_tier_a_mutex_evicted_waiter_wakeup_isolation);
 }

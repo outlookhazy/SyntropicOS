@@ -202,18 +202,27 @@ static void dtls_compute_transcript(SYN_DTLS_Context *ctx, bool is_sha384,
 {
     const uint8_t *c_pub = ctx->config.is_server ? ctx->peer_ecdhe_pub : ctx->ecdhe_pub;
     const uint8_t *s_pub = ctx->config.is_server ? ctx->ecdhe_pub : ctx->peer_ecdhe_pub;
+    uint16_t suite_id = dtls_cipher_wire_id(ctx->config.cipher_suite);
+    uint8_t ch_hdr[3] = {DTLS_HS_CLIENT_HELLO, (uint8_t)(suite_id >> 8U),
+                         (uint8_t)(suite_id & 0xFFU)};
+    uint8_t sh_hdr[3] = {DTLS_HS_SERVER_HELLO, (uint8_t)(suite_id >> 8U),
+                         (uint8_t)(suite_id & 0xFFU)};
 
     if (is_sha384) {
         syn_sha384_init(&ctx->crypto_scratch.sha512);
+        syn_sha512_update(&ctx->crypto_scratch.sha512, ch_hdr, sizeof(ch_hdr));
         syn_sha512_update(&ctx->crypto_scratch.sha512, ctx->client_random, 32U);
         syn_sha512_update(&ctx->crypto_scratch.sha512, c_pub, 32U);
+        syn_sha512_update(&ctx->crypto_scratch.sha512, sh_hdr, sizeof(sh_hdr));
         syn_sha512_update(&ctx->crypto_scratch.sha512, ctx->server_random, 32U);
         syn_sha512_update(&ctx->crypto_scratch.sha512, s_pub, 32U);
         syn_sha384_final(&ctx->crypto_scratch.sha512, transcript_digest);
     } else {
         syn_sha256_init(&ctx->crypto_scratch.sha256);
+        syn_sha256_update(&ctx->crypto_scratch.sha256, ch_hdr, sizeof(ch_hdr));
         syn_sha256_update(&ctx->crypto_scratch.sha256, ctx->client_random, 32U);
         syn_sha256_update(&ctx->crypto_scratch.sha256, c_pub, 32U);
+        syn_sha256_update(&ctx->crypto_scratch.sha256, sh_hdr, sizeof(sh_hdr));
         syn_sha256_update(&ctx->crypto_scratch.sha256, ctx->server_random, 32U);
         syn_sha256_update(&ctx->crypto_scratch.sha256, s_pub, 32U);
         syn_sha256_final(&ctx->crypto_scratch.sha256, transcript_digest);
@@ -263,7 +272,7 @@ static bool dtls_derive_hs_secrets(SYN_DTLS_Context *ctx)
 
     memset(buf1, 0, sizeof(buf1));
     size_t copy_len = hash_len;
-    if (ctx->config.mode == SYN_DTLS_AUTH_MODE_PSK && ctx->config.psk_secret != NULL) {
+    if (ctx->config.mode == SYN_DTLS_AUTH_MODE_PSK) {
         copy_len =
             (ctx->config.psk_secret_len > sizeof(buf1)) ? sizeof(buf1) : ctx->config.psk_secret_len;
         memcpy(buf1, ctx->config.psk_secret, copy_len);
@@ -308,6 +317,18 @@ static bool dtls_derive_hs_secrets(SYN_DTLS_Context *ctx)
     syn_secure_zero(buf2, sizeof(buf2));
     syn_secure_zero(ecdhe_shared, sizeof(ecdhe_shared));
     return true;
+}
+
+/**
+ * @brief Wipe ephemeral X25519 private key and intermediate handshake secrets once established.
+ * @param ctx DTLS context pointer.
+ */
+static void dtls_scrub_handshake_secrets(SYN_DTLS_Context *ctx)
+{
+    syn_secure_zero(ctx->ecdhe_priv, sizeof(ctx->ecdhe_priv));
+    syn_secure_zero(ctx->client_handshake_secret, sizeof(ctx->client_handshake_secret));
+    syn_secure_zero(ctx->server_handshake_secret, sizeof(ctx->server_handshake_secret));
+    syn_secure_zero(ctx->master_secret, sizeof(ctx->master_secret));
 }
 
 /**
@@ -594,6 +615,9 @@ static bool dtls_parse_unified_header(const SYN_DTLS_Context *ctx, size_t rx_len
  */
 static bool dtls_verify_local_auth(const SYN_DTLS_Context *ctx)
 {
+    if (ctx->config.mode == SYN_DTLS_AUTH_MODE_PSK) {
+        return (ctx->config.psk_secret != NULL) && (ctx->config.psk_secret_len > 0U);
+    }
     if (ctx->config.mode == SYN_DTLS_AUTH_MODE_RAW_PUBKEY) {
         if (ctx->config.is_server) {
             return ctx->config.client_privkey != NULL;
@@ -945,8 +969,12 @@ static bool dtls_server_send_flight2(SYN_DTLS_Context *ctx, uint16_t exp_suite)
         return false;
     }
 
-    ctx->state = (ctx->config.mode == SYN_DTLS_AUTH_MODE_MTLS) ? SYN_DTLS_STATE_FINISHED_SENT
-                                                               : SYN_DTLS_STATE_ESTABLISHED;
+    if (ctx->config.mode == SYN_DTLS_AUTH_MODE_MTLS) {
+        ctx->state = SYN_DTLS_STATE_FINISHED_SENT;
+    } else {
+        dtls_scrub_handshake_secrets(ctx);
+        ctx->state = SYN_DTLS_STATE_ESTABLISHED;
+    }
     ctx->epoch = SYN_DTLS_EPOCH_APP_DATA;
     return true;
 }
@@ -1077,6 +1105,7 @@ static bool dtls_server_process_client_mtls_flight(SYN_DTLS_Context *ctx, size_t
     syn_secure_zero(expected_mac, sizeof(expected_mac));
     if (ok) {
         memcpy(ctx->transcript_digest, tr, sizeof(tr));
+        dtls_scrub_handshake_secrets(ctx);
         ctx->state = SYN_DTLS_STATE_ESTABLISHED;
     }
     return true;
@@ -1141,6 +1170,7 @@ static bool dtls_client_process_server_hello(SYN_DTLS_Context *ctx, size_t rx_le
         return false;
     }
 
+    dtls_scrub_handshake_secrets(ctx);
     ctx->state = SYN_DTLS_STATE_ESTABLISHED;
     ctx->epoch = SYN_DTLS_EPOCH_APP_DATA;
     return true;
@@ -1263,8 +1293,6 @@ bool syn_dtls_init(SYN_DTLS_Context *ctx, const SYN_DTLS_Config *config, SYN_Tra
     if (syn_random_fill(ctx->ecdhe_priv, 32U) != SYN_OK) {
         return false;
     }
-    syn_x25519_clamp(ctx->ecdhe_priv);
-    syn_x25519_pubkey(ctx->ecdhe_pub, ctx->ecdhe_priv);
 
     ctx->config = *config;
     ctx->underlying_transport = transport;
@@ -1305,6 +1333,59 @@ bool syn_dtls_handshake(SYN_DTLS_Context *ctx)
     return dtls_client_process_server_hello(ctx, rx_len);
 }
 
+/** @cond INTERNAL */
+/**
+ * @brief Encrypt and transmit a single DTLS 1.3 application datagram, advancing seq only on send.
+ * @param ctx  Established DTLS context.
+ * @param data Plaintext payload buffer.
+ * @param len  Plaintext byte count (> 0 and <= SYN_DTLS_RECORD_MAX_PAYLOAD).
+ * @return true if datagram encrypted and accepted by underlying transport.
+ */
+static bool dtls_transmit_app_record(SYN_DTLS_Context *ctx, const uint8_t *data, size_t len)
+{
+    if (ctx->client_seq_num > 0xFFFFFFFFFFFFULL) {
+        ctx->state = SYN_DTLS_STATE_ERROR;
+        return false;
+    }
+
+    size_t tag_sz = dtls_tag_len(ctx);
+    uint64_t seq = ctx->client_seq_num;
+    bool seq_is_16 = (seq > 0xFFULL);
+    size_t seq_bytes = seq_is_16 ? 2U : 1U;
+    size_t hdr_len = 1U + seq_bytes + 2U;
+    size_t overhead = hdr_len + 1U + tag_sz;
+
+    if (ctx->tx_buf_size < overhead || len > ctx->tx_buf_size - overhead) {
+        return false;
+    }
+
+    size_t pt_with_ct_len = len + 1U;
+    size_t ct_tag_len = pt_with_ct_len + tag_sz;
+    size_t total_datagram_len = hdr_len + ct_tag_len;
+
+    uint8_t *hdr = ctx->tx_buf;
+    uint8_t *out_ct = ctx->tx_buf + hdr_len;
+    uint8_t *out_tag = out_ct + pt_with_ct_len;
+    memmove(out_ct, data, len);
+    out_ct[len] = DTLS_CONTENT_TYPE_APP_DATA;
+    dtls_write_unified_header(hdr, ctx->epoch, seq, seq_is_16, ct_tag_len);
+
+    const uint8_t *tx_key = ctx->config.is_server ? ctx->server_app_key : ctx->client_app_key;
+    const uint8_t *tx_iv = ctx->config.is_server ? ctx->server_app_iv : ctx->client_app_iv;
+
+    uint8_t nonce[12];
+    construct_dtls13_nonce(tx_iv, ctx->epoch, seq, nonce);
+    dtls_record_encrypt(ctx, tx_key, nonce, hdr, hdr_len, out_ct, pt_with_ct_len, out_ct, out_tag);
+    syn_secure_zero(nonce, sizeof(nonce));
+
+    if (!syn_transport_send(ctx->underlying_transport, ctx->tx_buf, total_datagram_len)) {
+        return false;
+    }
+    ctx->client_seq_num++;
+    return true;
+}
+/** @endcond */
+
 bool syn_dtls_send(SYN_DTLS_Context *ctx, const uint8_t *data, size_t len)
 {
     if (ctx == NULL || ctx->state == SYN_DTLS_STATE_ERROR || (data == NULL && len > 0U)) {
@@ -1324,40 +1405,7 @@ bool syn_dtls_send(SYN_DTLS_Context *ctx, const uint8_t *data, size_t len)
         return false;
     }
 
-    size_t tag_sz = dtls_tag_len(ctx);
-    uint64_t next_seq = ctx->client_seq_num;
-    bool seq_is_16 = (next_seq > 0xFFULL);
-    size_t seq_bytes = seq_is_16 ? 2U : 1U;
-    size_t hdr_len = 1U + seq_bytes + 2U;
-    size_t overhead = hdr_len + 1U + tag_sz;
-
-    if (ctx->tx_buf_size < overhead || len > ctx->tx_buf_size - overhead) {
-        return false;
-    }
-
-    uint64_t seq = ctx->client_seq_num++;
-    size_t pt_with_ct_len = len + 1U;
-    size_t ct_tag_len = pt_with_ct_len + tag_sz;
-    size_t total_datagram_len = hdr_len + ct_tag_len;
-
-    uint8_t *hdr = ctx->tx_buf;
-    uint8_t *out_ct = ctx->tx_buf + hdr_len;
-    uint8_t *out_tag = out_ct + pt_with_ct_len;
-    memmove(out_ct, data, len);
-    out_ct[len] = DTLS_CONTENT_TYPE_APP_DATA;
-    dtls_write_unified_header(hdr, ctx->epoch, seq, seq_is_16, ct_tag_len);
-
-    const uint8_t *tx_key = ctx->config.is_server ? ctx->server_app_key : ctx->client_app_key;
-    const uint8_t *tx_iv = ctx->config.is_server ? ctx->server_app_iv : ctx->client_app_iv;
-
-    uint8_t nonce[12];
-    construct_dtls13_nonce(tx_iv, ctx->epoch, seq, nonce);
-
-    dtls_record_encrypt(ctx, tx_key, nonce, hdr, hdr_len, out_ct, pt_with_ct_len, out_ct, out_tag);
-
-    syn_secure_zero(nonce, sizeof(nonce));
-
-    return syn_transport_send(ctx->underlying_transport, ctx->tx_buf, total_datagram_len);
+    return dtls_transmit_app_record(ctx, data, len);
 }
 
 /**
