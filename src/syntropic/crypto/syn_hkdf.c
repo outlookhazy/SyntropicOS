@@ -108,23 +108,24 @@ bool syn_hkdf_expand_label(const uint8_t *secret, size_t secret_len, const char 
                            size_t label_len, const uint8_t *context, size_t context_len,
                            uint8_t *out, size_t out_len)
 {
-    if (secret == NULL || label == NULL || out == NULL || out_len == 0) {
+    if (secret == NULL || label == NULL || out == NULL || out_len == 0U || out_len > 0xFFFFU) {
         return false;
     }
 
     static const char prefix[] = "tls13 ";
-    size_t prefix_len = 6;
-    size_t full_label_len = prefix_len + label_len;
+    size_t prefix_len = 6U;
 
-    if (full_label_len > 255) {
+    if (label_len > (255U - prefix_len)) {
         return false;
     }
 
-    if (context == NULL && context_len > 0) {
-        context_len = 0;
+    size_t full_label_len = prefix_len + label_len;
+
+    if (context == NULL && context_len > 0U) {
+        context_len = 0U;
     }
 
-    if (context_len > 255) {
+    if (context_len > 255U) {
         return false;
     }
 
@@ -132,11 +133,11 @@ bool syn_hkdf_expand_label(const uint8_t *secret, size_t secret_len, const char 
      * uint16 length (2B) + uint8 label_len (1B) + label (full_label_len) +
      * uint8 context_len (1B) + context (context_len)
      */
-    uint8_t hkdf_label[512];
-    size_t offset = 0;
+    uint8_t hkdf_label[516];
+    size_t offset = 0U;
 
-    hkdf_label[offset++] = (uint8_t)((out_len >> 8) & 0xFF);
-    hkdf_label[offset++] = (uint8_t)(out_len & 0xFF);
+    hkdf_label[offset++] = (uint8_t)((out_len >> 8U) & 0xFFU);
+    hkdf_label[offset++] = (uint8_t)(out_len & 0xFFU);
 
     hkdf_label[offset++] = (uint8_t)full_label_len;
     memcpy(hkdf_label + offset, prefix, prefix_len);
@@ -145,7 +146,7 @@ bool syn_hkdf_expand_label(const uint8_t *secret, size_t secret_len, const char 
     offset += label_len;
 
     hkdf_label[offset++] = (uint8_t)context_len;
-    if (context_len > 0) {
+    if (context_len > 0U) {
         memcpy(hkdf_label + offset, context, context_len);
         offset += context_len;
     }
@@ -245,17 +246,18 @@ bool syn_hkdf_sha384_expand_label(const uint8_t *secret, size_t secret_len, cons
                                   size_t label_len, const uint8_t *context, size_t context_len,
                                   uint8_t *out, size_t out_len)
 {
-    if (secret == NULL || label == NULL || out == NULL || out_len == 0U) {
+    if (secret == NULL || label == NULL || out == NULL || out_len == 0U || out_len > 0xFFFFU) {
         return false;
     }
 
     static const char prefix[] = "tls13 ";
     size_t prefix_len = 6U;
-    size_t full_label_len = prefix_len + label_len;
 
-    if (full_label_len > 255U) {
+    if (label_len > (255U - prefix_len)) {
         return false;
     }
+
+    size_t full_label_len = prefix_len + label_len;
 
     if (context == NULL && context_len > 0U) {
         context_len = 0U;
@@ -265,7 +267,7 @@ bool syn_hkdf_sha384_expand_label(const uint8_t *secret, size_t secret_len, cons
         return false;
     }
 
-    uint8_t hkdf_label[512];
+    uint8_t hkdf_label[516];
     size_t offset = 0U;
 
     hkdf_label[offset++] = (uint8_t)((out_len >> 8U) & 0xFFU);
@@ -376,17 +378,18 @@ bool syn_hkdf_sha512_expand_label(const uint8_t *secret, size_t secret_len, cons
                                   size_t label_len, const uint8_t *context, size_t context_len,
                                   uint8_t *out, size_t out_len)
 {
-    if (secret == NULL || label == NULL || out == NULL || out_len == 0U) {
+    if (secret == NULL || label == NULL || out == NULL || out_len == 0U || out_len > 0xFFFFU) {
         return false;
     }
 
     static const char prefix[] = "tls13 ";
     size_t prefix_len = 6U;
-    size_t full_label_len = prefix_len + label_len;
 
-    if (full_label_len > 255U) {
+    if (label_len > (255U - prefix_len)) {
         return false;
     }
+
+    size_t full_label_len = prefix_len + label_len;
 
     if (context == NULL && context_len > 0U) {
         context_len = 0U;
@@ -396,7 +399,7 @@ bool syn_hkdf_sha512_expand_label(const uint8_t *secret, size_t secret_len, cons
         return false;
     }
 
-    uint8_t hkdf_label[512];
+    uint8_t hkdf_label[516];
     size_t offset = 0U;
 
     hkdf_label[offset++] = (uint8_t)((out_len >> 8U) & 0xFFU);

@@ -62,6 +62,19 @@ typedef struct {
 /* ── API ────────────────────────────────────────────────────────────────── */
 
 /**
+ * @brief Zeroize sensitive stack buffers without compiler dead-store elimination.
+ * @param v Buffer pointer.
+ * @param n Number of bytes to zeroize.
+ */
+static inline void syn_hmac_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
+
+/**
  * @brief Initialize HMAC-SHA256 with a key.
  *
  * If key_len > 64, the key is first hashed with SHA-256.
@@ -80,20 +93,23 @@ static inline void syn_hmac_sha256_init(SYN_HMAC_SHA256 *ctx, const void *key, s
     if (key_len > SYN_SHA256_BLOCK_SIZE) {
         /* Keys longer than block size are hashed first */
         syn_sha256(key, key_len, k_buf);
-    } else {
+    } else if (key != NULL && key_len > 0U) {
         memcpy(k_buf, key, key_len);
     }
 
     /* Compute i_key_pad = K ⊕ 0x36  and  o_key_pad = K ⊕ 0x5C */
     uint8_t i_key_pad[SYN_SHA256_BLOCK_SIZE];
-    for (i = 0; i < SYN_SHA256_BLOCK_SIZE; i++) {
-        i_key_pad[i] = k_buf[i] ^ 0x36u;
-        ctx->o_key_pad[i] = k_buf[i] ^ 0x5Cu;
+    for (i = 0U; i < SYN_SHA256_BLOCK_SIZE; i++) {
+        i_key_pad[i] = (uint8_t)(k_buf[i] ^ 0x36U);
+        ctx->o_key_pad[i] = (uint8_t)(k_buf[i] ^ 0x5CU);
     }
 
     /* Inner hash: SHA-256(i_key_pad || message...) */
     syn_sha256_init(&ctx->inner);
     syn_sha256_update(&ctx->inner, i_key_pad, SYN_SHA256_BLOCK_SIZE);
+
+    syn_hmac_secure_zero(k_buf, sizeof(k_buf));
+    syn_hmac_secure_zero(i_key_pad, sizeof(i_key_pad));
 }
 
 /**
@@ -125,6 +141,10 @@ static inline void syn_hmac_sha256_final(SYN_HMAC_SHA256 *ctx, uint8_t mac[SYN_H
     syn_sha256_update(&outer, ctx->o_key_pad, SYN_SHA256_BLOCK_SIZE);
     syn_sha256_update(&outer, inner_hash, SYN_SHA256_DIGEST_SIZE);
     syn_sha256_final(&outer, mac);
+
+    syn_hmac_secure_zero(inner_hash, sizeof(inner_hash));
+    syn_hmac_secure_zero(&outer, sizeof(outer));
+    syn_hmac_secure_zero(ctx, sizeof(*ctx));
 }
 
 /**

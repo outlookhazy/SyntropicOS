@@ -15,6 +15,20 @@
 #include <string.h>
 
 /**
+ * @brief Zeroize sensitive stack buffers without compiler dead-store elimination.
+ *
+ * @param v Buffer pointer.
+ * @param n Number of bytes to zeroize.
+ */
+static void syn_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
+
+/**
  * @brief Left shift a 128-bit block by 1 bit (Big-Endian).
  *
  * @param[in]  in  16-byte source block.
@@ -55,6 +69,8 @@ static void generate_subkeys(const SYN_AES_Context *ctx, uint8_t k1[16], uint8_t
     if ((k1[0] & 0x80U) != 0U) {
         k2[15] ^= 0x87U;
     }
+
+    syn_secure_zero(l, sizeof(l));
 }
 
 SYN_Status syn_aes_cmac(const uint8_t key[SYN_AES_CMAC_KEY_SIZE], const uint8_t *msg,
@@ -72,17 +88,8 @@ SYN_Status syn_aes_cmac(const uint8_t key[SYN_AES_CMAC_KEY_SIZE], const uint8_t 
     generate_subkeys(&ctx, k1, k2);
 
     /* Step 2 & 3: Compute number of blocks and complete-block flag */
-    size_t n = (msg_len + 15U) / 16U;
-    bool is_complete = false;
-
-    if (n == 0U) {
-        n = 1U;
-        is_complete = false;
-    } else if ((msg_len % 16U) == 0U) {
-        is_complete = true;
-    } else {
-        is_complete = false;
-    }
+    size_t n = (msg_len == 0U) ? 1U : (((msg_len - 1U) / 16U) + 1U);
+    bool is_complete = (msg_len > 0U) && ((msg_len % 16U) == 0U);
 
     /* Step 4: Calculate M_last */
     uint8_t m_last[16];
@@ -120,6 +127,13 @@ SYN_Status syn_aes_cmac(const uint8_t key[SYN_AES_CMAC_KEY_SIZE], const uint8_t 
     }
     syn_aes_encrypt_block(&ctx, y, mac);
 
+    syn_secure_zero(&ctx, sizeof(ctx));
+    syn_secure_zero(k1, sizeof(k1));
+    syn_secure_zero(k2, sizeof(k2));
+    syn_secure_zero(m_last, sizeof(m_last));
+    syn_secure_zero(x, sizeof(x));
+    syn_secure_zero(y, sizeof(y));
+
     return SYN_OK;
 }
 
@@ -139,6 +153,7 @@ bool syn_aes_cmac_verify(const uint8_t key[SYN_AES_CMAC_KEY_SIZE], const uint8_t
         diff |= (uint8_t)(computed[i] ^ mac[i]);
     }
 
+    syn_secure_zero(computed, sizeof(computed));
     return (diff == 0U);
 }
 

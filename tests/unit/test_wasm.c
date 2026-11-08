@@ -1261,6 +1261,202 @@ static void test_r5_wasm_i64_global_init(void)
     TEST_ASSERT_EQUAL_UINT64(5ULL, g_wasm_ctx.globals[0]);
 }
 
+static uint64_t tier_a_host_add64(SYN_WASM_Context *ctx, const uint64_t *args, uint8_t argc)
+{
+    (void)ctx;
+    if (args == NULL || argc != 2U) {
+        return 0ULL;
+    }
+    return args[0] + args[1];
+}
+
+static void tier_a_expect_bad_sec(const uint8_t *sec, uint32_t sec_len, bool with_decl)
+{
+    static const uint8_t hdr[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00};
+    static const uint8_t decl[] = {0x01, 0x04, 0x01, 0x60, 0x00, 0x00, 0x03, 0x02, 0x01, 0x00};
+    uint8_t buf[64];
+    uint32_t pos = 0U;
+    SYN_WASM_Module mod;
+
+    memcpy(&buf[pos], hdr, sizeof(hdr));
+    pos += (uint32_t)sizeof(hdr);
+    if (with_decl) {
+        memcpy(&buf[pos], decl, sizeof(decl));
+        pos += (uint32_t)sizeof(decl);
+    }
+    memcpy(&buf[pos], sec, sec_len);
+    pos += sec_len;
+    TEST_ASSERT_FALSE(syn_wasm_module_load(&mod, buf, pos));
+}
+
+static void test_tier_a_wasm_select64_and_host_call(void)
+{
+    /* WASM-1: OP_SELECT must preserve full 64-bit i64/f64 stack operands */
+    static const uint8_t sel_code[] = {0x1b, 0x0b};
+    memset(&g_wasm_mod, 0, sizeof(g_wasm_mod));
+    g_wasm_mod.bytes = sel_code;
+    g_wasm_mod.size = (uint32_t)sizeof(sel_code);
+    g_wasm_mod.func_count = 1U;
+    g_wasm_mod.funcs[0].code_offset = 0U;
+    g_wasm_mod.funcs[0].code_size = (uint32_t)sizeof(sel_code);
+    g_wasm_mod.funcs[0].result_count = 1U;
+
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
+    g_wasm_ctx.call_depth = 1U;
+    g_wasm_ctx.pc = 0U;
+    g_wasm_ctx.stack[0] = 0x123456789ABCDEF0ULL;
+    g_wasm_ctx.stack[1] = 0xFEDCBA9876543210ULL;
+    g_wasm_ctx.stack[2] = 1ULL;
+    g_wasm_ctx.sp = 3U;
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, syn_wasm_step(&g_wasm_ctx, 16U));
+    TEST_ASSERT_EQUAL_HEX64(0x123456789ABCDEF0ULL, syn_wasm_result(&g_wasm_ctx));
+
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
+    g_wasm_ctx.call_depth = 1U;
+    g_wasm_ctx.pc = 0U;
+    g_wasm_ctx.stack[0] = 0x123456789ABCDEF0ULL;
+    g_wasm_ctx.stack[1] = 0xFEDCBA9876543210ULL;
+    g_wasm_ctx.stack[2] = 0ULL;
+    g_wasm_ctx.sp = 3U;
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, syn_wasm_step(&g_wasm_ctx, 16U));
+    TEST_ASSERT_EQUAL_HEX64(0xFEDCBA9876543210ULL, syn_wasm_result(&g_wasm_ctx));
+
+    /* WASM-8: direct syn_wasm_call on imported host function respects signature & 64-bit return */
+    static const uint8_t hdr[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00};
+    static const uint8_t h_type[] = {0x01, 0x07, 0x01, 0x60, 0x02, 0x7e, 0x7e, 0x01, 0x7e};
+    static const uint8_t h_imp[] = {0x02, 0x07, 0x01, 0x01, 0x65, 0x01, 0x66, 0x00, 0x00};
+    uint8_t host64_wasm[sizeof(hdr) + sizeof(h_type) + sizeof(h_imp)];
+    memcpy(host64_wasm, hdr, sizeof(hdr));
+    memcpy(&host64_wasm[sizeof(hdr)], h_type, sizeof(h_type));
+    memcpy(&host64_wasm[sizeof(hdr) + sizeof(h_type)], h_imp, sizeof(h_imp));
+
+    SYN_WASM_Module hmod;
+    SYN_WASM_Context hctx;
+    TEST_ASSERT_TRUE(syn_wasm_module_load(&hmod, host64_wasm, (uint32_t)sizeof(host64_wasm)));
+    TEST_ASSERT_TRUE(syn_wasm_init(&hctx, &hmod, g_linear_mem, sizeof(g_linear_mem)));
+
+    TEST_ASSERT_FALSE(syn_wasm_call(&hctx, 0U));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_UNREGISTERED_HOST, hctx.status);
+
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&hctx, 0U, tier_a_host_add64));
+    hctx.sp = 0U;
+    TEST_ASSERT_FALSE(syn_wasm_call(&hctx, 0U));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_STACK_UNDERFLOW, hctx.status);
+
+    hctx.stack[0] = 0x0100000000000005ULL;
+    hctx.stack[1] = 0x0200000000000007ULL;
+    hctx.sp = 2U;
+    TEST_ASSERT_TRUE(syn_wasm_call(&hctx, 0U));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, hctx.status);
+    TEST_ASSERT_EQUAL_HEX64(0x030000000000000CULL, syn_wasm_result(&hctx));
+
+#if defined(SYN_WASM_USE_FIXED) && SYN_WASM_USE_FIXED
+    static const uint8_t f_abs[] = {0x8b, 0x0b};
+    static const uint8_t f_neg[] = {0x8c, 0x0b};
+    static const uint8_t f_trunc[] = {0x8f, 0x0b};
+
+    g_wasm_mod.bytes = f_abs;
+    g_wasm_mod.size = 2U;
+    g_wasm_mod.funcs[0].code_size = 2U;
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
+    g_wasm_ctx.call_depth = 1U;
+    g_wasm_ctx.stack[0] = 0x80000000ULL;
+    g_wasm_ctx.sp = 1U;
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, syn_wasm_step(&g_wasm_ctx, 16U));
+    TEST_ASSERT_EQUAL_HEX32(0x7FFFFFFFU, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    g_wasm_mod.bytes = f_neg;
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
+    g_wasm_ctx.call_depth = 1U;
+    g_wasm_ctx.stack[0] = 0x80000000ULL;
+    g_wasm_ctx.sp = 1U;
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, syn_wasm_step(&g_wasm_ctx, 16U));
+    TEST_ASSERT_EQUAL_HEX32(0x7FFFFFFFU, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    g_wasm_mod.bytes = f_trunc;
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
+    g_wasm_ctx.call_depth = 1U;
+    g_wasm_ctx.stack[0] = 0xFFFE4000ULL;
+    g_wasm_ctx.sp = 1U;
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, syn_wasm_step(&g_wasm_ctx, 16U));
+    TEST_ASSERT_EQUAL_HEX32(0xFFFF0000U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+#endif
+}
+
+static void test_tier_a_wasm_loader_bounds(void)
+{
+    static const uint8_t hdr[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00};
+    static const uint8_t m_imp[] = {0x02, 0x08, 0x01, 0x01, 0x65, 0x01, 0x6d, 0x02, 0x00, 0x01};
+    uint8_t mem_ok[sizeof(hdr) + sizeof(m_imp)];
+    SYN_WASM_Module mod;
+
+    memcpy(mem_ok, hdr, sizeof(hdr));
+    memcpy(&mem_ok[sizeof(hdr)], m_imp, sizeof(m_imp));
+    TEST_ASSERT_TRUE(syn_wasm_module_load(&mod, mem_ok, (uint32_t)sizeof(mem_ok)));
+
+    static const uint8_t s_trail[] = {0x01};
+    static const uint8_t s_t_emp[] = {0x01, 0x00};
+    static const uint8_t s_t_frm[] = {0x01, 0x02, 0x01, 0x61};
+    static const uint8_t s_t_pov[] = {0x01, 0x03, 0x01, 0x60, 0x45};
+    static const uint8_t s_t_poo[] = {0x01, 0x03, 0x01, 0x60, 0x02};
+    static const uint8_t s_t_rov[] = {0x01, 0x04, 0x01, 0x60, 0x00, 0x45};
+    static const uint8_t s_t_roo[] = {0x01, 0x04, 0x01, 0x60, 0x00, 0x02};
+    static const uint8_t s_i_emp[] = {0x02, 0x00};
+    static const uint8_t s_i_bty[] = {0x02, 0x07, 0x01, 0x01, 0x61, 0x01, 0x62, 0x00, 0x00};
+    static const uint8_t s_i_tbl[] = {0x02, 0x07, 0x01, 0x01, 0x61, 0x01, 0x62, 0x01, 0x70};
+    static const uint8_t s_i_glb[] = {0x02, 0x07, 0x01, 0x01, 0x61, 0x01, 0x62, 0x03, 0x7f};
+    static const uint8_t s_i_mfl[] = {0x02, 0x06, 0x01, 0x01, 0x61, 0x01, 0x62, 0x02};
+    static const uint8_t s_i_mmn[] = {0x02, 0x07, 0x01, 0x01, 0x61, 0x01, 0x62, 0x02, 0x00};
+    static const uint8_t s_i_mmx[] = {0x02, 0x08, 0x01, 0x01, 0x61, 0x01, 0x62, 0x02, 0x01, 0x01};
+    static const uint8_t s_i_bkd[] = {0x02, 0x06, 0x01, 0x01, 0x61, 0x01, 0x62, 0x04};
+    static const uint8_t s_f_emp[] = {0x03, 0x00};
+    static const uint8_t s_f_bty[] = {0x03, 0x02, 0x01, 0x00};
+    static const uint8_t s_x_emp[] = {0x07, 0x00};
+    static const uint8_t s_x_bkd[] = {0x07, 0x04, 0x01, 0x01, 0x78, 0x04};
+    static const uint8_t s_x_nid[] = {0x07, 0x04, 0x01, 0x01, 0x78, 0x00};
+    static const uint8_t s_x_bfn[] = {0x07, 0x05, 0x01, 0x01, 0x78, 0x00, 0x00};
+    static const uint8_t s_e_emp[] = {0x09, 0x00};
+    static const uint8_t s_e_flg[] = {0x09, 0x02, 0x01, 0x01};
+    static const uint8_t s_e_bop[] = {0x09, 0x04, 0x01, 0x00, 0x42, 0x00};
+    static const uint8_t s_e_neg[] = {0x09, 0x05, 0x01, 0x00, 0x41, 0x7f, 0x0b};
+    static const uint8_t s_e_ned[] = {0x09, 0x05, 0x01, 0x00, 0x41, 0x00, 0x01};
+    static const uint8_t s_e_tov[] = {0x09, 0x06, 0x01, 0x00, 0x41, 0x3f, 0x0b, 0x02};
+    static const uint8_t s_e_bfi[] = {0x09, 0x07, 0x01, 0x00, 0x41, 0x00, 0x0b, 0x01, 0x05};
+    static const uint8_t s_c_zbd[] = {0x0a, 0x02, 0x01, 0x00};
+    static const uint8_t s_c_oob[] = {0x0a, 0x03, 0x01, 0x05, 0x0b};
+
+    tier_a_expect_bad_sec(s_trail, (uint32_t)sizeof(s_trail), false);
+    tier_a_expect_bad_sec(s_t_emp, (uint32_t)sizeof(s_t_emp), false);
+    tier_a_expect_bad_sec(s_t_frm, (uint32_t)sizeof(s_t_frm), false);
+    tier_a_expect_bad_sec(s_t_pov, (uint32_t)sizeof(s_t_pov), false);
+    tier_a_expect_bad_sec(s_t_poo, (uint32_t)sizeof(s_t_poo), false);
+    tier_a_expect_bad_sec(s_t_rov, (uint32_t)sizeof(s_t_rov), false);
+    tier_a_expect_bad_sec(s_t_roo, (uint32_t)sizeof(s_t_roo), false);
+    tier_a_expect_bad_sec(s_i_emp, (uint32_t)sizeof(s_i_emp), false);
+    tier_a_expect_bad_sec(s_i_bty, (uint32_t)sizeof(s_i_bty), false);
+    tier_a_expect_bad_sec(s_i_tbl, (uint32_t)sizeof(s_i_tbl), false);
+    tier_a_expect_bad_sec(s_i_glb, (uint32_t)sizeof(s_i_glb), false);
+    tier_a_expect_bad_sec(s_i_mfl, (uint32_t)sizeof(s_i_mfl), false);
+    tier_a_expect_bad_sec(s_i_mmn, (uint32_t)sizeof(s_i_mmn), false);
+    tier_a_expect_bad_sec(s_i_mmx, (uint32_t)sizeof(s_i_mmx), false);
+    tier_a_expect_bad_sec(s_i_bkd, (uint32_t)sizeof(s_i_bkd), false);
+    tier_a_expect_bad_sec(s_f_emp, (uint32_t)sizeof(s_f_emp), false);
+    tier_a_expect_bad_sec(s_f_bty, (uint32_t)sizeof(s_f_bty), false);
+    tier_a_expect_bad_sec(s_x_emp, (uint32_t)sizeof(s_x_emp), false);
+    tier_a_expect_bad_sec(s_x_bkd, (uint32_t)sizeof(s_x_bkd), false);
+    tier_a_expect_bad_sec(s_x_nid, (uint32_t)sizeof(s_x_nid), false);
+    tier_a_expect_bad_sec(s_x_bfn, (uint32_t)sizeof(s_x_bfn), false);
+    tier_a_expect_bad_sec(s_e_emp, (uint32_t)sizeof(s_e_emp), false);
+    tier_a_expect_bad_sec(s_e_flg, (uint32_t)sizeof(s_e_flg), false);
+    tier_a_expect_bad_sec(s_e_bop, (uint32_t)sizeof(s_e_bop), false);
+    tier_a_expect_bad_sec(s_e_neg, (uint32_t)sizeof(s_e_neg), false);
+    tier_a_expect_bad_sec(s_e_ned, (uint32_t)sizeof(s_e_ned), false);
+    tier_a_expect_bad_sec(s_e_tov, (uint32_t)sizeof(s_e_tov), false);
+    tier_a_expect_bad_sec(s_e_bfi, (uint32_t)sizeof(s_e_bfi), true);
+    tier_a_expect_bad_sec(s_c_zbd, (uint32_t)sizeof(s_c_zbd), true);
+    tier_a_expect_bad_sec(s_c_oob, (uint32_t)sizeof(s_c_oob), true);
+}
+
 void run_wasm_tests(void)
 {
     RUN_TEST(test_wasm_load_null_and_invalid);
@@ -1290,5 +1486,7 @@ void run_wasm_tests(void)
     RUN_TEST(test_r5_wasm_skip_and_control_edge_cases);
     RUN_TEST(test_r5_wasm_int64_div_and_float_trunc);
     RUN_TEST(test_r5_wasm_i64_global_init);
+    RUN_TEST(test_tier_a_wasm_select64_and_host_call);
+    RUN_TEST(test_tier_a_wasm_loader_bounds);
 }
 /* touch test_wasm.c */

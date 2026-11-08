@@ -33,7 +33,7 @@
  */
 static bool tpm2_write_u16(uint8_t *buf, size_t *pos, size_t max_len, uint16_t v)
 {
-    if (*pos + 2U > max_len) {
+    if (*pos > max_len || (max_len - *pos) < 2U) {
         return false;
     }
     buf[*pos] = (uint8_t)((v >> 8U) & 0xFFU);
@@ -52,7 +52,7 @@ static bool tpm2_write_u16(uint8_t *buf, size_t *pos, size_t max_len, uint16_t v
  */
 static bool tpm2_write_u32(uint8_t *buf, size_t *pos, size_t max_len, uint32_t v)
 {
-    if (*pos + 4U > max_len) {
+    if (*pos > max_len || (max_len - *pos) < 4U) {
         return false;
     }
     buf[*pos] = (uint8_t)((v >> 24U) & 0xFFU);
@@ -75,7 +75,7 @@ static bool tpm2_write_u32(uint8_t *buf, size_t *pos, size_t max_len, uint32_t v
 static bool tpm2_write_bytes(uint8_t *buf, size_t *pos, size_t max_len, const uint8_t *data,
                              size_t len)
 {
-    if (*pos + len > max_len) {
+    if (*pos > max_len || len > (max_len - *pos)) {
         return false;
     }
     if (len > 0U && data != NULL) {
@@ -95,7 +95,7 @@ static bool tpm2_write_bytes(uint8_t *buf, size_t *pos, size_t max_len, const ui
  */
 static bool tpm2_read_u16(const uint8_t *buf, size_t *pos, size_t max_len, uint16_t *out_v)
 {
-    if (*pos + 2U > max_len) {
+    if (*pos > max_len || (max_len - *pos) < 2U) {
         return false;
     }
     if (out_v != NULL) {
@@ -115,7 +115,7 @@ static bool tpm2_read_u16(const uint8_t *buf, size_t *pos, size_t max_len, uint1
  */
 static bool tpm2_read_u32(const uint8_t *buf, size_t *pos, size_t max_len, uint32_t *out_v)
 {
-    if (*pos + 4U > max_len) {
+    if (*pos > max_len || (max_len - *pos) < 4U) {
         return false;
     }
     if (out_v != NULL) {
@@ -138,7 +138,7 @@ static bool tpm2_read_u32(const uint8_t *buf, size_t *pos, size_t max_len, uint3
 static bool tpm2_read_bytes(const uint8_t *buf, size_t *pos, size_t max_len, uint8_t *out_data,
                             size_t len)
 {
-    if (*pos + len > max_len) {
+    if (*pos > max_len || len > (max_len - *pos)) {
         return false;
     }
     if (len > 0U && out_data != NULL) {
@@ -184,12 +184,12 @@ static SYN_Status tpm2_execute_command(SYN_TPM2_Context *ctx, size_t cmd_len, si
 
     ctx->last_rc = rc;
     if ((tag != SYN_TPM2_ST_NO_SESSIONS && tag != SYN_TPM2_ST_SESSIONS) ||
-        rc != SYN_TPM2_RC_SUCCESS || param_size > rx_len) {
+        rc != SYN_TPM2_RC_SUCCESS || param_size < 10U || (size_t)param_size > rx_len) {
         return SYN_ERROR;
     }
 
     if (out_resp_len != NULL) {
-        *out_resp_len = rx_len;
+        *out_resp_len = (size_t)param_size;
     }
     return SYN_OK;
 }
@@ -213,7 +213,7 @@ static bool tpm2_write_pw_auth_session(uint8_t *tx, size_t *pos, size_t max_len)
     if (!tpm2_write_u16(tx, pos, max_len, 0U)) { /* Empty nonce */
         return false;
     }
-    if (*pos + 1U > max_len) {
+    if (*pos >= max_len) {
         return false;
     }
     tx[(*pos)++] = 0U;                           /* Session attributes */
@@ -269,7 +269,7 @@ SYN_Status syn_tpm2_self_test(SYN_TPM2_Context *ctx, bool full_test)
     (void)tpm2_write_u16(tx, &pos, max_len, SYN_TPM2_ST_NO_SESSIONS);
     (void)tpm2_write_u32(tx, &pos, max_len, 0U);
     (void)tpm2_write_u32(tx, &pos, max_len, SYN_TPM2_CC_SELFTEST);
-    if (pos + 1U > max_len) {
+    if (pos >= max_len) {
         return SYN_ERROR;
     }
     tx[pos++] = full_test ? 1U : 0U;
@@ -356,7 +356,7 @@ static bool tpm2_build_pcr_read_cmd(uint8_t *tx, size_t max_len, uint32_t pcr_in
     (void)tpm2_write_u32(tx, &pos, max_len, SYN_TPM2_CC_PCR_READ);
     (void)tpm2_write_u32(tx, &pos, max_len, 1U);
     (void)tpm2_write_u16(tx, &pos, max_len, hash_alg);
-    if (pos + 4U > max_len) {
+    if ((max_len - pos) < 4U) {
         return false;
     }
     tx[pos++] = 3U;
@@ -557,7 +557,7 @@ static bool tpm2_build_quote_cmd(uint8_t *tx, size_t max_len, uint32_t key_handl
         !tpm2_write_bytes(tx, &pos, max_len, qualifying_data, qual_len) ||
         !tpm2_write_u16(tx, &pos, max_len, SYN_TPM2_ALG_NULL) ||
         !tpm2_write_u32(tx, &pos, max_len, 1U) ||
-        !tpm2_write_u16(tx, &pos, max_len, SYN_TPM2_ALG_SHA256) || (pos + 4U > max_len)) {
+        !tpm2_write_u16(tx, &pos, max_len, SYN_TPM2_ALG_SHA256) || ((max_len - pos) < 4U)) {
         return false;
     }
 
@@ -573,7 +573,7 @@ SYN_Status syn_tpm2_quote(SYN_TPM2_Context *ctx, uint32_t key_handle,
                           const uint8_t *qualifying_data, size_t qual_len, uint32_t pcr_mask,
                           SYN_TPM2_QuoteResult *out_quote)
 {
-    if (ctx == NULL || !ctx->initialized || out_quote == NULL ||
+    if (ctx == NULL || !ctx->initialized || out_quote == NULL || qual_len > 64U ||
         (qualifying_data == NULL && qual_len > 0U)) {
         return SYN_INVALID_PARAM;
     }

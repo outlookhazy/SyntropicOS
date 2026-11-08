@@ -257,6 +257,36 @@ void test_hmac_drbg_null_and_bounds_checks(void)
     syn_hmac_drbg_set_reseed_interval(NULL, 100);
 }
 
+void test_tier_a_drbg_max_reseed_and_hmac_empty_key(void)
+{
+    const uint8_t ent[32] = {0x42U};
+    uint8_t big_key[70];
+    uint8_t out[16] = {0};
+    uint8_t mac[32] = {0};
+    SYN_HMAC_DRBG drbg;
+
+    memset(big_key, 0x5AU, sizeof(big_key));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_hmac_drbg_init(&drbg, ent, sizeof(ent), NULL, 0U, NULL, 0U));
+
+    /* DRBG-1: UINT32_MAX interval clamped to UINT32_MAX - 1U to prevent counter wraparound */
+    syn_hmac_drbg_set_reseed_interval(&drbg, UINT32_MAX);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX - 1U, drbg.reseed_interval);
+
+    drbg.reseed_counter = UINT32_MAX - 1U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_hmac_drbg_generate(&drbg, out, sizeof(out), NULL, 0U));
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, drbg.reseed_counter);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_hmac_drbg_generate(&drbg, out, sizeof(out), NULL, 0U));
+
+    syn_hmac_drbg_wipe(&drbg);
+
+    /* HASH-1: HMAC-SHA256 NULL empty key and >64B hashed key */
+    syn_hmac_sha256(NULL, 0U, out, sizeof(out), mac);
+    TEST_ASSERT_NOT_EQUAL(0U, mac[0]);
+    syn_hmac_sha256(big_key, sizeof(big_key), out, sizeof(out), mac);
+    TEST_ASSERT_NOT_EQUAL(0U, mac[0]);
+}
+
 void run_hmac_drbg_tests(void)
 {
     RUN_TEST(test_hmac_drbg_rfc6979_p256_vector);
@@ -265,4 +295,5 @@ void run_hmac_drbg_tests(void)
     RUN_TEST(test_hmac_drbg_personalization_and_additional_input);
     RUN_TEST(test_hmac_drbg_reseed_interval_limit);
     RUN_TEST(test_hmac_drbg_null_and_bounds_checks);
+    RUN_TEST(test_tier_a_drbg_max_reseed_and_hmac_empty_key);
 }

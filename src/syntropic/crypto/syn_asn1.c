@@ -118,12 +118,15 @@ bool syn_asn1_get_integer(const SYN_ASN1_Element *elem, const uint8_t **int_out,
     const uint8_t *val = elem->value;
     size_t val_len = elem->length;
 
-    if (val_len == 0) {
+    if (val_len == 0U || (val[0] & 0x80U) != 0U) {
         return false;
     }
 
-    /* Strip leading 0x00 byte for positive integers where top bit of next byte is set */
-    if (val_len > 1 && val[0] == 0x00U && (val[1] & 0x80U) != 0) {
+    /* Strip leading 0x00 sign pad only when MSB of next byte is set; reject non-minimal 0x00 */
+    if (val_len > 1U && val[0] == 0x00U) {
+        if ((val[1] & 0x80U) == 0U) {
+            return false;
+        }
         val++;
         val_len--;
     }
@@ -151,6 +154,17 @@ bool syn_asn1_get_bit_string(const SYN_ASN1_Element *elem, const uint8_t **bits_
     }
 
     size_t total_payload_bytes = elem->length - 1U;
+    if (total_payload_bytes > (SIZE_MAX / 8U)) {
+        return false;
+    }
+
+    if (unused_bits > 0U) {
+        uint8_t pad_mask = (uint8_t)((1U << unused_bits) - 1U);
+        if ((elem->value[elem->length - 1U] & pad_mask) != 0U) {
+            return false;
+        }
+    }
+
     *bits_out = elem->value + 1;
     *bit_len_out = (total_payload_bytes * 8U) - unused_bits;
     return true;

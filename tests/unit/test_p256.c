@@ -265,9 +265,91 @@ void test_p256_ecdsa_verify_rfc6979_test_vectors(void)
     TEST_ASSERT_FALSE(syn_p256_is_on_curve(pub_x, overflow_coord));
 }
 
+void test_tier_a_p256_ct_and_rfc6979_bounds(void)
+{
+    static const uint8_t PRIV[32] = {0xC9, 0xAF, 0xA9, 0xD8, 0x45, 0xBA, 0x75, 0x16,
+                                     0x6B, 0x5C, 0x21, 0x57, 0x67, 0xB1, 0xD6, 0x93,
+                                     0x4E, 0x50, 0xC3, 0xDB, 0x36, 0xE8, 0x9B, 0x12,
+                                     0x7B, 0x8A, 0x62, 0x2B, 0x12, 0x0F, 0x67, 0x21};
+    static const uint8_t ORDER_N[32] = {0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
+                                        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                        0xBC, 0xE6, 0xFA, 0xAD, 0xA7, 0x17, 0x9E, 0x84,
+                                        0xF3, 0xB9, 0xCA, 0xC2, 0xFC, 0x63, 0x25, 0x51};
+
+    uint8_t zero_key[32] = {0};
+    uint8_t h_small[32] = {0};
+    uint8_t h_large[32];
+    uint8_t pub_x[32];
+    uint8_t pub_y[32];
+    uint8_t r1[32];
+    uint8_t s1[32];
+    uint8_t r2[32];
+    uint8_t s2[32];
+
+    h_small[31] = 0x05U;
+    memcpy(h_large, ORDER_N, sizeof(h_large));
+    h_large[31] = 0x56U; /* n + 5 */
+
+    /* P256-3: deterministic ECDSA rejects priv_key == 0 and priv_key >= n immediately */
+    TEST_ASSERT_FALSE(syn_p256_sign_ecdsa_deterministic(zero_key, h_small, r1, s1));
+    TEST_ASSERT_FALSE(syn_p256_sign_ecdsa_deterministic(ORDER_N, h_small, r1, s1));
+
+    /* P256-3: RFC 6979 bits2octets reduces h_large = n + 5 to 5 before HMAC-DRBG init */
+    TEST_ASSERT_TRUE(syn_p256_base_mul(PRIV, pub_x, pub_y));
+    TEST_ASSERT_TRUE(syn_p256_sign_ecdsa_deterministic(PRIV, h_small, r1, s1));
+    TEST_ASSERT_TRUE(syn_p256_sign_ecdsa_deterministic(PRIV, h_large, r2, s2));
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(r1, r2, 32);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(s1, s2, 32);
+    TEST_ASSERT_TRUE(syn_p256_verify_ecdsa(h_large, r2, s2, pub_x, pub_y));
+
+    /* P256-1a: constant-time scalar mul with leading/internal zero nibbles */
+    uint8_t ka[32] = {0};
+    uint8_t kb[32] = {0};
+    uint8_t kab[32] = {0};
+    uint8_t qa_x[32];
+    uint8_t qa_y[32];
+    uint8_t lhs_x[32];
+    uint8_t lhs_y[32];
+    uint8_t rhs_x[32];
+    uint8_t rhs_y[32];
+
+    ka[30] = 0x10U;
+    ka[31] = 0x03U; /* 0x1003 = 4099 */
+    kb[31] = 0x07U; /* 7 */
+    kab[30] = 0x70U;
+    kab[31] = 0x15U; /* 4099 * 7 = 28693 = 0x7015 */
+
+    TEST_ASSERT_TRUE(syn_p256_base_mul(ka, qa_x, qa_y));
+    TEST_ASSERT_TRUE(syn_p256_point_mul(kb, qa_x, qa_y, lhs_x, lhs_y));
+    TEST_ASSERT_TRUE(syn_p256_base_mul(kab, rhs_x, rhs_y));
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(rhs_x, lhs_x, 32);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(rhs_y, lhs_y, 32);
+
+    /* Coincident finite point addition P == Q during ECDSA verify (u1 = u2 = 1, Q = G) */
+    uint8_t d_one[32] = {0};
+    uint8_t k_two[32] = {0};
+    uint8_t gx[32];
+    uint8_t gy[32];
+    uint8_t two_gx[32];
+    uint8_t two_gy[32];
+    d_one[31] = 0x01U;
+    k_two[31] = 0x02U;
+    TEST_ASSERT_TRUE(syn_p256_base_mul(d_one, gx, gy));
+    TEST_ASSERT_TRUE(syn_p256_base_mul(k_two, two_gx, two_gy));
+    TEST_ASSERT_TRUE(syn_p256_sign_ecdsa(d_one, k_two, two_gx, r1, s1));
+    TEST_ASSERT_TRUE(syn_p256_verify_ecdsa(two_gx, r1, s1, gx, gy));
+
+    /* Failed ECDH wipes output buffer */
+    uint8_t secret[32];
+    memset(secret, 0xAAU, sizeof(secret));
+    TEST_ASSERT_FALSE(syn_p256_ecdh(zero_key, pub_x, pub_y, secret));
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(zero_key, secret, 32);
+}
+
 void run_p256_tests(void)
 {
     RUN_TEST(test_p256_base_mul_and_curve_validation);
     RUN_TEST(test_p256_ecdh_rfc5903_test_vector);
     RUN_TEST(test_p256_ecdsa_verify_rfc6979_test_vectors);
+    RUN_TEST(test_tier_a_p256_ct_and_rfc6979_bounds);
 }

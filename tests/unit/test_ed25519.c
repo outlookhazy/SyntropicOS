@@ -198,6 +198,57 @@ void test_ed25519_null_and_bounds_checks(void)
     TEST_ASSERT_FALSE(syn_ed25519_verify(valid_sig, large_msg, sizeof(large_msg), valid_pk));
 }
 
+void test_tier_a_ed25519_rfc8032_canonical_checks(void)
+{
+    static const uint8_t SK[32] = {0x9d, 0x61, 0xb1, 0x9d, 0xef, 0xfd, 0x5a, 0x60, 0xba, 0x84, 0x4a,
+                                   0xf4, 0x92, 0xec, 0x2c, 0xc4, 0x44, 0x49, 0xc5, 0x69, 0x7b, 0x32,
+                                   0x69, 0x19, 0x70, 0x3b, 0xac, 0x03, 0x1c, 0xae, 0x7f, 0x60};
+    static const uint8_t L_LO0[8] = {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58};
+    static const uint8_t L_LO1[8] = {0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14};
+
+    uint8_t pk[32];
+    uint8_t sig[64];
+    uint8_t h_zero[64] = {0};
+    TEST_ASSERT_TRUE(syn_ed25519_publickey(SK, pk));
+    TEST_ASSERT_TRUE(syn_ed25519_sign(NULL, 0U, SK, pk, sig));
+
+    /* Direct verify_hash null guards */
+    TEST_ASSERT_FALSE(syn_ed25519_verify_hash(NULL, h_zero, pk));
+    TEST_ASSERT_FALSE(syn_ed25519_verify_hash(sig, NULL, pk));
+    TEST_ASSERT_FALSE(syn_ed25519_verify_hash(sig, h_zero, NULL));
+
+    /* ED25519-1: S == L (top 3 bits are 0 since 0x10 < 0x20, previously bypassed bitmask check) */
+    uint8_t bad_sig[64];
+    memcpy(bad_sig, sig, sizeof(bad_sig));
+    memset(bad_sig + 32, 0, 32U);
+    memcpy(bad_sig + 32, L_LO0, 8U);
+    memcpy(bad_sig + 40, L_LO1, 8U);
+    bad_sig[63] = 0x10U;
+    TEST_ASSERT_FALSE(syn_ed25519_verify(bad_sig, NULL, 0U, pk));
+
+    /* S == L - 1 is canonical (reaches curve equation check and fails mismatch) */
+    bad_sig[32] = 0xECU;
+    TEST_ASSERT_FALSE(syn_ed25519_verify(bad_sig, NULL, 0U, pk));
+
+    /* ED25519-1: non-canonical public key y == p (2^255 - 19) must be rejected */
+    uint8_t y_eq_p_pk[32];
+    memset(y_eq_p_pk, 0xFFU, sizeof(y_eq_p_pk));
+    y_eq_p_pk[0] = 0xEDU;
+    y_eq_p_pk[31] = 0x7FU;
+    TEST_ASSERT_FALSE(syn_ed25519_verify(sig, NULL, 0U, y_eq_p_pk));
+
+    /* ED25519-1: negative zero (y == 1 -> x == 0 with sign bit 0x80) must be rejected */
+    uint8_t neg_zero_pk[32] = {0};
+    neg_zero_pk[0] = 0x01U;
+    neg_zero_pk[31] = 0x80U;
+    TEST_ASSERT_FALSE(syn_ed25519_verify(sig, NULL, 0U, neg_zero_pk));
+
+    /* Canonical identity point (y == 1 -> x == 0 with sign bit 0x00) decodes cleanly */
+    uint8_t pos_zero_pk[32] = {0};
+    pos_zero_pk[0] = 0x01U;
+    TEST_ASSERT_FALSE(syn_ed25519_verify(sig, NULL, 0U, pos_zero_pk));
+}
+
 void run_ed25519_tests(void)
 {
     RUN_TEST(test_ed25519_rfc8032_test_vector_1);
@@ -205,4 +256,5 @@ void run_ed25519_tests(void)
     RUN_TEST(test_ed25519_rfc8032_test_vector_3);
     RUN_TEST(test_ed25519_create_keypair_and_roundtrip);
     RUN_TEST(test_ed25519_null_and_bounds_checks);
+    RUN_TEST(test_tier_a_ed25519_rfc8032_canonical_checks);
 }

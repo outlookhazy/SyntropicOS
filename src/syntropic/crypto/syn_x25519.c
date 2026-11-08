@@ -21,6 +21,19 @@
 
 #include <string.h>
 
+/**
+ * @brief Zeroize sensitive stack buffers without compiler dead-store elimination.
+ * @param v Buffer pointer.
+ * @param n Number of bytes to zeroize.
+ */
+static void syn_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
+
 /** @brief Field element (GF(2^255 - 19)) represented by 16 × 16-bit limbs. */
 typedef int64_t gf[16];
 
@@ -91,6 +104,8 @@ static void pack25519(uint8_t o[32], const gf n)
     for (i = 0; i < 16; i++) {
         syn_poke_u16_le((uint16_t)t[i], o, 2 * i);
     }
+    syn_secure_zero(m, sizeof(m));
+    syn_secure_zero(t, sizeof(t));
 }
 
 /** @brief Deserialise 32 bytes into a GF element.
@@ -172,24 +187,36 @@ static void inv25519(gf o, const gf a)
     /* Compute a^(p-2) = a^(2^255 - 21) via repeated squaring */
     for (i = 253; i >= 0; i--) {
         S(c, c);
-        if (i != 2 && i != 4)
+        if (i != 2 && i != 4) {
             M(c, c, a);
+        }
     }
     memcpy(o, c, sizeof(gf));
+    syn_secure_zero(c, sizeof(c));
 }
 
 /* ── X25519 scalar multiplication (Montgomery ladder) ───────────────── */
 
 void syn_x25519(uint8_t shared_out[32], const uint8_t scalar[32], const uint8_t point[32])
 {
+    if (shared_out == NULL || scalar == NULL || point == NULL) {
+        return;
+    }
+
     uint8_t z[32];
-    gf x, a, b, c, d, e, f;
+    gf x;
+    gf a;
+    gf b;
+    gf c;
+    gf d;
+    gf e;
+    gf f;
     int64_t r;
     int i;
 
     memcpy(z, scalar, 32);
-    z[31] = (z[31] & 127) | 64;
-    z[0] &= 248;
+    z[31] = (uint8_t)((z[31] & 127U) | 64U);
+    z[0] &= 248U;
 
     unpack25519(x, point);
 
@@ -226,6 +253,15 @@ void syn_x25519(uint8_t shared_out[32], const uint8_t scalar[32], const uint8_t 
     inv25519(c, c);
     M(a, a, c);
     pack25519(shared_out, a);
+
+    syn_secure_zero(z, sizeof(z));
+    syn_secure_zero(x, sizeof(x));
+    syn_secure_zero(a, sizeof(a));
+    syn_secure_zero(b, sizeof(b));
+    syn_secure_zero(c, sizeof(c));
+    syn_secure_zero(d, sizeof(d));
+    syn_secure_zero(e, sizeof(e));
+    syn_secure_zero(f, sizeof(f));
 }
 
 void syn_x25519_pubkey(uint8_t public_out[32], const uint8_t private_key[32])

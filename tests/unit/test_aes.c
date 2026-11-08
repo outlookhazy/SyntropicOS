@@ -707,6 +707,58 @@ void test_aes_ccm_nist_vectors(void)
                       syn_aes_ccm_decrypt(&ctx, nonce1, 13, NULL, 0, ct, 70000U, tag, 16, pt));
 }
 
+void test_tier_a_aes_bounds_and_cbc_zeroize(void)
+{
+    const uint8_t key[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    const uint8_t iv[16] = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    const uint8_t nonce7[7] = {1, 2, 3, 4, 5, 6, 7};
+    const uint8_t nonce12[12] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    const uint8_t aad[8] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x11, 0x22};
+    uint8_t msg[20];
+    uint8_t ct[32] = {0};
+    uint8_t pt[32] = {0};
+    uint8_t zero[32] = {0};
+    uint8_t tag[16] = {0};
+    size_t out_len = 0U;
+
+    memset(msg, 0x5AU, sizeof(msg));
+
+    SYN_AES_Context ctx;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_init(&ctx, key, sizeof(key)));
+
+    /* AES-1 & AES-2: 7-byte CCM nonce (L = 8, shifts 0..56 bits without 32-bit UB) */
+    SYN_Status st = syn_aes_ccm_encrypt(&ctx, nonce7, 7U, aad, 8U, msg, 20U, ct, tag, 16U);
+    TEST_ASSERT_EQUAL(SYN_OK, st);
+    st = syn_aes_ccm_decrypt(&ctx, nonce7, 7U, aad, 8U, ct, 20U, tag, 16U, pt);
+    TEST_ASSERT_EQUAL(SYN_OK, st);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(msg, pt, 20U);
+
+    /* AES-2: 12-byte CCM nonce (L = 3) rejects payload >= 2^24 */
+    st = syn_aes_ccm_encrypt(&ctx, nonce12, 12U, NULL, 0U, msg, 0x1000000U, ct, tag, 16U);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+    st = syn_aes_ccm_decrypt(&ctx, nonce12, 12U, NULL, 0U, ct, 0x1000000U, tag, 16U, pt);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+
+    /* AES-3: CBC encrypt rejects in_len > SIZE_MAX - 16U without size_t wraparound */
+    st = syn_aes_cbc_encrypt(&ctx, iv, msg, SIZE_MAX, ct, SIZE_MAX, &out_len);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+    st = syn_aes_cbc_encrypt(&ctx, iv, msg, SIZE_MAX - 15U, ct, SIZE_MAX, &out_len);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+
+    /* AES-4: CBC decrypt wipes unauthenticated plaintext across all blocks on bad pad */
+    st = syn_aes_cbc_encrypt(&ctx, iv, msg, 20U, ct, sizeof(ct), &out_len);
+    TEST_ASSERT_EQUAL(SYN_OK, st);
+    TEST_ASSERT_EQUAL_size_t(32U, out_len);
+
+    uint8_t bad_ct[32];
+    memcpy(bad_ct, ct, 32U);
+    bad_ct[15] ^= 0x01U; /* Corrupt block 0 byte 15 -> flips plaintext pad byte 31 */
+    memset(pt, 0xAA, sizeof(pt));
+    st = syn_aes_cbc_decrypt(&ctx, iv, bad_ct, 32U, pt, sizeof(pt), &out_len);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(zero, pt, 32U);
+}
+
 void run_aes_tests(void)
 {
     RUN_TEST(test_aes_ecb_nist_vectors);
@@ -716,4 +768,5 @@ void run_aes_tests(void)
     RUN_TEST(test_aes_ccm_nist_vectors);
     RUN_TEST(test_aes_param_validation);
     RUN_TEST(test_aes_port_and_ghash_functions);
+    RUN_TEST(test_tier_a_aes_bounds_and_cbc_zeroize);
 }

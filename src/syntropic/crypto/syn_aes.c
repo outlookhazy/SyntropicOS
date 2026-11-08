@@ -368,7 +368,7 @@ SYN_Status syn_aes_cbc_encrypt(const SYN_AES_Context *ctx, const uint8_t iv[SYN_
                                size_t *out_len)
 {
     if (ctx == NULL || iv == NULL || (in == NULL && in_len > 0U) || out == NULL ||
-        out_len == NULL) {
+        out_len == NULL || in_len > (SIZE_MAX - 16U)) {
         return SYN_INVALID_PARAM;
     }
 
@@ -386,7 +386,7 @@ SYN_Status syn_aes_cbc_encrypt(const SYN_AES_Context *ctx, const uint8_t iv[SYN_
     size_t offset = 0U;
 
     while (offset < total_len) {
-        if (offset + 16U <= in_len) {
+        if ((in_len - offset) >= 16U) {
             memcpy(block, in + offset, 16);
         } else {
             size_t remaining = in_len - offset;
@@ -439,16 +439,19 @@ SYN_Status syn_aes_cbc_decrypt(const SYN_AES_Context *ctx, const uint8_t iv[SYN_
     syn_secure_zero(current_iv, sizeof(current_iv));
     syn_secure_zero(block, sizeof(block));
 
-    /* PKCS#7 Unpadding validation */
+    /* Constant-time PKCS#7 unpadding validation over the final 16-byte block */
     uint8_t pad_val = out[in_len - 1U];
-    if (pad_val == 0U || pad_val > 16U || (size_t)pad_val > in_len) {
-        return SYN_INVALID_PARAM;
+    uint8_t bad = (uint8_t)(((uint32_t)pad_val - 1U) & 0xF0U);
+
+    for (size_t i = 0U; i < 16U; i++) {
+        uint32_t need_pad = ((uint32_t)(15U - i) - (uint32_t)pad_val) >> 31U;
+        uint8_t mask = (uint8_t)(0U - need_pad);
+        bad |= (uint8_t)((out[in_len - 16U + i] ^ pad_val) & mask);
     }
 
-    for (size_t i = in_len - (size_t)pad_val; i < in_len; i++) {
-        if (out[i] != pad_val) {
-            return SYN_INVALID_PARAM;
-        }
+    if (bad != 0U) {
+        syn_secure_zero(out, in_len);
+        return SYN_INVALID_PARAM;
     }
 
     *out_len = in_len - (size_t)pad_val;
@@ -680,14 +683,44 @@ static void gcm_compute_j0(const SYN_AES_GCM_Context *ctx, const uint8_t *nonce,
     }
 }
 
+/**
+ * @brief Validate AES-GCM encrypt/decrypt parameters and NIST SP 800-38D length bounds.
+ * @param ctx GCM context.
+ * @param nonce Initialization vector buffer.
+ * @param nonce_len Nonce length in bytes.
+ * @param aad Additional authenticated data buffer.
+ * @param aad_len AAD length in bytes.
+ * @param in Input payload buffer.
+ * @param in_len Input payload length in bytes.
+ * @param out Output payload buffer.
+ * @param tag Authentication tag buffer.
+ * @return true if all parameters are valid, false otherwise.
+ */
+static bool gcm_params_valid(const SYN_AES_GCM_Context *ctx, const uint8_t *nonce, size_t nonce_len,
+                             const uint8_t *aad, size_t aad_len, const uint8_t *in, size_t in_len,
+                             const uint8_t *out, const uint8_t *tag)
+{
+    if (ctx == NULL || nonce == NULL || nonce_len == 0U || tag == NULL) {
+        return false;
+    }
+    if ((aad == NULL && aad_len > 0U) || (in == NULL && in_len > 0U) ||
+        (out == NULL && in_len > 0U)) {
+        return false;
+    }
+#if (SIZE_MAX > 0xFFFFFFFFU)
+    if ((uint64_t)in_len > 0xFFFFFFFE0ULL) {
+        return false; /* LCOV_EXCL_LINE */
+    }
+#endif
+    return true;
+}
+
 SYN_Status syn_aes_gcm_encrypt(const SYN_AES_GCM_Context *ctx, const uint8_t *nonce,
                                size_t nonce_len, const uint8_t *aad, size_t aad_len,
                                const uint8_t *in, size_t in_len, uint8_t *out,
                                uint8_t tag[SYN_AES_GCM_TAG_SIZE])
 {
-    if (ctx == NULL || (nonce == NULL && nonce_len > 0U) || nonce_len == 0U ||
-        (aad == NULL && aad_len > 0U) || (in == NULL && in_len > 0U) ||
-        (out == NULL && in_len > 0U) || tag == NULL) {
+    if (!gcm_params_valid(ctx, nonce, nonce_len, aad, aad_len, in, in_len, out, tag)) {
         return SYN_INVALID_PARAM;
     }
 
@@ -751,9 +784,7 @@ SYN_Status syn_aes_gcm_decrypt(const SYN_AES_GCM_Context *ctx, const uint8_t *no
                                const uint8_t *in, size_t in_len, uint8_t *out,
                                const uint8_t tag[SYN_AES_GCM_TAG_SIZE])
 {
-    if (ctx == NULL || (nonce == NULL && nonce_len > 0U) || nonce_len == 0U ||
-        (aad == NULL && aad_len > 0U) || (in == NULL && in_len > 0U) ||
-        (out == NULL && in_len > 0U) || tag == NULL) {
+    if (!gcm_params_valid(ctx, nonce, nonce_len, aad, aad_len, in, in_len, out, tag)) {
         return SYN_INVALID_PARAM;
     }
 
@@ -923,7 +954,7 @@ static SYN_Status ccm_compute_mac(const SYN_AES_Context *ctx, const uint8_t *non
     b0[0] = flags;
     memcpy(b0 + 1, nonce, nonce_len);
     for (size_t i = 0U; i < L; i++) {
-        b0[15U - i] = (uint8_t)((data_len >> (8U * i)) & 0xFFU);
+        b0[15U - i] = (uint8_t)(((uint64_t)data_len >> (8U * i)) & 0xFFU);
     }
 
     syn_aes_encrypt_block(ctx, b0, mac);
@@ -964,23 +995,71 @@ static SYN_Status ccm_compute_mac(const SYN_AES_Context *ctx, const uint8_t *non
     return SYN_OK;
 }
 
+/**
+ * @brief Validate AES-CCM nonce, tag, AAD, and payload length bounds (RFC 3610).
+ * @param nonce_len Nonce length in bytes.
+ * @param aad_len Associated data length in bytes.
+ * @param in_len Payload length in bytes.
+ * @param tag_len Tag length in bytes.
+ * @return true if lengths are within specification limits, false otherwise.
+ */
+static bool ccm_lengths_valid(size_t nonce_len, size_t aad_len, size_t in_len, size_t tag_len)
+{
+    if (nonce_len < 7U || nonce_len > 13U || tag_len < 4U || tag_len > 16U ||
+        (tag_len % 2U) != 0U) {
+        return false;
+    }
+#if (SIZE_MAX > 0xFFFFFFFFU)
+    if ((uint64_t)aad_len >= 0x100000000ULL) {
+        return false; /* LCOV_EXCL_LINE */
+    }
+#else
+    (void)aad_len;
+#endif
+    size_t L = 15U - nonce_len;
+    if (L < 8U && (uint64_t)in_len >= (1ULL << (8U * L))) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * @brief Validate AES-CCM encrypt/decrypt pointer and length parameters.
+ * @param ctx AES context.
+ * @param nonce Nonce buffer.
+ * @param nonce_len Nonce length in bytes.
+ * @param aad Associated data buffer.
+ * @param aad_len Associated data length in bytes.
+ * @param in Input payload buffer.
+ * @param in_len Input payload length in bytes.
+ * @param out Output payload buffer.
+ * @param tag Authentication tag buffer.
+ * @param tag_len Authentication tag length in bytes.
+ * @return true if all parameters are valid, false otherwise.
+ */
+static bool ccm_params_valid(const SYN_AES_Context *ctx, const uint8_t *nonce, size_t nonce_len,
+                             const uint8_t *aad, size_t aad_len, const uint8_t *in, size_t in_len,
+                             const uint8_t *out, const uint8_t *tag, size_t tag_len)
+{
+    if (ctx == NULL || nonce == NULL || tag == NULL ||
+        !ccm_lengths_valid(nonce_len, aad_len, in_len, tag_len)) {
+        return false;
+    }
+    if ((in_len > 0U && (in == NULL || out == NULL)) || (aad_len > 0U && aad == NULL)) {
+        return false;
+    }
+    return true;
+}
+
 SYN_Status syn_aes_ccm_encrypt(const SYN_AES_Context *ctx, const uint8_t *nonce, size_t nonce_len,
                                const uint8_t *aad, size_t aad_len, const uint8_t *in, size_t in_len,
                                uint8_t *out, uint8_t *tag, size_t tag_len)
 {
-    if (ctx == NULL || nonce == NULL || tag == NULL || nonce_len < 7U || nonce_len > 13U ||
-        tag_len < 4U || tag_len > 16U || (tag_len % 2U) != 0U ||
-        (in_len > 0U && (in == NULL || out == NULL)) || (aad_len > 0U && aad == NULL)) {
+    if (!ccm_params_valid(ctx, nonce, nonce_len, aad, aad_len, in, in_len, out, tag, tag_len)) {
         return SYN_INVALID_PARAM;
     }
 
     size_t L = 15U - nonce_len;
-    if (L < 4U) {
-        uint64_t max_len = (1ULL << (8U * L)) - 1ULL;
-        if ((uint64_t)in_len > max_len) {
-            return SYN_INVALID_PARAM;
-        }
-    }
 
     /* 1. Compute CBC-MAC */
     uint8_t mac[16];
@@ -1022,19 +1101,11 @@ SYN_Status syn_aes_ccm_decrypt(const SYN_AES_Context *ctx, const uint8_t *nonce,
                                const uint8_t *aad, size_t aad_len, const uint8_t *in, size_t in_len,
                                const uint8_t *tag, size_t tag_len, uint8_t *out)
 {
-    if (ctx == NULL || nonce == NULL || tag == NULL || nonce_len < 7U || nonce_len > 13U ||
-        tag_len < 4U || tag_len > 16U || (tag_len % 2U) != 0U ||
-        (in_len > 0U && (in == NULL || out == NULL)) || (aad_len > 0U && aad == NULL)) {
+    if (!ccm_params_valid(ctx, nonce, nonce_len, aad, aad_len, in, in_len, out, tag, tag_len)) {
         return SYN_INVALID_PARAM;
     }
 
     size_t L = 15U - nonce_len;
-    if (L < 4U) {
-        uint64_t max_len = (1ULL << (8U * L)) - 1ULL;
-        if ((uint64_t)in_len > max_len) {
-            return SYN_INVALID_PARAM;
-        }
-    }
 
     /* 1. Compute S0 and unmask expected tag T */
     uint8_t a0[16];

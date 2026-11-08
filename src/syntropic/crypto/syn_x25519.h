@@ -43,9 +43,12 @@ extern "C" {
  * @brief X25519 scalar multiplication.
  *
  * Computes shared = scalar * point on Curve25519.
+ * Callers invoking syn_x25519() directly in Diffie-Hellman protocols MUST
+ * verify in constant time that shared_out is not all-zero (RFC 7748 Section 6.1)
+ * to reject low-order input points.
  *
  * @param shared_out  Output: 32-byte shared secret.
- * @param scalar      32-byte private scalar (should be clamped).
+ * @param scalar      32-byte private scalar (clamped internally per RFC 7748).
  * @param point       32-byte public point (peer's public key).
  */
 void syn_x25519(uint8_t shared_out[32], const uint8_t scalar[32], const uint8_t point[32]);

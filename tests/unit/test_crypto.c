@@ -668,6 +668,54 @@ static void test_r5_n14_blake2s_keyed_bounds_and_null_guards(void)
     TEST_ASSERT_EQUAL_HEX8(0x5AU, out[0]);
 }
 
+static void test_tier_a_chacha_x25519_blake2s_guards(void)
+{
+    uint8_t key[32];
+    uint8_t nonce[12] = {0};
+    uint8_t out64[64];
+    uint8_t in65[65];
+    uint8_t out65[65];
+    uint8_t out32[32];
+
+    memset(key, 0x33U, sizeof(key));
+    memset(out64, 0x5AU, sizeof(out64));
+    memset(in65, 0x11U, sizeof(in65));
+    memset(out65, 0xA5U, sizeof(out65));
+    memset(out32, 0x77U, sizeof(out32));
+
+    /* CHACHA-1: NULL guards on syn_chacha20_block and syn_chacha20_xor */
+    syn_chacha20_block(NULL, nonce, 0U, out64);
+    syn_chacha20_block(key, NULL, 0U, out64);
+    syn_chacha20_block(key, nonce, 0U, NULL);
+    TEST_ASSERT_EQUAL_HEX8(0x5AU, out64[0]);
+
+    syn_chacha20_xor(NULL, nonce, 0U, in65, 16U, out65);
+    syn_chacha20_xor(key, NULL, 0U, in65, 16U, out65);
+    syn_chacha20_xor(key, nonce, 0U, NULL, 16U, out65);
+    syn_chacha20_xor(key, nonce, 0U, in65, 16U, NULL);
+    syn_chacha20_xor(key, nonce, 0U, NULL, 0U, NULL);
+    TEST_ASSERT_EQUAL_HEX8(0xA5U, out65[0]);
+
+    /* CHACHA-1: 32-bit block counter wraparound guard */
+    syn_chacha20_xor(key, nonce, UINT32_MAX, in65, 64U, out65);
+    TEST_ASSERT_NOT_EQUAL(0xA5U, out65[0]);
+    memset(out65, 0xA5U, sizeof(out65));
+    syn_chacha20_xor(key, nonce, UINT32_MAX, in65, 65U, out65);
+    TEST_ASSERT_EQUAL_HEX8(0xA5U, out65[0]);
+
+    /* X25519-1: NULL pointer guards */
+    syn_x25519(NULL, key, key);
+    syn_x25519(out32, NULL, key);
+    syn_x25519(out32, key, NULL);
+    syn_x25519_pubkey(NULL, key);
+    syn_x25519_pubkey(out32, NULL);
+    TEST_ASSERT_EQUAL_HEX8(0x77U, out32[0]);
+
+    /* HASH-1: HMAC-BLAKE2s with NULL empty key (UBSan memcpy guard) */
+    syn_hmac_blake2s(NULL, 0U, "test", 4U, out32);
+    TEST_ASSERT_NOT_EQUAL(0x77U, out32[0]);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
  *  Test group runner
  * ═══════════════════════════════════════════════════════════════════════════ */
@@ -713,4 +761,5 @@ void run_crypto_tests(void)
     RUN_TEST(test_x25519_shared_secret_symmetry);
     RUN_TEST(test_x25519_identity);
     RUN_TEST(test_x25519_low_order);
+    RUN_TEST(test_tier_a_chacha_x25519_blake2s_guards);
 }

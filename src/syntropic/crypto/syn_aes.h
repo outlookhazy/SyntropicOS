@@ -2,8 +2,10 @@
  * @file syn_aes.h
  * @brief Unified AES cipher engine (128/192/256-bit keys, ECB, CBC, CTR, and GCM AEAD).
  *
- * Zero-heap, constant-time implementation supporting AES-128, AES-192, and AES-256
- * with configurable compile-time memory footprint guardrails.
+ * Zero-heap implementation supporting AES-128, AES-192, and AES-256 with configurable
+ * compile-time memory footprint guardrails. Software rounds use 256-byte S-box tables
+ * (constant-time on single-cycle SRAM/Flash MCUs without data caches; enable
+ * SYN_USE_PORT_AES hardware acceleration on cores with D-cache).
  * @ingroup syn_crypto
  */
 
@@ -68,10 +70,10 @@ extern "C" {
 
 #ifndef SYN_AES_GCM_TABLE
 /**
- * @brief GCM GHASH acceleration table strategy.
- * 0 = bit-by-bit Shoup (0 bytes table, low footprint),
- * 4 = 4-bit nibble table (256 bytes per GCM context),
- * 8 = 8-bit byte table (4096 bytes per GCM context).
+ * @brief GCM GHASH acceleration table reservation knob.
+ * 0 = bit-by-bit GHASH (0 bytes table, default),
+ * 4 = reserve 4-bit nibble table (256 bytes per GCM context; unused by software GHASH),
+ * 8 = reserve 8-bit byte table (4096 bytes per GCM context; unused by software GHASH).
  */
 #define SYN_AES_GCM_TABLE 0
 #endif
@@ -197,9 +199,9 @@ typedef struct {
     SYN_AES_Context aes;           /**< Base AES cipher context */
     uint8_t h[SYN_AES_BLOCK_SIZE]; /**< GHASH subkey H = AES(K, 0) */
 #if (SYN_AES_GCM_TABLE == 4)
-    uint8_t htable[16][SYN_AES_BLOCK_SIZE]; /**< 4-bit GHASH lookup table (256 bytes) */
+    uint8_t htable[16][SYN_AES_BLOCK_SIZE]; /**< Reserved 4-bit GHASH table (unused in SW) */
 #elif (SYN_AES_GCM_TABLE == 8)
-    uint8_t htable[256][SYN_AES_BLOCK_SIZE]; /**< 8-bit GHASH lookup table (4096 bytes) */
+    uint8_t htable[256][SYN_AES_BLOCK_SIZE]; /**< Reserved 8-bit GHASH table (unused in SW) */
 #endif
 } SYN_AES_GCM_Context;
 
@@ -236,7 +238,7 @@ SYN_Status syn_aes_gcm_encrypt(const SYN_AES_GCM_Context *ctx, const uint8_t *no
  * @brief AES-GCM authenticated decryption and tag verification (NIST SP 800-38D).
  *
  * Decrypts ciphertext and verifies the authentication tag in constant time.
- * If authentication fails, plaintext output is zeroed and SYN_AUTH_FAILED is returned.
+ * If authentication fails, plaintext output is zeroed (when out != in) and SYN_ERROR is returned.
  *
  * @param[in]  ctx       Initialized AES-GCM context.
  * @param[in]  nonce     Initialization vector / nonce buffer.

@@ -812,10 +812,81 @@ void test_r5_n02_tpm2_bounds_and_quote_signatures(void)
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_quote(&ctx, 0x81010001U, NULL, 0U, 0x01U, &quote));
 }
 
+void test_tier_a_tpm2_bounds_and_clamping(void)
+{
+    SYN_TPM2_Context ctx;
+    SYN_TPM2_Config cfg = {
+        .transport = &s_tpm_transport,
+        .rx_buf = s_tpm_rx,
+        .rx_buf_size = sizeof(s_tpm_rx),
+        .tx_buf = s_tpm_tx,
+        .tx_buf_size = sizeof(s_tpm_tx),
+    };
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tpm2_init(&ctx, &cfg));
+
+    /* 1. Reject param_size < 10U in response header even when rx_len >= 10U */
+    set_mock_tpm_success_header(9U);
+    s_tpm_rx_mock_len = 10U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_startup(&ctx, SYN_TPM2_SU_CLEAR));
+
+    /* 2. Clamp *out_resp_len to param_size when transport returns trailing FIFO bytes */
+    set_mock_tpm_success_header(16U);
+    s_tpm_rx_mock[10] = 0x00U;
+    s_tpm_rx_mock[11] = 0x08U;
+    (void)memset(&s_tpm_rx_mock[12], 0x5AU, 20U);
+    s_tpm_rx_mock_len = 32U;
+    uint8_t rand_buf[8];
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_get_random(&ctx, 8U, rand_buf, NULL));
+
+    set_mock_tpm_success_header(20U);
+    s_tpm_rx_mock[10] = 0x00U;
+    s_tpm_rx_mock[11] = 0x08U;
+    s_tpm_rx_mock_len = 32U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tpm2_get_random(&ctx, 8U, rand_buf, NULL));
+
+    /* 3. PCR_Read selection alg u16 boundary under clamped param_size == 18U */
+    uint8_t digest[32];
+    size_t dlen = 0U;
+    set_mock_tpm_success_header(18U);
+    s_tpm_rx_mock[13] = 1U;
+    s_tpm_rx_mock[17] = 1U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tpm2_pcr_read(&ctx, 0U, SYN_TPM2_ALG_SHA256, digest, &dlen));
+
+    /* 4. Prevent size_t wraparound in tpm2_write_bytes on SIZE_MAX digest_len */
+    TEST_ASSERT_EQUAL(SYN_ERROR,
+                      syn_tpm2_pcr_extend(&ctx, 0U, SYN_TPM2_ALG_SHA256, digest, SIZE_MAX));
+
+    /* 5. Quote qualifying_data length cap (<= 64U) */
+    SYN_TPM2_QuoteResult quote;
+    uint8_t qual[65];
+    (void)memset(qual, 0x42U, sizeof(qual));
+    set_mock_tpm_success_header(10U + 4U + (2U + 4U) + (2U + 2U + 2U + 4U));
+    size_t p = 10U;
+    s_tpm_rx_mock[p++] = 0U;
+    s_tpm_rx_mock[p++] = 0U;
+    s_tpm_rx_mock[p++] = 0U;
+    s_tpm_rx_mock[p++] = 16U;
+    s_tpm_rx_mock[p++] = 0x00U;
+    s_tpm_rx_mock[p++] = 0x04U;
+    p += 4U;
+    s_tpm_rx_mock[p++] = 0x00U;
+    s_tpm_rx_mock[p++] = 0x14U;
+    s_tpm_rx_mock[p++] = 0x00U;
+    s_tpm_rx_mock[p++] = 0x0BU;
+    s_tpm_rx_mock[p++] = 0x00U;
+    s_tpm_rx_mock[p++] = 0x04U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tpm2_quote(&ctx, 0x81010001U, qual, 64U, 0x01U, &quote));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_tpm2_quote(&ctx, 0x81010001U, qual, 65U, 0x01U, &quote));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_tpm2_quote(&ctx, 0x81010001U, qual, 0x10004U, 0x01U, &quote));
+}
+
 void run_tpm2_tests(void)
 {
     RUN_TEST(test_tpm2_init_and_lifecycle);
     RUN_TEST(test_tpm2_random_and_pcr);
     RUN_TEST(test_tpm2_quote_and_nvram);
     RUN_TEST(test_r5_n02_tpm2_bounds_and_quote_signatures);
+    RUN_TEST(test_tier_a_tpm2_bounds_and_clamping);
 }

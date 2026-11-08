@@ -260,6 +260,43 @@ void test_hkdf_sha384_sha512_null_and_bounds_checks(void)
     TEST_ASSERT_TRUE(syn_hkdf_sha512_expand_label(okm512, 64, "label", 5, NULL, 10, okm512, 64));
 }
 
+void test_tier_a_hkdf_expand_label_max_and_wraparound(void)
+{
+    uint8_t secret[64];
+    char max_label[249];
+    uint8_t max_ctx[255];
+    uint8_t out[64];
+    size_t ml = sizeof(max_label);
+    size_t mc = sizeof(max_ctx);
+
+    memset(secret, 0x42, sizeof(secret));
+    memset(max_label, 'x', sizeof(max_label));
+    memset(max_ctx, 0xAB, sizeof(max_ctx));
+
+    /* HKDF-1: Maximum valid HkdfLabel (2 + 1 + 255 + 1 + 255 = 514 B) must not overflow stack */
+    TEST_ASSERT_TRUE(syn_hkdf_expand_label(secret, 32U, max_label, ml, max_ctx, mc, out, 32U));
+    bool ok384 = syn_hkdf_sha384_expand_label(secret, 48U, max_label, ml, max_ctx, mc, out, 48U);
+    TEST_ASSERT_TRUE(ok384);
+    bool ok512 = syn_hkdf_sha512_expand_label(secret, 64U, max_label, ml, max_ctx, mc, out, 64U);
+    TEST_ASSERT_TRUE(ok512);
+
+    /* HKDF-1: Reject out_len > 0xFFFFU before uint16 truncation */
+    TEST_ASSERT_FALSE(syn_hkdf_expand_label(secret, 32U, "key", 3U, NULL, 0U, out, 0x10000U));
+    ok384 = syn_hkdf_sha384_expand_label(secret, 48U, "key", 3U, NULL, 0U, out, 0x10000U);
+    TEST_ASSERT_FALSE(ok384);
+    ok512 = syn_hkdf_sha512_expand_label(secret, 64U, "key", 3U, NULL, 0U, out, 0x10000U);
+    TEST_ASSERT_FALSE(ok512);
+
+    /* HKDF-2: Reject label_len near SIZE_MAX without size_t wraparound */
+    TEST_ASSERT_FALSE(syn_hkdf_expand_label(secret, 32U, "key", SIZE_MAX, NULL, 0U, out, 32U));
+    bool ok256 = syn_hkdf_expand_label(secret, 32U, "key", SIZE_MAX - 5U, NULL, 0U, out, 32U);
+    TEST_ASSERT_FALSE(ok256);
+    ok384 = syn_hkdf_sha384_expand_label(secret, 48U, "key", SIZE_MAX, NULL, 0U, out, 48U);
+    TEST_ASSERT_FALSE(ok384);
+    ok512 = syn_hkdf_sha512_expand_label(secret, 64U, "key", SIZE_MAX, NULL, 0U, out, 64U);
+    TEST_ASSERT_FALSE(ok512);
+}
+
 void run_hkdf_tests(void)
 {
     RUN_TEST(test_hkdf_rfc5869_case_1);
@@ -269,4 +306,5 @@ void run_hkdf_tests(void)
     RUN_TEST(test_hkdf_sha384_rfc5869_and_expand_label);
     RUN_TEST(test_hkdf_sha512_rfc5869_and_expand_label);
     RUN_TEST(test_hkdf_sha384_sha512_null_and_bounds_checks);
+    RUN_TEST(test_tier_a_hkdf_expand_label_max_and_wraparound);
 }

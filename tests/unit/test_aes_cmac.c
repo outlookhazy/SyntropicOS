@@ -108,6 +108,22 @@ static void test_aes_cmac_tamper_and_null_checks(void)
     TEST_ASSERT_FALSE(syn_aes_cmac_verify(wrong_key, g_rfc4493_msg, 64, mac));
 }
 
+static void test_tier_a_aes_cmac_block_boundaries(void)
+{
+    uint8_t mac1[16] = {0};
+    uint8_t mac15[16] = {0};
+    uint8_t mac17[16] = {0};
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_cmac(g_rfc4493_key, g_rfc4493_msg, 1U, mac1));
+    TEST_ASSERT_TRUE(syn_aes_cmac_verify(g_rfc4493_key, g_rfc4493_msg, 1U, mac1));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_cmac(g_rfc4493_key, g_rfc4493_msg, 15U, mac15));
+    TEST_ASSERT_TRUE(syn_aes_cmac_verify(g_rfc4493_key, g_rfc4493_msg, 15U, mac15));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_cmac(g_rfc4493_key, g_rfc4493_msg, 17U, mac17));
+    TEST_ASSERT_TRUE(syn_aes_cmac_verify(g_rfc4493_key, g_rfc4493_msg, 17U, mac17));
+}
+
 void run_aes_cmac_tests(void)
 {
     RUN_TEST(test_aes_cmac_rfc4493_example1_len0);
@@ -115,4 +131,5 @@ void run_aes_cmac_tests(void)
     RUN_TEST(test_aes_cmac_rfc4493_example3_len40);
     RUN_TEST(test_aes_cmac_rfc4493_example4_len64);
     RUN_TEST(test_aes_cmac_tamper_and_null_checks);
+    RUN_TEST(test_tier_a_aes_cmac_block_boundaries);
 }

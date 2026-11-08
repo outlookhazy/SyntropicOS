@@ -161,7 +161,12 @@ static void chacha20_init(uint32_t state[16], const uint8_t key[32], const uint8
 void syn_chacha20_block(const uint8_t key[32], const uint8_t nonce[12], uint32_t counter,
                         uint8_t out[64])
 {
-    uint32_t state[16], block[16];
+    if (key == NULL || nonce == NULL || out == NULL) {
+        return;
+    }
+
+    uint32_t state[16];
+    uint32_t block[16];
     int i;
 
     chacha20_init(state, key, nonce, counter);
@@ -177,24 +182,37 @@ void syn_chacha20_block(const uint8_t key[32], const uint8_t nonce[12], uint32_t
 void syn_chacha20_xor(const uint8_t key[32], const uint8_t nonce[12], uint32_t counter,
                       const uint8_t *in, size_t len, uint8_t *out)
 {
-    uint32_t state[16], block[16];
+    if (key == NULL || nonce == NULL || (len > 0U && (in == NULL || out == NULL))) {
+        return;
+    }
+
+    if (len == 0U) {
+        return;
+    }
+
+    if (((uint64_t)(len - 1U) / 64ULL) > (uint64_t)(UINT32_MAX - counter)) {
+        return;
+    }
+
+    uint32_t state[16];
+    uint32_t block[16];
     uint8_t keystream[64];
     size_t i;
 
     chacha20_init(state, key, nonce, counter);
 
-    while (len > 0) {
+    while (len > 0U) {
         chacha20_block_core(block, state);
 
         /* Serialize keystream */
-        for (i = 0; i < 16; i++) {
-            store32_le(keystream + i * 4, block[i]);
+        for (i = 0U; i < 16U; i++) {
+            store32_le(keystream + i * 4U, block[i]);
         }
 
         /* XOR up to 64 bytes */
-        size_t chunk = len < 64 ? len : 64;
-        for (i = 0; i < chunk; i++) {
-            out[i] = in[i] ^ keystream[i];
+        size_t chunk = (len < 64U) ? len : 64U;
+        for (i = 0U; i < chunk; i++) {
+            out[i] = (uint8_t)(in[i] ^ keystream[i]);
         }
 
         in += chunk;
@@ -423,24 +441,26 @@ static void aead_mac(const uint8_t poly_key[32], const uint8_t *aad, size_t aad_
     poly1305_init(&poly, poly_key);
 
     /* AAD */
-    if (aad_len > 0) {
-        poly1305_blocks(&poly, aad, aad_len & ~15UL, 1UL << 24);
-        if (aad_len & 15) {
+    if (aad_len > 0U) {
+        poly1305_blocks(&poly, aad, aad_len & ~(size_t)15U, 1UL << 24U);
+        if ((aad_len & 15U) != 0U) {
             uint8_t tmp[16];
             memset(tmp, 0, 16);
-            memcpy(tmp, aad + (aad_len & ~15UL), aad_len & 15);
-            poly1305_blocks(&poly, tmp, 16, 1UL << 24);
+            memcpy(tmp, aad + (aad_len & ~(size_t)15U), aad_len & 15U);
+            poly1305_blocks(&poly, tmp, 16U, 1UL << 24U);
+            syn_secure_zero(tmp, sizeof(tmp));
         }
     }
 
     /* Ciphertext */
-    if (ct_len > 0) {
-        poly1305_blocks(&poly, ct, ct_len & ~15UL, 1UL << 24);
-        if (ct_len & 15) {
+    if (ct_len > 0U) {
+        poly1305_blocks(&poly, ct, ct_len & ~(size_t)15U, 1UL << 24U);
+        if ((ct_len & 15U) != 0U) {
             uint8_t tmp[16];
             memset(tmp, 0, 16);
-            memcpy(tmp, ct + (ct_len & ~15UL), ct_len & 15);
-            poly1305_blocks(&poly, tmp, 16, 1UL << 24);
+            memcpy(tmp, ct + (ct_len & ~(size_t)15U), ct_len & 15U);
+            poly1305_blocks(&poly, tmp, 16U, 1UL << 24U);
+            syn_secure_zero(tmp, sizeof(tmp));
         }
     }
 

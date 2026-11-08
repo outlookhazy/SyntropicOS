@@ -12,6 +12,55 @@
 #include <string.h>
 
 /**
+ * @brief Zeroize sensitive stack buffers without compiler dead-store elimination.
+ *
+ * @param v Buffer pointer.
+ * @param n Number of bytes to zeroize.
+ */
+static void syn_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
+
+/**
+ * @brief Execute one HMAC-DRBG K/V derivation round with stack-context zeroization.
+ *
+ * @param ctx Pointer to DRBG context.
+ * @param sep Domain separator byte (0x00 or 0x01).
+ * @param c1  First chunk of provided data (or NULL).
+ * @param l1  Length of first chunk.
+ * @param c2  Second chunk of provided data (or NULL).
+ * @param l2  Length of second chunk.
+ * @param c3  Third chunk of provided data (or NULL).
+ * @param l3  Length of third chunk.
+ */
+static void drbg_hmac_round(SYN_HMAC_DRBG *ctx, uint8_t sep, const uint8_t *c1, size_t l1,
+                            const uint8_t *c2, size_t l2, const uint8_t *c3, size_t l3)
+{
+    SYN_HMAC_SHA256 hmac;
+
+    syn_hmac_sha256_init(&hmac, ctx->k, sizeof(ctx->k));
+    syn_hmac_sha256_update(&hmac, ctx->v, sizeof(ctx->v));
+    syn_hmac_sha256_update(&hmac, &sep, 1U);
+    if (c1 != NULL && l1 > 0U) {
+        syn_hmac_sha256_update(&hmac, c1, l1);
+    }
+    if (c2 != NULL && l2 > 0U) {
+        syn_hmac_sha256_update(&hmac, c2, l2);
+    }
+    if (c3 != NULL && l3 > 0U) {
+        syn_hmac_sha256_update(&hmac, c3, l3);
+    }
+    syn_hmac_sha256_final(&hmac, ctx->k);
+    syn_secure_zero(&hmac, sizeof(hmac));
+
+    syn_hmac_sha256(ctx->k, sizeof(ctx->k), ctx->v, sizeof(ctx->v), ctx->v);
+}
+
+/**
  * @brief Internal HMAC-DRBG state update function per NIST SP 800-90A Rev 1 Section 10.1.2.2.
  *
  * @param ctx Pointer to DRBG context.
@@ -26,49 +75,11 @@ static void drbg_update(SYN_HMAC_DRBG *ctx, const uint8_t *c1, size_t l1, const 
                         size_t l2, const uint8_t *c3, size_t l3)
 {
     bool has_data = (c1 != NULL && l1 > 0U) || (c2 != NULL && l2 > 0U) || (c3 != NULL && l3 > 0U);
-    SYN_HMAC_SHA256 hmac;
 
-    /* Step 1: K = HMAC(K, V || 0x00 || provided_data) */
-    syn_hmac_sha256_init(&hmac, ctx->k, sizeof(ctx->k));
-    syn_hmac_sha256_update(&hmac, ctx->v, sizeof(ctx->v));
-    const uint8_t sep0 = 0x00U;
-    syn_hmac_sha256_update(&hmac, &sep0, 1U);
-    if (c1 != NULL && l1 > 0U) {
-        syn_hmac_sha256_update(&hmac, c1, l1);
+    drbg_hmac_round(ctx, 0x00U, c1, l1, c2, l2, c3, l3);
+    if (has_data) {
+        drbg_hmac_round(ctx, 0x01U, c1, l1, c2, l2, c3, l3);
     }
-    if (c2 != NULL && l2 > 0U) {
-        syn_hmac_sha256_update(&hmac, c2, l2);
-    }
-    if (c3 != NULL && l3 > 0U) {
-        syn_hmac_sha256_update(&hmac, c3, l3);
-    }
-    syn_hmac_sha256_final(&hmac, ctx->k);
-
-    /* Step 2: V = HMAC(K, V) */
-    syn_hmac_sha256(ctx->k, sizeof(ctx->k), ctx->v, sizeof(ctx->v), ctx->v);
-
-    if (!has_data) {
-        return;
-    }
-
-    /* Step 4: K = HMAC(K, V || 0x01 || provided_data) */
-    syn_hmac_sha256_init(&hmac, ctx->k, sizeof(ctx->k));
-    syn_hmac_sha256_update(&hmac, ctx->v, sizeof(ctx->v));
-    const uint8_t sep1 = 0x01U;
-    syn_hmac_sha256_update(&hmac, &sep1, 1U);
-    if (c1 != NULL && l1 > 0U) {
-        syn_hmac_sha256_update(&hmac, c1, l1);
-    }
-    if (c2 != NULL && l2 > 0U) {
-        syn_hmac_sha256_update(&hmac, c2, l2);
-    }
-    if (c3 != NULL && l3 > 0U) {
-        syn_hmac_sha256_update(&hmac, c3, l3);
-    }
-    syn_hmac_sha256_final(&hmac, ctx->k);
-
-    /* Step 5: V = HMAC(K, V) */
-    syn_hmac_sha256(ctx->k, sizeof(ctx->k), ctx->v, sizeof(ctx->v), ctx->v);
 }
 
 SYN_Status syn_hmac_drbg_init(SYN_HMAC_DRBG *ctx, const uint8_t *entropy, size_t ent_len,
@@ -159,7 +170,7 @@ SYN_Status syn_hmac_drbg_generate_pr(SYN_HMAC_DRBG *ctx, uint8_t *out, size_t ou
 void syn_hmac_drbg_set_reseed_interval(SYN_HMAC_DRBG *ctx, uint32_t interval)
 {
     if (ctx != NULL && interval > 0U) {
-        ctx->reseed_interval = interval;
+        ctx->reseed_interval = (interval == UINT32_MAX) ? (UINT32_MAX - 1U) : interval;
     }
 }
 

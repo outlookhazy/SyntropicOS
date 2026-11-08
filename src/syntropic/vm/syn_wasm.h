@@ -86,9 +86,9 @@ typedef struct SYN_WASM_Context_s SYN_WASM_Context;
 /**
  * @brief Host function signature callable from Wasm bytecode.
  * @param ctx Pointer to Wasm execution context.
- * @param args Array of 32-bit arguments passed from Wasm stack.
+ * @param args Array of 64-bit operand stack slots passed as arguments (32-bit types in low bits).
  * @param argc Number of arguments.
- * @return 32-bit return value (pushed onto Wasm stack).
+ * @return 64-bit return value pushed onto Wasm stack when result_count > 0 (ignored if void).
  */
 typedef uint64_t (*SYN_WASM_HostFunc)(SYN_WASM_Context *ctx, const uint64_t *args, uint8_t argc);
 
@@ -234,7 +234,7 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions);
 /**
  * @brief Read top of evaluation stack result after HALTED.
  * @param ctx Pointer to context.
- * @return 32-bit return value.
+ * @return 64-bit top-of-stack return value (32-bit Wasm types occupy low 32 bits).
  */
 uint64_t syn_wasm_result(const SYN_WASM_Context *ctx);
 

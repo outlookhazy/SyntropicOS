@@ -1067,6 +1067,331 @@ void test_r5_n03_n04_asn1_der_and_x509_constraints_ecdsa_der(void)
     TEST_ASSERT_FALSE(syn_x509_parse(trailing_ver_der, sizeof(trailing_ver_der), &ca_parsed));
 }
 
+typedef struct {
+    int ver;
+    const uint8_t *subj;
+    size_t subj_len;
+    const uint8_t *opt;
+    size_t opt_len;
+} TierACertSpec;
+
+static size_t tier_a_wrap_tlv(uint8_t tag, const uint8_t *body, size_t len, uint8_t *out)
+{
+    size_t p = 0U;
+    out[p++] = tag;
+    if (len < 128U) {
+        out[p++] = (uint8_t)len;
+    } else if (len < 256U) {
+        out[p++] = 0x81U;
+        out[p++] = (uint8_t)len;
+    } else {
+        out[p++] = 0x82U;
+        out[p++] = (uint8_t)(len >> 8U);
+        out[p++] = (uint8_t)(len & 0xFFU);
+    }
+    if (len > 0U) {
+        (void)memcpy(&out[p], body, len);
+    }
+    return p + len;
+}
+
+static size_t tier_a_make_cn_ava(const uint8_t *cn, size_t cn_len, uint8_t *out)
+{
+    uint8_t str_tlv[200];
+    uint8_t ava_body[216];
+    ava_body[0] = 0x06U;
+    ava_body[1] = 0x03U;
+    ava_body[2] = 0x55U;
+    ava_body[3] = 0x04U;
+    ava_body[4] = 0x03U;
+    size_t s_len = tier_a_wrap_tlv(0x0CU, cn, cn_len, str_tlv);
+    (void)memcpy(&ava_body[5], str_tlv, s_len);
+    return tier_a_wrap_tlv(0x30U, ava_body, 5U + s_len, out);
+}
+
+static size_t tier_a_append(uint8_t *dst, size_t off, const uint8_t *src, size_t len)
+{
+    (void)memcpy(&dst[off], src, len);
+    return off + len;
+}
+
+static size_t tier_a_make_cert(const TierACertSpec *sp, uint8_t *out)
+{
+    static const uint8_t fh1[] = {0x02, 0x01, 0x01, 0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70};
+    static const uint8_t fh2[] = {0x30, 0x00, 0x30, 0x00};
+    static const uint8_t spki1[] = {0x30, 0x0A, 0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70};
+    static const uint8_t spki2[] = {0x03, 0x01, 0x00};
+    static const uint8_t ot1[] = {0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70};
+    static const uint8_t ot2[] = {0x03, 0x02, 0x00, 0xAA};
+    uint8_t tbs_body[384];
+    size_t tp = 0U;
+    if (sp->ver >= 0) {
+        uint8_t vtlv[5] = {0xA0U, 0x03U, 0x02U, 0x01U, (uint8_t)sp->ver};
+        tp = tier_a_append(tbs_body, tp, vtlv, sizeof(vtlv));
+    }
+    tp = tier_a_append(tbs_body, tp, fh1, sizeof(fh1));
+    tp = tier_a_append(tbs_body, tp, fh2, sizeof(fh2));
+    tp = tier_a_append(tbs_body, tp, sp->subj, sp->subj_len);
+    tp = tier_a_append(tbs_body, tp, spki1, sizeof(spki1));
+    tp = tier_a_append(tbs_body, tp, spki2, sizeof(spki2));
+    if (sp->opt != NULL && sp->opt_len > 0U) {
+        tp = tier_a_append(tbs_body, tp, sp->opt, sp->opt_len);
+    }
+
+    uint8_t cert_body[420];
+    size_t cp = tier_a_wrap_tlv(0x30U, tbs_body, tp, cert_body);
+    cp = tier_a_append(cert_body, cp, ot1, sizeof(ot1));
+    cp = tier_a_append(cert_body, cp, ot2, sizeof(ot2));
+    return tier_a_wrap_tlv(0x30U, cert_body, cp, out);
+}
+
+static size_t tier_a_wrap_exts(const uint8_t *exts_payload, size_t payload_len, uint8_t *out)
+{
+    uint8_t seq[96];
+    size_t slen = tier_a_wrap_tlv(0x30U, exts_payload, payload_len, seq);
+    return tier_a_wrap_tlv(0xA3U, seq, slen, out);
+}
+
+void test_tier_a_asn1_x509_strict_checks(void)
+{
+    SYN_ASN1_Element elem;
+    const uint8_t *p_out = NULL;
+    size_t len_out = 0U;
+
+    /* ASN1-1: Negative & non-minimal DER INTEGERs vs canonical zero */
+    static const uint8_t neg_int[] = {0x02, 0x01, 0x80};
+    static const uint8_t nonmin_int[] = {0x02, 0x02, 0x00, 0x7F};
+    static const uint8_t zero_int[] = {0x02, 0x01, 0x00};
+    TEST_ASSERT_TRUE(syn_asn1_parse_element(neg_int, sizeof(neg_int), &elem));
+    TEST_ASSERT_FALSE(syn_asn1_get_integer(&elem, &p_out, &len_out));
+    TEST_ASSERT_TRUE(syn_asn1_parse_element(nonmin_int, sizeof(nonmin_int), &elem));
+    TEST_ASSERT_FALSE(syn_asn1_get_integer(&elem, &p_out, &len_out));
+    TEST_ASSERT_TRUE(syn_asn1_parse_element(zero_int, sizeof(zero_int), &elem));
+    TEST_ASSERT_TRUE(syn_asn1_get_integer(&elem, &p_out, &len_out));
+    TEST_ASSERT_EQUAL(1U, len_out);
+    TEST_ASSERT_EQUAL_HEX8(0x00U, p_out[0]);
+
+    /* ASN1-1: BIT STRING non-zero unused padding bits & (len - 1) > SIZE_MAX / 8 overflow */
+    static const uint8_t bs_bad_pad[] = {0x03, 0x02, 0x03, 0x04};
+    static const uint8_t bs_ok_pad[] = {0x03, 0x02, 0x03, 0x08};
+    TEST_ASSERT_TRUE(syn_asn1_parse_element(bs_bad_pad, sizeof(bs_bad_pad), &elem));
+    TEST_ASSERT_FALSE(syn_asn1_get_bit_string(&elem, &p_out, &len_out));
+    TEST_ASSERT_TRUE(syn_asn1_parse_element(bs_ok_pad, sizeof(bs_ok_pad), &elem));
+    TEST_ASSERT_TRUE(syn_asn1_get_bit_string(&elem, &p_out, &len_out));
+    TEST_ASSERT_EQUAL(5U, len_out);
+
+    uint8_t dummy_bs[2] = {0x00U, 0x00U};
+    SYN_ASN1_Element huge_bs = {0};
+    huge_bs.tag = SYN_ASN1_TAG_BIT_STRING;
+    huge_bs.length = (SIZE_MAX / 8U) + 2U;
+    huge_bs.value = dummy_bs;
+    TEST_ASSERT_FALSE(syn_asn1_get_bit_string(&huge_bs, &p_out, &len_out));
+
+    /* ASN1-1: Trailing outer byte & trailing element inside Certificate SEQUENCE */
+    static const uint8_t empty_subj[] = {0x30, 0x00};
+    TierACertSpec spec = {2, empty_subj, sizeof(empty_subj), NULL, 0U};
+    uint8_t der[512];
+    SYN_X509_Cert cert;
+    size_t dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_TRUE(syn_x509_parse(der, dlen, &cert));
+    der[dlen] = 0x00U;
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen + 1U, &cert));
+
+    /* Canonical non-byte-aligned outer signature BIT STRING (unused_bits = 3, pad bits = 0) */
+    der[dlen - 2U] = 0x03U;
+    der[dlen - 1U] = 0xA8U;
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    /* Extra element inside outer Certificate SEQUENCE (cert_len != 0) */
+    uint8_t extra_outer[512];
+    size_t e_len = tier_a_make_cert(&spec, extra_outer);
+    extra_outer[1] = (uint8_t)(extra_outer[1] + 2U);
+    extra_outer[e_len] = 0x05U;
+    extra_outer[e_len + 1U] = 0x00U;
+    TEST_ASSERT_FALSE(syn_x509_parse(extra_outer, e_len + 2U, &cert));
+
+    /* X509-1: Multi-valued RDN SET { C="US", CN="multi.io" } */
+    static const uint8_t c1[] = {0x30, 0x09, 0x06, 0x03, 0x55, 0x04, 0x06, 0x13, 0x02, 'U', 'S'};
+    uint8_t cn_ava[220];
+    uint8_t rdn_body[256];
+    uint8_t rdn_set[264];
+    uint8_t subj_seq[272];
+    size_t cn_ava_len = tier_a_make_cn_ava((const uint8_t *)"multi.io", 8U, cn_ava);
+    (void)memcpy(rdn_body, c1, sizeof(c1));
+    (void)memcpy(&rdn_body[sizeof(c1)], cn_ava, cn_ava_len);
+    size_t rset_len = tier_a_wrap_tlv(0x31U, rdn_body, sizeof(c1) + cn_ava_len, rdn_set);
+    size_t sseq_len = tier_a_wrap_tlv(0x30U, rdn_set, rset_len, subj_seq);
+    spec.subj = subj_seq;
+    spec.subj_len = sseq_len;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_TRUE(syn_x509_parse(der, dlen, &cert));
+    TEST_ASSERT_EQUAL_STRING("multi.io", cert.subject_cn);
+
+    /* X509-1: Embedded NUL inside CN must fail */
+    static const uint8_t nul_cn[] = {'g', 'o', 'o', 'd', '\0', 'b', 'a', 'd'};
+    cn_ava_len = tier_a_make_cn_ava(nul_cn, sizeof(nul_cn), cn_ava);
+    rset_len = tier_a_wrap_tlv(0x31U, cn_ava, cn_ava_len, rdn_set);
+    sseq_len = tier_a_wrap_tlv(0x30U, rdn_set, rset_len, subj_seq);
+    spec.subj = subj_seq;
+    spec.subj_len = sseq_len;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    /* X509-1: 127-byte CN accepted; 128-byte CN (>= SYN_X509_MAX_NAME_LEN) rejected */
+    uint8_t long_cn[128];
+    (void)memset(long_cn, 'A', sizeof(long_cn));
+    cn_ava_len = tier_a_make_cn_ava(long_cn, 127U, cn_ava);
+    rset_len = tier_a_wrap_tlv(0x31U, cn_ava, cn_ava_len, rdn_set);
+    sseq_len = tier_a_wrap_tlv(0x30U, rdn_set, rset_len, subj_seq);
+    spec.subj = subj_seq;
+    spec.subj_len = sseq_len;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_TRUE(syn_x509_parse(der, dlen, &cert));
+    TEST_ASSERT_EQUAL(127U, strlen(cert.subject_cn));
+
+    cn_ava_len = tier_a_make_cn_ava(long_cn, 128U, cn_ava);
+    rset_len = tier_a_wrap_tlv(0x31U, cn_ava, cn_ava_len, rdn_set);
+    sseq_len = tier_a_wrap_tlv(0x30U, rdn_set, rset_len, subj_seq);
+    spec.subj = subj_seq;
+    spec.subj_len = sseq_len;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    /* X509-1: Identical duplicate CN accepted; conflicting duplicate CN rejected */
+    uint8_t cn_ava2[64];
+    size_t a1 = tier_a_make_cn_ava((const uint8_t *)"same.io", 7U, cn_ava);
+    size_t a2 = tier_a_make_cn_ava((const uint8_t *)"same.io", 7U, cn_ava2);
+    size_t s1 = tier_a_wrap_tlv(0x31U, cn_ava, a1, rdn_body);
+    size_t s2 = tier_a_wrap_tlv(0x31U, cn_ava2, a2, &rdn_body[s1]);
+    sseq_len = tier_a_wrap_tlv(0x30U, rdn_body, s1 + s2, subj_seq);
+    spec.subj = subj_seq;
+    spec.subj_len = sseq_len;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_TRUE(syn_x509_parse(der, dlen, &cert));
+    TEST_ASSERT_EQUAL_STRING("same.io", cert.subject_cn);
+
+    a2 = tier_a_make_cn_ava((const uint8_t *)"evil.io", 7U, cn_ava2);
+    s2 = tier_a_wrap_tlv(0x31U, cn_ava2, a2, &rdn_body[s1]);
+    sseq_len = tier_a_wrap_tlv(0x30U, rdn_body, s1 + s2, subj_seq);
+    spec.subj = subj_seq;
+    spec.subj_len = sseq_len;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    /* X509-1: Non-SEQUENCE Name, non-SEQUENCE AVA, empty RDN SET, & trailing element in AVA */
+    static const uint8_t bad_name_tag[] = {0x31, 0x00};
+    spec.subj = bad_name_tag;
+    spec.subj_len = sizeof(bad_name_tag);
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    static const uint8_t bad_ava_tag[] = {0x30, 0x04, 0x31, 0x02, 0x05, 0x00};
+    spec.subj = bad_ava_tag;
+    spec.subj_len = sizeof(bad_ava_tag);
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    static const uint8_t empty_set_subj[] = {0x30, 0x02, 0x31, 0x00};
+    spec.subj = empty_set_subj;
+    spec.subj_len = sizeof(empty_set_subj);
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    a1 = tier_a_make_cn_ava((const uint8_t *)"a", 1U, cn_ava);
+    cn_ava[1] = (uint8_t)(cn_ava[1] + 2U);
+    cn_ava[a1] = 0x05U;
+    cn_ava[a1 + 1U] = 0x00U;
+    rset_len = tier_a_wrap_tlv(0x31U, cn_ava, a1 + 2U, rdn_set);
+    sseq_len = tier_a_wrap_tlv(0x30U, rdn_set, rset_len, subj_seq);
+    spec.subj = subj_seq;
+    spec.subj_len = sseq_len;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    /* X509-3: v1 & v2 certs with [3] Extensions rejected; v2 without extensions accepted */
+    static const uint8_t bc_oid[] = {0x06, 0x03, 0x55, 0x1D, 0x13};
+    static const uint8_t bc_vt[] = {0x04, 0x05, 0x30, 0x03, 0x01, 0x01, 0xFF};
+    static const uint8_t bc_vf[] = {0x04, 0x02, 0x30, 0x00};
+    uint8_t bc_t_inner[16];
+    uint8_t bc_f_inner[16];
+    uint8_t bc_t_ext[24];
+    uint8_t bc_f_ext[24];
+    uint8_t bc_true_opt[32];
+    (void)memcpy(bc_t_inner, bc_oid, sizeof(bc_oid));
+    (void)memcpy(&bc_t_inner[sizeof(bc_oid)], bc_vt, sizeof(bc_vt));
+    (void)memcpy(bc_f_inner, bc_oid, sizeof(bc_oid));
+    (void)memcpy(&bc_f_inner[sizeof(bc_oid)], bc_vf, sizeof(bc_vf));
+    size_t bct_len = tier_a_wrap_tlv(0x30U, bc_t_inner, 12U, bc_t_ext);
+    size_t bcf_len = tier_a_wrap_tlv(0x30U, bc_f_inner, 9U, bc_f_ext);
+    size_t bct_opt_len = tier_a_wrap_exts(bc_t_ext, bct_len, bc_true_opt);
+    spec.subj = empty_subj;
+    spec.subj_len = sizeof(empty_subj);
+    spec.ver = -1;
+    spec.opt = bc_true_opt;
+    spec.opt_len = bct_opt_len;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    spec.ver = 1;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    spec.opt = NULL;
+    spec.opt_len = 0U;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_TRUE(syn_x509_parse(der, dlen, &cert));
+    TEST_ASSERT_EQUAL(2U, cert.version);
+
+    /* X509-3: Duplicate BasicConstraints OID & duplicate [3] container & empty Extensions */
+    uint8_t dup_exts[48];
+    uint8_t dup_bc_opt[64];
+    (void)memcpy(dup_exts, bc_t_ext, bct_len);
+    (void)memcpy(&dup_exts[bct_len], bc_f_ext, bcf_len);
+    size_t dup_opt_len = tier_a_wrap_exts(dup_exts, bct_len + bcf_len, dup_bc_opt);
+    spec.ver = 2;
+    spec.opt = dup_bc_opt;
+    spec.opt_len = dup_opt_len;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    uint8_t two_ext_blocks[64];
+    (void)memcpy(two_ext_blocks, bc_true_opt, bct_opt_len);
+    (void)memcpy(&two_ext_blocks[bct_opt_len], bc_true_opt, bct_opt_len);
+    spec.opt = two_ext_blocks;
+    spec.opt_len = bct_opt_len * 2U;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    static const uint8_t empty_exts_opt[] = {0xA3, 0x02, 0x30, 0x00};
+    spec.opt = empty_exts_opt;
+    spec.opt_len = sizeof(empty_exts_opt);
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    /* X509-3: Non-canonical BER BOOLEAN (0x01) in BasicConstraints cA and critical field */
+    uint8_t ber_bool_opt[32];
+    (void)memcpy(ber_bool_opt, bc_true_opt, bct_opt_len);
+    ber_bool_opt[bct_opt_len - 1U] = 0x01U;
+    spec.opt = ber_bool_opt;
+    spec.opt_len = bct_opt_len;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+
+    static const uint8_t crit_hdr[] = {0x06, 0x03, 0x55, 0x1D, 0x13, 0x01, 0x01, 0x01};
+    static const uint8_t crit_val[] = {0x04, 0x02, 0x30, 0x00};
+    uint8_t crit_body[16];
+    uint8_t crit_ext[24];
+    uint8_t ber_crit_opt[32];
+    (void)memcpy(crit_body, crit_hdr, sizeof(crit_hdr));
+    (void)memcpy(&crit_body[sizeof(crit_hdr)], crit_val, sizeof(crit_val));
+    size_t ce_len = tier_a_wrap_tlv(0x30U, crit_body, sizeof(crit_body), crit_ext);
+    size_t co_len = tier_a_wrap_exts(crit_ext, ce_len, ber_crit_opt);
+    spec.opt = ber_crit_opt;
+    spec.opt_len = co_len;
+    dlen = tier_a_make_cert(&spec, der);
+    TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
+}
+
 void run_asn1_x509_tests(void)
 {
     RUN_TEST(test_asn1_basic_tlv_parse);
@@ -1078,4 +1403,5 @@ void run_asn1_x509_tests(void)
     RUN_TEST(test_x509_parse_ecdsa_cert);
     RUN_TEST(test_x509_edge_cases_and_corrupt_structures);
     RUN_TEST(test_r5_n03_n04_asn1_der_and_x509_constraints_ecdsa_der);
+    RUN_TEST(test_tier_a_asn1_x509_strict_checks);
 }

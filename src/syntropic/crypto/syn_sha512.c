@@ -12,6 +12,14 @@
 
 /** @cond INTERNAL */
 
+static void syn_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
+
 /* ── 80-Round Constants (FIPS 180-4 Section 4.2.3) ───────────────────────── */
 
 static const uint64_t K512[80] = {
@@ -279,6 +287,9 @@ void syn_hmac_sha512_init(SYN_HMAC_SHA512 *ctx, const void *key, size_t key_len)
 
     syn_sha512_init(&ctx->inner);
     syn_sha512_update(&ctx->inner, i_pad, sizeof(i_pad));
+
+    syn_secure_zero(k_buf, sizeof(k_buf));
+    syn_secure_zero(i_pad, sizeof(i_pad));
 }
 
 void syn_hmac_sha512_update(SYN_HMAC_SHA512 *ctx, const void *data, size_t len)
@@ -303,6 +314,10 @@ void syn_hmac_sha512_final(SYN_HMAC_SHA512 *ctx, uint8_t mac[SYN_SHA512_DIGEST_S
     syn_sha512_update(&outer, ctx->o_key_pad, sizeof(ctx->o_key_pad));
     syn_sha512_update(&outer, inner_hash, sizeof(inner_hash));
     syn_sha512_final(&outer, mac);
+
+    syn_secure_zero(inner_hash, sizeof(inner_hash));
+    syn_secure_zero(&outer, sizeof(outer));
+    syn_secure_zero(ctx, sizeof(*ctx));
 }
 
 void syn_hmac_sha384_init(SYN_HMAC_SHA384 *ctx, const void *key, size_t key_len)
@@ -328,6 +343,9 @@ void syn_hmac_sha384_init(SYN_HMAC_SHA384 *ctx, const void *key, size_t key_len)
 
     syn_sha384_init(&ctx->inner);
     syn_sha512_update(&ctx->inner, i_pad, sizeof(i_pad));
+
+    syn_secure_zero(k_buf, sizeof(k_buf));
+    syn_secure_zero(i_pad, sizeof(i_pad));
 }
 
 void syn_hmac_sha384_update(SYN_HMAC_SHA384 *ctx, const void *data, size_t len)
@@ -352,6 +370,10 @@ void syn_hmac_sha384_final(SYN_HMAC_SHA384 *ctx, uint8_t mac[SYN_SHA384_DIGEST_S
     syn_sha512_update(&outer, ctx->o_key_pad, sizeof(ctx->o_key_pad));
     syn_sha512_update(&outer, inner_hash, sizeof(inner_hash));
     syn_sha384_final(&outer, mac);
+
+    syn_secure_zero(inner_hash, sizeof(inner_hash));
+    syn_secure_zero(&outer, sizeof(outer));
+    syn_secure_zero(ctx, sizeof(*ctx));
 }
 
 void syn_hmac_sha512(const void *key, size_t key_len, const void *data, size_t data_len,

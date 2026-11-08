@@ -110,6 +110,19 @@ void syn_blake2s_final(SYN_BLAKE2s *ctx, uint8_t *out);
 /* ── Convenience ────────────────────────────────────────────────────────── */
 
 /**
+ * @brief Zeroize sensitive stack buffers without compiler dead-store elimination.
+ * @param v Buffer pointer.
+ * @param n Number of bytes to zeroize.
+ */
+static inline void syn_blake2s_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
+
+/**
  * @brief One-shot unkeyed BLAKE2s hash.
  *
  * @param data    Data to hash.
@@ -142,6 +155,7 @@ static inline void syn_blake2s_mac(const void *key, size_t keylen, const void *d
     syn_blake2s_init_keyed(&ctx, key, keylen, outlen);
     syn_blake2s_update(&ctx, data, len);
     syn_blake2s_final(&ctx, out);
+    syn_blake2s_secure_zero(&ctx, sizeof(ctx));
 }
 
 /* ── HMAC-BLAKE2s (for HKDF) ───────────────────────────────────────────── */
@@ -173,17 +187,20 @@ static inline void syn_hmac_blake2s_init(SYN_HMAC_BLAKE2s *ctx, const void *key,
 
     if (keylen > SYN_BLAKE2S_BLOCK_SIZE) {
         syn_blake2s(key, keylen, k_buf, SYN_BLAKE2S_MAX_DIGEST);
-    } else {
+    } else if (key != NULL && keylen > 0U) {
         memcpy(k_buf, key, keylen);
     }
 
-    for (i = 0; i < SYN_BLAKE2S_BLOCK_SIZE; i++) {
-        i_key_pad[i] = k_buf[i] ^ 0x36u;
-        ctx->o_key_pad[i] = k_buf[i] ^ 0x5Cu;
+    for (i = 0U; i < SYN_BLAKE2S_BLOCK_SIZE; i++) {
+        i_key_pad[i] = (uint8_t)(k_buf[i] ^ 0x36U);
+        ctx->o_key_pad[i] = (uint8_t)(k_buf[i] ^ 0x5CU);
     }
 
     syn_blake2s_init(&ctx->inner, SYN_BLAKE2S_MAX_DIGEST);
     syn_blake2s_update(&ctx->inner, i_key_pad, SYN_BLAKE2S_BLOCK_SIZE);
+
+    syn_blake2s_secure_zero(k_buf, sizeof(k_buf));
+    syn_blake2s_secure_zero(i_key_pad, sizeof(i_key_pad));
 }
 
 /**
@@ -214,6 +231,10 @@ static inline void syn_hmac_blake2s_final(SYN_HMAC_BLAKE2s *ctx,
     syn_blake2s_update(&outer, ctx->o_key_pad, SYN_BLAKE2S_BLOCK_SIZE);
     syn_blake2s_update(&outer, inner_hash, SYN_BLAKE2S_MAX_DIGEST);
     syn_blake2s_final(&outer, mac);
+
+    syn_blake2s_secure_zero(inner_hash, sizeof(inner_hash));
+    syn_blake2s_secure_zero(&outer, sizeof(outer));
+    syn_blake2s_secure_zero(ctx, sizeof(*ctx));
 }
 
 /**

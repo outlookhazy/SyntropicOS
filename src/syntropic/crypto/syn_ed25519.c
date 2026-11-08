@@ -286,8 +286,28 @@ static void scalarbase(gf p[4], const uint8_t *s)
     syn_secure_zero(q, sizeof(q));
 }
 
+/**
+ * @brief Verify encoded Ed25519 y-coordinate is strictly less than field prime p = 2^255 - 19.
+ * @param p 32-byte encoded Edwards25519 point (little-endian y with sign bit in MSB).
+ * @return true if canonical (y < p), false otherwise.
+ */
+static bool ed25519_y_is_canonical(const uint8_t p[32])
+{
+    uint32_t borrow = (((uint32_t)p[0] - 0xEDU) >> 31U) & 1U;
+    for (uint32_t i = 1U; i < 31U; i++) {
+        uint32_t diff = (uint32_t)p[i] - 0xFFU - borrow;
+        borrow = (diff >> 31U) & 1U;
+    }
+    uint32_t top = ((uint32_t)p[31] & 0x7FU) - 0x7FU - borrow;
+    return (((top >> 31U) & 1U) != 0U);
+}
+
 static int unpackneg(gf r[4], const uint8_t p[32])
 {
+    if (!ed25519_y_is_canonical(p)) {
+        return -1;
+    }
+
     gf t, chk, num, den, den2, den4, den6;
     set25519(r[2], gf1);
     unpack25519(r[1], p);
@@ -320,6 +340,10 @@ static int unpackneg(gf r[4], const uint8_t p[32])
         return -1;
     }
 
+    if (neq25519(r[0], gf0) == 0 && (p[31] & 0x80U) != 0U) {
+        return -1;
+    }
+
     if (par25519(r[0]) == (uint8_t)(p[31] >> 7)) {
         Z(r[0], gf0, r[0]);
     }
@@ -333,6 +357,23 @@ static int unpackneg(gf r[4], const uint8_t p[32])
 static const int64_t ORDER_L[32] = {
     0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0x10};
+
+/**
+ * @brief Verify 32-byte little-endian Ed25519 scalar S is strictly less than group order L.
+ * @param s 32-byte little-endian signature scalar S.
+ * @return true if canonical (S < L), false otherwise.
+ */
+static bool ed25519_scalar_is_canonical(const uint8_t s[32])
+{
+    uint32_t borrow = 0U;
+    for (uint32_t i = 0U; i < 32U; i++) {
+        uint32_t si = (uint32_t)s[i];
+        uint32_t li = (uint32_t)ORDER_L[i];
+        uint32_t diff = si - li - borrow;
+        borrow = (diff >> 31U) & 1U;
+    }
+    return (borrow != 0U);
+}
 
 static void modL(uint8_t *r, int64_t x[64])
 {
@@ -503,7 +544,7 @@ bool syn_ed25519_verify_hash(const uint8_t sig[SYN_ED25519_SIGNATURE_SIZE], cons
         return false;
     }
 
-    if ((sig[63] & 224U) != 0U) {
+    if (!ed25519_scalar_is_canonical(sig + 32)) {
         return false;
     }
 
