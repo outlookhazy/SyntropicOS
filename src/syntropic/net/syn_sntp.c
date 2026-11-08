@@ -50,19 +50,20 @@ void syn_sntp_init(SYN_SNTP *sntp, const SYN_SockAddr *server, uint32_t sync_int
 }
 
 /**
- * @brief Verify that the UDP datagram sender matches the configured server IP when non-zero.
+ * @brief Verify that the UDP datagram sender matches the configured server IP/port when non-zero.
  * @param sntp SNTP client context.
  * @param from Sender socket address reported by recvfrom.
- * @return true if server IP is wildcard (0.0.0.0) or matches sender IP.
+ * @return true if server IP/port are wildcard or match sender address.
  */
 static bool sntp_sender_valid(const SYN_SNTP *sntp, const SYN_SockAddr *from)
 {
+    bool port_ok = (sntp->server.port == 0U) || (from->port == sntp->server.port);
     uint8_t configured = (uint8_t)(sntp->server.ip[0] | sntp->server.ip[1] | sntp->server.ip[2] |
                                    sntp->server.ip[3]);
     if (configured == 0U) {
-        return true;
+        return port_ok;
     }
-    return memcmp(from->ip, sntp->server.ip, 4U) == 0;
+    return port_ok && (memcmp(from->ip, sntp->server.ip, 4U) == 0);
 }
 
 /**
@@ -97,26 +98,29 @@ static SYN_Status sntp_parse_packet(SYN_SNTP *sntp, const uint8_t *pkt)
     uint32_t ntp_s = syn_peek_u32(pkt, 40);
     uint32_t ntp_frac = syn_peek_u32(pkt, 44);
 
-    if (ntp_s < SYN_SNTP_EPOCH_OFFSET)
+    if (ntp_s < SYN_SNTP_EPOCH_OFFSET) {
         return SYN_ERROR;
+    }
 
     uint32_t new_epoch = ntp_s - SYN_SNTP_EPOCH_OFFSET;
     uint32_t new_tick_ms = syn_port_get_tick_ms();
 
-    /* Calculate clock drift in PPM if we have a previous sync baseline */
-    if (sntp->synced && sntp->prev_sync_epoch != 0) {
+    /* Calculate clock drift in PPM if we have a monotonic forward sync baseline */
+    if (sntp->synced && sntp->prev_sync_epoch != 0U && new_epoch > sntp->prev_sync_epoch) {
         uint32_t ntp_elapsed_s = new_epoch - sntp->prev_sync_epoch;
         uint32_t tick_elapsed_ms = new_tick_ms - sntp->prev_sync_tick_ms;
 
-        if (ntp_elapsed_s >= 5) {
+        if (ntp_elapsed_s >= 5U) {
             int64_t expected_ms = (int64_t)ntp_elapsed_s * 1000LL;
             int64_t diff_ms = (int64_t)tick_elapsed_ms - expected_ms;
             int64_t ppm64 = (diff_ms * 1000000LL) / expected_ms;
             /* Clamp to int16_t range before cast to avoid silent wrap */
-            if (ppm64 > 32767)
+            if (ppm64 > 32767) {
                 ppm64 = 32767;
-            if (ppm64 < -32767)
+            }
+            if (ppm64 < -32767) {
                 ppm64 = -32767;
+            }
             int16_t raw_ppm = (int16_t)ppm64;
 
             /* Apply SyntropicOS Exponential Moving Average Filter (SYN_FilterEMA) */
@@ -165,24 +169,51 @@ SYN_Status syn_sntp_query(SYN_SNTP *sntp)
     return sntp_parse_packet(sntp, pkt);
 }
 
+/**
+ * @brief Compute current UTC epoch seconds and nanoseconds including NTP fractional carry.
+ * @param sntp   Synced SNTP client context (non-NULL).
+ * @param out_s  [out] UTC epoch seconds.
+ * @param out_ns [out] Sub-second nanoseconds (0..999999999).
+ */
+static void sntp_compute_time(const SYN_SNTP *sntp, uint32_t *out_s, uint32_t *out_ns)
+{
+    uint32_t elapsed_ms = syn_port_get_tick_ms() - sntp->sync_tick_ms;
+    uint32_t sub_s_ns = (elapsed_ms % 1000U) * 1000000U;
+    uint32_t frac_ns = (uint32_t)(((uint64_t)sntp->epoch_frac * 1000000000ULL) >> 32U);
+    uint32_t total_ns = frac_ns + sub_s_ns;
+    uint32_t carry_s = 0U;
+
+    if (total_ns >= 1000000000U) {
+        carry_s = 1U;
+        total_ns -= 1000000000U;
+    }
+
+    *out_s = sntp->epoch_s + (elapsed_ms / 1000U) + carry_s;
+    *out_ns = total_ns;
+}
+
 uint32_t syn_sntp_get_epoch_s(const SYN_SNTP *sntp)
 {
-    if (!sntp->synced)
-        return 0;
+    if (sntp == NULL || !sntp->synced) {
+        return 0U;
+    }
 
-    uint32_t elapsed_ms = syn_port_get_tick_ms() - sntp->sync_tick_ms;
-    return sntp->epoch_s + (elapsed_ms / 1000u);
+    uint32_t sec = 0U;
+    uint32_t ns = 0U;
+    sntp_compute_time(sntp, &sec, &ns);
+    return sec;
 }
 
 uint32_t syn_sntp_get_epoch_ns(const SYN_SNTP *sntp)
 {
-    if (!sntp->synced)
-        return 0;
+    if (sntp == NULL || !sntp->synced) {
+        return 0U;
+    }
 
-    uint32_t elapsed_ms = syn_port_get_tick_ms() - sntp->sync_tick_ms;
-    uint32_t sub_s_ms = elapsed_ms % 1000u;
-
-    return sub_s_ms * 1000000u; /* ms → ns */
+    uint32_t sec = 0U;
+    uint32_t ns = 0U;
+    sntp_compute_time(sntp, &sec, &ns);
+    return ns;
 }
 
 int32_t syn_sntp_get_drift_ppm(const SYN_SNTP *sntp)

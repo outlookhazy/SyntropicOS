@@ -40,19 +40,22 @@ SYN_Status syn_netbuf_pool_init(SYN_NetBufPool *pool, SYN_NetBuf *bufs, uint8_t 
 
 SYN_NetBuf *syn_netbuf_alloc(SYN_NetBufPool *pool, size_t headroom)
 {
-    if (!pool || !pool->free_list || pool->free_count == 0)
+    if (pool == NULL || pool->free_list == NULL || pool->free_count == 0U) {
         return NULL;
+    }
 
     SYN_NetBuf *b = pool->free_list;
     pool->free_list = b->next_free;
     b->next_free = NULL;
 
-    if (headroom > pool->buf_size)
-        headroom = 0;
+    if (headroom > pool->buf_size) {
+        headroom = 0U;
+    }
 
     b->data = b->head + headroom;
     b->tail = b->data;
-    b->ref_count = 1;
+    b->ref_count = 1U;
+    b->flags = 0U;
     pool->free_count--;
 
     return b;
@@ -60,28 +63,30 @@ SYN_NetBuf *syn_netbuf_alloc(SYN_NetBufPool *pool, size_t headroom)
 
 void syn_netbuf_ref(SYN_NetBuf *buf)
 {
-    if (!buf)
+    if (buf == NULL || buf->ref_count == UINT16_MAX) {
         return;
+    }
     buf->ref_count++;
 }
 
 void syn_netbuf_free(SYN_NetBufPool *pool, SYN_NetBuf *buf)
 {
-    if (!buf || buf->ref_count == 0)
+    if (buf == NULL || buf->ref_count == 0U) {
         return;
-    if (!pool && buf->pool) {
-        pool = (SYN_NetBufPool *)buf->pool;
     }
-    if (!pool)
+    SYN_NetBufPool *owner = (SYN_NetBufPool *)buf->pool;
+    if (owner == NULL || (pool != NULL && pool != owner)) {
         return;
+    }
 
     buf->ref_count--;
-    if (buf->ref_count == 0) {
+    if (buf->ref_count == 0U) {
         buf->data = buf->head;
         buf->tail = buf->head;
-        buf->next_free = pool->free_list;
-        pool->free_list = buf;
-        pool->free_count++;
+        buf->flags = 0U;
+        buf->next_free = owner->free_list;
+        owner->free_list = buf;
+        owner->free_count++;
     }
 }
 

@@ -1866,6 +1866,132 @@ static void test_wg_transport_ip_padding_trim(void)
     TEST_ASSERT_EQUAL_size_t(48U, s_unpad_last_len);
 }
 
+static void test_tier_a_wg_low_order_dh_staged_hs_and_msg_limits(void)
+{
+    mock_port_reset();
+
+    /* 1. NULL guards in syn_wg_is_established and syn_wg_send */
+    uint8_t app_pkt[20] = {0x45U, 0x00U, 0x00U, 0x14U};
+    TEST_ASSERT_FALSE(syn_wg_is_established(NULL));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_wg_send(NULL, app_pkt, sizeof(app_pkt)));
+
+    SYN_SNTP sntp = {0};
+    sntp.synced = true;
+    sntp.epoch_s = 1700001000U;
+    sntp.sync_tick_ms = mock_tick_ms;
+
+    uint8_t resp_s_priv[32];
+    memset(resp_s_priv, 0x42, 32U);
+    syn_x25519_clamp(resp_s_priv);
+
+    SYN_WgConfig cfg = {0};
+    memset(cfg.private_key, 0x41, 32U);
+    syn_x25519_clamp(cfg.private_key);
+    syn_x25519_pubkey(cfg.peer_public_key, resp_s_priv);
+    memset(cfg.preshared_key, 0x49, 32U);
+    cfg.endpoint.ip[0] = 10U;
+    cfg.endpoint.ip[3] = 4U;
+    cfg.endpoint.port = 51820U;
+
+    uint8_t rx_buf[512];
+    uint8_t tx_buf[512];
+    SYN_WG wg;
+    syn_wg_init(&wg, &cfg, &sntp, rx_buf, sizeof(rx_buf), tx_buf, sizeof(tx_buf));
+
+    /* 2. Low-order peer_public_key rejected in wg_send_initiation without clobbering hs_* */
+    SYN_WG wg_bad_peer = wg;
+    wg_bad_peer.udp_sock = 7;
+    memset(wg_bad_peer.config.peer_public_key, 0, 32U);
+    memset(wg_bad_peer.hs_chaining_key, 0xA5, 32U);
+    mock_udp_tx_len = 0U;
+    TEST_ASSERT_FALSE(wg_send_initiation(&wg_bad_peer));
+    TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
+    TEST_ASSERT_EQUAL_HEX8(0xA5U, wg_bad_peer.hs_chaining_key[0]);
+
+    /* Order-2 X25519 point (u = 1) also rejected */
+    wg_bad_peer.config.peer_public_key[0] = 1U;
+    TEST_ASSERT_FALSE(wg_send_initiation(&wg_bad_peer));
+
+    /* 3. Establish genuine session, then test NULL payload, REKEY_AFTER_MESSAGES, staged hs_*,
+     *    and low-order responder ephemeral key with forged valid AEAD tag */
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = {.user_data = &wg};
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_wg_task(&pt, &task));
+    uint8_t resp1[SYN_WG_RESPONSE_SIZE];
+    uint8_t send_k1[32], recv_k1[32];
+    build_responder_handshake_reply(&cfg, resp_s_priv, mock_udp_tx_buf, 0x51U, 0xAAAA1111U, resp1,
+                                    send_k1, recv_k1);
+    SYN_SockAddr from = cfg.endpoint;
+    mock_udp_set_response(resp1, sizeof(resp1), &from);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_wg_task(&pt, &task));
+    TEST_ASSERT_TRUE(syn_wg_is_established(&wg));
+
+    /* ip_packet == NULL with len > 0 rejected while len == 0 keepalive still allowed */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_wg_send(&wg, NULL, 4U));
+
+    /* Crossing SYN_WG_REKEY_AFTER_MESSAGES wakes syn_wg_task to send hitless rekey initiation */
+    wg.session.send_counter = SYN_WG_REKEY_AFTER_MESSAGES - 1ULL;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_wg_send(&wg, app_pkt, sizeof(app_pkt)));
+    TEST_ASSERT_EQUAL_UINT64(SYN_WG_REKEY_AFTER_MESSAGES, wg.session.send_counter);
+    TEST_ASSERT_TRUE(wg_has_work(&wg));
+
+    mock_udp_tx_len = 0U;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_wg_task(&pt, &task));
+    TEST_ASSERT_TRUE(wg.rekey_in_progress);
+    TEST_ASSERT_EQUAL_size_t(SYN_WG_INITIATION_SIZE, mock_udp_tx_len);
+    uint8_t saved_rekey_init[SYN_WG_INITIATION_SIZE];
+    memcpy(saved_rekey_init, mock_udp_tx_buf, sizeof(saved_rekey_init));
+
+    /* Failed retry sendto after REKEY_TIMEOUT must NOT clobber in-flight wg.hs_* */
+    mock_tick_advance(6000U);
+    mock_udp_sendto_fail = true;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_wg_task(&pt, &task));
+    mock_udp_sendto_fail = false;
+
+    /* Craft forged response with low-order E_pub_r = 0^32 and valid AEAD/mac1 over 0^32 DH */
+    uint8_t forged_low_order[SYN_WG_RESPONSE_SIZE];
+    memset(forged_low_order, 0, sizeof(forged_low_order));
+    store32_le(forged_low_order + 0U, SYN_WG_MSG_RESPONSE);
+    store32_le(forged_low_order + 4U, 0xDEAD9999U);
+    store32_le(forged_low_order + 8U, load32_le(saved_rekey_init + 4U));
+    {
+        uint8_t f_ck[32], f_h[32], f_k[32], f_tau[32];
+        uint8_t zero32[32] = {0U};
+        memcpy(f_ck, wg.hs_chaining_key, 32U);
+        memcpy(f_h, wg.hs_hash, 32U);
+        wg_mix_key(f_ck, f_k, zero32, 32U);
+        wg_mix_hash(f_h, zero32, 32U);
+        wg_mix_key(f_ck, f_k, zero32, 32U);
+        wg_mix_key(f_ck, f_k, zero32, 32U);
+        wg_hkdf3(f_ck, f_tau, f_k, f_ck, cfg.preshared_key, 32U);
+        wg_mix_hash(f_h, f_tau, 32U);
+        wg_encrypt_and_hash(f_h, f_k, NULL, 0U, NULL, forged_low_order + 44U);
+        wg_mac1(forged_low_order + 60U, wg.public_key, forged_low_order, 60U);
+    }
+    TEST_ASSERT_FALSE(wg_consume_response(&wg, forged_low_order, sizeof(forged_low_order)));
+
+    /* Genuine response to saved_rekey_init still succeeds because wg.hs_* was preserved */
+    uint8_t resp2[SYN_WG_RESPONSE_SIZE];
+    uint8_t send_k2[32], recv_k2[32];
+    build_responder_handshake_reply(&cfg, resp_s_priv, saved_rekey_init, 0x52U, 0xBBBB2222U, resp2,
+                                    send_k2, recv_k2);
+    TEST_ASSERT_TRUE(wg_consume_response(&wg, resp2, sizeof(resp2)));
+    TEST_ASSERT_FALSE(wg.rekey_in_progress);
+    TEST_ASSERT_EQUAL_UINT64(0U, wg.session.send_counter);
+
+    /* 4. SYN_WG_REJECT_AFTER_MESSAGES enforced on both TX and RX */
+    wg.session.send_counter = SYN_WG_REJECT_AFTER_MESSAGES - 1ULL;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_wg_send(&wg, app_pkt, sizeof(app_pkt)));
+    TEST_ASSERT_EQUAL_UINT64(SYN_WG_REJECT_AFTER_MESSAGES, wg.session.send_counter);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_wg_send(&wg, app_pkt, sizeof(app_pkt)));
+    TEST_ASSERT_EQUAL_UINT64(SYN_WG_REJECT_AFTER_MESSAGES, wg.session.send_counter);
+
+    SYN_WgSession rx_lim = {0};
+    TEST_ASSERT_TRUE(wg_replay_check(&rx_lim, SYN_WG_REJECT_AFTER_MESSAGES - 1ULL));
+    TEST_ASSERT_FALSE(wg_replay_check(&rx_lim, SYN_WG_REJECT_AFTER_MESSAGES));
+}
+
 void run_wg_tests(void)
 {
     /* Handshake internals */
@@ -1923,4 +2049,5 @@ void run_wg_tests(void)
     RUN_TEST(test_wg_round4_forged_response_and_disconnect_zeroing);
     RUN_TEST(test_r5_n08_wg_64bit_replay_hitless_rekey_and_real_stats);
     RUN_TEST(test_wg_transport_ip_padding_trim);
+    RUN_TEST(test_tier_a_wg_low_order_dh_staged_hs_and_msg_limits);
 }

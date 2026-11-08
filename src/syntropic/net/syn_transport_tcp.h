@@ -17,13 +17,18 @@ extern "C" {
 
 /**
  * @brief TCP bridge transport layer context.
+ *
+ * Inbound length-prefixed frames are staged in @ref rx_buf and capped at 128 bytes.
+ * Incoming headers advertising `payload_len > 128` are treated as framing errors:
+ * the underlying socket is closed and set to `SYN_SOCKET_INVALID` so the TCP byte
+ * stream cannot remain desynchronized.
  */
 typedef struct {
     SYN_Socket sock;      /**< Embedded network TCP socket handle */
     uint8_t state;        /**< Parser state: 0=len MSB, 1=len LSB, 2=payload */
     uint16_t payload_len; /**< Expected size of the incoming frame payload */
     uint16_t bytes_read;  /**< Bytes of current payload read so far */
-    uint8_t rx_buf[128];  /**< Buffer for staging incoming packet payloads */
+    uint8_t rx_buf[128];  /**< Staging buffer for inbound payloads (max 128 bytes per frame) */
 } SYN_TransportTcp;
 
 /**

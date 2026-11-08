@@ -15,7 +15,6 @@
 #include "../util/syn_fmt.h"
 #include "syn_http.h"
 
-#include <stdlib.h>
 #include <string.h>
 
 #define HTTP_RECV_TIMEOUT_MS 10000 /**< HTTP receive timeout (ms). */
@@ -188,7 +187,35 @@ static bool send_request(SYN_Socket sock, const char *method, const char *host, 
 }
 
 /**
- * @brief Parse a redirect Location header URL, rejecting non-http schemes.
+ * @brief Parse a bounded TCP port [1..65535] stopping at '/' or NUL.
+ * @param p        Pointer to first character after ':' in URL authority.
+ * @param port_out [out] Parsed port in [1..65535].
+ * @return true if valid port in [1..65535], false on empty, non-digit, 0, or overflow.
+ */
+static bool http_parse_port(const char *p, uint16_t *port_out)
+{
+    uint32_t port = 0U;
+    bool has_digit = false;
+    while ((*p != '\0') && (*p != '/')) {
+        if ((*p < '0') || (*p > '9')) {
+            return false;
+        }
+        has_digit = true;
+        port = (port * 10U) + (uint32_t)(*p - '0');
+        if (port > 65535U) {
+            return false;
+        }
+        p++;
+    }
+    if ((!has_digit) || (port == 0U)) {
+        return false;
+    }
+    *port_out = (uint16_t)port;
+    return true;
+}
+
+/**
+ * @brief Parse a redirect Location header URL, rejecting non-http schemes and invalid ports.
  * @param url         Location URL string.
  * @param orig_host   Original request host.
  * @param orig_port   Original request port.
@@ -197,7 +224,7 @@ static bool send_request(SYN_Socket sock, const char *method, const char *host, 
  * @param path_out    [out] Redirected path.
  * @param path_sz     Path buffer size.
  * @param port_out    [out] Redirected port.
- * @return true if URL uses http:// or relative path, false on unsupported scheme.
+ * @return true if URL uses http:// or relative path with valid port, false otherwise.
  */
 static bool parse_redirect_url(const char *url, const char *orig_host, uint16_t orig_port,
                                char *host_out, size_t host_sz, char *path_out, size_t path_sz,
@@ -207,14 +234,16 @@ static bool parse_redirect_url(const char *url, const char *orig_host, uint16_t 
         url += 7;
         const char *slash = strchr(url, '/');
         const char *colon = strchr(url, ':');
-        if (colon != NULL && (slash == NULL || colon < slash)) {
+        if ((colon != NULL) && ((slash == NULL) || (colon < slash))) {
+            if (!http_parse_port(colon + 1, port_out)) {
+                return false;
+            }
             size_t host_len = (size_t)(colon - url);
             if (host_len >= host_sz) {
                 host_len = host_sz - 1U;
             }
             memcpy(host_out, url, host_len);
             host_out[host_len] = '\0';
-            *port_out = (uint16_t)atoi(colon + 1);
         } else {
             size_t host_len = (slash != NULL) ? (size_t)(slash - url) : strlen(url);
             if (host_len >= host_sz) {
@@ -440,13 +469,13 @@ static int http_step_headers(SYN_HttpClient *c)
 }
 
 /**
- * @brief Advance past leading ASCII spaces in a header value.
+ * @brief Advance past leading optional whitespace (SP or HTAB) in a header value.
  * @param s Pointer after header colon.
- * @return Pointer to first non-space character.
+ * @return Pointer to first non-OWS character.
  */
 static const char *http_skip_spaces(const char *s)
 {
-    while (*s == ' ') {
+    while ((*s == ' ') || (*s == '\t')) {
         s++;
     }
     return s;
@@ -533,6 +562,20 @@ static bool http_apply_redirect(SYN_HttpClient *c)
 }
 
 /**
+ * @brief Return true if response never carries a body (HEAD, 1xx, 204, 304).
+ * @param method      HTTP request method string.
+ * @param status_code HTTP response status code.
+ * @return true if response has no message body per RFC 9112 Section 6.3.
+ */
+static bool http_response_is_bodyless(const char *method, int status_code)
+{
+    if (prefix_icase(method, "head") && (method[4] == '\0')) {
+        return true;
+    }
+    return http_status_is_bodyless(status_code);
+}
+
+/**
  * @brief Parse buffered response headers and handle redirects or body setup.
  * @param c HTTP client instance.
  * @return 1 to stream body, 2 to follow redirect, -1 to exit task (done or error).
@@ -567,7 +610,10 @@ static int http_prepare_response(SYN_HttpClient *c)
         return -1;
     }
 
-    bool bodyless = http_status_is_bodyless(c->resp.status_code);
+    bool bodyless = http_response_is_bodyless(c->method, c->resp.status_code);
+    if (bodyless) {
+        c->resp.chunked = false;
+    }
     c->state = SYN_HTTP_STATE_READING_BODY;
     c->buf_pos = c->body_start;
     c->body_timeout_ms = syn_port_get_tick_ms();

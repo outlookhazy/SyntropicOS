@@ -306,6 +306,29 @@ static void test_transport_tcp_null_data_and_oversized_close(void)
     TEST_ASSERT_FALSE(syn_transport_recv(&t, out, sizeof(out), &out_len));
 }
 
+static void test_tier_a_transport_tcp_regressions(void)
+{
+    mock_port_reset();
+    SYN_Transport t;
+    SYN_TransportTcp tcp;
+    syn_transport_tcp_init(&t, &tcp, 9);
+    mock_sock_connected = true;
+
+    /* NET-10a: len > 0xFFFFU rejected at runtime before writing 2-byte header */
+    uint8_t dummy[4] = {0x11U, 0x22U, 0x33U, 0x44U};
+    TEST_ASSERT_FALSE(syn_transport_send(&t, dummy, 0x10000U));
+    TEST_ASSERT_EQUAL_size_t(0U, mock_sock_tx_len);
+    TEST_ASSERT_EQUAL(9, tcp.sock);
+
+    /* NET-10a: payload send failure after 2-byte header closes and invalidates sock */
+    mock_sock_send_fail_after_bytes = 2;
+    TEST_ASSERT_FALSE(syn_transport_send(&t, dummy, sizeof(dummy)));
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, tcp.sock);
+    TEST_ASSERT_EQUAL_UINT8(0U, tcp.state);
+    TEST_ASSERT_FALSE(mock_sock_connected);
+    mock_sock_send_fail_after_bytes = -1;
+}
+
 void run_transport_tcp_tests(void)
 {
     RUN_TEST(test_transport_tcp_send);
@@ -320,4 +343,5 @@ void run_transport_tcp_tests(void)
     RUN_TEST(test_transport_tcp_has_data);
     RUN_TEST(test_transport_tcp_eof_and_recv_error);
     RUN_TEST(test_transport_tcp_null_data_and_oversized_close);
+    RUN_TEST(test_tier_a_transport_tcp_regressions);
 }

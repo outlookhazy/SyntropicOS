@@ -1360,6 +1360,116 @@ static void test_r5_n09_coap_stable_option_sort(void)
     TEST_ASSERT_EQUAL_MEMORY("0", popts[3].val, 1U);
 }
 
+static void test_tier_a_coap_non_rst_critical_opt_and_codes(void)
+{
+    mock_port_reset();
+
+    SYN_CoapMsg parsed;
+    SYN_CoapOption popts[2];
+    size_t pcnt = 0U;
+
+    /* 1. Valid 4-byte 0.00 Empty vs malformed non-empty 0.00 and truncated token */
+    uint8_t empty_ok[] = {0x40U, 0x00U, 0x12U, 0x34U};
+    uint8_t empty_tok[] = {0x41U, 0x00U, 0x12U, 0x34U, 0xAAU};
+    uint8_t empty_pld[] = {0x40U, 0x00U, 0x12U, 0x34U, 0xFFU, 0x41U};
+    uint8_t trunc_tok[] = {0x44U, 0x01U, 0x12U, 0x34U, 0xAAU};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_coap_parse(&parsed, popts, 2U, &pcnt, empty_ok, 4U));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_coap_parse(&parsed, popts, 2U, &pcnt, empty_tok, 5U));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_coap_parse(&parsed, popts, 2U, &pcnt, empty_pld, 6U));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_coap_parse(&parsed, popts, 2U, &pcnt, trunc_tok, 5U));
+
+    /* 2. Reserved code classes 1, 3, 6, 7 rejected */
+    uint8_t cls1[] = {0x60U, 0x20U, 0x00U, 0x01U};
+    uint8_t cls3[] = {0x60U, 0x60U, 0x00U, 0x01U};
+    uint8_t cls6[] = {0x60U, 0xC0U, 0x00U, 0x01U};
+    uint8_t cls7[] = {0x60U, 0xE0U, 0x00U, 0x01U};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_coap_parse(&parsed, popts, 2U, &pcnt, cls1, 4U));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_coap_parse(&parsed, popts, 2U, &pcnt, cls3, 4U));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_coap_parse(&parsed, popts, 2U, &pcnt, cls6, 4U));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_coap_parse(&parsed, popts, 2U, &pcnt, cls7, 4U));
+
+    /* 3. Dropped Critical (odd) option fails; dropped Elective (even) option succeeds */
+    uint8_t crit_null[] = {0x40U, 0x01U, 0x00U, 0x01U, 0xB1U, 0x61U};
+    uint8_t elec_null[] = {0x40U, 0x01U, 0x00U, 0x01U, 0xC1U, 0x00U};
+    uint8_t crit_ovf[] = {0x40U, 0x01U, 0x00U, 0x01U, 0x11U, 0x0AU, 0x21U, 0x0BU};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_coap_parse(&parsed, NULL, 0U, &pcnt, crit_null, 6U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_coap_parse(&parsed, NULL, 0U, &pcnt, elec_null, 6U));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_coap_parse(&parsed, popts, 1U, &pcnt, crit_ovf, 8U));
+
+    /* 4. NULL guards in syn_coap_request_init */
+    SYN_SockAddr srv = {.ip = {127, 0, 0, 1}, .port = 5683};
+    SYN_CoapMsg non_req = {.type = COAP_TYPE_NON, .code = COAP_CODE_GET, .msg_id = 0x9999U};
+    syn_coap_request_init(NULL, &srv, &non_req, 50U, 3U);
+
+    SYN_CoapRequest ureq;
+    syn_coap_request_init(&ureq, NULL, &non_req, 50U, 3U);
+    TEST_ASSERT_EQUAL(SYN_ERROR, ureq.status);
+    SYN_Task utask = {.user_data = &ureq};
+    SYN_PT upt;
+    PT_INIT(&upt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_coap_request_task(&upt, &utask));
+    TEST_ASSERT_EQUAL(SYN_ERROR, ureq.status);
+
+    /* 5. COAP_TYPE_NON expires after 1 attempt without retransmission (UDP + Transport) */
+    syn_coap_request_init(&ureq, &srv, &non_req, 20U, 3U);
+    TEST_ASSERT_EQUAL_UINT8(1U, ureq.backoff.max_attempts);
+    SYN_Sched sched;
+    syn_task_create(&utask, "coap_non", syn_coap_request_task, 0U, &ureq);
+    syn_sched_init(&sched, &utask, 1U);
+    while (syn_sched_run(&sched)) {
+        mock_tick_advance(10U);
+    }
+    TEST_ASSERT_EQUAL(SYN_TIMEOUT, ureq.status);
+    TEST_ASSERT_EQUAL_UINT8(1U, ureq.backoff.attempts);
+
+    AsyncCoapTransportCtx actx = {0};
+    SYN_Transport atr = {
+        .send = async_coap_tr_send,
+        .recv = async_coap_tr_recv,
+        .has_data = async_coap_tr_has_data,
+        .ctx = &actx,
+    };
+    SYN_CoapTransportRequest treq;
+    syn_coap_transport_request_init(&treq, &atr, &non_req, 20U, 3U);
+    TEST_ASSERT_EQUAL_UINT8(1U, treq.backoff.max_attempts);
+    SYN_Task ttask;
+    syn_task_create(&ttask, "coap_tr_non", syn_coap_transport_request_task, 0U, &treq);
+    syn_sched_init(&sched, &ttask, 1U);
+    while (syn_sched_run(&sched)) {
+        mock_tick_advance(10U);
+    }
+    TEST_ASSERT_EQUAL(SYN_TIMEOUT, treq.status);
+    TEST_ASSERT_EQUAL_UINT8(1U, treq.backoff.attempts);
+
+    /* 6. RFC 7252 Empty RST (code == 0.00, matching msg_id) fast-fails UDP + Transport */
+    SYN_CoapMsg con_req = {.type = COAP_TYPE_CON, .code = COAP_CODE_GET, .msg_id = 0x9999U};
+    uint8_t rst_other[] = {0x70U, 0x00U, 0x11U, 0x11U};
+    uint8_t rst_match[] = {0x70U, 0x00U, 0x99U, 0x99U};
+
+    mock_udp_rx_count = 0;
+    mock_udp_rx_pos = 0;
+    mock_udp_inject_packet(rst_other, 4U, &srv);
+    mock_udp_inject_packet(rst_match, 4U, &srv);
+    syn_coap_request_init(&ureq, &srv, &con_req, 100U, 3U);
+    memset(&utask, 0, sizeof(utask));
+    utask.user_data = &ureq;
+    PT_INIT(&upt);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_coap_request_task(&upt, &utask));
+    TEST_ASSERT_EQUAL(SYN_ERROR, ureq.status);
+    TEST_ASSERT_EQUAL_UINT8(1U, ureq.backoff.attempts);
+
+    memset(&actx, 0, sizeof(actx));
+    async_coap_tr_enqueue(&actx, rst_other, 4U);
+    async_coap_tr_enqueue(&actx, rst_match, 4U);
+    syn_coap_transport_request_init(&treq, &atr, &con_req, 100U, 3U);
+    memset(&ttask, 0, sizeof(ttask));
+    ttask.user_data = &treq;
+    PT_INIT(&upt);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_coap_transport_request_task(&upt, &ttask));
+    TEST_ASSERT_EQUAL(SYN_ERROR, treq.status);
+    TEST_ASSERT_EQUAL_UINT8(1U, treq.backoff.attempts);
+}
+
 void run_coap_tests(void)
 {
     RUN_TEST(test_coap_serialization);
@@ -1379,4 +1489,5 @@ void run_coap_tests(void)
     RUN_TEST(test_coap_round3_regressions);
     RUN_TEST(test_coap_round4_regressions);
     RUN_TEST(test_r5_n09_coap_stable_option_sort);
+    RUN_TEST(test_tier_a_coap_non_rst_critical_opt_and_codes);
 }

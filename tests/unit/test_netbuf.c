@@ -110,10 +110,52 @@ void test_netbuf_null_edge_cases(void)
     TEST_ASSERT_NULL(syn_netbuf_put(NULL, 10));
 }
 
+static void test_tier_a_netbuf_regressions(void)
+{
+    SYN_NetBufPool pool_a;
+    SYN_NetBufPool pool_b;
+    SYN_NetBuf bufs_a[1];
+    SYN_NetBuf bufs_b[1];
+    uint8_t mem_a[64];
+    uint8_t mem_b[64];
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_netbuf_pool_init(&pool_a, bufs_a, mem_a, 1U, 64U));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_netbuf_pool_init(&pool_b, bufs_b, mem_b, 1U, 64U));
+
+    /* 1. Alloc clears stale flags across free/re-alloc cycles */
+    bufs_a[0].flags = 0xBEEFU;
+    SYN_NetBuf *b = syn_netbuf_alloc(&pool_a, 16U);
+    TEST_ASSERT_NOT_NULL(b);
+    TEST_ASSERT_EQUAL_UINT16(0U, b->flags);
+    b->flags = 0xCAFEU;
+
+    /* 2. Foreign pool rejected in syn_netbuf_free */
+    syn_netbuf_free(&pool_b, b);
+    TEST_ASSERT_EQUAL_UINT16(1U, b->ref_count);
+    TEST_ASSERT_EQUAL_size_t(0U, pool_a.free_count);
+    TEST_ASSERT_EQUAL_size_t(1U, pool_b.free_count);
+
+    /* 3. ref_count saturates at UINT16_MAX instead of wrapping to 0 */
+    b->ref_count = UINT16_MAX;
+    syn_netbuf_ref(b);
+    TEST_ASSERT_EQUAL_UINT16(UINT16_MAX, b->ref_count);
+
+    /* Restore ref_count = 1 and free back to owning pool_a */
+    b->ref_count = 1U;
+    syn_netbuf_free(&pool_a, b);
+    TEST_ASSERT_EQUAL_size_t(1U, pool_a.free_count);
+    TEST_ASSERT_EQUAL_UINT16(0U, b->flags);
+
+    /* Freeing already-free buffer (ref_count == 0) is a safe no-op */
+    syn_netbuf_free(&pool_a, b);
+    TEST_ASSERT_EQUAL_size_t(1U, pool_a.free_count);
+}
+
 void run_netbuf_tests(void)
 {
     RUN_TEST(test_netbuf_alloc_push_pull_free);
     RUN_TEST(test_netbuf_pool_exhaustion_and_invalid);
     RUN_TEST(test_netbuf_auto_pool_free_and_headroom_overflow);
     RUN_TEST(test_netbuf_null_edge_cases);
+    RUN_TEST(test_tier_a_netbuf_regressions);
 }

@@ -85,6 +85,19 @@ static inline uint32_t parse_uint(const char *s)
 }
 
 /**
+ * @brief Advance past leading optional whitespace (SP or HTAB) in a header value.
+ * @param s Pointer after header colon.
+ * @return Pointer to first non-OWS character.
+ */
+static const char *httpd_skip_ows(const char *s)
+{
+    while ((*s == ' ') || (*s == '\t')) {
+        s++;
+    }
+    return s;
+}
+
+/**
  * @brief Parse a single HTTP header line into request metadata without mutating headers.
  * @param req       Target parsed request structure.
  * @param hdr_start Start of header line.
@@ -94,16 +107,9 @@ static void httpd_parse_header_line(SYN_HttpdRequest *req, const char *hdr_start
                                     const char *next_line)
 {
     if (prefix_icase(hdr_start, "content-length:")) {
-        const char *val = hdr_start + 15;
-        while (*val == ' ') {
-            val++;
-        }
-        req->content_length = parse_uint(val);
+        req->content_length = parse_uint(httpd_skip_ows(hdr_start + 15));
     } else if (prefix_icase(hdr_start, "content-type:")) {
-        const char *val = hdr_start + 13;
-        while (*val == ' ') {
-            val++;
-        }
+        const char *val = httpd_skip_ows(hdr_start + 13);
         size_t ct_len = (size_t)(next_line - val);
         if (ct_len >= sizeof(req->content_type_buf)) {
             ct_len = sizeof(req->content_type_buf) - 1U;
@@ -349,11 +355,7 @@ static bool httpd_check_headers_complete(SYN_Httpd *srv)
     while (hdr < eoh) {
         const char *next = strstr(hdr, "\r\n");
         if (prefix_icase(hdr, "content-length:")) {
-            const char *val = hdr + 15;
-            while (*val == ' ') {
-                val++;
-            }
-            clen = parse_uint(val);
+            clen = parse_uint(httpd_skip_ows(hdr + 15));
         }
         hdr = next + 2;
     }
@@ -541,6 +543,12 @@ int syn_httpd_read_body(const SYN_HttpdRequest *req, SYN_HttpdResponse *resp, vo
 {
     SYN_ASSERT(req != NULL);
     SYN_ASSERT(resp != NULL);
+    if ((buf == NULL) && (max_len > 0U)) {
+        return -1;
+    }
+    if (max_len == 0U) {
+        return 0;
+    }
 
     size_t consumed =
         (resp->body_consumed >= req->body_consumed) ? resp->body_consumed : req->body_consumed;

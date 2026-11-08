@@ -733,6 +733,55 @@ static void test_r5_n13_sntp_kod_fast_fail(void)
     TEST_ASSERT_EQUAL_UINT8(1U, sntp.backoff.attempts);
 }
 
+static void test_tier_a_sntp_stepback_frac_null_and_port(void)
+{
+    mock_port_reset();
+
+    /* 1. NULL guards on epoch getters */
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_sntp_get_epoch_s(NULL));
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_sntp_get_epoch_ns(NULL));
+
+    /* 2. Fractional NTP seconds + rollover carry into seconds */
+    SYN_SNTP sntp;
+    SYN_SockAddr server = {.ip = {10, 20, 30, 40}, .port = 123U};
+    uint8_t pkt[SYN_SNTP_PACKET_SIZE];
+
+    syn_sntp_init(&sntp, &server, 60U);
+    build_ntp_response(pkt, 1700005000UL, 0xC0000000UL); /* 0.75s = 750,000,000 ns */
+    mock_udp_set_response(pkt, sizeof(pkt), &server);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_sntp_query(&sntp));
+    TEST_ASSERT_EQUAL_UINT32(1700005000UL, syn_sntp_get_epoch_s(&sntp));
+    TEST_ASSERT_EQUAL_UINT32(750000000UL, syn_sntp_get_epoch_ns(&sntp));
+
+    /* +500 ms -> 750,000,000 + 500,000,000 = 1,250,000,000 ns -> +1s carry + 250,000,000 ns */
+    mock_tick_advance(500U);
+    TEST_ASSERT_EQUAL_UINT32(1700005001UL, syn_sntp_get_epoch_s(&sntp));
+    TEST_ASSERT_EQUAL_UINT32(250000000UL, syn_sntp_get_epoch_ns(&sntp));
+
+    /* 3. Server clock step-back does not underflow uint32_t into bogus drift_ppm */
+    mock_tick_advance(5000U);
+    build_ntp_response(pkt, 1700004990UL, 0U);
+    mock_udp_set_response(pkt, sizeof(pkt), &server);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_sntp_query(&sntp));
+    TEST_ASSERT_EQUAL_INT32(0, syn_sntp_get_drift_ppm(&sntp));
+    TEST_ASSERT_EQUAL_UINT32(1700004990UL, syn_sntp_get_epoch_s(&sntp));
+
+    /* 4. Source port check: wrong port rejected, port 0 wildcard accepted */
+    SYN_SockAddr wrong_port = {.ip = {10, 20, 30, 40}, .port = 9999U};
+    mock_udp_set_response(pkt, sizeof(pkt), &wrong_port);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_sntp_query(&sntp));
+
+    SYN_SockAddr wildcard_ip = {.ip = {0, 0, 0, 0}, .port = 123U};
+    syn_sntp_init(&sntp, &wildcard_ip, 60U);
+    mock_udp_set_response(pkt, sizeof(pkt), &wrong_port);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_sntp_query(&sntp));
+
+    SYN_SockAddr wildcard_port = {.ip = {10, 20, 30, 40}, .port = 0U};
+    syn_sntp_init(&sntp, &wildcard_port, 60U);
+    mock_udp_set_response(pkt, sizeof(pkt), &wrong_port);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_sntp_query(&sntp));
+}
+
 void run_sntp_tests(void)
 {
     RUN_TEST(test_sntp_init);
@@ -756,4 +805,5 @@ void run_sntp_tests(void)
     RUN_TEST(test_sntp_round3_regressions);
     RUN_TEST(test_sntp_round4_li_stratum_sender_and_poll_window);
     RUN_TEST(test_r5_n13_sntp_kod_fast_fail);
+    RUN_TEST(test_tier_a_sntp_stepback_frac_null_and_port);
 }

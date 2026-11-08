@@ -64,7 +64,8 @@ SYN_Status syn_netbuf_pool_init(SYN_NetBufPool *pool, SYN_NetBuf *bufs, uint8_t 
 /**
  * @brief Allocate a packet buffer from the pool.
  * @param pool Pointer to pool descriptor.
- * @param headroom Initial headroom bytes reserved for network headers.
+ * @param headroom Initial headroom bytes reserved for network headers (values exceeding
+ *                 pool->buf_size are clamped to 0).
  * @return Allocated SYN_NetBuf pointer, or NULL if pool is exhausted.
  */
 SYN_NetBuf *syn_netbuf_alloc(SYN_NetBufPool *pool, size_t headroom);

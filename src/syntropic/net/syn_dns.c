@@ -123,6 +123,25 @@ static bool parse_qname(const uint8_t *buf, size_t buf_len, size_t *pos)
 }
 
 /**
+ * @brief Skip DNS question entries in a packet.
+ * @param buf       Packet buffer.
+ * @param rx_len    Packet length.
+ * @param questions Number of question entries to skip.
+ * @param pos       [in/out] Parse cursor.
+ * @return true if all question entries fit within bounds.
+ */
+static bool dns_skip_questions(const uint8_t *buf, size_t rx_len, uint16_t questions, size_t *pos)
+{
+    for (uint16_t i = 0U; i < questions; i++) {
+        if (!parse_qname(buf, rx_len, pos) || *pos + 4U > rx_len) {
+            return false;
+        }
+        *pos += 4U; /* skip QTYPE and QCLASS */
+    }
+    return true;
+}
+
+/**
  * @brief Parse a DNS response packet (validated >= 12 bytes with matching TXID)
  *        to extract the first IPv4 A record.
  *
@@ -146,11 +165,8 @@ static SYN_Status parse_response(const uint8_t *buf, size_t rx_len, SYN_SockAddr
 
     /* Skip questions */
     size_t pos = 12U;
-    for (uint16_t i = 0U; i < questions; i++) {
-        if (!parse_qname(buf, rx_len, &pos) || pos + 4U > rx_len) {
-            return SYN_ERROR;
-        }
-        pos += 4U; /* skip QTYPE and QCLASS */
+    if (!dns_skip_questions(buf, rx_len, questions, &pos)) {
+        return SYN_ERROR;
     }
 
     /* Parse answers */
@@ -160,14 +176,15 @@ static SYN_Status parse_response(const uint8_t *buf, size_t rx_len, SYN_SockAddr
         }
 
         uint16_t type = syn_peek_u16(buf, pos);
+        uint16_t rclass = syn_peek_u16(buf, pos + 2U);
         uint16_t rdlen = syn_peek_u16(buf, pos + 8U);
         pos += 10U;
         if ((size_t)rdlen > rx_len - pos) {
             return SYN_ERROR;
         }
 
-        if (type == 1U && rdlen == 4U) {
-            /* IPv4 A Record */
+        if (type == 1U && rclass == 1U && rdlen == 4U) {
+            /* IPv4 A Record (CLASS IN) */
             memcpy(addr_out->ip, buf + pos, 4U);
             addr_out->port = 0U;
             return SYN_OK;
@@ -334,6 +351,38 @@ SYN_Status syn_mdns_init(SYN_Mdns *mdns, const char *hostname, const uint8_t ip[
 }
 
 /**
+ * @brief Fold an ASCII uppercase letter to lowercase.
+ * @param c Input byte.
+ * @return Lowercase ASCII byte.
+ */
+static uint8_t dns_ascii_lower(uint8_t c)
+{
+    if (c >= (uint8_t)'A' && c <= (uint8_t)'Z') {
+        return (uint8_t)(c + 32U);
+    }
+    return c;
+}
+
+/**
+ * @brief Compare two byte slices for ASCII case-insensitive equality.
+ * @param a   First byte buffer.
+ * @param b   Second byte buffer.
+ * @param len Byte length to compare.
+ * @return true if slices match ignoring ASCII case.
+ */
+static bool dns_memeq_ci(const void *a, const void *b, size_t len)
+{
+    const uint8_t *pa = (const uint8_t *)a;
+    const uint8_t *pb = (const uint8_t *)b;
+    for (size_t i = 0U; i < len; i++) {
+        if (dns_ascii_lower(pa[i]) != dns_ascii_lower(pb[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
  * @brief Get length of base hostname (excluding trailing ".local" if present).
  * @param hostname Non-NULL input hostname string.
  * @return Length of base label in bytes.
@@ -341,38 +390,73 @@ SYN_Status syn_mdns_init(SYN_Mdns *mdns, const char *hostname, const uint8_t ip[
 static size_t get_base_hostname_len(const char *hostname)
 {
     size_t len = strlen(hostname);
-    if (len > 6 && strcmp(hostname + len - 6, ".local") == 0) {
-        return len - 6;
+    if (len > 6U && dns_memeq_ci(hostname + len - 6U, ".local", 6U)) {
+        return len - 6U;
     }
     return len;
 }
 
 /**
- * @brief Match a single DNS label against expected ASCII bytes.
+ * @brief Dereference up to 8 strictly backward 0xC0 DNS compression pointers.
+ * @param buf     Packet buffer.
+ * @param buf_len Buffer length.
+ * @param p       [in/out] Active read cursor.
+ * @param end_pos [in/out] Inline end offset saved on first jump.
+ * @param hops    [in/out] Cumulative pointer hop counter.
+ * @return true if cursor resolves to an in-bounds non-pointer byte.
+ */
+static bool mdns_deref_pointers(const uint8_t *buf, size_t buf_len, size_t *p, size_t *end_pos,
+                                uint8_t *hops)
+{
+    size_t cur = *p;
+    while (cur < buf_len && (buf[cur] & 0xC0U) == 0xC0U) {
+        if (cur + 1U >= buf_len || *hops >= 8U) {
+            return false;
+        }
+        size_t target = (((size_t)(buf[cur] & 0x3FU)) << 8U) | (size_t)buf[cur + 1U];
+        if (target < 12U || target >= cur) {
+            return false;
+        }
+        if (*hops == 0U) {
+            *end_pos = cur + 2U;
+        }
+        cur = target;
+        (*hops)++;
+    }
+    *p = cur;
+    return (cur < buf_len);
+}
+
+/**
+ * @brief Match a single DNS label against expected ASCII bytes (case-insensitive).
  * @param buf       Packet buffer.
  * @param buf_len   Buffer length.
  * @param pos       [in/out] Parse offset.
+ * @param end_pos   [in/out] Inline end offset saved on first pointer jump.
+ * @param hops      [in/out] Cumulative pointer hop counter.
  * @param label     Expected label string.
  * @param label_len Expected label byte length.
  * @return true if label matches and fits within buffer.
  */
-static bool match_dns_label(const uint8_t *buf, size_t buf_len, size_t *pos, const char *label,
-                            size_t label_len)
+static bool match_dns_label(const uint8_t *buf, size_t buf_len, size_t *pos, size_t *end_pos,
+                            uint8_t *hops, const char *label, size_t label_len)
 {
+    if (!mdns_deref_pointers(buf, buf_len, pos, end_pos, hops)) {
+        return false;
+    }
     size_t p = *pos;
-    if (p >= buf_len || (size_t)buf[p] != label_len) {
+    if ((size_t)buf[p] != label_len || (buf_len - p - 1U) < label_len) {
         return false;
     }
-    p++;
-    if (p + label_len > buf_len || memcmp(buf + p, label, label_len) != 0) {
+    if (!dns_memeq_ci(buf + p + 1U, label, label_len)) {
         return false;
     }
-    *pos = p + label_len;
+    *pos = p + 1U + label_len;
     return true;
 }
 
 /**
- * @brief Check if QNAME matches hostname.local.
+ * @brief Check if QNAME matches hostname.local (case-insensitive, compressed).
  * @param buf       Packet buffer.
  * @param buf_len   Buffer length.
  * @param pos       [in/out] Parse position.
@@ -386,17 +470,15 @@ static bool match_qname_local(const uint8_t *buf, size_t buf_len, size_t *pos, c
     }
 
     size_t p = *pos;
+    size_t end_pos = 0U;
+    uint8_t hops = 0U;
     size_t host_len = get_base_hostname_len(hostname);
-    if (!match_dns_label(buf, buf_len, &p, hostname, host_len)) {
+    if (!match_dns_label(buf, buf_len, &p, &end_pos, &hops, hostname, host_len) ||
+        !match_dns_label(buf, buf_len, &p, &end_pos, &hops, "local", 5U) ||
+        !mdns_deref_pointers(buf, buf_len, &p, &end_pos, &hops) || buf[p] != 0U) {
         return false;
     }
-    if (!match_dns_label(buf, buf_len, &p, "local", 5U)) {
-        return false;
-    }
-    if (p >= buf_len || buf[p] != 0U) {
-        return false;
-    }
-    *pos = p + 1U;
+    *pos = (hops > 0U) ? end_pos : (p + 1U);
     return true;
 }
 

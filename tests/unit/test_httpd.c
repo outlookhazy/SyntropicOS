@@ -1302,6 +1302,34 @@ static void test_r5_n13_httpd_split_post_413_and_const_body(void)
     TEST_ASSERT_EQUAL_MEMORY("ef", out_chunk, 2U);
 }
 
+static void test_tier_a_httpd_ows_and_read_body_null(void)
+{
+    /* 1. HTAB OWS in Content-Length and Content-Type headers */
+    setup_server();
+    const char *req_htab = "POST /api/config HTTP/1.1\r\n"
+                           "Content-Type:\t \tapplication/json\r\n"
+                           "Content-Length:\t\t5\r\n\r\n"
+                           "hello";
+    mock_sock_set_response(req_htab, strlen(req_htab));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_httpd_step(&srv));
+    TEST_ASSERT_TRUE(handler_called);
+    TEST_ASSERT_EQUAL_UINT32(5U, (uint32_t)last_content_length);
+    TEST_ASSERT_EQUAL_STRING("application/json", last_content_type);
+
+    /* 2. syn_httpd_read_body guards NULL buf with max_len > 0 (-1) and max_len == 0 (0) */
+    uint8_t backing[8] = "abcd";
+    SYN_HttpdRequest req = {
+        .method = SYN_HTTP_POST,
+        .content_length = 4U,
+        .body_buffered_offset = 0U,
+        .body_buffered_len = 4U,
+    };
+    SYN_HttpdResponse resp = {.sock = 1, .buf = backing, .buf_size = sizeof(backing)};
+    TEST_ASSERT_EQUAL_INT(-1, syn_httpd_read_body(&req, &resp, NULL, 4U));
+    TEST_ASSERT_EQUAL_INT(0, syn_httpd_read_body(&req, &resp, NULL, 0U));
+    TEST_ASSERT_EQUAL_size_t(0U, resp.body_consumed);
+}
+
 void run_httpd_tests(void)
 {
     RUN_TEST(test_httpd_get_root);
@@ -1354,4 +1382,5 @@ void run_httpd_tests(void)
     syn_httpd_header(&resp_dummy, NULL, "Val");
     syn_httpd_header(&resp_dummy, "Key", NULL);
     syn_httpd_body(NULL, "data", 4);
+    RUN_TEST(test_tier_a_httpd_ows_and_read_body_null);
 }

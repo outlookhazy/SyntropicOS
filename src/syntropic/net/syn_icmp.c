@@ -22,6 +22,22 @@ uint16_t syn_icmp_checksum(const void *buf, size_t len)
 }
 
 /**
+ * @brief Verify Echo Request destination MAC and IPv4 address are not broadcast or multicast.
+ *
+ * @param ip_pkt Inbound Ethernet + IPv4 packet.
+ * @return true if destination MAC and IPv4 may be reflected in Echo Reply, false otherwise.
+ */
+static bool icmp_echo_dst_unicast(const uint8_t *ip_pkt)
+{
+    if ((ip_pkt[0] & 0x01U) != 0U) {
+        return false;
+    }
+    uint32_t dst_ip = ((uint32_t)ip_pkt[30] << 24U) | ((uint32_t)ip_pkt[31] << 16U) |
+                      ((uint32_t)ip_pkt[32] << 8U) | (uint32_t)ip_pkt[33];
+    return (dst_ip != 0xFFFFFFFFUL && (dst_ip & 0xF0000000UL) != 0xE0000000UL);
+}
+
+/**
  * @brief Build an Ethernet II + IPv4 + ICMP Echo Reply frame from a validated Echo Request.
  *
  * @param icmp        Pointer to ICMP context.
@@ -34,6 +50,10 @@ uint16_t syn_icmp_checksum(const void *buf, size_t len)
 static void icmp_build_echo_reply(SYN_ICMP *icmp, const uint8_t *ip_pkt, size_t pkt_len,
                                   size_t icmp_offset, uint8_t *frame_tx, size_t *tx_len)
 {
+    if (frame_tx == NULL || tx_len == NULL) {
+        return;
+    }
+
     memcpy(frame_tx, ip_pkt, pkt_len);
 
     /* Swap MAC addresses (offset 0 and 6) */
@@ -138,10 +158,11 @@ SYN_Status syn_icmp_process_packet(SYN_ICMP *icmp, const uint8_t *ip_pkt, size_t
 
     uint8_t type = ip_pkt[icmp_offset];
     if (type == SYN_ICMP_TYPE_ECHO_REQUEST) {
-        icmp->echo_requests_rx++;
-        if (frame_tx && tx_len) {
-            icmp_build_echo_reply(icmp, ip_pkt, pkt_len, icmp_offset, frame_tx, tx_len);
+        if (!icmp_echo_dst_unicast(ip_pkt)) {
+            return SYN_OK;
         }
+        icmp->echo_requests_rx++;
+        icmp_build_echo_reply(icmp, ip_pkt, pkt_len, icmp_offset, frame_tx, tx_len);
     } else if (type == SYN_ICMP_TYPE_ECHO_REPLY) {
         icmp->echo_replies_rx++;
     }

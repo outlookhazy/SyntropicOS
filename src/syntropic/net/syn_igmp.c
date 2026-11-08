@@ -9,9 +9,51 @@
 
 #include <string.h>
 
+/**
+ * @brief Record multicast group membership without creating duplicate entries.
+ *
+ * @param igmp     Pointer to IGMP context.
+ * @param group_ip Multicast group IPv4 address.
+ */
+static void igmp_record_join(SYN_IGMP *igmp, uint32_t group_ip)
+{
+    for (size_t i = 0U; i < SYN_IGMP_MAX_GROUPS; i++) {
+        if (igmp->groups[i].joined && igmp->groups[i].group_ip == group_ip) {
+            return;
+        }
+    }
+    for (size_t i = 0U; i < SYN_IGMP_MAX_GROUPS; i++) {
+        if (!igmp->groups[i].joined) {
+            igmp->groups[i].group_ip = group_ip;
+            igmp->groups[i].joined = true;
+            return;
+        }
+    }
+    igmp->groups[0].group_ip = group_ip;
+    igmp->groups[0].joined = true;
+}
+
+/**
+ * @brief Select joined multicast group matching an incoming IGMP query.
+ *
+ * @param igmp        Pointer to IGMP context.
+ * @param query_group Queried group IPv4 address (0 for General Query).
+ * @return Matching joined group IPv4 address, or 0U if no match.
+ */
+static uint32_t igmp_select_query_group(const SYN_IGMP *igmp, uint32_t query_group)
+{
+    for (size_t i = 0U; i < SYN_IGMP_MAX_GROUPS; i++) {
+        if (igmp->groups[i].joined &&
+            (query_group == 0U || igmp->groups[i].group_ip == query_group)) {
+            return igmp->groups[i].group_ip;
+        }
+    }
+    return 0U;
+}
+
 SYN_Status syn_igmp_init(SYN_IGMP *igmp)
 {
-    if (!igmp) {
+    if (igmp == NULL) {
         return SYN_INVALID_PARAM;
     }
     memset(igmp, 0, sizeof(*igmp));
@@ -21,64 +63,67 @@ SYN_Status syn_igmp_init(SYN_IGMP *igmp)
 SYN_Status syn_igmp_build_report(SYN_IGMP *igmp, SYN_ETH *eth, uint8_t type, uint32_t group_ip,
                                  uint8_t *frame_out, size_t *frame_len)
 {
-    if (!igmp || !eth || !frame_out || !frame_len || group_ip == 0) {
+    if (igmp == NULL || eth == NULL || frame_out == NULL || frame_len == NULL || group_ip == 0U) {
         return SYN_INVALID_PARAM;
     }
 
-    size_t ip_len = 20 + 8; /* IP header (20) + IGMP payload (8) */
-    size_t total_len = 14 + ip_len;
+    size_t ip_len = 20U + 8U; /* IP header (20) + IGMP payload (8) */
+    size_t total_len = 14U + ip_len;
     if (total_len < SYN_ETH_MIN_FRAME_LEN) {
         total_len = SYN_ETH_MIN_FRAME_LEN;
     }
 
     memset(frame_out, 0, total_len);
 
-    /* Multicast Destination MAC: 01:00:5E: (Group IP & 0x7FFFFF) */
-    uint32_t group_low = group_ip & 0x007FFFFFUL;
+    /* RFC 2236 Section 3: Leave is sent to all-routers (224.0.0.2); Report to group_ip */
+    uint32_t dst_ip = (type == SYN_IGMP_TYPE_V2_LEAVE) ? 0xE0000002UL : group_ip;
+    uint32_t dst_low = dst_ip & 0x007FFFFFUL;
     uint8_t mcast_mac[6];
-    mcast_mac[0] = 0x01;
-    mcast_mac[1] = 0x00;
-    mcast_mac[2] = 0x5E;
-    mcast_mac[3] = (uint8_t)(group_low >> 16);
-    mcast_mac[4] = (uint8_t)(group_low >> 8);
-    mcast_mac[5] = (uint8_t)(group_low);
+    mcast_mac[0] = 0x01U;
+    mcast_mac[1] = 0x00U;
+    mcast_mac[2] = 0x5EU;
+    mcast_mac[3] = (uint8_t)(dst_low >> 16U);
+    mcast_mac[4] = (uint8_t)(dst_low >> 8U);
+    mcast_mac[5] = (uint8_t)(dst_low);
 
     /* Ethernet II Header */
     /* LCOV_EXCL_START: Unreachable parameter bounds check */
     if (syn_eth_pack_header(frame_out, total_len, mcast_mac, eth->mac_addr, SYN_ETHTYPE_IPV4) ==
-        0) {
+        0U) {
         return SYN_INVALID_PARAM;
     }
 
     /* IPv4 Header (Protocol 2 = IGMP, TTL = 1) */
     size_t ip_bytes =
-        syn_ip_pack_header(&frame_out[14], total_len - 14, eth->ip_addr, group_ip, 2, 8, 0x1234);
-    if (ip_bytes == 0) {
+        syn_ip_pack_header(&frame_out[14], total_len - 14U, eth->ip_addr, dst_ip, 2U, 8U, 0x1234U);
+    if (ip_bytes == 0U) {
         return SYN_INVALID_PARAM;
     }
     /* LCOV_EXCL_STOP */
-    frame_out[22] = 1; /* Override TTL = 1 for IGMP multicast */
+    frame_out[22] = 1U; /* Override TTL = 1 for IGMP multicast */
+    frame_out[24] = 0U;
+    frame_out[25] = 0U;
 
     /* Re-calculate IP checksum due to TTL override */
-    uint16_t ip_csum = syn_ip_checksum(&frame_out[14], 20);
-    frame_out[24] = (uint8_t)(ip_csum >> 8);
-    frame_out[25] = (uint8_t)(ip_csum & 0xFF);
+    uint16_t ip_csum = syn_ip_checksum(&frame_out[14], 20U);
+    frame_out[24] = (uint8_t)(ip_csum >> 8U);
+    frame_out[25] = (uint8_t)(ip_csum & 0xFFU);
 
     /* IGMP Header */
-    size_t igmp_off = 34;
+    size_t igmp_off = 34U;
     frame_out[igmp_off] = type;
-    frame_out[igmp_off + 1] = 0; /* Max Resp Time */
-    frame_out[igmp_off + 2] = 0;
-    frame_out[igmp_off + 3] = 0;
+    frame_out[igmp_off + 1U] = 0U; /* Max Resp Time */
+    frame_out[igmp_off + 2U] = 0U;
+    frame_out[igmp_off + 3U] = 0U;
 
-    frame_out[igmp_off + 4] = (uint8_t)(group_ip >> 24);
-    frame_out[igmp_off + 5] = (uint8_t)(group_ip >> 16);
-    frame_out[igmp_off + 6] = (uint8_t)(group_ip >> 8);
-    frame_out[igmp_off + 7] = (uint8_t)(group_ip);
+    frame_out[igmp_off + 4U] = (uint8_t)(group_ip >> 24U);
+    frame_out[igmp_off + 5U] = (uint8_t)(group_ip >> 16U);
+    frame_out[igmp_off + 6U] = (uint8_t)(group_ip >> 8U);
+    frame_out[igmp_off + 7U] = (uint8_t)(group_ip);
 
-    uint16_t igmp_csum = syn_ip_checksum(&frame_out[igmp_off], 8);
-    frame_out[igmp_off + 2] = (uint8_t)(igmp_csum >> 8);
-    frame_out[igmp_off + 3] = (uint8_t)(igmp_csum & 0xFF);
+    uint16_t igmp_csum = syn_ip_checksum(&frame_out[igmp_off], 8U);
+    frame_out[igmp_off + 2U] = (uint8_t)(igmp_csum >> 8U);
+    frame_out[igmp_off + 3U] = (uint8_t)(igmp_csum & 0xFFU);
 
     if (type == SYN_IGMP_TYPE_V2_REPORT) {
         igmp->reports_sent++;
@@ -93,38 +138,27 @@ SYN_Status syn_igmp_build_report(SYN_IGMP *igmp, SYN_ETH *eth, uint8_t type, uin
 SYN_Status syn_igmp_join_group(SYN_IGMP *igmp, SYN_ETH *eth, uint32_t group_ip, uint8_t *frame_out,
                                size_t *frame_len)
 {
-    if (!igmp) {
+    if (igmp == NULL) {
         return SYN_INVALID_PARAM;
     }
 
-    /* Record group membership */
-    bool found = false;
-    for (size_t i = 0; i < SYN_IGMP_MAX_GROUPS; i++) {
-        if (igmp->groups[i].group_ip == group_ip || !igmp->groups[i].joined) {
-            igmp->groups[i].group_ip = group_ip;
-            igmp->groups[i].joined = true;
-            found = true;
-            break;
-        }
+    SYN_Status status =
+        syn_igmp_build_report(igmp, eth, SYN_IGMP_TYPE_V2_REPORT, group_ip, frame_out, frame_len);
+    if (status == SYN_OK) {
+        igmp_record_join(igmp, group_ip);
     }
-    if (!found) {
-        igmp->groups[0].group_ip = group_ip;
-        igmp->groups[0].joined = true;
-    }
-
-    return syn_igmp_build_report(igmp, eth, SYN_IGMP_TYPE_V2_REPORT, group_ip, frame_out,
-                                 frame_len);
+    return status;
 }
 
 SYN_Status syn_igmp_leave_group(SYN_IGMP *igmp, SYN_ETH *eth, uint32_t group_ip, uint8_t *frame_out,
                                 size_t *frame_len)
 {
-    if (!igmp) {
+    if (igmp == NULL) {
         return SYN_INVALID_PARAM;
     }
 
-    for (size_t i = 0; i < SYN_IGMP_MAX_GROUPS; i++) {
-        if (igmp->groups[i].group_ip == group_ip) {
+    for (size_t i = 0U; i < SYN_IGMP_MAX_GROUPS; i++) {
+        if (igmp->groups[i].joined && igmp->groups[i].group_ip == group_ip) {
             igmp->groups[i].joined = false;
             break;
         }
@@ -136,12 +170,12 @@ SYN_Status syn_igmp_leave_group(SYN_IGMP *igmp, SYN_ETH *eth, uint32_t group_ip,
 SYN_Status syn_igmp_process_packet(SYN_IGMP *igmp, SYN_ETH *eth, const uint8_t *ip_pkt, size_t len,
                                    uint8_t *frame_tx, size_t *tx_len)
 {
-    if (!igmp || !ip_pkt || len < 42) {
+    if (igmp == NULL || ip_pkt == NULL || len < 42U) {
         return SYN_INVALID_PARAM;
     }
 
-    if (tx_len) {
-        *tx_len = 0;
+    if (tx_len != NULL) {
+        *tx_len = 0U;
     }
 
     /* Verify EtherType == IPv4 */
@@ -161,16 +195,17 @@ SYN_Status syn_igmp_process_packet(SYN_IGMP *igmp, SYN_ETH *eth, const uint8_t *
         return SYN_OK;
     }
 
-    uint8_t type = ip_pkt[14U + ihl];
+    size_t igmp_off = 14U + ihl;
+    uint8_t type = ip_pkt[igmp_off];
     if (type == SYN_IGMP_TYPE_MEMBERSHIP_QUERY) {
         igmp->queries_received++;
-
-        /* Respond with report for first joined group */
-        for (size_t i = 0; i < SYN_IGMP_MAX_GROUPS; i++) {
-            if (igmp->groups[i].joined && frame_tx && tx_len) {
-                return syn_igmp_build_report(igmp, eth, SYN_IGMP_TYPE_V2_REPORT,
-                                             igmp->groups[i].group_ip, frame_tx, tx_len);
-            }
+        uint32_t query_group =
+            ((uint32_t)ip_pkt[igmp_off + 4U] << 24U) | ((uint32_t)ip_pkt[igmp_off + 5U] << 16U) |
+            ((uint32_t)ip_pkt[igmp_off + 6U] << 8U) | (uint32_t)ip_pkt[igmp_off + 7U];
+        uint32_t report_group = igmp_select_query_group(igmp, query_group);
+        if (report_group != 0U && frame_tx != NULL && tx_len != NULL) {
+            return syn_igmp_build_report(igmp, eth, SYN_IGMP_TYPE_V2_REPORT, report_group, frame_tx,
+                                         tx_len);
         }
     }
 

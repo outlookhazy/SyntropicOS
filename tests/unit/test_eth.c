@@ -902,6 +902,99 @@ static void test_r5_n07_eth_mcast_igmp_and_ihl(void)
     syn_eth_set_igmp_instance(NULL);
 }
 
+static void test_tier_a_eth_regressions(void)
+{
+    SYN_ETH eth;
+    uint8_t tx[128];
+    size_t tx_len = 0U;
+    uint8_t mac_out[6];
+    const uint8_t mcast_mac[6] = {0x01, 0x00, 0x5E, 0x00, 0x00, 0x01};
+    const uint8_t updated_mac[6] = {0x02, 0xAA, 0xBB, 0xCC, 0xDD, 0x77};
+
+    syn_eth_init(&eth, MY_MAC, MY_IP);
+
+    /* 1. Reject multicast/broadcast MAC and broadcast/multicast/0.0.0.0 IP in ARP cache */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_eth_arp_update(&eth, PEER_IP, mcast_mac));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_eth_arp_update(&eth, 0xFFFFFFFFUL, PEER_MAC));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_eth_arp_update(&eth, 0xE0000001UL, PEER_MAC));
+
+    /* 2. Unsolicited ARP request for another IP must not insert into ARP cache */
+    uint8_t arp[60] = {0};
+    memset(&arp[0], 0xFF, 6U);
+    memcpy(&arp[6], PEER_MAC, 6U);
+    arp[12] = 0x08U;
+    arp[13] = 0x06U;
+    arp[15] = 1U;
+    arp[16] = 0x08U;
+    arp[18] = 6U;
+    arp[19] = 4U;
+    arp[21] = 1U;
+    memcpy(&arp[22], PEER_MAC, 6U);
+    syn_poke_u32(PEER_IP, arp, 28U);
+    syn_poke_u32(0xC0A801FEUL, arp, 38U); /* TPA != MY_IP */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, arp, 60U, tx, &tx_len));
+    TEST_ASSERT_EQUAL_INT(SYN_NOT_FOUND, syn_eth_arp_lookup(&eth, PEER_IP, mac_out));
+
+    /* 3. RFC 826 Merge_flag: existing cached peer updates MAC even when TPA != MY_IP */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_arp_update(&eth, PEER_IP, PEER_MAC));
+    memcpy(&arp[22], updated_mac, 6U);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, arp, 60U, tx, &tx_len));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_arp_lookup(&eth, PEER_IP, mac_out));
+    TEST_ASSERT_EQUAL_MEMORY(updated_mac, mac_out, 6U);
+
+    /* 4. Multicast sender MAC in ARP request for MY_IP must not reply or poison cache */
+    memcpy(&arp[22], mcast_mac, 6U);
+    syn_poke_u32(0xC0A80177UL, arp, 28U);
+    syn_poke_u32(MY_IP, arp, 38U);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, arp, 60U, tx, &tx_len));
+    TEST_ASSERT_EQUAL_size_t(0U, tx_len);
+    TEST_ASSERT_EQUAL_INT(SYN_NOT_FOUND, syn_eth_arp_lookup(&eth, 0xC0A80177UL, mac_out));
+
+    /* 5. Unbound interface (ip_addr == 0) must not emit ARP reply */
+    SYN_ETH unbound_eth;
+    syn_eth_init(&unbound_eth, MY_MAC, 0U);
+    memcpy(&arp[22], PEER_MAC, 6U);
+    syn_poke_u32(PEER_IP, arp, 28U);
+    syn_poke_u32(0U, arp, 38U);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&unbound_eth, arp, 60U, tx, &tx_len));
+    TEST_ASSERT_EQUAL_size_t(0U, tx_len);
+
+    /* 6. Reject non-v4 IP version and IPv4 fragments; accept DF = 0x4000 */
+    SYN_IGMP igmp;
+    syn_igmp_init(&igmp);
+    syn_eth_set_igmp_instance(&igmp);
+    uint8_t ip_pkt[60] = {0};
+    memcpy(&ip_pkt[0], MY_MAC, 6U);
+    memcpy(&ip_pkt[6], PEER_MAC, 6U);
+    ip_pkt[12] = 0x08U;
+    ip_pkt[14] = 0x65U; /* Version 6 in 0x0800 */
+    ip_pkt[23] = 2U;
+    ip_pkt[34] = SYN_IGMP_TYPE_MEMBERSHIP_QUERY;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, ip_pkt, 60U, tx, &tx_len));
+    TEST_ASSERT_EQUAL_UINT32(0U, igmp.queries_received);
+
+    ip_pkt[14] = 0x45U;
+    ip_pkt[20] = 0x20U; /* MF flag set */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, ip_pkt, 60U, tx, &tx_len));
+    TEST_ASSERT_EQUAL_UINT32(0U, igmp.queries_received);
+
+    ip_pkt[20] = 0x00U;
+    ip_pkt[21] = 0x01U; /* Non-zero fragment offset */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, ip_pkt, 60U, tx, &tx_len));
+    TEST_ASSERT_EQUAL_UINT32(0U, igmp.queries_received);
+
+    ip_pkt[20] = 0x40U; /* DF = 0x4000 MUST remain accepted */
+    ip_pkt[21] = 0x00U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, ip_pkt, 60U, tx, &tx_len));
+    TEST_ASSERT_EQUAL_UINT32(1U, igmp.queries_received);
+    syn_eth_set_igmp_instance(NULL);
+
+    /* 7. syn_ip_pack_header payload_len > 65515 overflow guard (keep buf_size == 20 allowed) */
+    uint8_t hdr20[20] = {0};
+    TEST_ASSERT_EQUAL_size_t(0U, syn_ip_pack_header(hdr20, 20U, MY_IP, PEER_IP, 17U, 65516U, 1U));
+    TEST_ASSERT_EQUAL_size_t(20U, syn_ip_pack_header(hdr20, 20U, MY_IP, PEER_IP, 17U, 65515U, 1U));
+}
+
 void run_eth_tests(void)
 {
     RUN_TEST(test_eth_generate_mac);
@@ -927,4 +1020,5 @@ void run_eth_tests(void)
     RUN_TEST(test_eth_header_packing_helpers);
     RUN_TEST(test_eth_frame_filtering_and_protocol_dispatch);
     RUN_TEST(test_r5_n07_eth_mcast_igmp_and_ihl);
+    RUN_TEST(test_tier_a_eth_regressions);
 }

@@ -116,6 +116,37 @@ SYN_Status syn_autoip_build_announce(SYN_AUTOIP *autoip, const uint8_t mac_addr[
     return SYN_OK;
 }
 
+/**
+ * @brief Check for an RFC 3927 ARP IP/probe collision and advance candidate IP on conflict.
+ * @param autoip    AutoIP context.
+ * @param arp_frame Raw Ethernet ARP frame (>= 42 bytes).
+ * @return true if a conflict was detected and state was reset, false otherwise.
+ */
+static bool autoip_handle_conflict(SYN_AUTOIP *autoip, const uint8_t *arp_frame)
+{
+    uint32_t sender_ip = ((uint32_t)arp_frame[28] << 24U) | ((uint32_t)arp_frame[29] << 16U) |
+                         ((uint32_t)arp_frame[30] << 8U) | arp_frame[31];
+    uint32_t target_ip = ((uint32_t)arp_frame[38] << 24U) | ((uint32_t)arp_frame[39] << 16U) |
+                         ((uint32_t)arp_frame[40] << 8U) | arp_frame[41];
+    bool probe_conflict = (autoip->state == SYN_AUTOIP_STATE_PROBE) && (sender_ip == 0U) &&
+                          (target_ip == autoip->ip_addr);
+
+    if (sender_ip != autoip->ip_addr && !probe_conflict) {
+        return false;
+    }
+
+    autoip->collisions++;
+    uint8_t octet4 = (uint8_t)(autoip->ip_addr & 0xFFU) + 1U;
+    if (octet4 == 0U || octet4 == 255U) {
+        octet4 = 1U;
+    }
+    autoip->ip_addr = (autoip->ip_addr & 0xFFFFFF00UL) | octet4;
+    autoip->probe_count = 0U;
+    autoip->announce_count = 0U;
+    autoip->state = SYN_AUTOIP_STATE_INIT;
+    return true;
+}
+
 SYN_Status syn_autoip_process_arp(SYN_AUTOIP *autoip, SYN_ETH *eth, const uint8_t *arp_frame,
                                   size_t len)
 {
@@ -128,25 +159,11 @@ SYN_Status syn_autoip_process_arp(SYN_AUTOIP *autoip, SYN_ETH *eth, const uint8_
         return SYN_OK;
     }
 
-    uint32_t sender_ip = ((uint32_t)arp_frame[28] << 24U) | ((uint32_t)arp_frame[29] << 16U) |
-                         ((uint32_t)arp_frame[30] << 8U) | arp_frame[31];
-    uint32_t target_ip = ((uint32_t)arp_frame[38] << 24U) | ((uint32_t)arp_frame[39] << 16U) |
-                         ((uint32_t)arp_frame[40] << 8U) | arp_frame[41];
-    bool probe_conflict = (autoip->state == SYN_AUTOIP_STATE_PROBE) && (sender_ip == 0U) &&
-                          (target_ip == autoip->ip_addr);
+    if (eth != NULL && memcmp(&arp_frame[22], eth->mac_addr, 6U) == 0) {
+        return SYN_OK;
+    }
 
-    /* Conflict check: direct sender IP match or simultaneous RFC 3927 ARP Probe */
-    if (sender_ip == autoip->ip_addr || probe_conflict) {
-        autoip->collisions++;
-        /* Pick next candidate IP */
-        uint8_t octet4 = (uint8_t)(autoip->ip_addr & 0xFFU) + 1U;
-        if (octet4 == 0U || octet4 == 255U) {
-            octet4 = 1U;
-        }
-        autoip->ip_addr = (autoip->ip_addr & 0xFFFFFF00UL) | octet4;
-        autoip->probe_count = 0U;
-        autoip->announce_count = 0U;
-        autoip->state = SYN_AUTOIP_STATE_INIT;
+    if (autoip_handle_conflict(autoip, arp_frame)) {
         return SYN_BUSY;
     }
 

@@ -318,3 +318,45 @@ void test_r5_icmp_regressions(void)
                           syn_icmp_process_packet(&icmp, bad_csum_pkt, 60U, reply, &reply_len));
     TEST_ASSERT_EQUAL_UINT32(prev_err + 1U, icmp.errors);
 }
+
+void test_tier_a_icmp_regressions(void)
+{
+    SYN_ICMP icmp;
+    SYN_ETH eth;
+    uint8_t req[60];
+    size_t req_len = 0U;
+    uint8_t reply[60];
+    size_t reply_len = 0U;
+    const uint8_t bcast_mac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+    const uint8_t mcast_mac[6] = {0x01, 0x00, 0x5E, 0x00, 0x00, 0x01};
+
+    syn_icmp_init(&icmp);
+    syn_eth_init(&eth, MY_MAC, MY_IP);
+
+    /* Broadcast destination MAC rejected */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_icmp_build_echo_request(&icmp, &eth, MY_IP, bcast_mac, 1U, 1U,
+                                                              NULL, 0U, req, &req_len));
+    reply_len = 99U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_icmp_process_packet(&icmp, req, req_len, reply, &reply_len));
+    TEST_ASSERT_EQUAL_size_t(0U, reply_len);
+    TEST_ASSERT_EQUAL_UINT32(0U, icmp.echo_requests_rx);
+
+    /* Multicast destination MAC rejected */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_icmp_build_echo_request(&icmp, &eth, MY_IP, mcast_mac, 1U, 2U,
+                                                              NULL, 0U, req, &req_len));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_icmp_process_packet(&icmp, req, req_len, reply, &reply_len));
+    TEST_ASSERT_EQUAL_size_t(0U, reply_len);
+
+    /* Unicast MAC with broadcast IPv4 (255.255.255.255) rejected */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_icmp_build_echo_request(&icmp, &eth, 0xFFFFFFFFUL, MY_MAC, 1U,
+                                                              3U, NULL, 0U, req, &req_len));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_icmp_process_packet(&icmp, req, req_len, reply, &reply_len));
+    TEST_ASSERT_EQUAL_size_t(0U, reply_len);
+
+    /* Unicast MAC with multicast IPv4 (224.0.0.1) rejected */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_icmp_build_echo_request(&icmp, &eth, 0xE0000001UL, MY_MAC, 1U,
+                                                              4U, NULL, 0U, req, &req_len));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_icmp_process_packet(&icmp, req, req_len, reply, &reply_len));
+    TEST_ASSERT_EQUAL_size_t(0U, reply_len);
+    TEST_ASSERT_EQUAL_UINT32(0U, icmp.echo_requests_rx);
+}

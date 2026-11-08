@@ -281,6 +281,26 @@ static bool coap_parse_opt_hdr(const uint8_t *buf, size_t buf_len, size_t *pos, 
     return true;
 }
 
+/**
+ * @brief Validate CoAP header version, token length, empty rules, and reserved code classes.
+ * @param msg     Parsed message header fields.
+ * @param ver     2-bit CoAP version field.
+ * @param buf_len Total datagram byte length.
+ * @return true if header fields satisfy RFC 7252 format rules, false otherwise.
+ */
+static bool coap_hdr_valid(const SYN_CoapMsg *msg, uint8_t ver, size_t buf_len)
+{
+    if ((ver != COAP_VERSION) || (msg->token_len > 8U) ||
+        (buf_len < (size_t)(4U + msg->token_len))) {
+        return false;
+    }
+    if ((msg->code == 0U) && ((msg->token_len != 0U) || (buf_len > 4U))) {
+        return false;
+    }
+    uint8_t cls = (msg->code >> 5U) & 0x07U;
+    return (cls != 1U) && (cls != 3U) && (cls < 6U);
+}
+
 SYN_Status syn_coap_parse(SYN_CoapMsg *msg, SYN_CoapOption *options, size_t max_options,
                           size_t *option_count, const uint8_t *buf, size_t buf_len)
 {
@@ -293,15 +313,12 @@ SYN_Status syn_coap_parse(SYN_CoapMsg *msg, SYN_CoapOption *options, size_t max_
     }
 
     uint8_t ver = (buf[0] >> 6U) & 0x03U;
-    if (ver != COAP_VERSION) {
-        return SYN_ERROR;
-    }
     msg->type = (buf[0] >> 4U) & 0x03U;
     msg->token_len = buf[0] & 0x0FU;
     msg->code = buf[1];
     msg->msg_id = syn_peek_u16(buf, 2U);
 
-    if (msg->token_len > 8U || buf_len < (size_t)(4U + msg->token_len)) {
+    if (!coap_hdr_valid(msg, ver, buf_len)) {
         return SYN_ERROR;
     }
 
@@ -329,11 +346,15 @@ SYN_Status syn_coap_parse(SYN_CoapMsg *msg, SYN_CoapOption *options, size_t max_
             return SYN_ERROR;
         }
 
-        if (options != NULL && opt_idx < max_options) {
+        if ((options != NULL) && (opt_idx < max_options)) {
             options[opt_idx].num = prev_num;
             options[opt_idx].val = buf + pos;
             options[opt_idx].len = len;
             opt_idx++;
+        } else if ((prev_num & 1U) != 0U) {
+            return SYN_ERROR;
+        } else {
+            /* Dropped elective option is ignored per RFC 7252 Section 5.4.1 */
         }
         pos += len;
     }
@@ -342,18 +363,32 @@ SYN_Status syn_coap_parse(SYN_CoapMsg *msg, SYN_CoapOption *options, size_t max_
 }
 
 /**
- * @brief Initialize exponential retransmit backoff without shift UB or uint8_t wraparound.
+ * @brief Initialize exponential retransmit backoff (forcing 0 retries for NON requests).
  * @param b          [out] Backoff state.
+ * @param msg        CoAP request message descriptor (may be NULL).
  * @param timeout_ms Initial retransmit timeout in milliseconds.
- * @param retries    Maximum retransmission count.
+ * @param retries    Maximum retransmission count for confirmable messages.
  */
-static void coap_init_backoff(SYN_Backoff *b, uint32_t timeout_ms, uint8_t retries)
+static void coap_init_backoff(SYN_Backoff *b, const SYN_CoapMsg *msg, uint32_t timeout_ms,
+                              uint8_t retries)
 {
-    uint8_t shift = (retries > 16U) ? 16U : retries;
+    uint8_t eff = ((msg != NULL) && (msg->type == COAP_TYPE_NON)) ? 0U : retries;
+    uint8_t shift = (eff > 16U) ? 16U : eff;
     uint64_t scaled = (uint64_t)timeout_ms << shift;
     uint32_t max_ms = (scaled > 0x7FFFFFFFULL) ? 0x7FFFFFFFU : (uint32_t)scaled;
-    uint8_t max_attempts = (retries == UINT8_MAX) ? UINT8_MAX : (uint8_t)(retries + 1U);
+    uint8_t max_attempts = (eff == UINT8_MAX) ? UINT8_MAX : (uint8_t)(eff + 1U);
     syn_backoff_init(b, timeout_ms, max_ms, 2U, max_attempts);
+}
+
+/**
+ * @brief Validate protothread and task user_data pointers for CoAP request tasks.
+ * @param pt   Protothread control block.
+ * @param task Scheduler task descriptor.
+ * @return true if pt, task, and task->user_data are all non-NULL.
+ */
+static bool coap_pt_args_valid(const SYN_PT *pt, const SYN_Task *task)
+{
+    return (pt != NULL) && (task != NULL) && (task->user_data != NULL);
 }
 
 /**
@@ -366,6 +401,17 @@ static void coap_close_sock(SYN_CoapRequest *r)
         syn_port_sock_close(r->sock);
         r->sock = SYN_SOCKET_INVALID;
     }
+}
+
+/**
+ * @brief Check whether a parsed CoAP message is an RFC 7252 Empty Reset matching the request MID.
+ * @param req  Active request message header.
+ * @param resp Parsed inbound message header.
+ * @return true if resp is COAP_TYPE_RST with code 0.00 and matching msg_id.
+ */
+static bool coap_response_is_rst(const SYN_CoapMsg *req, const SYN_CoapMsg *resp)
+{
+    return (resp->type == COAP_TYPE_RST) && (resp->code == 0U) && (resp->msg_id == req->msg_id);
 }
 
 /**
@@ -408,32 +454,49 @@ static bool coap_tr_wait_done(const SYN_CoapTransportRequest *r)
 void syn_coap_request_init(SYN_CoapRequest *r, const SYN_SockAddr *server_addr,
                            const SYN_CoapMsg *msg, uint32_t timeout_ms, uint8_t retries)
 {
-    SYN_ASSERT(r != NULL);
+    if (r == NULL) {
+        return;
+    }
     (void)memset(r, 0, sizeof(*r));
     r->sock = SYN_SOCKET_INVALID;
+    if (server_addr == NULL) {
+        r->status = SYN_ERROR;
+        return;
+    }
     r->server_addr = *server_addr;
     r->req_msg = msg;
     r->start_ms = 0U;
-    coap_init_backoff(&r->backoff, timeout_ms, retries);
+    coap_init_backoff(&r->backoff, msg, timeout_ms, retries);
 }
 
 /**
- * @brief Parse a received UDP CoAP datagram and check whether it matches the request.
+ * @brief Parse a received UDP CoAP datagram and update request status on response or Reset.
  * @param r Request context.
  * @param n Received byte count (> 0).
- * @return true if parsed CoAP message matches r->req_msg.
+ * @return true if a matching response or RFC 7252 Reset completed the request, false otherwise.
  */
 static bool coap_udp_consume_rx(SYN_CoapRequest *r, size_t n)
 {
     r->resp_len = n;
     SYN_Status st =
         syn_coap_parse(&r->resp_msg, r->resp_options, 8U, &r->resp_option_count, r->resp_buf, n);
-    return (st == SYN_OK) && coap_response_matches(r->req_msg, &r->resp_msg);
+    if (st != SYN_OK) {
+        return false;
+    }
+    if (coap_response_is_rst(r->req_msg, &r->resp_msg)) {
+        r->status = SYN_ERROR;
+        return true;
+    }
+    if (coap_response_matches(r->req_msg, &r->resp_msg)) {
+        r->status = SYN_OK;
+        return true;
+    }
+    return false;
 }
 
 SYN_PT_Status syn_coap_request_task(SYN_PT *pt, SYN_Task *task)
 {
-    if (pt == NULL || task == NULL || task->user_data == NULL) {
+    if (!coap_pt_args_valid(pt, task)) {
         return PT_EXITED;
     }
     SYN_CoapRequest *r = (SYN_CoapRequest *)task->user_data;
@@ -479,7 +542,6 @@ SYN_PT_Status syn_coap_request_task(SYN_PT *pt, SYN_Task *task)
             int n = syn_port_udp_recvfrom(r->sock, r->resp_buf, sizeof(r->resp_buf), &from, 0);
             if (n > 0) {
                 if (coap_udp_consume_rx(r, (size_t)n)) {
-                    r->status = SYN_OK;
                     break;
                 }
                 PT_CONTINUE_IF_NEEDED(pt, task);
@@ -492,7 +554,7 @@ SYN_PT_Status syn_coap_request_task(SYN_PT *pt, SYN_Task *task)
             PT_WAIT_UNTIL(pt, coap_udp_wait_done(r));
         }
 
-        if (r->status == SYN_OK) {
+        if (r->status != SYN_TIMEOUT) {
             break;
         }
     }
@@ -514,18 +576,18 @@ void syn_coap_transport_request_init(SYN_CoapTransportRequest *r, SYN_Transport 
     r->transport = transport;
     r->req_msg = msg;
     r->start_ms = 0U;
-    coap_init_backoff(&r->backoff, timeout_ms, retries);
+    coap_init_backoff(&r->backoff, msg, timeout_ms, retries);
 }
 
 /**
- * @brief Poll transport once and check whether a matching CoAP response arrived.
- * @param r           Transport request context.
- * @param matched_out [out] Set true when matching response parsed into r->resp_msg.
+ * @brief Poll transport once and update request status on matching response or Reset.
+ * @param r        Transport request context.
+ * @param done_out [out] Set true when a matching response or RFC 7252 Reset completed the request.
  * @return true if a non-empty frame was read from transport, false otherwise.
  */
-static bool coap_tr_poll_rx(SYN_CoapTransportRequest *r, bool *matched_out)
+static bool coap_tr_poll_rx(SYN_CoapTransportRequest *r, bool *done_out)
 {
-    *matched_out = false;
+    *done_out = false;
     size_t rx_len = 0U;
     if (!syn_transport_recv(r->transport, r->resp_buf, sizeof(r->resp_buf), &rx_len) ||
         rx_len == 0U) {
@@ -534,13 +596,24 @@ static bool coap_tr_poll_rx(SYN_CoapTransportRequest *r, bool *matched_out)
     r->resp_len = rx_len;
     SYN_Status st = syn_coap_parse(&r->resp_msg, r->resp_options, 8U, &r->resp_option_count,
                                    r->resp_buf, r->resp_len);
-    *matched_out = (st == SYN_OK) && coap_response_matches(r->req_msg, &r->resp_msg);
+    if (st != SYN_OK) {
+        return true;
+    }
+    if (coap_response_is_rst(r->req_msg, &r->resp_msg)) {
+        r->status = SYN_ERROR;
+        *done_out = true;
+    } else if (coap_response_matches(r->req_msg, &r->resp_msg)) {
+        r->status = SYN_OK;
+        *done_out = true;
+    } else {
+        /* Unmatched datagram ignored */
+    }
     return true;
 }
 
 SYN_PT_Status syn_coap_transport_request_task(SYN_PT *pt, SYN_Task *task)
 {
-    if (task == NULL || pt == NULL || task->user_data == NULL) {
+    if (!coap_pt_args_valid(pt, task)) {
         return PT_EXITED;
     }
     SYN_CoapTransportRequest *r = (SYN_CoapTransportRequest *)task->user_data;
@@ -573,10 +646,9 @@ SYN_PT_Status syn_coap_transport_request_task(SYN_PT *pt, SYN_Task *task)
         r->start_ms = syn_port_get_tick_ms();
 
         while ((syn_port_get_tick_ms() - r->start_ms) < r->attempt_delay) {
-            bool matched = false;
-            if (coap_tr_poll_rx(r, &matched)) {
-                if (matched) {
-                    r->status = SYN_OK;
+            bool done = false;
+            if (coap_tr_poll_rx(r, &done)) {
+                if (done) {
                     break;
                 }
                 PT_CONTINUE_IF_NEEDED(pt, task);
@@ -588,7 +660,7 @@ SYN_PT_Status syn_coap_transport_request_task(SYN_PT *pt, SYN_Task *task)
             }
         }
 
-        if (r->status == SYN_OK) {
+        if (r->status != SYN_TIMEOUT) {
             break;
         }
     }

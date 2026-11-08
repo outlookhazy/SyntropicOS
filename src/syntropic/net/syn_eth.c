@@ -81,9 +81,24 @@ SYN_Status syn_eth_init(SYN_ETH *eth, const uint8_t mac_addr[6], uint32_t ip_add
     return SYN_OK;
 }
 
+/**
+ * @brief Validate ARP sender MAC and IPv4 address for unicast cache insertion.
+ *
+ * @param sha 6-byte sender MAC address.
+ * @param spa 32-bit sender IPv4 address (host byte order).
+ * @return true if both sender MAC and sender IPv4 are unicast, false otherwise.
+ */
+static bool eth_arp_sender_valid(const uint8_t sha[6], uint32_t spa)
+{
+    if ((sha[0] & 0x01U) != 0U) {
+        return false;
+    }
+    return (spa != 0U && spa != 0xFFFFFFFFUL && (spa & 0xF0000000UL) != 0xE0000000UL);
+}
+
 SYN_Status syn_eth_arp_update(SYN_ETH *eth, uint32_t ip, const uint8_t mac[6])
 {
-    if (!eth || !mac || ip == 0) {
+    if (eth == NULL || mac == NULL || !eth_arp_sender_valid(mac, ip)) {
         return SYN_INVALID_PARAM;
     }
 
@@ -195,6 +210,32 @@ static bool eth_accept_dst_mac(const SYN_ETH *eth, const uint8_t dst_mac[6])
 }
 
 /**
+ * @brief Learn or refresh ARP cache entry per RFC 826 Merge_flag rules.
+ *
+ * @param eth        Ethernet interface instance.
+ * @param sender_ip  32-bit sender IPv4 address (SPA).
+ * @param sender_mac 6-byte sender MAC address (SHA).
+ * @param target_ip  32-bit target IPv4 address (TPA).
+ */
+static void eth_arp_learn(SYN_ETH *eth, uint32_t sender_ip, const uint8_t sender_mac[6],
+                          uint32_t target_ip)
+{
+    if (!eth_arp_sender_valid(sender_mac, sender_ip)) {
+        return;
+    }
+    for (size_t i = 0U; i < SYN_ETH_ARP_CACHE_SIZE; i++) {
+        if (eth->arp_cache[i].valid && eth->arp_cache[i].ip == sender_ip) {
+            memcpy(eth->arp_cache[i].mac, sender_mac, 6U);
+            eth->arp_cache[i].last_seen_ms = syn_port_get_tick_ms();
+            return;
+        }
+    }
+    if (eth->ip_addr != 0U && target_ip == eth->ip_addr) {
+        (void)syn_eth_arp_update(eth, sender_ip, sender_mac);
+    }
+}
+
+/**
  * @brief Process an inbound ARP frame (>= 42 bytes) and optionally emit ARP reply.
  * @param eth    Ethernet interface instance.
  * @param frame  Raw Ethernet II frame.
@@ -217,11 +258,12 @@ static void eth_process_arp(SYN_ETH *eth, const uint8_t *frame, uint8_t *tx_buf,
     uint32_t target_ip = ((uint32_t)frame[38] << 24U) | ((uint32_t)frame[39] << 16U) |
                          ((uint32_t)frame[40] << 8U) | frame[41];
 
-    syn_eth_arp_update(eth, sender_ip, sender_mac);
+    eth_arp_learn(eth, sender_ip, sender_mac, target_ip);
 
     if (oper == SYN_ARP_OP_REQUEST) {
         eth->arp_requests++;
-        if (target_ip == eth->ip_addr && tx_buf && tx_len) {
+        if (eth->ip_addr != 0U && target_ip == eth->ip_addr && (sender_mac[0] & 0x01U) == 0U &&
+            tx_buf != NULL && tx_len != NULL) {
             uint8_t arp_reply_payload[28];
             arp_reply_payload[0] = 0U;
             arp_reply_payload[1] = 1U;
@@ -253,6 +295,26 @@ static void eth_process_arp(SYN_ETH *eth, const uint8_t *frame, uint8_t *tx_buf,
 }
 
 /**
+ * @brief Validate IPv4 header version, IHL bounds, and non-fragmentation.
+ *
+ * @param frame Raw Ethernet II frame.
+ * @param len   Frame byte length (>= 34).
+ * @return true if packet is an unfragmented IPv4 frame with valid IHL, false otherwise.
+ */
+static bool eth_ipv4_hdr_valid(const uint8_t *frame, size_t len)
+{
+    if ((frame[14] >> 4U) != 4U) {
+        return false;
+    }
+    size_t ip_ihl = (size_t)(frame[14] & 0x0FU) * 4U;
+    if (ip_ihl < 20U || (14U + ip_ihl) > len) {
+        return false;
+    }
+    uint16_t flags_frag = ((uint16_t)frame[20] << 8U) | frame[21];
+    return (flags_frag & 0x3FFFU) == 0U;
+}
+
+/**
  * @brief Dispatch an inbound IPv4 frame to UDP, ICMP, IGMP, or TCP protocol engine.
  * @param eth    Ethernet interface instance.
  * @param frame  Raw Ethernet II frame.
@@ -263,8 +325,7 @@ static void eth_process_arp(SYN_ETH *eth, const uint8_t *frame, uint8_t *tx_buf,
 static void eth_process_ipv4(SYN_ETH *eth, const uint8_t *frame, size_t len, uint8_t *tx_buf,
                              size_t *tx_len)
 {
-    size_t ip_ihl = (size_t)(frame[14] & 0x0FU) * 4U;
-    if (ip_ihl < 20U || (14U + ip_ihl) > len) {
+    if (!eth_ipv4_hdr_valid(frame, len)) {
         return;
     }
 
@@ -366,10 +427,8 @@ size_t syn_eth_pack_header(uint8_t *buf, size_t buf_size, const uint8_t dst_mac[
 size_t syn_ip_pack_header(uint8_t *buf, size_t buf_size, uint32_t src_ip, uint32_t dst_ip,
                           uint8_t proto, uint16_t payload_len, uint16_t id)
 {
-    if (!buf || buf_size < 20U) {
-        /* LCOV_EXCL_START: Invalid param guard */
-        return 0;
-        /* LCOV_EXCL_STOP */
+    if (buf == NULL || buf_size < 20U || payload_len > (uint16_t)(65535U - 20U)) {
+        return 0U;
     }
 
     uint16_t total_ip_len = (uint16_t)(20U + payload_len);

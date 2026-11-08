@@ -186,9 +186,25 @@ static void test_r5_a18_heartbeat_separate_lost_and_found_ctx(void)
     TEST_ASSERT_EQUAL_UINT32(21U, found_counter);
 }
 
+static void test_tier_a_heartbeat_router_registered(void)
+{
+    mock_transport_reset();
+    SYN_Transport hbt = {.send = rt_send, .recv = rt_recv, .ctx = NULL};
+    SYN_RouterHandler hbh[1];
+    SYN_Router hbr;
+    syn_router_init(&hbr, 0x01U, &hbt, hbh, 1U);
+
+    SYN_HB_Peer peers[1];
+    SYN_Heartbeat hb;
+    syn_heartbeat_init(&hb, &hbr, peers, 1U, 500U, 1500U);
+    TEST_ASSERT_EQUAL_UINT8(1U, hbr.handler_count);
+    TEST_ASSERT_EQUAL_UINT8(SYN_MSG_HEARTBEAT, hbh[0].type);
+}
+
 void run_heartbeat_tests(void)
 {
     RUN_TEST(test_heartbeat);
     RUN_TEST(test_heartbeat_errlog);
     RUN_TEST(test_r5_a18_heartbeat_separate_lost_and_found_ctx);
+    RUN_TEST(test_tier_a_heartbeat_router_registered);
 }

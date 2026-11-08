@@ -135,6 +135,23 @@ static void mqtt_reset_session(SYN_MqttClient *c)
 }
 
 /**
+ * @brief Transmit an MQTT packet on an active session, updating activity or resetting on error.
+ * @param c   MQTT client context.
+ * @param buf Packet bytes to transmit.
+ * @param len Number of bytes to transmit.
+ * @return true if all bytes sent, false if transport failed and session was reset.
+ */
+static bool mqtt_send_tracked(SYN_MqttClient *c, const uint8_t *buf, size_t len)
+{
+    if (syn_port_sock_send_all(c->sock, buf, len) != (int)len) {
+        mqtt_reset_session(c);
+        return false;
+    }
+    c->last_activity_ms = syn_port_get_tick_ms();
+    return true;
+}
+
+/**
  * @brief Append a 16-bit length-prefixed UTF-8 string into an MQTT packet buffer.
  * @param tx  Destination buffer.
  * @param pos [in,out] Write cursor.
@@ -274,28 +291,35 @@ SYN_Status syn_mqtt_ping(SYN_MqttClient *client)
 static void handle_publish(SYN_MqttClient *c, const uint8_t *payload, uint32_t len,
                            uint8_t qos_bits)
 {
-    if (len < 2)
+    uint8_t qos = (qos_bits >> 1U) & 0x03U;
+    if ((qos == 0U) && ((qos_bits & 0x08U) != 0U)) {
+        mqtt_reset_session(c);
         return;
+    }
+    if (len < 2U) {
+        return;
+    }
 
-    uint16_t topic_len = syn_peek_u16(payload, 0);
-    if ((uint32_t)(2 + topic_len) > len)
+    uint16_t topic_len = syn_peek_u16(payload, 0U);
+    if ((2U + (uint32_t)topic_len) > len) {
         return;
+    }
 
     /* Extract topic string dynamically */
     char topic[64];
-    size_t to_copy = topic_len < sizeof(topic) - 1 ? topic_len : sizeof(topic) - 1;
-    memcpy(topic, payload + 2, to_copy);
+    size_t to_copy = (topic_len < (sizeof(topic) - 1U)) ? topic_len : (sizeof(topic) - 1U);
+    memcpy(topic, payload + 2U, to_copy);
     topic[to_copy] = '\0';
 
-    size_t payload_offset = 2 + topic_len;
-    uint16_t packet_id = 0;
-    uint8_t qos = (qos_bits >> 1) & 0x03;
+    size_t payload_offset = 2U + topic_len;
+    uint16_t packet_id = 0U;
 
-    if (qos > 0) {
-        if (payload_offset + 2 > len)
+    if (qos > 0U) {
+        if ((payload_offset + 2U) > len) {
             return;
+        }
         packet_id = syn_peek_u16(payload, payload_offset);
-        payload_offset += 2;
+        payload_offset += 2U;
     }
 
     if (c->on_message != NULL) {
@@ -303,13 +327,26 @@ static void handle_publish(SYN_MqttClient *c, const uint8_t *payload, uint32_t l
     }
 
     /* QoS 1 ACK (PUBACK) */
-    if (qos == 1) {
+    if (qos == 1U) {
         uint8_t puback[4];
-        puback[0] = 0x40;
-        puback[1] = 0x02;
-        syn_poke_u16(packet_id, puback, 2);
-        syn_port_sock_send_all(c->sock, puback, 4);
+        puback[0] = 0x40U;
+        puback[1] = 0x02U;
+        syn_poke_u16(packet_id, puback, 2U);
+        (void)syn_port_sock_send_all(c->sock, puback, 4U);
     }
+}
+
+/**
+ * @brief Validate an inbound MQTT 3.1.1 CONNACK packet.
+ * @param c MQTT client context with complete packet in rx_buf.
+ * @return true if CONNACK is well-formed and accepted while CONNECTING, false otherwise.
+ */
+static bool mqtt_connack_valid(const SYN_MqttClient *c)
+{
+    if ((c->state != SYN_MQTT_CONNECTING) || (c->rx_header != 0x20U) || (c->rx_rem_len != 2U)) {
+        return false;
+    }
+    return ((c->rx_buf[0] & 0xFEU) == 0U) && (c->rx_buf[1] == 0U);
 }
 
 /**
@@ -322,7 +359,7 @@ static void process_packet(SYN_MqttClient *c)
     uint32_t rem_len = c->rx_rem_len;
 
     if (type == 0x20U) {
-        if (rem_len >= 2U && c->rx_buf[1] == 0U) {
+        if (mqtt_connack_valid(c)) {
             c->state = SYN_MQTT_CONNECTED;
         } else {
             mqtt_reset_session(c);
@@ -620,12 +657,12 @@ SYN_Status syn_mqtt_publish(SYN_MqttClient *client, const char *topic, const voi
         pos += len;
     }
 
-    if (syn_port_sock_send_all(client->sock, tx, pos) != (int)pos) {
+    if (!mqtt_send_tracked(client, tx, pos)) {
         return SYN_ERROR;
     }
     if (qos > 0U) {
         client->pending_puback_id = pkt_id;
-        client->pending_puback_ms = syn_port_get_tick_ms();
+        client->pending_puback_ms = client->last_activity_ms;
         mqtt_store_retransmit(client, tx, pos);
     }
     return SYN_OK;
@@ -664,8 +701,7 @@ SYN_Status syn_mqtt_subscribe(SYN_MqttClient *client, const char *topic, uint8_t
     mqtt_put_str(tx, &pos, topic, (uint16_t)topic_len);
     tx[pos++] = qos;
 
-    int sent = syn_port_sock_send_all(client->sock, tx, pos);
-    return (sent == (int)pos) ? SYN_OK : SYN_ERROR;
+    return mqtt_send_tracked(client, tx, pos) ? SYN_OK : SYN_ERROR;
 }
 
 void syn_mqtt_disconnect(SYN_MqttClient *client)
@@ -802,11 +838,13 @@ static bool mqtt_step_active(SYN_MqttClient *c)
     }
 
     now = syn_port_get_tick_ms();
-    if (c->pending_puback_id != 0U && c->retransmit_len > 0U &&
-        (now - c->pending_puback_ms) >= MQTT_ACK_TIMEOUT_MS) {
-        c->pending_puback_ms = now;
+    if ((c->pending_puback_id != 0U) && (c->retransmit_len > 0U) &&
+        ((now - c->pending_puback_ms) >= MQTT_ACK_TIMEOUT_MS)) {
         c->retransmit_buf[0] |= 0x08U;
-        (void)syn_port_sock_send_all(c->sock, c->retransmit_buf, c->retransmit_len);
+        if (!mqtt_send_tracked(c, c->retransmit_buf, c->retransmit_len)) {
+            return false;
+        }
+        c->pending_puback_ms = c->last_activity_ms;
     }
     return progressed;
 }

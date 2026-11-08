@@ -470,6 +470,54 @@ static void test_dhcp_round4_reject_bootrequest(void)
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dhcp_process_packet(&dhcp, NULL, pkt, 244U));
 }
 
+static void test_tier_a_dhcp_regressions(void)
+{
+    SYN_DHCP dhcp;
+    SYN_ETH eth;
+    syn_eth_init(&eth, MAC, 0U);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dhcp_init(&dhcp, XID));
+
+    /* NET-12a: DHCPACK with yiaddr == 0.0.0.0 must be rejected */
+    uint8_t pkt[250] = {0};
+    pkt[0] = 2U;
+    pkt[4] = (uint8_t)(XID >> 24U);
+    pkt[5] = (uint8_t)(XID >> 16U);
+    pkt[6] = (uint8_t)(XID >> 8U);
+    pkt[7] = (uint8_t)(XID);
+    pkt[236] = 0x63U;
+    pkt[237] = 0x82U;
+    pkt[238] = 0x53U;
+    pkt[239] = 0x63U;
+    pkt[240] = SYN_DHCP_OPT_MSG_TYPE;
+    pkt[241] = 1U;
+    pkt[242] = SYN_DHCP_ACK;
+    pkt[243] = SYN_DHCP_OPT_END;
+
+    SYN_Status st = syn_dhcp_process_packet(&dhcp, &eth, pkt, 244U);
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, st);
+    TEST_ASSERT_EQUAL_INT(SYN_DHCP_STATE_INIT, dhcp.state);
+    TEST_ASSERT_EQUAL_UINT32(0U, eth.ip_addr);
+
+    /* Bind valid lease first, then verify DHCPNAK resets state and clears eth->ip_addr */
+    pkt[16] = 192U;
+    pkt[17] = 168U;
+    pkt[18] = 1U;
+    pkt[19] = 55U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dhcp_process_packet(&dhcp, &eth, pkt, 244U));
+    TEST_ASSERT_EQUAL_INT(SYN_DHCP_STATE_BOUND, dhcp.state);
+    TEST_ASSERT_EQUAL_UINT32(0xC0A80137UL, eth.ip_addr);
+
+    pkt[16] = 0U;
+    pkt[17] = 0U;
+    pkt[18] = 0U;
+    pkt[19] = 0U;
+    pkt[242] = SYN_DHCP_NAK;
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_dhcp_process_packet(&dhcp, &eth, pkt, 244U));
+    TEST_ASSERT_EQUAL_INT(SYN_DHCP_STATE_INIT, dhcp.state);
+    TEST_ASSERT_EQUAL_UINT32(0U, dhcp.offered_ip);
+    TEST_ASSERT_EQUAL_UINT32(0U, eth.ip_addr);
+}
+
 void run_dhcp_tests(void)
 {
     RUN_TEST(test_dhcp_init);
@@ -480,4 +528,5 @@ void run_dhcp_tests(void)
     RUN_TEST(test_dhcp_null_checks);
     RUN_TEST(test_dhcp_null_and_invalid_params);
     RUN_TEST(test_dhcp_round4_reject_bootrequest);
+    RUN_TEST(test_tier_a_dhcp_regressions);
 }

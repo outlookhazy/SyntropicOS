@@ -69,7 +69,9 @@ void syn_heartbeat_init(SYN_Heartbeat *hb, SYN_Router *router, SYN_HB_Peer *peer
     memset(peers, 0, sizeof(SYN_HB_Peer) * peer_cap);
 
     /* Register heartbeat handler on the router */
-    syn_router_register(router, SYN_MSG_HEARTBEAT, hb_rx_handler, hb);
+    bool reg_ok = syn_router_register(router, SYN_MSG_HEARTBEAT, hb_rx_handler, hb);
+    SYN_ASSERT(reg_ok);
+    (void)reg_ok;
 }
 
 bool syn_heartbeat_add_peer(SYN_Heartbeat *hb, uint8_t node_id)

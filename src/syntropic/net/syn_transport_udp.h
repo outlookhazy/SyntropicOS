@@ -54,6 +54,12 @@ SYN_Socket syn_transport_udp_open(uint16_t port);
 
 /**
  * @brief Transmit a UDP datagram via the bound native UDP instance and Ethernet port.
+ *
+ * @note Outbound Ethernet frames are assembled in a shared module-static 1514-byte
+ *       buffer (`g_udp_tx_buf[1514]`). Callers must invoke this function only from
+ *       the single cooperative scheduler/network task context (not from ISRs or
+ *       concurrent preemptive threads).
+ *
  * @param sock_handle Native UDP socket handle.
  * @param data        Datagram payload bytes.
  * @param len         Payload byte length.

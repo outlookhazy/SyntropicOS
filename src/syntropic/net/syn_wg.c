@@ -358,111 +358,122 @@ static void wg_mac1(uint8_t mac[16], const uint8_t peer_pub[32], const uint8_t *
  *  Handshake: Initiation (we are the initiator)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
+/**
+ * @brief Compute X25519 DH, mix into Noise chaining key, and verify non-zero in constant time.
+ * @param ck   [in,out] Running 32-byte Noise chaining key.
+ * @param k    [out] Derived 32-byte AEAD key.
+ * @param priv 32-byte local private scalar.
+ * @param pub  32-byte peer public point.
+ * @return 0U if the 32-byte shared secret is all-zero (RFC 7748 Section 6.1), 1U otherwise.
+ */
+static uint8_t wg_dh_mix_key(uint8_t ck[32], uint8_t k[32], const uint8_t priv[32],
+                             const uint8_t pub[32])
+{
+    static const uint8_t zero32[32] = {0U};
+    uint8_t dh[32];
+    syn_x25519(dh, priv, pub);
+    uint8_t valid = syn_ct_memeq(dh, zero32, 32U) ? 0U : 1U;
+    wg_mix_key(ck, k, dh, 32U);
+    syn_secure_zero(dh, sizeof(dh));
+    return valid;
+}
+
+/**
+ * @brief Initialize Noise_IKpsk2 chaining key and handshake hash with responder static public key.
+ * @param ck       [out] 32-byte initial chaining key.
+ * @param h        [out] 32-byte initial handshake hash.
+ * @param peer_pub 32-byte responder static public key.
+ */
+static void wg_init_noise_state(uint8_t ck[32], uint8_t h[32], const uint8_t peer_pub[32])
+{
+    SYN_BLAKE2s tmp;
+    syn_blake2s(WG_CONSTRUCTION, sizeof(WG_CONSTRUCTION) - 1U, ck, 32U);
+    syn_blake2s_init(&tmp, 32U);
+    syn_blake2s_update(&tmp, ck, 32U);
+    syn_blake2s_update(&tmp, WG_IDENTIFIER, sizeof(WG_IDENTIFIER) - 1U);
+    syn_blake2s_final(&tmp, h);
+    wg_mix_hash(h, peer_pub, 32U);
+}
+
 /** @brief Build and send a Noise_IKpsk2 handshake initiation message.
  * @param wg Client context.
  * @return true if message was built and sent.
  */
 static bool wg_send_initiation(SYN_WG *wg)
 {
-    uint8_t *msg = wg->tx_buf;
-    uint8_t *h = wg->hs_hash;
-    uint8_t *ck = wg->hs_chaining_key;
+    if (wg->tx_buf_size < SYN_WG_INITIATION_SIZE) {
+        return false;
+    }
+
+    uint8_t eph_priv[32];
+    if (syn_random_fill(eph_priv, 32U) != SYN_OK) {
+        return false;
+    }
+    syn_x25519_clamp(eph_priv);
+
+    uint8_t ck_tmp[32];
+    uint8_t h_tmp[32];
+    uint8_t eph_pub[32];
     uint8_t k[32];
-    uint8_t dh_result[32];
     uint8_t timestamp[12];
-    size_t pos;
+    uint8_t *msg = wg->tx_buf;
 
-    if (wg->tx_buf_size < SYN_WG_INITIATION_SIZE)
-        return false;
+    wg_init_noise_state(ck_tmp, h_tmp, wg->config.peer_public_key);
+    syn_x25519_pubkey(eph_pub, eph_priv);
 
-    /* Initialize Noise:
-     * C = HASH(CONSTRUCTION)
-     * H = HASH(C || IDENTIFIER)
-     * H = HASH(H || S_pub_responder)
-     */
-    syn_blake2s(WG_CONSTRUCTION, sizeof(WG_CONSTRUCTION) - 1, ck, 32);
-    {
-        SYN_BLAKE2s tmp;
-        syn_blake2s_init(&tmp, 32);
-        syn_blake2s_update(&tmp, ck, 32);
-        syn_blake2s_update(&tmp, WG_IDENTIFIER, sizeof(WG_IDENTIFIER) - 1);
-        syn_blake2s_final(&tmp, h);
-    }
-    wg_mix_hash(h, wg->config.peer_public_key, 32);
-
-    /* Generate ephemeral keypair */
-    /* Now using secure syn_random_fill */
-    if (syn_random_fill(wg->hs_ephemeral_priv, 32) != SYN_OK) {
-        return false;
-    }
-    syn_x25519_clamp(wg->hs_ephemeral_priv);
-
-    uint8_t ephemeral_pub[32];
-    syn_x25519_pubkey(ephemeral_pub, wg->hs_ephemeral_priv);
-
-    /* Message type + reserved */
-    pos = 0;
-    store32_le(msg + pos, SYN_WG_MSG_INITIATION);
-    pos += 4;
-
-    /* Sender index (preserve active session index during hitless rekey) */
     uint32_t init_sender_idx = syn_random_u32();
-    wg->hs_sender_index = init_sender_idx;
-    if (wg->state != SYN_WG_ESTABLISHED) {
-        wg->session.sender_index = init_sender_idx;
-    }
+    size_t pos = 0U;
+    store32_le(msg + pos, SYN_WG_MSG_INITIATION);
+    pos += 4U;
     store32_le(msg + pos, init_sender_idx);
-    pos += 4;
+    pos += 4U;
 
-    /* msg.ephemeral = E_pub */
-    memcpy(msg + pos, ephemeral_pub, 32);
+    memcpy(msg + pos, eph_pub, 32U);
+    wg_mix_key(ck_tmp, k, eph_pub, 32U);
+    wg_mix_hash(h_tmp, eph_pub, 32U);
+    pos += 32U;
 
-    /* C, k = KDF(C, E_pub) */
-    wg_mix_key(ck, k, ephemeral_pub, 32);
-    /* H = HASH(H || E_pub) */
-    wg_mix_hash(h, ephemeral_pub, 32);
-    pos += 32;
+    /* DH #1 & DH #2: reject low-order peer static public key in constant time */
+    uint8_t dh_ok = wg_dh_mix_key(ck_tmp, k, eph_priv, wg->config.peer_public_key);
+    wg_encrypt_and_hash(h_tmp, k, wg->public_key, 32U, msg + pos, msg + pos + 32U);
+    pos += 48U;
 
-    /* msg.static = AEAD(k, 0, S_pub_initiator, H) */
-    /* DH: C, k = KDF(C, DH(E_priv, S_pub_responder)) */
-    syn_x25519(dh_result, wg->hs_ephemeral_priv, wg->config.peer_public_key);
-    wg_mix_key(ck, k, dh_result, 32);
-    wg_encrypt_and_hash(h, k, wg->public_key, 32, msg + pos, msg + pos + 32);
-    pos += 48; /* 32 ciphertext + 16 tag */
-
-    /* msg.timestamp = AEAD(k, 0, timestamp, H) */
-    /* DH: C, k = KDF(C, DH(S_priv, S_pub_responder)) */
-    syn_x25519(dh_result, wg->config.private_key, wg->config.peer_public_key);
-    wg_mix_key(ck, k, dh_result, 32);
+    dh_ok &= wg_dh_mix_key(ck_tmp, k, wg->config.private_key, wg->config.peer_public_key);
     wg_tai64n(timestamp, wg->sntp);
-    wg_encrypt_and_hash(h, k, timestamp, 12, msg + pos, msg + pos + 12);
-    pos += 28; /* 12 ciphertext + 16 tag */
+    wg_encrypt_and_hash(h_tmp, k, timestamp, 12U, msg + pos, msg + pos + 12U);
+    pos += 28U;
 
-    /* mac1 = MAC(HASH("mac1----" || S_pub_responder), msg[0..pos]) */
     wg_mac1(msg + pos, wg->config.peer_public_key, msg, pos);
-    pos += 16;
-
-    /* mac2 = zeros (no cookie) */
-    memset(msg + pos, 0, 16);
-    pos += 16;
+    pos += 16U;
+    memset(msg + pos, 0, 16U);
+    pos += 16U;
 
     SYN_ASSERT(pos == SYN_WG_INITIATION_SIZE);
 
-    syn_secure_zero(k, sizeof(k));
-    syn_secure_zero(dh_result, sizeof(dh_result));
-    syn_secure_zero(timestamp, sizeof(timestamp));
-    syn_secure_zero(ephemeral_pub, sizeof(ephemeral_pub));
-
-    /* Send */
-    int sent = syn_port_udp_sendto(wg->udp_sock, msg, pos, &wg->config.endpoint);
-    if (sent != (int)pos) {
-        return false;
+    /* Commit handshake state only after UDP transmission succeeds */
+    bool sent_ok = (dh_ok != 0U) &&
+                   (syn_port_udp_sendto(wg->udp_sock, msg, pos, &wg->config.endpoint) == (int)pos);
+    if (sent_ok) {
+        memcpy(wg->hs_ephemeral_priv, eph_priv, 32U);
+        memcpy(wg->hs_chaining_key, ck_tmp, 32U);
+        memcpy(wg->hs_hash, h_tmp, 32U);
+        wg->hs_sender_index = init_sender_idx;
+        if (wg->state != SYN_WG_ESTABLISHED) {
+            wg->session.sender_index = init_sender_idx;
+        }
+        wg->last_sent_ms = syn_port_get_tick_ms();
+        wg->last_handshake_ms = wg->last_sent_ms;
+    } else {
+        syn_secure_zero(msg, pos);
     }
 
-    wg->last_sent_ms = syn_port_get_tick_ms();
-    wg->last_handshake_ms = wg->last_sent_ms;
-
-    return true;
+    syn_secure_zero(eph_priv, sizeof(eph_priv));
+    syn_secure_zero(eph_pub, sizeof(eph_pub));
+    syn_secure_zero(ck_tmp, sizeof(ck_tmp));
+    syn_secure_zero(h_tmp, sizeof(h_tmp));
+    syn_secure_zero(k, sizeof(k));
+    syn_secure_zero(timestamp, sizeof(timestamp));
+    return sent_ok;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -496,89 +507,54 @@ static bool wg_consume_response(SYN_WG *wg, const uint8_t *msg, size_t len)
     uint8_t k[32];
     uint8_t buf[32];
 
-    if (len != SYN_WG_RESPONSE_SIZE) {
+    if ((len != SYN_WG_RESPONSE_SIZE) || (load32_le(msg) != SYN_WG_MSG_RESPONSE)) {
         return false;
     }
 
-    /* Verify message type */
-    if (load32_le(msg) != SYN_WG_MSG_RESPONSE) {
-        return false;
+    /* Verify receiver_index and mac1 before any X25519 DH or handshake state mutation */
+    uint32_t expected_idx = wg->session.sender_index;
+    if ((wg->state == SYN_WG_ESTABLISHED) && wg->rekey_in_progress) {
+        expected_idx = wg->hs_sender_index;
     }
-
-    /* Verify receiver_index matches pending initiator index (or active session index) */
-    uint32_t expected_idx = (wg->state == SYN_WG_ESTABLISHED && wg->rekey_in_progress)
-                                ? wg->hs_sender_index
-                                : wg->session.sender_index;
-    uint32_t receiver = load32_le(msg + 8U);
-    if (receiver != expected_idx) {
-        return false;
-    }
-
-    /* Verify mac1 before any X25519 DH or handshake state mutation */
-    if (!wg_verify_response_mac1(wg, msg)) {
+    if ((load32_le(msg + 8U) != expected_idx) || !wg_verify_response_mac1(wg, msg)) {
         return false;
     }
 
     memcpy(h_tmp, wg->hs_hash, 32U);
     memcpy(ck_tmp, wg->hs_chaining_key, 32U);
 
-    /* Responder's ephemeral public key */
     const uint8_t *re_pub = msg + 12U;
-
-    /* C, k = KDF(C, E_pub_responder) */
     wg_mix_key(ck_tmp, k, re_pub, 32U);
-    /* H = HASH(H || E_pub_responder) */
     wg_mix_hash(h_tmp, re_pub, 32U);
 
-    /* DH: C, k = KDF(C, DH(E_priv_initiator, E_pub_responder)) */
-    syn_x25519(buf, wg->hs_ephemeral_priv, re_pub);
-    wg_mix_key(ck_tmp, k, buf, 32U);
+    /* DH #1 & DH #2: reject low-order responder ephemeral public key in constant time */
+    uint8_t dh_ok = wg_dh_mix_key(ck_tmp, k, wg->hs_ephemeral_priv, re_pub);
+    dh_ok &= wg_dh_mix_key(ck_tmp, k, wg->config.private_key, re_pub);
 
-    /* DH: C, k = KDF(C, DH(S_priv_initiator, E_pub_responder)) */
-    syn_x25519(buf, wg->config.private_key, re_pub);
-    wg_mix_key(ck_tmp, k, buf, 32U);
-
-    /* PSK: C, t, k = KDF3(C, Q) — Q is preshared key */
     wg_hkdf3(ck_tmp, buf, k, ck_tmp, wg->config.preshared_key, 32U);
     wg_mix_hash(h_tmp, buf, 32U);
 
-    /* Decrypt empty payload: AEAD(k, 0, "", H) */
-    /* msg.empty = 16 bytes at offset 44 (just the tag, no ciphertext) */
-    if (!wg_decrypt_and_hash(h_tmp, k, NULL, 0U, msg + 44U, NULL)) {
-        syn_secure_zero(h_tmp, sizeof(h_tmp));
-        syn_secure_zero(ck_tmp, sizeof(ck_tmp));
-        syn_secure_zero(k, sizeof(k));
-        syn_secure_zero(buf, sizeof(buf));
-        return false;
+    bool ok = (dh_ok != 0U) && wg_decrypt_and_hash(h_tmp, k, NULL, 0U, msg + 44U, NULL);
+    if (ok) {
+        wg->session.sender_index = expected_idx;
+        wg->session.receiver_index = load32_le(msg + 4U);
+        wg_hkdf2(wg->session.send_key, wg->session.recv_key, ck_tmp, (const uint8_t *)"", 0U);
+        wg->session.send_counter = 0U;
+        wg->session.recv_counter = 0U;
+        wg->session.recv_bitmap = 0U;
+        wg->session.established_ms = syn_port_get_tick_ms();
+        wg->rekey_in_progress = false;
+        wg->hs_sender_index = 0U;
+        syn_secure_zero(wg->hs_ephemeral_priv, sizeof(wg->hs_ephemeral_priv));
+        syn_secure_zero(wg->hs_chaining_key, sizeof(wg->hs_chaining_key));
+        syn_secure_zero(wg->hs_hash, sizeof(wg->hs_hash));
     }
 
-    /* Commit new session keys and indices atomically only after AEAD passes */
-    wg->session.sender_index = expected_idx;
-    wg->session.receiver_index = load32_le(msg + 4U);
-    memcpy(wg->hs_hash, h_tmp, 32U);
-    memcpy(wg->hs_chaining_key, ck_tmp, 32U);
-
-    /* Derive transport keys: (T_send, T_recv) = KDF2(C, "") */
-    wg_hkdf2(wg->session.send_key, wg->session.recv_key, ck_tmp, (const uint8_t *)"", 0U);
-
-    /* Initialize transport state */
-    wg->session.send_counter = 0U;
-    wg->session.recv_counter = 0U;
-    wg->session.recv_bitmap = 0U;
-    wg->session.established_ms = syn_port_get_tick_ms();
-    wg->rekey_in_progress = false;
-    wg->hs_sender_index = 0U;
-
-    /* Clear handshake and stack secrets */
-    syn_secure_zero(wg->hs_ephemeral_priv, sizeof(wg->hs_ephemeral_priv));
-    syn_secure_zero(wg->hs_chaining_key, sizeof(wg->hs_chaining_key));
-    syn_secure_zero(wg->hs_hash, sizeof(wg->hs_hash));
     syn_secure_zero(h_tmp, sizeof(h_tmp));
     syn_secure_zero(ck_tmp, sizeof(ck_tmp));
     syn_secure_zero(k, sizeof(k));
     syn_secure_zero(buf, sizeof(buf));
-
-    return true;
+    return ok;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -587,13 +563,16 @@ static bool wg_consume_response(SYN_WG *wg, const uint8_t *msg, size_t len)
 
 SYN_Status syn_wg_send(SYN_WG *wg, const uint8_t *ip_packet, size_t len)
 {
-    SYN_ASSERT(wg != NULL);
-
-    if (wg->state != SYN_WG_ESTABLISHED)
+    if ((wg == NULL) || ((ip_packet == NULL) && (len > 0U))) {
         return SYN_ERROR;
+    }
+    if ((wg->state != SYN_WG_ESTABLISHED) ||
+        (wg->session.send_counter >= SYN_WG_REJECT_AFTER_MESSAGES)) {
+        return SYN_ERROR;
+    }
 
-    if (wg->tx_buf_size < SYN_WG_TRANSPORT_OVERHEAD ||
-        len > (wg->tx_buf_size - SYN_WG_TRANSPORT_OVERHEAD)) {
+    if ((wg->tx_buf_size < SYN_WG_TRANSPORT_OVERHEAD) ||
+        (len > (wg->tx_buf_size - SYN_WG_TRANSPORT_OVERHEAD))) {
         return SYN_ERROR;
     }
     size_t total = len + SYN_WG_TRANSPORT_OVERHEAD;
@@ -603,22 +582,23 @@ SYN_Status syn_wg_send(SYN_WG *wg, const uint8_t *ip_packet, size_t len)
 
     /* Header: type(4) + receiver_index(4) + counter(8) */
     store32_le(msg, SYN_WG_MSG_TRANSPORT);
-    store32_le(msg + 4, wg->session.receiver_index);
-    store64_le(msg + 8, wg->session.send_counter);
+    store32_le(msg + 4U, wg->session.receiver_index);
+    store64_le(msg + 8U, wg->session.send_counter);
 
     /* Nonce: 4 zero bytes + 8-byte little-endian counter */
-    memset(nonce, 0, 4);
-    store64_le(nonce + 4, wg->session.send_counter);
+    memset(nonce, 0, 4U);
+    store64_le(nonce + 4U, wg->session.send_counter);
 
     /* Encrypt payload */
-    syn_aead_encrypt(wg->session.send_key, nonce, NULL, 0, ip_packet, len, msg + 16,
-                     msg + 16 + len);
+    syn_aead_encrypt(wg->session.send_key, nonce, NULL, 0U, ip_packet, len, msg + 16U,
+                     msg + 16U + len);
 
     wg->session.send_counter++;
 
     int sent = syn_port_udp_sendto(wg->udp_sock, msg, total, &wg->config.endpoint);
-    if (sent != (int)total)
+    if (sent != (int)total) {
         return SYN_ERROR;
+    }
     wg->tx_bytes += (uint64_t)len;
     SYN_METRIC_ADD(wg_tx_bytes, len);
     wg->last_sent_ms = syn_port_get_tick_ms();
@@ -636,17 +616,22 @@ SYN_Status syn_wg_send(SYN_WG *wg, const uint8_t *ip_packet, size_t len)
  */
 static bool wg_replay_test(const SYN_WgSession *s, uint64_t counter)
 {
+    if (counter >= SYN_WG_REJECT_AFTER_MESSAGES) {
+        return false;
+    }
     if (counter > s->recv_counter) {
         return true;
     }
 
     uint64_t diff = s->recv_counter - counter;
-    if (diff >= 64U)
+    if (diff >= 64U) {
         return false; /* Too old */
+    }
 
     uint64_t bit = 1ULL << (uint32_t)diff;
-    if ((s->recv_bitmap & bit) != 0ULL)
+    if ((s->recv_bitmap & bit) != 0ULL) {
         return false; /* Already seen */
+    }
 
     return true;
 }
@@ -844,13 +829,16 @@ static bool wg_handshake_timed_out(const SYN_WG *wg)
  */
 static bool wg_rekey_due(const SYN_WG *wg, uint32_t now)
 {
-    if ((now - wg->session.established_ms) <= (uint32_t)SYN_WG_REKEY_AFTER_TIME * 1000U) {
+    uint32_t rekey_ms = (uint32_t)SYN_WG_REKEY_AFTER_TIME * 1000U;
+    bool time_due = (now - wg->session.established_ms) > rekey_ms;
+    bool msg_due = wg->session.send_counter >= SYN_WG_REKEY_AFTER_MESSAGES;
+    if (!time_due && !msg_due) {
         return false;
     }
     if (!wg->rekey_in_progress) {
         return true;
     }
-    return (now - wg->last_handshake_ms) > (uint32_t)SYN_WG_REKEY_TIMEOUT * 1000U;
+    return (now - wg->last_handshake_ms) > ((uint32_t)SYN_WG_REKEY_TIMEOUT * 1000U);
 }
 
 /**

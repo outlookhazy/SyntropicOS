@@ -885,6 +885,105 @@ static void test_r5_n12_websocket_oversize_unmasked_and_pipelined(void)
                       syn_websocket_upgrade(&pipe_req, &pipe_resp, &ws, on_ws_message, NULL));
 }
 
+static void test_tier_a_websocket_framing_close_echo_and_key_ows(void)
+{
+    SYN_WebsocketSession ws;
+    SYN_PT pt;
+    SYN_Task task = {.user_data = &ws};
+
+    /* 1. syn_websocket_send rejects NULL data when len > 0 without writing header bytes */
+    mock_port_reset();
+    memset(&ws, 0, sizeof(ws));
+    ws.sock = 11;
+    ws.state = SYN_WS_STATE_CONNECTED;
+    mock_sock_connected = true;
+    mock_sock_tx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_websocket_send(&ws, 0x01U, NULL, 5U));
+    TEST_ASSERT_EQUAL_size_t(0U, mock_sock_tx_len);
+    TEST_ASSERT_EQUAL(SYN_WS_STATE_CONNECTED, ws.state);
+
+    /* 2. Sec-WebSocket-Key trims leading/trailing SP and HTAB; rejects empty/whitespace-only key */
+    mock_port_reset();
+    mock_sock_connected = true;
+    const char *ows_hdr = "Sec-WebSocket-Key:\t dGhlIHNhbXBsZSBub25jZQ== \t \r\n\r\n";
+    SYN_HttpdRequest req = {.path = "/ws", .method = SYN_HTTP_GET, .headers = ows_hdr};
+    SYN_HttpdResponse resp = {.sock = 11, .buf = (uint8_t *)ows_hdr, .buf_size = strlen(ows_hdr)};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_websocket_upgrade(&req, &resp, &ws, on_ws_message, NULL));
+    mock_sock_tx_buf[mock_sock_tx_len] = '\0';
+    const char *accept_hdr = "Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=";
+    TEST_ASSERT_NOT_NULL(strstr((const char *)mock_sock_tx_buf, accept_hdr));
+
+    const char *empty_key_hdr = "Sec-WebSocket-Key: \t  \r\n\r\n";
+    req.headers = empty_key_hdr;
+    resp.upgraded = false;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_websocket_upgrade(&req, &resp, &ws, on_ws_message, NULL));
+
+    /* 3. RSV1..3, FIN=0, continuation (0x00), unknown opcodes, and 1-byte Close fail with 1002 */
+    const uint8_t bad_frames[6][3] = {
+        {0xC1U, 0x00U, 0x00U}, /* RSV1 set */
+        {0x80U, 0x00U, 0x00U}, /* Continuation opcode 0x00 */
+        {0x01U, 0x00U, 0x00U}, /* Fragmented text FIN=0 */
+        {0x83U, 0x00U, 0x00U}, /* Reserved opcode 0x03 */
+        {0x8BU, 0x00U, 0x00U}, /* Reserved control opcode 0x0B */
+        {0x88U, 0x01U, 0x03U}, /* 1-byte Close payload */
+    };
+    const size_t bad_lens[6] = {2U, 2U, 2U, 2U, 2U, 3U};
+    for (size_t i = 0U; i < 6U; i++) {
+        mock_port_reset();
+        memset(&ws, 0, sizeof(ws));
+        ws.sock = 11;
+        ws.state = SYN_WS_STATE_CONNECTED;
+        mock_sock_connected = true;
+        mock_sock_tx_len = 0U;
+        mock_sock_set_response(bad_frames[i], bad_lens[i]);
+        PT_INIT(&pt);
+        TEST_ASSERT_EQUAL(PT_IDLE, syn_websocket_task(&pt, &task));
+        TEST_ASSERT_EQUAL(SYN_WS_STATE_CLOSED, ws.state);
+        TEST_ASSERT_EQUAL_size_t(4U, mock_sock_tx_len);
+        TEST_ASSERT_EQUAL_HEX8(0x88U, mock_sock_tx_buf[0]);
+        TEST_ASSERT_EQUAL_HEX8(0x02U, mock_sock_tx_buf[1]);
+        TEST_ASSERT_EQUAL_HEX8(0x03U, mock_sock_tx_buf[2]);
+        TEST_ASSERT_EQUAL_HEX8(0xEAU, mock_sock_tx_buf[3]);
+    }
+
+    /* 4. Valid Binary (0x02) + Pong (0x0A) + 2-byte Close echo + 0-byte Close echo */
+    mock_port_reset();
+    memset(&ws, 0, sizeof(ws));
+    ws.sock = 11;
+    ws.state = SYN_WS_STATE_CONNECTED;
+    ws.on_message = on_ws_message;
+    s_msg_callback_count = 0;
+    mock_sock_connected = true;
+    mock_sock_tx_len = 0U;
+    const uint8_t ok_frames[] = {0x82U, 2U, 0xAAU, 0xBBU, 0x8AU, 0U, 0x88U, 2U, 3U, 0xE8U};
+    mock_sock_set_response(ok_frames, sizeof(ok_frames));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_websocket_task(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(1, s_msg_callback_count);
+    TEST_ASSERT_EQUAL_HEX8(0x02U, s_last_opcode);
+    TEST_ASSERT_EQUAL(SYN_WS_STATE_CLOSED, ws.state);
+    TEST_ASSERT_EQUAL_size_t(4U, mock_sock_tx_len);
+    TEST_ASSERT_EQUAL_HEX8(0x88U, mock_sock_tx_buf[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x02U, mock_sock_tx_buf[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x03U, mock_sock_tx_buf[2]);
+    TEST_ASSERT_EQUAL_HEX8(0xE8U, mock_sock_tx_buf[3]);
+
+    mock_port_reset();
+    memset(&ws, 0, sizeof(ws));
+    ws.sock = 11;
+    ws.state = SYN_WS_STATE_CONNECTED;
+    mock_sock_connected = true;
+    mock_sock_tx_len = 0U;
+    const uint8_t empty_close[] = {0x88U, 0x00U};
+    mock_sock_set_response(empty_close, sizeof(empty_close));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_websocket_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_WS_STATE_CLOSED, ws.state);
+    TEST_ASSERT_EQUAL_size_t(2U, mock_sock_tx_len);
+    TEST_ASSERT_EQUAL_HEX8(0x88U, mock_sock_tx_buf[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x00U, mock_sock_tx_buf[1]);
+}
+
 void run_websocket_tests(void)
 {
     RUN_TEST(test_websocket_upgrade);
@@ -906,4 +1005,5 @@ void run_websocket_tests(void)
     RUN_TEST(test_websocket_round3_regressions);
     RUN_TEST(test_websocket_round4_upgrade_and_control_frames);
     RUN_TEST(test_r5_n12_websocket_oversize_unmasked_and_pipelined);
+    RUN_TEST(test_tier_a_websocket_framing_close_echo_and_key_ows);
 }

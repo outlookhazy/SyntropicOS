@@ -23,24 +23,26 @@
  */
 static bool tcp_send(const uint8_t *data, size_t len, void *ctx)
 {
-    const SYN_TransportTcp *tcp = (const SYN_TransportTcp *)ctx;
+    SYN_TransportTcp *tcp = (SYN_TransportTcp *)ctx;
     SYN_ASSERT(tcp != NULL);
-    SYN_ASSERT(len <= (size_t)0xFFFF);
 
-    if (tcp->sock == SYN_SOCKET_INVALID || (len > 0U && data == NULL)) {
+    if (tcp->sock == SYN_SOCKET_INVALID || len > 0xFFFFU || (len > 0U && data == NULL)) {
         return false;
     }
 
     uint8_t len_hdr[2];
-    len_hdr[0] = (uint8_t)(len >> 8);
-    len_hdr[1] = (uint8_t)(len & 0xFF);
+    len_hdr[0] = (uint8_t)(len >> 8U);
+    len_hdr[1] = (uint8_t)(len & 0xFFU);
 
-    if (syn_port_sock_send_all(tcp->sock, len_hdr, 2) != 2) {
+    if (syn_port_sock_send_all(tcp->sock, len_hdr, 2U) != 2) {
         return false;
     }
 
     if (len > 0U) {
         if (syn_port_sock_send_all(tcp->sock, data, len) != (int)len) {
+            syn_port_sock_close(tcp->sock);
+            tcp->sock = SYN_SOCKET_INVALID;
+            tcp->state = 0U;
             return false;
         }
     }

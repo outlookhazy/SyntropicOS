@@ -269,29 +269,95 @@ static void udp_deliver_to_socket(SYN_UdpSocket *sock, uint32_t src_ip, uint16_t
     }
 }
 
-SYN_Status syn_udp_process_packet(SYN_UDP *udp, const uint8_t *ip_packet, size_t len)
+/**
+ * @brief Validate inbound IPv4/UDP header framing and optional RFC 768 checksum.
+ *
+ * @param ip_packet   Raw Ethernet + IPv4 packet.
+ * @param len         Packet byte length (>= 42).
+ * @param udp_off_out Output byte offset of UDP header.
+ * @param udp_len_out Output UDP segment byte length.
+ * @return true if UDP packet is valid, false otherwise.
+ */
+static bool udp_rx_header_valid(const uint8_t *ip_packet, size_t len, size_t *udp_off_out,
+                                uint16_t *udp_len_out)
 {
-    if (!udp || !ip_packet || len < 14U + 20U + 8U) {
-        return SYN_INVALID_PARAM;
-    }
-
     uint16_t ethertype = syn_peek_u16(ip_packet, 12U);
     size_t ihl = (size_t)(ip_packet[14] & 0x0FU) * 4U;
     if (ethertype != 0x0800U || ihl < 20U || (14U + ihl + 8U) > len || ip_packet[23] != 17U) {
-        return SYN_ERROR;
+        return false;
     }
 
     size_t udp_off = 14U + ihl;
+    const uint8_t *udp_head = &ip_packet[udp_off];
+    uint16_t udp_len = syn_peek_u16(udp_head, 4U);
+    if (udp_len < 8U || (size_t)udp_len > (len - udp_off)) {
+        return false;
+    }
+
+    uint16_t rx_csum = syn_peek_u16(udp_head, 6U);
+    if (rx_csum != 0U) {
+        uint32_t src_ip = syn_peek_u32(ip_packet, 26U);
+        uint32_t dst_ip = syn_peek_u32(ip_packet, 30U);
+        if (syn_udp_checksum(src_ip, dst_ip, udp_head, udp_len) != rx_csum) {
+            return false;
+        }
+    }
+
+    *udp_off_out = udp_off;
+    *udp_len_out = udp_len;
+    return true;
+}
+
+/**
+ * @brief Resolve Ethernet destination MAC for an outbound IPv4 UDP datagram.
+ *
+ * @param eth     Associated Ethernet interface instance (may be NULL).
+ * @param dst_ip  Destination IPv4 address (host byte order).
+ * @param mac_out Output 6-byte destination MAC buffer.
+ */
+static void udp_resolve_dst_mac(SYN_ETH *eth, uint32_t dst_ip, uint8_t mac_out[6])
+{
+    if ((dst_ip & 0xF0000000UL) == 0xE0000000UL) {
+        uint32_t low23 = dst_ip & 0x007FFFFFUL;
+        mac_out[0] = 0x01U;
+        mac_out[1] = 0x00U;
+        mac_out[2] = 0x5EU;
+        mac_out[3] = (uint8_t)(low23 >> 16U);
+        mac_out[4] = (uint8_t)(low23 >> 8U);
+        mac_out[5] = (uint8_t)(low23);
+        return;
+    }
+
+    if (eth != NULL && dst_ip != 0xFFFFFFFFUL) {
+        uint32_t next_hop = dst_ip;
+        if (eth->netmask != 0U && eth->gateway != 0U &&
+            ((dst_ip & eth->netmask) != (eth->ip_addr & eth->netmask))) {
+            next_hop = eth->gateway;
+        }
+        if (syn_eth_arp_lookup(eth, next_hop, mac_out) == SYN_OK) {
+            return;
+        }
+    }
+
+    memset(mac_out, 0xFF, 6U);
+}
+
+SYN_Status syn_udp_process_packet(SYN_UDP *udp, const uint8_t *ip_packet, size_t len)
+{
+    if (udp == NULL || ip_packet == NULL || len < (14U + 20U + 8U)) {
+        return SYN_INVALID_PARAM;
+    }
+
+    size_t udp_off = 0U;
+    uint16_t udp_len = 0U;
+    if (!udp_rx_header_valid(ip_packet, len, &udp_off, &udp_len)) {
+        return SYN_ERROR;
+    }
+
     uint32_t src_ip = syn_peek_u32(ip_packet, 26U);
     const uint8_t *udp_head = &ip_packet[udp_off];
     uint16_t src_port = syn_peek_u16(udp_head, 0U);
     uint16_t dst_port = syn_peek_u16(udp_head, 2U);
-    uint16_t udp_len = syn_peek_u16(udp_head, 4U);
-
-    if (udp_len < 8U || (size_t)udp_len > (len - udp_off)) {
-        return SYN_ERROR;
-    }
-
     size_t payload_len = (size_t)udp_len - 8U;
     const uint8_t *payload = &udp_head[8];
 
@@ -309,29 +375,23 @@ SYN_Status syn_udp_process_packet(SYN_UDP *udp, const uint8_t *ip_packet, size_t
 int syn_udp_sendto(SYN_UDP *udp, uint16_t src_port, uint32_t dst_ip, uint16_t dst_port,
                    const uint8_t *data, size_t data_len, uint8_t *tx_out, size_t *tx_len)
 {
-    if (!udp || !tx_out || !tx_len) {
+    if (udp == NULL || tx_out == NULL || tx_len == NULL || (data == NULL && data_len > 0U) ||
+        data_len > (SYN_ETH_MAX_FRAME_LEN - 42U)) {
         return -1;
     }
 
-    if (data_len > (SYN_ETH_MAX_FRAME_LEN - 42U)) {
-        return -1;
-    }
     size_t total_len = 42U + data_len;
 
     /* Ethernet Header (14) */
-    uint8_t resolved_mac[6];
-    bool has_mac = false;
-    if (udp->eth && syn_eth_arp_lookup(udp->eth, dst_ip, resolved_mac) == SYN_OK) {
-        has_mac = true;
-    }
+    uint8_t dst_mac[6];
+    udp_resolve_dst_mac(udp->eth, dst_ip, dst_mac);
     static const uint8_t bcast_mac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-    const uint8_t *dst_mac = has_mac ? resolved_mac : bcast_mac;
-    const uint8_t *src_mac = udp->eth ? udp->eth->mac_addr : bcast_mac;
+    const uint8_t *src_mac = (udp->eth != NULL) ? udp->eth->mac_addr : bcast_mac;
 
     (void)syn_eth_pack_header(tx_out, total_len, dst_mac, src_mac, SYN_ETHTYPE_IPV4);
 
     /* IPv4 Header (20) */
-    uint32_t src_ip = udp->eth ? udp->eth->ip_addr : 0U;
+    uint32_t src_ip = (udp->eth != NULL) ? udp->eth->ip_addr : 0U;
     uint16_t udp_payload_len = (uint16_t)(8U + data_len);
     (void)syn_ip_pack_header(&tx_out[14], total_len - 14U, src_ip, dst_ip, 17U, udp_payload_len,
                              0x1234U);
@@ -342,7 +402,7 @@ int syn_udp_sendto(SYN_UDP *udp, uint16_t src_port, uint32_t dst_ip, uint16_t ds
     syn_poke_u16(udp_payload_len, tx_out, 38U);
     syn_poke_u16(0x0000U, tx_out, 40U);
 
-    if (data && data_len > 0U) {
+    if (data != NULL && data_len > 0U) {
         memcpy(&tx_out[42], data, data_len);
     }
 

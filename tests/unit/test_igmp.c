@@ -225,3 +225,75 @@ void test_r5_igmp_regressions(void)
     TEST_ASSERT_EQUAL_size_t(60U, reply_len);
     TEST_ASSERT_EQUAL_UINT8(SYN_IGMP_TYPE_V2_REPORT, reply[34]);
 }
+
+void test_tier_a_igmp_regressions(void)
+{
+    SYN_IGMP igmp;
+    SYN_ETH eth;
+    uint8_t frame[60];
+    size_t len = 0U;
+    const uint32_t second_group = 0xE0000101UL; /* 224.0.1.1 */
+
+    syn_igmp_init(&igmp);
+    syn_eth_init(&eth, MAC, MY_IP);
+
+    /* NET-01: IPv4 header checksum valid after TTL=1 override */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_igmp_join_group(&igmp, &eth, MDNS_GROUP, frame, &len));
+    TEST_ASSERT_EQUAL_UINT16(0U, syn_ip_checksum(&frame[14], 20U));
+    TEST_ASSERT_EQUAL_UINT16(0U, syn_ip_checksum(&frame[34], 8U));
+
+    /* Join second group in slot 1, then leave slot 0 */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_igmp_join_group(&igmp, &eth, second_group, frame, &len));
+
+    uint8_t leave_frame[60];
+    size_t leave_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_igmp_leave_group(&igmp, &eth, MDNS_GROUP, leave_frame, &leave_len));
+
+    /* NET-02a: Leave sent to 224.0.0.2 (01:00:5E:00:00:02) with group_ip in IGMP payload */
+    TEST_ASSERT_EQUAL_UINT16(0U, syn_ip_checksum(&leave_frame[14], 20U));
+    TEST_ASSERT_EQUAL_UINT8(0x01U, leave_frame[0]);
+    TEST_ASSERT_EQUAL_UINT8(0x00U, leave_frame[1]);
+    TEST_ASSERT_EQUAL_UINT8(0x5EU, leave_frame[2]);
+    TEST_ASSERT_EQUAL_UINT8(0x00U, leave_frame[3]);
+    TEST_ASSERT_EQUAL_UINT8(0x00U, leave_frame[4]);
+    TEST_ASSERT_EQUAL_UINT8(0x02U, leave_frame[5]);
+    TEST_ASSERT_EQUAL_UINT8(224U, leave_frame[30]);
+    TEST_ASSERT_EQUAL_UINT8(0U, leave_frame[31]);
+    TEST_ASSERT_EQUAL_UINT8(0U, leave_frame[32]);
+    TEST_ASSERT_EQUAL_UINT8(2U, leave_frame[33]);
+    TEST_ASSERT_EQUAL_UINT8(0xFBU, leave_frame[41]);
+
+    /* NET-02a: Re-joining second_group must not duplicate into vacant slot 0 */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_igmp_join_group(&igmp, &eth, second_group, frame, &len));
+    TEST_ASSERT_FALSE(igmp.groups[0].joined);
+    TEST_ASSERT_TRUE(igmp.groups[1].joined);
+    TEST_ASSERT_EQUAL_UINT32(second_group, igmp.groups[1].group_ip);
+
+    /* NET-02a: Group-Specific Query for unjoined group produces no report */
+    uint8_t gsq[60] = {0};
+    gsq[12] = 0x08U;
+    gsq[13] = 0x00U;
+    gsq[14] = 0x45U;
+    gsq[23] = 2U;
+    gsq[34] = SYN_IGMP_TYPE_MEMBERSHIP_QUERY;
+    gsq[38] = 224U;
+    gsq[39] = 0U;
+    gsq[40] = 0U;
+    gsq[41] = 0x99U;
+
+    uint8_t reply[60] = {0};
+    size_t reply_len = 99U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_igmp_process_packet(&igmp, &eth, gsq, 60U, reply, &reply_len));
+    TEST_ASSERT_EQUAL_size_t(0U, reply_len);
+
+    /* Group-Specific Query for joined second_group triggers report for second_group */
+    gsq[40] = 1U;
+    gsq[41] = 1U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_igmp_process_packet(&igmp, &eth, gsq, 60U, reply, &reply_len));
+    TEST_ASSERT_EQUAL_size_t(60U, reply_len);
+    TEST_ASSERT_EQUAL_UINT8(1U, reply[40]);
+    TEST_ASSERT_EQUAL_UINT8(1U, reply[41]);
+}

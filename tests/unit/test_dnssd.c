@@ -834,6 +834,128 @@ void test_r5_n13_dnssd_build_query_truncation_bounds(void)
     TEST_ASSERT_EQUAL_size_t(full_qlen, exact_len);
 }
 
+static void test_tier_a_dnssd_qtype_case_dot_and_errors(void)
+{
+    mock_port_reset();
+
+    SYN_DnsSd sd;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_init(&sd));
+    SYN_DnsSd_Service svc = {
+        .instance_name = "Syntropic.v1.2",
+        .service_type = "_http._tcp",
+        .hostname = "dot-node",
+        .port = 8080U,
+        .ip = {10U, 20U, 30U, 40U},
+        .txt_records = {"ver=1.2"},
+        .txt_count = 1U,
+    };
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_register(&sd, &svc));
+
+    /* 1. Case-insensitive service matching + QTYPE/QCLASS validation */
+    uint8_t q_pkt[34] = {0U};
+    q_pkt[5] = 1U;
+    q_pkt[12] = 5U;
+    memcpy(&q_pkt[13], "_HTTP", 5U);
+    q_pkt[18] = 4U;
+    memcpy(&q_pkt[19], "_TcP", 4U);
+    q_pkt[23] = 5U;
+    memcpy(&q_pkt[24], "LOCAL", 5U);
+    q_pkt[31] = 12U;
+    q_pkt[32] = 0x80U;
+    q_pkt[33] = 1U;
+    uint8_t resp[512];
+    size_t rlen = 0U;
+
+    /* Valid QTYPEs: PTR (12) + QU bit, SRV (33), TXT (16), ANY (255) + QCLASS ANY (255) */
+    SYN_Status st = syn_dnssd_process_query(&sd, q_pkt, sizeof(q_pkt), resp, sizeof(resp), &rlen);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, st);
+    q_pkt[31] = 33U;
+    q_pkt[32] = 0U;
+    q_pkt[33] = 1U;
+    st = syn_dnssd_process_query(&sd, q_pkt, sizeof(q_pkt), resp, sizeof(resp), &rlen);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, st);
+    q_pkt[31] = 16U;
+    st = syn_dnssd_process_query(&sd, q_pkt, sizeof(q_pkt), resp, sizeof(resp), &rlen);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, st);
+    q_pkt[31] = 255U;
+    q_pkt[33] = 255U;
+    st = syn_dnssd_process_query(&sd, q_pkt, sizeof(q_pkt), resp, sizeof(resp), &rlen);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, st);
+
+    /* Rejected QTYPE = AAAA (28) and rejected QCLASS = CH (3) */
+    q_pkt[31] = 28U;
+    q_pkt[33] = 1U;
+    st = syn_dnssd_process_query(&sd, q_pkt, sizeof(q_pkt), resp, sizeof(resp), &rlen);
+    TEST_ASSERT_EQUAL_INT(SYN_NOT_FOUND, st);
+    q_pkt[31] = 12U;
+    q_pkt[33] = 3U;
+    st = syn_dnssd_process_query(&sd, q_pkt, sizeof(q_pkt), resp, sizeof(resp), &rlen);
+    TEST_ASSERT_EQUAL_INT(SYN_NOT_FOUND, st);
+
+    uint8_t bad_qptr[18] = {0U};
+    bad_qptr[5] = 1U;
+    bad_qptr[12] = 0xC0U;
+    bad_qptr[13] = 0xFFU;
+    st = syn_dnssd_process_query(&sd, bad_qptr, sizeof(bad_qptr), resp, sizeof(resp), &rlen);
+    TEST_ASSERT_EQUAL_INT(SYN_NOT_FOUND, st);
+
+    /* 2. Announce + parse preserves literal '.' in <Instance> label */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_announce(&sd, 0U, resp, sizeof(resp), &rlen));
+    SYN_DnsSd_Discovered disc;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_parse_response(resp, rlen, &disc));
+    TEST_ASSERT_EQUAL_STRING("Syntropic.v1.2", disc.instance_name);
+    TEST_ASSERT_EQUAL_STRING("_http._tcp", disc.service_type);
+
+    /* 3. PTR RDATA edge cases: 0-length RDATA, pointer loop (>8 hops), OOB ptr, and compressed */
+    uint8_t ptr_edges[49] = {0U};
+    ptr_edges[2] = 0x84U;
+    ptr_edges[7] = 3U;
+    /* RR1 (offset 12): PTR rdlen=0 (p >= limit) */
+    const uint8_t rr_ptr0[11] = {0U, 0U, 0x0CU, 0U, 1U, 0U, 0U, 0U, 60U, 0U, 0U};
+    /* RR2 (offset 23): PTR rdlen=2 at RDATA offset 34 (0x22) self-loop 0xC0 0x22 */
+    const uint8_t rr_loop[13] = {0U, 0U, 0x0CU, 0U, 1U, 0U, 0U, 0U, 60U, 0U, 2U, 0xC0U, 0x22U};
+    /* RR3 (offset 36): PTR rdlen=2 out-of-bounds target 0xC0 0xFF (>= msg_len) */
+    const uint8_t rr_oob[13] = {0U, 0U, 0x0CU, 0U, 1U, 0U, 0U, 0U, 60U, 0U, 2U, 0xC0U, 0xFFU};
+    memcpy(&ptr_edges[12], rr_ptr0, sizeof(rr_ptr0));
+    memcpy(&ptr_edges[23], rr_loop, sizeof(rr_loop));
+    memcpy(&ptr_edges[36], rr_oob, sizeof(rr_oob));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_parse_response(ptr_edges, sizeof(ptr_edges), &disc));
+    TEST_ASSERT_EQUAL_STRING("", disc.instance_name);
+
+    uint8_t ptr_comp_pkt[67] = {0U};
+    ptr_comp_pkt[2] = 0x84U;
+    ptr_comp_pkt[7] = 2U;
+    ptr_comp_pkt[12] = 8U;
+    memcpy(&ptr_comp_pkt[13], "Ptr.Inst", 8U);
+    ptr_comp_pkt[21] = 5U;
+    memcpy(&ptr_comp_pkt[22], "_http", 5U);
+    ptr_comp_pkt[27] = 4U;
+    memcpy(&ptr_comp_pkt[28], "_tcp", 4U);
+    ptr_comp_pkt[32] = 5U;
+    memcpy(&ptr_comp_pkt[33], "local", 5U);
+    const uint8_t rr_txt[14] = {0U, 0x10U, 0x80U, 1U, 0U, 0U, 0U, 60U, 0U, 4U, 3U, 'a', '=', '1'};
+    const uint8_t rr_cptr[14] = {0xC0U, 21U, 0U, 12U, 0U, 1U, 0U, 0U, 0U, 60U, 0U, 2U, 0xC0U, 12U};
+    memcpy(&ptr_comp_pkt[39], rr_txt, sizeof(rr_txt));
+    memcpy(&ptr_comp_pkt[53], rr_cptr, sizeof(rr_cptr));
+    st = syn_dnssd_parse_response(ptr_comp_pkt, sizeof(ptr_comp_pkt), &disc);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, st);
+    TEST_ASSERT_EQUAL_STRING("Ptr.Inst", disc.instance_name);
+    TEST_ASSERT_EQUAL_STRING("_http._tcp", disc.service_type);
+
+    /* 4. Error propagation in syn_dnssd_discover, syn_dnssd_browser_init, and syn_dnssd_announce */
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_discover(&sd, ""));
+    SYN_DnsSd_Browser browser;
+    int cnt = 0;
+    st = syn_dnssd_browser_init(&browser, &sd, "", on_discovered_service, &cnt, 500U);
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, st);
+    TEST_ASSERT_FALSE(browser.active);
+
+    mock_udp_sendto_fail = true;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_discover(&sd, "_http._tcp"));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_announce(&sd, 0U, resp, sizeof(resp), &rlen));
+    mock_udp_sendto_fail = false;
+}
+
 void run_dnssd_tests(void)
 {
     RUN_TEST(test_dnssd_init_and_registration);
@@ -846,4 +968,5 @@ void run_dnssd_tests(void)
     RUN_TEST(test_dnssd_round3_regressions);
     RUN_TEST(test_dnssd_round4_compression_qdcount_and_rdata_bounds);
     RUN_TEST(test_r5_n13_dnssd_build_query_truncation_bounds);
+    RUN_TEST(test_tier_a_dnssd_qtype_case_dot_and_errors);
 }

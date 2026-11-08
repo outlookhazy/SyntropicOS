@@ -99,7 +99,12 @@ typedef struct {
 
     /**
      * @brief User callback for incoming publications.
-     * @param topic Topic name string.
+     *
+     * @note Inbound topic strings passed to @p topic are truncated to at most
+     *       63 bytes (64-byte stack buffer including NUL terminator), while
+     *       payload offset calculation advances past the full wire topic length.
+     *
+     * @param topic Topic name string (NUL-terminated, max 63 bytes).
      * @param payload Received data payload buffer.
      * @param len Size of payload in bytes.
      * @param ctx User-defined context pointer.

@@ -169,7 +169,7 @@ static const char *ws_find_key_header(const char *headers)
     while (cur != NULL && *cur != '\0' && *cur != '\r' && *cur != '\n') {
         if (prefix_icase(cur, "sec-websocket-key:")) {
             const char *key_hdr = cur + 18;
-            while (*key_hdr == ' ') {
+            while ((*key_hdr == ' ') || (*key_hdr == '\t')) {
                 key_hdr++;
             }
             return key_hdr;
@@ -183,6 +183,33 @@ static const char *ws_find_key_header(const char *headers)
     return NULL;
 }
 
+/**
+ * @brief Copy Sec-WebSocket-Key value while trimming trailing SP/HTAB whitespace.
+ * @param key_hdr Start of key value (after leading OWS).
+ * @param key_out [out] Destination NUL-terminated buffer.
+ * @param key_sz  Capacity of key_out in bytes.
+ * @return true if non-empty trimmed key extracted, false if empty.
+ */
+static bool ws_copy_trimmed_key(const char *key_hdr, char *key_out, size_t key_sz)
+{
+    size_t raw_len = 0U;
+    while ((key_hdr[raw_len] != '\0') && (key_hdr[raw_len] != '\r') && (key_hdr[raw_len] != '\n')) {
+        raw_len++;
+    }
+    while ((raw_len > 0U) && ((key_hdr[raw_len - 1U] == ' ') || (key_hdr[raw_len - 1U] == '\t'))) {
+        raw_len--;
+    }
+    if (raw_len == 0U) {
+        return false;
+    }
+    if (raw_len >= key_sz) {
+        raw_len = key_sz - 1U;
+    }
+    memcpy(key_out, key_hdr, raw_len);
+    key_out[raw_len] = '\0';
+    return true;
+}
+
 SYN_Status syn_websocket_upgrade(
     const SYN_HttpdRequest *req, SYN_HttpdResponse *resp, SYN_WebsocketSession *ws,
     void (*on_message)(const uint8_t *payload, size_t len, uint8_t opcode, void *ctx), void *ctx)
@@ -191,8 +218,9 @@ SYN_Status syn_websocket_upgrade(
     SYN_ASSERT(resp != NULL);
     SYN_ASSERT(ws != NULL);
 
+    char key[64];
     const char *key_hdr = ws_find_key_header(req->headers);
-    if (key_hdr == NULL) {
+    if ((key_hdr == NULL) || !ws_copy_trimmed_key(key_hdr, key, sizeof(key))) {
         return SYN_ERROR;
     }
     if (req->body_buffered_len > sizeof(ws->pending_rx) ||
@@ -201,15 +229,6 @@ SYN_Status syn_websocket_upgrade(
           req->body_buffered_offset + req->body_buffered_len > resp->buf_size))) {
         return SYN_ERROR;
     }
-
-    char key[64];
-    size_t key_len = 0U;
-    while (key_hdr[key_len] != '\0' && key_hdr[key_len] != '\r' && key_hdr[key_len] != '\n' &&
-           key_len < sizeof(key) - 1U) {
-        key[key_len] = key_hdr[key_len];
-        key_len++;
-    }
-    key[key_len] = '\0';
 
     char accept_buf[128];
     (void)snprintf(accept_buf, sizeof(accept_buf), "%s258EAFA5-E914-47DA-95CA-C5AB0DC85B11", key);
@@ -309,12 +328,16 @@ SYN_Status syn_websocket_send(SYN_WebsocketSession *ws, uint8_t opcode, const vo
         return SYN_ERROR;
     }
 
+    if ((data == NULL) && (len > 0U)) {
+        return SYN_ERROR;
+    }
+
     if (syn_port_sock_send_all(ws->sock, header, header_len) != (int)header_len) {
         ws_close_session(ws);
         return SYN_ERROR;
     }
 
-    if (len > 0U && data != NULL) {
+    if (len > 0U) {
         if (syn_port_sock_send_all(ws->sock, data, len) != (int)len) {
             ws_close_session(ws);
             return SYN_ERROR;
@@ -348,12 +371,28 @@ static void dispatch_ws_frame(SYN_WebsocketSession *ws)
 {
     size_t act_len = (size_t)ws->payload_len;
     if (ws->opcode == 0x08U) {
+        size_t echo_len = (act_len >= 2U) ? 2U : 0U;
+        (void)syn_websocket_send(ws, 0x08U, ws->rx_buf, echo_len);
         ws_close_session(ws);
     } else if (ws->opcode == 0x09U) {
         (void)syn_websocket_send(ws, 0x0AU, ws->rx_buf, act_len);
-    } else if ((ws->opcode == 0x01U || ws->opcode == 0x02U) && ws->on_message != NULL) {
+    } else if (((ws->opcode == 0x01U) || (ws->opcode == 0x02U)) && (ws->on_message != NULL)) {
         ws->on_message(ws->rx_buf, act_len, ws->opcode, ws->ctx);
     }
+}
+
+/**
+ * @brief Validate first WebSocket frame byte (FIN=1, RSV1..3=0, known non-continuation opcode).
+ * @param b0 First header byte.
+ * @return true if header byte is valid, false on protocol error.
+ */
+static bool ws_header0_valid(uint8_t b0)
+{
+    if ((b0 & 0xF0U) != 0x80U) {
+        return false;
+    }
+    uint8_t op = b0 & 0x0FU;
+    return (op == 0x01U) || (op == 0x02U) || ((op >= 0x08U) && (op <= 0x0AU));
 }
 
 /**
@@ -384,7 +423,9 @@ static void ws_feed_len_byte(SYN_WebsocketSession *ws, uint8_t b)
     uint8_t l = b & 0x7FU;
     if (ws->is_server && !ws->masked) {
         ws_fail_close(ws, 1002U);
-    } else if ((ws->opcode & 0x08U) != 0U && l >= 126U) {
+    } else if (((ws->opcode & 0x08U) != 0U) && (l >= 126U)) {
+        ws_fail_close(ws, 1002U);
+    } else if ((ws->opcode == 0x08U) && (l == 1U)) {
         ws_fail_close(ws, 1002U);
     } else if (l < 126U) {
         ws->payload_len = l;
@@ -441,7 +482,7 @@ static bool ws_feed_byte(SYN_WebsocketSession *ws, uint8_t b)
 {
     if (ws->rx_state == 0U) {
         ws->opcode = b & 0x0FU;
-        if ((ws->opcode & 0x08U) != 0U && (b & 0x80U) == 0U) {
+        if (!ws_header0_valid(b)) {
             ws_fail_close(ws, 1002U);
         } else {
             ws->rx_state = 1U;

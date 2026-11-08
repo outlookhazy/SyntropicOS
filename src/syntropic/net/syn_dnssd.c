@@ -318,7 +318,38 @@ static bool skip_or_read_name(const uint8_t *buf, size_t msg_len, size_t stream_
 }
 
 /**
- * @brief Match DNS question name against registered service type.
+ * @brief Fold an ASCII uppercase letter to lowercase.
+ * @param c Input byte.
+ * @return Lowercase ASCII byte.
+ */
+static uint8_t dnssd_ascii_lower(uint8_t c)
+{
+    if (c >= (uint8_t)'A' && c <= (uint8_t)'Z') {
+        return (uint8_t)(c + 32U);
+    }
+    return c;
+}
+
+/**
+ * @brief Compare two NUL-terminated strings for ASCII case-insensitive equality.
+ * @param a First string.
+ * @param b Second string.
+ * @return true if strings match ignoring ASCII case.
+ */
+static bool dnssd_streq_ci(const char *a, const char *b)
+{
+    size_t i = 0U;
+    while (a[i] != '\0' && b[i] != '\0') {
+        if (dnssd_ascii_lower((uint8_t)a[i]) != dnssd_ascii_lower((uint8_t)b[i])) {
+            return false;
+        }
+        i++;
+    }
+    return (a[i] == b[i]);
+}
+
+/**
+ * @brief Match DNS question name against registered service type (case-insensitive).
  * @param[in] buf Input buffer containing DNS question.
  * @param[in] buf_len Total buffer length.
  * @param[in,out] offset Offset within buffer.
@@ -336,7 +367,7 @@ static bool match_qname_service(const uint8_t *buf, size_t buf_len, size_t *offs
     char expected[128];
     (void)snprintf(expected, sizeof(expected), "%s.local", service_type);
 
-    return (strcmp(q_name, expected) == 0);
+    return dnssd_streq_ci(q_name, expected);
 }
 
 /**
@@ -501,6 +532,20 @@ static bool dnssd_skip_question(const uint8_t *buf, size_t buf_len, size_t *pos)
 }
 
 /**
+ * @brief Validate QTYPE and QCLASS for a DNS-SD service query.
+ * @param qtype  16-bit DNS QTYPE.
+ * @param qclass 16-bit DNS QCLASS (may include top unicast-response QU bit).
+ * @return true if QTYPE is PTR/SRV/TXT/ANY and class is IN/ANY.
+ */
+static bool dnssd_qtype_qclass_valid(uint16_t qtype, uint16_t qclass)
+{
+    uint16_t cls = (uint16_t)(qclass & 0x7FFFU);
+    bool type_ok = (qtype == 12U) || (qtype == 33U) || (qtype == 16U) || (qtype == 255U);
+    bool cls_ok = (cls == 1U) || (cls == 255U);
+    return type_ok && cls_ok;
+}
+
+/**
  * @brief Match a DNS question at name_start against any registered service.
  * @param sd         DNS-SD instance.
  * @param query_buf  Query packet buffer.
@@ -517,8 +562,12 @@ static const SYN_DnsSd_Service *dnssd_match_registered(const SYN_DnsSd *sd,
         size_t temp_pos = name_start;
         if (match_qname_service(query_buf, query_len, &temp_pos, sd->services[s].service_type) &&
             query_len - temp_pos >= 4U) {
-            *next_pos = temp_pos + 4U;
-            return &sd->services[s];
+            uint16_t qtype = ((uint16_t)query_buf[temp_pos] << 8U) | query_buf[temp_pos + 1U];
+            uint16_t qclass = ((uint16_t)query_buf[temp_pos + 2U] << 8U) | query_buf[temp_pos + 3U];
+            if (dnssd_qtype_qclass_valid(qtype, qclass)) {
+                *next_pos = temp_pos + 4U;
+                return &sd->services[s];
+            }
         }
     }
     return NULL;
@@ -569,11 +618,13 @@ SYN_Status syn_dnssd_announce(const SYN_DnsSd *sd, size_t service_index, uint8_t
         return SYN_ERROR;
     }
 
-    SYN_Status st =
-        pack_service_response(&sd->services[service_index], resp_buf, max_resp_len, resp_len);
-    if (st == SYN_OK && sd->sock != SYN_SOCKET_INVALID && *resp_len > 0U) {
+    const SYN_DnsSd_Service *svc = &sd->services[service_index];
+    SYN_Status st = pack_service_response(svc, resp_buf, max_resp_len, resp_len);
+    if (st == SYN_OK && sd->sock != SYN_SOCKET_INVALID) {
         SYN_SockAddr mcast_dest = {.ip = {224U, 0U, 0U, 251U}, .port = SYN_DNSSD_PORT};
-        (void)syn_port_udp_sendto(sd->sock, resp_buf, *resp_len, &mcast_dest);
+        if (syn_port_udp_sendto(sd->sock, resp_buf, *resp_len, &mcast_dest) != (int)*resp_len) {
+            return SYN_ERROR;
+        }
     }
     return st;
 }
@@ -581,7 +632,7 @@ SYN_Status syn_dnssd_announce(const SYN_DnsSd *sd, size_t service_index, uint8_t
 SYN_Status syn_dnssd_build_query(const char *service_type, uint8_t *query_buf, size_t max_len,
                                  size_t *query_len)
 {
-    if (service_type == NULL || query_buf == NULL || query_len == NULL) {
+    if (service_type == NULL || service_type[0] == '\0' || query_buf == NULL || query_len == NULL) {
         return SYN_ERROR;
     }
     *query_len = 0U;
@@ -601,6 +652,55 @@ SYN_Status syn_dnssd_build_query(const char *service_type, uint8_t *query_buf, s
 }
 
 /**
+ * @brief Read the first DNS label (following up to 8 compression pointers) as raw bytes.
+ * @param buf        Packet buffer.
+ * @param msg_len    Total packet length.
+ * @param stream_end End offset of inline RDATA (`<= msg_len`).
+ * @param start_pos  Starting offset of the domain name.
+ * @param out_label  [out] Copy of first label (NUL-terminated, max 63 chars).
+ * @param rest_pos   [out] Offset immediately after first label.
+ * @param rest_limit [out] Stream limit (`msg_len` if jumped, else `stream_end`).
+ * @return true if a non-empty first label was extracted within bounds, false otherwise.
+ */
+static bool dnssd_read_first_label(const uint8_t *buf, size_t msg_len, size_t stream_end,
+                                   size_t start_pos, char out_label[64], size_t *rest_pos,
+                                   size_t *rest_limit)
+{
+    size_t p = start_pos;
+    uint8_t hops = 0U;
+    bool jumped = false;
+
+    while (true) {
+        size_t limit = jumped ? msg_len : stream_end;
+        if (p >= limit) {
+            return false;
+        }
+        uint8_t len = buf[p];
+        if ((len & 0xC0U) == 0xC0U) {
+            if (limit - p < 2U || hops >= 8U) {
+                return false;
+            }
+            uint16_t target = (uint16_t)(((uint16_t)(len & 0x3FU) << 8U) | buf[p + 1U]);
+            if ((size_t)target >= msg_len) {
+                return false;
+            }
+            jumped = true;
+            p = (size_t)target;
+            hops++;
+            continue;
+        }
+        if (len == 0U || (len & 0xC0U) != 0U || limit - p - 1U < (size_t)len) {
+            return false;
+        }
+        memcpy(out_label, &buf[p + 1U], (size_t)len);
+        out_label[len] = '\0';
+        *rest_pos = p + 1U + (size_t)len;
+        *rest_limit = limit;
+        return true;
+    }
+}
+
+/**
  * @brief Parse PTR RDATA into instance_name and service_type fields.
  * @param resp_buf    DNS response packet buffer.
  * @param resp_len    Total packet length.
@@ -611,23 +711,23 @@ SYN_Status syn_dnssd_build_query(const char *service_type, uint8_t *query_buf, s
 static void dnssd_parse_ptr_rdata(const uint8_t *resp_buf, size_t resp_len, size_t rdata_start,
                                   uint16_t rdlength, SYN_DnsSd_Discovered *out_disc)
 {
-    char target_fqdn[128];
-    size_t p_rd = rdata_start;
+    char inst_buf[64];
+    char svc_fqdn[128];
+    size_t rest_pos = 0U;
+    size_t rest_limit = 0U;
     size_t rdata_end = rdata_start + (size_t)rdlength;
-    if (!skip_or_read_name(resp_buf, resp_len, rdata_end, &p_rd, target_fqdn,
-                           sizeof(target_fqdn))) {
+
+    if (!dnssd_read_first_label(resp_buf, resp_len, rdata_end, rdata_start, inst_buf, &rest_pos,
+                                &rest_limit)) {
         return;
     }
-    char *first_dot = strchr(target_fqdn, '.');
-    if (first_dot == NULL) {
+    if (!skip_or_read_name(resp_buf, resp_len, rest_limit, &rest_pos, svc_fqdn, sizeof(svc_fqdn)) ||
+        svc_fqdn[0] == '\0') {
         return;
     }
-    size_t inst_len = (size_t)(first_dot - target_fqdn);
-    if (inst_len < sizeof(out_disc->instance_name)) {
-        memcpy(out_disc->instance_name, target_fqdn, inst_len);
-        out_disc->instance_name[inst_len] = '\0';
-    }
-    strncpy(out_disc->service_type, first_dot + 1, sizeof(out_disc->service_type) - 1U);
+    memcpy(out_disc->instance_name, inst_buf, strlen(inst_buf) + 1U);
+    strncpy(out_disc->service_type, svc_fqdn, sizeof(out_disc->service_type) - 1U);
+    out_disc->service_type[sizeof(out_disc->service_type) - 1U] = '\0';
     char *loc = strstr(out_disc->service_type, ".local");
     if (loc != NULL) {
         *loc = '\0';
@@ -743,11 +843,13 @@ SYN_Status syn_dnssd_discover(const SYN_DnsSd *sd, const char *service_type)
 
     uint8_t query_buf[256];
     size_t query_len = 0U;
-    (void)syn_dnssd_build_query(service_type, query_buf, sizeof(query_buf), &query_len);
+    if (syn_dnssd_build_query(service_type, query_buf, sizeof(query_buf), &query_len) != SYN_OK) {
+        return SYN_ERROR;
+    }
 
     SYN_SockAddr mcast_dest = {.ip = {224U, 0U, 0U, 251U}, .port = SYN_DNSSD_PORT};
-    return (syn_port_udp_sendto(sd->sock, query_buf, query_len, &mcast_dest) > 0) ? SYN_OK
-                                                                                  : SYN_ERROR;
+    int sent = syn_port_udp_sendto(sd->sock, query_buf, query_len, &mcast_dest);
+    return (sent == (int)query_len) ? SYN_OK : SYN_ERROR;
 }
 
 SYN_Status syn_dnssd_browser_init(SYN_DnsSd_Browser *browser, const SYN_DnsSd *sd,
@@ -764,9 +866,10 @@ SYN_Status syn_dnssd_browser_init(SYN_DnsSd_Browser *browser, const SYN_DnsSd *s
     browser->user_data = user_data;
     browser->timeout_ms = timeout_ms;
     browser->start_time = syn_port_get_tick_ms();
-    browser->active = true;
 
-    return syn_dnssd_discover(sd, service_type);
+    SYN_Status st = syn_dnssd_discover(sd, service_type);
+    browser->active = (st == SYN_OK);
+    return st;
 }
 
 /**

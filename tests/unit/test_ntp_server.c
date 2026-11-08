@@ -73,8 +73,45 @@ void test_ntp_server_process_packet(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_ntp_server_process_packet(&g_ntp_server, req, resp));
 }
 
+static uint32_t mock_get_epoch_unsynced(void)
+{
+    return 0U;
+}
+
+static void test_tier_a_ntp_server_inplace_unsynced_and_mode2(void)
+{
+    /* 1. In-place buffer (request_pkt == response_pkt) + Mode 1 -> Mode 2 (0x22) */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ntp_server_init(&g_ntp_server, 3U, mock_get_epoch));
+    uint8_t pkt[48] = {0};
+    pkt[0] = 0x21U; /* VN=4, Mode=1 (Symmetric Active) */
+    const uint8_t tx_ts[8] = {0x11U, 0x22U, 0x33U, 0x44U, 0x55U, 0x66U, 0x77U, 0x88U};
+    memcpy(&pkt[40], tx_ts, sizeof(tx_ts));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ntp_server_process_packet(&g_ntp_server, pkt, pkt));
+    TEST_ASSERT_EQUAL_HEX8(0x22U, pkt[0]); /* LI=0, VN=4, Mode=2 (Symmetric Passive) */
+    TEST_ASSERT_EQUAL_UINT8(3U, pkt[1]);
+    TEST_ASSERT_EQUAL_MEMORY(tx_ts, &pkt[24], sizeof(tx_ts));
+
+    /* 2. Unsynced callback (returns 0) emits LI=3, stratum=0 (0xE4 for Mode 3, 0xE2 for Mode 1) */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ntp_server_init(&g_ntp_server, 2U, mock_get_epoch_unsynced));
+    memset(pkt, 0, sizeof(pkt));
+    pkt[0] = 0x23U;
+    memcpy(&pkt[40], tx_ts, sizeof(tx_ts));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ntp_server_process_packet(&g_ntp_server, pkt, pkt));
+    TEST_ASSERT_EQUAL_HEX8(0xE4U, pkt[0]);
+    TEST_ASSERT_EQUAL_UINT8(0U, pkt[1]);
+    TEST_ASSERT_EQUAL_MEMORY(tx_ts, &pkt[24], sizeof(tx_ts));
+
+    memset(pkt, 0, sizeof(pkt));
+    pkt[0] = 0x21U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ntp_server_process_packet(&g_ntp_server, pkt, pkt));
+    TEST_ASSERT_EQUAL_HEX8(0xE2U, pkt[0]);
+    TEST_ASSERT_EQUAL_UINT8(0U, pkt[1]);
+}
+
 void run_ntp_server_tests(void)
 {
     RUN_TEST(test_ntp_server_init_and_null_checks);
     RUN_TEST(test_ntp_server_process_packet);
+    RUN_TEST(test_tier_a_ntp_server_inplace_unsynced_and_mode2);
 }

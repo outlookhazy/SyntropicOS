@@ -1366,6 +1366,168 @@ static void test_dns_round4_regressions(void)
     TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
 }
 
+static void test_tier_a_dns_mdns_case_compression_and_rclass(void)
+{
+    mock_port_reset();
+
+    SYN_Mdns mdns;
+    const uint8_t ip[4] = {192, 168, 50, 10};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mdns_init(&mdns, "MyNode.LOCAL", ip));
+    SYN_Task mtask = {.user_data = &mdns};
+    SYN_SockAddr msrc = {{192, 168, 50, 2}, 5353};
+    SYN_PT pt;
+
+    /* 1. Case-insensitive AAAA + 0xC0-compressed A multi-question bundle */
+    uint8_t q_bundle[36] = {0U};
+    q_bundle[5] = 2U;
+    q_bundle[12] = 6U;
+    memcpy(&q_bundle[13], "mYnOdE", 6U);
+    q_bundle[19] = 5U;
+    memcpy(&q_bundle[20], "LoCaL", 5U);
+    q_bundle[27] = 28U;
+    q_bundle[29] = 1U;
+    q_bundle[30] = 0xC0U;
+    q_bundle[31] = 12U;
+    q_bundle[33] = 1U;
+    q_bundle[35] = 1U;
+    mock_udp_tx_len = 0U;
+    mock_udp_set_response(q_bundle, sizeof(q_bundle), &msrc);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mtask));
+    TEST_ASSERT_TRUE(mock_udp_tx_len > 12U);
+
+    /* 2. Partial suffix compression: Q1 = "other.LoCaL" (off 18), Q2 = "MYNODE" + 0xC0 18 */
+    uint8_t q_suffix[42] = {0U};
+    q_suffix[5] = 2U;
+    q_suffix[12] = 5U;
+    memcpy(&q_suffix[13], "other", 5U);
+    q_suffix[18] = 5U;
+    memcpy(&q_suffix[19], "LoCaL", 5U);
+    q_suffix[26] = 28U;
+    q_suffix[28] = 1U;
+    q_suffix[29] = 6U;
+    memcpy(&q_suffix[30], "MYNODE", 6U);
+    q_suffix[36] = 0xC0U;
+    q_suffix[37] = 18U;
+    q_suffix[39] = 1U;
+    q_suffix[41] = 1U;
+    mock_udp_tx_len = 0U;
+    mock_udp_set_response(q_suffix, sizeof(q_suffix), &msrc);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mtask));
+    TEST_ASSERT_TRUE(mock_udp_tx_len > 12U);
+
+    /* 3. Bounded backward pointer hops: 8 hops succeeds, 9 hops rejected */
+    uint8_t q_hops[84];
+    memset(q_hops, 0, sizeof(q_hops));
+    q_hops[5] = 9U;
+    q_hops[12] = 6U;
+    memcpy(&q_hops[13], "mynode", 6U);
+    q_hops[19] = 5U;
+    memcpy(&q_hops[20], "local", 5U);
+    q_hops[27] = 28U;
+    q_hops[29] = 1U;
+    for (size_t h = 0U; h < 7U; h++) {
+        size_t off = 30U + (h * 6U);
+        size_t prev = (h == 0U) ? 12U : (off - 6U);
+        q_hops[off] = 0xC0U;
+        q_hops[off + 1U] = (uint8_t)prev;
+        q_hops[off + 3U] = 28U;
+        q_hops[off + 5U] = 1U;
+    }
+    /* Q9 at offset 72: 8th hop with QTYPE = A (1) */
+    q_hops[72] = 0xC0U;
+    q_hops[73] = 66U;
+    q_hops[75] = 1U;
+    q_hops[77] = 1U;
+    mock_udp_tx_len = 0U;
+    mock_udp_set_response(q_hops, 78U, &msrc);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mtask));
+    TEST_ASSERT_TRUE(mock_udp_tx_len > 12U);
+
+    /* Make Q9 AAAA (28) and add Q10 at offset 78 (9th hop, QTYPE = A) -> rejected */
+    q_hops[5] = 10U;
+    q_hops[75] = 28U;
+    q_hops[78] = 0xC0U;
+    q_hops[79] = 72U;
+    q_hops[81] = 1U;
+    q_hops[83] = 1U;
+    mock_udp_tx_len = 0U;
+    mock_udp_set_response(q_hops, sizeof(q_hops), &msrc);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mtask));
+    TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
+
+    /* 4. Invalid mDNS pointers: truncated 0xC0, target < 12, and self/forward pointer */
+    uint8_t q_trunc_ptr[13] = {0U, 0U, 0U, 0U, 0U, 1U, 0U, 0U, 0U, 0U, 0U, 0U, 0xC0U};
+    uint8_t q_hdr_ptr[18] = {0U};
+    q_hdr_ptr[5] = 1U;
+    q_hdr_ptr[12] = 0xC0U;
+    q_hdr_ptr[13] = 4U;
+    q_hdr_ptr[15] = 1U;
+    q_hdr_ptr[17] = 1U;
+    uint8_t q_self_ptr[18] = {0U};
+    q_self_ptr[5] = 1U;
+    q_self_ptr[12] = 0xC0U;
+    q_self_ptr[13] = 12U;
+    q_self_ptr[15] = 1U;
+    q_self_ptr[17] = 1U;
+    mock_udp_set_response(q_trunc_ptr, sizeof(q_trunc_ptr), &msrc);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mtask));
+    mock_udp_set_response(q_hdr_ptr, sizeof(q_hdr_ptr), &msrc);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mtask));
+    mock_udp_set_response(q_self_ptr, sizeof(q_self_ptr), &msrc);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mtask));
+    TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
+
+    /* 5. Unicast parse_response requires CLASS == IN (1) on A records */
+    mock_port_reset();
+    mock_tick_ms = 0x6001U;
+    SYN_SockAddr from = {{8, 8, 8, 8}, 53};
+    uint8_t ch_then_in[51] = {0x60U, 0x01U, 0x81U, 0x80U, 0U, 1U, 0U, 2U};
+    const uint8_t q_a[7] = {1U, 'a', 0U, 0U, 1U, 0U, 1U};
+    const uint8_t rr_ch[12] = {0xC0U, 12U, 0U, 1U, 0U, 3U, 0U, 0U, 0U, 60U, 0U, 4U};
+    const uint8_t rr_in[12] = {0xC0U, 12U, 0U, 1U, 0U, 1U, 0U, 0U, 0U, 60U, 0U, 4U};
+    const uint8_t ip_ch[4] = {9U, 9U, 9U, 9U};
+    const uint8_t ip_in[4] = {192U, 0U, 2U, 55U};
+    memcpy(&ch_then_in[12], q_a, sizeof(q_a));
+    memcpy(&ch_then_in[19], rr_ch, sizeof(rr_ch));
+    memcpy(&ch_then_in[31], ip_ch, sizeof(ip_ch));
+    memcpy(&ch_then_in[35], rr_in, sizeof(rr_in));
+    memcpy(&ch_then_in[47], ip_in, sizeof(ip_in));
+    SYN_SockAddr resolved = {0};
+    SYN_DnsResolver r;
+    syn_dns_init(&r);
+    r.hostname = "a";
+    r.addr_out = &resolved;
+    r.timeout_ms = 100U;
+    SYN_Task rtask = {.user_data = &r};
+    mock_udp_set_response(ch_then_in, sizeof(ch_then_in), &from);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_dns_resolve_task(&pt, &rtask));
+    TEST_ASSERT_EQUAL(SYN_OK, r.status);
+    TEST_ASSERT_EQUAL_UINT8(192U, resolved.ip[0]);
+    TEST_ASSERT_EQUAL_UINT8(55U, resolved.ip[3]);
+
+    /* CH-only A record response fails with SYN_ERROR */
+    mock_port_reset();
+    mock_tick_ms = 0x6002U;
+    ch_then_in[1] = 0x02U;
+    ch_then_in[7] = 1U;
+    mock_udp_set_response(ch_then_in, 35U, &from);
+    syn_dns_init(&r);
+    r.hostname = "a";
+    r.addr_out = &resolved;
+    r.timeout_ms = 100U;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_dns_resolve_task(&pt, &rtask));
+    TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
+}
+
 void run_dns_tests(void)
 {
     RUN_TEST(test_dns_resolve);
@@ -1394,4 +1556,5 @@ void run_dns_tests(void)
     RUN_TEST(test_dns_and_mdns_task_guards_and_yielding);
     RUN_TEST(test_dns_round3_regressions);
     RUN_TEST(test_dns_round4_regressions);
+    RUN_TEST(test_tier_a_dns_mdns_case_compression_and_rclass);
 }

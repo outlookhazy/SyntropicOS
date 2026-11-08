@@ -215,3 +215,28 @@ void test_r5_autoip_regressions(void)
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_autoip_process_arp(&autoip, NULL, ok_arp, 60U));
     TEST_ASSERT_EQUAL_INT(SYN_AUTOIP_STATE_BOUND, autoip.state);
 }
+
+void test_tier_a_autoip_regressions(void)
+{
+    SYN_AUTOIP autoip;
+    SYN_ETH eth;
+    uint8_t frame[60];
+    size_t frame_len = 0U;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_autoip_init(&autoip, MAC));
+    syn_eth_init(&eth, MAC, 0U);
+    uint32_t candidate_ip = autoip.ip_addr;
+
+    /* NET-13a: reflected self-originated ARP Probe and Announcement must be ignored */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_autoip_build_probe(&autoip, MAC, frame, &frame_len));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_autoip_process_arp(&autoip, &eth, frame, frame_len));
+    TEST_ASSERT_EQUAL_UINT8(0U, autoip.collisions);
+    TEST_ASSERT_EQUAL_UINT32(candidate_ip, autoip.ip_addr);
+    TEST_ASSERT_EQUAL_INT(SYN_AUTOIP_STATE_PROBE, autoip.state);
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_autoip_build_announce(&autoip, MAC, frame, &frame_len));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_autoip_process_arp(&autoip, &eth, frame, frame_len));
+    TEST_ASSERT_EQUAL_UINT8(0U, autoip.collisions);
+    TEST_ASSERT_EQUAL_UINT32(candidate_ip, autoip.ip_addr);
+    TEST_ASSERT_EQUAL_INT(SYN_AUTOIP_STATE_ANNOUNCE, autoip.state);
+}

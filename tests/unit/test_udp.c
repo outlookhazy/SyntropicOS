@@ -584,6 +584,49 @@ void test_r5_n07_udp_datagram_boundaries_and_waddress(void)
     TEST_ASSERT_EQUAL_size_t(0U, br);
 }
 
+static void test_tier_a_udp_regressions(void)
+{
+    init_udp_fixture();
+    SYN_UdpSocket *sock = syn_udp_bind(&s_udp, 9400U);
+    TEST_ASSERT_NOT_NULL(sock);
+
+    uint8_t tx[128];
+    size_t tx_len = 0U;
+
+    /* 1. Reject NULL data with non-zero data_len in syn_udp_sendto */
+    TEST_ASSERT_EQUAL_INT(-1, syn_udp_sendto(&s_udp, 5000U, s_ip, 9400U, NULL, 4U, tx, &tx_len));
+
+    /* 2. Inbound non-zero UDP checksum: valid passes, corrupted rejected */
+    const uint8_t *csum_msg = (const uint8_t *)"CSUM";
+    int rc = syn_udp_sendto(&s_udp, 5000U, s_ip, 9400U, csum_msg, 4U, tx, &tx_len);
+    TEST_ASSERT_EQUAL_INT(4, rc);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_udp_process_packet(&s_udp, tx, tx_len));
+
+    tx[40] ^= 0xFFU; /* Corrupt UDP checksum */
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_udp_process_packet(&s_udp, tx, tx_len));
+
+    /* 3. IPv4 multicast destination (224.0.0.251) maps to 01:00:5E:00:00:FB without ARP */
+    rc = syn_udp_sendto(&s_udp, 5353U, 0xE00000FBUL, 5353U, csum_msg, 4U, tx, &tx_len);
+    TEST_ASSERT_EQUAL_INT(4, rc);
+    TEST_ASSERT_EQUAL_UINT8(0x01U, tx[0]);
+    TEST_ASSERT_EQUAL_UINT8(0x00U, tx[1]);
+    TEST_ASSERT_EQUAL_UINT8(0x5EU, tx[2]);
+    TEST_ASSERT_EQUAL_UINT8(0x00U, tx[3]);
+    TEST_ASSERT_EQUAL_UINT8(0x00U, tx[4]);
+    TEST_ASSERT_EQUAL_UINT8(0xFBU, tx[5]);
+
+    /* 4. Off-subnet unicast routes via eth->gateway ARP entry while keeping dst_ip in IPv4 */
+    const uint8_t gw_mac[6] = {0x02, 0xDE, 0xAD, 0xBE, 0xEF, 0x01};
+    s_eth.netmask = 0xFFFFFF00UL; /* 255.255.255.0 */
+    s_eth.gateway = 0x0A0000FEUL; /* 10.0.0.254 */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_arp_update(&s_eth, s_eth.gateway, gw_mac));
+
+    rc = syn_udp_sendto(&s_udp, 5000U, 0x08080808UL, 53U, csum_msg, 4U, tx, &tx_len);
+    TEST_ASSERT_EQUAL_INT(4, rc);
+    TEST_ASSERT_EQUAL_MEMORY(gw_mac, &tx[0], 6U);
+    TEST_ASSERT_EQUAL_HEX32(0x08080808UL, syn_peek_u32(tx, 30U));
+}
+
 void run_udp_tests(void)
 {
     RUN_TEST(test_udp_init_and_bind);
@@ -595,4 +638,5 @@ void run_udp_tests(void)
     RUN_TEST(test_udp_pt_block_read_clears_blocked_task_and_null_guards);
     RUN_TEST(test_udp_round4_ihl_options_and_task_detach);
     RUN_TEST(test_r5_n07_udp_datagram_boundaries_and_waddress);
+    RUN_TEST(test_tier_a_udp_regressions);
 }

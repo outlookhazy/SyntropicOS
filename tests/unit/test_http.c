@@ -1862,6 +1862,92 @@ static void test_r5_n13_http_chunked_trailers_and_mid_trailer_eof(void)
     TEST_ASSERT_EQUAL(SYN_ERROR, run_client_task(&client));
 }
 
+static void on_tier_a_max_port_redirect_connect(const char *host, uint16_t port)
+{
+    if (s_redirect_count == 0) {
+        (void)host;
+        (void)port;
+        const char *redir = "HTTP/1.1 302 Found\r\n"
+                            "Location:\thttp://dest.com:65535\r\n\r\n";
+        mock_sock_set_response(redir, strlen(redir));
+    } else {
+        TEST_ASSERT_EQUAL_STRING("dest.com", host);
+        TEST_ASSERT_EQUAL_UINT16(65535U, port);
+        const char *ok = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK";
+        mock_sock_set_response(ok, strlen(ok));
+    }
+    s_redirect_count++;
+}
+
+static void test_tier_a_http_head_bodyless_ows_and_redirect_port(void)
+{
+    SYN_HttpClient client;
+
+    /* 1. HEAD with Content-Length + HTAB OWS completes immediately without reading body */
+    mock_port_reset();
+    mock_sock_eof_on_empty = false;
+    reset_accum();
+    const char *head_cl = "HTTP/1.1 200 OK\r\n"
+                          "Content-Length:\t120\r\n"
+                          "Connection:\tclose\r\n\r\n";
+    mock_sock_set_response(head_cl, strlen(head_cl));
+    syn_http_client_init(&client, "HEAD", "example.com", 80, "/meta", NULL, NULL, 0, NULL, 0,
+                         body_accumulate, NULL, work_buf, sizeof(work_buf));
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = {.user_data = &client};
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_http_client_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_OK, client.status);
+    TEST_ASSERT_EQUAL_UINT32(120U, client.resp.content_length);
+    TEST_ASSERT_TRUE(client.resp.connection_close);
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)body_accum_len);
+
+    /* 2. HEAD and 204/304 with Transfer-Encoding: chunked clear chunked and finish immediately */
+    const char *chunked_bodyless[] = {
+        "HTTP/1.1 200 OK\r\nTransfer-Encoding:\tchunked\r\n\r\n",
+        "HTTP/1.1 204 No Content\r\nTransfer-Encoding: chunked\r\n\r\n",
+        "HTTP/1.1 304 Not Modified\r\nTransfer-Encoding: chunked\r\n\r\n"};
+    for (size_t i = 0U; i < 3U; i++) {
+        mock_port_reset();
+        mock_sock_eof_on_empty = false;
+        reset_accum();
+        mock_sock_set_response(chunked_bodyless[i], strlen(chunked_bodyless[i]));
+        syn_http_client_init(&client, (i == 0U) ? "head" : "GET", "example.com", 80, "/", NULL,
+                             NULL, 0, NULL, 0, body_accumulate, NULL, work_buf, sizeof(work_buf));
+        PT_INIT(&pt);
+        TEST_ASSERT_EQUAL(PT_ENDED, syn_http_client_task(&pt, &task));
+        TEST_ASSERT_EQUAL(SYN_OK, client.status);
+        TEST_ASSERT_FALSE(client.resp.chunked);
+        TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)body_accum_len);
+    }
+
+    /* 3. Bounded redirect port parser rejects empty, 0, overflow (>65535), and non-digit ports */
+    const char *bad_port_redirs[] = {
+        "HTTP/1.1 302 Found\r\nLocation: http://dest.com:/path\r\n\r\n",
+        "HTTP/1.1 302 Found\r\nLocation: http://dest.com:0/path\r\n\r\n",
+        "HTTP/1.1 302 Found\r\nLocation: http://dest.com:70000/path\r\n\r\n",
+        "HTTP/1.1 302 Found\r\nLocation: http://dest.com:80a/path\r\n\r\n",
+        "HTTP/1.1 302 Found\r\nLocation: http://dest.com:/\r\n\r\n"};
+    for (size_t i = 0U; i < 5U; i++) {
+        mock_port_reset();
+        mock_sock_set_response(bad_port_redirs[i], strlen(bad_port_redirs[i]));
+        syn_http_client_init(&client, "GET", "example.com", 80, "/", NULL, NULL, 0, NULL, 0,
+                             body_accumulate, NULL, work_buf, sizeof(work_buf));
+        TEST_ASSERT_EQUAL(SYN_ERROR, run_client_task(&client));
+    }
+
+    /* 4. Valid max port 65535 without trailing slash + HTAB OWS on Location */
+    mock_port_reset();
+    reset_accum();
+    s_redirect_count = 0;
+    mock_sock_connect_cb = on_tier_a_max_port_redirect_connect;
+    syn_http_client_init(&client, "GET", "example.com", 80, "/", NULL, NULL, 0, NULL, 0,
+                         body_accumulate, NULL, work_buf, sizeof(work_buf));
+    TEST_ASSERT_EQUAL(SYN_OK, run_client_task(&client));
+    TEST_ASSERT_EQUAL_UINT16(65535U, client.cur_port);
+    TEST_ASSERT_EQUAL_UINT32(2U, (uint32_t)body_accum_len);
+}
+
 void run_http_tests(void)
 {
     RUN_TEST(test_http_get_200);
@@ -1901,4 +1987,5 @@ void run_http_tests(void)
     RUN_TEST(test_http_round3_regressions);
     RUN_TEST(test_http_round4_regressions);
     RUN_TEST(test_r5_n13_http_chunked_trailers_and_mid_trailer_eof);
+    RUN_TEST(test_tier_a_http_head_bodyless_ows_and_redirect_port);
 }

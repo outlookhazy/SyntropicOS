@@ -781,6 +781,83 @@ static void test_r5_n07_tcp_multi_accept_close_and_waddress(void)
     TEST_ASSERT_EQUAL_UINT16(443U, headless_tcp.conns[0].local_port);
 }
 
+static void test_tier_a_tcp_regressions(void)
+{
+    uint8_t mac[6] = {0x02, 0x11, 0x22, 0x33, 0x44, 0x55};
+    uint8_t pkt[64] = {0};
+    uint8_t tx_out[128];
+    size_t tx_len = 0U;
+
+    syn_eth_init(&eth, mac, 0xA9FE0164UL);
+    syn_tcp_init(&tcp, &eth);
+    syn_tcp_listen(&tcp, 80U);
+
+    pkt[12] = 0x08U;
+    pkt[14] = 0x45U;
+    pkt[17] = 40U;
+    pkt[23] = 6U;
+    pkt[26] = 10U;
+    pkt[29] = 9U;
+    pkt[34] = 0xC1U;
+    pkt[37] = 80U;
+    pkt[41] = 50U;
+    pkt[46] = 0x50U;
+
+    /* 1. LISTEN rejects SYN+ACK and SYN+FIN */
+    pkt[47] = SYN_TCP_FLAG_SYN | SYN_TCP_FLAG_ACK;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_LISTEN, tcp.conns[0].state);
+
+    pkt[47] = SYN_TCP_FLAG_SYN | SYN_TCP_FLAG_FIN;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_LISTEN, tcp.conns[0].state);
+
+    /* 2. Pure SYN enters SYN_RCVD; retransmitted SYN re-sends SYN|ACK without shifting seq_nxt */
+    pkt[47] = SYN_TCP_FLAG_SYN;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
+    uint32_t expected_ack = tcp.conns[0].seq_nxt;
+
+    tx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL_size_t(54U, tx_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TCP_FLAG_SYN | SYN_TCP_FLAG_ACK, tx_out[47]);
+    TEST_ASSERT_EQUAL_UINT32(expected_ack, tcp.conns[0].seq_nxt);
+
+    /* 3. Handshake ACK with piggybacked payload transitions to ESTABLISHED and buffers data */
+    pkt[17] = 44U;
+    pkt[41] = 51U;
+    pkt[42] = (uint8_t)(expected_ack >> 24U);
+    pkt[43] = (uint8_t)(expected_ack >> 16U);
+    pkt[44] = (uint8_t)(expected_ack >> 8U);
+    pkt[45] = (uint8_t)(expected_ack & 0xFFU);
+    pkt[47] = SYN_TCP_FLAG_ACK | SYN_TCP_FLAG_PSH;
+    memcpy(&pkt[54], "DATA", 4U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 58U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_ESTABLISHED, tcp.conns[0].state);
+    TEST_ASSERT_EQUAL_UINT16(4U, tcp.conns[0].rx_len);
+    TEST_ASSERT_EQUAL_MEMORY("DATA", tcp.conns[0].rx_buf, 4U);
+
+    /* Verify dynamic advertised window (SYN_TCP_BUF_SIZE - 4) */
+    uint16_t adv_win = (uint16_t)(((uint16_t)tx_out[48] << 8U) | tx_out[49]);
+    TEST_ASSERT_EQUAL_UINT16((uint16_t)(SYN_TCP_BUF_SIZE - 4U), adv_win);
+
+    /* 4. Stray SYN in ESTABLISHED emits challenge ACK without mutating rx_len/ack_nxt */
+    pkt[17] = 40U;
+    pkt[47] = SYN_TCP_FLAG_SYN;
+    tx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL_size_t(54U, tx_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TCP_FLAG_ACK, tx_out[47]);
+    TEST_ASSERT_EQUAL_UINT16(4U, tcp.conns[0].rx_len);
+
+    /* Full rx_buf advertises zero window on challenge ACK */
+    tcp.conns[0].rx_len = (uint16_t)SYN_TCP_BUF_SIZE;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL_UINT8(0U, tx_out[48]);
+    TEST_ASSERT_EQUAL_UINT8(0U, tx_out[49]);
+}
+
 void run_tcp_tests(void)
 {
     RUN_TEST(test_tcp_init_and_listen);
@@ -794,4 +871,5 @@ void run_tcp_tests(void)
     RUN_TEST(test_tcp_round3_bounds_rst_and_fin_psh);
     RUN_TEST(test_tcp_round4_seq_ack_rst_and_partial_fin);
     RUN_TEST(test_r5_n07_tcp_multi_accept_close_and_waddress);
+    RUN_TEST(test_tier_a_tcp_regressions);
 }

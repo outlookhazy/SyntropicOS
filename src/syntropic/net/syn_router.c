@@ -243,8 +243,11 @@ bool syn_router_register(SYN_Router *r, uint8_t type, SYN_RouterHandlerFn handle
 bool syn_router_send(SYN_Router *r, uint8_t dst, uint8_t type, const uint8_t *data, uint8_t len,
                      bool reliable)
 {
-    SYN_ASSERT(r != NULL);
-    SYN_ASSERT(len <= SYN_ROUTER_MAX_PAYLOAD);
+    if (r == NULL || len > (uint8_t)SYN_ROUTER_MAX_PAYLOAD || (len > 0U && data == NULL)) {
+        return false;
+    }
+
+    bool use_ack = reliable && (dst != 0xFFU);
 
     SYN_Packet pkt;
     memset(&pkt, 0, sizeof(pkt));
@@ -252,9 +255,9 @@ bool syn_router_send(SYN_Router *r, uint8_t dst, uint8_t type, const uint8_t *da
     pkt.dst = dst;
     pkt.type = type;
     pkt.seq = r->tx_seq++;
-    pkt.flags = reliable ? SYN_PKT_FLAG_ACK_REQ : 0;
+    pkt.flags = use_ack ? SYN_PKT_FLAG_ACK_REQ : 0U;
     pkt.len = len;
-    if (len > 0 && data != NULL) {
+    if (len > 0U) {
         memcpy(pkt.payload, data, len);
     }
 
@@ -264,8 +267,8 @@ bool syn_router_send(SYN_Router *r, uint8_t dst, uint8_t type, const uint8_t *da
     bool ok = syn_transport_send(r->transport, buf, n);
     if (ok) {
         r->tx_count++;
-        if (reliable && r->pending != NULL) {
-            queue_pending(r, dst, type, pkt.seq, data, len);
+        if (use_ack && r->pending != NULL) {
+            (void)queue_pending(r, dst, type, pkt.seq, data, len);
         }
     }
     return ok;

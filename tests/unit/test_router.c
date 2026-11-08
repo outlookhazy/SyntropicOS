@@ -307,6 +307,36 @@ static void test_router_register_full(void)
     syn_router_poll(&rtr);
 }
 
+static void test_tier_a_router_regressions(void)
+{
+    mock_transport_reset();
+
+    SYN_Transport tr = {.send = rt_send, .recv = rt_recv, .ctx = NULL};
+    SYN_RouterHandler rh[2];
+    SYN_PendingAck pend[2];
+    SYN_Router rtr;
+    uint8_t buf[SYN_ROUTER_MAX_PAYLOAD + 4U] = {0};
+
+    syn_router_init(&rtr, 0x01U, &tr, rh, 2U);
+    syn_router_enable_ack(&rtr, pend, 2U, 100U, 2U);
+
+    /* 1. Runtime guards: NULL router, oversized payload (> 64), and NULL data with len > 0 */
+    TEST_ASSERT_FALSE(syn_router_send(NULL, 0x02U, 0x10U, buf, 1U, false));
+    TEST_ASSERT_FALSE(syn_router_send(&rtr, 0x02U, 0x10U, buf, 65U, false));
+    TEST_ASSERT_FALSE(syn_router_send(&rtr, 0x02U, 0x10U, NULL, 4U, true));
+
+    /* Zero-length payload with NULL data remains valid */
+    TEST_ASSERT_TRUE(syn_router_send(&rtr, 0x02U, 0x10U, NULL, 0U, true));
+    TEST_ASSERT_TRUE(pend[0].active);
+    pend[0].active = false;
+
+    /* 2. Broadcast (dst == 0xFF) with reliable == true must not queue into pending ACK table */
+    TEST_ASSERT_TRUE(syn_router_send(&rtr, 0xFFU, 0x10U, buf, 2U, true));
+    TEST_ASSERT_FALSE(pend[0].active);
+    TEST_ASSERT_FALSE(pend[1].active);
+    TEST_ASSERT_EQUAL_HEX8(0U, rt_tx_buf[4]);
+}
+
 /* ── Test runner ─────────────────────────────────────────────────────── */
 
 void run_router_tests(void)
@@ -318,4 +348,5 @@ void run_router_tests(void)
     RUN_TEST(test_router_max_retries_drop);
     RUN_TEST(test_router_deserialize_failure);
     RUN_TEST(test_router_register_full);
+    RUN_TEST(test_tier_a_router_regressions);
 }

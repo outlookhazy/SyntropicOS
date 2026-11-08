@@ -175,6 +175,61 @@ static void dhcp_apply_option(SYN_DhcpParsedOpts *opts, uint8_t opt, uint8_t opt
     }
 }
 
+/**
+ * @brief Apply parsed DHCP message semantics (OFFER, ACK, or NAK) to client state.
+ * @param dhcp   DHCP client context.
+ * @param eth    Optional Ethernet interface context to update or clear.
+ * @param yiaddr Offered/assigned IPv4 address from BOOTP yiaddr field.
+ * @param opts   Decoded DHCP options block.
+ * @return SYN_OK on BOUND, SYN_INVALID_PARAM on zero-IP ACK, or SYN_BUSY otherwise.
+ */
+static SYN_Status dhcp_apply_message(SYN_DHCP *dhcp, SYN_ETH *eth, uint32_t yiaddr,
+                                     const SYN_DhcpParsedOpts *opts)
+{
+    if (opts->msg_type == SYN_DHCP_OFFER) {
+        dhcp->offered_ip = yiaddr;
+        dhcp->subnet_mask = opts->subnet;
+        dhcp->gateway = opts->router;
+        dhcp->lease_time_sec = opts->lease;
+        dhcp->server_ip = opts->server;
+        dhcp->state = SYN_DHCP_STATE_OFFER;
+        return SYN_BUSY;
+    }
+
+    if (opts->msg_type == SYN_DHCP_ACK) {
+        if (yiaddr == 0U) {
+            return SYN_INVALID_PARAM;
+        }
+        dhcp->offered_ip = yiaddr;
+        dhcp->subnet_mask = opts->subnet;
+        dhcp->gateway = opts->router;
+        dhcp->lease_time_sec = opts->lease;
+        dhcp->state = SYN_DHCP_STATE_BOUND;
+        dhcp->acks_received++;
+        if (eth != NULL) {
+            eth->ip_addr = yiaddr;
+            eth->netmask = opts->subnet;
+            eth->gateway = opts->router;
+        }
+        return SYN_OK;
+    }
+
+    if (opts->msg_type == SYN_DHCP_NAK) {
+        dhcp->state = SYN_DHCP_STATE_INIT;
+        dhcp->offered_ip = 0U;
+        dhcp->subnet_mask = 0U;
+        dhcp->gateway = 0U;
+        dhcp->lease_time_sec = 0U;
+        if (eth != NULL) {
+            eth->ip_addr = 0U;
+            eth->netmask = 0U;
+            eth->gateway = 0U;
+        }
+    }
+
+    return SYN_BUSY;
+}
+
 SYN_Status syn_dhcp_process_packet(SYN_DHCP *dhcp, SYN_ETH *eth, const uint8_t *dhcp_pkt,
                                    size_t len)
 {
@@ -202,31 +257,5 @@ SYN_Status syn_dhcp_process_packet(SYN_DHCP *dhcp, SYN_ETH *eth, const uint8_t *
         i += opt_len;
     }
 
-    if (opts.msg_type == SYN_DHCP_OFFER) {
-        dhcp->offered_ip = yiaddr;
-        dhcp->subnet_mask = opts.subnet;
-        dhcp->gateway = opts.router;
-        dhcp->lease_time_sec = opts.lease;
-        dhcp->server_ip = opts.server;
-        dhcp->state = SYN_DHCP_STATE_OFFER;
-        return SYN_BUSY;
-    } else if (opts.msg_type == SYN_DHCP_ACK) {
-        dhcp->offered_ip = yiaddr;
-        dhcp->subnet_mask = opts.subnet;
-        dhcp->gateway = opts.router;
-        dhcp->lease_time_sec = opts.lease;
-        dhcp->state = SYN_DHCP_STATE_BOUND;
-        dhcp->acks_received++;
-
-        /* Update Ethernet Interface settings */
-        if (eth) {
-            eth->ip_addr = yiaddr;
-            eth->netmask = opts.subnet;
-            eth->gateway = opts.router;
-        }
-
-        return SYN_OK;
-    }
-
-    return SYN_BUSY;
+    return dhcp_apply_message(dhcp, eth, yiaddr, &opts);
 }

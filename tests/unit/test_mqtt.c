@@ -1419,6 +1419,111 @@ static void test_r5_n11_mqtt_qos1_retransmit_bounds_and_sub_qos2(void)
     TEST_ASSERT_TRUE(mock_sock_tx_len > 0U);
 }
 
+static void test_tier_a_mqtt_connack_send_fail_and_qos0_dup(void)
+{
+    uint8_t rx[128];
+    uint8_t tx[256];
+    SYN_MqttClient c;
+    SYN_PT pt;
+    SYN_Task task = {.user_data = &c};
+
+    /* 1. Duplicate CONNACK while already CONNECTED resets session */
+    mock_port_reset();
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 11;
+    mock_sock_connected = true;
+    const uint8_t dup_connack[] = {0x20U, 0x02U, 0x00U, 0x00U};
+    mock_sock_set_response(dup_connack, sizeof(dup_connack));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c.sock);
+
+    /* 2. Malformed CONNACKs while CONNECTING (bad header flags, rem_len != 2, ack flags != 0) */
+    const uint8_t bad_connacks[3][5] = {
+        {0x21U, 0x02U, 0x00U, 0x00U, 0x00U}, /* Non-zero fixed header flags */
+        {0x20U, 0x03U, 0x00U, 0x00U, 0x00U}, /* Remaining length == 3 */
+        {0x20U, 0x02U, 0x02U, 0x00U, 0x00U}, /* Reserved ack flags (0x02 & 0xFE != 0) */
+    };
+    const size_t bad_lens[3] = {4U, 5U, 4U};
+    for (size_t i = 0U; i < 3U; i++) {
+        mock_port_reset();
+        syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+        PT_INIT(&pt);
+        TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+        TEST_ASSERT_EQUAL(SYN_MQTT_CONNECTING, c.state);
+        mock_sock_set_response(bad_connacks[i], bad_lens[i]);
+        TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+        TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
+        TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c.sock);
+    }
+
+    /* 3. Publish / Subscribe / QoS 1 retransmit update last_activity_ms on success and
+     *    disconnect broken socket on transport write failure */
+    mock_port_reset();
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 11;
+    mock_sock_connected = true;
+    mock_tick_ms = 1234U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqtt_publish(&c, "sensors/t", "v", 1U, 1U, false));
+    TEST_ASSERT_EQUAL_UINT32(1234U, c.last_activity_ms);
+
+    mock_tick_ms = 2345U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqtt_subscribe(&c, "sensors/#", 1U));
+    TEST_ASSERT_EQUAL_UINT32(2345U, c.last_activity_ms);
+
+    /* Retransmit failure at +5000ms resets session without updating last_activity_ms */
+    PT_INIT(&pt);
+    mock_tick_ms = 1234U + 5000U;
+    mock_sock_send_fail = true;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c.sock);
+    TEST_ASSERT_EQUAL_UINT32(2345U, c.last_activity_ms);
+
+    /* Direct publish failure while CONNECTED resets session */
+    mock_port_reset();
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 11;
+    c.last_activity_ms = 500U;
+    mock_sock_connected = true;
+    mock_sock_send_fail = true;
+    mock_tick_ms = 900U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_publish(&c, "t", "x", 1U, 0U, false));
+    TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c.sock);
+    TEST_ASSERT_EQUAL_UINT32(500U, c.last_activity_ms);
+
+    /* Direct subscribe failure while CONNECTED resets session */
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 12;
+    mock_sock_connected = true;
+    mock_sock_send_fail = true;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mqtt_subscribe(&c, "t", 1U));
+    TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c.sock);
+    TEST_ASSERT_EQUAL_UINT32(500U, c.last_activity_ms);
+
+    /* 4. Inbound PUBLISH with QoS == 0 && DUP == 1 ([MQTT-3.3.1-2]) resets session */
+    mock_port_reset();
+    s_mqtt_msg_count = 0;
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 11;
+    c.on_message = on_mqtt_message;
+    mock_sock_connected = true;
+    const uint8_t qos0_dup[] = {0x38U, 0x05U, 0x00U, 0x01U, 't', 'o', 'k'};
+    mock_sock_set_response(qos0_dup, sizeof(qos0_dup));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(0, s_mqtt_msg_count);
+    TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c.sock);
+}
+
 void run_mqtt_tests(void)
 {
     RUN_TEST(test_mqtt_connect);
@@ -1448,4 +1553,5 @@ void run_mqtt_tests(void)
     RUN_TEST(test_mqtt_round3_regressions);
     RUN_TEST(test_mqtt_round4_regressions);
     RUN_TEST(test_r5_n11_mqtt_qos1_retransmit_bounds_and_sub_qos2);
+    RUN_TEST(test_tier_a_mqtt_connack_send_fail_and_qos0_dup);
 }

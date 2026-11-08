@@ -72,6 +72,10 @@ extern "C" {
 #define SYN_WG_REKEY_TIMEOUT 5       /**< Retry handshake if no response (s)     */
 #define SYN_WG_KEEPALIVE_TIMEOUT 10  /**< Send keepalive if no outbound (s)      */
 
+/** WireGuard message counter limits (whitepaper Section 6.2). */
+#define SYN_WG_REKEY_AFTER_MESSAGES (1ULL << 60U)         /**< Initiate rekey at 2^60 messages */
+#define SYN_WG_REJECT_AFTER_MESSAGES (UINT64_MAX - 16ULL) /**< Reject transport at 2^64 - 17 */
+
 /** WireGuard message types. */
 #define SYN_WG_MSG_INITIATION 1 /**< Handshake initiation message */
 #define SYN_WG_MSG_RESPONSE 2   /**< Handshake response message   */
@@ -230,7 +234,7 @@ SYN_PT_Status syn_wg_task(SYN_PT *pt, SYN_Task *task);
  */
 static inline bool syn_wg_is_established(const SYN_WG *wg)
 {
-    return wg->state == SYN_WG_ESTABLISHED;
+    return (wg != NULL) && (wg->state == SYN_WG_ESTABLISHED);
 }
 
 /** @brief WireGuard tunnel statistics structure. */
