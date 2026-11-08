@@ -836,6 +836,83 @@ void test_r5_a16_bounded_parse_pending_dispatch_and_deciamp(void)
     TEST_ASSERT_EQUAL(SYN_OCPP_ACTION_NONE, g_ocpp_client.pending_action);
 }
 
+static char s_pro18_buf[512];
+static char s_pro18_resp[256];
+static char s_pro18_long[140];
+
+void test_pro18_ocpp_i32_sat_slots_and_json_escape(void)
+{
+    size_t tx_len = 0U;
+    size_t resp_len = 0U;
+
+    syn_ocpp_init(&g_ocpp_client);
+    syn_ocpp_set_callbacks(&g_ocpp_client, on_r5_reg_cb, on_r5_auth_cb, on_ocpp_start_tx,
+                           on_r5_remote_start, on_r5_remote_stop, NULL);
+
+    /* 1. i32 overflow/underflow rejection, INT32_MIN/MAX boundaries, and ms saturation */
+    SYN_OCPP_ChargePointInfo info = {"Vendor", "Model", "SN", "1.0"};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_format_boot_notification(&g_ocpp_client, &info, s_pro18_buf,
+                                                                sizeof(s_pro18_buf), &tx_len));
+    const char *boot_ovf = "[3,\"1\",{\"status\":\"Accepted\",\"interval\":2147483648}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, boot_ovf, strlen(boot_ovf),
+                                                       NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL_UINT32(60U, g_ocpp_client.heartbeat_interval_sec);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_format_boot_notification(&g_ocpp_client, &info, s_pro18_buf,
+                                                                sizeof(s_pro18_buf), &tx_len));
+    const char *boot_sat = "[3,\"2\",{\"status\":\"Accepted\",\"interval\":2147483647}]";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_process_message(&g_ocpp_client, boot_sat, strlen(boot_sat),
+                                                       NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL_UINT32(2147483647U, g_ocpp_client.heartbeat_interval_sec);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, g_ocpp_client.heartbeat_timer_ms);
+
+    g_ocpp_client.heartbeat_timer_ms = 5U;
+    syn_ocpp_tick(&g_ocpp_client, 10U, s_pro18_buf, sizeof(s_pro18_buf), &tx_len);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, g_ocpp_client.heartbeat_timer_ms);
+
+    g_ocpp_client.heartbeat_interval_sec = 0U;
+    g_ocpp_client.heartbeat_timer_ms = 5U;
+    syn_ocpp_tick(&g_ocpp_client, 10U, NULL, 0U, NULL);
+    TEST_ASSERT_EQUAL_UINT32(60000U, g_ocpp_client.heartbeat_timer_ms);
+
+    const char *stop_udf = "[2,\"20\",\"RemoteStopTransaction\",{\"transactionId\":-2147483649}]";
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_process_message(&g_ocpp_client, stop_udf, strlen(stop_udf),
+                                               s_pro18_resp, sizeof(s_pro18_resp), &resp_len));
+    TEST_ASSERT_NOT_NULL(strstr(s_pro18_resp, "Rejected"));
+
+    const char *stop_min = "[2,\"21\",\"RemoteStopTransaction\",{\"transactionId\":-2147483648}]";
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_process_message(&g_ocpp_client, stop_min, strlen(stop_min),
+                                               s_pro18_resp, sizeof(s_pro18_resp), &resp_len));
+    TEST_ASSERT_EQUAL_INT32((-2147483647 - 1), g_r5_tx_id);
+
+    /* 2. JSON string escaping (quotes, backslashes, \n, \r, \t, control < 0x20, NULLs, overflow) */
+    const char *dirty = "A\"B\\C\nD\rE\tF\x01G";
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_format_authorize(&g_ocpp_client, dirty, s_pro18_buf,
+                                                        sizeof(s_pro18_buf), &tx_len));
+    TEST_ASSERT_NOT_NULL(strstr(s_pro18_buf, "\"A\\\"B\\\\C\\nD\\rE\\tF\\u0001G\""));
+
+    SYN_OCPP_DisplayMessage dmsg = {7U, NULL, NULL, 10U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_format_display_message(&g_ocpp_client, &dmsg, s_pro18_buf,
+                                                              sizeof(s_pro18_buf), &tx_len));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ocpp_format_status_notification(
+                                  &g_ocpp_client, 1U, SYN_OCPP_STATUS_AVAILABLE, NULL, s_pro18_buf,
+                                  sizeof(s_pro18_buf), &tx_len));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_format_stop_transaction(&g_ocpp_client, 1, 100U, NULL, s_pro18_buf,
+                                                       sizeof(s_pro18_buf), &tx_len));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ocpp_format_call_error("99", SYN_OCPP_ERROR_GENERIC_ERROR, NULL,
+                                                 s_pro18_buf, sizeof(s_pro18_buf), &tx_len));
+
+    memset(s_pro18_long, 'X', sizeof(s_pro18_long) - 1U);
+    s_pro18_long[sizeof(s_pro18_long) - 1U] = '\0';
+    TEST_ASSERT_EQUAL(SYN_ERROR,
+                      syn_ocpp_format_authorize(&g_ocpp_client, s_pro18_long, s_pro18_buf,
+                                                sizeof(s_pro18_buf), &tx_len));
+}
+
 void run_ocpp_tests(void)
 {
     RUN_TEST(test_ocpp_init_and_null_checks);
@@ -852,4 +929,5 @@ void run_ocpp_tests(void)
     RUN_TEST(test_ocpp_call_error_formatting);
     RUN_TEST(test_ocpp_21_features);
     RUN_TEST(test_r5_a16_bounded_parse_pending_dispatch_and_deciamp);
+    RUN_TEST(test_pro18_ocpp_i32_sat_slots_and_json_escape);
 }

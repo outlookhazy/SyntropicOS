@@ -546,6 +546,120 @@ static void test_r5_dali_iec62386_reset_and_up_commands(void)
     TEST_ASSERT_TRUE(slave.lamp_on);
 }
 
+static void test_tier_a_dali_queries_withdraw_unassign_and_clamps(void)
+{
+    SYN_DALI_SlaveConfig cfg = {
+        .short_address = 63U,
+        .min_level = 20U,
+        .max_level = 200U,
+        .power_on_level = 100U,
+        .system_failure_level = 100U,
+    };
+    SYN_DALI_SlaveState slave;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_init(&slave, &cfg));
+
+    SYN_DALI_ForwardFrame req;
+    uint8_t resp = 0U;
+    bool has_resp = false;
+
+    /* 1. Missing queries: CONTROL_GEAR, LAMP_FAILURE, LAMP_POWER_ON, DEVICE_TYPE, PHYSICAL_MIN */
+    syn_dali_decode_forward(syn_dali_encode_forward(0xFFU, SYN_DALI_CMD_QUERY_CONTROL_GEAR), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_TRUE(has_resp);
+    TEST_ASSERT_EQUAL_HEX8(0xFFU, resp);
+
+    syn_dali_decode_forward(syn_dali_encode_forward(0xFFU, SYN_DALI_CMD_QUERY_LAMP_FAILURE), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_FALSE(has_resp);
+    slave.lamp_failure = true;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_TRUE(has_resp);
+    TEST_ASSERT_EQUAL_HEX8(0xFFU, resp);
+
+    syn_dali_decode_forward(syn_dali_encode_forward(0xFFU, SYN_DALI_CMD_QUERY_LAMP_POWER_ON), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_TRUE(has_resp);
+    TEST_ASSERT_EQUAL_HEX8(0xFFU, resp);
+    slave.lamp_on = false;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_FALSE(has_resp);
+
+    syn_dali_decode_forward(syn_dali_encode_forward(0xFFU, SYN_DALI_CMD_QUERY_DEVICE_TYPE), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_TRUE(has_resp);
+    TEST_ASSERT_EQUAL_UINT8(0U, resp);
+
+    syn_dali_decode_forward(syn_dali_encode_forward(0xFFU, SYN_DALI_CMD_QUERY_PHYSICAL_MIN_LEVEL),
+                            &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_TRUE(has_resp);
+    TEST_ASSERT_EQUAL_UINT8(1U, resp);
+
+    /* 2. Clamp STORE_DTR_AS_MIN_LEVEL to [1, max_level] and MAX_LEVEL to [min_level, 254] */
+    slave.dtr0 = 0U;
+    syn_dali_decode_forward(syn_dali_encode_forward(0xFFU, SYN_DALI_CMD_STORE_DTR_AS_MIN_LEVEL),
+                            &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_EQUAL_UINT8(1U, slave.cfg.min_level);
+
+    slave.dtr0 = 250U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_EQUAL_UINT8(200U, slave.cfg.min_level);
+
+    slave.cfg.min_level = 50U;
+    slave.dtr0 = 10U;
+    syn_dali_decode_forward(syn_dali_encode_forward(0xFFU, SYN_DALI_CMD_STORE_DTR_AS_MAX_LEVEL),
+                            &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_EQUAL_UINT8(50U, slave.cfg.max_level);
+
+    slave.dtr0 = 255U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_EQUAL_UINT8(254U, slave.cfg.max_level);
+
+    /* 3. Short address 0xFF unassignment in STORE_DTR_AS_SHORT_ADDR & PROGRAM_SHORT_ADDR */
+    syn_dali_decode_forward(syn_dali_encode_forward(SYN_DALI_SPEC_VERIFY_SHORT_ADDR, 0xFFU), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_FALSE(has_resp); /* 0xFF must not verify against short address 63! */
+
+    slave.dtr0 = 0xFFU;
+    syn_dali_decode_forward(syn_dali_encode_forward(0xFFU, SYN_DALI_CMD_STORE_DTR_AS_SHORT_ADDR),
+                            &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_EQUAL_HEX8(SYN_DALI_SHORT_ADDR_UNASSIGNED, slave.cfg.short_address);
+
+    /* 4. WITHDRAW during binary search & COMPARE suppression, cleared by INITIALISE/TERMINATE */
+    syn_dali_decode_forward(syn_dali_encode_forward(SYN_DALI_SPEC_INITIALISE, 0x00U), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    slave.random_address = 0x112233U;
+    slave.search_address = 0x112234U;
+
+    /* WITHDRAW ignored when random_address != search_address */
+    syn_dali_decode_forward(syn_dali_encode_forward(SYN_DALI_SPEC_WITHDRAW, 0x00U), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_FALSE(slave.withdrawn);
+
+    slave.search_address = 0x112233U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_TRUE(slave.withdrawn);
+
+    /* COMPARE must NOT reply once withdrawn */
+    syn_dali_decode_forward(syn_dali_encode_forward(SYN_DALI_SPEC_COMPARE, 0x00U), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_FALSE(has_resp);
+
+    /* PROGRAM_SHORT_ADDR with 0xFF deletes short address */
+    slave.cfg.short_address = 12U;
+    syn_dali_decode_forward(syn_dali_encode_forward(SYN_DALI_SPEC_PROGRAM_SHORT_ADDR, 0xFFU), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_EQUAL_HEX8(SYN_DALI_SHORT_ADDR_UNASSIGNED, slave.cfg.short_address);
+
+    /* TERMINATE clears withdrawn */
+    syn_dali_decode_forward(syn_dali_encode_forward(SYN_DALI_SPEC_TERMINATE, 0x00U), &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp, &has_resp));
+    TEST_ASSERT_FALSE(slave.withdrawn);
+}
+
 void run_dali_tests(void)
 {
     RUN_TEST(test_dali_frame_codec);
@@ -553,4 +667,5 @@ void run_dali_tests(void)
     RUN_TEST(test_dali_manchester_codec);
     RUN_TEST(test_dali_forward_frame_settling_and_timing);
     RUN_TEST(test_r5_dali_iec62386_reset_and_up_commands);
+    RUN_TEST(test_tier_a_dali_queries_withdraw_unassign_and_clamps);
 }

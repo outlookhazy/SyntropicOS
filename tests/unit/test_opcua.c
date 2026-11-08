@@ -1304,6 +1304,65 @@ void test_r5_a06_scada_write_read_and_session_guards(void)
     TEST_ASSERT_EQUAL_INT(SYN_OPCUA_STATE_CLOSED, srv.state);
 }
 
+static SYN_OPCUA_Server s_pro21_srv;
+static uint8_t s_pro21_rx[512];
+static uint8_t s_pro21_tx[512];
+static uint8_t s_pro21_resp[512];
+
+void test_pro21_opcua_browse_string_nodeid_no_union_pun(void)
+{
+    SYN_OPCUA_Config cfg = {
+        .rx_buf = s_pro21_rx,
+        .rx_buf_size = sizeof(s_pro21_rx),
+        .tx_buf = s_pro21_tx,
+        .tx_buf_size = sizeof(s_pro21_tx),
+    };
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_opcua_server_init(&s_pro21_srv, &cfg));
+    s_pro21_srv.state = SYN_OPCUA_STATE_SESSION_ACTIVE;
+
+    SYN_OPCUA_Node str_node = {
+        .node_id = {.ns_index = 2U,
+                    .id_type = SYN_OPCUA_NODEID_STRING,
+                    .id = {.str = "Pump.Speed"}},
+        .node_class = SYN_OPCUA_NODECLASS_VARIABLE,
+        .browse_name = "PumpSpeed",
+        .display_name = "Pump Speed",
+        .data_type = SYN_OPCUA_TYPE_FLOAT,
+        .access_level = 0x03U,
+    };
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_opcua_server_register_node(&s_pro21_srv, &str_node));
+
+    uint8_t br_req[56];
+    (void)memset(br_req, 0, sizeof(br_req));
+    (void)build_opcua_msg_hdr(br_req, 1U, 1U, 527U);
+    uint32_t sz56 = 56U;
+    (void)memcpy(&br_req[4], &sz56, 4U);
+
+    size_t resp_len = 0U;
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_opcua_server_process_message(&s_pro21_srv, br_req, sizeof(br_req), s_pro21_resp,
+                                                 sizeof(s_pro21_resp), &resp_len));
+    TEST_ASSERT_GREATER_THAN_UINT(70U, resp_len);
+
+    /* Non-root reference count at offset 56 must be 4 (Objects, Server, ServerStatus, Pump.Speed)
+     */
+    uint32_t ref_count = 0U;
+    (void)memcpy(&ref_count, &s_pro21_resp[56], 4U);
+    TEST_ASSERT_EQUAL_UINT32(4U, ref_count);
+
+    /* Verify wire String NodeId encoding: [0x03, ns=2 (u16 LE), len=10 (u32 LE), "Pump.Speed"] */
+    const uint8_t expected_nid[17] = {0x03U, 0x02U, 0x00U, 10U, 0x00U, 0x00U, 0x00U, 'P', 'u',
+                                      'm',   'p',   '.',   'S', 'p',   'e',   'e',   'd'};
+    bool found_str_nid = false;
+    for (size_t i = 0U; (i + sizeof(expected_nid)) <= resp_len; i++) {
+        if (memcmp(&s_pro21_resp[i], expected_nid, sizeof(expected_nid)) == 0) {
+            found_str_nid = true;
+            break;
+        }
+    }
+    TEST_ASSERT_TRUE(found_str_nid);
+}
+
 void run_opcua_tests(void)
 {
     RUN_TEST(test_opcua_server_init_and_validation);
@@ -1314,4 +1373,5 @@ void run_opcua_tests(void)
     RUN_TEST(test_opcua_server_pt_has_data_yielding);
     RUN_TEST(test_opcua_r4_p15_regressions);
     RUN_TEST(test_r5_a06_scada_write_read_and_session_guards);
+    RUN_TEST(test_pro21_opcua_browse_string_nodeid_no_union_pun);
 }

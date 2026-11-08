@@ -96,6 +96,7 @@ typedef struct {
     uint8_t dtr2;              /**< Data Transfer Register 2 */
     bool write_mem_enabled;    /**< True when write memory enabled */
     bool dapc_sequence_active; /**< True when DAPC sequence active */
+    bool withdrawn;            /**< True when withdrawn from binary search */
 } SYN_DALI_SlaveState;
 
 /* ── Standard DALI Command Definitions (IEC 62386-102) ─────────────────── */
@@ -225,7 +226,7 @@ SYN_Status syn_dali_slave_process(SYN_DALI_SlaveState *slave, const SYN_DALI_For
 /**
  * @brief Encode a byte sequence into Manchester bi-phase bits.
  * @param val      Input byte value.
- * @param bit_out  Output uint16_t array (minimum 16 elements for bi-phase pairs).
+ * @param bit_out  Output uint8_t array (minimum 16 elements for bi-phase pairs).
  * @return Number of bi-phase transitions written.
  */
 size_t syn_dali_manchester_encode_byte(uint8_t val, uint8_t *bit_out);

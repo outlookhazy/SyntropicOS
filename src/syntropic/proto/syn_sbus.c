@@ -30,7 +30,8 @@ SYN_Status syn_sbus_decode_buffer(const uint8_t buf[SYN_SBUS_FRAME_SIZE], SYN_SB
         return SYN_INVALID_PARAM;
     }
 
-    if (buf[0] != SYN_SBUS_HEADER) {
+    bool valid_footer = (buf[24] == 0x00U) || ((buf[24] & 0x0FU) == 0x04U);
+    if ((buf[0] != SYN_SBUS_HEADER) || ((buf[23] & 0xF0U) != 0U) || !valid_footer) {
         return SYN_ERROR;
     }
 
@@ -62,6 +63,23 @@ SYN_Status syn_sbus_decode_buffer(const uint8_t buf[SYN_SBUS_FRAME_SIZE], SYN_SB
     return SYN_OK;
 }
 
+/**
+ * @brief Slide parser buffer to next potential SBUS header byte after decode failure.
+ * @param parser Pointer to SBUS parser instance.
+ */
+static void sbus_resync(SYN_SBUS_Parser *parser)
+{
+    for (size_t i = 1U; i < SYN_SBUS_FRAME_SIZE; i++) {
+        if (parser->buf[i] == SYN_SBUS_HEADER) {
+            size_t rem = SYN_SBUS_FRAME_SIZE - i;
+            (void)memmove(parser->buf, &parser->buf[i], rem);
+            parser->idx = (uint8_t)rem;
+            return;
+        }
+    }
+    parser->idx = 0U;
+}
+
 SYN_Status syn_sbus_parse_byte(SYN_SBUS_Parser *parser, uint8_t byte, SYN_SBUS_Frame *frame)
 {
     if (!parser) {
@@ -78,9 +96,9 @@ SYN_Status syn_sbus_parse_byte(SYN_SBUS_Parser *parser, uint8_t byte, SYN_SBUS_F
     parser->buf[parser->idx++] = byte;
 
     if (parser->idx >= SYN_SBUS_FRAME_SIZE) {
-        parser->idx = 0;
         SYN_Status status = syn_sbus_decode_buffer(parser->buf, &parser->last_frame);
         if (status == SYN_OK) {
+            parser->idx = 0U;
             parser->frames_received++;
             if (parser->last_frame.frame_loss) {
                 parser->frame_loss_count++;
@@ -93,6 +111,7 @@ SYN_Status syn_sbus_parse_byte(SYN_SBUS_Parser *parser, uint8_t byte, SYN_SBUS_F
             }
             return SYN_OK;
         }
+        sbus_resync(parser);
         return status;
     }
 

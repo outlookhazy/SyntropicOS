@@ -63,18 +63,20 @@ bool syn_xcp_set_mta(SYN_XCP_Slave *slave, uint8_t ext, uintptr_t addr)
 static int xcp_match_region(const SYN_XCP_MemRegion *reg, uintptr_t addr, uint32_t size,
                             bool is_write, uint8_t **out_ptr, uint8_t *err_code)
 {
-    uintptr_t proto_base = (uintptr_t)reg->base_addr;
-    uintptr_t host_base = (uintptr_t)reg->host_ptr;
+    uint64_t addr64 = (uint64_t)addr;
+    uint64_t proto_base = (uint64_t)reg->base_addr;
+    uint64_t host_base = (uint64_t)(uintptr_t)reg->host_ptr;
+    uint64_t reg_size = (uint64_t)reg->size;
     uint32_t offset = 0U;
-    if (addr >= proto_base && addr < proto_base + (uintptr_t)reg->size) {
-        offset = (uint32_t)(addr - proto_base);
-    } else if (addr >= host_base && addr < host_base + (uintptr_t)reg->size) {
-        offset = (uint32_t)(addr - host_base);
+    if ((addr64 >= proto_base) && ((addr64 - proto_base) < reg_size)) {
+        offset = (uint32_t)(addr64 - proto_base);
+    } else if ((addr64 >= host_base) && ((addr64 - host_base) < reg_size)) {
+        offset = (uint32_t)(addr64 - host_base);
     } else {
         return 0;
     }
 
-    if (size > reg->size - offset) {
+    if ((uint64_t)size > (reg_size - (uint64_t)offset)) {
         *err_code = SYN_XCP_ERR_OUT_OF_RANGE;
         return -1;
     }
@@ -164,6 +166,15 @@ static void xcp_handle_std_info(SYN_XCP_Slave *slave, uint8_t cmd, uint8_t dto_o
         dto_out[7] = 0x01U;
     } else if (cmd == SYN_XCP_CMD_DISCONNECT) {
         slave->connected = false;
+        slave->pending_unlock_resource = 0U;
+        slave->daq_tick_drained = false;
+        for (size_t i = 0U; i < SYN_XCP_MAX_DAQ_LISTS; i++) {
+            slave->daq_lists[i].running = false;
+            slave->daq_lists[i].pending_tx = false;
+            slave->daq_lists[i].current_odt_idx = 0U;
+            slave->daq_lists[i].current_entry_idx = 0U;
+            slave->daq_lists[i].cycle_counter = 0U;
+        }
     } else if (cmd == SYN_XCP_CMD_GET_STATUS) {
         dto_out[1] = 0x00U;
         dto_out[2] = (uint8_t)(all_res & (uint8_t)~slave->unlocked_resources);
@@ -191,7 +202,12 @@ static void xcp_handle_security(SYN_XCP_Slave *slave, uint8_t cmd, const uint8_t
 {
     if (cmd == SYN_XCP_CMD_GET_SEED) {
         uint8_t resource = cto[2];
-        slave->pending_unlock_resource = (resource != 0U) ? resource : 0xFFU;
+        if (resource == 0U) {
+            slave->pending_unlock_resource = 0U;
+            xcp_set_err(dto_out, SYN_XCP_ERR_ACCESS_DENIED);
+            return;
+        }
+        slave->pending_unlock_resource = resource;
         if (slave->seed_cb != NULL) {
             uint8_t seed_len = slave->seed_cb(resource, &dto_out[2], slave->seed_ctx);
             dto_out[1] = (seed_len > 6U) ? 6U : seed_len;
@@ -210,7 +226,12 @@ static void xcp_handle_security(SYN_XCP_Slave *slave, uint8_t cmd, const uint8_t
         xcp_set_err(dto_out, SYN_XCP_ERR_CMD_SYNTAX);
         return;
     }
-    uint8_t res = (slave->pending_unlock_resource != 0U) ? slave->pending_unlock_resource : 0xFFU;
+    if (slave->pending_unlock_resource == 0U) {
+        xcp_set_err(dto_out, SYN_XCP_ERR_ACCESS_DENIED);
+        return;
+    }
+    uint8_t res = slave->pending_unlock_resource;
+    slave->pending_unlock_resource = 0U;
     bool ok = false;
     if (slave->unlock_cb != NULL) {
         ok = slave->unlock_cb(res, &cto[2], key_len, slave->unlock_ctx);

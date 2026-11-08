@@ -19,7 +19,7 @@
 
 size_t syn_lwm2m_tlv_encode(const SYN_LwM2M_TLV *tlv, uint8_t *buf, size_t max_len)
 {
-    if (tlv == NULL || buf == NULL) {
+    if (tlv == NULL || buf == NULL || tlv->len > 0xFFFFFFU) {
         return 0U;
     }
 
@@ -44,7 +44,7 @@ size_t syn_lwm2m_tlv_encode(const SYN_LwM2M_TLV *tlv, uint8_t *buf, size_t max_l
     }
 
     size_t total_header_len = 1U + id_len + len_bytes;
-    if (total_header_len + tlv->len > max_len) {
+    if (max_len < total_header_len || tlv->len > (max_len - total_header_len)) {
         return 0U;
     }
 
@@ -528,6 +528,45 @@ size_t syn_lwm2m_build_register_request(SYN_LwM2M_Client *client, uint16_t msg_i
     return link_len;
 }
 
+/**
+ * @brief Split a '/' delimited location_path into separate CoAP Uri-Path options.
+ *
+ * @param loc         NUL-terminated location path string.
+ * @param req_opts    [out] Destination CoAP options array.
+ * @param max_opts    Maximum number of Uri-Path options allowed.
+ * @param out_opt_cnt [out] Number of Uri-Path options written.
+ * @return true if at least one segment was emitted and all segments fit, false otherwise.
+ */
+static bool lwm2m_split_location_uri_opts(const char *loc, SYN_CoapOption *req_opts,
+                                          size_t max_opts, size_t *out_opt_cnt)
+{
+    size_t cnt = 0U;
+    const char *p = loc;
+
+    while (*p != '\0') {
+        while (*p == '/') {
+            p++;
+        }
+        if (*p == '\0') {
+            break;
+        }
+        const char *seg_start = p;
+        while (*p != '\0' && *p != '/') {
+            p++;
+        }
+        if (cnt >= max_opts) {
+            return false;
+        }
+        req_opts[cnt].num = COAP_OPT_URI_PATH;
+        req_opts[cnt].val = (const uint8_t *)seg_start;
+        req_opts[cnt].len = (size_t)(p - seg_start);
+        cnt++;
+    }
+
+    *out_opt_cnt = cnt;
+    return (cnt > 0U);
+}
+
 size_t syn_lwm2m_build_update_request(SYN_LwM2M_Client *client, uint16_t msg_id,
                                       const uint8_t *token, uint8_t token_len, uint32_t lifetime_s,
                                       SYN_CoapMsg *req, SYN_CoapOption *req_opts,
@@ -542,8 +581,14 @@ size_t syn_lwm2m_build_update_request(SYN_LwM2M_Client *client, uint16_t msg_id,
     }
     (void)memset(req, 0, sizeof(*req));
 
-    if (client == NULL || req_opts == NULL || req_opt_cnt == NULL || max_req_opts < 3U ||
-        token_len > 8U || client->location_path[0] == '\0') {
+    if (client == NULL || req_opts == NULL || req_opt_cnt == NULL || max_req_opts < 2U ||
+        token_len > 8U || (token == NULL && token_len > 0U) || client->location_path[0] == '\0') {
+        return 0U;
+    }
+
+    size_t uri_cnt = 0U;
+    if (!lwm2m_split_location_uri_opts(client->location_path, req_opts, max_req_opts - 1U,
+                                       &uri_cnt)) {
         return 0U;
     }
 
@@ -551,36 +596,20 @@ size_t syn_lwm2m_build_update_request(SYN_LwM2M_Client *client, uint16_t msg_id,
     req->code = COAP_CODE_POST;
     req->msg_id = msg_id;
     req->token_len = token_len;
-    if (token_len > 0U && token != NULL) {
+    if (token_len > 0U) {
         (void)memcpy(req->token, token, token_len);
     }
     req->payload = NULL;
     req->payload_len = 0U;
 
-    const char *loc = client->location_path;
-    if (loc[0] == '/') {
-        loc++;
-    }
-
-    req_opts[0].num = COAP_OPT_URI_PATH;
-    req_opts[0].val = (const uint8_t *)"rd";
-    req_opts[0].len = 2U;
-
-    const char *slash = strchr(loc, '/');
-    const char *id_part = (slash != NULL) ? (slash + 1) : loc;
-
-    req_opts[1].num = COAP_OPT_URI_PATH;
-    req_opts[1].val = (const uint8_t *)id_part;
-    req_opts[1].len = strlen(id_part);
-
     uint32_t lt = (lifetime_s > 0U) ? lifetime_s : client->lifetime_s;
     (void)snprintf(client->query_lt, sizeof(client->query_lt), "lt=%u", lt);
 
-    req_opts[2].num = COAP_OPT_URI_QUERY;
-    req_opts[2].val = (const uint8_t *)client->query_lt;
-    req_opts[2].len = strlen(client->query_lt);
+    req_opts[uri_cnt].num = COAP_OPT_URI_QUERY;
+    req_opts[uri_cnt].val = (const uint8_t *)client->query_lt;
+    req_opts[uri_cnt].len = strlen(client->query_lt);
 
-    *req_opt_cnt = 3U;
+    *req_opt_cnt = uri_cnt + 1U;
     return 0U;
 }
 
@@ -590,7 +619,13 @@ size_t syn_lwm2m_build_deregister_request(const SYN_LwM2M_Client *client, uint16
                                           size_t *req_opt_cnt)
 {
     if (client == NULL || req == NULL || req_opts == NULL || req_opt_cnt == NULL ||
-        max_req_opts < 2U || token_len > 8U || client->location_path[0] == '\0') {
+        max_req_opts < 1U || token_len > 8U || (token == NULL && token_len > 0U) ||
+        client->location_path[0] == '\0') {
+        return 0U;
+    }
+
+    size_t uri_cnt = 0U;
+    if (!lwm2m_split_location_uri_opts(client->location_path, req_opts, max_req_opts, &uri_cnt)) {
         return 0U;
     }
 
@@ -598,29 +633,13 @@ size_t syn_lwm2m_build_deregister_request(const SYN_LwM2M_Client *client, uint16
     req->code = COAP_CODE_DELETE;
     req->msg_id = msg_id;
     req->token_len = token_len;
-    if (token_len > 0U && token != NULL) {
+    if (token_len > 0U) {
         (void)memcpy(req->token, token, token_len);
     }
     req->payload = NULL;
     req->payload_len = 0U;
 
-    const char *loc = client->location_path;
-    if (loc[0] == '/') {
-        loc++;
-    }
-
-    req_opts[0].num = COAP_OPT_URI_PATH;
-    req_opts[0].val = (const uint8_t *)"rd";
-    req_opts[0].len = 2U;
-
-    const char *slash = strchr(loc, '/');
-    const char *id_part = (slash != NULL) ? (slash + 1) : loc;
-
-    req_opts[1].num = COAP_OPT_URI_PATH;
-    req_opts[1].val = (const uint8_t *)id_part;
-    req_opts[1].len = strlen(id_part);
-
-    *req_opt_cnt = 2U;
+    *req_opt_cnt = uri_cnt;
     return 1U;
 }
 
@@ -672,7 +691,7 @@ bool syn_lwm2m_observe_add(SYN_LwM2M_Client *client, uint16_t obj_id, uint16_t i
                            int32_t res_id, const uint8_t *token, uint8_t token_len, uint32_t pmin,
                            uint32_t pmax)
 {
-    if (client == NULL || token_len > 8U) {
+    if (client == NULL || token_len > 8U || (token == NULL && token_len > 0U)) {
         return false;
     }
 
@@ -681,7 +700,7 @@ bool syn_lwm2m_observe_add(SYN_LwM2M_Client *client, uint16_t obj_id, uint16_t i
     for (size_t i = 0U; i < SYN_LWM2M_MAX_OBSERVERS; i++) {
         if (client->observations[i].active) {
             if (client->observations[i].token_len == token_len &&
-                memcmp(client->observations[i].token, token, token_len) == 0) {
+                (token_len == 0U || memcmp(client->observations[i].token, token, token_len) == 0)) {
                 free_slot = (int)i;
                 break;
             }
@@ -700,7 +719,7 @@ bool syn_lwm2m_observe_add(SYN_LwM2M_Client *client, uint16_t obj_id, uint16_t i
     obs->inst_id = inst_id;
     obs->res_id = res_id;
     obs->token_len = token_len;
-    if (token_len > 0U && token != NULL) {
+    if (token_len > 0U) {
         (void)memcpy(obs->token, token, token_len);
     }
     obs->pmin = pmin;
@@ -713,7 +732,7 @@ bool syn_lwm2m_observe_add(SYN_LwM2M_Client *client, uint16_t obj_id, uint16_t i
 
 bool syn_lwm2m_observe_remove(SYN_LwM2M_Client *client, const uint8_t *token, uint8_t token_len)
 {
-    if (client == NULL || token_len > 8U) {
+    if (client == NULL || token_len > 8U || (token == NULL && token_len > 0U)) {
         return false;
     }
 
@@ -917,6 +936,7 @@ typedef struct {
     uint16_t obj_id;         /**< Target Object ID */
     uint16_t inst_id;        /**< Target Instance ID */
     uint16_t res_id;         /**< Target Resource ID */
+    bool invalid_uri;        /**< True when any Uri-Path segment is malformed */
     bool has_observe;        /**< Observe option present */
     uint32_t observe_val;    /**< Decoded Observe option value (0=register, 1=deregister) */
     bool has_content_format; /**< Content-Format option present */
@@ -943,25 +963,43 @@ static uint32_t lwm2m_decode_coap_uint(const uint8_t *val, size_t len)
 }
 
 /**
- * @brief Parse a single CoAP Uri-Path segment into object/instance/resource IDs.
+ * @brief Parse a single CoAP Uri-Path segment strictly as decimal [0..65535].
  *
  * @param meta [in,out] Parsed request metadata.
  * @param opt  Uri-Path option descriptor.
  */
 static void lwm2m_parse_uri_segment(SYN_LwM2M_ReqMeta *meta, const SYN_CoapOption *opt)
 {
-    char seg[16] = {0};
-    size_t c_len = (opt->len < sizeof(seg) - 1U) ? opt->len : sizeof(seg) - 1U;
-    (void)memcpy(seg, opt->val, c_len);
-    seg[c_len] = '\0';
-    unsigned int num = (unsigned int)strtoul(seg, NULL, 10);
+    if (opt->val == NULL || opt->len == 0U || meta->path_segs >= 3U) {
+        meta->invalid_uri = true;
+        return;
+    }
+    size_t eff_len = (opt->len > 1U && opt->val[opt->len - 1U] == 0U) ? (opt->len - 1U) : opt->len;
+    if (eff_len > 5U) {
+        meta->invalid_uri = true;
+        return;
+    }
+
+    uint32_t acc = 0U;
+    for (size_t i = 0U; i < eff_len; i++) {
+        uint8_t ch = opt->val[i];
+        if (ch < (uint8_t)'0' || ch > (uint8_t)'9') {
+            meta->invalid_uri = true;
+            return;
+        }
+        acc = (acc * 10U) + (uint32_t)(ch - (uint8_t)'0');
+    }
+    if (acc > 65535U) {
+        meta->invalid_uri = true;
+        return;
+    }
 
     if (meta->path_segs == 0U) {
-        meta->obj_id = (uint16_t)num;
+        meta->obj_id = (uint16_t)acc;
     } else if (meta->path_segs == 1U) {
-        meta->inst_id = (uint16_t)num;
-    } else if (meta->path_segs == 2U) {
-        meta->res_id = (uint16_t)num;
+        meta->inst_id = (uint16_t)acc;
+    } else {
+        meta->res_id = (uint16_t)acc;
     }
     meta->path_segs++;
 }
@@ -982,7 +1020,7 @@ static void lwm2m_parse_req_opts(const SYN_CoapOption *req_opts, size_t req_opt_
     }
 
     for (size_t i = 0U; i < req_opt_cnt; i++) {
-        if (req_opts[i].num == COAP_OPT_URI_PATH && req_opts[i].val != NULL) {
+        if (req_opts[i].num == COAP_OPT_URI_PATH) {
             lwm2m_parse_uri_segment(meta, &req_opts[i]);
         } else if (req_opts[i].num == COAP_OPT_OBSERVE) {
             meta->has_observe = true;
@@ -1266,7 +1304,8 @@ static void lwm2m_handle_write_or_exec(const SYN_LwM2M_Object *obj, const SYN_Co
         return;
     }
 
-    if ((desc->operations & SYN_LWM2M_OP_E) != 0U && (desc->operations & SYN_LWM2M_OP_W) == 0U) {
+    if (req->code == COAP_CODE_POST && (desc->operations & SYN_LWM2M_OP_E) != 0U &&
+        (desc->operations & SYN_LWM2M_OP_W) == 0U) {
         if (obj->exec == NULL) {
             resp->code = COAP_RESP_METHOD_NA;
             return;
@@ -1311,7 +1350,8 @@ static bool lwm2m_prepare_response(const SYN_LwM2M_Client *client, const SYN_Coa
                                    const uint8_t *resp_buf, size_t resp_buf_sz)
 {
     if (client == NULL || req == NULL || resp == NULL || resp_opts == NULL ||
-        resp_opt_cnt == NULL || resp_buf == NULL || max_resp_opts < 2U || resp_buf_sz == 0U) {
+        resp_opt_cnt == NULL || resp_buf == NULL || max_resp_opts < 2U || resp_buf_sz == 0U ||
+        req->token_len > sizeof(resp->token)) {
         return false;
     }
 
@@ -1340,7 +1380,7 @@ SYN_Status syn_lwm2m_process_request(SYN_LwM2M_Client *client, const SYN_CoapMsg
 
     SYN_LwM2M_ReqMeta meta;
     lwm2m_parse_req_opts(req_opts, req_opt_cnt, &meta);
-    if (meta.path_segs == 0U) {
+    if (meta.invalid_uri || meta.path_segs == 0U) {
         resp->code = COAP_RESP_BAD_REQ;
         return SYN_OK;
     }
@@ -1357,7 +1397,7 @@ SYN_Status syn_lwm2m_process_request(SYN_LwM2M_Client *client, const SYN_CoapMsg
         return SYN_OK;
     }
 
-    if (req->code == COAP_CODE_PUT || (req->code == COAP_CODE_POST && meta.path_segs == 3U)) {
+    if ((req->code == COAP_CODE_PUT || req->code == COAP_CODE_POST) && meta.path_segs == 3U) {
         lwm2m_handle_write_or_exec(obj, req, &meta, resp);
         return SYN_OK;
     }
@@ -1463,6 +1503,30 @@ static SYN_Status device_read_cb(uint16_t instance_id, uint16_t resource_id,
 }
 
 /**
+ * @brief Copy a bounded LwM2M string value into a fixed buffer and update pointer.
+ *
+ * @param in_val  Input LwM2M value container.
+ * @param dst     Destination character buffer.
+ * @param cap     Capacity of @p dst including NUL terminator.
+ * @param ptr_out [out] Pointer updated to @p dst on success.
+ * @return SYN_OK on success, SYN_ERROR on invalid type or overflow.
+ */
+static SYN_Status lwm2m_copy_bounded_str(const SYN_LwM2M_Value *in_val, char *dst, size_t cap,
+                                         const char **ptr_out)
+{
+    if (in_val->type != SYN_LWM2M_TYPE_STRING || in_val->val.str == NULL) {
+        return SYN_ERROR;
+    }
+    size_t slen = strlen(in_val->val.str);
+    if (slen >= cap) {
+        return SYN_ERROR;
+    }
+    (void)memcpy(dst, in_val->val.str, slen + 1U);
+    *ptr_out = dst;
+    return SYN_OK;
+}
+
+/**
  * @brief Write callback for Device Object (Obj 3).
  *
  * @param instance_id Instance ID.
@@ -1484,6 +1548,14 @@ static SYN_Status device_write_cb(uint16_t instance_id, uint16_t resource_id,
         (in_val->type == SYN_LWM2M_TYPE_INT || in_val->type == SYN_LWM2M_TYPE_TIME)) {
         ctx->current_time = in_val->val.integer;
         return SYN_OK;
+    }
+    if (resource_id == 14U) {
+        return lwm2m_copy_bounded_str(in_val, ctx->utc_offset_buf, sizeof(ctx->utc_offset_buf),
+                                      &ctx->utc_offset);
+    }
+    if (resource_id == 15U) {
+        return lwm2m_copy_bounded_str(in_val, ctx->timezone_buf, sizeof(ctx->timezone_buf),
+                                      &ctx->timezone);
     }
 
     return SYN_ERROR;

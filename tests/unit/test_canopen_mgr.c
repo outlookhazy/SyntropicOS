@@ -155,6 +155,57 @@ void test_canopen_mgr_nmt_state_machine_transitions(void)
     TEST_ASSERT_EQUAL(0x05040000UL, g_can_mgr.sdo_client.abort_code);
 }
 
+void test_pro11_canopen_mgr_sdo_validation_and_timer_wrap(void)
+{
+    syn_canopen_mgr_init(&g_can_mgr);
+    SYN_CAN_Frame req, resp;
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_mgr_sdo_read_init(&g_can_mgr, &req, 5U, 0x1018U, 1U));
+
+    /* 1. Runt DLC != 8 ignored */
+    memset(&resp, 0, sizeof(resp));
+    resp.id = 0x585U;
+    resp.dlc = 7U;
+    resp.data[0] = 0x43U;
+    resp.data[1] = 0x18U;
+    resp.data[2] = 0x10U;
+    resp.data[3] = 1U;
+    syn_canopen_mgr_process_frame(&g_can_mgr, &resp);
+    TEST_ASSERT_EQUAL(SYN_SDO_CLIENT_STATE_WAIT_READ, g_can_mgr.sdo_client.state);
+
+    /* 2. Mismatched index / subindex ignored */
+    resp.dlc = 8U;
+    resp.data[1] = 0x00U;
+    syn_canopen_mgr_process_frame(&g_can_mgr, &resp);
+    TEST_ASSERT_EQUAL(SYN_SDO_CLIENT_STATE_WAIT_READ, g_can_mgr.sdo_client.state);
+
+    resp.data[1] = 0x18U;
+    resp.data[3] = 2U;
+    syn_canopen_mgr_process_frame(&g_can_mgr, &resp);
+    TEST_ASSERT_EQUAL(SYN_SDO_CLIENT_STATE_WAIT_READ, g_can_mgr.sdo_client.state);
+
+    /* 3. Segmented upload response (e == 0, cs = 0x41) transitions to ERROR */
+    resp.data[3] = 1U;
+    resp.data[0] = 0x41U;
+    syn_canopen_mgr_process_frame(&g_can_mgr, &resp);
+    TEST_ASSERT_EQUAL(SYN_SDO_CLIENT_STATE_ERROR, g_can_mgr.sdo_client.state);
+    TEST_ASSERT_EQUAL_HEX32(0x06010000UL, g_can_mgr.sdo_client.abort_code);
+
+    /* 4. Frames arriving when state is ERROR/SUCCESS (not WAIT_READ/WAIT_WRITE) are ignored */
+    resp.data[0] = 0x43U;
+    syn_canopen_mgr_process_frame(&g_can_mgr, &resp);
+    TEST_ASSERT_EQUAL(SYN_SDO_CLIENT_STATE_ERROR, g_can_mgr.sdo_client.state);
+
+    /* 5. Heartbeat timer does not wrap uint16_t on large delta_ms */
+    SYN_CAN_Frame hb = {.id = 0x705U, .dlc = 1U, .data = {0x05U}};
+    syn_canopen_mgr_process_frame(&g_can_mgr, &hb);
+    TEST_ASSERT_TRUE(g_can_mgr.nodes[5].online);
+    syn_canopen_mgr_step(&g_can_mgr, 2500U);
+    TEST_ASSERT_TRUE(g_can_mgr.nodes[5].online);
+    syn_canopen_mgr_step(&g_can_mgr, 65000U); /* 2500 + 65000 would wrap uint16_t to 1964 */
+    TEST_ASSERT_FALSE(g_can_mgr.nodes[5].online);
+}
+
 void run_canopen_mgr_tests(void)
 {
     RUN_TEST(test_canopen_mgr_init);
@@ -163,4 +214,5 @@ void run_canopen_mgr_tests(void)
     RUN_TEST(test_canopen_mgr_sdo_write);
     RUN_TEST(test_canopen_mgr_heartbeat_monitor);
     RUN_TEST(test_canopen_mgr_nmt_state_machine_transitions);
+    RUN_TEST(test_pro11_canopen_mgr_sdo_validation_and_timer_wrap);
 }

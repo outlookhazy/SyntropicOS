@@ -127,3 +127,48 @@ void test_crsf_null_and_error_handling(void)
     TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_crsf_parse_byte(&parser, bad_pkt[5], NULL));
     TEST_ASSERT_EQUAL_UINT32(1, parser.crc_errors);
 }
+
+void test_tier_a_crsf_short_payload_guards(void)
+{
+    SYN_CRSF_Parser parser;
+    SYN_CRSF_FrameType type = (SYN_CRSF_FrameType)0;
+    syn_crsf_init(&parser);
+
+    /* Poison internal buffer with non-zero bytes to catch stale overread */
+    for (size_t i = 0; i < sizeof(parser.buf); i++) {
+        parser.buf[i] = 0xFFU;
+    }
+
+    /* Short RC_CHANNELS packet (payload_len = 4 < 24) with VALID CRC must be rejected */
+    uint8_t short_rc[6] = {SYN_CRSF_ADDR_FC, 4U, SYN_CRSF_TYPE_RC_CHANNELS, 0x01U, 0x02U, 0U};
+    short_rc[5] = syn_crsf_calc_crc(&short_rc[2], 3U);
+    for (size_t i = 0; i < 5U; i++) {
+        TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_crsf_parse_byte(&parser, short_rc[i], &type));
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_crsf_parse_byte(&parser, short_rc[5], &type));
+    TEST_ASSERT_EQUAL_UINT32(0U, parser.crc_errors);
+    TEST_ASSERT_EQUAL_UINT32(0U, parser.packets_received);
+    TEST_ASSERT_EQUAL_UINT16(0U, parser.last_channels.channels[15]);
+
+    /* Short LINK_STATISTICS packet (payload_len = 5 < 12) with VALID CRC must be rejected */
+    uint8_t short_ls[7] = {
+        SYN_CRSF_ADDR_FC, 5U, SYN_CRSF_TYPE_LINK_STATISTICS, 0x10U, 0x20U, 0x30U, 0U};
+    short_ls[6] = syn_crsf_calc_crc(&short_ls[2], 4U);
+    for (size_t i = 0; i < 6U; i++) {
+        TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_crsf_parse_byte(&parser, short_ls[i], &type));
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_crsf_parse_byte(&parser, short_ls[6], &type));
+    TEST_ASSERT_EQUAL_UINT32(0U, parser.crc_errors);
+    TEST_ASSERT_EQUAL_UINT32(0U, parser.packets_received);
+    TEST_ASSERT_EQUAL_UINT8(0U, parser.last_link_stats.downlink_quality);
+
+    /* Other frame types (e.g. BATTERY = 0x08) with short valid payload still succeed */
+    uint8_t batt_pkt[6] = {SYN_CRSF_ADDR_FC, 4U, SYN_CRSF_TYPE_BATTERY, 0xAAU, 0x55U, 0U};
+    batt_pkt[5] = syn_crsf_calc_crc(&batt_pkt[2], 3U);
+    for (size_t i = 0; i < 5U; i++) {
+        TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_crsf_parse_byte(&parser, batt_pkt[i], &type));
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_crsf_parse_byte(&parser, batt_pkt[5], &type));
+    TEST_ASSERT_EQUAL_INT(SYN_CRSF_TYPE_BATTERY, type);
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.packets_received);
+}

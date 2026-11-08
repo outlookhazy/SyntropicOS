@@ -1,6 +1,6 @@
 /**
  * @file syn_msp.c
- * @brief Zero-Heap MSP (MultiWii Serial Protocol v1/v2) Encoder & Decoder Implementation.
+ * @brief Zero-Heap MSP v1 (MultiWii Serial Protocol v1) Encoder & Decoder Implementation.
  */
 
 #include "syntropic/proto/syn_msp.h"
@@ -26,36 +26,94 @@ SYN_Status syn_msp_init(SYN_MSP_Parser *parser)
     return SYN_OK;
 }
 
+/**
+ * @brief Check whether byte is a valid MSP v1 direction indicator ('<', '>', or '!').
+ * @param byte Incoming byte.
+ * @return true if valid MSP v1 direction indicator, false otherwise.
+ */
+static bool msp_is_dir_char(uint8_t byte)
+{
+    return (byte == SYN_MSP_REQ_CHAR) || (byte == SYN_MSP_RESP_CHAR) || (byte == SYN_MSP_ERR_CHAR);
+}
+
+/**
+ * @brief Process MSP v1 3-byte header synchronization states ('$M<' / '$M>' / '$M!').
+ * @param parser Pointer to MSP parser instance.
+ * @param byte   Incoming serial byte.
+ * @return true if byte was consumed in a header state, false otherwise.
+ */
+static bool msp_parse_header(SYN_MSP_Parser *parser, uint8_t byte)
+{
+    if (parser->state == STATE_HEADER_START) {
+        if (byte == SYN_MSP_HEADER_CHAR) {
+            parser->state = STATE_HEADER_M;
+        }
+        return true;
+    }
+
+    if (parser->state == STATE_HEADER_M) {
+        if (byte == SYN_MSP_V1_CHAR) {
+            parser->state = STATE_HEADER_DIR;
+        } else if (byte != SYN_MSP_HEADER_CHAR) {
+            parser->state = STATE_HEADER_START;
+        }
+        return true;
+    }
+
+    if (parser->state == STATE_HEADER_DIR) {
+        if (msp_is_dir_char(byte)) {
+            parser->dir_char = byte;
+            parser->state = STATE_SIZE;
+        } else if (byte == SYN_MSP_HEADER_CHAR) {
+            parser->state = STATE_HEADER_M;
+        } else {
+            parser->state = STATE_HEADER_START;
+        }
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * @brief Verify trailing XOR checksum and finalize decoded MSP frame.
+ * @param parser Pointer to MSP parser instance.
+ * @param byte   Received checksum byte.
+ * @param frame  Optional output frame pointer.
+ * @return SYN_OK on matching checksum, SYN_ERROR on mismatch.
+ */
+static SYN_Status msp_finish_checksum(SYN_MSP_Parser *parser, uint8_t byte, SYN_MSP_Frame *frame)
+{
+    parser->state = STATE_HEADER_START;
+    if (parser->checksum != byte) {
+        parser->checksum_errors++;
+        return SYN_ERROR;
+    }
+
+    parser->frames_received++;
+    parser->last_frame.dir_char = parser->dir_char;
+    parser->last_frame.cmd = parser->cmd;
+    parser->last_frame.payload_len = parser->payload_len;
+    if (parser->payload_len > 0U) {
+        memcpy(parser->last_frame.payload, parser->payload, parser->payload_len);
+    }
+    if (frame) {
+        *frame = parser->last_frame;
+    }
+    return SYN_OK;
+}
+
 SYN_Status syn_msp_parse_byte(SYN_MSP_Parser *parser, uint8_t byte, SYN_MSP_Frame *frame)
 {
     if (!parser) {
         return SYN_INVALID_PARAM;
     }
 
+    if (msp_parse_header(parser, byte)) {
+        return SYN_BUSY;
+    }
+
     switch (parser->state) {
-    case STATE_HEADER_START:
-        if (byte == SYN_MSP_HEADER_CHAR) {
-            parser->state = STATE_HEADER_M;
-        }
-        return SYN_BUSY;
-
-    case STATE_HEADER_M:
-        if (byte == SYN_MSP_V1_CHAR) {
-            parser->state = STATE_HEADER_DIR;
-        } else {
-            parser->state = STATE_HEADER_START;
-        }
-        return SYN_BUSY;
-
-    case STATE_HEADER_DIR:
-        if (byte == SYN_MSP_REQ_CHAR || byte == SYN_MSP_RESP_CHAR || byte == SYN_MSP_ERR_CHAR) {
-            parser->dir_char = byte;
-            parser->state = STATE_SIZE;
-        } else {
-            parser->state = STATE_HEADER_START;
-        }
-        return SYN_BUSY;
-
     case STATE_SIZE:
         parser->payload_len = byte;
         parser->checksum = byte;
@@ -87,23 +145,7 @@ SYN_Status syn_msp_parse_byte(SYN_MSP_Parser *parser, uint8_t byte, SYN_MSP_Fram
         return SYN_BUSY;
 
     case STATE_CHECKSUM:
-        parser->state = STATE_HEADER_START;
-        if (parser->checksum == byte) {
-            parser->frames_received++;
-            parser->last_frame.dir_char = parser->dir_char;
-            parser->last_frame.cmd = parser->cmd;
-            parser->last_frame.payload_len = parser->payload_len;
-            if (parser->payload_len > 0) {
-                memcpy(parser->last_frame.payload, parser->payload, parser->payload_len);
-            }
-            if (frame) {
-                *frame = parser->last_frame;
-            }
-            return SYN_OK;
-        } else {
-            parser->checksum_errors++;
-            return SYN_ERROR;
-        }
+        return msp_finish_checksum(parser, byte, frame);
 
     default:
         parser->state = STATE_HEADER_START;
@@ -123,6 +165,9 @@ SYN_Status syn_msp_encode_response(uint8_t cmd, const uint8_t *payload, uint8_t 
     if (buf_size < required) {
         return SYN_INVALID_PARAM;
     }
+    if ((payload == NULL) && (len > 0U)) {
+        return SYN_INVALID_PARAM;
+    }
 
     size_t idx = 0;
     buf_out[idx++] = SYN_MSP_HEADER_CHAR;
@@ -133,11 +178,9 @@ SYN_Status syn_msp_encode_response(uint8_t cmd, const uint8_t *payload, uint8_t 
 
     uint8_t checksum = len ^ cmd;
 
-    if (payload && len > 0) {
-        for (uint8_t i = 0; i < len; i++) {
-            buf_out[idx++] = payload[i];
-            checksum ^= payload[i];
-        }
+    for (uint8_t i = 0U; i < len; i++) {
+        buf_out[idx++] = payload[i];
+        checksum ^= payload[i];
     }
 
     buf_out[idx++] = checksum;

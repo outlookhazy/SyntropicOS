@@ -24,6 +24,49 @@ uint8_t syn_dlt645_calc_checksum(const uint8_t *buf, size_t len)
     return (uint8_t)(sum & 0xFF);
 }
 
+/**
+ * @brief Determine Data Identifier (DI) byte length for a DL/T 645 control code and version.
+ * @param control DL/T 645 control byte.
+ * @param version Protocol version (1997 or 2007).
+ * @return DI field length in bytes (0, 2, or 4).
+ */
+static size_t dlt645_di_len(uint8_t control, SYN_DLT645_Ver version)
+{
+    if ((control & 0x40U) != 0U) {
+        return 0U;
+    }
+    uint8_t base = (uint8_t)(control & 0x7FU);
+    if ((control == 0x08U) || (base == 0x13U) || (base == 0x15U) || (base == 0x16U) ||
+        (base == 0x17U)) {
+        return 0U;
+    }
+    return (version == SYN_DLT645_VER_1997) ? 2U : 4U;
+}
+
+/**
+ * @brief Decode Data Identifier (DI) bytes with -0x33 offset removal.
+ * @param p      Pointer to start of encoded DI bytes.
+ * @param di_len DI length in bytes (0, 2, or 4).
+ * @return Decoded 32-bit Data Identifier (0 if di_len == 0).
+ */
+static uint32_t dlt645_decode_di(const uint8_t *p, size_t di_len)
+{
+    if (di_len == 2U) {
+        uint8_t di0 = (uint8_t)(p[0] - SYN_DLT645_OFFSET);
+        uint8_t di1 = (uint8_t)(p[1] - SYN_DLT645_OFFSET);
+        return (uint32_t)di0 | ((uint32_t)di1 << 8U);
+    }
+    if (di_len == 4U) {
+        uint8_t di0 = (uint8_t)(p[0] - SYN_DLT645_OFFSET);
+        uint8_t di1 = (uint8_t)(p[1] - SYN_DLT645_OFFSET);
+        uint8_t di2 = (uint8_t)(p[2] - SYN_DLT645_OFFSET);
+        uint8_t di3 = (uint8_t)(p[3] - SYN_DLT645_OFFSET);
+        return (uint32_t)di0 | ((uint32_t)di1 << 8U) | ((uint32_t)di2 << 16U) |
+               ((uint32_t)di3 << 24U);
+    }
+    return 0U;
+}
+
 /* ── Encoder ────────────────────────────────────────────────────────────── */
 
 size_t syn_dlt645_encode(const SYN_DLT645_Frame *frame, uint8_t *out_buf, size_t out_capacity)
@@ -32,7 +75,7 @@ size_t syn_dlt645_encode(const SYN_DLT645_Frame *frame, uint8_t *out_buf, size_t
         return 0;
     }
 
-    size_t di_len = (frame->version == SYN_DLT645_VER_1997) ? 2 : 4;
+    size_t di_len = dlt645_di_len(frame->control, frame->version);
     size_t data_len = di_len + frame->payload_len;
     size_t total_len = 10 + data_len + 2; /* 10 header + data_len + 1 CS + 1 EOF */
 
@@ -52,14 +95,14 @@ size_t syn_dlt645_encode(const SYN_DLT645_Frame *frame, uint8_t *out_buf, size_t
     out_buf[idx++] = (uint8_t)data_len;
 
     /* Encode Data Identifier (DI) with +0x33 offset (little-endian) */
-    if (frame->version == SYN_DLT645_VER_1997) {
-        out_buf[idx++] = (uint8_t)((frame->data_id & 0xFF) + SYN_DLT645_OFFSET);
-        out_buf[idx++] = (uint8_t)(((frame->data_id >> 8) & 0xFF) + SYN_DLT645_OFFSET);
-    } else {
-        out_buf[idx++] = (uint8_t)((frame->data_id & 0xFF) + SYN_DLT645_OFFSET);
-        out_buf[idx++] = (uint8_t)(((frame->data_id >> 8) & 0xFF) + SYN_DLT645_OFFSET);
-        out_buf[idx++] = (uint8_t)(((frame->data_id >> 16) & 0xFF) + SYN_DLT645_OFFSET);
-        out_buf[idx++] = (uint8_t)(((frame->data_id >> 24) & 0xFF) + SYN_DLT645_OFFSET);
+    if (di_len == 2U) {
+        out_buf[idx++] = (uint8_t)((frame->data_id & 0xFFU) + SYN_DLT645_OFFSET);
+        out_buf[idx++] = (uint8_t)(((frame->data_id >> 8U) & 0xFFU) + SYN_DLT645_OFFSET);
+    } else if (di_len == 4U) {
+        out_buf[idx++] = (uint8_t)((frame->data_id & 0xFFU) + SYN_DLT645_OFFSET);
+        out_buf[idx++] = (uint8_t)(((frame->data_id >> 8U) & 0xFFU) + SYN_DLT645_OFFSET);
+        out_buf[idx++] = (uint8_t)(((frame->data_id >> 16U) & 0xFFU) + SYN_DLT645_OFFSET);
+        out_buf[idx++] = (uint8_t)(((frame->data_id >> 24U) & 0xFFU) + SYN_DLT645_OFFSET);
     }
 
     /* Encode Payload with +0x33 offset */
@@ -103,14 +146,15 @@ SYN_Status syn_dlt645_parse(const uint8_t *in_buf, size_t len, SYN_DLT645_Ver ve
         return SYN_ERROR;
     }
 
+    uint8_t control = buf[8];
     uint8_t data_len = buf[9];
-    size_t di_len = (version == SYN_DLT645_VER_1997) ? 2 : 4;
+    size_t di_len = dlt645_di_len(control, version);
 
-    if (data_len < di_len) {
+    if ((data_len < di_len) || (((size_t)data_len - di_len) > sizeof(out_frame->payload))) {
         return SYN_ERROR;
     }
 
-    size_t total_frame_len = 10 + data_len + 2;
+    size_t total_frame_len = 10U + (size_t)data_len + 2U;
     if (rem < total_frame_len) {
         return SYN_INVALID_PARAM;
     }
@@ -131,29 +175,13 @@ SYN_Status syn_dlt645_parse(const uint8_t *in_buf, size_t len, SYN_DLT645_Ver ve
     memset(out_frame, 0, sizeof(*out_frame));
     out_frame->version = version;
     memcpy(out_frame->address, &buf[1], SYN_DLT645_ADDR_LEN);
-    out_frame->control = buf[8];
-
-    /* Decode Data Identifier (subtract 0x33) */
-    if (version == SYN_DLT645_VER_1997) {
-        uint8_t di0 = (uint8_t)(buf[10] - SYN_DLT645_OFFSET);
-        uint8_t di1 = (uint8_t)(buf[11] - SYN_DLT645_OFFSET);
-        out_frame->data_id = (uint32_t)di0 | ((uint32_t)di1 << 8);
-    } else {
-        uint8_t di0 = (uint8_t)(buf[10] - SYN_DLT645_OFFSET);
-        uint8_t di1 = (uint8_t)(buf[11] - SYN_DLT645_OFFSET);
-        uint8_t di2 = (uint8_t)(buf[12] - SYN_DLT645_OFFSET);
-        uint8_t di3 = (uint8_t)(buf[13] - SYN_DLT645_OFFSET);
-        out_frame->data_id =
-            (uint32_t)di0 | ((uint32_t)di1 << 8) | ((uint32_t)di2 << 16) | ((uint32_t)di3 << 24);
-    }
+    out_frame->control = control;
+    out_frame->data_id = dlt645_decode_di(&buf[10], di_len);
 
     /* Decode Payload (subtract 0x33) */
-    size_t payload_bytes = data_len - di_len;
-    if (payload_bytes > sizeof(out_frame->payload)) {
-        return SYN_ERROR;
-    }
+    size_t payload_bytes = (size_t)data_len - di_len;
     out_frame->payload_len = (uint8_t)payload_bytes;
-    size_t payload_offset = 10 + di_len;
+    size_t payload_offset = 10U + di_len;
 
     for (uint8_t i = 0; i < out_frame->payload_len; i++) {
         out_frame->payload[i] = (uint8_t)(buf[payload_offset + i] - SYN_DLT645_OFFSET);

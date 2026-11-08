@@ -281,6 +281,42 @@ static void test_r5_at_parser_quoted_delims_and_strtol(void)
     TEST_ASSERT_EQUAL_INT(7, val);
 }
 
+static void test_tier_a_at_prompt_space_and_param_str_bounds(void)
+{
+    /* 1. Single ' ' immediately after '>' prompt is ignored without breaking 'OK' or prompt flag */
+    syn_at_parser_init(&parser, line_buf, sizeof(line_buf));
+    TEST_ASSERT_EQUAL_INT(SYN_AT_RESP_PROMPT, syn_at_parser_feed_char(&parser, '>'));
+    TEST_ASSERT_TRUE(parser.prompt_detected);
+    TEST_ASSERT_EQUAL_INT(SYN_AT_RESP_NONE, syn_at_parser_feed_char(&parser, ' '));
+    TEST_ASSERT_TRUE(parser.prompt_detected);
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)parser.line_len);
+
+    const char *ok_seq = "\r\nOK\r\n";
+    SYN_AtRespType resp = SYN_AT_RESP_NONE;
+    for (size_t i = 0U; ok_seq[i] != '\0'; i++) {
+        resp = syn_at_parser_feed_char(&parser, ok_seq[i]);
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_AT_RESP_OK, resp);
+
+    /* Non-space immediately after '>' is preserved normally */
+    syn_at_parser_reset(&parser);
+    TEST_ASSERT_EQUAL_INT(SYN_AT_RESP_PROMPT, syn_at_parser_feed_char(&parser, '>'));
+    TEST_ASSERT_EQUAL_INT(SYN_AT_RESP_NONE, syn_at_parser_feed_char(&parser, 'O'));
+    TEST_ASSERT_EQUAL_INT(SYN_AT_RESP_NONE, syn_at_parser_feed_char(&parser, 'K'));
+    TEST_ASSERT_EQUAL_INT(SYN_AT_RESP_OK, syn_at_parser_feed_char(&parser, '\n'));
+
+    /* 2. syn_at_parser_get_param_str rejects truncation and unterminated quotes */
+    char exact[6];
+    char small[5];
+    TEST_ASSERT_TRUE(syn_at_parser_get_param_str("+CPIN: \"READY\"", 0U, exact, sizeof(exact)));
+    TEST_ASSERT_EQUAL_STRING("READY", exact);
+
+    TEST_ASSERT_FALSE(syn_at_parser_get_param_str("+CPIN: \"READY\"", 0U, small, sizeof(small)));
+    TEST_ASSERT_FALSE(syn_at_parser_get_param_str("+CMGR: READY,1", 0U, small, sizeof(small)));
+    TEST_ASSERT_FALSE(syn_at_parser_get_param_str("+CPIN: \"READY", 0U, exact, sizeof(exact)));
+    TEST_ASSERT_FALSE(syn_at_parser_get_param_str("+CPIN: \"REA\r\n", 0U, exact, sizeof(exact)));
+}
+
 void run_at_parser_tests(void)
 {
     RUN_TEST(test_at_parser_init);
@@ -295,4 +331,5 @@ void run_at_parser_tests(void)
     RUN_TEST(test_at_parser_cmd_formatting_and_overflow);
     RUN_TEST(test_at_parser_response_delimiter_handling);
     RUN_TEST(test_r5_at_parser_quoted_delims_and_strtol);
+    RUN_TEST(test_tier_a_at_prompt_space_and_param_str_bounds);
 }

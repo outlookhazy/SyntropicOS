@@ -128,3 +128,45 @@ void test_mavlink_msg_ids_and_invalid_state_fallback(void)
     TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_mavlink_parse_byte(&parser, 0, NULL));
     TEST_ASSERT_EQUAL_INT(0, parser.state); /* Resets to STATE_STX */
 }
+
+static uint8_t s_pro08_payload[SYN_MAVLINK_MAX_PAYLOAD_LEN];
+static uint8_t s_pro08_buf[280];
+static SYN_MAVLINK_Parser s_pro08_parser;
+static SYN_MAVLINK_Frame s_pro08_frame;
+
+void test_pro08_mavlink_large_payload_and_bounds(void)
+{
+    size_t out_len = 0U;
+
+    /* 1. Reject NULL payload with non-zero length, NULL out_len, and 24-bit msg_id overflow */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_mavlink_encode_msg(1U, 1U, 0U, 0U, 0U, NULL, 10U,
+                                                                    s_pro08_buf, &out_len));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_mavlink_encode_msg(1U, 1U, 0U, 0U, 0U, NULL, 0U, s_pro08_buf, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_mavlink_encode_msg(1U, 1U, 0U, 0x01000000U, 0U, s_pro08_payload, 4U,
+                                                 s_pro08_buf, &out_len));
+
+    /* 2. Max 24-bit msg_id (0xFFFFFF) and max payload_len (255 >= 244) must not wrap uint8_t idx */
+    for (size_t i = 0U; i < SYN_MAVLINK_MAX_PAYLOAD_LEN; i++) {
+        s_pro08_payload[i] = (uint8_t)(i ^ 0x5AU);
+    }
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_mavlink_encode_msg(7U, 9U, 200U, 0xFFFFFFU, 0U, s_pro08_payload, 255U,
+                                                 s_pro08_buf, &out_len));
+    TEST_ASSERT_EQUAL_UINT(267U, out_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_MAVLINK_STX_V2, s_pro08_buf[0]);
+    TEST_ASSERT_EQUAL_UINT8(255U, s_pro08_buf[1]);
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mavlink_init(&s_pro08_parser));
+    for (size_t i = 0U; i < (out_len - 1U); i++) {
+        TEST_ASSERT_EQUAL_INT(
+            SYN_BUSY, syn_mavlink_parse_byte(&s_pro08_parser, s_pro08_buf[i], &s_pro08_frame));
+    }
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_mavlink_parse_byte(&s_pro08_parser, s_pro08_buf[out_len - 1U], &s_pro08_frame));
+    TEST_ASSERT_EQUAL_UINT32(0xFFFFFFU, s_pro08_frame.msg_id);
+    TEST_ASSERT_EQUAL_UINT8(255U, s_pro08_frame.payload_len);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(s_pro08_payload, s_pro08_frame.payload, 255U);
+}

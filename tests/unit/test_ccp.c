@@ -790,6 +790,74 @@ static void test_r5_a11_resource_locks_mem_regions_and_multi_daq(void)
     TEST_ASSERT_FALSE(g_ccp_slave.connected);
 }
 
+static void test_ccp_pro17_wraparound_daq_clear_tear_and_disconnect(void)
+{
+    syn_ccp_init(&g_ccp_slave, 0x1234U);
+    uint8_t high_ram[16] = {0x10U, 0x20U, 0x30U, 0x40U, 0xA1U, 0xA2U, 0xA3U, 0xA4U,
+                            0xB1U, 0xB2U, 0xB3U, 0xB4U, 0xC1U, 0xC2U, 0xC3U, 0xC4U};
+    uint8_t cro[8] = {0};
+    uint8_t dto[8] = {0};
+
+    /* 1. 32-bit region wraparound guard (0xFFFFFFF8 + 16 wraps in u32) */
+    TEST_ASSERT_TRUE(
+        syn_ccp_register_mem_region(&g_ccp_slave, 0xFFFFFFF8U, high_ram, sizeof(high_ram), true));
+
+    uint8_t conn[8] = {SYN_CCP_CMD_CONNECT, 1U, 0x34U, 0x12U, 0U, 0U, 0U, 0U};
+    TEST_ASSERT_TRUE(syn_ccp_process_cro(&g_ccp_slave, conn, dto));
+
+    uint8_t sup_high[8] = {SYN_CCP_CMD_SHORT_UP, 2U, 4U, 0U, 0xFCU, 0xFFU, 0xFFU, 0xFFU};
+    TEST_ASSERT_TRUE(syn_ccp_process_cro(&g_ccp_slave, sup_high, dto));
+    TEST_ASSERT_EQUAL_HEX8(SYN_CCP_ERR_SUCCESS, dto[1]);
+    TEST_ASSERT_EQUAL_HEX8(0xA1U, dto[3]);
+    TEST_ASSERT_EQUAL_HEX8(0xA4U, dto[6]);
+
+    /* 2. SET_DAQ_SIZE clears stale ODT entries, and ccp_pack_odt stops without tearing when
+     *    entry->size (4) > remaining payload bytes (3 after first 4-byte entry) */
+    uint8_t sz0[8] = {SYN_CCP_CMD_SET_DAQ_SIZE, 3U, 0U, 0U, 1U, 0U, 0U, 0U};
+    TEST_ASSERT_TRUE(syn_ccp_process_cro(&g_ccp_slave, sz0, dto));
+
+    uint8_t mta_e0[8] = {SYN_CCP_CMD_SET_MTA, 4U, 0U, 0U, 0xF8U, 0xFFU, 0xFFU, 0xFFU};
+    uint8_t bld_e0[8] = {SYN_CCP_CMD_BUILD_PKT, 5U, 0U, 0U, 0U, 4U, 0U, 0U};
+    syn_ccp_process_cro(&g_ccp_slave, mta_e0, dto);
+    syn_ccp_process_cro(&g_ccp_slave, bld_e0, dto);
+
+    uint8_t mta_e1[8] = {SYN_CCP_CMD_SET_MTA, 6U, 0U, 0U, 0xFCU, 0xFFU, 0xFFU, 0xFFU};
+    uint8_t bld_e1[8] = {SYN_CCP_CMD_BUILD_PKT, 7U, 0U, 0U, 1U, 4U, 0U, 0U};
+    syn_ccp_process_cro(&g_ccp_slave, mta_e1, dto);
+    syn_ccp_process_cro(&g_ccp_slave, bld_e1, dto);
+
+    uint8_t st0[8] = {SYN_CCP_CMD_START_STOP, 8U, 1U, 0U, 0U, 1U, 1U, 0U};
+    TEST_ASSERT_TRUE(syn_ccp_process_cro(&g_ccp_slave, st0, dto));
+
+    uint8_t l_idx = 0U;
+    uint8_t o_idx = 0U;
+    TEST_ASSERT_TRUE(syn_ccp_service_daq(&g_ccp_slave, 1U, dto, &l_idx, &o_idx));
+    TEST_ASSERT_EQUAL_HEX8(0x10U, dto[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x40U, dto[4]);
+    /* Second 4-byte entry did not fit in remaining 3 bytes -> zero-padded, NOT torn! */
+    TEST_ASSERT_EQUAL_HEX8(0x00U, dto[5]);
+    TEST_ASSERT_EQUAL_HEX8(0x00U, dto[6]);
+    TEST_ASSERT_EQUAL_HEX8(0x00U, dto[7]);
+
+    /* Reconfiguring DAQ size clears old ODT entries */
+    TEST_ASSERT_TRUE(syn_ccp_process_cro(&g_ccp_slave, sz0, dto));
+    TEST_ASSERT_EQUAL_UINT8(0U, g_ccp_slave.daq_lists[0].odts[0].entry_count);
+
+    /* 3. DISCONNECT stops all running DAQ lists */
+    TEST_ASSERT_TRUE(syn_ccp_process_cro(&g_ccp_slave, st0, dto));
+    TEST_ASSERT_TRUE(g_ccp_slave.daq_lists[0].running);
+    cro[0] = SYN_CCP_CMD_DISCONNECT;
+    cro[1] = 9U;
+    cro[2] = 0x00U;
+    cro[3] = 0x00U; /* Broadcast disconnect */
+    cro[4] = 0x00U;
+    TEST_ASSERT_TRUE(syn_ccp_process_cro(&g_ccp_slave, cro, dto));
+    TEST_ASSERT_FALSE(g_ccp_slave.connected);
+    for (uint8_t i = 0U; i < SYN_CCP_MAX_DAQ_LISTS; i++) {
+        TEST_ASSERT_FALSE(g_ccp_slave.daq_lists[i].running);
+    }
+}
+
 void run_ccp_tests(void)
 {
     RUN_TEST(test_ccp_init_and_connect_disconnect);
@@ -801,4 +869,5 @@ void run_ccp_tests(void)
     RUN_TEST(test_ccp_extended_cro_and_daq);
     RUN_TEST(test_ccp_null_checks_and_bounds);
     RUN_TEST(test_r5_a11_resource_locks_mem_regions_and_multi_daq);
+    RUN_TEST(test_ccp_pro17_wraparound_daq_clear_tear_and_disconnect);
 }

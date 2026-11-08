@@ -81,8 +81,8 @@ bool syn_cannm_process_rx_frame(SYN_CanNM_Session *session, const SYN_CAN_Frame 
         return false;
     }
 
-    /* Verify DLC and CAN ID matching */
-    if (frame->dlc < 2U) {
+    /* Verify Standard 11-bit frame, minimum DLC, and CAN ID matching */
+    if ((frame->dlc < 2U) || frame->extended) {
         return false;
     }
 
@@ -93,8 +93,13 @@ bool syn_cannm_process_rx_frame(SYN_CanNM_Session *session, const SYN_CAN_Frame 
 
     session->rx_source_node_id = frame->data[0];
     session->rx_cbv = frame->data[1];
-    if (frame->dlc >= 8U) {
-        memcpy(session->rx_user_data, &frame->data[2], 6U);
+    memset(session->rx_user_data, 0, sizeof(session->rx_user_data));
+    if (frame->dlc > 2U) {
+        size_t user_len = (size_t)frame->dlc - 2U;
+        if (user_len > sizeof(session->rx_user_data)) {
+            user_len = sizeof(session->rx_user_data);
+        }
+        memcpy(session->rx_user_data, &frame->data[2], user_len);
     }
 
     /* Restart timeout timer on any valid CAN NM reception */
@@ -200,8 +205,11 @@ static bool cannm_step_repeat_msg(SYN_CanNM_Session *session, uint32_t delta_ms,
         session->repeat_msg_timer = 0U;
         session->prev_state = session->state;
         session->repeat_msg_req = false;
-        session->state =
-            session->node_comm_req ? SYN_CANNM_STATE_NORMAL_OP : SYN_CANNM_STATE_READY_SLEEP;
+        if (!session->node_comm_req) {
+            session->state = SYN_CANNM_STATE_READY_SLEEP;
+            return false;
+        }
+        session->state = SYN_CANNM_STATE_NORMAL_OP;
     } else {
         session->repeat_msg_timer -= delta_ms;
     }

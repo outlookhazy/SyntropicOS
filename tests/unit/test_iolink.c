@@ -819,6 +819,42 @@ void test_r5_a18_iolink_max_tx_guard_and_startup_read_errors(void)
     TEST_ASSERT_EQUAL_INT(SYN_IOLINK_PORT_FAULT, master.state);
 }
 
+void test_pro13_iolink_device_pd_len_bounds_and_clamp(void)
+{
+    SYN_IOLink_Device dev;
+    SYN_IOLink_DeviceConfig cfg = {
+        .params =
+            {
+                .min_cycle_time = 0x18U,
+                .revision_id = SYN_IOLINK_REV_1_1,
+                .vendor_id = 0x0123U,
+                .device_id = 0x00045678U,
+                .pd_in_len = (uint8_t)(SYN_IOLINK_MAX_PD_LEN + 1U),
+                .pd_out_len = 2U,
+            },
+    };
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_iolink_device_init(&dev, &cfg));
+
+    cfg.params.pd_in_len = 2U;
+    cfg.params.pd_out_len = (uint8_t)(SYN_IOLINK_MAX_PD_LEN + 1U);
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_iolink_device_init(&dev, &cfg));
+
+    cfg.params.pd_out_len = 4U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_iolink_device_init(&dev, &cfg));
+
+    /* Mutated pd_out_len > SYN_IOLINK_MAX_PD_LEN is clamped in get_pd_out without OOB read */
+    (void)memset(dev.pd_out, 0x5AU, sizeof(dev.pd_out));
+    dev.cfg.params.pd_out_len = 64U;
+    uint8_t out_buf[64];
+    (void)memset(out_buf, 0xEEU, sizeof(out_buf));
+    size_t out_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_iolink_device_get_pd_out(&dev, out_buf, sizeof(out_buf), &out_len));
+    TEST_ASSERT_EQUAL_size_t(SYN_IOLINK_MAX_PD_LEN, out_len);
+    TEST_ASSERT_EQUAL_HEX8(0x5AU, out_buf[SYN_IOLINK_MAX_PD_LEN - 1U]);
+    TEST_ASSERT_EQUAL_HEX8(0xEEU, out_buf[SYN_IOLINK_MAX_PD_LEN]);
+}
+
 void run_iolink_tests(void)
 {
     RUN_TEST(test_iolink_checksum_calculation);
@@ -830,4 +866,5 @@ void run_iolink_tests(void)
     RUN_TEST(test_iolink_async_split_tx_rx_timeout_fault_and_pt_yielding);
     RUN_TEST(test_iolink_pd_bounds_stale_awaiting_rx_and_deadline_clamp);
     RUN_TEST(test_r5_a18_iolink_max_tx_guard_and_startup_read_errors);
+    RUN_TEST(test_pro13_iolink_device_pd_len_bounds_and_clamp);
 }

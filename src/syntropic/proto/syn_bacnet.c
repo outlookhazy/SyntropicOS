@@ -46,26 +46,27 @@ uint16_t syn_bacnet_crc16(const uint8_t *data, size_t len)
 size_t syn_bacnet_mstp_encode_frame(uint8_t frame_type, uint8_t dest_mac, uint8_t src_mac,
                                     const uint8_t *payload, uint16_t payload_len, uint8_t *out_buf)
 {
-    if (!out_buf)
-        return 0;
+    if (out_buf == NULL || (payload == NULL && payload_len > 0U)) {
+        return 0U;
+    }
 
     out_buf[0] = SYN_BACNET_MSTP_PREAMBLE_1;
     out_buf[1] = SYN_BACNET_MSTP_PREAMBLE_2;
     out_buf[2] = frame_type;
     out_buf[3] = dest_mac;
     out_buf[4] = src_mac;
-    out_buf[5] = (uint8_t)((payload_len >> 8) & 0xFFU);
+    out_buf[5] = (uint8_t)((payload_len >> 8U) & 0xFFU);
     out_buf[6] = (uint8_t)(payload_len & 0xFFU);
-    out_buf[7] = syn_bacnet_crc8(&out_buf[2], 5);
+    out_buf[7] = syn_bacnet_crc8(&out_buf[2], 5U);
 
-    size_t idx = 8;
-    if (payload && payload_len > 0) {
+    size_t idx = 8U;
+    if (payload_len > 0U) {
         memcpy(&out_buf[idx], payload, payload_len);
         idx += payload_len;
 
         uint16_t data_crc = syn_bacnet_crc16(payload, payload_len);
         out_buf[idx++] = (uint8_t)(data_crc & 0xFFU);
-        out_buf[idx++] = (uint8_t)((data_crc >> 8) & 0xFFU);
+        out_buf[idx++] = (uint8_t)((data_crc >> 8U) & 0xFFU);
     }
 
     return idx;
@@ -287,6 +288,59 @@ static void bacnet_handle_write_prop(SYN_BACnet_Node *node, const SYN_BACnet_MST
     *has_tx = true;
 }
 
+/**
+ * @brief Encode an Unconfirmed I-Am broadcast frame with 4-byte BACnetObjectIdentifier.
+ * @param node     BACnet node instance.
+ * @param tx_frame Output MS/TP broadcast frame.
+ * @param has_tx   Set to true when frame is populated.
+ */
+static void bacnet_encode_iam(const SYN_BACnet_Node *node, SYN_BACnet_MSTP_Frame *tx_frame,
+                              bool *has_tx)
+{
+    uint32_t obj_id = ((uint32_t)SYN_BACNET_OBJ_DEVICE << 22U) | (node->device_id & 0x003FFFFFUL);
+    uint8_t payload[9];
+    payload[0] = 0x10U;
+    payload[1] = SYN_BACNET_SERVICE_UNCONFIRMED_I_AM;
+    payload[2] = 0xC4U;
+    payload[3] = (uint8_t)((obj_id >> 24U) & 0xFFU);
+    payload[4] = (uint8_t)((obj_id >> 16U) & 0xFFU);
+    payload[5] = (uint8_t)((obj_id >> 8U) & 0xFFU);
+    payload[6] = (uint8_t)(obj_id & 0xFFU);
+    payload[7] = 0x21U;
+    payload[8] = 0x05U;
+
+    tx_frame->frame_type = SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY;
+    tx_frame->destination_mac = SYN_BACNET_BROADCAST_MAC;
+    tx_frame->source_mac = node->mac_address;
+    tx_frame->data_len = 9U;
+    memcpy(tx_frame->payload, payload, 9U);
+    *has_tx = true;
+}
+
+/**
+ * @brief Dispatch unicast Confirmed-Request APDU (ignoring broadcast Confirmed-Request).
+ * @param node     BACnet node instance.
+ * @param rx_frame Received MS/TP request frame.
+ * @param tx_frame Output MS/TP response frame.
+ * @param has_tx   Set to true when response frame is populated.
+ */
+static void bacnet_handle_confirmed_req(SYN_BACnet_Node *node,
+                                        const SYN_BACnet_MSTP_Frame *rx_frame,
+                                        SYN_BACnet_MSTP_Frame *tx_frame, bool *has_tx)
+{
+    if (rx_frame->destination_mac == SYN_BACNET_BROADCAST_MAC || rx_frame->data_len < 4U) {
+        return;
+    }
+
+    uint8_t invoke_id = rx_frame->payload[2];
+    uint8_t service_choice = rx_frame->payload[3];
+    if (service_choice == SYN_BACNET_SERVICE_CONFIRMED_READ_PROPERTY) {
+        bacnet_handle_read_prop(node, rx_frame, invoke_id, tx_frame, has_tx);
+    } else if (service_choice == SYN_BACNET_SERVICE_CONFIRMED_WRITE_PROPERTY) {
+        bacnet_handle_write_prop(node, rx_frame, invoke_id, tx_frame, has_tx);
+    }
+}
+
 SYN_Status syn_bacnet_node_process(SYN_BACnet_Node *node, const SYN_BACnet_MSTP_Frame *rx_frame,
                                    SYN_BACnet_MSTP_Frame *tx_frame, bool *has_tx)
 {
@@ -323,33 +377,12 @@ SYN_Status syn_bacnet_node_process(SYN_BACnet_Node *node, const SYN_BACnet_MSTP_
     uint8_t pdu_type = rx_frame->payload[0] & 0xF0U;
 
     if (pdu_type == 0x10U && rx_frame->payload[1] == SYN_BACNET_SERVICE_UNCONFIRMED_WHO_IS) {
-        uint8_t payload[8];
-        payload[0] = 0x10U;
-        payload[1] = SYN_BACNET_SERVICE_UNCONFIRMED_I_AM;
-        payload[2] = 0xC4U;
-        payload[3] = (uint8_t)((node->device_id >> 16U) & 0xFFU);
-        payload[4] = (uint8_t)((node->device_id >> 8U) & 0xFFU);
-        payload[5] = (uint8_t)(node->device_id & 0xFFU);
-        payload[6] = 0x21U;
-        payload[7] = 0x05U;
-
-        tx_frame->frame_type = SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY;
-        tx_frame->destination_mac = SYN_BACNET_BROADCAST_MAC;
-        tx_frame->source_mac = node->mac_address;
-        tx_frame->data_len = 8U;
-        memcpy(tx_frame->payload, payload, 8U);
-        *has_tx = true;
+        bacnet_encode_iam(node, tx_frame, has_tx);
         return SYN_OK;
     }
 
-    if (pdu_type == 0x00U && rx_frame->data_len >= 4U) {
-        uint8_t invoke_id = rx_frame->payload[2];
-        uint8_t service_choice = rx_frame->payload[3];
-        if (service_choice == SYN_BACNET_SERVICE_CONFIRMED_READ_PROPERTY) {
-            bacnet_handle_read_prop(node, rx_frame, invoke_id, tx_frame, has_tx);
-        } else if (service_choice == SYN_BACNET_SERVICE_CONFIRMED_WRITE_PROPERTY) {
-            bacnet_handle_write_prop(node, rx_frame, invoke_id, tx_frame, has_tx);
-        }
+    if (pdu_type == 0x00U) {
+        bacnet_handle_confirmed_req(node, rx_frame, tx_frame, has_tx);
     }
 
     return SYN_OK;

@@ -61,6 +61,7 @@ typedef struct {
     SYN_AtRespType last_resp; /**< Result of last decoded feed byte */
     int cme_error_code;   /**< Parsed CME/CMS error code (if last_resp == SYN_AT_RESP_CME_ERROR) */
     bool prompt_detected; /**< true if '>' prompt was encountered */
+    bool skip_prompt_space; /**< true to consume a single ' ' immediately following '>' prompt */
 } SYN_AtParser;
 
 /**
@@ -69,7 +70,7 @@ typedef struct {
  * @param parser   Parser instance.
  * @param buf      Caller-owned buffer for line accumulation.
  * @param buf_size Capacity of buffer in bytes.
- * @return SYN_OK on success, or SYN_ERR_INVALID_PARAM.
+ * @return SYN_OK on success, or SYN_INVALID_PARAM.
  */
 SYN_Status syn_at_parser_init(SYN_AtParser *parser, char *buf, size_t buf_size);
 

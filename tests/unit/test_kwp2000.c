@@ -753,6 +753,93 @@ void test_kwp2000_s3_session_timeout(void)
     TEST_ASSERT_EQUAL(SYN_KWP2000_SESSION_DEFAULT, g_kwp_server.current_session);
 }
 
+static bool test_kwp_pro03_overlong_seed_cb(uint8_t level, uint8_t *seed_buf, uint16_t *seed_len,
+                                            void *ctx)
+{
+    (void)level;
+    (void)seed_buf;
+    (void)ctx;
+    *seed_len = 20U;
+    return true;
+}
+
+static bool test_kwp_pro03_overlong_routine_cb(uint8_t routine_id, const uint8_t *in_data,
+                                               uint16_t in_len, uint8_t *out_buf,
+                                               uint16_t max_out_len, uint16_t *out_len, void *ctx)
+{
+    (void)routine_id;
+    (void)in_data;
+    (void)in_len;
+    (void)out_buf;
+    (void)max_out_len;
+    (void)ctx;
+    *out_len = 80U;
+    return true;
+}
+
+void test_kwp2000_pro03_bounds_and_transfer_guards(void)
+{
+    syn_kwp2000_init(&g_kwp_server);
+    uint8_t resp[128];
+    uint16_t resp_len = 0U;
+
+    /* 1. SecurityAccess sub_func == 0x00 rejected with NRC 0x12 */
+    const uint8_t req_sec0[2] = {0x27U, 0x00U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kwp2000_process_request(&g_kwp_server, req_sec0, sizeof(req_sec0),
+                                                          resp, sizeof(resp), &resp_len));
+    TEST_ASSERT_EQUAL_HEX8(0x7FU, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_SUBFUNCTION_NOT_SUPPORTED, resp[2]);
+
+    /* 2. SecurityAccess seed_len > sizeof(seed_buf) (16) rejected before memcpy */
+    syn_kwp2000_set_security_handler(&g_kwp_server, test_kwp_pro03_overlong_seed_cb, NULL, NULL);
+    const uint8_t req_seed[2] = {0x27U, 0x01U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kwp2000_process_request(&g_kwp_server, req_seed, sizeof(req_seed),
+                                                          resp, sizeof(resp), &resp_len));
+    TEST_ASSERT_EQUAL_HEX8(0x7FU, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
+
+    /* 3. RoutineControl out_len > sizeof(routine_out) (64) rejected before memcpy */
+    g_kwp_server.security_unlocked = true;
+    syn_kwp2000_set_routine_handler(&g_kwp_server, test_kwp_pro03_overlong_routine_cb, NULL);
+    const uint8_t req_rt[2] = {0x31U, 0x01U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kwp2000_process_request(&g_kwp_server, req_rt, sizeof(req_rt),
+                                                          resp, sizeof(resp), &resp_len));
+    TEST_ASSERT_EQUAL_HEX8(0x7FU, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
+
+    /* 4. RequestDownload partial size lengths (6..8 bytes) rejected with NRC 0x12 */
+    const uint8_t req_dl_partial[8] = {0x34U, 0x00U, 0x00U, 0x10U, 0x00U, 0x00U, 0x00U, 0x10U};
+    for (uint16_t len = 6U; len <= 8U; len++) {
+        TEST_ASSERT_EQUAL(SYN_OK, syn_kwp2000_process_request(&g_kwp_server, req_dl_partial, len,
+                                                              resp, sizeof(resp), &resp_len));
+        TEST_ASSERT_EQUAL_HEX8(0x7FU, resp[0]);
+        TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_INCORRECT_MESSAGE_LENGTH, resp[2]);
+    }
+
+    /* 5. RequestTransferExit (0x37) rejected with NRC 0x22 when download not active */
+    const uint8_t req_exit[1] = {0x37U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kwp2000_process_request(&g_kwp_server, req_exit, sizeof(req_exit),
+                                                          resp, sizeof(resp), &resp_len));
+    TEST_ASSERT_EQUAL_HEX8(0x7FU, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_KWP2000_NRC_CONDITIONS_NOT_CORRECT, resp[2]);
+
+    /* 6. max_resp_len < 3 guard on 0x10 and 0x3E + s3_timer_ms saturation */
+    const uint8_t req_10[2] = {0x10U, SYN_KWP2000_SESSION_EXTENDED};
+    const uint8_t req_3e[1] = {0x3EU};
+    TEST_ASSERT_EQUAL(
+        SYN_INVALID_PARAM,
+        syn_kwp2000_process_request(&g_kwp_server, req_10, sizeof(req_10), resp, 2U, &resp_len));
+    TEST_ASSERT_EQUAL(
+        SYN_INVALID_PARAM,
+        syn_kwp2000_process_request(&g_kwp_server, req_3e, sizeof(req_3e), resp, 2U, &resp_len));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kwp2000_process_request(&g_kwp_server, req_10, sizeof(req_10),
+                                                          resp, sizeof(resp), &resp_len));
+    syn_kwp2000_tick(&g_kwp_server, 100U);
+    syn_kwp2000_tick(&g_kwp_server, UINT32_MAX);
+    TEST_ASSERT_EQUAL(SYN_KWP2000_SESSION_DEFAULT, g_kwp_server.current_session);
+}
+
 void run_kwp2000_tests(void)
 {
     RUN_TEST(test_kwp2000_init_and_null_checks);
@@ -772,4 +859,5 @@ void run_kwp2000_tests(void)
     RUN_TEST(test_kwp2000_routine_control_resp_overflow);
     RUN_TEST(test_kwp2000_s3_session_timeout);
     RUN_TEST(test_r5_a09_writes_security_transfer_bounds_and_s3_refresh);
+    RUN_TEST(test_kwp2000_pro03_bounds_and_transfer_guards);
 }

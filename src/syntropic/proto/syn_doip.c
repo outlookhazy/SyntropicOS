@@ -241,12 +241,17 @@ static bool handle_routing_activation(SYN_DoIP_Server *server, const SYN_DoIP_He
                                       const uint8_t *payload, uint8_t *tx_buf, uint16_t max_tx_len,
                                       uint16_t *tx_len)
 {
-    if (hdr->payload_length < 7U) {
+    if ((hdr->payload_length != 7U) && (hdr->payload_length != 11U)) {
         return build_generic_nack(SYN_DOIP_NACK_INVALID_PAYLOAD_LENGTH, tx_buf, max_tx_len, tx_len);
     }
     uint16_t tester_addr = peek_u16_be(&payload[0]);
-    server->active_tester_address = tester_addr;
-    server->routing_activated = true;
+    uint8_t resp_code = SYN_DOIP_ROUTING_SUCCESS;
+    if (server->routing_activated && (tester_addr != server->active_tester_address)) {
+        resp_code = SYN_DOIP_ROUTING_DENIED_UNKNOWN_TESTER;
+    } else {
+        server->active_tester_address = tester_addr;
+        server->routing_activated = true;
+    }
 
     uint32_t payload_len = 9U;
     if (max_tx_len < SYN_DOIP_HEADER_SIZE + payload_len) {
@@ -261,7 +266,7 @@ static bool handle_routing_activation(SYN_DoIP_Server *server, const SYN_DoIP_He
     uint8_t *p = &tx_buf[SYN_DOIP_HEADER_SIZE];
     poke_u16_be(tester_addr, &p[0]);
     poke_u16_be(server->logical_address, &p[2]);
-    p[4] = SYN_DOIP_ROUTING_SUCCESS;
+    p[4] = resp_code;
     poke_u32_be(0x00000000U, &p[5]);
 
     *tx_len = (uint16_t)(SYN_DOIP_HEADER_SIZE + payload_len);
@@ -298,23 +303,36 @@ static bool handle_diagnostic_msg(SYN_DoIP_Server *server, SYN_UDS_Server *uds,
                                tx_len);
     }
 
-    const uint8_t *uds_req = &payload[4];
-    uint16_t uds_req_len = (uint16_t)(hdr->payload_length - 4U);
-    uint8_t uds_resp[512];
-    uint16_t uds_resp_len = 0U;
-
-    if (uds != NULL && uds_req_len > 0U) {
-        SYN_UDS_AddrMode addr_type =
-            (ta == 0xFFFFU) ? SYN_UDS_ADDR_FUNCTIONAL : SYN_UDS_ADDR_PHYSICAL;
-        syn_uds_process_request(uds, uds_req, uds_req_len, uds_resp, (uint16_t)sizeof(uds_resp),
-                                &uds_resp_len, addr_type);
+    uint32_t ack_frame_len = SYN_DOIP_HEADER_SIZE + 5U;
+    if ((uint32_t)max_tx_len < ack_frame_len) {
+        return false;
     }
 
-    uint32_t ack_frame_len = SYN_DOIP_HEADER_SIZE + 5U;
-    uint32_t diag_frame_len =
-        (uds_resp_len > 0U) ? (uint32_t)(SYN_DOIP_HEADER_SIZE + 4U + uds_resp_len) : 0U;
-    if ((uint32_t)max_tx_len < ack_frame_len + diag_frame_len) {
-        return false;
+    const uint8_t *uds_req = &payload[4];
+    uint16_t uds_req_len = (uint16_t)(hdr->payload_length - 4U);
+    uint16_t uds_resp_len = 0U;
+
+    if ((uds != NULL) && (uds_req_len > 0U)) {
+        uint8_t scratch_nrc[3];
+        uint32_t diag_payload_off = ack_frame_len + SYN_DOIP_HEADER_SIZE + 4U;
+        uint8_t *uds_out = scratch_nrc;
+        uint16_t uds_cap = (uint16_t)sizeof(scratch_nrc);
+        if ((uint32_t)max_tx_len >= (diag_payload_off + 3U)) {
+            uds_out = &tx_buf[diag_payload_off];
+            uds_cap = (uint16_t)(max_tx_len - (uint16_t)diag_payload_off);
+        }
+        SYN_UDS_AddrMode addr_type =
+            (ta == 0xFFFFU) ? SYN_UDS_ADDR_FUNCTIONAL : SYN_UDS_ADDR_PHYSICAL;
+        syn_uds_process_request(uds, uds_req, uds_req_len, uds_out, uds_cap, &uds_resp_len,
+                                addr_type);
+        if (uds_resp_len > 0U) {
+            if ((uint32_t)max_tx_len < (diag_payload_off + (uint32_t)uds_resp_len)) {
+                return false;
+            }
+            if (uds_out == scratch_nrc) {
+                memcpy(&tx_buf[diag_payload_off], scratch_nrc, uds_resp_len);
+            }
+        }
     }
 
     SYN_DoIP_Header ack_hdr = {.protocol_version = SYN_DOIP_PROTOCOL_VERSION,
@@ -326,7 +344,9 @@ static bool handle_diagnostic_msg(SYN_DoIP_Server *server, SYN_UDS_Server *uds,
     poke_u16_be(sa, &tx_buf[10]);
     tx_buf[12] = SYN_DOIP_DIAG_ACK_OK;
 
+    uint32_t diag_frame_len = 0U;
     if (uds_resp_len > 0U) {
+        diag_frame_len = (uint32_t)(SYN_DOIP_HEADER_SIZE + 4U + uds_resp_len);
         uint8_t *diag_out = &tx_buf[ack_frame_len];
         SYN_DoIP_Header resp_hdr = {.protocol_version = SYN_DOIP_PROTOCOL_VERSION,
                                     .inverse_protocol_version = SYN_DOIP_INVERSE_PROTOCOL_VERSION,
@@ -335,7 +355,6 @@ static bool handle_diagnostic_msg(SYN_DoIP_Server *server, SYN_UDS_Server *uds,
         syn_doip_encode_header(&resp_hdr, diag_out, (uint16_t)(max_tx_len - ack_frame_len));
         poke_u16_be(server->logical_address, &diag_out[8]);
         poke_u16_be(sa, &diag_out[10]);
-        memcpy(&diag_out[12], uds_resp, uds_resp_len);
     }
 
     *tx_len = (uint16_t)(ack_frame_len + diag_frame_len);

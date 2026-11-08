@@ -397,7 +397,8 @@ SYN_PT_Status syn_iolink_master_pt(SYN_PT *pt, SYN_Task *task)
 
 SYN_Status syn_iolink_device_init(SYN_IOLink_Device *dev, const SYN_IOLink_DeviceConfig *cfg)
 {
-    if (dev == NULL || cfg == NULL) {
+    if (dev == NULL || cfg == NULL || cfg->params.pd_in_len > SYN_IOLINK_MAX_PD_LEN ||
+        cfg->params.pd_out_len > SYN_IOLINK_MAX_PD_LEN) {
         return SYN_INVALID_PARAM;
     }
 
@@ -425,8 +426,10 @@ SYN_Status syn_iolink_device_get_pd_out(const SYN_IOLink_Device *dev, uint8_t *o
     if (dev == NULL || out_buf == NULL || out_len == NULL) {
         return SYN_INVALID_PARAM;
     }
-    size_t copy_len =
-        (dev->cfg.params.pd_out_len <= max_len) ? dev->cfg.params.pd_out_len : max_len;
+    size_t pd_len = (dev->cfg.params.pd_out_len <= SYN_IOLINK_MAX_PD_LEN)
+                        ? (size_t)dev->cfg.params.pd_out_len
+                        : (size_t)SYN_IOLINK_MAX_PD_LEN;
+    size_t copy_len = (pd_len <= max_len) ? pd_len : max_len;
     (void)memcpy(out_buf, dev->pd_out, copy_len);
     *out_len = copy_len;
     return SYN_OK;

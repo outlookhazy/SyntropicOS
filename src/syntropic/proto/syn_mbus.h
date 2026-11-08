@@ -185,7 +185,7 @@ SYN_Status syn_mbus_encode_long(uint8_t c_field, uint8_t a_field, uint8_t ci_fie
  * @param buf Input byte buffer containing a complete M-Bus frame.
  * @param len Buffer length in bytes.
  * @param frame Destination frame structure.
- * @return SYN_OK on success, SYN_ERR_INVALID_CHECKSUM on checksum failure, or error status.
+ * @return SYN_OK on success, SYN_ERROR on checksum or framing failure, or SYN_INVALID_PARAM.
  */
 SYN_Status syn_mbus_decode_frame(const uint8_t *buf, size_t len, SYN_MBUS_Frame *frame);
 

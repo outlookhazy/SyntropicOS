@@ -547,6 +547,65 @@ static void test_r5_a11_xcp_locks_regions_and_multi_daq(void)
     TEST_ASSERT_EQUAL_UINT8(3U, drained);
 }
 
+static void test_xcp_pro17_wraparound_seed_seq_and_disconnect_daq(void)
+{
+    syn_xcp_init(&g_xcp_slave, 0x1234U);
+    uint8_t high_ram[16] = {0x11U, 0x22U, 0x33U, 0x44U, 0x55U, 0x66U, 0x77U, 0x88U};
+    uint8_t cto[8] = {0};
+    uint8_t dto[8] = {0};
+
+    /* 1. Register region near 32-bit address ceiling (base 0xFFFFFFF8 + size 16 wraps in u32) */
+    TEST_ASSERT_TRUE(
+        syn_xcp_register_mem_region(&g_xcp_slave, 0xFFFFFFF8U, high_ram, sizeof(high_ram), true));
+
+    cto[0] = SYN_XCP_CMD_CONNECT;
+    TEST_ASSERT_TRUE(syn_xcp_process_cto(&g_xcp_slave, cto, dto));
+
+    uint8_t sup_high[8] = {SYN_XCP_CMD_SHORT_UPLOAD, 4U, 0U, 0U, 0xFCU, 0xFFU, 0xFFU, 0xFFU};
+    TEST_ASSERT_TRUE(syn_xcp_process_cto(&g_xcp_slave, sup_high, dto));
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_PID_RES, dto[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x55U, dto[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x88U, dto[4]);
+
+    /* 2. Reject GET_SEED with resource == 0 and UNLOCK without prior GET_SEED even with default key
+     */
+    g_xcp_slave.unlocked_resources = 0U;
+    uint8_t unlock_no_seed[8] = {SYN_XCP_CMD_UNLOCK, 4U, 0x12U, 0x34U, 0x56U, 0x78U, 0U, 0U};
+    TEST_ASSERT_TRUE(syn_xcp_process_cto(&g_xcp_slave, unlock_no_seed, dto));
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_PID_ERR, dto[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_ERR_ACCESS_DENIED, dto[1]);
+    TEST_ASSERT_EQUAL_HEX8(0U, g_xcp_slave.unlocked_resources);
+
+    uint8_t seed_zero[8] = {SYN_XCP_CMD_GET_SEED, 0U, 0U, 0U, 0U, 0U, 0U, 0U};
+    TEST_ASSERT_TRUE(syn_xcp_process_cto(&g_xcp_slave, seed_zero, dto));
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_PID_ERR, dto[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_ERR_ACCESS_DENIED, dto[1]);
+
+    /* Failed UNLOCK after valid GET_SEED locks requested resource and clears pending resource */
+    g_xcp_slave.unlocked_resources = SYN_XCP_RESOURCE_CAL_PAG | SYN_XCP_RESOURCE_DAQ;
+    uint8_t seed_cal[8] = {SYN_XCP_CMD_GET_SEED, 0U, SYN_XCP_RESOURCE_CAL_PAG, 0U, 0U, 0U, 0U, 0U};
+    TEST_ASSERT_TRUE(syn_xcp_process_cto(&g_xcp_slave, seed_cal, dto));
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_PID_RES, dto[0]);
+
+    uint8_t wrong_key[8] = {SYN_XCP_CMD_UNLOCK, 4U, 0xDE, 0xAD, 0xBE, 0xEF, 0U, 0U};
+    TEST_ASSERT_TRUE(syn_xcp_process_cto(&g_xcp_slave, wrong_key, dto));
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_PID_ERR, dto[0]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_ERR_ACCESS_DENIED, dto[1]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_XCP_RESOURCE_DAQ, g_xcp_slave.unlocked_resources);
+
+    /* 3. DISCONNECT stops all running DAQ lists */
+    uint8_t start_all[8] = {SYN_XCP_CMD_START_STOP_SYNCH, 1U, 0U, 0U, 0U, 0U, 0U, 0U};
+    TEST_ASSERT_TRUE(syn_xcp_process_cto(&g_xcp_slave, start_all, dto));
+    TEST_ASSERT_TRUE(g_xcp_slave.daq_lists[0].running);
+
+    uint8_t disc_cmd[8] = {SYN_XCP_CMD_DISCONNECT, 0U, 0U, 0U, 0U, 0U, 0U, 0U};
+    TEST_ASSERT_TRUE(syn_xcp_process_cto(&g_xcp_slave, disc_cmd, dto));
+    TEST_ASSERT_FALSE(g_xcp_slave.connected);
+    for (size_t i = 0U; i < SYN_XCP_MAX_DAQ_LISTS; i++) {
+        TEST_ASSERT_FALSE(g_xcp_slave.daq_lists[i].running);
+    }
+}
+
 void run_xcp_tests(void)
 {
     RUN_TEST(test_xcp_init_and_connect_disconnect);
@@ -554,4 +613,5 @@ void run_xcp_tests(void)
     RUN_TEST(test_xcp_daq_list_streaming);
     RUN_TEST(test_xcp_bounds_and_null_checks);
     RUN_TEST(test_r5_a11_xcp_locks_regions_and_multi_daq);
+    RUN_TEST(test_xcp_pro17_wraparound_seed_seq_and_disconnect_daq);
 }

@@ -88,48 +88,63 @@ SYN_Status syn_canopen_mgr_sdo_write_init(SYN_CANOpenManager *mgr, SYN_CAN_Frame
     return SYN_OK;
 }
 
+/**
+ * @brief Process an SDO server response frame for an active client transaction.
+ * @param mgr   CANopen manager instance.
+ * @param frame Received 8-byte SDO response frame.
+ */
+static void canopen_mgr_handle_sdo_resp(SYN_CANOpenManager *mgr, const SYN_CAN_Frame *frame)
+{
+    uint8_t cs = frame->data[0];
+
+    /* Check Abort Domain Transfer (0x80) */
+    if (cs == 0x80U) {
+        mgr->sdo_client.state = SYN_SDO_CLIENT_STATE_ERROR;
+        mgr->sdo_client.abort_code = syn_peek_u32_le(frame->data, 4U);
+        return;
+    }
+
+    if (syn_peek_u16_le(frame->data, 1U) != mgr->sdo_client.index ||
+        frame->data[3] != mgr->sdo_client.subindex) {
+        return;
+    }
+
+    if (mgr->sdo_client.state == SYN_SDO_CLIENT_STATE_WAIT_READ && (cs & 0xE0U) == 0x40U) {
+        if ((cs & 0x02U) == 0U) {
+            mgr->sdo_client.state = SYN_SDO_CLIENT_STATE_ERROR;
+            mgr->sdo_client.abort_code = 0x06010000UL;
+            return;
+        }
+        uint8_t n = (cs >> 2U) & 0x03U;
+        size_t len = 4U - n;
+        mgr->sdo_client.data_len = len;
+        memcpy(mgr->sdo_client.data, &frame->data[4], len);
+        mgr->sdo_client.state = SYN_SDO_CLIENT_STATE_SUCCESS;
+    } else if (mgr->sdo_client.state == SYN_SDO_CLIENT_STATE_WAIT_WRITE && (cs & 0xE0U) == 0x60U) {
+        mgr->sdo_client.state = SYN_SDO_CLIENT_STATE_SUCCESS;
+    }
+}
+
 void syn_canopen_mgr_process_frame(SYN_CANOpenManager *mgr, const SYN_CAN_Frame *frame)
 {
     SYN_ASSERT(mgr != NULL && frame != NULL);
 
     /* Check Heartbeat (COB-ID 0x700 + NodeID) */
-    if (frame->id >= 0x701U && frame->id <= 0x77FU && frame->dlc >= 1) {
+    if (frame->id >= 0x701U && frame->id <= 0x77FU && frame->dlc >= 1U) {
         uint8_t node_id = (uint8_t)(frame->id - 0x700U);
         mgr->nodes[node_id].node_id = node_id;
         mgr->nodes[node_id].nmt_state = frame->data[0] & 0x7FU;
-        mgr->nodes[node_id].timer_ms = 0;
+        mgr->nodes[node_id].timer_ms = 0U;
         mgr->nodes[node_id].online = true;
         return;
     }
 
-    /* Check SDO Response (COB-ID 0x580 + NodeID) */
-    if (mgr->sdo_client.state != SYN_SDO_CLIENT_STATE_IDLE) {
-        uint16_t resp_cob = 0x580U + mgr->sdo_client.target_node;
-        if (frame->id == resp_cob && frame->dlc >= 8) {
-            uint8_t cs = frame->data[0];
-
-            /* Check Abort Domain Transfer (0x80) */
-            if (cs == 0x80U) {
-                mgr->sdo_client.state = SYN_SDO_CLIENT_STATE_ERROR;
-                mgr->sdo_client.abort_code = syn_peek_u32_le(frame->data, 4);
-                return;
-            }
-
-            if (mgr->sdo_client.state == SYN_SDO_CLIENT_STATE_WAIT_READ) {
-                /* Upload Response (0x43/0x4B/0x4F/0x47) */
-                if ((cs & 0xE0U) == 0x40U) {
-                    uint8_t n = (cs >> 2) & 0x03U;
-                    size_t len = 4 - n;
-                    mgr->sdo_client.data_len = len;
-                    memcpy(mgr->sdo_client.data, &frame->data[4], len);
-                    mgr->sdo_client.state = SYN_SDO_CLIENT_STATE_SUCCESS;
-                }
-            } else if (mgr->sdo_client.state == SYN_SDO_CLIENT_STATE_WAIT_WRITE) {
-                /* Download Response (0x60) */
-                if ((cs & 0xE0U) == 0x60U) {
-                    mgr->sdo_client.state = SYN_SDO_CLIENT_STATE_SUCCESS;
-                }
-            }
+    /* Check SDO Response (COB-ID 0x580 + NodeID, exact 8-byte DLC, active wait state) */
+    if (mgr->sdo_client.state == SYN_SDO_CLIENT_STATE_WAIT_READ ||
+        mgr->sdo_client.state == SYN_SDO_CLIENT_STATE_WAIT_WRITE) {
+        uint32_t resp_cob = 0x580U + (uint32_t)mgr->sdo_client.target_node;
+        if (frame->id == resp_cob && frame->dlc == 8U) {
+            canopen_mgr_handle_sdo_resp(mgr, frame);
         }
     }
 }
@@ -138,12 +153,15 @@ void syn_canopen_mgr_step(SYN_CANOpenManager *mgr, uint16_t delta_ms)
 {
     SYN_ASSERT(mgr != NULL);
 
-    /* Advance node heartbeat timers */
-    for (uint16_t i = 1; i <= 127; i++) {
+    /* Advance node heartbeat timers without uint16_t wraparound */
+    for (uint16_t i = 1U; i <= 127U; i++) {
         if (mgr->nodes[i].online) {
-            mgr->nodes[i].timer_ms += delta_ms;
-            if (mgr->nodes[i].timer_ms > 3000) {
+            uint32_t elapsed = (uint32_t)mgr->nodes[i].timer_ms + (uint32_t)delta_ms;
+            if (elapsed > 3000U) {
+                mgr->nodes[i].timer_ms = 3001U;
                 mgr->nodes[i].online = false;
+            } else {
+                mgr->nodes[i].timer_ms = (uint16_t)elapsed;
             }
         }
     }

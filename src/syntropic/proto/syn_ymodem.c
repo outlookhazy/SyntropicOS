@@ -58,6 +58,7 @@ static void ymodem_parse_block0(SYN_YMODEM_Receiver *rx, const uint8_t *payload,
 {
     rx->filename[0] = '\0';
     rx->filesize = 0U;
+    rx->has_file_size = false;
 
     const uint8_t *nul_ptr = (const uint8_t *)memchr(payload, '\0', payload_len);
     size_t true_fn_len = (nul_ptr != NULL) ? (size_t)(nul_ptr - payload) : payload_len;
@@ -80,6 +81,7 @@ static void ymodem_parse_block0(SYN_YMODEM_Receiver *rx, const uint8_t *payload,
     uint32_t parsed = 0U;
     while ((pos < payload_len) && (payload[pos] >= (uint8_t)'0') &&
            (payload[pos] <= (uint8_t)'9')) {
+        rx->has_file_size = true;
         uint32_t digit = (uint32_t)(payload[pos] - (uint8_t)'0');
         if (parsed > ((UINT32_MAX - digit) / 10U)) {
             parsed = UINT32_MAX;
@@ -221,7 +223,7 @@ static void ymodem_finish_eot(SYN_YMODEM_Receiver *rx)
 static SYN_YMODEM_Status ymodem_process_data_block(SYN_YMODEM_Receiver *rx, size_t data_payload_len)
 {
     size_t chunk_len = data_payload_len;
-    if (rx->filesize > 0U) {
+    if (rx->has_file_size) {
         uint32_t remaining =
             (rx->bytes_received < rx->filesize) ? (rx->filesize - rx->bytes_received) : 0U;
         if (remaining < chunk_len) {
@@ -237,7 +239,9 @@ static SYN_YMODEM_Status ymodem_process_data_block(SYN_YMODEM_Receiver *rx, size
         }
     }
 
-    rx->bytes_received += (uint32_t)chunk_len;
+    uint32_t add_len = (uint32_t)chunk_len;
+    uint32_t max_add = UINT32_MAX - rx->bytes_received;
+    rx->bytes_received += (add_len > max_add) ? max_add : add_len;
     rx->expected_seq++;
     ymodem_send_byte(rx, SYN_YMODEM_ACK);
     return SYN_YMODEM_OK;

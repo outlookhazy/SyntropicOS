@@ -586,17 +586,19 @@ static void ecat_slave_apply_fmmu(SYN_EcatNode *node, const SYN_EcatFMMUConfig *
                                   uint32_t log_addr, uint8_t *data, uint16_t len, bool *did_rd,
                                   bool *did_wr)
 {
-    uint32_t dg_end = log_addr + (uint32_t)len;
-    uint32_t fm_end = f->logical_start + (uint32_t)f->length;
-    uint32_t ov_start = (log_addr > f->logical_start) ? log_addr : f->logical_start;
-    uint32_t ov_end = (dg_end < fm_end) ? dg_end : fm_end;
+    uint64_t req_end = (uint64_t)log_addr + (uint64_t)len;
+    uint64_t fmmu_end = (uint64_t)f->logical_start + (uint64_t)f->length;
+    uint64_t ov_start =
+        (log_addr > f->logical_start) ? (uint64_t)log_addr : (uint64_t)f->logical_start;
+    uint64_t ov_end = (req_end < fmmu_end) ? req_end : fmmu_end;
     if (ov_start >= ov_end) {
         return;
     }
 
     uint16_t slice_len = (uint16_t)(ov_end - ov_start);
-    uint16_t dg_off = (uint16_t)(ov_start - log_addr);
-    uint16_t phys = (uint16_t)(f->phys_start_addr + (uint16_t)(ov_start - f->logical_start));
+    uint16_t dg_off = (uint16_t)(ov_start - (uint64_t)log_addr);
+    uint16_t phys =
+        (uint16_t)(f->phys_start_addr + (uint16_t)(ov_start - (uint64_t)f->logical_start));
     uint8_t wr_buf[SYN_ECAT_PDO_BUF_SIZE];
 
     bool do_wr = (cmd != SYN_ECAT_CMD_LRD) && ((f->type & 0x02U) != 0U);

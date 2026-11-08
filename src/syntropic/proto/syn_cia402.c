@@ -555,7 +555,8 @@ SYN_Status syn_cia402_update(SYN_CIA402_Axis *axis, uint32_t dt_ms)
     if (axis == NULL) {
         return SYN_INVALID_PARAM;
     }
-    uint32_t dt_us = (dt_ms > 0U) ? (dt_ms * 1000U) : 1000U;
+    uint64_t raw_us = (dt_ms > 0U) ? ((uint64_t)dt_ms * 1000ULL) : 1000ULL;
+    uint32_t dt_us = (raw_us > (uint64_t)UINT32_MAX) ? UINT32_MAX : (uint32_t)raw_us;
     return syn_cia402_step(axis, dt_us, NULL);
 }
 

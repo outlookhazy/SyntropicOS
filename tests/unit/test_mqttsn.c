@@ -674,6 +674,88 @@ static void test_mqttsn_regack_msg_id_matching_and_reregistration(void)
     TEST_ASSERT_EQUAL_UINT16(0x0022U, client.topics[1].topic_id);
 }
 
+static SYN_MQTTSN_Client s_pro18_mqttsn_client;
+static char s_pro18_long_topic[SYN_MQTTSN_MAX_TOPIC_NAME + 8U];
+
+static void test_pro18_mqttsn_bounds_qos_and_rx_disconnect(void)
+{
+    mock_port_reset();
+    s_loopback_len = 0U;
+    s_mock_mqttsn_send_fail = false;
+
+    SYN_MQTTSN_Config cfg = {
+        .client_id = "node-pro18",
+        .duration_s = 60U,
+        .transport = &s_transport,
+        .rx_buf = s_rx_buf,
+        .rx_buf_size = sizeof(s_rx_buf),
+        .tx_buf = s_tx_buf,
+        .tx_buf_size = sizeof(s_tx_buf),
+    };
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_init(&s_pro18_mqttsn_client, &cfg));
+
+    /* 1. Publish bounds & QoS validation (no size_t wraparound, reject qos outside -1..1) */
+    const uint8_t one_byte = 0x42U;
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_mqttsn_client_publish(&s_pro18_mqttsn_client, 1U, 0, false, NULL, 1U));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mqttsn_client_publish(&s_pro18_mqttsn_client, 1U, 0,
+                                                                   false, &one_byte, 65527U));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mqttsn_client_publish(&s_pro18_mqttsn_client, 1U, 0,
+                                                                   false, &one_byte, (size_t)-1));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mqttsn_client_publish(&s_pro18_mqttsn_client, 1U, 2,
+                                                                   false, &one_byte, 1U));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mqttsn_client_publish(&s_pro18_mqttsn_client, 1U, -2,
+                                                                   false, &one_byte, 1U));
+
+    /* 2. Subscribe & Unsubscribe reject empty / overlong topic BEFORE incrementing next_msg_id */
+    s_pro18_mqttsn_client.next_msg_id = 77U;
+    (void)memset(s_pro18_long_topic, 't', SYN_MQTTSN_MAX_TOPIC_NAME);
+    s_pro18_long_topic[SYN_MQTTSN_MAX_TOPIC_NAME] = '\0';
+
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_mqttsn_client_subscribe(&s_pro18_mqttsn_client, "", 0U, 0));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mqttsn_client_subscribe(&s_pro18_mqttsn_client,
+                                                                     s_pro18_long_topic, 0U, 0));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_mqttsn_client_unsubscribe(&s_pro18_mqttsn_client, "", 0U));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mqttsn_client_unsubscribe(&s_pro18_mqttsn_client,
+                                                                       s_pro18_long_topic, 0U));
+    TEST_ASSERT_EQUAL_UINT16(77U, s_pro18_mqttsn_client.next_msg_id);
+
+    /* 3. Rejected CONNACK (CONNECTING -> DISCONNECTED) & inbound server DISCONNECT */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_connect(&s_pro18_mqttsn_client));
+    TEST_ASSERT_EQUAL(SYN_MQTTSN_STATE_CONNECTING, s_pro18_mqttsn_client.state);
+
+    uint8_t runt_connack[2] = {0x02U, SYN_MQTTSN_MSG_CONNACK};
+    (void)memcpy(s_loopback_buf, runt_connack, sizeof(runt_connack));
+    s_loopback_len = sizeof(runt_connack);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_step(&s_pro18_mqttsn_client, 10U));
+    TEST_ASSERT_EQUAL(SYN_MQTTSN_STATE_CONNECTING, s_pro18_mqttsn_client.state);
+
+    uint8_t rej_connack[3] = {0x03U, SYN_MQTTSN_MSG_CONNACK, SYN_MQTTSN_RC_REJ_CONGESTION};
+    (void)memcpy(s_loopback_buf, rej_connack, sizeof(rej_connack));
+    s_loopback_len = sizeof(rej_connack);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_step(&s_pro18_mqttsn_client, 20U));
+    TEST_ASSERT_EQUAL(SYN_MQTTSN_STATE_DISCONNECTED, s_pro18_mqttsn_client.state);
+
+    s_pro18_mqttsn_client.state = SYN_MQTTSN_STATE_CONNECTED;
+    (void)memcpy(s_loopback_buf, rej_connack, sizeof(rej_connack));
+    s_loopback_len = sizeof(rej_connack);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_step(&s_pro18_mqttsn_client, 25U));
+    TEST_ASSERT_EQUAL(SYN_MQTTSN_STATE_CONNECTED, s_pro18_mqttsn_client.state);
+
+    uint8_t runt_pub[4] = {0x04U, SYN_MQTTSN_MSG_PUBLISH, 0x00U, 0x01U};
+    (void)memcpy(s_loopback_buf, runt_pub, sizeof(runt_pub));
+    s_loopback_len = sizeof(runt_pub);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_step(&s_pro18_mqttsn_client, 30U));
+
+    uint8_t srv_disc[2] = {0x02U, SYN_MQTTSN_MSG_DISCONNECT};
+    (void)memcpy(s_loopback_buf, srv_disc, sizeof(srv_disc));
+    s_loopback_len = sizeof(srv_disc);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mqttsn_client_step(&s_pro18_mqttsn_client, 40U));
+    TEST_ASSERT_EQUAL(SYN_MQTTSN_STATE_DISCONNECTED, s_pro18_mqttsn_client.state);
+}
+
 void run_mqttsn_tests(void)
 {
     RUN_TEST(test_mqttsn_init_and_validation);
@@ -682,4 +764,5 @@ void run_mqttsn_tests(void)
     RUN_TEST(test_mqttsn_sleep_and_lifecycle);
     RUN_TEST(test_mqttsn_pt_has_data_yielding_and_unhandled_msg);
     RUN_TEST(test_mqttsn_regack_msg_id_matching_and_reregistration);
+    RUN_TEST(test_pro18_mqttsn_bounds_qos_and_rx_disconnect);
 }

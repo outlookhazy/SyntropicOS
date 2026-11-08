@@ -328,16 +328,16 @@ void syn_j1939_dtc_log_init(SYN_J1939_DTCLog *log);
  * @param log Pointer to DTC log container.
  * @param spn Suspect Parameter Number (19-bit).
  * @param fmi Failure Mode Identifier (5-bit).
- * @return SYN_OK on success, SYN_NO_MEMORY if log is full.
+ * @return SYN_OK on success, SYN_INVALID_PARAM if log is NULL, or SYN_ERROR if log is full.
  */
 SYN_Status syn_j1939_dtc_add_active(SYN_J1939_DTCLog *log, uint32_t spn, uint8_t fmi);
 
 /**
- * @brief Clear an active DTC and move it to previously active log (DM2).
+ * @brief Clear an active Diagnostic Trouble Code and move it to previously active log (DM2).
  * @param log Pointer to DTC log container.
  * @param spn Suspect Parameter Number (19-bit).
  * @param fmi Failure Mode Identifier (5-bit).
- * @return SYN_OK if found and cleared, SYN_NOT_FOUND if absent.
+ * @return SYN_OK if found and cleared, SYN_INVALID_PARAM if log is NULL, or SYN_ERROR if absent.
  */
 SYN_Status syn_j1939_dtc_clear_active(SYN_J1939_DTCLog *log, uint32_t spn, uint8_t fmi);
 

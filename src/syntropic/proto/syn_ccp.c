@@ -64,18 +64,20 @@ void syn_ccp_set_mta(SYN_CCP_Slave *slave, uint8_t mta_num, uint8_t ext, uintptr
 static int ccp_match_region(const SYN_CCP_MemRegion *reg, uintptr_t addr, uint32_t size,
                             bool is_write, uint8_t **out_ptr)
 {
-    uintptr_t proto_base = (uintptr_t)reg->base_addr;
-    uintptr_t host_base = (uintptr_t)reg->host_ptr;
+    uint64_t addr64 = (uint64_t)addr;
+    uint64_t proto_base = (uint64_t)reg->base_addr;
+    uint64_t host_base = (uint64_t)(uintptr_t)reg->host_ptr;
+    uint64_t reg_size = (uint64_t)reg->size;
     uint32_t offset = 0U;
-    if (addr >= proto_base && addr < proto_base + (uintptr_t)reg->size) {
-        offset = (uint32_t)(addr - proto_base);
-    } else if (addr >= host_base && addr < host_base + (uintptr_t)reg->size) {
-        offset = (uint32_t)(addr - host_base);
+    if ((addr64 >= proto_base) && ((addr64 - proto_base) < reg_size)) {
+        offset = (uint32_t)(addr64 - proto_base);
+    } else if ((addr64 >= host_base) && ((addr64 - host_base) < reg_size)) {
+        offset = (uint32_t)(addr64 - host_base);
     } else {
         return 0;
     }
 
-    if (size > reg->size - offset) {
+    if ((uint64_t)size > (reg_size - (uint64_t)offset)) {
         return -1;
     }
     if (is_write && !reg->writable) {
@@ -132,6 +134,28 @@ static bool ccp_require_resource(const SYN_CCP_Slave *slave, uint8_t mask, uint8
 }
 
 /**
+ * @brief Handle CCP DISCONNECT command and stop all running DAQ lists.
+ * @param slave CCP slave instance.
+ * @param cro   Incoming 8-byte CRO payload.
+ */
+static void ccp_handle_disconnect(SYN_CCP_Slave *slave, const uint8_t cro[8])
+{
+    uint8_t mode = cro[2];
+    uint16_t target_addr = syn_peek_u16_le(cro, 3);
+    if (((target_addr == slave->station_addr) || (target_addr == 0x0000U)) &&
+        ((mode == 0x00U) || (mode == 0x01U))) {
+        slave->connected = false;
+        slave->daq_tick_drained = false;
+        for (uint8_t i = 0U; i < SYN_CCP_MAX_DAQ_LISTS; i++) {
+            slave->daq_lists[i].running = false;
+            slave->daq_lists[i].pending_tx = false;
+            slave->daq_lists[i].cycle_counter = 0U;
+            slave->daq_lists[i].current_odt_idx = 0U;
+        }
+    }
+}
+
+/**
  * @brief Handle session management, version, ID exchange, and seed/key unlock CROs.
  * @param slave   CCP slave instance.
  * @param cmd     CCP command code.
@@ -142,12 +166,7 @@ static void ccp_handle_session_sec(SYN_CCP_Slave *slave, uint8_t cmd, const uint
                                    uint8_t dto_out[8])
 {
     if (cmd == SYN_CCP_CMD_DISCONNECT) {
-        uint8_t mode = cro[2];
-        uint16_t target_addr = syn_peek_u16_le(cro, 3);
-        if ((target_addr == slave->station_addr || target_addr == 0x0000U) &&
-            (mode == 0x00U || mode == 0x01U)) {
-            slave->connected = false;
-        }
+        ccp_handle_disconnect(slave, cro);
         return;
     }
     if (cmd == SYN_CCP_CMD_GET_CCP_VERSION) {
@@ -399,9 +418,14 @@ static void ccp_handle_daq_cmd(SYN_CCP_Slave *slave, uint8_t cmd, const uint8_t 
             dto_out[1] = SYN_CCP_ERR_PARAM_OUT_OF_RANGE;
             return;
         }
-        slave->daq_lists[daq_num].odt_count = count;
-        slave->daq_lists[daq_num].running = false;
-        slave->daq_lists[daq_num].pending_tx = false;
+        SYN_CCP_DAQList *daq = &slave->daq_lists[daq_num];
+        memset(daq->odts, 0, sizeof(daq->odts));
+        daq->odt_count = count;
+        daq->current_odt_idx = 0U;
+        daq->current_entry_idx = 0U;
+        daq->cycle_counter = 0U;
+        daq->running = false;
+        daq->pending_tx = false;
         dto_out[3] = count;
         dto_out[4] = (uint8_t)(daq_num * SYN_CCP_MAX_ODT_PER_DAQ);
         return;
@@ -582,13 +606,16 @@ static void ccp_pack_odt(const SYN_CCP_Slave *slave, const SYN_CCP_ODT *odt, uin
     uint8_t payload_pos = 1U;
     for (uint8_t e = 0U; e < odt->entry_count; e++) {
         const SYN_CCP_ODTEntry *entry = &odt->entries[e];
+        uint8_t avail = (uint8_t)(8U - payload_pos);
+        if (entry->size > avail) {
+            break;
+        }
         uint8_t *src = NULL;
         if (entry->size > 0U &&
             ccp_resolve_mem(slave, entry->address, entry->size, false, entry->host_valid, &src) &&
             src != NULL) {
-            for (uint8_t b = 0U; b < entry->size && payload_pos < 8U; b++) {
-                dto_out[payload_pos++] = src[b];
-            }
+            memcpy(&dto_out[payload_pos], src, entry->size);
+            payload_pos = (uint8_t)(payload_pos + entry->size);
         }
     }
 }

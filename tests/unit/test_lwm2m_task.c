@@ -1050,6 +1050,159 @@ void test_r5_n10_lwm2m_task_lifetime_u64_and_dirty_queue(void)
     TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_lwm2m_task_notify_changed(&g_task, 9999U, 0U, 1));
 }
 
+void test_pro07_lwm2m_task_coaps_pmin_dereg_and_zero_tick(void)
+{
+    /* 1. Tick 0 registration rejection must not retry-flood on subsequent now_ms == 0 steps */
+    lwm2m_task_test_setup();
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_step(&g_task, 0U));
+    TEST_ASSERT_EQUAL_INT(SYN_LWM2M_STATE_REGISTERING, g_client.state);
+    TEST_ASSERT_TRUE(g_mock_tx_len > 0U);
+
+    SYN_CoapMsg rej_resp = {
+        .type = COAP_TYPE_ACK,
+        .code = COAP_RESP_BAD_REQ,
+        .msg_id = g_task.pending_msg_id,
+    };
+    uint8_t frame[256];
+    size_t flen = syn_coap_serialize(&rej_resp, NULL, 0U, frame, sizeof(frame));
+    mock_transport_reset();
+    mock_transport_feed_rx(frame, flen);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_step(&g_task, 0U));
+    TEST_ASSERT_EQUAL_INT(SYN_LWM2M_STATE_DEREGISTERED, g_client.state);
+    TEST_ASSERT_EQUAL_UINT32(1U, g_task.retry_count);
+
+    mock_transport_reset();
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_step(&g_task, 0U));
+    TEST_ASSERT_EQUAL_INT(SYN_LWM2M_STATE_DEREGISTERED, g_client.state);
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)g_mock_tx_len);
+
+    /* 2. pmin quiet-window latches dirty change and fires once pmin expires; deregister clears */
+    test_lwm2m_task_registration_success_flow();
+    uint8_t obs_tok[2] = {0x12U, 0x34U};
+    TEST_ASSERT_TRUE(syn_lwm2m_observe_add(&g_client, 3303U, 0U, 5700, obs_tok, 2U, 5U, 60U));
+    g_client.observations[0].last_notify_ms = 2000U;
+
+    /* Change arrives during pmin quiet window (3000ms < 2000ms + 5000ms) */
+    mock_transport_reset();
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_notify_changed(&g_task, 3303U, 0U, 5700));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_step(&g_task, 3000U));
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)g_mock_tx_len);
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)g_task.dirty_count);
+    TEST_ASSERT_TRUE(g_task.pending_notify[0]);
+
+    /* Once pmin expires (7000ms), latched notification fires without a second notify_changed */
+    mock_transport_reset();
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_step(&g_task, 7000U));
+    TEST_ASSERT_TRUE(g_mock_tx_len > 0U);
+    TEST_ASSERT_FALSE(g_task.pending_notify[0]);
+
+    /* Deregistration clears active observations and pending_notify state */
+    g_task.pending_notify[0] = true;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_deregister(&g_task));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_step(&g_task, 8000U));
+    TEST_ASSERT_EQUAL_INT(SYN_LWM2M_STATE_DEREGISTERED, g_client.state);
+    TEST_ASSERT_FALSE(g_client.observations[0].active);
+    TEST_ASSERT_FALSE(g_task.pending_notify[0]);
+
+    /* 3. DTLS CoAPs end-to-end encrypted registration and downlink dispatch (no cleartext leak) */
+    lwm2m_task_test_setup();
+    static uint8_t s_cli_rx[512];
+    static uint8_t s_cli_tx[512];
+    static uint8_t s_srv_rx[512];
+    static uint8_t s_srv_tx[512];
+    static SYN_CoapsClient s_coaps;
+    static SYN_DTLS_Context s_srv_dtls;
+    const uint8_t psk[32] = {0x42U};
+    SYN_DTLS_Config cli_dtls_cfg = {
+        .mode = SYN_DTLS_AUTH_MODE_PSK,
+        .cipher_suite = SYN_DTLS_CIPHER_SUITE_CHACHA20_POLY1305_SHA256,
+        .server_name = "coaps.syntropic.local",
+        .psk_identity = (const uint8_t *)"lwm2m_ep",
+        .psk_identity_len = 8U,
+        .psk_secret = psk,
+        .psk_secret_len = sizeof(psk),
+    };
+    SYN_DTLS_Config srv_dtls_cfg = cli_dtls_cfg;
+    srv_dtls_cfg.is_server = true;
+
+    TEST_ASSERT_TRUE(syn_coaps_client_init(&s_coaps, &cli_dtls_cfg, &g_transport, s_cli_rx,
+                                           sizeof(s_cli_rx), s_cli_tx, sizeof(s_cli_tx)));
+    TEST_ASSERT_TRUE(syn_dtls_init(&s_srv_dtls, &srv_dtls_cfg, &g_transport, s_srv_rx,
+                                   sizeof(s_srv_rx), s_srv_tx, sizeof(s_srv_tx)));
+
+    /* Re-init task with coaps_client bound upfront */
+    SYN_LwM2M_TaskConfig coaps_task_cfg = g_task.cfg;
+    coaps_task_cfg.coaps_client = &s_coaps;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_init(&g_task, &coaps_task_cfg));
+
+    /* Complete 3-flight DTLS 1.3 PSK handshake */
+    mock_transport_reset();
+    TEST_ASSERT_TRUE(syn_coaps_client_handshake(&s_coaps));
+    mock_transport_feed_rx(g_mock_tx_buf, g_mock_tx_len);
+    g_mock_tx_len = 0U;
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&s_srv_dtls));
+    mock_transport_feed_rx(g_mock_tx_buf, g_mock_tx_len);
+    g_mock_tx_len = 0U;
+    TEST_ASSERT_TRUE(syn_coaps_client_handshake(&s_coaps));
+    mock_transport_feed_rx(g_mock_tx_buf, g_mock_tx_len);
+    g_mock_tx_len = 0U;
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&s_srv_dtls));
+    TEST_ASSERT_EQUAL_INT(SYN_DTLS_STATE_ESTABLISHED, s_coaps.dtls.state);
+    TEST_ASSERT_EQUAL_INT(SYN_DTLS_STATE_ESTABLISHED, s_srv_dtls.state);
+
+    /* Step 1: Registration POST is DTLS-encrypted (not raw CoAP ver=1 header 0x40..0x48) */
+    mock_transport_reset();
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_step(&g_task, 1000U));
+    TEST_ASSERT_EQUAL_INT(SYN_LWM2M_STATE_REGISTERING, g_client.state);
+    TEST_ASSERT_TRUE(g_mock_tx_len > 0U);
+    TEST_ASSERT_NOT_EQUAL(0x42U, g_mock_tx_buf[0]);
+
+    mock_transport_feed_rx(g_mock_tx_buf, g_mock_tx_len);
+    uint8_t dec_buf[256];
+    size_t dec_len = 0U;
+    TEST_ASSERT_TRUE(syn_dtls_recv(&s_srv_dtls, dec_buf, sizeof(dec_buf), &dec_len));
+    SYN_CoapMsg reg_coap = {0};
+    SYN_CoapOption reg_opts[8];
+    size_t reg_opt_cnt = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_coap_parse(&reg_coap, reg_opts, 8U, &reg_opt_cnt, dec_buf, dec_len));
+    TEST_ASSERT_EQUAL_UINT8(COAP_CODE_POST, reg_coap.code);
+
+    /* Server sends DTLS-encrypted 2.01 Created */
+    SYN_CoapMsg created_resp = {
+        .type = COAP_TYPE_ACK,
+        .code = COAP_RESP_CREATED,
+        .msg_id = reg_coap.msg_id,
+    };
+    flen = syn_coap_serialize(&created_resp, NULL, 0U, frame, sizeof(frame));
+    mock_transport_reset();
+    TEST_ASSERT_TRUE(syn_dtls_send(&s_srv_dtls, frame, flen));
+    mock_transport_feed_rx(g_mock_tx_buf, g_mock_tx_len);
+    g_mock_tx_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_step(&g_task, 1100U));
+    TEST_ASSERT_EQUAL_INT(SYN_LWM2M_STATE_REGISTERED, g_client.state);
+
+    /* Server sends DTLS-encrypted GET /3/0/0; client replies over DTLS */
+    SYN_CoapMsg dl_get = {.type = COAP_TYPE_CON, .code = COAP_CODE_GET, .msg_id = 0x7070U};
+    SYN_CoapOption dl_opts[3] = {
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"3", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+    };
+    flen = syn_coap_serialize(&dl_get, dl_opts, 3U, frame, sizeof(frame));
+    mock_transport_reset();
+    TEST_ASSERT_TRUE(syn_dtls_send(&s_srv_dtls, frame, flen));
+    mock_transport_feed_rx(g_mock_tx_buf, g_mock_tx_len);
+    g_mock_tx_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_step(&g_task, 1200U));
+    TEST_ASSERT_TRUE(g_mock_tx_len > 0U);
+    mock_transport_feed_rx(g_mock_tx_buf, g_mock_tx_len);
+    TEST_ASSERT_TRUE(syn_dtls_recv(&s_srv_dtls, dec_buf, sizeof(dec_buf), &dec_len));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_coap_parse(&reg_coap, reg_opts, 8U, &reg_opt_cnt, dec_buf, dec_len));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_CONTENT, reg_coap.code);
+}
+
 /* ── Runner Entry Point ─────────────────────────────────────────────────── */
 
 void run_lwm2m_task_tests(void)
@@ -1067,4 +1220,5 @@ void run_lwm2m_task_tests(void)
     RUN_TEST(test_lwm2m_task_pt_has_data_yield_and_n14_observe_seq);
     RUN_TEST(test_lwm2m_task_r4_p05_p06_regressions);
     RUN_TEST(test_r5_n10_lwm2m_task_lifetime_u64_and_dirty_queue);
+    RUN_TEST(test_pro07_lwm2m_task_coaps_pmin_dereg_and_zero_tick);
 }

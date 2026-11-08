@@ -4070,6 +4070,274 @@ void test_r5_a05_security_session_dtc_and_transfer_fixes(void)
     TEST_ASSERT_TRUE(syn_uds_set_service_session_mask(&srv, 0x28U, SYN_UDS_SESSION_MASK_ALL));
 }
 
+static bool pro02_overlong_auth_cb(uint8_t subfunction, const uint8_t *in_data, uint16_t in_len,
+                                   uint8_t *out_buf, uint16_t max_out_len, uint16_t *out_len,
+                                   void *ctx)
+{
+    (void)subfunction;
+    (void)in_data;
+    (void)in_len;
+    (void)out_buf;
+    (void)max_out_len;
+    (void)ctx;
+    *out_len = 4U;
+    return true;
+}
+
+static bool pro02_overlong_ft_cb(uint8_t mode, const char *file_path, uint16_t path_len,
+                                 uint8_t *out_buf, uint16_t max_out_len, uint16_t *out_len,
+                                 void *ctx)
+{
+    (void)mode;
+    (void)file_path;
+    (void)path_len;
+    (void)out_buf;
+    (void)max_out_len;
+    (void)ctx;
+    *out_len = 4U;
+    return true;
+}
+
+static bool pro14_upload_mem_cb(bool is_write, uint32_t address, uint32_t size, uint8_t *data_buf,
+                                void *ctx)
+{
+    (void)ctx;
+    if (is_write) {
+        return true;
+    }
+    for (uint32_t i = 0U; i < size; i++) {
+        data_buf[i] = (uint8_t)((address + i) & 0xFFU);
+    }
+    return true;
+}
+
+static void pro14_reset_cb(uint8_t reset_type, void *ctx)
+{
+    uint8_t *out = (uint8_t *)ctx;
+    if (out != NULL) {
+        *out = reset_type;
+    }
+}
+
+void test_uds_pro02_max_resp_len_guards(void)
+{
+    SYN_UDS_Server srv;
+    TEST_ASSERT_TRUE(syn_uds_init(&srv));
+
+    uint8_t did_val[4] = {0x11U, 0x22U, 0x33U, 0x44U};
+    TEST_ASSERT_TRUE(syn_uds_register_did(&srv, 0xF190U, did_val, 4U, true));
+    TEST_ASSERT_TRUE(syn_uds_register_dtc(&srv, 0x010203U, 0x01U, 0x80U));
+
+    uint8_t resp[16];
+    uint16_t resp_len = 0U;
+
+    /* 0x10 DiagnosticSessionControl: max_resp_len = 3 < 6 -> NRC 0x14 */
+    const uint8_t req_10[2] = {SYN_UDS_SID_DIAGNOSTIC_SESSION_CONTROL, SYN_UDS_SESSION_EXTENDED};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_10, 2U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+    TEST_ASSERT_EQUAL(SYN_UDS_SESSION_DEFAULT, srv.session);
+
+    /* 0x27 SecurityAccess: max_resp_len = 3 < 6 -> NRC 0x14, and AES-128 < 18 -> NRC 0x14 */
+    const uint8_t req_27[2] = {SYN_UDS_SID_SECURITY_ACCESS, 0x01U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_27, 2U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+    TEST_ASSERT_EQUAL(SYN_UDS_SECURITY_LOCKED, srv.security_state);
+
+    const uint8_t aes_key[16] = {1U};
+    TEST_ASSERT_TRUE(syn_uds_enable_aes128_security(&srv, aes_key));
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_27, 2U, resp, 10U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+    TEST_ASSERT_TRUE(syn_uds_disable_aes128_security(&srv));
+
+    /* 0x31 RoutineControl: max_resp_len = 3 < 4 -> NRC 0x14 */
+    const uint8_t req_31[4] = {SYN_UDS_SID_ROUTINE_CONTROL, 0x01U, 0x02U, 0x01U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_31, 4U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    /* 0x19 ReadDTCInformation sub 0x07, 0x17, 0x42 with max_resp_len = 3 -> NRC 0x14 */
+    const uint8_t req_19_07[4] = {SYN_UDS_SID_READ_DTC_INFORMATION, 0x07U, 0x80U, 0x01U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_19_07, 4U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    const uint8_t req_19_17[4] = {SYN_UDS_SID_READ_DTC_INFORMATION, 0x17U, 0xFFU, 0x01U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_19_17, 4U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    const uint8_t req_19_42[8] = {
+        SYN_UDS_SID_READ_DTC_INFORMATION, 0x42U, 0x01U, 0x02U, 0x03U, 0x04U, 0x05U, 0x06U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_19_42, 8U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    /* Unlock security for 0x34/0x35/0x3D */
+    srv.security_state = SYN_UDS_SECURITY_UNLOCKED;
+
+    /* 0x34 RequestDownload & 0x35 RequestUpload: max_resp_len = 3 < 4 -> NRC 0x14 */
+    const uint8_t req_34[5] = {SYN_UDS_SID_REQUEST_DOWNLOAD, 0x00U, 0x11U, 0x10U, 0x04U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_34, 5U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    const uint8_t req_35[5] = {SYN_UDS_SID_REQUEST_UPLOAD, 0x00U, 0x11U, 0x10U, 0x04U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_35, 5U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    /* 0x3D WriteMemoryByAddress: header_len = 4 > max_resp_len = 3 -> NRC 0x14 */
+    const uint8_t req_3d[5] = {SYN_UDS_SID_WRITE_MEMORY_BY_ADDRESS, 0x11U, 0x10U, 0x01U, 0xAAU};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_3d, 5U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    /* 0x24 ReadScalingDataByIdentifier: max_resp_len = 3 < 4 -> NRC 0x14 */
+    const uint8_t req_24[3] = {SYN_UDS_SID_READ_SCALING_DATA_BY_IDENTIFIER, 0xF1U, 0x90U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_24, 3U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    /* 0x29 Authentication: default 2B fits in 3B, callback overflow -> NRC 0x14 */
+    const uint8_t req_29[2] = {SYN_UDS_SID_AUTHENTICATION, 0x00U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_29, 2U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_UINT16(2U, resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0x69U, resp[0]);
+
+    TEST_ASSERT_TRUE(syn_uds_register_auth_handler(&srv, pro02_overlong_auth_cb, NULL));
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_29, 2U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    /* 0x2C DynamicallyDefineDataIdentifier: max_resp_len = 3 < 4 -> NRC 0x14 */
+    const uint8_t req_2c[4] = {SYN_UDS_SID_DYNAMICALLY_DEFINE_DATA_IDENTIFIER, 0x01U, 0xF2U, 0x00U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_2c, 4U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    /* 0x2F InputOutputControlByIdentifier: max_resp_len = 3 < 4 -> NRC 0x14 */
+    const uint8_t req_2f[4] = {SYN_UDS_SID_INPUT_OUTPUT_CONTROL_BY_IDENTIFIER, 0xF1U, 0x90U, 0x03U};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_2f, 4U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    /* 0x38 RequestFileTransfer: default (< 5) and callback overflow -> NRC 0x14 */
+    const uint8_t req_38[3] = {SYN_UDS_SID_REQUEST_FILE_TRANSFER, 0x01U, (uint8_t)'f'};
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_38, 3U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    TEST_ASSERT_TRUE(syn_uds_register_file_transfer(&srv, pro02_overlong_ft_cb, NULL));
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_38, 3U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+}
+
+void test_uds_pro14_subfunc_transfer_and_s3(void)
+{
+    SYN_UDS_Server srv;
+    TEST_ASSERT_TRUE(syn_uds_init(&srv));
+    TEST_ASSERT_TRUE(syn_uds_register_memory_handler(&srv, pro14_upload_mem_cb, NULL));
+
+    uint8_t resp[32];
+    uint16_t resp_len = 99U;
+
+    /* 1. suppressPosRspMsgIndicationBit (0x80) honored on 0x19, 0x29, 0x2C */
+    const uint8_t req_19_sup[3] = {SYN_UDS_SID_READ_DTC_INFORMATION, 0x82U, 0xFFU};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req_19_sup, 3U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_UINT16(0U, resp_len);
+
+    const uint8_t req_29_sup[2] = {SYN_UDS_SID_AUTHENTICATION, 0x80U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req_29_sup, 2U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_UINT16(0U, resp_len);
+
+    const uint8_t req_2c_sup[4] = {SYN_UDS_SID_DYNAMICALLY_DEFINE_DATA_IDENTIFIER, 0x81U, 0xF2U,
+                                   0x00U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req_2c_sup, 4U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_UINT16(0U, resp_len);
+
+    /* 2. Download 32-bit overflow & exact boundary guard */
+    srv.security_state = SYN_UDS_SECURITY_UNLOCKED;
+    srv.transfer_state = SYN_UDS_TRANSFER_DOWNLOAD;
+    srv.transfer_size = 0xFFFFFFFEU;
+    srv.transfer_bytes_processed = 0xFFFFFFFCU;
+    srv.expected_block_seq = 1U;
+    const uint8_t req_dl_ovf[6] = {SYN_UDS_SID_TRANSFER_DATA, 0x01U, 1U, 2U, 3U, 4U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req_dl_ovf, 6U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_TRANSFER_DATA_SUSPENDED, resp[2]);
+
+    srv.transfer_bytes_processed = 0xFFFFFFFEU;
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req_dl_ovf, 3U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_TRANSFER_DATA_SUSPENDED, resp[2]);
+
+    /* 3. Upload chunk capping, retransmit payload replay, and post-completion rejection */
+    const uint8_t req_up[5] = {SYN_UDS_SID_REQUEST_UPLOAD, 0x00U, 0x11U, 0x20U, 0x06U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req_up, 5U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(0x75U, resp[0]);
+
+    const uint8_t req_td1[2] = {SYN_UDS_SID_TRANSFER_DATA, 0x01U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req_td1, 2U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_UINT16(8U, resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0x20U, resp[2]);
+    TEST_ASSERT_EQUAL_HEX8(0x25U, resp[7]);
+
+    memset(resp, 0, sizeof(resp));
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req_td1, 2U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_UINT16(8U, resp_len);
+    TEST_ASSERT_EQUAL_HEX8(0x76U, resp[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x20U, resp[2]);
+    TEST_ASSERT_EQUAL_HEX8(0x25U, resp[7]);
+    TEST_ASSERT_EQUAL_UINT32(6U, srv.transfer_bytes_processed);
+
+    /* Upload retransmit with insufficient buffer -> NRC 0x14 */
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_td1, 2U, resp, 4U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    /* Next block after transfer_bytes_processed == transfer_size -> NRC 0x71 */
+    const uint8_t req_td2[2] = {SYN_UDS_SID_TRANSFER_DATA, 0x02U};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req_td2, 2U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_TRANSFER_DATA_SUSPENDED, resp[2]);
+
+    /* 4. S3 timer reloads in non-default session even on NRC responses */
+    const uint8_t req_ext[2] = {SYN_UDS_SID_DIAGNOSTIC_SESSION_CONTROL, SYN_UDS_SESSION_EXTENDED};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req_ext, 2U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    syn_uds_tick(&srv, 3000U);
+    TEST_ASSERT_EQUAL_UINT32(SYN_UDS_S3_TIMEOUT_MS - 3000U, srv.s3_timer_ms);
+
+    const uint8_t req_unsup[1] = {0xAAU};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req_unsup, 1U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_RESPONSE_NEGATIVE, resp[0]);
+    TEST_ASSERT_EQUAL_UINT32(SYN_UDS_S3_TIMEOUT_MS, srv.s3_timer_ms);
+
+    /* 5. ECUReset deferred elapsed_ms addition saturates without 32-bit wraparound */
+    uint8_t fired_reset = 0U;
+    syn_uds_set_reset_handler(&srv, pro14_reset_cb, &fired_reset);
+    syn_uds_set_reset_wait_ms(&srv, 50U);
+    const uint8_t req_rst[2] = {SYN_UDS_SID_ECU_RESET, SYN_UDS_RESET_SOFT};
+    TEST_ASSERT_TRUE(syn_uds_process_request(&srv, req_rst, 2U, resp, sizeof(resp), &resp_len,
+                                             SYN_UDS_ADDR_PHYSICAL));
+    syn_uds_tick(&srv, 10U);
+    TEST_ASSERT_EQUAL_UINT8(0U, fired_reset);
+    syn_uds_tick(&srv, UINT32_MAX);
+    TEST_ASSERT_EQUAL_UINT8(SYN_UDS_RESET_SOFT, fired_reset);
+}
+
 void run_uds_tests(void)
 {
     RUN_TEST(test_uds_init_and_sessions);
@@ -4109,4 +4377,6 @@ void run_uds_tests(void)
     RUN_TEST(test_uds_multi_did_read);
     RUN_TEST(test_uds_memory_by_address_integer_overflow);
     RUN_TEST(test_r5_a05_security_session_dtc_and_transfer_fixes);
+    RUN_TEST(test_uds_pro02_max_resp_len_guards);
+    RUN_TEST(test_uds_pro14_subfunc_transfer_and_s3);
 }

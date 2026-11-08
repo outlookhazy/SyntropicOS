@@ -53,12 +53,27 @@ static uint32_t syn_isotp_decode_stmin_us(uint8_t st_min)
     return 127000U; /* Reserved values default to 127ms per ISO 15765-2:2016 Clause 9.6.6 */
 }
 
+/**
+ * @brief Convert milliseconds to microseconds with 32-bit unsigned saturation.
+ * @param ms Duration in milliseconds.
+ * @return Duration in microseconds, saturated at UINT32_MAX.
+ */
+static uint32_t isotp_ms_to_us(uint32_t ms)
+{
+    if (ms > (UINT32_MAX / 1000U)) {
+        return UINT32_MAX;
+    }
+    return ms * 1000U;
+}
+
 void syn_isotp_set_timeouts(SYN_ISOTP_Link *link, uint32_t n_bs_ms, uint32_t n_cr_ms)
 {
     if (link == NULL)
         return;
-    link->n_bs_timeout_us = (n_bs_ms > 0) ? (n_bs_ms * 1000U) : (SYN_ISOTP_DEFAULT_N_BS_MS * 1000U);
-    link->n_cr_timeout_us = (n_cr_ms > 0) ? (n_cr_ms * 1000U) : (SYN_ISOTP_DEFAULT_N_CR_MS * 1000U);
+    link->n_bs_timeout_us =
+        (n_bs_ms > 0U) ? isotp_ms_to_us(n_bs_ms) : (SYN_ISOTP_DEFAULT_N_BS_MS * 1000U);
+    link->n_cr_timeout_us =
+        (n_cr_ms > 0U) ? isotp_ms_to_us(n_cr_ms) : (SYN_ISOTP_DEFAULT_N_CR_MS * 1000U);
 }
 
 void syn_isotp_init(SYN_ISOTP_Link *link, uint32_t rx_id, uint32_t tx_id, uint8_t *rx_buf,
@@ -133,6 +148,15 @@ SYN_Status syn_isotp_send(SYN_ISOTP_Link *link, const uint8_t *payload, size_t p
     if (link->tx_state != SYN_ISOTP_TX_IDLE) {
         return SYN_BUSY;
     }
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+    if ((!link->is_fd) && (payload_len > 4095U)) {
+        return SYN_INVALID_PARAM;
+    }
+#else
+    if (payload_len > 4095U) {
+        return SYN_INVALID_PARAM;
+    }
+#endif
     if (payload_len > link->tx_buf_size) {
         return SYN_INVALID_PARAM;
     }
@@ -158,10 +182,142 @@ SYN_Status syn_isotp_send(SYN_ISOTP_Link *link, const uint8_t *payload, size_t p
     return SYN_OK;
 }
 
+/**
+ * @brief Encode an outgoing ISO-TP Single Frame (SF) into frame.
+ * @param link ISO-TP link context.
+ * @param frame Output CAN frame.
+ */
+static void isotp_tx_build_sf(SYN_ISOTP_Link *link, SYN_CAN_Frame *frame)
+{
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+    if (link->is_fd) {
+        size_t sf_len = link->tx_len;
+        if (sf_len <= 7U) {
+            frame->data[0] = SYN_ISOTP_PCI_SF | (uint8_t)sf_len;
+            memcpy(&frame->data[1], link->tx_buf, sf_len);
+            frame->dlc = syn_can_fd_pad_len((uint8_t)(sf_len + 1U));
+        } else {
+            frame->data[0] = SYN_ISOTP_PCI_SF;
+            frame->data[1] = (uint8_t)sf_len;
+            memcpy(&frame->data[2], link->tx_buf, sf_len);
+            frame->dlc = syn_can_fd_pad_len((uint8_t)(sf_len + 2U));
+        }
+    } else {
+        frame->data[0] = SYN_ISOTP_PCI_SF | (uint8_t)link->tx_len;
+        memcpy(&frame->data[1], link->tx_buf, link->tx_len);
+        frame->dlc = 8U;
+    }
+#else
+    frame->data[0] = SYN_ISOTP_PCI_SF | (uint8_t)link->tx_len;
+    memcpy(&frame->data[1], link->tx_buf, link->tx_len);
+    frame->dlc = 8U;
+#endif
+    link->tx_state = SYN_ISOTP_TX_IDLE;
+}
+
+/**
+ * @brief Encode an outgoing ISO-TP First Frame (FF) into frame and arm N_Bs wait state.
+ * @param link ISO-TP link context.
+ * @param frame Output CAN frame.
+ */
+static void isotp_tx_build_ff(SYN_ISOTP_Link *link, SYN_CAN_Frame *frame)
+{
+    size_t payload_in_ff;
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+    if (link->is_fd) {
+        if (link->tx_len <= 4095U) {
+            frame->data[0] = SYN_ISOTP_PCI_FF | (uint8_t)((link->tx_len >> 8U) & 0x0FU);
+            frame->data[1] = (uint8_t)(link->tx_len & 0xFFU);
+            payload_in_ff = (link->tx_len > 62U) ? 62U : link->tx_len;
+            memcpy(&frame->data[2], link->tx_buf, payload_in_ff);
+            frame->dlc = syn_can_fd_pad_len((uint8_t)(payload_in_ff + 2U));
+        } else {
+            frame->data[0] = SYN_ISOTP_PCI_FF;
+            frame->data[1] = 0U;
+            syn_poke_u32((uint32_t)link->tx_len, frame->data, 2U);
+            payload_in_ff = (link->tx_len > 58U) ? 58U : link->tx_len;
+            memcpy(&frame->data[6], link->tx_buf, payload_in_ff);
+            frame->dlc = syn_can_fd_pad_len((uint8_t)(payload_in_ff + 6U));
+        }
+    } else {
+        frame->data[0] = SYN_ISOTP_PCI_FF | (uint8_t)((link->tx_len >> 8U) & 0x0FU);
+        frame->data[1] = (uint8_t)(link->tx_len & 0xFFU);
+        payload_in_ff = 6U;
+        memcpy(&frame->data[2], link->tx_buf, payload_in_ff);
+        frame->dlc = 8U;
+    }
+#else
+    frame->data[0] = SYN_ISOTP_PCI_FF | (uint8_t)((link->tx_len >> 8U) & 0x0FU);
+    frame->data[1] = (uint8_t)(link->tx_len & 0xFFU);
+    payload_in_ff = 6U;
+    memcpy(&frame->data[2], link->tx_buf, payload_in_ff);
+    frame->dlc = 8U;
+#endif
+    link->tx_offset = payload_in_ff;
+    link->tx_state = SYN_ISOTP_TX_WAIT_FC;
+    link->tx_timeout_timer_us = link->n_bs_timeout_us;
+}
+
+/**
+ * @brief Encode an outgoing ISO-TP Consecutive Frame (CF) if STmin elapsed.
+ * @param link ISO-TP link context.
+ * @param frame Output CAN frame.
+ * @return true if a CF frame was emitted, false otherwise.
+ */
+static bool isotp_tx_build_cf(SYN_ISOTP_Link *link, SYN_CAN_Frame *frame)
+{
+    if (link->tx_st_timer_us > 0U) {
+        return false;
+    }
+
+    size_t rem = link->tx_len - link->tx_offset;
+    if (rem == 0U) {
+        link->tx_state = SYN_ISOTP_TX_IDLE;
+        return false;
+    }
+
+    frame->data[0] = SYN_ISOTP_PCI_CF | (link->tx_seq & 0x0FU);
+    size_t payload_len;
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+    if (link->is_fd) {
+        payload_len = (rem > 63U) ? 63U : rem;
+        memcpy(&frame->data[1], &link->tx_buf[link->tx_offset], payload_len);
+        frame->dlc = syn_can_fd_pad_len((uint8_t)(payload_len + 1U));
+    } else {
+        payload_len = (rem > 7U) ? 7U : rem;
+        memcpy(&frame->data[1], &link->tx_buf[link->tx_offset], payload_len);
+        frame->dlc = 8U;
+    }
+#else
+    payload_len = (rem > 7U) ? 7U : rem;
+    memcpy(&frame->data[1], &link->tx_buf[link->tx_offset], payload_len);
+    frame->dlc = 8U;
+#endif
+
+    link->tx_offset += payload_len;
+    link->tx_seq = (uint8_t)((link->tx_seq + 1U) & 0x0FU);
+    link->tx_st_timer_us = syn_isotp_decode_stmin_us(link->tx_st_min);
+
+    if (link->tx_bs > 0U) {
+        link->tx_bs_count++;
+        if ((link->tx_bs_count >= link->tx_bs) && (link->tx_offset < link->tx_len)) {
+            link->tx_bs_count = 0U;
+            link->tx_state = SYN_ISOTP_TX_WAIT_FC;
+            link->tx_timeout_timer_us = link->n_bs_timeout_us;
+        }
+    }
+
+    if (link->tx_offset >= link->tx_len) {
+        link->tx_state = SYN_ISOTP_TX_IDLE;
+    }
+    return true;
+}
+
 bool syn_isotp_get_tx_frame(SYN_ISOTP_Link *link, SYN_CAN_Frame *frame)
 {
-    if (link == NULL || frame == NULL)
+    if ((link == NULL) || (frame == NULL)) {
         return false;
+    }
 
     memset(frame, 0, sizeof(*frame));
     memset(frame->data, link->padding_byte, sizeof(frame->data));
@@ -170,275 +326,202 @@ bool syn_isotp_get_tx_frame(SYN_ISOTP_Link *link, SYN_CAN_Frame *frame)
     frame->is_fd = link->is_fd;
 #endif
 
-    /* Flow Control response takes priority */
     if (link->rx_fc_pending) {
         link->rx_fc_pending = false;
         frame->data[0] = SYN_ISOTP_PCI_FC | link->rx_fc_status;
-        frame->data[1] = link->rx_fc_bs;    /* BS = 8 (0x08) default */
-        frame->data[2] = link->rx_fc_stmin; /* STmin = 0 ms default */
-        frame->dlc = 8;
+        frame->data[1] = link->rx_fc_bs;
+        frame->data[2] = link->rx_fc_stmin;
+        frame->dlc = 8U;
         return true;
     }
 
     switch (link->tx_state) {
     case SYN_ISOTP_TX_SEND_SF:
-#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
-        if (link->is_fd) {
-            size_t sf_len = link->tx_len;
-            if (sf_len <= 7) {
-                frame->data[0] = SYN_ISOTP_PCI_SF | (uint8_t)sf_len;
-                memcpy(&frame->data[1], link->tx_buf, sf_len);
-                frame->dlc = syn_can_fd_pad_len((uint8_t)(sf_len + 1));
-            } else {
-                frame->data[0] = SYN_ISOTP_PCI_SF;
-                frame->data[1] = (uint8_t)sf_len;
-                memcpy(&frame->data[2], link->tx_buf, sf_len);
-                frame->dlc = syn_can_fd_pad_len((uint8_t)(sf_len + 2));
-            }
-        } else {
-            frame->data[0] = SYN_ISOTP_PCI_SF | (uint8_t)link->tx_len;
-            memcpy(&frame->data[1], link->tx_buf, link->tx_len);
-            frame->dlc = 8;
-        }
-#else
-        frame->data[0] = SYN_ISOTP_PCI_SF | (uint8_t)link->tx_len;
-        memcpy(&frame->data[1], link->tx_buf, link->tx_len);
-        frame->dlc = 8;
-#endif
-        link->tx_state = SYN_ISOTP_TX_IDLE;
+        isotp_tx_build_sf(link, frame);
         return true;
-
-    case SYN_ISOTP_TX_SEND_FF: {
-        size_t payload_in_ff;
-#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
-        if (link->is_fd) {
-            if (link->tx_len <= 4095) {
-                frame->data[0] = SYN_ISOTP_PCI_FF | (uint8_t)((link->tx_len >> 8) & 0x0F);
-                frame->data[1] = (uint8_t)(link->tx_len & 0xFF);
-                payload_in_ff = (link->tx_len > 62) ? 62 : link->tx_len;
-                memcpy(&frame->data[2], link->tx_buf, payload_in_ff);
-                frame->dlc = syn_can_fd_pad_len((uint8_t)(payload_in_ff + 2));
-            } else {
-                frame->data[0] = SYN_ISOTP_PCI_FF;
-                frame->data[1] = 0;
-                syn_poke_u32((uint32_t)link->tx_len, frame->data, 2);
-                payload_in_ff = (link->tx_len > 58) ? 58 : link->tx_len;
-                memcpy(&frame->data[6], link->tx_buf, payload_in_ff);
-                frame->dlc = syn_can_fd_pad_len((uint8_t)(payload_in_ff + 6));
-            }
-        } else {
-            frame->data[0] = SYN_ISOTP_PCI_FF | (uint8_t)((link->tx_len >> 8) & 0x0F);
-            frame->data[1] = (uint8_t)(link->tx_len & 0xFF);
-            payload_in_ff = 6;
-            memcpy(&frame->data[2], link->tx_buf, payload_in_ff);
-            frame->dlc = 8;
-        }
-#else
-        frame->data[0] = SYN_ISOTP_PCI_FF | (uint8_t)((link->tx_len >> 8) & 0x0F);
-        frame->data[1] = (uint8_t)(link->tx_len & 0xFF);
-        payload_in_ff = 6;
-        memcpy(&frame->data[2], link->tx_buf, payload_in_ff);
-        frame->dlc = 8;
-#endif
-        link->tx_offset = payload_in_ff;
-        link->tx_state = SYN_ISOTP_TX_WAIT_FC;
-        link->tx_timeout_timer_us = link->n_bs_timeout_us;
+    case SYN_ISOTP_TX_SEND_FF:
+        isotp_tx_build_ff(link, frame);
         return true;
-    }
-
-    case SYN_ISOTP_TX_WAIT_FC:
-        return false;
-
-    case SYN_ISOTP_TX_SEND_CF: {
-        if (link->tx_st_timer_us > 0) {
-            return false;
-        }
-
-        size_t rem = link->tx_len - link->tx_offset;
-        if (rem == 0) {
-            link->tx_state = SYN_ISOTP_TX_IDLE;
-            return false;
-        }
-
-        frame->data[0] = SYN_ISOTP_PCI_CF | (link->tx_seq & 0x0F);
-        size_t payload_len;
-
-#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
-        if (link->is_fd) {
-            payload_len = (rem > 63) ? 63 : rem;
-            memcpy(&frame->data[1], &link->tx_buf[link->tx_offset], payload_len);
-            frame->dlc = syn_can_fd_pad_len((uint8_t)(payload_len + 1));
-        } else {
-            payload_len = (rem > 7) ? 7 : rem;
-            memcpy(&frame->data[1], &link->tx_buf[link->tx_offset], payload_len);
-            frame->dlc = 8;
-        }
-#else
-        payload_len = (rem > 7) ? 7 : rem;
-        memcpy(&frame->data[1], &link->tx_buf[link->tx_offset], payload_len);
-        frame->dlc = 8;
-#endif
-
-        link->tx_offset += payload_len;
-        link->tx_seq = (uint8_t)((link->tx_seq + 1) & 0x0F);
-        link->tx_st_timer_us = syn_isotp_decode_stmin_us(link->tx_st_min);
-
-        if (link->tx_bs > 0) {
-            link->tx_bs_count++;
-            if (link->tx_bs_count >= link->tx_bs && link->tx_offset < link->tx_len) {
-                link->tx_bs_count = 0;
-                link->tx_state = SYN_ISOTP_TX_WAIT_FC;
-                link->tx_timeout_timer_us = link->n_bs_timeout_us;
-            }
-        }
-
-        if (link->tx_offset >= link->tx_len) {
-            link->tx_state = SYN_ISOTP_TX_IDLE;
-        }
-        return true;
-    }
-
+    case SYN_ISOTP_TX_SEND_CF:
+        return isotp_tx_build_cf(link, frame);
     default:
-        break;
+        return false;
+    }
+}
+
+/**
+ * @brief Process an incoming ISO-TP Single Frame (SF).
+ * @param link ISO-TP link context.
+ * @param frame Received CAN frame (dlc >= 1).
+ */
+static void isotp_handle_sf(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)
+{
+    size_t sf_len = (size_t)(frame->data[0] & 0x0FU);
+    size_t data_offset = 1U;
+
+    if (sf_len == 0U) {
+        if (frame->dlc < 2U) {
+            return;
+        }
+        sf_len = (size_t)frame->data[1];
+        data_offset = 2U;
     }
 
-    return false;
+    size_t avail_bytes = (size_t)frame->dlc - data_offset;
+    if ((sf_len == 0U) || (sf_len > avail_bytes)) {
+        return;
+    }
+
+    if ((sf_len <= link->rx_buf_size) && (link->rx_buf != NULL)) {
+        memcpy(link->rx_buf, &frame->data[data_offset], sf_len);
+        link->rx_len = sf_len;
+        link->rx_state = SYN_ISOTP_RX_COMPLETE;
+    }
+}
+
+/**
+ * @brief Process an incoming ISO-TP First Frame (FF).
+ * @param link ISO-TP link context.
+ * @param frame Received CAN frame (dlc >= 1).
+ */
+static void isotp_handle_ff(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)
+{
+    if (frame->dlc < 8U) {
+        return;
+    }
+
+    size_t ff_len;
+    size_t data_offset;
+    uint16_t len_12 = syn_peek_u16(frame->data, 0U) & 0x0FFFU;
+    if (len_12 != 0U) {
+        ff_len = (size_t)len_12;
+        data_offset = 2U;
+    } else {
+        ff_len = (size_t)syn_peek_u32(frame->data, 2U);
+        data_offset = 6U;
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+        if ((link->is_fd || frame->is_fd) && (ff_len <= 4095U)) {
+            return;
+        }
+#endif
+    }
+
+    if ((ff_len <= 7U) || (link->rx_buf == NULL)) {
+        return;
+    }
+    if (ff_len > link->rx_buf_size) {
+        link->rx_fc_pending = true;
+        link->rx_fc_status = SYN_ISOTP_FC_OVERFLOW;
+        link->rx_state = SYN_ISOTP_RX_IDLE;
+        return;
+    }
+
+    size_t payload_in_ff = (size_t)frame->dlc - data_offset;
+    if (payload_in_ff > ff_len) {
+        payload_in_ff = ff_len;
+    }
+
+    memcpy(link->rx_buf, &frame->data[data_offset], payload_in_ff);
+    link->rx_len = payload_in_ff;
+    link->rx_expected = ff_len;
+    link->rx_seq = 1U;
+    link->rx_bs_count = 0U;
+    link->rx_fc_pending = true;
+    link->rx_fc_status = SYN_ISOTP_FC_CTS;
+    link->rx_state = SYN_ISOTP_RX_WAIT_CF;
+    link->rx_timeout_timer_us = link->n_cr_timeout_us;
+}
+
+/**
+ * @brief Process an incoming ISO-TP Consecutive Frame (CF).
+ * @param link ISO-TP link context.
+ * @param frame Received CAN frame (dlc >= 1).
+ */
+static void isotp_handle_cf(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)
+{
+    if (link->rx_state != SYN_ISOTP_RX_WAIT_CF) {
+        return;
+    }
+
+    uint8_t seq = frame->data[0] & 0x0FU;
+    if (seq != link->rx_seq) {
+        link->rx_state = SYN_ISOTP_RX_IDLE;
+        link->rx_timeout_timer_us = 0U;
+        return;
+    }
+
+    size_t rem = link->rx_expected - link->rx_len;
+    size_t cf_payload = (size_t)frame->dlc - 1U;
+    if (cf_payload > rem) {
+        cf_payload = rem;
+    }
+
+    memcpy(&link->rx_buf[link->rx_len], &frame->data[1], cf_payload);
+    link->rx_len += cf_payload;
+    link->rx_seq = (uint8_t)((link->rx_seq + 1U) & 0x0FU);
+    link->rx_bs_count++;
+
+    if (link->rx_len >= link->rx_expected) {
+        link->rx_state = SYN_ISOTP_RX_COMPLETE;
+        link->rx_timeout_timer_us = 0U;
+    } else {
+        link->rx_timeout_timer_us = link->n_cr_timeout_us;
+        if ((link->rx_fc_bs > 0U) && (link->rx_bs_count >= link->rx_fc_bs)) {
+            link->rx_bs_count = 0U;
+            link->rx_fc_pending = true;
+            link->rx_fc_status = SYN_ISOTP_FC_CTS;
+        }
+    }
+}
+
+/**
+ * @brief Process an incoming ISO-TP Flow Control (FC) frame.
+ * @param link ISO-TP link context.
+ * @param frame Received CAN frame (dlc >= 1).
+ */
+static void isotp_handle_fc(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)
+{
+    if ((link->tx_state != SYN_ISOTP_TX_WAIT_FC) || (frame->dlc < 3U)) {
+        return;
+    }
+
+    uint8_t fc_status = frame->data[0] & 0x0FU;
+    if (fc_status == SYN_ISOTP_FC_CTS) {
+        link->tx_bs = frame->data[1];
+        link->tx_st_min = frame->data[2];
+        link->tx_st_timer_us = 0U;
+        link->tx_timeout_timer_us = 0U;
+        link->tx_state = SYN_ISOTP_TX_SEND_CF;
+    } else if (fc_status == SYN_ISOTP_FC_WAIT) {
+        link->tx_timeout_timer_us = link->n_bs_timeout_us;
+    } else {
+        link->tx_state = SYN_ISOTP_TX_IDLE;
+        link->tx_timeout_timer_us = 0U;
+    }
 }
 
 void syn_isotp_process_rx_frame(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)
 {
-    if (link == NULL || frame == NULL)
+    if ((link == NULL) || (frame == NULL) || (frame->id != link->rx_id) || (frame->dlc == 0U)) {
         return;
-    if (frame->id != link->rx_id)
-        return;
+    }
 
     uint8_t pci_type = frame->data[0] & 0xF0U;
-
     switch (pci_type) {
-    case SYN_ISOTP_PCI_SF: {
-        size_t sf_len = frame->data[0] & 0x0FU;
-        size_t data_offset = 1;
-
-        if (sf_len == 0) {
-            /* 8-bit length SF in CAN FD */
-            sf_len =
-                frame->data[1]; /* LCOV_EXCL_LINE: CAN FD 8-bit length single frame escape path */
-            data_offset = 2;    /* LCOV_EXCL_LINE: CAN FD 8-bit length single frame escape path */
-        }
-
-        size_t frame_cap = (frame->dlc > 0) ? frame->dlc : SYN_CAN_MAX_DATA_LEN;
-        size_t max_sf_bytes = (frame_cap > data_offset) ? (frame_cap - data_offset) : 0U;
-        if (sf_len > max_sf_bytes) {
-            sf_len = max_sf_bytes;
-        }
-
-        if (sf_len >= 1 && sf_len <= link->rx_buf_size && link->rx_buf != NULL) {
-            memcpy(link->rx_buf, &frame->data[data_offset], sf_len);
-            link->rx_len = sf_len;
-            link->rx_state = SYN_ISOTP_RX_COMPLETE;
-        }
+    case SYN_ISOTP_PCI_SF:
+        isotp_handle_sf(link, frame);
         break;
-    }
-
-    case SYN_ISOTP_PCI_FF: {
-        size_t ff_len;
-        size_t data_offset;
-
-        uint16_t len_12 = syn_peek_u16(frame->data, 0) & 0x0FFFU;
-        if (len_12 != 0) {
-            ff_len = len_12;
-            data_offset = 2;
-        } else {
-            /* 32-bit Extended First Frame */
-            ff_len = (size_t)syn_peek_u32(frame->data, 2);
-            data_offset = 6;
-        }
-
-        if (ff_len > 7 && link->rx_buf != NULL) {
-            if (ff_len > link->rx_buf_size) {
-                link->rx_fc_pending = true;
-                link->rx_fc_status = SYN_ISOTP_FC_OVERFLOW;
-                link->rx_state = SYN_ISOTP_RX_IDLE;
-            } else {
-                size_t frame_len = (frame->dlc > 0) ? frame->dlc : 8;
-                size_t payload_in_ff = (frame_len > data_offset) ? (frame_len - data_offset) : 0;
-                if (payload_in_ff > ff_len)
-                    payload_in_ff = ff_len; /* LCOV_EXCL_LINE: Defensive payload overflow clamp when
-                                               frame DLC exceeds header total transfer length */
-
-                memcpy(link->rx_buf, &frame->data[data_offset], payload_in_ff);
-                link->rx_len = payload_in_ff;
-                link->rx_expected = ff_len;
-                link->rx_seq = 1;
-                link->rx_bs_count = 0;
-                link->rx_fc_pending = true;
-                link->rx_fc_status = SYN_ISOTP_FC_CTS;
-                link->rx_state = SYN_ISOTP_RX_WAIT_CF;
-                link->rx_timeout_timer_us = link->n_cr_timeout_us;
-            }
-        }
+    case SYN_ISOTP_PCI_FF:
+        isotp_handle_ff(link, frame);
         break;
-    }
-
-    case SYN_ISOTP_PCI_CF: {
-        if (link->rx_state == SYN_ISOTP_RX_WAIT_CF) {
-            uint8_t seq = frame->data[0] & 0x0FU;
-            if (seq == link->rx_seq) {
-                size_t frame_len = (frame->dlc > 0) ? frame->dlc : 8;
-                size_t rem = link->rx_expected - link->rx_len;
-                size_t cf_payload = (frame_len > 1) ? (frame_len - 1) : 0;
-                if (cf_payload > rem)
-                    cf_payload = rem;
-
-                memcpy(&link->rx_buf[link->rx_len], &frame->data[1], cf_payload);
-
-                link->rx_len += cf_payload;
-                link->rx_seq = (uint8_t)((link->rx_seq + 1) & 0x0F);
-                link->rx_bs_count++;
-
-                if (link->rx_len >= link->rx_expected) {
-                    link->rx_state = SYN_ISOTP_RX_COMPLETE;
-                    link->rx_timeout_timer_us = 0;
-                } else {
-                    link->rx_timeout_timer_us = link->n_cr_timeout_us;
-                    if (link->rx_fc_bs > 0 && link->rx_bs_count >= link->rx_fc_bs) {
-                        link->rx_bs_count = 0;
-                        link->rx_fc_pending = true;
-                        link->rx_fc_status = SYN_ISOTP_FC_CTS;
-                    }
-                }
-            } else {
-                /* Sequence mismatch error */
-                link->rx_state = SYN_ISOTP_RX_IDLE;
-                link->rx_timeout_timer_us = 0;
-            }
-        }
+    case SYN_ISOTP_PCI_CF:
+        isotp_handle_cf(link, frame);
         break;
-    }
-
-    case SYN_ISOTP_PCI_FC: {
-        if (link->tx_state == SYN_ISOTP_TX_WAIT_FC) {
-            uint8_t fc_status = frame->data[0] & 0x0FU;
-            if (fc_status == SYN_ISOTP_FC_CTS) {
-                link->tx_bs = frame->data[1];
-                link->tx_st_min = frame->data[2];
-                link->tx_st_timer_us = 0;
-                link->tx_timeout_timer_us = 0;
-                link->tx_state = SYN_ISOTP_TX_SEND_CF;
-            } else if (fc_status == SYN_ISOTP_FC_WAIT) {
-                link->tx_timeout_timer_us = link->n_bs_timeout_us;
-            } else if (fc_status == SYN_ISOTP_FC_OVERFLOW) {
-                link->tx_state = SYN_ISOTP_TX_IDLE;
-                link->tx_timeout_timer_us = 0;
-            }
-        }
+    case SYN_ISOTP_PCI_FC:
+        isotp_handle_fc(link, frame);
         break;
-    }
-
-    /* LCOV_EXCL_START: Unreachable default switch case for ISO-TP PCI nibble types */
     default:
         break;
-        /* LCOV_EXCL_STOP */
     }
 }
 
@@ -463,7 +546,7 @@ ssize_t syn_isotp_receive(SYN_ISOTP_Link *link, uint8_t *out_buf, size_t max_len
 
 void syn_isotp_step(SYN_ISOTP_Link *link, uint32_t dt_ms)
 {
-    syn_isotp_step_us(link, dt_ms * 1000U);
+    syn_isotp_step_us(link, isotp_ms_to_us(dt_ms));
 }
 
 void syn_isotp_step_us(SYN_ISOTP_Link *link, uint32_t dt_us)

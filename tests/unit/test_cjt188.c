@@ -237,6 +237,85 @@ void test_r5_cjt188_streaming_nonzero_payload(void)
     TEST_ASSERT_EQUAL_HEX8(0x2CU, frame.payload[4]);
 }
 
+void test_tier_a_cjt188_resync_on_len_cs_and_eof_errors(void)
+{
+    uint8_t meter_id[5] = {0x11U, 0x22U, 0x33U, 0x44U, 0x55U};
+    uint8_t vendor_id[2] = {0x12U, 0x34U};
+    uint8_t encoded[32];
+    size_t enc_len =
+        syn_cjt188_encode_read_req(encoded, sizeof(encoded), SYN_CJT188_METER_GAS, meter_id,
+                                   vendor_id, SYN_CJT188_DI_READ_METER_DATA, 0x07U);
+    TEST_ASSERT_EQUAL(20U, enc_len);
+    const uint8_t *real_frame = &encoded[4]; /* 16-byte frame starting at 0x68 */
+
+    SYN_CJT188_Decoder decoder;
+    SYN_CJT188_Frame frame;
+
+    /* 1. Resync on oversized length byte (buf[10] = 0xFF) when real 0x68 sits at buf[3] (< 11B rem)
+     */
+    syn_cjt188_decoder_init(&decoder);
+    uint8_t noise_len[3] = {0x68U, 0xAAU, 0xBBU};
+    for (size_t i = 0U; i < sizeof(noise_len); i++) {
+        TEST_ASSERT_FALSE(syn_cjt188_decoder_feed(&decoder, noise_len[i], &frame));
+    }
+    /* Copy real_frame, with vendor_id[0] at real_frame[7] == false_hdr[10] set to 0xFF */
+    uint8_t real_hi_v[16];
+    memcpy(real_hi_v, real_frame, sizeof(real_hi_v));
+    real_hi_v[7] =
+        0xFFU; /* At false index 10 -> expected_len = 268 > 128 -> resyncs to real_hi_v[0]! */
+    real_hi_v[14] = syn_cjt188_checksum(real_hi_v, 14U);
+
+    bool got = false;
+    for (size_t i = 0U; i < sizeof(real_hi_v); i++) {
+        if (syn_cjt188_decoder_feed(&decoder, real_hi_v[i], &frame)) {
+            got = true;
+        }
+    }
+    TEST_ASSERT_TRUE(got);
+    TEST_ASSERT_EQUAL_HEX8(0x07U, frame.seq);
+
+    /* 2. Resync on EOF/checksum mismatch when >= 11B of real frame are already buffered,
+     * including skipping an intermediate 0x68 whose shifted buf[10] > 128! */
+    syn_cjt188_decoder_init(&decoder);
+    /* False candidate: [0]=0x68, [1]=0x68 (intermediate!), [2..9]=0, [10]=0x03 (expected_len=16),
+     * [11]=0xFF (shifted index 10 for [1]=0x68 -> expected_len=268 > 128!), [12..15]=start of
+     * real_frame */
+    uint8_t prefix[12] = {0x68U, 0x68U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0x03U, 0xFFU};
+    for (size_t i = 0U; i < sizeof(prefix); i++) {
+        TEST_ASSERT_FALSE(syn_cjt188_decoder_feed(&decoder, prefix[i], &frame));
+    }
+    got = false;
+    for (size_t i = 0U; i < 16U; i++) {
+        if (syn_cjt188_decoder_feed(&decoder, real_frame[i], &frame)) {
+            got = true;
+        }
+    }
+    TEST_ASSERT_TRUE(got);
+    TEST_ASSERT_EQUAL_HEX16(SYN_CJT188_DI_READ_METER_DATA, frame.data_id);
+
+    /* 3. Resync where >= 11B of real frame with valid expected_len <= 128 are already in buffer */
+    syn_cjt188_decoder_init(&decoder);
+    uint8_t prefix2[2] = {
+        0x68U, 0x11U}; /* real_frame[8] is at false index 10: vendor_id[1]=0x34 -> len=65 <= 128 */
+    /* Make false candidate expected_len = 14 by setting real_frame[8] = 0x01 */
+    uint8_t real_v1[16];
+    memcpy(real_v1, real_frame, sizeof(real_v1));
+    real_v1[8] =
+        0x01U; /* False index 10 = 1 -> false expected_len = 14; at index 14 rem = 12 >= 11! */
+    real_v1[14] = syn_cjt188_checksum(real_v1, 14U);
+
+    TEST_ASSERT_FALSE(syn_cjt188_decoder_feed(&decoder, prefix2[0], &frame));
+    TEST_ASSERT_FALSE(syn_cjt188_decoder_feed(&decoder, prefix2[1], &frame));
+    got = false;
+    for (size_t i = 0U; i < sizeof(real_v1); i++) {
+        if (syn_cjt188_decoder_feed(&decoder, real_v1[i], &frame)) {
+            got = true;
+        }
+    }
+    TEST_ASSERT_TRUE(got);
+    TEST_ASSERT_EQUAL_HEX8(0x07U, frame.seq);
+}
+
 void run_cjt188_tests(void)
 {
     RUN_TEST(test_cjt188_checksum_calculation);
@@ -246,4 +325,5 @@ void run_cjt188_tests(void)
     RUN_TEST(test_cjt188_streaming_decoder);
     RUN_TEST(test_cjt188_edge_cases_and_nulls);
     RUN_TEST(test_r5_cjt188_streaming_nonzero_payload);
+    RUN_TEST(test_tier_a_cjt188_resync_on_len_cs_and_eof_errors);
 }

@@ -185,6 +185,9 @@ static void lintp_rx_sf(SYN_LINTP_Link *link, uint8_t frame_nad, const uint8_t f
  */
 static void lintp_rx_ff(SYN_LINTP_Link *link, uint8_t frame_nad, const uint8_t frame[8])
 {
+    if (frame_nad == SYN_LINTP_NAD_FUNCTIONAL) {
+        return;
+    }
     size_t ff_len = (size_t)((((size_t)frame[1] & 0x0FU) << 8U) | (size_t)frame[2]);
     if (ff_len <= 6U || link->rx_buf == NULL || ff_len > link->rx_buf_size) {
         link->rx_state = SYN_LINTP_STATE_IDLE;
@@ -252,6 +255,17 @@ ssize_t syn_lintp_receive(SYN_LINTP_Link *link, uint8_t *out_buf, size_t max_len
     return (ssize_t)copy_len;
 }
 
+/**
+ * @brief Add two 32-bit unsigned millisecond values with saturation at UINT32_MAX.
+ * @param a Base timer accumulator in milliseconds.
+ * @param b Elapsed delta in milliseconds.
+ * @return Saturated sum in milliseconds.
+ */
+static uint32_t lintp_sat_add_u32(uint32_t a, uint32_t b)
+{
+    return (b > (UINT32_MAX - a)) ? UINT32_MAX : (a + b);
+}
+
 void syn_lintp_step(SYN_LINTP_Link *link, uint32_t dt_ms)
 {
     if (link == NULL) {
@@ -259,7 +273,7 @@ void syn_lintp_step(SYN_LINTP_Link *link, uint32_t dt_ms)
     }
 
     if (link->rx_state == SYN_LINTP_STATE_RECEIVING_CF) {
-        link->rx_timer_ms += dt_ms;
+        link->rx_timer_ms = lintp_sat_add_u32(link->rx_timer_ms, dt_ms);
         if (link->rx_timer_ms >= link->timer_n_cr_ms) {
             link->rx_state = SYN_LINTP_STATE_IDLE;
             link->rx_offset = 0U;
@@ -268,7 +282,7 @@ void syn_lintp_step(SYN_LINTP_Link *link, uint32_t dt_ms)
     }
 
     if (link->tx_state != SYN_LINTP_STATE_IDLE || link->tx_frame_pending) {
-        link->tx_timer_ms += dt_ms;
+        link->tx_timer_ms = lintp_sat_add_u32(link->tx_timer_ms, dt_ms);
         if (link->tx_timer_ms >= link->timer_n_as_ms) {
             link->tx_state = SYN_LINTP_STATE_IDLE;
             link->tx_frame_pending = false;

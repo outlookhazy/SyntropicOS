@@ -84,6 +84,59 @@ static void parse_link_stats(const uint8_t *payload, SYN_CRSF_LinkStats *stats)
     stats->downlink_snr = (int8_t)payload[9];
 }
 
+/**
+ * @brief Verify minimum CRSF payload length (type + payload + CRC) for known frame types.
+ * @param type        CRSF frame type byte.
+ * @param payload_len Declared CRSF length byte (type + payload + CRC).
+ * @return true if length satisfies frame type minimum, false otherwise.
+ */
+static bool crsf_payload_len_valid(uint8_t type, uint8_t payload_len)
+{
+    if (type == SYN_CRSF_TYPE_RC_CHANNELS) {
+        return payload_len >= 24U;
+    }
+    if (type == SYN_CRSF_TYPE_LINK_STATISTICS) {
+        return payload_len >= 12U;
+    }
+    return true;
+}
+
+/**
+ * @brief Validate CRC and dispatch a complete CRSF frame.
+ * @param parser   Pointer to CRSF parser instance.
+ * @param type_out Optional output pointer for decoded frame type.
+ * @return SYN_OK on valid frame, or SYN_ERROR on CRC/length mismatch.
+ */
+static SYN_Status crsf_dispatch_frame(SYN_CRSF_Parser *parser, SYN_CRSF_FrameType *type_out)
+{
+    uint8_t expected_crc = syn_crsf_calc_crc(&parser->buf[2], parser->payload_len - 1U);
+    uint8_t rx_crc = parser->buf[1U + parser->payload_len];
+
+    if (expected_crc != rx_crc) {
+        parser->crc_errors++;
+        return SYN_ERROR;
+    }
+
+    uint8_t type = parser->buf[2];
+    if (!crsf_payload_len_valid(type, parser->payload_len)) {
+        return SYN_ERROR;
+    }
+
+    parser->packets_received++;
+
+    if (type == SYN_CRSF_TYPE_RC_CHANNELS) {
+        parse_channels(&parser->buf[3], &parser->last_channels);
+    } else if (type == SYN_CRSF_TYPE_LINK_STATISTICS) {
+        parse_link_stats(&parser->buf[3], &parser->last_link_stats);
+    }
+
+    if (type_out) {
+        *type_out = (SYN_CRSF_FrameType)type;
+    }
+
+    return SYN_OK;
+}
+
 SYN_Status syn_crsf_parse_byte(SYN_CRSF_Parser *parser, uint8_t byte, SYN_CRSF_FrameType *type_out)
 {
     if (!parser) {
@@ -106,30 +159,7 @@ SYN_Status syn_crsf_parse_byte(SYN_CRSF_Parser *parser, uint8_t byte, SYN_CRSF_F
 
     if (parser->idx >= 2U && parser->idx == (size_t)(2U + parser->payload_len)) {
         parser->idx = 0;
-
-        /* Verify CRC8 DVB-S2 over Type + Payload (bytes 2 .. 2+payload_len-2) */
-        uint8_t expected_crc = syn_crsf_calc_crc(&parser->buf[2], parser->payload_len - 1U);
-        uint8_t rx_crc = parser->buf[1U + parser->payload_len];
-
-        if (expected_crc != rx_crc) {
-            parser->crc_errors++;
-            return SYN_ERROR;
-        }
-
-        parser->packets_received++;
-        uint8_t type = parser->buf[2];
-
-        if (type == SYN_CRSF_TYPE_RC_CHANNELS) {
-            parse_channels(&parser->buf[3], &parser->last_channels);
-        } else if (type == SYN_CRSF_TYPE_LINK_STATISTICS) {
-            parse_link_stats(&parser->buf[3], &parser->last_link_stats);
-        }
-
-        if (type_out) {
-            *type_out = (SYN_CRSF_FrameType)type;
-        }
-
-        return SYN_OK;
+        return crsf_dispatch_frame(parser, type_out);
     }
 
     return SYN_BUSY;

@@ -198,6 +198,42 @@ static void cjt188_reset_state(SYN_CJT188_Decoder *decoder)
     decoder->expected_len = 0U;
 }
 
+/**
+ * @brief Resynchronize streaming decoder buffer to the next potential 0x68 start byte.
+ * @param decoder Decoder instance.
+ */
+static void cjt188_resync(SYN_CJT188_Decoder *decoder)
+{
+    while (decoder->index > 1U) {
+        size_t next_sof = 0U;
+        for (size_t i = 1U; i < decoder->index; i++) {
+            if (decoder->buf[i] == SYN_CJT188_START_BYTE) {
+                next_sof = i;
+                break;
+            }
+        }
+        if (next_sof == 0U) {
+            break;
+        }
+
+        size_t rem = decoder->index - next_sof;
+        (void)memmove(decoder->buf, &decoder->buf[next_sof], rem);
+        decoder->index = rem;
+        decoder->in_frame = true;
+
+        if (decoder->index < 11U) {
+            decoder->expected_len = 0U;
+            return;
+        }
+
+        decoder->expected_len = 11U + (size_t)decoder->buf[10] + 2U;
+        if (decoder->expected_len <= SYN_CJT188_MAX_FRAME_SIZE) {
+            return;
+        }
+    }
+    cjt188_reset_state(decoder);
+}
+
 void syn_cjt188_decoder_init(SYN_CJT188_Decoder *decoder)
 {
     if (decoder != NULL) {
@@ -240,16 +276,18 @@ bool syn_cjt188_decoder_feed(SYN_CJT188_Decoder *decoder, uint8_t byte, SYN_CJT1
         uint8_t data_len = decoder->buf[10];
         decoder->expected_len = 11U + (size_t)data_len + 2U; /* 11 header + L + CS + 0x16 */
         if (decoder->expected_len > SYN_CJT188_MAX_FRAME_SIZE) {
-            cjt188_reset_state(decoder);
+            cjt188_resync(decoder);
             return false;
         }
     }
 
-    /* When expected total length reached, attempt parsing without zeroing decoder->buf */
-    if (decoder->expected_len > 0U && decoder->index >= decoder->expected_len) {
-        bool ok = syn_cjt188_parse_frame(decoder->buf, decoder->index, out_frame);
-        cjt188_reset_state(decoder);
-        return ok;
+    /* Attempt parsing and resync across buffered 0x68 candidates on framing/checksum failure */
+    while ((decoder->expected_len > 0U) && (decoder->index >= decoder->expected_len)) {
+        if (syn_cjt188_parse_frame(decoder->buf, decoder->expected_len, out_frame)) {
+            cjt188_reset_state(decoder);
+            return true;
+        }
+        cjt188_resync(decoder);
     }
 
     return false;

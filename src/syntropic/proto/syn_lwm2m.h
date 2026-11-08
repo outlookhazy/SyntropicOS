@@ -476,7 +476,7 @@ size_t syn_lwm2m_build_update_request(SYN_LwM2M_Client *client, uint16_t msg_id,
  * @param req_opts        [out] Populated CoAP options array.
  * @param max_req_opts    Capacity of options array.
  * @param req_opt_cnt     [out] Number of populated options.
- * @return 0 on success.
+ * @return 1 on success, or 0 on error.
  */
 size_t syn_lwm2m_build_deregister_request(const SYN_LwM2M_Client *client, uint16_t msg_id,
                                           const uint8_t *token, uint8_t token_len, SYN_CoapMsg *req,
@@ -588,6 +588,8 @@ typedef struct {
     const char *timezone;         /**< Res 15: Timezone */
     bool reboot_requested;        /**< Flag set when Res 4 (Reboot) executed */
     bool factory_reset_requested; /**< Flag set when Res 5 (Factory Reset) executed */
+    char utc_offset_buf[16];      /**< Bounded storage for written Res 14 (UTC Offset) */
+    char timezone_buf[64];        /**< Bounded storage for written Res 15 (Timezone) */
 } SYN_LwM2M_DeviceContext;
 
 /**

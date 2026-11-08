@@ -1,6 +1,6 @@
 /**
  * @file syn_msp.h
- * @brief Zero-Heap MSP (MultiWii Serial Protocol v1/v2) Encoder & Decoder.
+ * @brief Zero-Heap MSP v1 (MultiWii Serial Protocol v1) Encoder & Decoder.
  *
  * MSP Specifications:
  * - Frame Format: `$M` + [Direction] + [Size] + [Command] + [Payload...] + [Checksum]

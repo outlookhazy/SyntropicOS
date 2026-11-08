@@ -131,6 +131,56 @@ SYN_Status syn_mbus_encode_long(uint8_t c_field, uint8_t a_field, uint8_t ci_fie
 
 /* ── One-Shot Decoder ────────────────────────────────────────────────────── */
 
+/**
+ * @brief Decode a Control or Long M-Bus frame starting with 0x68.
+ * @param buf   Input byte buffer starting with SYN_MBUS_START_LONG.
+ * @param len   Buffer length in bytes.
+ * @param frame Zero-initialized destination frame structure.
+ * @return SYN_OK on success, SYN_INVALID_PARAM if truncated, or SYN_ERROR on framing/checksum
+ * error.
+ */
+static SYN_Status mbus_decode_long_frame(const uint8_t *buf, size_t len, SYN_MBUS_Frame *frame)
+{
+    if (len < 9) {
+        return SYN_INVALID_PARAM;
+    }
+
+    uint8_t l1 = buf[1];
+    uint8_t l2 = buf[2];
+    if ((l1 != l2) || (buf[3] != SYN_MBUS_START_LONG)) {
+        return SYN_ERROR;
+    }
+
+    size_t expected_total = (size_t)l1 + 6u;
+    if (len < expected_total) {
+        return SYN_INVALID_PARAM;
+    }
+    if (buf[expected_total - 1] != SYN_MBUS_STOP) {
+        return SYN_ERROR;
+    }
+
+    frame->c_field = buf[4];
+    frame->a_field = buf[5];
+    frame->ci_field = buf[6];
+    frame->checksum = buf[expected_total - 2];
+
+    if (l1 < 3) {
+        return SYN_ERROR; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
+    }
+    frame->payload_len = (uint8_t)(l1 - 3u);
+
+    if (frame->payload_len == 0) {
+        frame->type = SYN_MBUS_FRAME_TYPE_CONTROL;
+    } else {
+        frame->type = SYN_MBUS_FRAME_TYPE_LONG;
+        memcpy(frame->payload, &buf[7], frame->payload_len);
+    }
+
+    uint8_t calc_chk = syn_mbus_calc_checksum(&buf[4], (size_t)l1);
+    frame->checksum_valid = (calc_chk == frame->checksum);
+    return frame->checksum_valid ? SYN_OK : SYN_ERROR;
+}
+
 SYN_Status syn_mbus_decode_frame(const uint8_t *buf, size_t len, SYN_MBUS_Frame *frame)
 {
     if (buf == NULL || frame == NULL || len == 0) {
@@ -162,62 +212,13 @@ SYN_Status syn_mbus_decode_frame(const uint8_t *buf, size_t len, SYN_MBUS_Frame 
 
         uint8_t calc_chk = (uint8_t)(buf[1] + buf[2]);
         frame->checksum_valid = (calc_chk == buf[3]);
-
-        if (!frame->checksum_valid) {
-            return SYN_ERROR;
-        }
-        return SYN_OK;
+        return frame->checksum_valid ? SYN_OK : SYN_ERROR;
     }
 
     /* Case 3: Control / Long frame (0x68 | L | L | 0x68 | C | A | CI | Payload... | Checksum |
      * 0x16) */
     if (buf[0] == SYN_MBUS_START_LONG) {
-        if (len < 9) {
-            return SYN_INVALID_PARAM;
-        }
-        uint8_t l1 = buf[1];
-        uint8_t l2 = buf[2];
-
-        if (l1 != l2) {
-            return SYN_ERROR;
-        }
-        if (buf[3] != SYN_MBUS_START_LONG) {
-            return SYN_ERROR;
-        }
-
-        size_t expected_total = (size_t)l1 + 6u;
-        if (len < expected_total) {
-            return SYN_INVALID_PARAM;
-        }
-        if (buf[expected_total - 1] != SYN_MBUS_STOP) {
-            return SYN_ERROR;
-        }
-
-        frame->c_field = buf[4];
-        frame->a_field = buf[5];
-        frame->ci_field = buf[6];
-        frame->checksum = buf[expected_total - 2];
-
-        if (l1 < 3) {
-            return SYN_ERROR; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback
-                               */
-        }
-        frame->payload_len = (uint8_t)(l1 - 3u);
-
-        if (frame->payload_len == 0) {
-            frame->type = SYN_MBUS_FRAME_TYPE_CONTROL;
-        } else {
-            frame->type = SYN_MBUS_FRAME_TYPE_LONG;
-            memcpy(frame->payload, &buf[7], frame->payload_len);
-        }
-
-        uint8_t calc_chk = syn_mbus_calc_checksum(&buf[4], (size_t)l1);
-        frame->checksum_valid = (calc_chk == frame->checksum);
-
-        if (!frame->checksum_valid) {
-            return SYN_ERROR;
-        }
-        return SYN_OK;
+        return mbus_decode_long_frame(buf, len, frame);
     }
 
     return SYN_ERROR;
@@ -248,6 +249,76 @@ void syn_mbus_decoder_reset(SYN_MBUS_Decoder *dec)
     dec->state = STATE_IDLE;
 }
 
+/**
+ * @brief Decode buffered bytes and invoke frame callback on success.
+ * @param dec Decoder instance.
+ */
+static void mbus_emit_if_valid(SYN_MBUS_Decoder *dec)
+{
+    SYN_MBUS_Frame frame;
+    if ((syn_mbus_decode_frame(dec->rx_buf, dec->rx_idx, &frame) == SYN_OK) &&
+        (dec->callback != NULL)) {
+        dec->callback(&frame, dec->ctx);
+    }
+}
+
+/**
+ * @brief Process streaming decoder states for Control/Long frames (0x68 header).
+ * @param dec  Decoder instance.
+ * @param byte Incoming byte.
+ */
+static void mbus_feed_long_state(SYN_MBUS_Decoder *dec, uint8_t byte)
+{
+    switch (dec->state) {
+    case STATE_LONG_L1:
+        dec->rx_buf[dec->rx_idx++] = byte;
+        dec->state = STATE_LONG_L2;
+        break;
+
+    case STATE_LONG_L2:
+        if (byte != dec->rx_buf[1]) {
+            if (dec->rx_buf[1] == SYN_MBUS_START_LONG) {
+                /* Leading 0x68 was noise: recover [0x68, byte] as [SOF1, L1] */
+                dec->rx_buf[0] = SYN_MBUS_START_LONG;
+                dec->rx_buf[1] = byte;
+                dec->rx_idx = 2U;
+            } else {
+                syn_mbus_decoder_reset(dec);
+            }
+            break;
+        }
+        dec->rx_buf[dec->rx_idx++] = byte;
+        dec->expected_len = (size_t)byte + 6u;
+        dec->state = STATE_LONG_SOF2;
+        break;
+
+    case STATE_LONG_SOF2:
+        dec->rx_buf[dec->rx_idx++] = byte;
+        if (byte != SYN_MBUS_START_LONG) {
+            syn_mbus_decoder_reset(dec);
+            break;
+        }
+        dec->state = STATE_LONG_BODY;
+        break;
+
+    case STATE_LONG_BODY:
+        dec->rx_buf[dec->rx_idx++] = byte;
+        if (dec->rx_idx >= dec->expected_len) {
+            if (byte == SYN_MBUS_STOP) {
+                mbus_emit_if_valid(dec);
+            }
+            syn_mbus_decoder_reset(dec);
+        }
+        break;
+
+    /* LCOV_EXCL_START: Default case reset for M-Bus decoder state machine */
+    default:
+        syn_mbus_decoder_reset(dec);
+        break;
+        /* LCOV_EXCL_STOP */
+    }
+}
+
 void syn_mbus_decoder_feed(SYN_MBUS_Decoder *dec, uint8_t byte)
 {
     if (dec == NULL) {
@@ -260,13 +331,7 @@ void syn_mbus_decoder_feed(SYN_MBUS_Decoder *dec, uint8_t byte)
         dec->rx_buf[dec->rx_idx++] = byte;
 
         if (byte == SYN_MBUS_ACK_BYTE) {
-            /* Single character ACK complete! */
-            SYN_MBUS_Frame frame;
-            if (syn_mbus_decode_frame(dec->rx_buf, dec->rx_idx, &frame) == SYN_OK) {
-                if (dec->callback != NULL) {
-                    dec->callback(&frame, dec->ctx);
-                }
-            }
+            mbus_emit_if_valid(dec);
             syn_mbus_decoder_reset(dec);
         } else if (byte == SYN_MBUS_START_SHORT) {
             dec->state = STATE_SHORT_C;
@@ -275,7 +340,6 @@ void syn_mbus_decoder_feed(SYN_MBUS_Decoder *dec, uint8_t byte)
         }
         break;
 
-    /* ── Short Frame Parsing ────────────────────────────────────────────── */
     case STATE_SHORT_C:
         dec->rx_buf[dec->rx_idx++] = byte;
         dec->state = STATE_SHORT_A;
@@ -294,62 +358,14 @@ void syn_mbus_decoder_feed(SYN_MBUS_Decoder *dec, uint8_t byte)
     case STATE_SHORT_STOP:
         dec->rx_buf[dec->rx_idx++] = byte;
         if (byte == SYN_MBUS_STOP) {
-            SYN_MBUS_Frame frame;
-            if (syn_mbus_decode_frame(dec->rx_buf, dec->rx_idx, &frame) == SYN_OK) {
-                if (dec->callback != NULL) {
-                    dec->callback(&frame, dec->ctx);
-                }
-            }
+            mbus_emit_if_valid(dec);
         }
         syn_mbus_decoder_reset(dec);
         break;
 
-    /* ── Control / Long Frame Parsing ───────────────────────────────────── */
-    case STATE_LONG_L1:
-        dec->rx_buf[dec->rx_idx++] = byte;
-        dec->state = STATE_LONG_L2;
-        break;
-
-    case STATE_LONG_L2:
-        dec->rx_buf[dec->rx_idx++] = byte;
-        if (byte != dec->rx_buf[1]) {
-            /* Length byte mismatch -> reset */
-            syn_mbus_decoder_reset(dec);
-            break;
-        }
-        dec->expected_len = (size_t)byte + 6u;
-        dec->state = STATE_LONG_SOF2;
-        break;
-
-    case STATE_LONG_SOF2:
-        dec->rx_buf[dec->rx_idx++] = byte;
-        if (byte != SYN_MBUS_START_LONG) {
-            syn_mbus_decoder_reset(dec);
-            break;
-        }
-        dec->state = STATE_LONG_BODY;
-        break;
-
-    case STATE_LONG_BODY:
-        dec->rx_buf[dec->rx_idx++] = byte;
-        if (dec->rx_idx >= dec->expected_len) {
-            if (byte == SYN_MBUS_STOP) {
-                SYN_MBUS_Frame frame;
-                if (syn_mbus_decode_frame(dec->rx_buf, dec->rx_idx, &frame) == SYN_OK) {
-                    if (dec->callback != NULL) {
-                        dec->callback(&frame, dec->ctx);
-                    }
-                }
-            }
-            syn_mbus_decoder_reset(dec);
-        }
-        break;
-
-    /* LCOV_EXCL_START: Default case reset for M-Bus decoder state machine */
     default:
-        syn_mbus_decoder_reset(dec);
+        mbus_feed_long_state(dec, byte);
         break;
-        /* LCOV_EXCL_STOP */
     }
 }
 

@@ -70,6 +70,10 @@ bool syn_uds_dtc_from_str(const char *str, uint32_t *dtc_out)
         nibbles[i - 1U] = (uint8_t)n;
     }
 
+    if (nibbles[0] > 3U) {
+        return false;
+    }
+
     /* High Byte = (Category << 6) | (Type << 4) | Subsystem */
     uint8_t high_byte = (category_bits << 6) | ((nibbles[0] & 0x03U) << 4) | (nibbles[1] & 0x0FU);
 
@@ -91,7 +95,7 @@ bool syn_uds_dtc_from_str(const char *str, uint32_t *dtc_out)
 
 bool syn_uds_dtc_to_str(uint32_t dtc, char *out_buf, size_t buf_size)
 {
-    if (!out_buf || buf_size < 8U) {
+    if (!out_buf || buf_size < 8U || dtc > 0x00FFFFFFU) {
         return false;
     }
 

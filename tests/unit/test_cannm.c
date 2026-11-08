@@ -326,6 +326,44 @@ void test_r5_a13_repeat_msg_cbv_and_active_wakeup_latch(void)
     TEST_ASSERT_FALSE(short_sess.repeat_msg_req);
 }
 
+void test_cannm_pro16_ext_filter_zero_pad_and_ready_sleep_no_tx(void)
+{
+    SYN_CanNM_Session session;
+    syn_cannm_init(&session, NULL);
+
+    /* 1. Reject 29-bit extended frames even when masked ID matches */
+    SYN_CAN_Frame ext_nm = {.id = 0x402U, .dlc = 8U, .extended = true, .data = {0x02U, 0x00U}};
+    TEST_ASSERT_FALSE(syn_cannm_process_rx_frame(&session, &ext_nm));
+    TEST_ASSERT_EQUAL(SYN_CANNM_STATE_BUS_SLEEP, session.state);
+
+    /* 2. Zero-pad unused rx_user_data tail when dlc < 8 (and dlc == 2, dlc > 8) */
+    SYN_CAN_Frame full_nm = {
+        .id = 0x402U, .dlc = 9U, .data = {0x02U, 0x00U, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}};
+    TEST_ASSERT_TRUE(syn_cannm_process_rx_frame(&session, &full_nm));
+
+    SYN_CAN_Frame dlc4_nm = {.id = 0x402U, .dlc = 4U, .data = {0x02U, 0x00U, 0x12U, 0x34U}};
+    TEST_ASSERT_TRUE(syn_cannm_process_rx_frame(&session, &dlc4_nm));
+    uint8_t exp_dlc4[6] = {0x12U, 0x34U, 0x00U, 0x00U, 0x00U, 0x00U};
+    TEST_ASSERT_EQUAL_MEMORY(exp_dlc4, session.rx_user_data, 6U);
+
+    SYN_CAN_Frame dlc2_nm = {.id = 0x402U, .dlc = 2U, .data = {0x02U, 0x00U}};
+    TEST_ASSERT_TRUE(syn_cannm_process_rx_frame(&session, &dlc2_nm));
+    uint8_t exp_dlc2[6] = {0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U};
+    TEST_ASSERT_EQUAL_MEMORY(exp_dlc2, session.rx_user_data, 6U);
+
+    /* 3. Entering READY_SLEEP from REPEAT_MSG must NOT transmit a periodic NM PDU */
+    SYN_CAN_Frame tx_frame;
+    memset(&tx_frame, 0, sizeof(tx_frame));
+    session.node_comm_req = false;
+    session.state = SYN_CANNM_STATE_REPEAT_MSG;
+    session.repeat_msg_timer = 100U;
+    session.msg_cycle_timer = 50U;
+    session.timeout_timer = 700U;
+    TEST_ASSERT_FALSE(syn_cannm_step(&session, 100U, &tx_frame));
+    TEST_ASSERT_EQUAL(SYN_CANNM_STATE_READY_SLEEP, session.state);
+    TEST_ASSERT_EQUAL_UINT32(700U, session.timeout_timer);
+}
+
 void run_cannm_tests(void)
 {
     RUN_TEST(test_cannm_init);
@@ -335,4 +373,5 @@ void run_cannm_tests(void)
     RUN_TEST(test_cannm_rx_filtering_and_passive_wakeup);
     RUN_TEST(test_cannm_edge_branches);
     RUN_TEST(test_r5_a13_repeat_msg_cbv_and_active_wakeup_latch);
+    RUN_TEST(test_cannm_pro16_ext_filter_zero_pad_and_ready_sleep_no_tx);
 }

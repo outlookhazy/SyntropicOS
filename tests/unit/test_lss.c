@@ -184,6 +184,36 @@ void test_lss_node_id_configure_and_bit_timing(void)
     TEST_ASSERT_FALSE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
 }
 
+void test_pro22_lss_reserved_mode_unconfigured_node_id_and_table_selector(void)
+{
+    syn_lss_slave_init(&g_lss_slave, &g_lss_addr, 0x10U);
+
+    SYN_CAN_Frame req, resp;
+    /* 1. Reserved global mode > 1 is ignored */
+    syn_lss_master_build_switch_mode(&req, 2U);
+    TEST_ASSERT_FALSE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
+    TEST_ASSERT_EQUAL_UINT8(SYN_LSS_MODE_OPERATION, g_lss_slave.mode);
+
+    syn_lss_master_build_switch_mode(&req, SYN_LSS_MODE_CONFIGURATION);
+    TEST_ASSERT_FALSE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
+    TEST_ASSERT_EQUAL_UINT8(SYN_LSS_MODE_CONFIGURATION, g_lss_slave.mode);
+
+    /* 2. CONFIGURE_NODE_ID allows 0xFF unconfigured Node-ID */
+    syn_lss_master_build_config_node_id(&req, 0xFFU);
+    TEST_ASSERT_TRUE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
+    TEST_ASSERT_EQUAL_UINT8(0U, resp.data[1]);
+    TEST_ASSERT_EQUAL_UINT8(0U, resp.data[2]);
+    TEST_ASSERT_EQUAL_UINT8(0xFFU, g_lss_slave.node_id);
+
+    /* 3. CONFIGURE_BIT_TIMING rejects non-zero table_selector (data[1] != 0) */
+    syn_lss_master_build_config_bit_timing(&req, SYN_LSS_BAUD_500K);
+    req.data[1] = 1U;
+    TEST_ASSERT_TRUE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
+    TEST_ASSERT_EQUAL_UINT8(1U, resp.data[1]);
+    TEST_ASSERT_EQUAL_UINT8(0xFFU, resp.data[2]);
+    TEST_ASSERT_EQUAL_UINT8(SYN_LSS_BAUD_250K, g_lss_slave.baud_table);
+}
+
 void run_lss_tests(void)
 {
     RUN_TEST(test_lss_init);
@@ -193,4 +223,5 @@ void run_lss_tests(void)
     RUN_TEST(test_lss_store_config);
     RUN_TEST(test_lss_inquire_address);
     RUN_TEST(test_lss_node_id_configure_and_bit_timing);
+    RUN_TEST(test_pro22_lss_reserved_mode_unconfigured_node_id_and_table_selector);
 }

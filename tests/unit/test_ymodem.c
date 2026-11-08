@@ -484,6 +484,50 @@ static void test_r5_ymodem_regressions(void)
     TEST_ASSERT_EQUAL_UINT32(64U, rx.bytes_received);
 }
 
+static void test_tier_a_ymodem_explicit_zero_byte_file(void)
+{
+    SYN_YMODEM_Receiver rx;
+    uint8_t empty0[128] = {0};
+    uint8_t pad_block[128];
+    memset(pad_block, 0x1AU, sizeof(pad_block));
+
+    /* Block 0 specifies explicit "0" file size: padding SOH block must write 0 bytes! */
+    mock_reset_stream();
+    uint8_t zero_blk0[128] = {0};
+    memcpy(zero_blk0, "empty.bin", 10U);
+    memcpy(&zero_blk0[10], "0 1700000000", 12U);
+
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00U, zero_blk0, sizeof(zero_blk0));
+    mock_feed_packet(SYN_YMODEM_SOH, 0x01U, pad_block, sizeof(pad_block));
+    mock_feed_byte(SYN_YMODEM_EOT);
+    mock_feed_byte(SYN_YMODEM_EOT);
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00U, empty0, sizeof(empty0));
+
+    syn_ymodem_receiver_init(&rx, mock_putchar, mock_getchar, mock_event_cb, NULL);
+    TEST_ASSERT_EQUAL_INT(SYN_YMODEM_OK, syn_ymodem_receive(&rx));
+    TEST_ASSERT_TRUE(rx.has_file_size);
+    TEST_ASSERT_EQUAL_UINT32(0U, rx.filesize);
+    TEST_ASSERT_EQUAL_UINT32(0U, rx.bytes_received);
+    /* Only FILE_START, FILE_END, and SESSION_END events (zero DATA events!) */
+    TEST_ASSERT_EQUAL_INT(3, event_count);
+
+    /* Contrast: Block 0 with NO file size string still accepts full data blocks */
+    mock_reset_stream();
+    uint8_t nosize_blk0[128] = {0};
+    memcpy(nosize_blk0, "raw.bin", 8U);
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00U, nosize_blk0, sizeof(nosize_blk0));
+    mock_feed_packet(SYN_YMODEM_SOH, 0x01U, pad_block, sizeof(pad_block));
+    mock_feed_byte(SYN_YMODEM_EOT);
+    mock_feed_byte(SYN_YMODEM_EOT);
+    mock_feed_packet(SYN_YMODEM_SOH, 0x00U, empty0, sizeof(empty0));
+
+    syn_ymodem_receiver_init(&rx, mock_putchar, mock_getchar, mock_event_cb, NULL);
+    TEST_ASSERT_EQUAL_INT(SYN_YMODEM_OK, syn_ymodem_receive(&rx));
+    TEST_ASSERT_FALSE(rx.has_file_size);
+    TEST_ASSERT_EQUAL_UINT32(128U, rx.bytes_received);
+    TEST_ASSERT_EQUAL_INT(4, event_count);
+}
+
 void run_ymodem_tests(void)
 {
     RUN_TEST(test_ymodem_init_and_null_checks);
@@ -493,4 +537,5 @@ void run_ymodem_tests(void)
     RUN_TEST(test_ymodem_cancel);
     RUN_TEST(test_ymodem_edge_cases);
     RUN_TEST(test_r5_ymodem_regressions);
+    RUN_TEST(test_tier_a_ymodem_explicit_zero_byte_file);
 }

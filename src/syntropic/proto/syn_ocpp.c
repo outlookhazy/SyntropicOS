@@ -81,28 +81,46 @@ static bool ocpp_extract_msg_id(const char *buf, size_t len, char *out_id, size_
     return true;
 }
 
-static bool ocpp_extract_json_str(const char *buf, size_t len, const char *key, char *out_val,
-                                  size_t out_cap)
+/**
+ * @brief Locate JSON value start offset after key colon delimiter and leading spaces.
+ * @param buf     Input JSON buffer.
+ * @param len     Input buffer length.
+ * @param key     Quoted JSON key string to search.
+ * @param out_pos Output offset of value start.
+ * @return true if key was found in buffer, false otherwise.
+ */
+static bool ocpp_seek_json_value(const char *buf, size_t len, const char *key, size_t *out_pos)
 {
-    out_val[0] = '\0';
     const char *hit = ocpp_find_sub(buf, len, key);
     if (hit == NULL) {
         return false;
     }
     size_t pos = (size_t)(hit - buf) + strlen(key);
-    while (pos < len && buf[pos] != ':') {
+    while ((pos < len) && (buf[pos] != ':')) {
         pos++;
     }
     pos++;
-    while (pos < len && buf[pos] == ' ') {
+    while ((pos < len) && (buf[pos] == ' ')) {
         pos++;
     }
-    if (pos >= len || buf[pos] != '"') {
+    *out_pos = pos;
+    return true;
+}
+
+static bool ocpp_extract_json_str(const char *buf, size_t len, const char *key, char *out_val,
+                                  size_t out_cap)
+{
+    out_val[0] = '\0';
+    size_t pos = 0U;
+    if (!ocpp_seek_json_value(buf, len, key, &pos)) {
+        return false;
+    }
+    if ((pos >= len) || (buf[pos] != '"')) {
         return false;
     }
     size_t start = pos + 1U;
     pos = start;
-    while (pos < len && buf[pos] != '"') {
+    while ((pos < len) && (buf[pos] != '"')) {
         pos++;
     }
     if (pos >= len) {
@@ -119,35 +137,111 @@ static bool ocpp_extract_json_str(const char *buf, size_t len, const char *key, 
 
 static bool ocpp_extract_json_i32(const char *buf, size_t len, const char *key, int32_t *out_val)
 {
-    const char *hit = ocpp_find_sub(buf, len, key);
-    if (hit == NULL) {
+    size_t pos = 0U;
+    if (!ocpp_seek_json_value(buf, len, key, &pos)) {
         return false;
     }
-    size_t pos = (size_t)(hit - buf) + strlen(key);
-    while (pos < len && buf[pos] != ':') {
-        pos++;
-    }
-    pos++;
-    while (pos < len && buf[pos] == ' ') {
-        pos++;
-    }
     bool neg = false;
-    if (pos < len && buf[pos] == '-') {
+    if ((pos < len) && (buf[pos] == '-')) {
         neg = true;
         pos++;
     }
-    uint32_t acc = 0U;
+    uint64_t acc = 0ULL;
     size_t digits = 0U;
-    while (pos < len && buf[pos] >= '0' && buf[pos] <= '9') {
-        acc = (acc * 10U) + (uint32_t)(buf[pos] - '0');
+    const uint64_t limit = neg ? 2147483648ULL : 2147483647ULL;
+    while ((pos < len) && (buf[pos] >= '0') && (buf[pos] <= '9')) {
+        acc = (acc * 10ULL) + (uint64_t)(uint8_t)(buf[pos] - '0');
+        if (acc > limit) {
+            return false;
+        }
         pos++;
         digits++;
     }
     if (digits == 0U) {
         return false;
     }
-    *out_val = neg ? -(int32_t)acc : (int32_t)acc;
+    *out_val = neg ? (int32_t)(0LL - (int64_t)acc) : (int32_t)acc;
     return true;
+}
+
+/**
+ * @brief Encode a single byte into its RFC 8259 JSON string representation.
+ * @param ch      Input byte from caller string.
+ * @param out_seq Output scratch array (up to 6 characters).
+ * @return Number of characters written to out_seq (1, 2, or 6).
+ */
+static size_t ocpp_escape_char(uint8_t ch, char out_seq[6])
+{
+    static const char hex[16] = "0123456789abcdef";
+    if ((ch == (uint8_t)'"') || (ch == (uint8_t)'\\')) {
+        out_seq[0] = '\\';
+        out_seq[1] = (char)ch;
+        return 2U;
+    }
+    if (ch == (uint8_t)'\n') {
+        out_seq[0] = '\\';
+        out_seq[1] = 'n';
+        return 2U;
+    }
+    if (ch == (uint8_t)'\r') {
+        out_seq[0] = '\\';
+        out_seq[1] = 'r';
+        return 2U;
+    }
+    if (ch == (uint8_t)'\t') {
+        out_seq[0] = '\\';
+        out_seq[1] = 't';
+        return 2U;
+    }
+    if (ch < 0x20U) {
+        out_seq[0] = '\\';
+        out_seq[1] = 'u';
+        out_seq[2] = '0';
+        out_seq[3] = '0';
+        out_seq[4] = hex[(ch >> 4U) & 0x0FU];
+        out_seq[5] = hex[ch & 0x0FU];
+        return 6U;
+    }
+    out_seq[0] = (char)ch;
+    return 1U;
+}
+
+/**
+ * @brief Escape a C string for safe inclusion inside a JSON string literal.
+ * @param src      Optional caller string (uses fallback when NULL).
+ * @param fallback Non-NULL default string used when src is NULL.
+ * @param dst      Destination buffer for NUL-terminated escaped string.
+ * @param dst_cap  Destination buffer capacity in bytes.
+ * @return true if full string escaped without truncation, false on capacity overflow.
+ */
+static bool ocpp_json_escape(const char *src, const char *fallback, char *dst, size_t dst_cap)
+{
+    const char *in = (src != NULL) ? src : fallback;
+    size_t pos = 0U;
+    while (*in != '\0') {
+        char seq[6];
+        size_t seq_len = ocpp_escape_char((uint8_t)*in, seq);
+        if (seq_len >= (dst_cap - pos)) {
+            dst[pos] = '\0';
+            return false;
+        }
+        (void)memcpy(&dst[pos], seq, seq_len);
+        pos += seq_len;
+        in++;
+    }
+    dst[pos] = '\0';
+    return true;
+}
+
+/**
+ * @brief Convert seconds to milliseconds with 32-bit unsigned saturation.
+ * @param sec Duration in seconds.
+ * @return Saturated duration in milliseconds (clamped to UINT32_MAX).
+ */
+static uint32_t ocpp_sec_to_ms_sat(uint32_t sec)
+{
+    uint64_t ms = (uint64_t)sec * 1000ULL;
+    return (ms > (uint64_t)UINT32_MAX) ? UINT32_MAX : (uint32_t)ms;
 }
 
 static SYN_OCPP_RegistrationStatus ocpp_parse_reg_status(const char *s)
@@ -266,17 +360,24 @@ SYN_Status syn_ocpp_format_boot_notification(SYN_OCPP_Client *client,
     }
 
     client->message_counter++;
-    int written = snprintf(out_buf, max_len,
-                           "[2,\"%u\",\"BootNotification\",{"
-                           "\"chargePointVendor\":\"%s\","
-                           "\"chargePointModel\":\"%s\","
-                           "\"chargePointSerialNumber\":\"%s\","
-                           "\"firmwareVersion\":\"%s\"}]",
-                           (unsigned int)client->message_counter,
-                           info->charge_point_vendor ? info->charge_point_vendor : "SyntropicOS",
-                           info->charge_point_model ? info->charge_point_model : "EVSE-v1",
-                           info->serial_number ? info->serial_number : "SN-12345",
-                           info->firmware_version ? info->firmware_version : "1.0.0");
+    char v_esc[96];
+    char m_esc[96];
+    char s_esc[96];
+    char f_esc[96];
+    bool esc_ok =
+        ocpp_json_escape(info->charge_point_vendor, "SyntropicOS", v_esc, sizeof(v_esc)) &&
+        ocpp_json_escape(info->charge_point_model, "EVSE-v1", m_esc, sizeof(m_esc)) &&
+        ocpp_json_escape(info->serial_number, "SN-12345", s_esc, sizeof(s_esc)) &&
+        ocpp_json_escape(info->firmware_version, "1.0.0", f_esc, sizeof(f_esc));
+    int written = esc_ok
+                      ? snprintf(out_buf, max_len,
+                                 "[2,\"%u\",\"BootNotification\",{"
+                                 "\"chargePointVendor\":\"%s\","
+                                 "\"chargePointModel\":\"%s\","
+                                 "\"chargePointSerialNumber\":\"%s\","
+                                 "\"firmwareVersion\":\"%s\"}]",
+                                 (unsigned int)client->message_counter, v_esc, m_esc, s_esc, f_esc)
+                      : -1;
 
     if (ocpp_finish_write(written, max_len, out_len) != SYN_OK) {
         return SYN_ERROR;
@@ -316,13 +417,16 @@ SYN_Status syn_ocpp_format_status_notification(SYN_OCPP_Client *client, uint32_t
     client->connector_status = status;
     client->message_counter++;
 
-    int written = snprintf(out_buf, max_len,
-                           "[2,\"%u\",\"StatusNotification\",{"
-                           "\"connectorId\":%u,"
-                           "\"status\":\"%s\","
-                           "\"errorCode\":\"%s\"}]",
-                           (unsigned int)client->message_counter, (unsigned int)connector_id,
-                           status_to_str(status), error_code ? error_code : "NoError");
+    char err_esc[128];
+    bool esc_ok = ocpp_json_escape(error_code, "NoError", err_esc, sizeof(err_esc));
+    int written = esc_ok ? snprintf(out_buf, max_len,
+                                    "[2,\"%u\",\"StatusNotification\",{"
+                                    "\"connectorId\":%u,"
+                                    "\"status\":\"%s\","
+                                    "\"errorCode\":\"%s\"}]",
+                                    (unsigned int)client->message_counter,
+                                    (unsigned int)connector_id, status_to_str(status), err_esc)
+                         : -1;
 
     if (ocpp_finish_write(written, max_len, out_len) != SYN_OK) {
         return SYN_ERROR;
@@ -340,8 +444,11 @@ SYN_Status syn_ocpp_format_authorize(SYN_OCPP_Client *client, const char *id_tag
 
     (void)snprintf(client->active_id_tag, sizeof(client->active_id_tag), "%s", id_tag);
     client->message_counter++;
-    int written = snprintf(out_buf, max_len, "[2,\"%u\",\"Authorize\",{\"idTag\":\"%s\"}]",
-                           (unsigned int)client->message_counter, id_tag);
+    char tag_esc[128];
+    bool esc_ok = ocpp_json_escape(id_tag, "", tag_esc, sizeof(tag_esc));
+    int written = esc_ok ? snprintf(out_buf, max_len, "[2,\"%u\",\"Authorize\",{\"idTag\":\"%s\"}]",
+                                    (unsigned int)client->message_counter, tag_esc)
+                         : -1;
 
     if (ocpp_finish_write(written, max_len, out_len) != SYN_OK) {
         return SYN_ERROR;
@@ -362,14 +469,18 @@ SYN_Status syn_ocpp_format_start_transaction(SYN_OCPP_Client *client, uint32_t c
     (void)snprintf(client->active_id_tag, sizeof(client->active_id_tag), "%s", id_tag);
     client->message_counter++;
 
-    int written = snprintf(out_buf, max_len,
-                           "[2,\"%u\",\"StartTransaction\",{"
-                           "\"connectorId\":%u,"
-                           "\"idTag\":\"%s\","
-                           "\"meterStart\":%u,"
-                           "\"timestamp\":\"2026-08-06T12:00:00Z\"}]",
-                           (unsigned int)client->message_counter, (unsigned int)connector_id,
-                           id_tag, (unsigned int)meter_start_wh);
+    char tag_esc[128];
+    bool esc_ok = ocpp_json_escape(id_tag, "", tag_esc, sizeof(tag_esc));
+    int written = esc_ok
+                      ? snprintf(out_buf, max_len,
+                                 "[2,\"%u\",\"StartTransaction\",{"
+                                 "\"connectorId\":%u,"
+                                 "\"idTag\":\"%s\","
+                                 "\"meterStart\":%u,"
+                                 "\"timestamp\":\"2026-08-06T12:00:00Z\"}]",
+                                 (unsigned int)client->message_counter, (unsigned int)connector_id,
+                                 tag_esc, (unsigned int)meter_start_wh)
+                      : -1;
 
     if (ocpp_finish_write(written, max_len, out_len) != SYN_OK) {
         return SYN_ERROR;
@@ -387,14 +498,17 @@ SYN_Status syn_ocpp_format_stop_transaction(SYN_OCPP_Client *client, int32_t tra
     }
 
     client->message_counter++;
-    int written = snprintf(out_buf, max_len,
-                           "[2,\"%u\",\"StopTransaction\",{"
-                           "\"transactionId\":%d,"
-                           "\"meterStop\":%u,"
-                           "\"timestamp\":\"2026-08-06T12:30:00Z\","
-                           "\"reason\":\"%s\"}]",
-                           (unsigned int)client->message_counter, (int)transaction_id,
-                           (unsigned int)meter_stop_wh, reason ? reason : "Local");
+    char rsn_esc[128];
+    bool esc_ok = ocpp_json_escape(reason, "Local", rsn_esc, sizeof(rsn_esc));
+    int written = esc_ok ? snprintf(out_buf, max_len,
+                                    "[2,\"%u\",\"StopTransaction\",{"
+                                    "\"transactionId\":%d,"
+                                    "\"meterStop\":%u,"
+                                    "\"timestamp\":\"2026-08-06T12:30:00Z\","
+                                    "\"reason\":\"%s\"}]",
+                                    (unsigned int)client->message_counter, (int)transaction_id,
+                                    (unsigned int)meter_stop_wh, rsn_esc)
+                         : -1;
 
     if (ocpp_finish_write(written, max_len, out_len) != SYN_OK) {
         return SYN_ERROR;
@@ -448,7 +562,7 @@ static void ocpp_dispatch_call_result(SYN_OCPP_Client *client, SYN_OCPP_PendingA
         int32_t iv = 0;
         if (ocpp_extract_json_i32(in_buf, in_len, "\"interval\"", &iv) && iv > 0) {
             client->heartbeat_interval_sec = (uint32_t)iv;
-            client->heartbeat_timer_ms = (uint32_t)iv * 1000U;
+            client->heartbeat_timer_ms = ocpp_sec_to_ms_sat((uint32_t)iv);
         }
         client->registration_status = reg_st;
         if (client->reg_cb != NULL) {
@@ -486,6 +600,8 @@ static SYN_Status ocpp_client_handle_call(SYN_OCPP_Client *client, const char *i
     if (!ocpp_extract_msg_id(in_buf, in_len, msg_id, sizeof(msg_id))) {
         (void)snprintf(msg_id, sizeof(msg_id), "1");
     }
+    char id_esc[192];
+    (void)ocpp_json_escape(msg_id, "1", id_esc, sizeof(id_esc));
 
     if (ocpp_find_sub(in_buf, in_len, "\"RemoteStartTransaction\"") != NULL) {
         char id_tag[32];
@@ -499,7 +615,7 @@ static SYN_Status ocpp_client_handle_call(SYN_OCPP_Client *client, const char *i
                      ? client->remote_start_cb((uint32_t)conn_id, id_tag, client->user_ctx)
                      : true;
         }
-        int written = snprintf(out_resp, max_resp_len, "[3,\"%s\",{\"status\":\"%s\"}]", msg_id,
+        int written = snprintf(out_resp, max_resp_len, "[3,\"%s\",{\"status\":\"%s\"}]", id_esc,
                                ok ? "Accepted" : "Rejected");
         return ocpp_finish_write(written, max_resp_len, out_resp_len);
     }
@@ -513,12 +629,12 @@ static SYN_Status ocpp_client_handle_call(SYN_OCPP_Client *client, const char *i
                      ? client->remote_stop_cb(req_tx_id, client->user_ctx)
                      : true;
         }
-        int written = snprintf(out_resp, max_resp_len, "[3,\"%s\",{\"status\":\"%s\"}]", msg_id,
+        int written = snprintf(out_resp, max_resp_len, "[3,\"%s\",{\"status\":\"%s\"}]", id_esc,
                                ok ? "Accepted" : "Rejected");
         return ocpp_finish_write(written, max_resp_len, out_resp_len);
     }
 
-    int written = snprintf(out_resp, max_resp_len, "[3,\"%s\",{}]", msg_id);
+    int written = snprintf(out_resp, max_resp_len, "[3,\"%s\",{}]", id_esc);
     return ocpp_finish_write(written, max_resp_len, out_resp_len);
 }
 
@@ -604,7 +720,7 @@ void syn_ocpp_tick(SYN_OCPP_Client *client, uint32_t dt_ms, char *out_hb_buf, si
         client->heartbeat_timer_ms -= dt_ms;
     } else {
         client->heartbeat_timer_ms = (client->heartbeat_interval_sec > 0U)
-                                         ? (client->heartbeat_interval_sec * 1000U)
+                                         ? ocpp_sec_to_ms_sat(client->heartbeat_interval_sec)
                                          : 60000U;
 
         if (out_hb_buf != NULL && out_len != NULL && max_len >= 32U) {
@@ -649,12 +765,15 @@ SYN_Status syn_ocpp_server_format_remote_start(SYN_OCPP_Server *server, uint32_t
     }
 
     server->message_counter++;
-    int written =
-        snprintf(out_buf, max_len,
-                 "[2,\"%u\",\"RemoteStartTransaction\",{"
-                 "\"connectorId\":%u,"
-                 "\"idTag\":\"%s\"}]",
-                 (unsigned int)server->message_counter, (unsigned int)connector_id, id_tag);
+    char tag_esc[128];
+    bool esc_ok = ocpp_json_escape(id_tag, "", tag_esc, sizeof(tag_esc));
+    int written = esc_ok ? snprintf(out_buf, max_len,
+                                    "[2,\"%u\",\"RemoteStartTransaction\",{"
+                                    "\"connectorId\":%u,"
+                                    "\"idTag\":\"%s\"}]",
+                                    (unsigned int)server->message_counter,
+                                    (unsigned int)connector_id, tag_esc)
+                         : -1;
 
     return ocpp_finish_write(written, max_len, out_len);
 }
@@ -778,23 +897,25 @@ SYN_Status syn_ocpp_server_process_message(SYN_OCPP_Server *server, const char *
     if (!ocpp_extract_msg_id(in_buf, in_len, msg_id, sizeof(msg_id))) {
         (void)snprintf(msg_id, sizeof(msg_id), "1");
     }
+    char id_esc[192];
+    (void)ocpp_json_escape(msg_id, "1", id_esc, sizeof(id_esc));
 
     if (ocpp_find_sub(in_buf, in_len, "\"BootNotification\"") != NULL) {
-        return ocpp_server_handle_boot(server, msg_id, in_buf, in_len, out_resp, max_resp_len,
+        return ocpp_server_handle_boot(server, id_esc, in_buf, in_len, out_resp, max_resp_len,
                                        out_resp_len);
     }
 
     if (ocpp_find_sub(in_buf, in_len, "\"Authorize\"") != NULL) {
-        return ocpp_server_handle_auth(server, msg_id, in_buf, in_len, out_resp, max_resp_len,
+        return ocpp_server_handle_auth(server, id_esc, in_buf, in_len, out_resp, max_resp_len,
                                        out_resp_len);
     }
 
     if (ocpp_find_sub(in_buf, in_len, "\"StartTransaction\"") != NULL) {
-        return ocpp_server_handle_start_tx(server, msg_id, in_buf, in_len, out_resp, max_resp_len,
+        return ocpp_server_handle_start_tx(server, id_esc, in_buf, in_len, out_resp, max_resp_len,
                                            out_resp_len);
     }
 
-    int written = snprintf(out_resp, max_resp_len, "[3,\"%s\",{}]", msg_id);
+    int written = snprintf(out_resp, max_resp_len, "[3,\"%s\",{}]", id_esc);
     return ocpp_finish_write(written, max_resp_len, out_resp_len);
 }
 
@@ -807,12 +928,17 @@ SYN_Status syn_ocpp_format_display_message(SYN_OCPP_Client *client,
     }
 
     uint32_t msg_id = ++client->message_counter;
-    int written = snprintf(out_buf, max_len,
-                           "[2,\"%u\",\"DisplayMessage\",{\"message\":{\"id\":%u,\"header\":\"%s\","
-                           "\"content\":\"%s\",\"displayTimeSec\":%u}}]",
-                           (unsigned int)msg_id, (unsigned int)msg->message_id,
-                           msg->header ? msg->header : "", msg->content ? msg->content : "",
-                           (unsigned int)msg->display_time_s);
+    char hdr_esc[192];
+    char cnt_esc[192];
+    bool esc_ok = ocpp_json_escape(msg->header, "", hdr_esc, sizeof(hdr_esc)) &&
+                  ocpp_json_escape(msg->content, "", cnt_esc, sizeof(cnt_esc));
+    int written =
+        esc_ok ? snprintf(out_buf, max_len,
+                          "[2,\"%u\",\"DisplayMessage\",{\"message\":{\"id\":%u,\"header\":\"%s\","
+                          "\"content\":\"%s\",\"displayTimeSec\":%u}}]",
+                          (unsigned int)msg_id, (unsigned int)msg->message_id, hdr_esc, cnt_esc,
+                          (unsigned int)msg->display_time_s)
+               : -1;
 
     if (ocpp_finish_write(written, max_len, out_len) != SYN_OK) {
         return SYN_ERROR;
@@ -854,8 +980,15 @@ SYN_Status syn_ocpp_format_call_error(const char *msg_id, const char *error_code
         return SYN_INVALID_PARAM;
     }
 
-    int written = snprintf(out_buf, max_len, "[4,\"%s\",\"%s\",\"%s\",{}]", msg_id, error_code,
-                           error_description ? error_description : "");
+    char id_esc[128];
+    char code_esc[128];
+    char desc_esc[192];
+    bool esc_ok = ocpp_json_escape(msg_id, "", id_esc, sizeof(id_esc)) &&
+                  ocpp_json_escape(error_code, "", code_esc, sizeof(code_esc)) &&
+                  ocpp_json_escape(error_description, "", desc_esc, sizeof(desc_esc));
+    int written = esc_ok ? snprintf(out_buf, max_len, "[4,\"%s\",\"%s\",\"%s\",{}]", id_esc,
+                                    code_esc, desc_esc)
+                         : -1;
 
     return ocpp_finish_write(written, max_len, out_len);
 }

@@ -304,6 +304,33 @@ void test_r5_a08_tcp_fc08_fc0b_fc0c_fc17_no_uart_tx(void)
     TEST_ASSERT_EQUAL_size_t(0U, mock_uart_tx_len);
 }
 
+static void test_pro09_tcp_tiny_rtu_buf_size_underflow_guard(void)
+{
+    uint16_t holding[4] = {0};
+    uint8_t rtu_buf[8];
+    SYN_Modbus mb;
+    SYN_Modbus_Config cfg = {
+        .slave_addr = 1U,
+        .holding_regs = holding,
+        .holding_count = 4U,
+    };
+    syn_modbus_init(&mb, &cfg, rtu_buf, 6U);
+
+    uint8_t req_adu[12] = {0U, 1U, 0U, 0U, 0U, 6U, 1U, 0x03U, 0U, 0U, 0U, 1U};
+    uint8_t resp_adu[32];
+    uint16_t resp_len = 99U;
+
+    /* pdu_len (5) > mb.buf_size (6) - 3 (3) -> false */
+    TEST_ASSERT_FALSE(
+        syn_modbus_tcp_process_slave(&mb, req_adu, 12U, resp_adu, sizeof(resp_adu), &resp_len));
+    TEST_ASSERT_EQUAL_UINT16(0U, resp_len);
+
+    /* mb.buf_size < 3U -> guarded against unsigned underflow */
+    mb.buf_size = 2U;
+    TEST_ASSERT_FALSE(
+        syn_modbus_tcp_process_slave(&mb, req_adu, 12U, resp_adu, sizeof(resp_adu), &resp_len));
+}
+
 void run_modbus_tcp_tests(void)
 {
     RUN_TEST(test_mbap_encode_decode);
@@ -312,4 +339,5 @@ void run_modbus_tcp_tests(void)
     RUN_TEST(test_modbus_tcp_edge_cases);
     RUN_TEST(test_modbus_tcp_header_length_mismatch);
     RUN_TEST(test_r5_a08_tcp_fc08_fc0b_fc0c_fc17_no_uart_tx);
+    RUN_TEST(test_pro09_tcp_tiny_rtu_buf_size_underflow_guard);
 }

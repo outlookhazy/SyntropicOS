@@ -106,6 +106,17 @@ static uint16_t get_response_pdu_len(const uint8_t *buf)
     return (uint16_t)(2U + buf[2]);
 }
 
+/**
+ * @brief Check whether MBAP unit ID addresses the local slave or TCP broadcast/gateway.
+ * @param unit_id    MBAP unit identifier.
+ * @param slave_addr Configured slave RTU address.
+ * @return true if unit ID is accepted, false otherwise.
+ */
+static bool mb_tcp_unit_matches(uint8_t unit_id, uint8_t slave_addr)
+{
+    return (unit_id == slave_addr) || (unit_id == 0U) || (unit_id == 0xFFU);
+}
+
 bool syn_modbus_tcp_process_slave(SYN_Modbus *mb, const uint8_t *req_adu, uint16_t req_len,
                                   uint8_t *resp_adu, uint16_t resp_max, uint16_t *resp_len)
 {
@@ -130,13 +141,13 @@ bool syn_modbus_tcp_process_slave(SYN_Modbus *mb, const uint8_t *req_adu, uint16
         return false; /* Length mismatch */
     }
 
-    uint16_t pdu_len = expected_payload_len - 1; /* Unit ID is 1 byte */
-    if (pdu_len > mb->buf_size - 3) {
-        return false; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
+    uint16_t pdu_len = expected_payload_len - 1U; /* Unit ID is 1 byte */
+    if ((mb->buf_size < 3U) || ((size_t)pdu_len > (size_t)(mb->buf_size - 3U))) {
+        return false;
     }
 
     /* Unit ID check: Accept if matching slave address or unit_id == 0 or 255 */
-    if (req_hdr.unit_id != mb->cfg.slave_addr && req_hdr.unit_id != 0 && req_hdr.unit_id != 0xFF) {
+    if (!mb_tcp_unit_matches(req_hdr.unit_id, mb->cfg.slave_addr)) {
         return false;
     }
 

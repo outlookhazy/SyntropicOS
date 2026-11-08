@@ -116,7 +116,7 @@ SYN_Status syn_smbus_encode_packet(const SYN_SMBUS_Packet *pkt, uint8_t *tx_buf,
  * @param rx_len  Length of received byte stream.
  * @param proto   Protocol format expected.
  * @param has_pec True if PEC byte is appended at end of rx_buf.
- * @return SYN_OK on success, SYN_ERR_INVALID_CHECKSUM if PEC mismatch, or SYN_ERR_INVALID_PARAM.
+ * @return SYN_OK on success, SYN_ERROR if PEC mismatch, or SYN_INVALID_PARAM.
  */
 SYN_Status syn_smbus_decode_packet(SYN_SMBUS_Packet *pkt, const uint8_t *rx_buf, size_t rx_len,
                                    SYN_SMBUS_Protocol proto, bool has_pec);

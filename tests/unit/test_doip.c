@@ -334,6 +334,71 @@ void test_r5_a10_routing_code_ack_suppression_and_id_filters(void)
         syn_doip_process_msg(&g_doip, &g_uds, phys_tp, sizeof(phys_tp), tx, 15U, &tx_len));
 }
 
+void test_doip_pro23_routing_len_sa_hijack_and_inplace_uds(void)
+{
+    setup_doip_test();
+    uint8_t tx[64] = {0};
+    uint16_t tx_len = 0U;
+
+    /* 1. Reject non-standard routing activation payload length (e.g. 8, neither 7 nor 11) */
+    uint8_t route_len8[16] = {0x02U, 0xFDU, 0x00U, 0x05U, 0x00U, 0x00U, 0x00U, 0x08U,
+                              0x0EU, 0x80U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U};
+    TEST_ASSERT_TRUE(syn_doip_process_msg(&g_doip, &g_uds, route_len8, sizeof(route_len8), tx,
+                                          sizeof(tx), &tx_len));
+    TEST_ASSERT_EQUAL_HEX8(SYN_DOIP_NACK_INVALID_PAYLOAD_LENGTH, tx[8]);
+    TEST_ASSERT_FALSE(g_doip.routing_activated);
+
+    /* 2. Accept 11-byte OEM-specific routing activation (0x0E80), then reject hijack from 0x0E81 */
+    uint8_t route_len11[19] = {0x02U, 0xFDU, 0x00U, 0x05U, 0x00U, 0x00U, 0x00U, 0x0BU, 0x0EU, 0x80U,
+                               0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x11U, 0x22U, 0x33U, 0x44U};
+    TEST_ASSERT_TRUE(syn_doip_process_msg(&g_doip, &g_uds, route_len11, sizeof(route_len11), tx,
+                                          sizeof(tx), &tx_len));
+    TEST_ASSERT_EQUAL_UINT16(17U, tx_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_DOIP_ROUTING_SUCCESS, tx[12]);
+    TEST_ASSERT_EQUAL_HEX16(0x0E80U, g_doip.active_tester_address);
+
+    /* Re-activation from same SA 0x0E80 succeeds */
+    TEST_ASSERT_TRUE(syn_doip_process_msg(&g_doip, &g_uds, route_len11, sizeof(route_len11), tx,
+                                          sizeof(tx), &tx_len));
+    TEST_ASSERT_EQUAL_HEX8(SYN_DOIP_ROUTING_SUCCESS, tx[12]);
+
+    /* Routing activation from different SA 0x0E81 is denied with 0x02 without hijacking */
+    route_len11[9] = 0x81U;
+    TEST_ASSERT_TRUE(syn_doip_process_msg(&g_doip, &g_uds, route_len11, sizeof(route_len11), tx,
+                                          sizeof(tx), &tx_len));
+    TEST_ASSERT_EQUAL_UINT16(17U, tx_len);
+    TEST_ASSERT_EQUAL_HEX8(SYN_DOIP_ROUTING_DENIED_UNKNOWN_TESTER, tx[12]);
+    TEST_ASSERT_EQUAL_HEX16(0x0E80U, g_doip.active_tester_address);
+
+    /* 3. In-place UDS capacity bound: 17B DID read into 30B tx_buf -> NRC 0x14 (ResponseTooLong) */
+    uint8_t big_did[17] = {0x55U};
+    syn_uds_register_did(&g_uds, 0xF190U, big_did, sizeof(big_did), false);
+    uint8_t rx_did[15] = {0x02U, 0xFDU, 0x80U, 0x01U, 0x00U, 0x00U, 0x00U, 0x07U,
+                          0x0EU, 0x80U, 0x10U, 0x01U, 0x22U, 0xF1U, 0x90U};
+    TEST_ASSERT_TRUE(
+        syn_doip_process_msg(&g_doip, &g_uds, rx_did, sizeof(rx_did), tx, 30U, &tx_len));
+    TEST_ASSERT_EQUAL_UINT16(28U, tx_len);
+    TEST_ASSERT_EQUAL_HEX8(0x7FU, tx[25]);
+    TEST_ASSERT_EQUAL_HEX8(0x22U, tx[26]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, tx[27]);
+
+    /* Suppressed 0x3E 0x80 succeeds even in tight 13-byte ACK-only tx_buf */
+    uint8_t rx_sup_tp[14] = {0x02U, 0xFDU, 0x80U, 0x01U, 0x00U, 0x00U, 0x00U,
+                             0x06U, 0x0EU, 0x80U, 0xFFU, 0xFFU, 0x3EU, 0x80U};
+    TEST_ASSERT_TRUE(
+        syn_doip_process_msg(&g_doip, &g_uds, rx_sup_tp, sizeof(rx_sup_tp), tx, 13U, &tx_len));
+    TEST_ASSERT_EQUAL_UINT16(13U, tx_len);
+
+    /* Exact 27-byte buffer fits 13B ACK + 12B DoIP hdr + 2B 0x3E 0x00 positive response */
+    uint8_t rx_phys_tp[14] = {0x02U, 0xFDU, 0x80U, 0x01U, 0x00U, 0x00U, 0x00U,
+                              0x06U, 0x0EU, 0x80U, 0x10U, 0x01U, 0x3EU, 0x00U};
+    TEST_ASSERT_TRUE(
+        syn_doip_process_msg(&g_doip, &g_uds, rx_phys_tp, sizeof(rx_phys_tp), tx, 27U, &tx_len));
+    TEST_ASSERT_EQUAL_UINT16(27U, tx_len);
+    TEST_ASSERT_EQUAL_HEX8(0x7EU, tx[25]);
+    TEST_ASSERT_EQUAL_HEX8(0x00U, tx[26]);
+}
+
 void run_doip_tests(void)
 {
     RUN_TEST(test_doip_init_and_identifiers);
@@ -344,4 +409,5 @@ void run_doip_tests(void)
     RUN_TEST(test_doip_error_nacks);
     RUN_TEST(test_doip_payload_length_integer_overflow);
     RUN_TEST(test_r5_a10_routing_code_ack_suppression_and_id_filters);
+    RUN_TEST(test_doip_pro23_routing_len_sa_hijack_and_inplace_uds);
 }

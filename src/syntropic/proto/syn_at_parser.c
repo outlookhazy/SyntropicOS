@@ -35,6 +35,7 @@ void syn_at_parser_reset(SYN_AtParser *parser)
     parser->last_resp = SYN_AT_RESP_NONE;
     parser->cme_error_code = -1;
     parser->prompt_detected = false;
+    parser->skip_prompt_space = false;
     if (parser->line_buf != NULL && parser->line_buf_size > 0) {
         parser->line_buf[0] = '\0';
     }
@@ -63,6 +64,43 @@ static bool starts_with(const char *str, const char *prefix)
     return true;
 }
 
+/**
+ * @brief Check whether a complete AT line matches known Unsolicited Result Code (URC) prefixes.
+ * @param line Null-terminated AT line.
+ * @return true if line starts with a recognized URC prefix, false otherwise.
+ */
+static bool is_urc_line(const char *line)
+{
+    return starts_with(line, "+RECEIVE,") || starts_with(line, "+IPD,") ||
+           starts_with(line, "CLOSED") || starts_with(line, "SHUT OK") ||
+           starts_with(line, "RING") || starts_with(line, "+CMTI:");
+}
+
+/**
+ * @brief Classify a completed null-terminated AT response line and update parser state.
+ * @param parser Parser instance.
+ * @param line   Null-terminated response line.
+ * @return Classified SYN_AtRespType.
+ */
+static SYN_AtRespType classify_at_line(SYN_AtParser *parser, const char *line)
+{
+    if (strcmp(line, "OK") == 0) {
+        parser->last_resp = SYN_AT_RESP_OK;
+    } else if (strcmp(line, "ERROR") == 0) {
+        parser->last_resp = SYN_AT_RESP_ERROR;
+    } else if (starts_with(line, "+CME ERROR:") || starts_with(line, "+CMS ERROR:")) {
+        parser->last_resp = SYN_AT_RESP_CME_ERROR;
+        const char *colon = strchr(line, ':');
+        int code = 0;
+        parser->cme_error_code = parse_at_int(colon + 1, &code) ? code : 0;
+    } else if (is_urc_line(line)) {
+        parser->last_resp = SYN_AT_RESP_URC;
+    } else {
+        parser->last_resp = SYN_AT_RESP_LINE;
+    }
+    return parser->last_resp;
+}
+
 SYN_AtRespType syn_at_parser_feed_char(SYN_AtParser *parser, char c)
 {
     if (parser == NULL || parser->line_buf == NULL) {
@@ -74,42 +112,30 @@ SYN_AtRespType syn_at_parser_feed_char(SYN_AtParser *parser, char c)
         return SYN_AT_RESP_NONE;
     }
 
+    /* Ignore a single space immediately following '>' prompt at start of line */
+    if (parser->skip_prompt_space) {
+        parser->skip_prompt_space = false;
+        if ((c == ' ') && (parser->line_len == 0U)) {
+            return SYN_AT_RESP_NONE;
+        }
+    }
+
     /* Prompt detection: '>' as first non-whitespace character */
     if (c == '>' && parser->line_len == 0) {
         parser->prompt_detected = true;
+        parser->skip_prompt_space = true;
         parser->last_resp = SYN_AT_RESP_PROMPT;
         return SYN_AT_RESP_PROMPT;
     }
 
     if (c == '\n') {
         if (parser->line_len == 0) {
-            /* Ignore empty lines (leading \n sequences) */
             return SYN_AT_RESP_NONE;
         }
 
         parser->line_buf[parser->line_len] = '\0';
-        const char *line = parser->line_buf;
-
-        /* Classify response line */
-        if (strcmp(line, "OK") == 0) {
-            parser->last_resp = SYN_AT_RESP_OK;
-        } else if (strcmp(line, "ERROR") == 0) {
-            parser->last_resp = SYN_AT_RESP_ERROR;
-        } else if (starts_with(line, "+CME ERROR:") || starts_with(line, "+CMS ERROR:")) {
-            parser->last_resp = SYN_AT_RESP_CME_ERROR;
-            const char *colon = strchr(line, ':');
-            int code = 0;
-            parser->cme_error_code = parse_at_int(colon + 1, &code) ? code : 0;
-        } else if (starts_with(line, "+RECEIVE,") || starts_with(line, "+IPD,") ||
-                   starts_with(line, "CLOSED") || starts_with(line, "SHUT OK") ||
-                   starts_with(line, "RING") || starts_with(line, "+CMTI:")) {
-            parser->last_resp = SYN_AT_RESP_URC;
-        } else {
-            parser->last_resp = SYN_AT_RESP_LINE;
-        }
-
-        parser->line_len = 0; /* Reset buffer for next line */
-        return parser->last_resp;
+        parser->line_len = 0;
+        return classify_at_line(parser, parser->line_buf);
     }
 
     /* Accumulate character */
@@ -282,6 +308,38 @@ bool syn_at_parser_get_param_int(const char *line, size_t param_idx, int *out_va
     return parse_at_int(p, out_val);
 }
 
+/**
+ * @brief Copy an unquoted or double-quoted AT parameter into out_buf without truncation.
+ * @param p       Pointer to first character of parameter value (after opening '"' if quoted).
+ * @param quoted  True if parameter began with '"' and requires a closing '"'.
+ * @param out_buf Destination buffer (non-NULL, max_len >= 1).
+ * @param max_len Destination capacity in bytes.
+ * @return true if complete parameter fit in out_buf and had valid closing quote, false otherwise.
+ */
+static bool copy_param_token(const char *p, bool quoted, char *out_buf, size_t max_len)
+{
+    size_t out_idx = 0U;
+    while ((*p != '\0') && (*p != '\r') && (*p != '\n')) {
+        if (quoted && (*p == '"')) {
+            break;
+        }
+        if (!quoted && (*p == ',')) {
+            break;
+        }
+        if (out_idx >= (max_len - 1U)) {
+            out_buf[out_idx] = '\0';
+            return false;
+        }
+        out_buf[out_idx++] = *p++;
+    }
+
+    out_buf[out_idx] = '\0';
+    if (quoted && (*p != '"')) {
+        return false;
+    }
+    return true;
+}
+
 bool syn_at_parser_get_param_str(const char *line, size_t param_idx, char *out_buf, size_t max_len)
 {
     if (out_buf == NULL || max_len == 0U) {
@@ -298,17 +356,5 @@ bool syn_at_parser_get_param_str(const char *line, size_t param_idx, char *out_b
         p++;
     }
 
-    size_t out_idx = 0U;
-    while (*p != '\0' && *p != '\r' && *p != '\n' && out_idx < max_len - 1U) {
-        if (quoted && *p == '"') {
-            break;
-        }
-        if (!quoted && *p == ',') {
-            break;
-        }
-        out_buf[out_idx++] = *p++;
-    }
-    out_buf[out_idx] = '\0';
-
-    return true;
+    return copy_param_token(p, quoted, out_buf, max_len);
 }

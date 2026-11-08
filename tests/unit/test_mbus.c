@@ -328,6 +328,34 @@ static void test_mbus_streaming_decoder_edge_cases(void)
     TEST_ASSERT_EQUAL_INT(0, callback_count);
 }
 
+static void test_tier_a_mbus_leading_sof_noise_recovery(void)
+{
+    reset_test_state();
+    SYN_MBUS_Decoder dec;
+    syn_mbus_decoder_init(&dec, mbus_on_frame, NULL);
+
+    uint8_t payload[2] = {0xAAU, 0x55U};
+    uint8_t long_frame[32];
+    size_t long_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mbus_encode_long(0x08U, 0x05U, 0x72U, payload, 2U, long_frame,
+                                                       sizeof(long_frame), &long_len));
+
+    /* Feed spurious 0x68 noise byte immediately before real Long Frame */
+    syn_mbus_decoder_feed(&dec, SYN_MBUS_START_LONG);
+    for (size_t i = 0U; i < long_len; i++) {
+        syn_mbus_decoder_feed(&dec, long_frame[i]);
+    }
+
+    TEST_ASSERT_EQUAL_INT(1, callback_count);
+    TEST_ASSERT_EQUAL(SYN_MBUS_FRAME_TYPE_LONG, last_cb_frame.type);
+    TEST_ASSERT_EQUAL_UINT8(0x08U, last_cb_frame.c_field);
+    TEST_ASSERT_EQUAL_UINT8(0x05U, last_cb_frame.a_field);
+    TEST_ASSERT_EQUAL_UINT8(0x72U, last_cb_frame.ci_field);
+    TEST_ASSERT_EQUAL_UINT8(2U, last_cb_frame.payload_len);
+    TEST_ASSERT_EQUAL_HEX8(0xAAU, last_cb_frame.payload[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x55U, last_cb_frame.payload[1]);
+}
+
 void run_mbus_tests(void)
 {
     RUN_TEST(test_mbus_calc_checksum);
@@ -338,4 +366,5 @@ void run_mbus_tests(void)
     RUN_TEST(test_mbus_null_and_invalid_params);
     RUN_TEST(test_mbus_corrupted_frames);
     RUN_TEST(test_mbus_streaming_decoder_edge_cases);
+    RUN_TEST(test_tier_a_mbus_leading_sof_noise_recovery);
 }

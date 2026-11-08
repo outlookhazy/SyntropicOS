@@ -91,3 +91,39 @@ void test_msp_null_and_error_handling(void)
     parser.state = 99;
     TEST_ASSERT_EQUAL(SYN_BUSY, syn_msp_parse_byte(&parser, '$', NULL));
 }
+
+void test_tier_a_msp_header_resync_and_null_payload(void)
+{
+    uint8_t buf[32];
+    size_t out_len = 0U;
+
+    /* NULL payload with len > 0 and sufficient buf_size must return SYN_INVALID_PARAM */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_msp_encode_response(SYN_MSP_STATUS, NULL, 4U, buf,
+                                                                     sizeof(buf), &out_len));
+
+    /* Zero-length payload with NULL payload pointer is valid */
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_msp_encode_response(SYN_MSP_API_VERSION, NULL, 0U, buf, sizeof(buf), &out_len));
+    TEST_ASSERT_EQUAL_size_t(6U, out_len);
+
+    /* '$' arriving in STATE_HEADER_M ("$$M>...") and STATE_HEADER_DIR ("$M$M>...") resyncs cleanly
+     */
+    SYN_MSP_Parser parser;
+    SYN_MSP_Frame frame;
+    syn_msp_init(&parser);
+
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_msp_parse_byte(&parser, '$', &frame));
+    for (size_t i = 0U; i < out_len - 1U; i++) {
+        TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_msp_parse_byte(&parser, buf[i], &frame));
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_msp_parse_byte(&parser, buf[out_len - 1U], &frame));
+    TEST_ASSERT_EQUAL_UINT8(SYN_MSP_API_VERSION, frame.cmd);
+
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_msp_parse_byte(&parser, '$', &frame));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_msp_parse_byte(&parser, 'M', &frame));
+    for (size_t i = 0U; i < out_len - 1U; i++) {
+        TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_msp_parse_byte(&parser, buf[i], &frame));
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_msp_parse_byte(&parser, buf[out_len - 1U], &frame));
+    TEST_ASSERT_EQUAL_UINT32(2U, parser.frames_received);
+}

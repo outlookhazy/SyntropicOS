@@ -104,15 +104,31 @@ static void send_response(SYN_Modbus *mb, uint16_t len)
  */
 static void send_exception(SYN_Modbus *mb, uint8_t func, uint8_t ex_code)
 {
-    if (mb->buf[0] == 0) {
+    if (mb->buf[0] == 0U || mb->buf_size < 5U) {
         mb->errors++;
-        return; /* Do not respond to broadcast exceptions */
+        return; /* Do not respond to broadcast or runt TX buffers */
     }
     mb->buf[0] = mb->cfg.slave_addr;
-    mb->buf[1] = (uint8_t)(func | 0x80);
+    mb->buf[1] = (uint8_t)(func | 0x80U);
     mb->buf[2] = ex_code;
-    send_response(mb, 3);
+    send_response(mb, 3U);
     mb->errors++;
+}
+
+/**
+ * @brief Verify buffer capacity for RTU response payload plus 2-byte CRC.
+ * @param mb   Modbus instance.
+ * @param func Function code for exception fallback.
+ * @param len  Response length before 2-byte CRC.
+ * @return true if buffer fits len + 2 bytes, false if exception sent or dropped.
+ */
+static bool mb_check_tx_cap(SYN_Modbus *mb, uint8_t func, uint16_t len)
+{
+    if ((uint32_t)len + 2U > (uint32_t)mb->buf_size) {
+        send_exception(mb, func, SYN_MB_EX_DEVICE_FAILURE);
+        return false;
+    }
+    return true;
 }
 
 /* ── Function code handlers ─────────────────────────────────────────────── */
@@ -127,7 +143,7 @@ static void send_exception(SYN_Modbus *mb, uint8_t func, uint8_t ex_code)
 static void handle_read_regs(SYN_Modbus *mb, uint16_t frame_len, const uint16_t *regs,
                              uint16_t reg_count)
 {
-    if (frame_len < 8) {
+    if (frame_len < 8U) {
         send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_VALUE);
         return;
     }
@@ -135,22 +151,27 @@ static void handle_read_regs(SYN_Modbus *mb, uint16_t frame_len, const uint16_t 
     uint16_t addr = read_u16(&mb->buf[2]);
     uint16_t count = read_u16(&mb->buf[4]);
 
-    if (count == 0 || count > 125) {
+    if (count == 0U || count > 125U) {
         send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_VALUE);
         return;
     }
 
-    if ((uint32_t)addr + count > reg_count) {
+    if (regs == NULL || (uint32_t)addr + count > reg_count) {
         send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_ADDR);
         return;
     }
 
-    /* Build response */
-    mb->buf[2] = (uint8_t)(count * 2); /* byte count */
-    for (uint16_t i = 0; i < count; i++) {
-        write_u16(&mb->buf[3 + i * 2], regs[addr + i]);
+    uint16_t resp_len = (uint16_t)(3U + count * 2U);
+    if (!mb_check_tx_cap(mb, mb->buf[1], resp_len)) {
+        return;
     }
-    send_response(mb, (uint16_t)(3 + count * 2));
+
+    /* Build response */
+    mb->buf[2] = (uint8_t)(count * 2U); /* byte count */
+    for (uint16_t i = 0U; i < count; i++) {
+        write_u16(&mb->buf[3U + i * 2U], regs[addr + i]);
+    }
+    send_response(mb, resp_len);
 }
 
 /**
@@ -160,7 +181,7 @@ static void handle_read_regs(SYN_Modbus *mb, uint16_t frame_len, const uint16_t 
  */
 static void handle_write_single(SYN_Modbus *mb, uint16_t frame_len)
 {
-    if (frame_len < 8) {
+    if (frame_len < 8U) {
         send_exception(mb, SYN_MB_FC_WRITE_SINGLE, SYN_MB_EX_ILLEGAL_VALUE);
         return;
     }
@@ -168,14 +189,14 @@ static void handle_write_single(SYN_Modbus *mb, uint16_t frame_len)
     uint16_t addr = read_u16(&mb->buf[2]);
     uint16_t value = read_u16(&mb->buf[4]);
 
-    if (addr >= mb->cfg.holding_count) {
+    if (mb->cfg.holding_regs == NULL || addr >= mb->cfg.holding_count) {
         send_exception(mb, SYN_MB_FC_WRITE_SINGLE, SYN_MB_EX_ILLEGAL_ADDR);
         return;
     }
 
     /* Check write callback */
     if (mb->cfg.on_write != NULL) {
-        if (!mb->cfg.on_write(mb, addr, 1, mb->cfg.on_write_ctx)) {
+        if (!mb->cfg.on_write(mb, addr, 1U, mb->cfg.on_write_ctx)) {
             send_exception(mb, SYN_MB_FC_WRITE_SINGLE, SYN_MB_EX_ILLEGAL_VALUE);
             return;
         }
@@ -184,7 +205,7 @@ static void handle_write_single(SYN_Modbus *mb, uint16_t frame_len)
     mb->cfg.holding_regs[addr] = value;
 
     /* Echo request as response */
-    send_response(mb, 6);
+    send_response(mb, 6U);
 }
 
 /**
@@ -194,7 +215,7 @@ static void handle_write_single(SYN_Modbus *mb, uint16_t frame_len)
  */
 static void handle_write_multiple(SYN_Modbus *mb, uint16_t frame_len)
 {
-    if (frame_len < 9) {
+    if (frame_len < 9U) {
         send_exception(mb, SYN_MB_FC_WRITE_MULTIPLE, SYN_MB_EX_ILLEGAL_VALUE);
         return;
     }
@@ -203,12 +224,12 @@ static void handle_write_multiple(SYN_Modbus *mb, uint16_t frame_len)
     uint16_t count = read_u16(&mb->buf[4]);
     uint8_t bytes = mb->buf[6];
 
-    if (count == 0 || count > 123 || bytes != count * 2 || frame_len < (uint16_t)(9 + bytes)) {
+    if (count == 0U || count > 123U || bytes != count * 2U || frame_len < (uint16_t)(9U + bytes)) {
         send_exception(mb, SYN_MB_FC_WRITE_MULTIPLE, SYN_MB_EX_ILLEGAL_VALUE);
         return;
     }
 
-    if ((uint32_t)addr + count > mb->cfg.holding_count) {
+    if (mb->cfg.holding_regs == NULL || (uint32_t)addr + count > mb->cfg.holding_count) {
         send_exception(mb, SYN_MB_FC_WRITE_MULTIPLE, SYN_MB_EX_ILLEGAL_ADDR);
         return;
     }
@@ -222,12 +243,12 @@ static void handle_write_multiple(SYN_Modbus *mb, uint16_t frame_len)
     }
 
     /* Apply writes */
-    for (uint16_t i = 0; i < count; i++) {
-        mb->cfg.holding_regs[addr + i] = read_u16(&mb->buf[7 + i * 2]);
+    for (uint16_t i = 0U; i < count; i++) {
+        mb->cfg.holding_regs[addr + i] = read_u16(&mb->buf[7U + i * 2U]);
     }
 
     /* Response: addr, func, start addr, quantity */
-    send_response(mb, 6);
+    send_response(mb, 6U);
 }
 
 /**
@@ -236,8 +257,29 @@ static void handle_write_multiple(SYN_Modbus *mb, uint16_t frame_len)
  */
 static void handle_read_exception_status(SYN_Modbus *mb)
 {
+    if (!mb_check_tx_cap(mb, SYN_MB_FC_READ_EXCEPTION_STATUS, 3U)) {
+        return;
+    }
     mb->buf[2] = mb->cfg.exception_status;
-    send_response(mb, 3);
+    send_response(mb, 3U);
+}
+
+/**
+ * @brief Validate quantity and byte-count fields for FC 0x17 request.
+ * @param frame_len   Received RTU frame length.
+ * @param read_count  Requested read register count.
+ * @param write_count Requested write register count.
+ * @param write_bytes Byte count field from request.
+ * @return true if counts and frame length are valid, false otherwise.
+ */
+static bool mb_validate_fc17_counts(uint16_t frame_len, uint16_t read_count, uint16_t write_count,
+                                    uint8_t write_bytes)
+{
+    if (read_count == 0U || read_count > 125U || write_count == 0U || write_count > 121U) {
+        return false;
+    }
+    return (write_bytes == (uint8_t)(write_count * 2U)) &&
+           (frame_len >= (uint16_t)(13U + write_bytes));
 }
 
 /**
@@ -249,7 +291,7 @@ static void handle_read_write_multiple(SYN_Modbus *mb, uint16_t frame_len)
 {
     /* Minimum: addr(1) func(1) read_addr(2) read_count(2) write_addr(2) write_count(2)
      *          write_bytes(1) CRC(2) = 13 bytes */
-    if (frame_len < 13) {
+    if (frame_len < 13U) {
         send_exception(mb, SYN_MB_FC_READ_WRITE_MULTIPLE, SYN_MB_EX_ILLEGAL_VALUE);
         return;
     }
@@ -260,15 +302,19 @@ static void handle_read_write_multiple(SYN_Modbus *mb, uint16_t frame_len)
     uint16_t write_count = read_u16(&mb->buf[8]);
     uint8_t write_bytes = mb->buf[10];
 
-    if (read_count == 0 || read_count > 125 || write_count == 0 || write_count > 121 ||
-        write_bytes != write_count * 2 || frame_len < (uint16_t)(13 + write_bytes)) {
+    if (!mb_validate_fc17_counts(frame_len, read_count, write_count, write_bytes)) {
         send_exception(mb, SYN_MB_FC_READ_WRITE_MULTIPLE, SYN_MB_EX_ILLEGAL_VALUE);
         return;
     }
 
-    if ((uint32_t)read_addr + read_count > mb->cfg.holding_count ||
+    if (mb->cfg.holding_regs == NULL || (uint32_t)read_addr + read_count > mb->cfg.holding_count ||
         (uint32_t)write_addr + write_count > mb->cfg.holding_count) {
         send_exception(mb, SYN_MB_FC_READ_WRITE_MULTIPLE, SYN_MB_EX_ILLEGAL_ADDR);
+        return;
+    }
+
+    uint16_t resp_len = (uint16_t)(3U + read_count * 2U);
+    if (!mb_check_tx_cap(mb, SYN_MB_FC_READ_WRITE_MULTIPLE, resp_len)) {
         return;
     }
 
@@ -280,16 +326,62 @@ static void handle_read_write_multiple(SYN_Modbus *mb, uint16_t frame_len)
     }
 
     /* Write performed first according to spec */
-    for (uint16_t i = 0; i < write_count; i++) {
-        mb->cfg.holding_regs[write_addr + i] = read_u16(&mb->buf[11 + i * 2]);
+    for (uint16_t i = 0U; i < write_count; i++) {
+        mb->cfg.holding_regs[write_addr + i] = read_u16(&mb->buf[11U + i * 2U]);
     }
 
     /* Read performed second */
-    mb->buf[2] = (uint8_t)(read_count * 2);
-    for (uint16_t i = 0; i < read_count; i++) {
-        write_u16(&mb->buf[3 + i * 2], mb->cfg.holding_regs[read_addr + i]);
+    mb->buf[2] = (uint8_t)(read_count * 2U);
+    for (uint16_t i = 0U; i < read_count; i++) {
+        write_u16(&mb->buf[3U + i * 2U], mb->cfg.holding_regs[read_addr + i]);
     }
-    send_response(mb, (uint16_t)(3 + read_count * 2));
+    send_response(mb, resp_len);
+}
+
+/**
+ * @brief Resolve device identification string for a given MEI object ID.
+ * @param info Configured device identification table (may be NULL).
+ * @param id   Object identifier (0x00..0x06).
+ * @return Pointer to object string, or NULL if unpopulated optional object.
+ */
+static const char *mb_get_device_info_str(const SYN_Modbus_DeviceInfo *info, uint8_t id)
+{
+    const char *str = NULL;
+    if (info != NULL) {
+        switch (id) {
+        case 0x00U:
+            str = info->vendor_name;
+            break;
+        case 0x01U:
+            str = info->product_code;
+            break;
+        case 0x02U:
+            str = info->revision;
+            break;
+        case 0x03U:
+            str = info->vendor_url;
+            break;
+        case 0x04U:
+            str = info->product_name;
+            break;
+        case 0x05U:
+            str = info->model_name;
+            break;
+        default:
+            str = info->user_app_name;
+            break;
+        }
+    }
+    if (str == NULL) {
+        if (id == 0x00U) {
+            str = "SyntropicOS";
+        } else if (id == 0x01U) {
+            str = "SYN-MB";
+        } else if (id == 0x02U) {
+            str = "1.0.0";
+        }
+    }
+    return str;
 }
 
 /**
@@ -299,12 +391,7 @@ static void handle_read_write_multiple(SYN_Modbus *mb, uint16_t frame_len)
  */
 static void handle_read_device_info(SYN_Modbus *mb, uint16_t frame_len)
 {
-    if (frame_len < 7) {
-        send_exception(mb, SYN_MB_FC_READ_DEVICE_INFO, SYN_MB_EX_ILLEGAL_VALUE);
-        return;
-    }
-
-    if (mb->buf[2] != SYN_MB_MEI_TYPE_READ_DEVICE_ID) {
+    if (frame_len < 7U || mb->buf[2] != SYN_MB_MEI_TYPE_READ_DEVICE_ID) {
         send_exception(mb, SYN_MB_FC_READ_DEVICE_INFO, SYN_MB_EX_ILLEGAL_VALUE);
         return;
     }
@@ -312,81 +399,68 @@ static void handle_read_device_info(SYN_Modbus *mb, uint16_t frame_len)
     uint8_t read_code = mb->buf[3];
     uint8_t object_id = mb->buf[4];
 
-    if (read_code < 1 || read_code > 4) {
+    if (read_code < 1U || read_code > 4U) {
         send_exception(mb, SYN_MB_FC_READ_DEVICE_INFO, SYN_MB_EX_ILLEGAL_VALUE);
         return;
     }
 
-    const SYN_Modbus_DeviceInfo *info = mb->cfg.device_info;
+    if (!mb_check_tx_cap(mb, SYN_MB_FC_READ_DEVICE_INFO, 8U)) {
+        return;
+    }
 
     mb->buf[2] = SYN_MB_MEI_TYPE_READ_DEVICE_ID;
     mb->buf[3] = read_code;
-    mb->buf[4] = 0x01; /* Conformity level: Basic stream */
-    mb->buf[5] = 0x00; /* More follows: 0 */
-    mb->buf[6] = 0x00; /* Next object id */
+    mb->buf[4] = 0x01U; /* Conformity level: Basic stream */
+    mb->buf[5] = 0x00U; /* More follows: 0 */
+    mb->buf[6] = 0x00U; /* Next object id */
 
-    uint16_t pos = 8;
-    uint8_t obj_count = 0;
+    uint16_t pos = 8U;
+    uint8_t obj_count = 0U;
 
-    uint8_t start_obj = (read_code == 0x04) ? object_id : 0;
-    uint8_t max_obj = (read_code == 0x01) ? 2 : 6;
-    if (read_code == 0x04)
-        max_obj = object_id;
+    uint16_t start_obj = (read_code == 0x04U) ? (uint16_t)object_id : 0U;
+    uint16_t max_obj = (read_code == 0x01U) ? 2U : 6U;
+    if (read_code == 0x04U) {
+        max_obj = (uint16_t)object_id;
+    }
 
-    for (uint8_t id = start_obj; id <= max_obj; id++) {
-        const char *str = NULL;
-        if (info != NULL) {
-            switch (id) {
-            case 0x00:
-                str = info->vendor_name;
-                break;
-            case 0x01:
-                str = info->product_code;
-                break;
-            case 0x02:
-                str = info->revision;
-                break;
-            case 0x03:
-                str = info->vendor_url;
-                break;
-            case 0x04:
-                str = info->product_name;
-                break;
-            case 0x05:
-                str = info->model_name;
-                break;
-            case 0x06:
-                str = info->user_app_name;
-                break;
-            }
-        }
+    for (uint16_t id = start_obj; id <= max_obj; id++) {
+        const char *str =
+            (id <= 0x06U) ? mb_get_device_info_str(mb->cfg.device_info, (uint8_t)id) : NULL;
         if (str == NULL) {
-            if (id == 0x00)
-                str = "SyntropicOS";
-            else if (id == 0x01)
-                str = "SYN-MB";
-            else if (id == 0x02)
-                str = "1.0.0";
-            else
-                continue;
+            continue;
         }
 
         size_t slen = strlen(str);
-        if (slen > 245)
-            slen = 245;
+        if (slen > 245U) {
+            slen = 245U;
+        }
 
-        if ((uint32_t)pos + 2 + (uint32_t)slen > (uint32_t)mb->buf_size - 2)
+        if ((uint32_t)pos + 2U + (uint32_t)slen + 2U > (uint32_t)mb->buf_size) {
             break;
+        }
 
-        mb->buf[pos++] = id;
+        mb->buf[pos++] = (uint8_t)id;
         mb->buf[pos++] = (uint8_t)slen;
         memcpy(&mb->buf[pos], str, slen);
-        pos += slen;
+        pos = (uint16_t)(pos + slen);
         obj_count++;
     }
 
     mb->buf[7] = obj_count;
     send_response(mb, pos);
+}
+
+/**
+ * @brief Compute clamped maximum response position (addr + PDU) for FC 0x14.
+ * @param buf_size  Configured RTU buffer size.
+ * @param stack_cap Size of local response staging buffer.
+ * @return Maximum safe response byte offset before 2-byte CRC (capped at 253).
+ */
+static uint16_t mb_file_record_max_pos(uint16_t buf_size, uint16_t stack_cap)
+{
+    uint16_t min_cap = (buf_size < stack_cap) ? buf_size : stack_cap;
+    uint16_t max_pos = (uint16_t)(min_cap - 2U);
+    return (max_pos > 253U) ? 253U : max_pos;
 }
 
 /**
@@ -396,32 +470,33 @@ static void handle_read_device_info(SYN_Modbus *mb, uint16_t frame_len)
  */
 static void handle_read_file_record(SYN_Modbus *mb, uint16_t frame_len)
 {
-    if (frame_len < 5) {
+    if (frame_len < 5U) {
         send_exception(mb, SYN_MB_FC_READ_FILE_RECORD, SYN_MB_EX_ILLEGAL_VALUE);
         return;
     }
 
     uint8_t byte_count = mb->buf[2];
-    if (byte_count < 7 || (byte_count % 7) != 0 || frame_len < (uint16_t)(5 + byte_count) ||
+    if (byte_count < 7U || (byte_count % 7U) != 0U || frame_len < (uint16_t)(5U + byte_count) ||
         mb->cfg.on_read_file == NULL) {
         send_exception(mb, SYN_MB_FC_READ_FILE_RECORD, SYN_MB_EX_ILLEGAL_VALUE);
         return;
     }
 
-    uint8_t sub_req_count = byte_count / 7;
-    uint8_t req_pos = 3;
+    uint8_t sub_req_count = byte_count / 7U;
+    uint8_t req_pos = 3U;
 
     uint8_t resp_buf[256];
-    uint16_t resp_pos = 3;
+    uint16_t resp_pos = 3U;
+    uint16_t max_resp_pos = mb_file_record_max_pos(mb->buf_size, (uint16_t)sizeof(resp_buf));
 
-    for (uint8_t i = 0; i < sub_req_count; i++) {
+    for (uint8_t i = 0U; i < sub_req_count; i++) {
         uint8_t ref_type = mb->buf[req_pos];
-        uint16_t file_num = read_u16(&mb->buf[req_pos + 1]);
-        uint16_t rec_num = read_u16(&mb->buf[req_pos + 3]);
-        uint16_t rec_len = read_u16(&mb->buf[req_pos + 5]);
-        req_pos += 7;
+        uint16_t file_num = read_u16(&mb->buf[req_pos + 1U]);
+        uint16_t rec_num = read_u16(&mb->buf[req_pos + 3U]);
+        uint16_t rec_len = read_u16(&mb->buf[req_pos + 5U]);
+        req_pos = (uint8_t)(req_pos + 7U);
 
-        if (ref_type != 0x06 || rec_len == 0 || rec_len > 120) {
+        if (ref_type != 0x06U || rec_len == 0U || rec_len > 120U) {
             send_exception(mb, SYN_MB_FC_READ_FILE_RECORD, SYN_MB_EX_ILLEGAL_VALUE);
             return;
         }
@@ -432,23 +507,23 @@ static void handle_read_file_record(SYN_Modbus *mb, uint16_t frame_len)
             return;
         }
 
-        uint8_t sub_resp_len = (uint8_t)(1 + rec_len * 2);
-        if ((uint32_t)resp_pos + 2 + (uint32_t)rec_len * 2 > (uint32_t)mb->buf_size - 2) {
+        uint8_t sub_resp_len = (uint8_t)(1U + rec_len * 2U);
+        if ((uint32_t)resp_pos + 2U + (uint32_t)rec_len * 2U > (uint32_t)max_resp_pos) {
             send_exception(mb, SYN_MB_FC_READ_FILE_RECORD, SYN_MB_EX_ILLEGAL_VALUE);
             return;
         }
 
         resp_buf[resp_pos++] = sub_resp_len;
-        resp_buf[resp_pos++] = 0x06;
-        for (uint16_t j = 0; j < rec_len; j++) {
+        resp_buf[resp_pos++] = 0x06U;
+        for (uint16_t j = 0U; j < rec_len; j++) {
             write_u16(&resp_buf[resp_pos], rec_data[j]);
-            resp_pos += 2;
+            resp_pos = (uint16_t)(resp_pos + 2U);
         }
     }
 
     resp_buf[0] = mb->cfg.slave_addr;
     resp_buf[1] = SYN_MB_FC_READ_FILE_RECORD;
-    resp_buf[2] = (uint8_t)(resp_pos - 3);
+    resp_buf[2] = (uint8_t)(resp_pos - 3U);
     memcpy(mb->buf, resp_buf, resp_pos);
     send_response(mb, resp_pos);
 }
@@ -608,6 +683,9 @@ static void handle_read_bits(SYN_Modbus *mb, uint16_t frame_len, const uint8_t *
     }
 
     uint8_t num_bytes = (uint8_t)((count + 7U) / 8U);
+    if (!mb_check_tx_cap(mb, mb->buf[1], (uint16_t)(3U + num_bytes))) {
+        return;
+    }
     mb->buf[2] = num_bytes;
     (void)memset(&mb->buf[3], 0, num_bytes);
 
@@ -725,10 +803,13 @@ static void handle_diagnostics(SYN_Modbus *mb, uint16_t frame_len)
  */
 static void handle_get_comm_event_cnt(SYN_Modbus *mb)
 {
+    if (!mb_check_tx_cap(mb, SYN_MB_FC_GET_COMM_EVENT_CNT, 6U)) {
+        return;
+    }
     mb->buf[2] = 0x00U;
     mb->buf[3] = 0x00U;
     write_u16(&mb->buf[4], mb->comm_event_counter);
-    send_response(mb, 6);
+    send_response(mb, 6U);
 }
 
 /**
@@ -737,6 +818,9 @@ static void handle_get_comm_event_cnt(SYN_Modbus *mb)
  */
 static void handle_get_comm_event_log(SYN_Modbus *mb)
 {
+    if (!mb_check_tx_cap(mb, SYN_MB_FC_GET_COMM_EVENT_LOG, 11U)) {
+        return;
+    }
     mb->buf[2] = 0x08U; /* byte count */
     mb->buf[3] = 0x00U; /* status high */
     mb->buf[4] = 0x00U; /* status low */
@@ -744,7 +828,7 @@ static void handle_get_comm_event_log(SYN_Modbus *mb)
     write_u16(&mb->buf[7], mb->bus_message_count);
     mb->buf[9] = 0x00U;  /* event log byte 0 */
     mb->buf[10] = 0x00U; /* event log byte 1 */
-    send_response(mb, 11);
+    send_response(mb, 11U);
 }
 
 /**
@@ -758,18 +842,22 @@ static void handle_report_server_id(SYN_Modbus *mb)
 
     if (id_bytes == NULL) {
         id_bytes = (const uint8_t *)"SYN-MB";
-        id_len = 6;
+        id_len = 6U;
     }
 
-    if (id_len > 240) {
-        id_len = 240;
+    if (id_len > 240U) {
+        id_len = 240U;
     }
 
-    mb->buf[2] = (uint8_t)(id_len + 1); /* Byte count: ID bytes + Run Status indicator */
+    if (!mb_check_tx_cap(mb, SYN_MB_FC_REPORT_SERVER_ID, (uint16_t)(4U + id_len))) {
+        return;
+    }
+
+    mb->buf[2] = (uint8_t)(id_len + 1U); /* Byte count: ID bytes + Run Status indicator */
     memcpy(&mb->buf[3], id_bytes, id_len);
-    mb->buf[3 + id_len] = 0xFFU; /* Run status: 0xFF = ON */
+    mb->buf[3U + id_len] = 0xFFU; /* Run status: 0xFF = ON */
 
-    send_response(mb, (uint16_t)(4 + id_len));
+    send_response(mb, (uint16_t)(4U + id_len));
     mb->comm_event_counter++;
 }
 
@@ -831,20 +919,25 @@ static void handle_read_fifo_queue(SYN_Modbus *mb, uint16_t frame_len)
     }
 
     uint16_t fifo_count = mb->cfg.fifo_count;
-    if (fifo_count > 31) {
+    if (fifo_count > 31U) {
         send_exception(mb, mb->buf[1], SYN_MB_EX_DEVICE_FAILURE);
         return;
     }
 
-    uint16_t byte_count = (uint16_t)(2 + fifo_count * 2);
+    uint16_t resp_len = (uint16_t)(6U + fifo_count * 2U);
+    if (!mb_check_tx_cap(mb, mb->buf[1], resp_len)) {
+        return;
+    }
+
+    uint16_t byte_count = (uint16_t)(2U + fifo_count * 2U);
     write_u16(&mb->buf[2], byte_count);
     write_u16(&mb->buf[4], fifo_count);
 
-    for (uint16_t i = 0; i < fifo_count; i++) {
-        write_u16(&mb->buf[6 + i * 2], mb->cfg.fifo_queue[i]);
+    for (uint16_t i = 0U; i < fifo_count; i++) {
+        write_u16(&mb->buf[6U + i * 2U], mb->cfg.fifo_queue[i]);
     }
 
-    send_response(mb, (uint16_t)(6 + fifo_count * 2));
+    send_response(mb, resp_len);
     mb->comm_event_counter++;
 }
 
@@ -1026,9 +1119,10 @@ bool syn_modbus_poll(SYN_Modbus *mb)
     }
 
     /* Check for inter-frame silence */
-    if (mb->rx_len > 0) {
+    if (mb->rx_len > 0U) {
+        uint32_t silence_gap = (mb->cfg.silence_ms > 0U) ? mb->cfg.silence_ms : MB_SILENCE_MS;
         uint32_t silence = syn_port_get_tick_ms() - mb->last_byte_tick;
-        if (silence >= MB_SILENCE_MS) {
+        if (silence >= silence_gap) {
             return syn_modbus_process(mb);
         }
     }

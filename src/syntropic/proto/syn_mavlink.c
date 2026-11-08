@@ -193,40 +193,39 @@ SYN_Status syn_mavlink_encode_msg(uint8_t sys_id, uint8_t comp_id, uint8_t seq, 
                                   uint8_t crc_extra, const uint8_t *payload, uint8_t payload_len,
                                   uint8_t *buf_out, size_t *out_len)
 {
-    if (!buf_out || !out_len) {
+    if ((buf_out == NULL) || (out_len == NULL) || ((payload == NULL) && (payload_len > 0U)) ||
+        (msg_id > 0xFFFFFFU)) {
         return SYN_INVALID_PARAM;
     }
 
-    uint8_t idx = 0;
+    uint16_t idx = 0U;
     buf_out[idx++] = SYN_MAVLINK_STX_V2;
     buf_out[idx++] = payload_len;
-    buf_out[idx++] = 0; /* Incompat flags */
-    buf_out[idx++] = 0; /* Compat flags */
+    buf_out[idx++] = 0U; /* Incompat flags */
+    buf_out[idx++] = 0U; /* Compat flags */
     buf_out[idx++] = seq;
     buf_out[idx++] = sys_id;
     buf_out[idx++] = comp_id;
-    buf_out[idx++] = (uint8_t)(msg_id & 0xFF);
-    buf_out[idx++] = (uint8_t)((msg_id >> 8) & 0xFF);
-    buf_out[idx++] = (uint8_t)((msg_id >> 16) & 0xFF);
+    buf_out[idx++] = (uint8_t)(msg_id & 0xFFU);
+    buf_out[idx++] = (uint8_t)((msg_id >> 8U) & 0xFFU);
+    buf_out[idx++] = (uint8_t)((msg_id >> 16U) & 0xFFU);
 
-    uint16_t crc = 0xFFFF;
-    for (uint8_t i = 1; i < idx; i++) {
+    uint16_t crc = 0xFFFFU;
+    for (uint16_t i = 1U; i < idx; i++) {
         crc = syn_mavlink_crc_accumulate(buf_out[i], crc);
     }
 
-    if (payload && payload_len > 0) {
-        for (uint8_t i = 0; i < payload_len; i++) {
-            buf_out[idx++] = payload[i];
-            crc = syn_mavlink_crc_accumulate(payload[i], crc);
-        }
+    for (uint16_t i = 0U; i < (uint16_t)payload_len; i++) {
+        buf_out[idx++] = payload[i];
+        crc = syn_mavlink_crc_accumulate(payload[i], crc);
     }
 
     /* Accumulate CRC Extra */
     crc = syn_mavlink_crc_accumulate(crc_extra, crc);
 
-    buf_out[idx++] = (uint8_t)(crc & 0xFF);
-    buf_out[idx++] = (uint8_t)((crc >> 8) & 0xFF);
+    buf_out[idx++] = (uint8_t)(crc & 0xFFU);
+    buf_out[idx++] = (uint8_t)((crc >> 8U) & 0xFFU);
 
-    *out_len = idx;
+    *out_len = (size_t)idx;
     return SYN_OK;
 }

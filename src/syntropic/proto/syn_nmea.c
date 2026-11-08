@@ -12,8 +12,64 @@
 #include "../util/syn_assert.h"
 #include "syn_nmea.h"
 
-#include <stdlib.h>
+#include <stddef.h>
 #include <string.h>
+
+/**
+ * @brief Check whether a character is an ASCII decimal digit ('0'..'9').
+ * @param c Character to inspect.
+ * @return true if ASCII digit, false otherwise.
+ */
+static inline bool nmea_is_digit(char c)
+{
+    return (c >= '0') && (c <= '9');
+}
+
+/**
+ * @brief Verify that a character span is non-empty and consists only of ASCII decimal digits.
+ * @param s   Pointer to character span.
+ * @param len Number of characters to inspect.
+ * @return true if len > 0 and all characters are digits, false otherwise.
+ */
+static bool nmea_digits_span_valid(const char *s, size_t len)
+{
+    for (size_t i = 0U; i < len; i++) {
+        if (!nmea_is_digit(s[i])) {
+            return false;
+        }
+    }
+    return len > 0U;
+}
+
+/**
+ * @brief Parse a non-empty unsigned decimal integer string within [min_val, max_val].
+ * @param s       Non-NULL input NMEA field string.
+ * @param min_val Minimum accepted value.
+ * @param max_val Maximum accepted value (must be <= 99999).
+ * @param out     [out] Parsed value on success.
+ * @return true if s consists solely of ASCII digits and falls within bounds, false otherwise.
+ */
+static bool nmea_parse_u32_bounded(const char *s, uint32_t min_val, uint32_t max_val, uint32_t *out)
+{
+    if (!nmea_digits_span_valid(s, strlen(s))) {
+        return false;
+    }
+
+    uint32_t val = 0U;
+    for (const char *p = s; *p != '\0'; p++) {
+        val = (val * 10U) + (uint32_t)(*p - '0');
+        if (val > max_val) {
+            return false;
+        }
+    }
+
+    if (val < min_val) {
+        return false;
+    }
+
+    *out = val;
+    return true;
+}
 
 /**
  * @brief Lightweight ASCII string to double conversion for non-empty NMEA numerical fields.
@@ -191,14 +247,35 @@ uint8_t syn_nmea_checksum(const char *sentence)
     return checksum;
 }
 
+/**
+ * @brief Locate first '*' delimiter and verify no embedded CR/LF/'$' precedes it.
+ * @param sentence Non-NULL NMEA sentence starting with '$'.
+ * @return Pointer to '*' if prefix framing is valid, NULL otherwise.
+ */
+static const char *nmea_find_valid_star(const char *sentence)
+{
+    const char *star = strchr(sentence + 1, '*');
+    if (star == NULL) {
+        return NULL;
+    }
+
+    for (const char *p = sentence + 1; p < star; p++) {
+        if ((*p == '\r') || (*p == '\n') || (*p == '$')) {
+            return NULL;
+        }
+    }
+
+    return star;
+}
+
 bool syn_nmea_validate(const char *sentence)
 {
     if ((sentence == NULL) || (sentence[0] != '$')) {
         return false;
     }
 
-    const char *star = strchr(sentence, '*');
-    if ((star == NULL) || (star[1] == '\0') || (star[2] == '\0')) {
+    const char *star = nmea_find_valid_star(sentence);
+    if (star == NULL) {
         return false;
     }
 
@@ -208,7 +285,13 @@ bool syn_nmea_validate(const char *sentence)
         return false;
     }
 
-    uint8_t expected_crc = (uint8_t)((hi << 4) | lo);
+    for (const char *tail = star + 3; *tail != '\0'; tail++) {
+        if ((*tail != '\r') && (*tail != '\n')) {
+            return false;
+        }
+    }
+
+    uint8_t expected_crc = (uint8_t)((hi << 4U) | lo);
     uint8_t calc_crc = syn_nmea_checksum(sentence);
 
     return expected_crc == calc_crc;
@@ -250,16 +333,78 @@ SYN_NMEA_SentenceType syn_nmea_get_type(const char *sentence)
     return SYN_NMEA_SENTENCE_UNKNOWN;
 }
 
+/**
+ * @brief Validate and split an NMEA coordinate string (ddmm.mmmm / dddmm.mmmm) into components.
+ * @param nmea_coord    Input NMEA coordinate string.
+ * @param out_deg       [out] Parsed degrees (0..180).
+ * @param out_min_whole [out] Parsed whole minutes (0..59).
+ * @param out_frac      [out] Pointer to validated fractional minute digits after '.'.
+ * @return true if valid NMEA coordinate syntax and range, false otherwise.
+ */
+static bool nmea_parse_coord_parts(const char *nmea_coord, int32_t *out_deg, int32_t *out_min_whole,
+                                   const char **out_frac)
+{
+    if (nmea_coord == NULL) {
+        return false;
+    }
+
+    const char *s = nmea_coord;
+    if (*s == '+') {
+        s++;
+    }
+
+    const char *dot = strchr(s, '.');
+    if (dot == NULL) {
+        return false;
+    }
+
+    ptrdiff_t pre_len = dot - s;
+    if ((pre_len < 3) || (pre_len > 5)) {
+        return false;
+    }
+
+    if (!nmea_digits_span_valid(s, (size_t)pre_len) ||
+        !nmea_digits_span_valid(dot + 1, strlen(dot + 1))) {
+        return false;
+    }
+
+    ptrdiff_t deg_digits = pre_len - 2;
+    int32_t deg = 0;
+    for (ptrdiff_t i = 0; i < deg_digits; i++) {
+        deg = (deg * 10) + (int32_t)(s[i] - '0');
+    }
+
+    int32_t min_whole = ((int32_t)(s[deg_digits] - '0') * 10) + (int32_t)(s[deg_digits + 1] - '0');
+    if ((min_whole >= 60) || (deg > 180)) {
+        return false;
+    }
+
+    *out_deg = deg;
+    *out_min_whole = min_whole;
+    *out_frac = dot + 1;
+    return true;
+}
+
 double syn_nmea_parse_coord(const char *nmea_coord, char dir)
 {
-    if ((nmea_coord == NULL) || (strlen(nmea_coord) < 4U)) {
+    int32_t deg = 0;
+    int32_t min_whole = 0;
+    const char *frac_str = NULL;
+    if (!nmea_parse_coord_parts(nmea_coord, &deg, &min_whole, &frac_str)) {
         return 0.0;
     }
 
-    double val = syn_atof(nmea_coord);
-    double deg = (double)((int)(val / 100.0));
-    double minutes = val - (deg * 100.0);
-    double decimal = deg + (minutes / 60.0);
+    double frac = 0.0;
+    double scale = 0.1;
+    for (const char *p = frac_str; *p != '\0'; p++) {
+        frac += (double)(*p - '0') * scale;
+        scale *= 0.1;
+    }
+
+    double decimal = (double)deg + (((double)min_whole + frac) / 60.0);
+    if (decimal > 180.0) {
+        return 0.0;
+    }
 
     if ((dir == 'S') || (dir == 'W')) {
         decimal = -decimal;
@@ -271,51 +416,43 @@ double syn_nmea_parse_coord(const char *nmea_coord, char dir)
 #if SYN_NMEA_USE_FIXED_POINT
 int32_t syn_nmea_parse_coord_udeg(const char *nmea_coord, char dir)
 {
-    if ((nmea_coord == NULL) || (strlen(nmea_coord) < 4U)) {
-        return 0;
-    }
-
-    const char *dot = strchr(nmea_coord, '.');
-    if ((dot == NULL) || ((dot - nmea_coord) < 3)) {
-        return 0;
-    }
-
-    int deg_digits = (int)(dot - nmea_coord) - 2;
     int32_t deg = 0;
-    for (int i = 0; i < deg_digits; i++) {
-        deg = (deg * 10) + (nmea_coord[i] - '0');
+    int32_t min_int = 0;
+    const char *p = NULL;
+    if (!nmea_parse_coord_parts(nmea_coord, &deg, &min_int, &p)) {
+        return 0;
     }
 
-    int32_t min_int = ((nmea_coord[deg_digits] - '0') * 10) + (nmea_coord[deg_digits + 1] - '0');
-
-    int32_t min_frac = 0;
-    const char *p = dot + 1;
+    int64_t min_frac = 0;
     for (int i = 0; i < 4; i++) {
-        if ((*p >= '0') && (*p <= '9')) {
-            min_frac = (min_frac * 10) + (*p - '0');
+        if (*p != '\0') {
+            min_frac = (min_frac * 10LL) + (int64_t)(*p - '0');
             p++;
         } else {
-            min_frac = min_frac * 10;
+            min_frac = min_frac * 10LL;
         }
     }
 
     int64_t total_min_scaled = ((int64_t)min_int * 10000LL) + min_frac;
     int64_t min_udeg = (total_min_scaled * 10000000LL) / (60LL * 10000LL);
-
-    int32_t udeg = (deg * 10000000) + (int32_t)min_udeg;
-    if ((dir == 'S') || (dir == 'W')) {
-        udeg = -udeg;
+    int64_t udeg64 = ((int64_t)deg * 10000000LL) + min_udeg;
+    if (udeg64 > 1800000000LL) {
+        return 0;
     }
-    return udeg;
+
+    if ((dir == 'S') || (dir == 'W')) {
+        udeg64 = -udeg64;
+    }
+    return (int32_t)udeg64;
 }
 #endif
 
 /**
- * @brief Parse NMEA UTC time field (hhmmss.ss) into components.
+ * @brief Parse NMEA UTC time field (hhmmss[.sss]) into bounded components.
  * @param field NMEA time field string.
  * @param h     Pointer to receive hours (0-23).
  * @param m     Pointer to receive minutes (0-59).
- * @param s     Pointer to receive seconds (0-59).
+ * @param s     Pointer to receive seconds (0-60).
  * @param ms    Pointer to receive milliseconds (0-999).
  */
 static void parse_time(const char *field, uint8_t *h, uint8_t *m, uint8_t *s, uint16_t *ms)
@@ -324,50 +461,82 @@ static void parse_time(const char *field, uint8_t *h, uint8_t *m, uint8_t *s, ui
     *m = 0U;
     *s = 0U;
     *ms = 0U;
-    if (strlen(field) < 6U) {
+
+    size_t len = strlen(field);
+    if ((len < 6U) || !nmea_digits_span_valid(field, 6U)) {
         return;
     }
 
-    char tmp[3] = {0};
-    tmp[0] = field[0];
-    tmp[1] = field[1];
-    *h = (uint8_t)atoi(tmp);
-
-    tmp[0] = field[2];
-    tmp[1] = field[3];
-    *m = (uint8_t)atoi(tmp);
-
-    tmp[0] = field[4];
-    tmp[1] = field[5];
-    *s = (uint8_t)atoi(tmp);
-
-    const char *dot = strchr(field, '.');
-    if (dot != NULL) {
-        *ms = (uint16_t)(syn_atof(dot) * 1000.0);
+    uint8_t hh = (uint8_t)(((field[0] - '0') * 10) + (field[1] - '0'));
+    uint8_t mm = (uint8_t)(((field[2] - '0') * 10) + (field[3] - '0'));
+    uint8_t ss = (uint8_t)(((field[4] - '0') * 10) + (field[5] - '0'));
+    if ((hh >= 24U) || (mm >= 60U) || (ss > 60U)) {
+        return;
     }
+
+    uint16_t msec = 0U;
+    if (field[6] != '\0') {
+        if ((field[6] != '.') || !nmea_digits_span_valid(&field[7], len - 7U)) {
+            return;
+        }
+        uint16_t scale = 100U;
+        for (size_t i = 7U; (i < len) && (scale > 0U); i++) {
+            msec = (uint16_t)(msec + ((uint16_t)(field[i] - '0') * scale));
+            scale /= 10U;
+        }
+    }
+
+    *h = hh;
+    *m = mm;
+    *s = ss;
+    *ms = msec;
 }
 
 /**
- * @brief Parse NMEA 6-character date field (ddmmyy) into day, month, and full year.
+ * @brief Parse NMEA 6-character date field (ddmmyy) into bounded day, month, and full year.
  * @param f   Date field string.
  * @param rmc Destination RMC structure.
  */
 static void parse_rmc_date(const char *f, SYN_NMEA_RMC *rmc)
 {
-    if (strlen(f) < 6U) {
+    if ((strlen(f) != 6U) || !nmea_digits_span_valid(f, 6U)) {
         return;
     }
-    char tmp[3] = {0};
-    tmp[0] = f[0];
-    tmp[1] = f[1];
-    rmc->day = (uint8_t)atoi(tmp);
-    tmp[0] = f[2];
-    tmp[1] = f[3];
-    rmc->month = (uint8_t)atoi(tmp);
-    tmp[0] = f[4];
-    tmp[1] = f[5];
-    uint16_t yr = (uint16_t)atoi(tmp);
+
+    uint8_t dd = (uint8_t)(((f[0] - '0') * 10) + (f[1] - '0'));
+    uint8_t mm = (uint8_t)(((f[2] - '0') * 10) + (f[3] - '0'));
+    uint16_t yr = (uint16_t)(((f[4] - '0') * 10) + (f[5] - '0'));
+    if ((dd < 1U) || (dd > 31U) || (mm < 1U) || (mm > 12U)) {
+        return;
+    }
+
+    rmc->day = dd;
+    rmc->month = mm;
     rmc->year = (yr >= 70U) ? (uint16_t)(1900U + yr) : (uint16_t)(2000U + yr);
+}
+
+/**
+ * @brief Parse GGA quality, satellite count, HDOP, and altitude fields.
+ * @param sentence Validated GGA sentence string.
+ * @param gga      Destination GGA structure.
+ */
+static void nmea_gga_parse_metrics(const char *sentence, SYN_NMEA_GGA *gga)
+{
+    char f[16] = {0};
+    uint32_t val = 0U;
+
+    if (get_field(sentence, 6U, f, sizeof(f)) && nmea_parse_u32_bounded(f, 0U, 8U, &val)) {
+        gga->fix_quality = (SYN_NMEA_FixQuality)val;
+    }
+    if (get_field(sentence, 7U, f, sizeof(f)) && nmea_parse_u32_bounded(f, 0U, 255U, &val)) {
+        gga->num_satellites = (uint8_t)val;
+    }
+    if (get_field(sentence, 8U, f, sizeof(f))) {
+        gga->hdop = (float)syn_atof(f);
+    }
+    if (get_field(sentence, 9U, f, sizeof(f))) {
+        gga->altitude_m = (float)syn_atof(f);
+    }
 }
 
 bool syn_nmea_parse_gga(const char *sentence, SYN_NMEA_GGA *gga)
@@ -406,18 +575,7 @@ bool syn_nmea_parse_gga(const char *sentence, SYN_NMEA_GGA *gga)
     }
 #endif
 
-    if (get_field(sentence, 6U, f, sizeof(f))) {
-        gga->fix_quality = (SYN_NMEA_FixQuality)atoi(f);
-    }
-    if (get_field(sentence, 7U, f, sizeof(f))) {
-        gga->num_satellites = (uint8_t)atoi(f);
-    }
-    if (get_field(sentence, 8U, f, sizeof(f))) {
-        gga->hdop = (float)syn_atof(f);
-    }
-    if (get_field(sentence, 9U, f, sizeof(f))) {
-        gga->altitude_m = (float)syn_atof(f);
-    }
+    nmea_gga_parse_metrics(sentence, gga);
 
     gga->valid = true;
     return true;
@@ -511,11 +669,12 @@ bool syn_nmea_parse_gsa(const char *sentence, SYN_NMEA_GSA *gsa)
     }
 
     char f[16] = {0};
+    uint32_t val = 0U;
     if (get_field(sentence, 1U, f, sizeof(f))) {
         gsa->mode = f[0];
     }
-    if (get_field(sentence, 2U, f, sizeof(f))) {
-        gsa->fix_type = (uint8_t)atoi(f);
+    if (get_field(sentence, 2U, f, sizeof(f)) && nmea_parse_u32_bounded(f, 1U, 3U, &val)) {
+        gsa->fix_type = (uint8_t)val;
     }
     if (get_field(sentence, 15U, f, sizeof(f))) {
         gsa->pdop = (float)syn_atof(f);
@@ -541,17 +700,18 @@ bool syn_nmea_parse_zda(const char *sentence, SYN_NMEA_ZDA *zda)
     }
 
     char f[16] = {0};
+    uint32_t val = 0U;
     if (get_field(sentence, 1U, f, sizeof(f))) {
         parse_time(f, &zda->hours, &zda->minutes, &zda->seconds, &zda->milliseconds);
     }
-    if (get_field(sentence, 2U, f, sizeof(f))) {
-        zda->day = (uint8_t)atoi(f);
+    if (get_field(sentence, 2U, f, sizeof(f)) && nmea_parse_u32_bounded(f, 1U, 31U, &val)) {
+        zda->day = (uint8_t)val;
     }
-    if (get_field(sentence, 3U, f, sizeof(f))) {
-        zda->month = (uint8_t)atoi(f);
+    if (get_field(sentence, 3U, f, sizeof(f)) && nmea_parse_u32_bounded(f, 1U, 12U, &val)) {
+        zda->month = (uint8_t)val;
     }
-    if (get_field(sentence, 4U, f, sizeof(f))) {
-        zda->year = (uint16_t)atoi(f);
+    if (get_field(sentence, 4U, f, sizeof(f)) && nmea_parse_u32_bounded(f, 1900U, 9999U, &val)) {
+        zda->year = (uint16_t)val;
     }
 
     zda->valid = true;

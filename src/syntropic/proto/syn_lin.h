@@ -90,6 +90,7 @@ typedef struct {
     size_t current_slot;               /**< Currently active slot index */
     uint32_t slot_timer;               /**< Millisecond timer accumulator */
     bool running;                      /**< Schedule table execution status */
+    bool started;                      /**< True after initial schedule slot has been emitted */
 } SYN_LIN_Master;
 
 /* ── LIN Slave Published/Subscribed Frame Filter ─────────────────────────── */

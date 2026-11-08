@@ -1151,6 +1151,160 @@ void test_r5_n01_cose_truncated_maps_and_sign_guards(void)
                                                dummy_key, 32U, NULL, 0U, NULL));
 }
 
+void test_pro04_cose_hardening_and_tags(void)
+{
+    uint8_t seed[32] = {0x21U};
+    uint8_t ed_pub[32], ed_sec[32];
+    TEST_ASSERT_TRUE(syn_ed25519_create_keypair(ed_pub, ed_sec, seed));
+
+    static const uint8_t sym_key[32] = {0x31U, 0x32U, 0x33U, 0x34U};
+    static const uint8_t iv12[12] = {1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 9U, 10U, 11U, 12U};
+    static const uint8_t iv13[13] = {1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 9U, 10U, 11U, 12U, 13U};
+    static const uint8_t msg_pt[] = "pro04-payload";
+
+    uint8_t wire[256];
+    uint8_t tagged[260];
+    size_t wire_len = 0U;
+    uint8_t pt_out[64];
+    size_t pt_len = 0U;
+
+    /* 1. EdDSA sign1_create rejects NULL public_key */
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_sign1_create(SYN_COSE_ALGO_EDDSA, ed_sec, NULL, NULL,
+                                                           0U, msg_pt, sizeof(msg_pt) - 1U, NULL,
+                                                           0U, wire, sizeof(wire), &wire_len));
+
+    /* 2. encrypt0_decrypt guards NULL out_plaintext when pt_len > 0, allows NULL when pt_len == 0
+     */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_cose_encrypt0_create(SYN_COSE_ALGO_CHACHA20_POLY1305, sym_key,
+                                                           iv12, sizeof(iv12), NULL, 0U, msg_pt,
+                                                           sizeof(msg_pt) - 1U, NULL, 0U, wire,
+                                                           sizeof(wire), &wire_len));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_encrypt0_decrypt(wire, wire_len, sym_key, NULL, 0U,
+                                                               NULL, 64U, &pt_len, NULL));
+
+    uint8_t empty_wire[128];
+    size_t empty_wire_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_cose_encrypt0_create(SYN_COSE_ALGO_CHACHA20_POLY1305, sym_key,
+                                                           iv12, sizeof(iv12), NULL, 0U, NULL, 0U,
+                                                           NULL, 0U, empty_wire, sizeof(empty_wire),
+                                                           &empty_wire_len));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_cose_encrypt0_decrypt(empty_wire, empty_wire_len, sym_key,
+                                                            NULL, 0U, NULL, 0U, &pt_len, NULL));
+    TEST_ASSERT_EQUAL_UINT(0U, pt_len);
+
+    /* 3. CCM strict 13-byte IV check in create and decrypt (reject 12-byte IV on AES-CCM-16-*) */
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_encrypt0_create(SYN_COSE_ALGO_AES_CCM_16_64_128,
+                                                              sym_key, iv12, sizeof(iv12), NULL, 0U,
+                                                              msg_pt, sizeof(msg_pt) - 1U, NULL, 0U,
+                                                              wire, sizeof(wire), &wire_len));
+    static const uint8_t ccm_iv12_cbor[] = {
+        0x83U, 0x43U, 0xA1U, 0x01U, 0x0AU, 0xA1U, 0x05U, 0x4CU, 1U, 2U, 3U, 4U, 5U, 6U, 7U,
+        8U,    9U,    10U,   11U,   12U,   0x48U, 0U,    0U,    0U, 0U, 0U, 0U, 0U, 0U};
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_encrypt0_decrypt(ccm_iv12_cbor, sizeof(ccm_iv12_cbor),
+                                                               sym_key, NULL, 0U, pt_out,
+                                                               sizeof(pt_out), &pt_len, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_cose_encrypt0_create(SYN_COSE_ALGO_AES_CCM_16_64_128, sym_key,
+                                                           iv13, sizeof(iv13), NULL, 0U, msg_pt,
+                                                           sizeof(msg_pt) - 1U, NULL, 0U, wire,
+                                                           sizeof(wire), &wire_len));
+
+    /* 4. Optional CBOR Tags 16/17/18 + fail-closed parsed_out on tampered auth */
+    /* Encrypt0: Tag 16 (0xD0) accepted, wrong Tag 18 (0xD2) rejected, tampered zeroes parsed_out */
+    tagged[0] = 0xD0U;
+    (void)memcpy(&tagged[1], wire, wire_len);
+    SYN_COSE_Encrypt0Message parsed_e0;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_cose_encrypt0_decrypt(tagged, wire_len + 1U, sym_key, NULL, 0U,
+                                                    pt_out, sizeof(pt_out), &pt_len, &parsed_e0));
+    TEST_ASSERT_EQUAL_INT(SYN_COSE_ALGO_AES_CCM_16_64_128, parsed_e0.alg);
+    tagged[0] = 0xD2U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_encrypt0_decrypt(tagged, wire_len + 1U, sym_key, NULL, 0U,
+                                                    pt_out, sizeof(pt_out), &pt_len, &parsed_e0));
+    TEST_ASSERT_EQUAL_INT(SYN_COSE_ALGO_UNKNOWN, parsed_e0.alg);
+    tagged[0] = 0xD0U;
+    tagged[wire_len] ^= 0xFFU;
+    parsed_e0.alg = SYN_COSE_ALGO_A128GCM;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_encrypt0_decrypt(tagged, wire_len + 1U, sym_key, NULL, 0U,
+                                                    pt_out, sizeof(pt_out), &pt_len, &parsed_e0));
+    TEST_ASSERT_EQUAL_INT(SYN_COSE_ALGO_UNKNOWN, parsed_e0.alg);
+    TEST_ASSERT_NULL(parsed_e0.ciphertext);
+
+    /* Sign1: Tag 18 (0xD2 and 0xD8,0x12) accepted, malformed/wrong tags rejected, fail-closed */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_cose_sign1_create(SYN_COSE_ALGO_EDDSA, ed_sec, ed_pub, NULL,
+                                                        0U, msg_pt, sizeof(msg_pt) - 1U, NULL, 0U,
+                                                        wire, sizeof(wire), &wire_len));
+    TEST_ASSERT_EQUAL_HEX8(0x84U, wire[0]); /* create remains untagged */
+    tagged[0] = 0xD2U;
+    (void)memcpy(&tagged[1], wire, wire_len);
+    SYN_COSE_Sign1Message parsed_s1;
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_cose_sign1_verify(tagged, wire_len + 1U, ed_pub, 32U, NULL, 0U, &parsed_s1));
+    tagged[0] = 0xD8U;
+    tagged[1] = 0x12U;
+    (void)memcpy(&tagged[2], wire, wire_len);
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_cose_sign1_verify(tagged, wire_len + 2U, ed_pub, 32U, NULL, 0U, &parsed_s1));
+    static const uint8_t trunc_tag24[] = {0xD8U};
+    static const uint8_t wide_tag[] = {0xD9U, 0x00U, 0x12U, 0x84U};
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_sign1_verify(trunc_tag24, 1U, ed_pub, 32U, NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL_INT(
+        SYN_ERROR, syn_cose_sign1_verify(wide_tag, sizeof(wide_tag), ed_pub, 32U, NULL, 0U, NULL));
+    tagged[2 + wire_len - 1U] ^= 0x01U;
+    parsed_s1.alg = SYN_COSE_ALGO_EDDSA;
+    TEST_ASSERT_EQUAL_INT(
+        SYN_ERROR, syn_cose_sign1_verify(tagged, wire_len + 2U, ed_pub, 32U, NULL, 0U, &parsed_s1));
+    TEST_ASSERT_EQUAL_INT(SYN_COSE_ALGO_UNKNOWN, parsed_s1.alg);
+    TEST_ASSERT_NULL(parsed_s1.payload);
+
+    /* Mac0: Tag 17 (0xD1) accepted, tampered tag zeroes parsed_out */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_cose_mac0_create(SYN_COSE_ALGO_HMAC_256_64, sym_key, 32U,
+                                                       NULL, 0U, msg_pt, sizeof(msg_pt) - 1U, NULL,
+                                                       0U, wire, sizeof(wire), &wire_len));
+    TEST_ASSERT_EQUAL_HEX8(0x84U, wire[0]);
+    tagged[0] = 0xD1U;
+    (void)memcpy(&tagged[1], wire, wire_len);
+    SYN_COSE_Mac0Message parsed_m0;
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_cose_mac0_verify(tagged, wire_len + 1U, sym_key, 32U, NULL, 0U, &parsed_m0));
+    tagged[wire_len] ^= 0xFFU;
+    TEST_ASSERT_EQUAL_INT(
+        SYN_ERROR, syn_cose_mac0_verify(tagged, wire_len + 1U, sym_key, 32U, NULL, 0U, &parsed_m0));
+    TEST_ASSERT_EQUAL_INT(SYN_COSE_ALGO_UNKNOWN, parsed_m0.alg);
+    TEST_ASSERT_NULL(parsed_m0.payload);
+
+    /* 5. syn_cose_key_encode length bounds checks & syn_cose_key_decode -1 type confusion */
+    SYN_COSE_Key k;
+    (void)memset(&k, 0, sizeof(k));
+    k.kty = SYN_COSE_KTY_EC2;
+    k.kid_len = 33U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_key_encode(&k, wire, sizeof(wire), &wire_len));
+    k.kid_len = 0U;
+    k.pub_x_len = 33U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_key_encode(&k, wire, sizeof(wire), &wire_len));
+    k.pub_x_len = 0U;
+    k.pub_y_len = 33U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_key_encode(&k, wire, sizeof(wire), &wire_len));
+    k.pub_y_len = 0U;
+    k.priv_d_len = 33U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_key_encode(&k, wire, sizeof(wire), &wire_len));
+
+    /* Symmetric with int -1 (both {1:4,-1:6} and {-1:6,1:4}) & OKP/EC2 with bstr -1 + dup -1 */
+    static const uint8_t sym_int_neg1[] = {0xA2U, 0x01U, 0x04U, 0x20U, 0x06U};
+    static const uint8_t rev_sym_int_neg1[] = {0xA2U, 0x20U, 0x06U, 0x01U, 0x04U};
+    static const uint8_t okp_bstr_neg1[] = {0xA2U, 0x01U, 0x01U, 0x20U, 0x42U, 0xAAU, 0xBBU};
+    static const uint8_t ec2_bstr_neg1[] = {0xA2U, 0x20U, 0x42U, 0xAAU, 0xBBU, 0x01U, 0x02U};
+    static const uint8_t dup_neg1[] = {0xA3U, 0x01U, 0x01U, 0x20U, 0x06U, 0x20U, 0x06U};
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_key_decode(sym_int_neg1, sizeof(sym_int_neg1), &k));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_cose_key_decode(rev_sym_int_neg1, sizeof(rev_sym_int_neg1), &k));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_key_decode(okp_bstr_neg1, sizeof(okp_bstr_neg1), &k));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_key_decode(ec2_bstr_neg1, sizeof(ec2_bstr_neg1), &k));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_cose_key_decode(dup_neg1, sizeof(dup_neg1), &k));
+}
+
 void run_cose_tests(void)
 {
     RUN_TEST(test_cose_sign1_eddsa_roundtrip_and_tamper);
@@ -1163,4 +1317,5 @@ void run_cose_tests(void)
     RUN_TEST(test_cose_null_and_boundary_checks);
     RUN_TEST(test_cose_zero_copy_views_and_oversized_kid);
     RUN_TEST(test_r5_n01_cose_truncated_maps_and_sign_guards);
+    RUN_TEST(test_pro04_cose_hardening_and_tags);
 }

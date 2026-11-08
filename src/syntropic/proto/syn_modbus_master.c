@@ -289,6 +289,92 @@ void syn_modbus_master_feed(SYN_ModbusMaster *m, uint8_t byte)
     }
 }
 
+/**
+ * @brief Compute expected full RTU response frame length for pending function code.
+ * @param m  Master instance (with at least 5 bytes buffered in m->buf).
+ * @param fc Validated response function code.
+ * @return Expected full RTU frame length in bytes (including 2-byte CRC).
+ */
+static uint32_t mb_master_expected_rx_len(const SYN_ModbusMaster *m, uint8_t fc)
+{
+    switch (fc) {
+    case SYN_MB_FC_READ_COILS:
+    case SYN_MB_FC_READ_DISCRETE_INPUTS:
+    case SYN_MB_FC_READ_HOLDING:
+    case SYN_MB_FC_READ_INPUT:
+    case SYN_MB_FC_REPORT_SERVER_ID:
+    case SYN_MB_FC_READ_WRITE_MULTIPLE:
+        return 5U + (uint32_t)m->buf[2];
+
+    case SYN_MB_FC_WRITE_SINGLE_COIL:
+    case SYN_MB_FC_WRITE_SINGLE:
+    case SYN_MB_FC_WRITE_MULTIPLE_COILS:
+    case SYN_MB_FC_WRITE_MULTIPLE:
+        return 8U;
+
+    case SYN_MB_FC_MASK_WRITE_REGISTER:
+        return 10U;
+
+    case SYN_MB_FC_READ_FIFO_QUEUE:
+        if (m->rx_len < 8U) {
+            return 8U;
+        }
+        return 8U + ((uint32_t)read_u16_be(&m->buf[4]) * 2U);
+
+    default:
+        return 5U;
+    }
+}
+
+/**
+ * @brief Unpack validated RTU response payload into master state.
+ * @param m  Master instance.
+ * @param fc Validated response function code.
+ */
+static void mb_master_parse_payload(SYN_ModbusMaster *m, uint8_t fc)
+{
+    if (fc == SYN_MB_FC_READ_HOLDING || fc == SYN_MB_FC_READ_INPUT) {
+        uint8_t byte_count = m->buf[2];
+        uint16_t words = (uint16_t)(byte_count / 2U);
+        /* LCOV_EXCL_START: Defensive response words count clamp */
+        if (words > 125U)
+            words = 125U;
+        /* LCOV_EXCL_STOP */
+        for (uint16_t i = 0U; i < words; i++) {
+            m->read_data[i] = read_u16_be(&m->buf[3U + i * 2U]);
+        }
+        m->read_count = words;
+        m->state = SYN_MB_MASTER_STATE_COMPLETE;
+    } else if (fc == SYN_MB_FC_READ_COILS || fc == SYN_MB_FC_READ_DISCRETE_INPUTS ||
+               fc == SYN_MB_FC_REPORT_SERVER_ID) {
+        uint8_t byte_count = m->buf[2];
+        /* LCOV_EXCL_START: Defensive response byte_count clamp */
+        if (byte_count > 250U)
+            byte_count = 250U;
+        /* LCOV_EXCL_STOP */
+        for (uint16_t i = 0U; i < byte_count; i++) {
+            m->read_data[i] = m->buf[3U + i];
+        }
+        m->read_count = byte_count;
+        m->state = SYN_MB_MASTER_STATE_COMPLETE;
+    } else if (fc == SYN_MB_FC_READ_FIFO_QUEUE) {
+        uint16_t fifo_count = read_u16_be(&m->buf[4]);
+        /* LCOV_EXCL_START: Defensive response fifo_count clamp */
+        if (fifo_count > 31U)
+            fifo_count = 31U;
+        /* LCOV_EXCL_STOP */
+        for (uint16_t i = 0U; i < fifo_count; i++) {
+            m->read_data[i] = read_u16_be(&m->buf[6U + i * 2U]);
+        }
+        m->read_count = fifo_count;
+        m->state = SYN_MB_MASTER_STATE_COMPLETE;
+    } else if (fc == SYN_MB_FC_WRITE_SINGLE || fc == SYN_MB_FC_WRITE_MULTIPLE ||
+               fc == SYN_MB_FC_WRITE_SINGLE_COIL || fc == SYN_MB_FC_WRITE_MULTIPLE_COILS ||
+               fc == SYN_MB_FC_MASK_WRITE_REGISTER) {
+        m->state = SYN_MB_MASTER_STATE_COMPLETE;
+    }
+}
+
 SYN_ModbusMaster_State syn_modbus_master_process(SYN_ModbusMaster *m, uint32_t current_tick_ms)
 {
     SYN_ASSERT(m != NULL);
@@ -297,7 +383,7 @@ SYN_ModbusMaster_State syn_modbus_master_process(SYN_ModbusMaster *m, uint32_t c
         return m->state;
     }
 
-    if (m->request_tick_ms == 0) {
+    if (m->request_tick_ms == 0U) {
         m->request_tick_ms = current_tick_ms;
     }
 
@@ -308,13 +394,13 @@ SYN_ModbusMaster_State syn_modbus_master_process(SYN_ModbusMaster *m, uint32_t c
     }
 
     /* Minimum frame length is 5 bytes (for exception responses) */
-    if (m->rx_len < 5) {
+    if (m->rx_len < 5U) {
         return m->state;
     }
 
     /* Verify response CRC */
-    uint16_t crc_calc = syn_crc16_modbus(m->buf, m->rx_len - 2);
-    uint16_t crc_rx = syn_peek_u16_le(m->buf, m->rx_len - 2);
+    uint16_t crc_calc = syn_crc16_modbus(m->buf, (uint16_t)(m->rx_len - 2U));
+    uint16_t crc_rx = syn_peek_u16_le(m->buf, (size_t)(m->rx_len - 2U));
     if (crc_calc != crc_rx) {
         return m->state; /* Incomplete or corrupted frame — keep waiting or timeout */
     }
@@ -328,7 +414,7 @@ SYN_ModbusMaster_State syn_modbus_master_process(SYN_ModbusMaster *m, uint32_t c
     m->response_fc = fc;
 
     /* Exception response check */
-    if (fc == (m->func_code | 0x80)) {
+    if (fc == (uint8_t)(m->func_code | 0x80U)) {
         m->exception_code = m->buf[2];
         m->state = SYN_MB_MASTER_STATE_ERROR;
         return m->state;
@@ -339,48 +425,12 @@ SYN_ModbusMaster_State syn_modbus_master_process(SYN_ModbusMaster *m, uint32_t c
         return m->state;
     }
 
-    /* Process successful response */
-    if (fc == SYN_MB_FC_READ_HOLDING || fc == SYN_MB_FC_READ_INPUT) {
-        uint8_t byte_count = m->buf[2];
-        uint16_t words = byte_count / 2;
-        /* LCOV_EXCL_START: Defensive response words count clamp */
-        if (words > 125)
-            words = 125;
-        /* LCOV_EXCL_STOP */
-        for (uint16_t i = 0; i < words; i++) {
-            m->read_data[i] = read_u16_be(&m->buf[3 + i * 2]);
-        }
-        m->read_count = words;
-        m->state = SYN_MB_MASTER_STATE_COMPLETE;
-    } else if (fc == SYN_MB_FC_READ_COILS || fc == SYN_MB_FC_READ_DISCRETE_INPUTS ||
-               fc == SYN_MB_FC_REPORT_SERVER_ID) {
-        uint8_t byte_count = m->buf[2];
-        /* LCOV_EXCL_START: Defensive response byte_count clamp */
-        if (byte_count > 250)
-            byte_count = 250;
-        /* LCOV_EXCL_STOP */
-        for (uint16_t i = 0; i < byte_count; i++) {
-            m->read_data[i] = m->buf[3 + i];
-        }
-        m->read_count = byte_count;
-        m->state = SYN_MB_MASTER_STATE_COMPLETE;
-    } else if (fc == SYN_MB_FC_READ_FIFO_QUEUE) {
-        uint16_t fifo_count = read_u16_be(&m->buf[4]);
-        /* LCOV_EXCL_START: Defensive response fifo_count clamp */
-        if (fifo_count > 31)
-            fifo_count = 31;
-        /* LCOV_EXCL_STOP */
-        for (uint16_t i = 0; i < fifo_count; i++) {
-            m->read_data[i] = read_u16_be(&m->buf[6 + i * 2]);
-        }
-        m->read_count = fifo_count;
-        m->state = SYN_MB_MASTER_STATE_COMPLETE;
-    } else if (fc == SYN_MB_FC_WRITE_SINGLE || fc == SYN_MB_FC_WRITE_MULTIPLE ||
-               fc == SYN_MB_FC_WRITE_SINGLE_COIL || fc == SYN_MB_FC_WRITE_MULTIPLE_COILS ||
-               fc == SYN_MB_FC_MASK_WRITE_REGISTER) {
-        m->state = SYN_MB_MASTER_STATE_COMPLETE;
+    uint32_t expected_len = mb_master_expected_rx_len(m, fc);
+    if ((uint32_t)m->rx_len < expected_len) {
+        return m->state;
     }
 
+    mb_master_parse_payload(m, fc);
     return m->state;
 }
 
@@ -411,6 +461,43 @@ SYN_Status syn_modbus_master_queue_push(SYN_ModbusMasterQueue *q,
     return SYN_OK;
 }
 
+/**
+ * @brief Dispatch the front queued query through the corresponding master builder.
+ * @param m   Master instance.
+ * @param qry Queued query descriptor.
+ * @return SYN_OK on dispatch, SYN_INVALID_PARAM on invalid/unsupported query.
+ */
+static SYN_Status mb_master_dispatch_queued(SYN_ModbusMaster *m, const SYN_ModbusMasterQuery *qry)
+{
+    switch (qry->func_code) {
+    case SYN_MB_FC_READ_HOLDING:
+        return syn_modbus_master_read_holding(m, qry->slave_addr, qry->start_addr, qry->count);
+    case SYN_MB_FC_READ_INPUT:
+        return syn_modbus_master_read_input(m, qry->slave_addr, qry->start_addr, qry->count);
+    case SYN_MB_FC_WRITE_SINGLE:
+        return syn_modbus_master_write_single(m, qry->slave_addr, qry->start_addr,
+                                              qry->write_value);
+    case SYN_MB_FC_READ_COILS:
+        return syn_modbus_master_read_coils(m, qry->slave_addr, qry->start_addr, qry->count);
+    case SYN_MB_FC_READ_DISCRETE_INPUTS:
+        return syn_modbus_master_read_discrete_inputs(m, qry->slave_addr, qry->start_addr,
+                                                      qry->count);
+    default:
+        return SYN_INVALID_PARAM;
+    }
+}
+
+/**
+ * @brief Pop the active head entry from the master transaction queue.
+ * @param q Transaction queue instance.
+ */
+static void mb_master_pop_queue(SYN_ModbusMasterQueue *q)
+{
+    q->head = (uint8_t)((q->head + 1U) % SYN_MODBUS_QUEUE_SIZE);
+    q->count--;
+    q->retry_count = 0U;
+}
+
 SYN_Status syn_modbus_master_queue_step(SYN_ModbusMaster *m, SYN_ModbusMasterQueue *q,
                                         uint32_t now_ms)
 {
@@ -420,59 +507,38 @@ SYN_Status syn_modbus_master_queue_step(SYN_ModbusMaster *m, SYN_ModbusMasterQue
 
     SYN_ModbusMaster_State state = syn_modbus_master_process(m, now_ms);
 
-    if (state == SYN_MB_MASTER_STATE_IDLE && q->count > 0) {
+    if (state == SYN_MB_MASTER_STATE_IDLE && q->count > 0U) {
         SYN_ModbusMasterQuery *qry = &q->queries[q->head];
-        SYN_Status st = SYN_ERROR;
-
-        switch (qry->func_code) {
-        case SYN_MB_FC_READ_HOLDING:
-            st = syn_modbus_master_read_holding(m, qry->slave_addr, qry->start_addr, qry->count);
-            break;
-        case SYN_MB_FC_READ_INPUT:
-            st = syn_modbus_master_read_input(m, qry->slave_addr, qry->start_addr, qry->count);
-            break;
-        case SYN_MB_FC_WRITE_SINGLE:
-            st = syn_modbus_master_write_single(m, qry->slave_addr, qry->start_addr,
-                                                qry->write_value);
-            break;
-        case SYN_MB_FC_READ_COILS:
-            st = syn_modbus_master_read_coils(m, qry->slave_addr, qry->start_addr, qry->count);
-            break;
-        case SYN_MB_FC_READ_DISCRETE_INPUTS:
-            st = syn_modbus_master_read_discrete_inputs(m, qry->slave_addr, qry->start_addr,
-                                                        qry->count);
-            break;
-        default:
-            break;
-        }
+        SYN_Status st = mb_master_dispatch_queued(m, qry);
 
         if (st == SYN_OK) {
             m->request_tick_ms = now_ms;
-            syn_modbus_master_process(m, now_ms); /* transition state to WAITING_RESPONSE */
+            (void)syn_modbus_master_process(m, now_ms); /* transition state to WAITING_RESPONSE */
+        } else {
+            if (qry->callback != NULL) {
+                qry->callback(qry->slave_addr, qry->func_code, NULL, 0U, st, qry->user_ctx);
+            }
+            mb_master_pop_queue(q);
         }
-    } else if (state == SYN_MB_MASTER_STATE_COMPLETE && q->count > 0) {
+    } else if (state == SYN_MB_MASTER_STATE_COMPLETE && q->count > 0U) {
         SYN_ModbusMasterQuery *qry = &q->queries[q->head];
         if (qry->callback != NULL) {
             qry->callback(qry->slave_addr, qry->func_code, m->read_data, m->read_count, SYN_OK,
                           qry->user_ctx);
         }
-        q->head = (uint8_t)((q->head + 1U) % SYN_MODBUS_QUEUE_SIZE);
-        q->count--;
-        q->retry_count = 0;
+        mb_master_pop_queue(q);
         m->state = SYN_MB_MASTER_STATE_IDLE;
     } else if ((state == SYN_MB_MASTER_STATE_TIMEOUT || state == SYN_MB_MASTER_STATE_ERROR) &&
-               q->count > 0) {
+               q->count > 0U) {
         SYN_ModbusMasterQuery *qry = &q->queries[q->head];
         if (q->retry_count < q->max_retries) {
             q->retry_count++;
             m->state = SYN_MB_MASTER_STATE_IDLE; /* Retry query */
         } else {
             if (qry->callback != NULL) {
-                qry->callback(qry->slave_addr, qry->func_code, NULL, 0, SYN_ERROR, qry->user_ctx);
+                qry->callback(qry->slave_addr, qry->func_code, NULL, 0U, SYN_ERROR, qry->user_ctx);
             }
-            q->head = (uint8_t)((q->head + 1U) % SYN_MODBUS_QUEUE_SIZE);
-            q->count--;
-            q->retry_count = 0;
+            mb_master_pop_queue(q);
             m->state = SYN_MB_MASTER_STATE_IDLE;
         }
     }

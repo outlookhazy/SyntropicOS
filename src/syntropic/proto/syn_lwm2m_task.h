@@ -116,8 +116,10 @@ typedef struct SYN_LwM2M_Task {
     uint16_t pending_msg_id; /**< Message ID of in-flight Register or Update request */
     uint32_t last_action_ms; /**< Timestamp of last transmitted request (ms) */
     uint32_t retry_count;    /**< Number of failed retry attempts */
+    bool has_acted;          /**< True after initial action timestamp is recorded */
     bool force_update;       /**< Flag to trigger immediate Registration Update */
     bool force_deregister;   /**< Flag to request clean Deregistration */
+    bool pending_notify[SYN_LWM2M_MAX_OBSERVERS]; /**< Per-observer latched dirty state */
     SYN_LwM2M_DirtyEntry dirty_queue[SYN_LWM2M_MAX_DIRTY_QUEUE]; /**< Pending dirty queue */
     size_t dirty_count; /**< Number of queued dirty entries */
 } SYN_LwM2M_Task;

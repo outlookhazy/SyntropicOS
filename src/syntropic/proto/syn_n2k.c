@@ -288,6 +288,87 @@ SYN_Status syn_n2k_decode_environment(const SYN_CAN_Frame *frame, SYN_N2K_EnvPar
     return SYN_OK;
 }
 
+/**
+ * @brief Process the initial frame (frame_idx == 0) of an NMEA 2000 Fast-Packet sequence.
+ * @param rx Fast-Packet RX context.
+ * @param frame Incoming 8-byte CAN frame.
+ * @param sa Unpacked J1939 source address.
+ * @param target_pgn Target PGN matched by caller.
+ * @param seq_id 3-bit Fast-Packet sequence identifier.
+ * @param out_payload Output pointer to reassembled payload when complete.
+ * @param out_len Output payload length when complete.
+ * @return SYN_OK if single-frame Fast-Packet completed, SYN_BUSY if multi-frame started, or
+ *         SYN_INVALID_PARAM if total_bytes exceeds buffer capacity.
+ */
+static SYN_Status n2k_fp_first_frame(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Frame *frame,
+                                     uint8_t sa, uint32_t target_pgn, uint8_t seq_id,
+                                     const uint8_t **out_payload, size_t *out_len)
+{
+    uint8_t total_bytes = frame->data[1];
+    if (total_bytes > sizeof(rx->data)) {
+        return SYN_INVALID_PARAM;
+    }
+
+    rx->active = true;
+    rx->seq_id = seq_id;
+    rx->expected_frame = 1U;
+    rx->sa = sa;
+    rx->pgn = target_pgn;
+    rx->total_bytes = total_bytes;
+    rx->received_bytes = 0U;
+
+    size_t copy_len = (total_bytes > 6U) ? 6U : total_bytes;
+    memcpy(&rx->data[0], &frame->data[2], copy_len);
+    rx->received_bytes = (uint8_t)copy_len;
+
+    if (rx->received_bytes >= rx->total_bytes) {
+        *out_payload = rx->data;
+        *out_len = rx->total_bytes;
+        rx->active = false;
+        return SYN_OK;
+    }
+    return SYN_BUSY;
+}
+
+/**
+ * @brief Process a continuation frame (frame_idx > 0) of an NMEA 2000 Fast-Packet sequence.
+ * @param rx Fast-Packet RX context.
+ * @param frame Incoming 8-byte CAN frame.
+ * @param sa Unpacked J1939 source address.
+ * @param pgn Unpacked 24-bit PGN of the continuation frame.
+ * @param seq_id 3-bit Fast-Packet sequence identifier.
+ * @param frame_idx 5-bit Fast-Packet frame counter (> 0).
+ * @param out_payload Output pointer to reassembled payload when complete.
+ * @param out_len Output payload length when complete.
+ * @return SYN_OK on completion, SYN_BUSY while reassembling, or SYN_INVALID_PARAM on mismatch.
+ */
+static SYN_Status n2k_fp_cont_frame(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Frame *frame,
+                                    uint8_t sa, uint32_t pgn, uint8_t seq_id, uint8_t frame_idx,
+                                    const uint8_t **out_payload, size_t *out_len)
+{
+    if (!rx->active || (rx->pgn != pgn) || (rx->seq_id != seq_id) ||
+        (frame_idx != rx->expected_frame) || (sa != rx->sa)) {
+        return SYN_INVALID_PARAM;
+    }
+
+    size_t offset = 6U + ((size_t)(frame_idx - 1U) * 7U);
+    if (offset < rx->total_bytes) {
+        size_t remaining = rx->total_bytes - offset;
+        size_t copy_len = (remaining > 7U) ? 7U : remaining;
+        memcpy(&rx->data[offset], &frame->data[1], copy_len);
+        rx->received_bytes = (uint8_t)(offset + copy_len);
+        rx->expected_frame++;
+
+        if (rx->received_bytes >= rx->total_bytes) {
+            *out_payload = rx->data;
+            *out_len = rx->total_bytes;
+            rx->active = false;
+            return SYN_OK;
+        }
+    }
+    return SYN_BUSY;
+}
+
 SYN_Status syn_n2k_fastpacket_process(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Frame *frame,
                                       uint32_t target_pgn, const uint8_t **out_payload,
                                       size_t *out_len)
@@ -306,55 +387,10 @@ SYN_Status syn_n2k_fastpacket_process(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Fr
     uint8_t seq_id = (seq_frame >> 5) & 0x07U;
     uint8_t frame_idx = seq_frame & 0x1FU;
 
-    /* First frame of a Fast-Packet sequence */
-    if (frame_idx == 0) {
-        uint8_t total_bytes = frame->data[1];
-        if (total_bytes > sizeof(rx->data)) {
-            return SYN_INVALID_PARAM;
-        }
-
-        rx->active = true;
-        rx->seq_id = seq_id;
-        rx->expected_frame = 1;
-        rx->sa = hdr.sa;
-        rx->pgn = target_pgn;
-        rx->total_bytes = total_bytes;
-        rx->received_bytes = 0;
-
-        size_t copy_len = (total_bytes > 6) ? 6 : total_bytes;
-        memcpy(&rx->data[0], &frame->data[2], copy_len);
-        rx->received_bytes = (uint8_t)copy_len;
-
-        if (rx->received_bytes >= rx->total_bytes) {
-            *out_payload = rx->data;
-            *out_len = rx->total_bytes;
-            rx->active = false;
-            return SYN_OK;
-        }
-        return SYN_BUSY;
+    if (frame_idx == 0U) {
+        return n2k_fp_first_frame(rx, frame, hdr.sa, target_pgn, seq_id, out_payload, out_len);
     }
-
-    /* Subsequent Fast-Packet frame */
-    if (rx->active && rx->seq_id == seq_id && frame_idx == rx->expected_frame && hdr.sa == rx->sa) {
-        size_t offset = 6U + (size_t)(frame_idx - 1U) * 7U;
-        if (offset < rx->total_bytes) {
-            size_t remaining = rx->total_bytes - offset;
-            size_t copy_len = (remaining > 7U) ? 7U : remaining;
-            memcpy(&rx->data[offset], &frame->data[1], copy_len);
-            rx->received_bytes = (uint8_t)(offset + copy_len);
-            rx->expected_frame++;
-
-            if (rx->received_bytes >= rx->total_bytes) {
-                *out_payload = rx->data;
-                *out_len = rx->total_bytes;
-                rx->active = false;
-                return SYN_OK;
-            }
-        }
-        return SYN_BUSY;
-    }
-
-    return SYN_INVALID_PARAM;
+    return n2k_fp_cont_frame(rx, frame, hdr.sa, hdr.pgn, seq_id, frame_idx, out_payload, out_len);
 }
 
 #endif /* SYN_USE_N2K */

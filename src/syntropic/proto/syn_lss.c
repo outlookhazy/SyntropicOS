@@ -21,104 +21,123 @@ void syn_lss_slave_init(SYN_LSSSlave *slave, const SYN_LSSAddress *addr, uint8_t
     slave->store_req = false;
 }
 
+/**
+ * @brief Handle LSS configuration-mode parameter/storage requests.
+ * @param slave LSS slave instance (in configuration mode).
+ * @param frame Received 8-byte LSS master request frame.
+ * @param resp  Output 8-byte LSS slave response frame.
+ * @return true if command was handled and response populated, false otherwise.
+ */
+static bool lss_handle_config_cmd(SYN_LSSSlave *slave, const SYN_CAN_Frame *frame,
+                                  SYN_CAN_Frame *resp)
+{
+    uint8_t cs = frame->data[0];
+
+    if (cs == SYN_LSS_CS_CONFIGURE_NODE_ID) {
+        uint8_t new_id = frame->data[1];
+        resp->data[0] = SYN_LSS_CS_CONFIGURE_NODE_ID;
+        if ((new_id >= 1U && new_id <= 127U) || new_id == 0xFFU) {
+            slave->node_id = new_id;
+            resp->data[1] = 0U;
+            resp->data[2] = 0U;
+        } else {
+            resp->data[1] = 1U;
+            resp->data[2] = 0xFFU;
+        }
+        return true;
+    }
+
+    if (cs == SYN_LSS_CS_CONFIGURE_BIT_TIMING) {
+        uint8_t table_selector = frame->data[1];
+        uint8_t baud_idx = frame->data[2];
+        resp->data[0] = SYN_LSS_CS_CONFIGURE_BIT_TIMING;
+        if (table_selector == 0U && baud_idx <= SYN_LSS_BAUD_10K) {
+            slave->baud_table = baud_idx;
+            resp->data[1] = 0U;
+            resp->data[2] = 0U;
+        } else {
+            resp->data[1] = 1U;
+            resp->data[2] = 0xFFU;
+        }
+        return true;
+    }
+
+    if (cs == SYN_LSS_CS_STORE_CONFIG) {
+        slave->store_req = true;
+        resp->data[0] = SYN_LSS_CS_STORE_CONFIG;
+        resp->data[1] = 0U;
+        resp->data[2] = 0U;
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * @brief Handle LSS identity inquiry requests in configuration mode.
+ * @param slave LSS slave instance.
+ * @param cs    LSS command specifier byte.
+ * @param resp  Output 8-byte LSS slave response frame.
+ * @return true if inquiry was handled and response populated, false otherwise.
+ */
+static bool lss_handle_inquire(const SYN_LSSSlave *slave, uint8_t cs, SYN_CAN_Frame *resp)
+{
+    switch (cs) {
+    case SYN_LSS_CS_INQUIRE_VENDOR:
+        resp->data[0] = SYN_LSS_CS_INQUIRE_VENDOR;
+        syn_poke_u32_le(slave->addr.vendor_id, resp->data, 1U);
+        return true;
+
+    case SYN_LSS_CS_INQUIRE_PRODUCT:
+        resp->data[0] = SYN_LSS_CS_INQUIRE_PRODUCT;
+        syn_poke_u32_le(slave->addr.product_code, resp->data, 1U);
+        return true;
+
+    case SYN_LSS_CS_INQUIRE_REV:
+        resp->data[0] = SYN_LSS_CS_INQUIRE_REV;
+        syn_poke_u32_le(slave->addr.revision_no, resp->data, 1U);
+        return true;
+
+    case SYN_LSS_CS_INQUIRE_SERIAL:
+        resp->data[0] = SYN_LSS_CS_INQUIRE_SERIAL;
+        syn_poke_u32_le(slave->addr.serial_no, resp->data, 1U);
+        return true;
+
+    default:
+        return false;
+    }
+}
+
 bool syn_lss_slave_process(SYN_LSSSlave *slave, const SYN_CAN_Frame *frame, SYN_CAN_Frame *resp)
 {
     SYN_ASSERT(slave != NULL && frame != NULL && resp != NULL);
 
     /* LSS Requests must use COB-ID 0x7E5 and DLC 8 */
-    if (frame->id != SYN_LSS_COB_ID_MASTER || frame->dlc < 8) {
+    if (frame->id != SYN_LSS_COB_ID_MASTER || frame->dlc < 8U) {
         return false;
     }
 
     uint8_t cs = frame->data[0];
     memset(resp, 0, sizeof(*resp));
     resp->id = SYN_LSS_COB_ID_SLAVE;
-    resp->dlc = 8;
+    resp->dlc = 8U;
 
-    switch (cs) {
-    case SYN_LSS_CS_SWITCH_MODE_GLOBAL:
-        slave->mode = frame->data[1];
+    if (cs == SYN_LSS_CS_SWITCH_MODE_GLOBAL) {
+        if (frame->data[1] <= SYN_LSS_MODE_CONFIGURATION) {
+            slave->mode = frame->data[1];
+        }
         return false; /* Global switch has no response */
-
-    case SYN_LSS_CS_CONFIGURE_NODE_ID:
-        if (slave->mode == SYN_LSS_MODE_CONFIGURATION) {
-            uint8_t new_id = frame->data[1];
-            resp->data[0] = SYN_LSS_CS_CONFIGURE_NODE_ID;
-            if (new_id >= 1 && new_id <= 127) {
-                slave->node_id = new_id;
-                resp->data[1] = 0; /* Error code 0 = protocol error / OK */
-                resp->data[2] = 0; /* Spec error 0 = success */
-            } else {
-                resp->data[1] = 1; /* Out of range error */
-                resp->data[2] = 0xFF;
-            }
-            return true;
-        }
-        break;
-
-    case SYN_LSS_CS_CONFIGURE_BIT_TIMING:
-        if (slave->mode == SYN_LSS_MODE_CONFIGURATION) {
-            uint8_t baud_idx = frame->data[2];
-            resp->data[0] = SYN_LSS_CS_CONFIGURE_BIT_TIMING;
-            if (baud_idx <= SYN_LSS_BAUD_10K) {
-                slave->baud_table = baud_idx;
-                resp->data[1] = 0; /* Success */
-                resp->data[2] = 0;
-            } else {
-                resp->data[1] = 1; /* Unsupported bit timing */
-                resp->data[2] = 0xFF;
-            }
-            return true;
-        }
-        break;
-
-    case SYN_LSS_CS_STORE_CONFIG:
-        if (slave->mode == SYN_LSS_MODE_CONFIGURATION) {
-            slave->store_req = true;
-            resp->data[0] = SYN_LSS_CS_STORE_CONFIG;
-            resp->data[1] = 0; /* Success */
-            resp->data[2] = 0;
-            return true;
-        }
-        break;
-
-    case SYN_LSS_CS_INQUIRE_VENDOR:
-        if (slave->mode == SYN_LSS_MODE_CONFIGURATION) {
-            resp->data[0] = SYN_LSS_CS_INQUIRE_VENDOR;
-            syn_poke_u32_le(slave->addr.vendor_id, resp->data, 1);
-            return true;
-        }
-        break;
-
-    case SYN_LSS_CS_INQUIRE_PRODUCT:
-        if (slave->mode == SYN_LSS_MODE_CONFIGURATION) {
-            resp->data[0] = SYN_LSS_CS_INQUIRE_PRODUCT;
-            syn_poke_u32_le(slave->addr.product_code, resp->data, 1);
-            return true;
-        }
-        break;
-
-    case SYN_LSS_CS_INQUIRE_REV:
-        if (slave->mode == SYN_LSS_MODE_CONFIGURATION) {
-            resp->data[0] = SYN_LSS_CS_INQUIRE_REV;
-            syn_poke_u32_le(slave->addr.revision_no, resp->data, 1);
-            return true;
-        }
-        break;
-
-    case SYN_LSS_CS_INQUIRE_SERIAL:
-        if (slave->mode == SYN_LSS_MODE_CONFIGURATION) {
-            resp->data[0] = SYN_LSS_CS_INQUIRE_SERIAL;
-            syn_poke_u32_le(slave->addr.serial_no, resp->data, 1);
-            return true;
-        }
-        break;
-
-    default:
-        break;
     }
 
-    return false;
+    if (slave->mode != SYN_LSS_MODE_CONFIGURATION) {
+        return false;
+    }
+
+    if (lss_handle_config_cmd(slave, frame, resp)) {
+        return true;
+    }
+
+    return lss_handle_inquire(slave, cs, resp);
 }
 
 void syn_lss_master_build_switch_mode(SYN_CAN_Frame *frame, uint8_t mode)

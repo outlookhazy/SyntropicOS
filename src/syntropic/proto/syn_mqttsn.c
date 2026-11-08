@@ -28,8 +28,8 @@
 static size_t mqttsn_encode_header(uint8_t *buf, size_t max_buf, uint8_t msg_type,
                                    size_t payload_len)
 {
-    size_t total_len = payload_len + 2U;
-    if (total_len < 256U) {
+    if (payload_len < 254U) {
+        size_t total_len = payload_len + 2U;
         if (max_buf < total_len) {
             return 0U;
         }
@@ -38,10 +38,10 @@ static size_t mqttsn_encode_header(uint8_t *buf, size_t max_buf, uint8_t msg_typ
         return 2U;
     }
 
-    total_len = payload_len + 4U;
-    if (max_buf < total_len || total_len > 0xFFFFU) {
+    if ((payload_len > 65531U) || (max_buf < (payload_len + 4U))) {
         return 0U;
     }
+    size_t total_len = payload_len + 4U;
     buf[0] = 0x01U;
     buf[1] = (uint8_t)((total_len >> 8U) & 0xFFU);
     buf[2] = (uint8_t)(total_len & 0xFFU);
@@ -254,6 +254,40 @@ SYN_Status syn_mqttsn_client_register_topic(SYN_MQTTSN_Client *client, const cha
 }
 
 /**
+ * @brief Validate arguments for MQTT-SN publish operations.
+ * @param client  Client instance pointer.
+ * @param qos     Requested QoS level (-1, 0, or 1).
+ * @param payload Payload data pointer.
+ * @param len     Payload length in bytes.
+ * @return true if arguments are valid, false otherwise.
+ */
+static bool mqttsn_publish_args_valid(const SYN_MQTTSN_Client *client, int8_t qos,
+                                      const uint8_t *payload, size_t len)
+{
+    if ((client == NULL) || (client->cfg.transport == NULL)) {
+        return false;
+    }
+    if (((payload == NULL) && (len > 0U)) || (len > 65526U)) {
+        return false;
+    }
+    return (qos >= -1) && (qos <= 1);
+}
+
+/**
+ * @brief Validate optional SUBSCRIBE/UNSUBSCRIBE topic string argument.
+ * @param topic_name Optional topic string (NULL selects predefined topic ID).
+ * @return true if NULL or non-empty within SYN_MQTTSN_MAX_TOPIC_NAME, false otherwise.
+ */
+static bool mqttsn_topic_arg_valid(const char *topic_name)
+{
+    if (topic_name == NULL) {
+        return true;
+    }
+    size_t len = strlen(topic_name);
+    return (len > 0U) && (len < SYN_MQTTSN_MAX_TOPIC_NAME);
+}
+
+/**
  * @brief Internal helper to publish with configurable topic ID type flag.
  * @param client Client instance pointer.
  * @param topic_id Topic ID or 2-byte short topic name.
@@ -268,7 +302,7 @@ static SYN_Status mqttsn_publish_internal(SYN_MQTTSN_Client *client, uint16_t to
                                           uint8_t topic_type_flag, int8_t qos, bool retain,
                                           const uint8_t *payload, size_t len)
 {
-    if (client == NULL || client->cfg.transport == NULL || (payload == NULL && len > 0U)) {
+    if (!mqttsn_publish_args_valid(client, qos, payload, len)) {
         return SYN_INVALID_PARAM;
     }
 
@@ -342,7 +376,8 @@ SYN_Status syn_mqttsn_client_publish_predefined(SYN_MQTTSN_Client *client, uint1
 SYN_Status syn_mqttsn_client_subscribe(SYN_MQTTSN_Client *client, const char *topic_name,
                                        uint16_t predef_id, int8_t qos)
 {
-    if (client == NULL || client->cfg.transport == NULL) {
+    if ((client == NULL) || (client->cfg.transport == NULL) ||
+        !mqttsn_topic_arg_valid(topic_name)) {
         return SYN_INVALID_PARAM;
     }
 
@@ -407,7 +442,8 @@ SYN_Status syn_mqttsn_client_subscribe(SYN_MQTTSN_Client *client, const char *to
 SYN_Status syn_mqttsn_client_unsubscribe(SYN_MQTTSN_Client *client, const char *topic_name,
                                          uint16_t predef_id)
 {
-    if (client == NULL || client->cfg.transport == NULL) {
+    if ((client == NULL) || (client->cfg.transport == NULL) ||
+        !mqttsn_topic_arg_valid(topic_name)) {
         return SYN_INVALID_PARAM;
     }
 
@@ -561,6 +597,61 @@ static void mqttsn_handle_regack(SYN_MQTTSN_Client *client, const uint8_t *paylo
 }
 
 /**
+ * @brief Handle incoming CONNACK packet and update client connection state.
+ * @param client      Client instance pointer.
+ * @param payload     Pointer to CONNACK payload buffer.
+ * @param payload_len Length of CONNACK payload in bytes.
+ */
+static void mqttsn_handle_connack(SYN_MQTTSN_Client *client, const uint8_t *payload,
+                                  size_t payload_len)
+{
+    if (payload_len >= 1U) {
+        if (payload[0] == SYN_MQTTSN_RC_ACCEPTED) {
+            client->state = SYN_MQTTSN_STATE_CONNECTED;
+        } else if (client->state == SYN_MQTTSN_STATE_CONNECTING) {
+            client->state = SYN_MQTTSN_STATE_DISCONNECTED;
+        }
+    }
+}
+
+/**
+ * @brief Handle incoming PUBLISH packet, invoke callback, and transmit QoS 1 PUBACK.
+ * @param client      Client instance pointer.
+ * @param payload     Pointer to PUBLISH payload buffer.
+ * @param payload_len Length of PUBLISH payload in bytes.
+ */
+static void mqttsn_handle_rx_publish(SYN_MQTTSN_Client *client, const uint8_t *payload,
+                                     size_t payload_len)
+{
+    if (payload_len < 5U) {
+        return;
+    }
+    uint8_t flags = payload[0];
+    uint8_t topic_type = flags & SYN_MQTTSN_FLAG_TOPIC_MASK;
+    uint16_t topic_id = ((uint16_t)payload[1] << 8U) | payload[2];
+    uint16_t msg_id = ((uint16_t)payload[3] << 8U) | payload[4];
+
+    if (client->cfg.on_message != NULL) {
+        client->cfg.on_message(client, topic_id, topic_type, &payload[5], payload_len - 5U,
+                               client->cfg.user_data);
+    }
+
+    if ((flags & SYN_MQTTSN_FLAG_QOS_MASK) == SYN_MQTTSN_FLAG_QOS_1) {
+        uint8_t *tx = client->cfg.tx_buf;
+        size_t hdr_len =
+            mqttsn_encode_header(tx, client->cfg.tx_buf_size, SYN_MQTTSN_MSG_PUBACK, 5U);
+        if (hdr_len > 0U) {
+            tx[hdr_len] = (uint8_t)((topic_id >> 8U) & 0xFFU);
+            tx[hdr_len + 1U] = (uint8_t)(topic_id & 0xFFU);
+            tx[hdr_len + 2U] = (uint8_t)((msg_id >> 8U) & 0xFFU);
+            tx[hdr_len + 3U] = (uint8_t)(msg_id & 0xFFU);
+            tx[hdr_len + 4U] = SYN_MQTTSN_RC_ACCEPTED;
+            (void)syn_transport_send(client->cfg.transport, tx, hdr_len + 5U);
+        }
+    }
+}
+
+/**
  * @brief Handle incoming decoded MQTT-SN message frame.
  * @param client Client instance pointer.
  * @param msg_type Decoded MQTT-SN message type.
@@ -582,9 +673,7 @@ static void mqttsn_process_rx_frame(SYN_MQTTSN_Client *client, uint8_t msg_type,
         break;
 
     case SYN_MQTTSN_MSG_CONNACK:
-        if (payload_len >= 1U && payload[0] == SYN_MQTTSN_RC_ACCEPTED) {
-            client->state = SYN_MQTTSN_STATE_CONNECTED;
-        }
+        mqttsn_handle_connack(client, payload, payload_len);
         break;
 
     case SYN_MQTTSN_MSG_REGACK:
@@ -592,38 +681,17 @@ static void mqttsn_process_rx_frame(SYN_MQTTSN_Client *client, uint8_t msg_type,
         break;
 
     case SYN_MQTTSN_MSG_PUBLISH:
-        if (payload_len >= 5U) {
-            uint8_t flags = payload[0];
-            uint8_t topic_type = flags & SYN_MQTTSN_FLAG_TOPIC_MASK;
-            uint16_t topic_id = ((uint16_t)payload[1] << 8U) | payload[2];
-            uint16_t msg_id = ((uint16_t)payload[3] << 8U) | payload[4];
-
-            if (client->cfg.on_message != NULL) {
-                client->cfg.on_message(client, topic_id, topic_type, &payload[5], payload_len - 5U,
-                                       client->cfg.user_data);
-            }
-
-            /* Send PUBACK if QoS 1 */
-            if ((flags & SYN_MQTTSN_FLAG_QOS_MASK) == SYN_MQTTSN_FLAG_QOS_1) {
-                uint8_t *tx = client->cfg.tx_buf;
-                size_t hdr_len =
-                    mqttsn_encode_header(tx, client->cfg.tx_buf_size, SYN_MQTTSN_MSG_PUBACK, 5U);
-                if (hdr_len > 0U) {
-                    tx[hdr_len] = (uint8_t)((topic_id >> 8U) & 0xFFU);
-                    tx[hdr_len + 1U] = (uint8_t)(topic_id & 0xFFU);
-                    tx[hdr_len + 2U] = (uint8_t)((msg_id >> 8U) & 0xFFU);
-                    tx[hdr_len + 3U] = (uint8_t)(msg_id & 0xFFU);
-                    tx[hdr_len + 4U] = SYN_MQTTSN_RC_ACCEPTED;
-                    (void)syn_transport_send(client->cfg.transport, tx, hdr_len + 5U);
-                }
-            }
-        }
+        mqttsn_handle_rx_publish(client, payload, payload_len);
         break;
 
     case SYN_MQTTSN_MSG_PINGRESP:
         if (client->state == SYN_MQTTSN_STATE_AWAKE) {
             client->state = SYN_MQTTSN_STATE_ASLEEP;
         }
+        break;
+
+    case SYN_MQTTSN_MSG_DISCONNECT:
+        client->state = SYN_MQTTSN_STATE_DISCONNECTED;
         break;
 
     default:

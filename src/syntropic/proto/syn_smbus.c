@@ -314,17 +314,19 @@ static SYN_Status smbus_parse_u8(SYN_SMBUS_Protocol proto, size_t data_len, bool
         *payload_off = 0U;
         return SYN_OK;
     }
-    if (proto == SYN_SMBUS_PROTO_RECEIVE_BYTE && data_len >= 2U) {
+    if ((proto == SYN_SMBUS_PROTO_RECEIVE_BYTE) && (data_len == 2U)) {
         *payload_off = 1U;
         *is_full = true;
         return SYN_OK;
     }
-    if (proto == SYN_SMBUS_PROTO_READ_BYTE && data_len >= 4U) {
+    if ((proto == SYN_SMBUS_PROTO_READ_BYTE) && (data_len == 4U)) {
         *payload_off = 3U;
         *is_full = true;
         return SYN_OK;
     }
-    if ((proto == SYN_SMBUS_PROTO_WRITE_BYTE || !has_pec) && data_len >= 3U) {
+    if (((proto == SYN_SMBUS_PROTO_WRITE_BYTE) ||
+         ((proto == SYN_SMBUS_PROTO_READ_BYTE) && !has_pec)) &&
+        (data_len == 3U)) {
         *payload_off = 2U;
         *is_full = true;
         return SYN_OK;
@@ -350,17 +352,19 @@ static SYN_Status smbus_parse_u16(SYN_SMBUS_Protocol proto, size_t data_len, boo
         *payload_off = 0U;
         return SYN_OK;
     }
-    if (proto == SYN_SMBUS_PROTO_PROCESS_CALL && data_len >= 7U) {
+    if ((proto == SYN_SMBUS_PROTO_PROCESS_CALL) && (data_len == 7U)) {
         *payload_off = 5U;
         *is_full = true;
         return SYN_OK;
     }
-    if (proto == SYN_SMBUS_PROTO_READ_WORD && data_len >= 5U) {
+    if ((proto == SYN_SMBUS_PROTO_READ_WORD) && (data_len == 5U)) {
         *payload_off = 3U;
         *is_full = true;
         return SYN_OK;
     }
-    if ((proto == SYN_SMBUS_PROTO_WRITE_WORD || !has_pec) && data_len >= 4U) {
+    if (((proto == SYN_SMBUS_PROTO_WRITE_WORD) ||
+         ((proto == SYN_SMBUS_PROTO_READ_WORD) && !has_pec)) &&
+        (data_len == 4U)) {
         *payload_off = 2U;
         *is_full = true;
         return SYN_OK;

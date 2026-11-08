@@ -230,9 +230,21 @@ static void dnet_set_attr_single(SYN_DeviceNet_Node *node, uint8_t class_id, uin
     }
     if ((class_id == 0x01U) && (attr_id == 9U)) {
         node->identity.quick_connect_enabled = (data[4] != 0U);
-    } else if ((class_id == 0x03U) && (attr_id == 1U) && (data[4] <= SYN_DEVICENET_MAX_MAC_ID)) {
-        node->devicenet_obj.mac_id = data[4];
+        return;
     }
+    if ((class_id == 0x03U) && (attr_id == 1U)) {
+        if (data[4] <= SYN_DEVICENET_MAX_MAC_ID) {
+            node->devicenet_obj.mac_id = data[4];
+            return;
+        }
+        tx_data[1] = 0x94U;
+        tx_data[2] = 0x09U;
+        *out_idx = 3U;
+        return;
+    }
+    tx_data[1] = 0x94U;
+    tx_data[2] = ((class_id == 0x01U) || (class_id == 0x03U)) ? 0x14U : 0x05U;
+    *out_idx = 3U;
 }
 
 /**
@@ -247,7 +259,7 @@ static void dnet_set_attr_single(SYN_DeviceNet_Node *node, uint8_t class_id, uin
 static bool handle_explicit_message(SYN_DeviceNet_Node *node, const uint8_t *data, uint8_t len,
                                     uint8_t *tx_data, uint8_t *tx_len)
 {
-    if (len < 4U) {
+    if ((len < 4U) || ((data[0] & 0x80U) != 0U)) {
         return false;
     }
 
@@ -345,9 +357,12 @@ bool syn_devicenet_on_can_rx(SYN_DeviceNet_Node *node, uint32_t can_id, const ui
     /* 2. Group 2 Explicit Request */
     uint32_t exp_req_id = make_group2_can_id(mac, GROUP2_EXPLICIT_REQ_MSG_ID);
     if (can_id == exp_req_id) {
+        if (!handle_explicit_message(node, data, len, tx_data, tx_len)) {
+            return false;
+        }
         node->explicit_connected = true;
         *tx_can_id = make_group2_can_id(mac, GROUP2_EXPLICIT_RESP_MSG_ID);
-        return handle_explicit_message(node, data, len, tx_data, tx_len);
+        return true;
     }
 
     /* 3. Group 2 Polled I/O Command */

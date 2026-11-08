@@ -2481,6 +2481,198 @@ static void test_modbus_truncated_payload_exceptions(void)
     TEST_ASSERT_EQUAL(SYN_MB_EX_ILLEGAL_VALUE, mock_uart_tx_buf[2]);
 }
 
+static void feed_rtu_frame_direct(SYN_Modbus *mb, const uint8_t *pdu, uint16_t len_no_crc)
+{
+    memcpy(mb->buf, pdu, len_no_crc);
+    uint16_t crc = syn_crc16_modbus(mb->buf, len_no_crc);
+    mb->buf[len_no_crc] = (uint8_t)(crc & 0xFFU);
+    mb->buf[len_no_crc + 1U] = (uint8_t)((crc >> 8U) & 0xFFU);
+    mb->rx_len = (uint16_t)(len_no_crc + 2U);
+    mb->frame_ready = true;
+}
+
+static void test_pro01_pro09_tx_cap_null_regs_file_clamp_and_poll_silence(void)
+{
+    uint16_t holding[8] = {0x1111U, 0x2222U, 0x3333U, 0x4444U, 0U, 0U, 0U, 0U};
+    uint8_t coils[8] = {0xAAU};
+    uint16_t fifo[4] = {10U, 20U, 30U, 40U};
+    SYN_Modbus mb;
+
+    /* 1. Runt 4-byte buffer: FC 0x07 hits mb_check_tx_cap AND send_exception buf_size < 5U */
+    uint8_t buf4[8] = {0xEEU, 0xEEU, 0xEEU, 0xEEU, 0xEEU, 0xEEU, 0xEEU, 0xEEU};
+    SYN_Modbus_Config cfg_full = {
+        .slave_addr = 1U,
+        .holding_regs = holding,
+        .holding_count = 8U,
+        .coils = coils,
+        .coils_count = 64U,
+        .fifo_queue = fifo,
+        .fifo_count = 4U,
+        .on_read_file = mock_read_file,
+    };
+    mock_port_reset();
+    syn_modbus_init(&mb, &cfg_full, buf4, 4U);
+    uint8_t fc07[2] = {1U, SYN_MB_FC_READ_EXCEPTION_STATUS};
+    feed_rtu_frame_direct(&mb, fc07, 2U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_UINT32(1U, mb.errors);
+    TEST_ASSERT_EQUAL_size_t(0U, mock_uart_tx_len);
+    TEST_ASSERT_EQUAL_HEX8(0xEEU, buf4[4]);
+
+    /* 2. Small TX capacity checks across FC 0x01, 0x03, 0x0B, 0x0C, 0x11, 0x17, 0x18, 0x2B */
+    uint8_t small10[10];
+    syn_modbus_init(&mb, &cfg_full, small10, 10U);
+    uint8_t fc03_4[6] = {1U, 0x03U, 0U, 0U, 0U, 4U}; /* needs 11B > 10B */
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, fc03_4, 6U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0x83U, mock_uart_tx_buf[1]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_DEVICE_FAILURE, mock_uart_tx_buf[2]);
+
+    uint8_t fc01_64[6] = {1U, 0x01U, 0U, 0U, 0U, 64U}; /* needs 13B > 10B */
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, fc01_64, 6U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0x81U, mock_uart_tx_buf[1]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_DEVICE_FAILURE, mock_uart_tx_buf[2]);
+
+    uint8_t fc0c[2] = {1U, 0x0CU}; /* needs 13B > 10B */
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, fc0c, 2U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0x8CU, mock_uart_tx_buf[1]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_DEVICE_FAILURE, mock_uart_tx_buf[2]);
+
+    uint8_t fc11[2] = {1U, 0x11U}; /* needs 12B > 10B */
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, fc11, 2U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0x91U, mock_uart_tx_buf[1]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_DEVICE_FAILURE, mock_uart_tx_buf[2]);
+
+    uint8_t fc18[4] = {1U, 0x18U, 0U, 0U}; /* needs 16B > 10B */
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, fc18, 4U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0x98U, mock_uart_tx_buf[1]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_DEVICE_FAILURE, mock_uart_tx_buf[2]);
+
+    uint8_t small6[6];
+    syn_modbus_init(&mb, &cfg_full, small6, 6U);
+    uint8_t fc0b[2] = {1U, 0x0BU}; /* needs 8B > 6B */
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, fc0b, 2U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0x8BU, mock_uart_tx_buf[1]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_DEVICE_FAILURE, mock_uart_tx_buf[2]);
+
+    uint8_t small8[8];
+    syn_modbus_init(&mb, &cfg_full, small8, 8U);
+    uint8_t fc2b[5] = {1U, 0x2BU, 0x0EU, 0x01U, 0x00U}; /* header needs 10B > 8B */
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, fc2b, 5U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0xABU, mock_uart_tx_buf[1]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_DEVICE_FAILURE, mock_uart_tx_buf[2]);
+
+    uint8_t small16[16];
+    syn_modbus_init(&mb, &cfg_full, small16, 16U);
+    uint8_t fc17_big_rd[13] = {1U, 0x17U, 0U, 0U, 0U, 6U, 0U, 0U, 0U, 1U, 2U, 0xAAU, 0xBBU};
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, fc17_big_rd, 13U); /* needs 17B > 16B */
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0x97U, mock_uart_tx_buf[1]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_DEVICE_FAILURE, mock_uart_tx_buf[2]);
+    TEST_ASSERT_EQUAL_HEX16(0x1111U, holding[0]);
+
+    /* 3. NULL holding_regs / input_regs with non-zero counts -> SYN_MB_EX_ILLEGAL_ADDR */
+    uint8_t std_buf[64];
+    SYN_Modbus_Config cfg_null_regs = {
+        .slave_addr = 1U,
+        .holding_regs = NULL,
+        .holding_count = 4U,
+        .input_regs = NULL,
+        .input_count = 4U,
+    };
+    syn_modbus_init(&mb, &cfg_null_regs, std_buf, sizeof(std_buf));
+
+    uint8_t rd_hold[6] = {1U, 0x03U, 0U, 0U, 0U, 1U};
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, rd_hold, 6U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_ILLEGAL_ADDR, mock_uart_tx_buf[2]);
+
+    uint8_t rd_in[6] = {1U, 0x04U, 0U, 0U, 0U, 1U};
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, rd_in, 6U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_ILLEGAL_ADDR, mock_uart_tx_buf[2]);
+
+    uint8_t wr_sng[6] = {1U, 0x06U, 0U, 0U, 0x12U, 0x34U};
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, wr_sng, 6U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_ILLEGAL_ADDR, mock_uart_tx_buf[2]);
+
+    uint8_t wr_mul[9] = {1U, 0x10U, 0U, 0U, 0U, 1U, 2U, 0x12U, 0x34U};
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, wr_mul, 9U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_ILLEGAL_ADDR, mock_uart_tx_buf[2]);
+
+    uint8_t rw_mul[13] = {1U, 0x17U, 0U, 0U, 0U, 1U, 0U, 0U, 0U, 1U, 2U, 0x12U, 0x34U};
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, rw_mul, 13U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_ILLEGAL_ADDR, mock_uart_tx_buf[2]);
+
+    /* MEI individual object > 0x06 (including 0xFF boundary) returns 0 objects without wraparound
+     */
+    uint8_t fc2b_high_id[5] = {1U, 0x2BU, 0x0EU, 0x04U, 0xFFU};
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, fc2b_high_id, 5U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0U, mock_uart_tx_buf[7]);
+
+    /* 4. PRO-01: FC 0x14 resp_buf[256] stack overflow & PDU 253U clamp when buf_size > 258 */
+    uint8_t huge_buf[512];
+    syn_modbus_init(&mb, &cfg_full, huge_buf, sizeof(huge_buf));
+    uint8_t fc14_overflow[17] = {
+        1U,    0x14U, 14U, 0x06U, 0U, 1U, 0U, 0U, 0U, 100U, /* 202B sub-resp */
+        0x06U, 0U,    1U,  0U,    1U, 0U, 30U               /* +62B -> 267B > 253U */
+    };
+    mock_port_reset();
+    feed_rtu_frame_direct(&mb, fc14_overflow, 17U);
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0x94U, mock_uart_tx_buf[1]);
+    TEST_ASSERT_EQUAL_HEX8(SYN_MB_EX_ILLEGAL_VALUE, mock_uart_tx_buf[2]);
+
+    /* 5. PRO-09: syn_modbus_poll honors custom cfg.silence_ms */
+    SYN_Modbus_Config cfg_poll = {
+        .slave_addr = 1U,
+        .holding_regs = holding,
+        .holding_count = 8U,
+        .silence_ms = 25U,
+    };
+    mock_port_reset();
+    syn_modbus_init(&mb, &cfg_poll, std_buf, sizeof(std_buf));
+    uint8_t poll_req[8] = {1U, 0x03U, 0U, 0U, 0U, 1U, 0U, 0U};
+    uint16_t pcrc = syn_crc16_modbus(poll_req, 6U);
+    poll_req[6] = (uint8_t)(pcrc & 0xFFU);
+    poll_req[7] = (uint8_t)((pcrc >> 8U) & 0xFFU);
+    memcpy(mock_uart_rx_buf, poll_req, 8U);
+    mock_uart_rx_len = 8U;
+    mock_uart_rx_pos = 0U;
+    mock_tick_ms = 100U;
+    TEST_ASSERT_FALSE(syn_modbus_poll(&mb));
+    mock_tick_advance(10U); /* >= MB_SILENCE_MS(5), but < silence_ms(25) */
+    TEST_ASSERT_FALSE(syn_modbus_poll(&mb));
+    TEST_ASSERT_EQUAL_UINT16(8U, mb.rx_len);
+    mock_tick_advance(20U); /* 30ms >= 25ms */
+    TEST_ASSERT_TRUE(syn_modbus_poll(&mb));
+    TEST_ASSERT_EQUAL_UINT16(0U, mb.rx_len);
+}
+
 void run_modbus_tests(void)
 {
     RUN_TEST(test_modbus_basic);
@@ -2506,4 +2698,5 @@ void run_modbus_tests(void)
     RUN_TEST(test_modbus_fc17_on_write_rejection_and_broadcast_exception);
     RUN_TEST(test_modbus_rtu_frame_crc_and_runt_buffer);
     RUN_TEST(test_modbus_truncated_payload_exceptions);
+    RUN_TEST(test_pro01_pro09_tx_cap_null_regs_file_clamp_and_poll_silence);
 }

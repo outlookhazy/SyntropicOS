@@ -89,9 +89,6 @@ typedef struct {
 /**
  * @brief Streaming Decoder State Machine for CJ/T 188.
  */
-/**
- * @brief Streaming Decoder State Machine for CJ/T 188.
- */
 typedef struct {
     uint8_t buf[SYN_CJT188_MAX_FRAME_SIZE]; /**< Frame assembly buffer */
     size_t index;                           /**< Current byte index in buffer */
@@ -114,7 +111,7 @@ uint8_t syn_cjt188_checksum(const uint8_t *buf, size_t len);
  * @brief Encode a CJ/T 188 Read Meter Data Request (`0x01`).
  *
  * @param out_buf     Buffer to write encoded frame into.
- * @param buf_size    Capacity of out_buf (at least 17 bytes for 4x FE + frame).
+ * @param buf_size    Capacity of out_buf (at least 20 bytes for 4x FE + frame).
  * @param meter_type  Meter type (e.g. SYN_CJT188_METER_COLD_WATER).
  * @param meter_id    5-byte BCD meter ID array.
  * @param vendor_id   2-byte vendor code array.
@@ -130,7 +127,7 @@ size_t syn_cjt188_encode_read_req(uint8_t *out_buf, size_t buf_size, uint8_t met
  * @brief Encode a CJ/T 188 Valve Control Request (`0x04`).
  *
  * @param out_buf     Buffer to write encoded frame into.
- * @param buf_size    Capacity of out_buf (at least 18 bytes).
+ * @param buf_size    Capacity of out_buf (at least 21 bytes).
  * @param meter_type  Meter type.
  * @param meter_id    5-byte BCD meter ID array.
  * @param vendor_id   2-byte vendor code array.

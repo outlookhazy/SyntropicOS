@@ -413,7 +413,8 @@ static void kwp_handle_security_seed(SYN_KWP2000_Server *server, uint8_t sid, ui
         seed_len = 2U;
     }
 
-    if ((uint32_t)seed_len + 2U > (uint32_t)max_resp_len) {
+    if ((seed_len > (uint16_t)sizeof(seed_buf)) ||
+        (((uint32_t)seed_len + 2U) > (uint32_t)max_resp_len)) {
         make_nrc(sid, SYN_KWP2000_NRC_INCORRECT_MESSAGE_LENGTH, resp_buf, resp_len);
         return;
     }
@@ -495,7 +496,8 @@ static void kwp_handle_routine(SYN_KWP2000_Server *server, const uint8_t *req_bu
         return;
     }
 
-    if ((uint32_t)out_len + 2U > (uint32_t)max_resp_len) {
+    if ((out_len > (uint16_t)sizeof(routine_out)) ||
+        (((uint32_t)out_len + 2U) > (uint32_t)max_resp_len)) {
         make_nrc(sid, SYN_KWP2000_NRC_INCORRECT_MESSAGE_LENGTH, resp_buf, resp_len);
         return;
     }
@@ -519,7 +521,7 @@ static void kwp_handle_download(SYN_KWP2000_Server *server, const uint8_t *req_b
                                 uint16_t req_len, uint8_t *resp_buf, uint16_t *resp_len)
 {
     uint8_t sid = req_buf[0];
-    if (req_len < 5U) {
+    if ((req_len < 5U) || ((req_len > 5U) && (req_len < 9U))) {
         make_nrc(sid, SYN_KWP2000_NRC_INCORRECT_MESSAGE_LENGTH, resp_buf, resp_len);
         return;
     }
@@ -615,9 +617,13 @@ static void kwp_dispatch_transfer_or_misc(SYN_KWP2000_Server *server, const uint
         kwp_handle_transfer(server, req_buf, req_len, resp_buf, resp_len);
         break;
     case SYN_KWP2000_SID_REQUEST_TRANSFER_EXIT:
-        server->is_downloading = false;
-        resp_buf[0] = (uint8_t)(sid + 0x40U);
-        *resp_len = 1U;
+        if (!server->is_downloading) {
+            make_nrc(sid, SYN_KWP2000_NRC_CONDITIONS_NOT_CORRECT, resp_buf, resp_len);
+        } else {
+            server->is_downloading = false;
+            resp_buf[0] = (uint8_t)(sid + 0x40U);
+            *resp_len = 1U;
+        }
         break;
     case SYN_KWP2000_SID_TESTER_PRESENT:
         server->s3_timer_ms = 0U;
@@ -645,6 +651,8 @@ static void kwp_handle_security(SYN_KWP2000_Server *server, const uint8_t *req_b
 {
     if (req_len < 2U) {
         make_nrc(req_buf[0], SYN_KWP2000_NRC_INCORRECT_MESSAGE_LENGTH, resp_buf, resp_len);
+    } else if (req_buf[1] == 0x00U) {
+        make_nrc(req_buf[0], SYN_KWP2000_NRC_SUBFUNCTION_NOT_SUPPORTED, resp_buf, resp_len);
     } else if ((req_buf[1] % 2U) != 0U) {
         kwp_handle_security_seed(server, req_buf[0], req_buf[1], resp_buf, max_resp_len, resp_len);
     } else {
@@ -705,7 +713,11 @@ void syn_kwp2000_tick(SYN_KWP2000_Server *server, uint32_t dt_ms)
     if (server == NULL) {
         return;
     }
-    server->s3_timer_ms += dt_ms;
+    if (dt_ms > (UINT32_MAX - server->s3_timer_ms)) {
+        server->s3_timer_ms = UINT32_MAX;
+    } else {
+        server->s3_timer_ms += dt_ms;
+    }
 
     /* S3 session inactivity timeout (ISO 14230-3 §5.3) */
     if (server->current_session != SYN_KWP2000_SESSION_DEFAULT) {

@@ -41,43 +41,56 @@ void syn_cia303_set_nmt_state(SYN_CiA303_Indicator *ind, uint8_t nmt_state)
 {
     SYN_ASSERT(ind != NULL);
 
-    if (ind->run_led == NULL)
-        return;
-
-    SYN_CiA303_RunState new_state;
     switch (nmt_state) {
     case SYN_CANOPEN_NMT_OPERATIONAL:
-        new_state = SYN_CIA303_RUN_SOLID_ON;
-        syn_led_on(ind->run_led);
+        ind->run_state = SYN_CIA303_RUN_SOLID_ON;
         break;
 
     case SYN_CANOPEN_NMT_PRE_OPERATIONAL:
-        new_state = SYN_CIA303_RUN_BLINKING;
-        syn_led_blink(ind->run_led, 200, 200); /* 200ms ON, 200ms OFF */
+        ind->run_state = SYN_CIA303_RUN_BLINKING;
         break;
 
     case SYN_CANOPEN_NMT_STOPPED:
-        new_state = SYN_CIA303_RUN_SINGLE_FLASH;
-        syn_led_blink(ind->run_led, 200, 1000); /* 200ms ON, 1000ms OFF */
+        ind->run_state = SYN_CIA303_RUN_SINGLE_FLASH;
         break;
 
     default:
-        new_state = SYN_CIA303_RUN_OFF;
-        syn_led_off(ind->run_led);
+        ind->run_state = SYN_CIA303_RUN_OFF;
         break;
     }
 
-    ind->run_state = new_state;
+    if (ind->run_led == NULL) {
+        return;
+    }
+
+    switch (ind->run_state) {
+    case SYN_CIA303_RUN_SOLID_ON:
+        syn_led_on(ind->run_led);
+        break;
+
+    case SYN_CIA303_RUN_BLINKING:
+        syn_led_blink(ind->run_led, 200U, 200U); /* 200ms ON, 200ms OFF */
+        break;
+
+    case SYN_CIA303_RUN_SINGLE_FLASH:
+        syn_led_blink(ind->run_led, 200U, 1000U); /* 200ms ON, 1000ms OFF */
+        break;
+
+    default:
+        syn_led_off(ind->run_led);
+        break;
+    }
 }
 
 void syn_cia303_set_error_state(SYN_CiA303_Indicator *ind, SYN_CiA303_ErrState err_state)
 {
     SYN_ASSERT(ind != NULL);
 
-    if (ind->err_led == NULL)
-        return;
-
     ind->err_state = err_state;
+
+    if (ind->err_led == NULL) {
+        return;
+    }
 
     switch (err_state) {
     case SYN_CIA303_ERR_SOLID_ON:

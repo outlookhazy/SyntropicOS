@@ -76,9 +76,28 @@ void test_uds_util_null_and_bounds(void)
     TEST_ASSERT_FALSE(syn_uds_dtc_from_str("P010Z00", &dtc));
 }
 
+void test_uds_util_pro14_bounds(void)
+{
+    uint32_t dtc = 0U;
+    char buf[16];
+
+    /* Second character (type digit) must be '0'..'3' */
+    TEST_ASSERT_FALSE(syn_uds_dtc_from_str("P410500", &dtc));
+    TEST_ASSERT_FALSE(syn_uds_dtc_from_str("UF10500", &dtc));
+    TEST_ASSERT_TRUE(syn_uds_dtc_from_str("P310500", &dtc));
+    TEST_ASSERT_EQUAL_HEX32(0x310500U, dtc);
+
+    /* DTC must fit in 24 bits (<= 0x00FFFFFF) */
+    TEST_ASSERT_FALSE(syn_uds_dtc_to_str(0x01000000U, buf, sizeof(buf)));
+    TEST_ASSERT_FALSE(syn_uds_dtc_to_str(0xFFFFFFFFU, buf, sizeof(buf)));
+    TEST_ASSERT_TRUE(syn_uds_dtc_to_str(0x00FFFFFFU, buf, sizeof(buf)));
+    TEST_ASSERT_EQUAL_STRING("U3FFFFF", buf);
+}
+
 void run_uds_util_tests(void)
 {
     RUN_TEST(test_uds_util_dtc_from_str);
     RUN_TEST(test_uds_util_dtc_to_str);
     RUN_TEST(test_uds_util_null_and_bounds);
+    RUN_TEST(test_uds_util_pro14_bounds);
 }

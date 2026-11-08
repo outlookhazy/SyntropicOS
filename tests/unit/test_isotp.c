@@ -680,6 +680,104 @@ static void test_isotp_frame_padding(void)
     TEST_ASSERT_EQUAL_HEX8(0xCC, cf_out.data[7]);
 }
 
+static uint8_t pro15_classic_tx[4100];
+static uint8_t pro15_classic_rx[4100];
+
+static void test_isotp_pro15_frame_validation_and_saturation(void)
+{
+    SYN_ISOTP_Link link;
+    syn_isotp_init(&link, 0x700U, 0x708U, pro15_classic_rx, sizeof(pro15_classic_rx),
+                   pro15_classic_tx, sizeof(pro15_classic_tx));
+
+    /* 1. Classic CAN send > 4095 bytes rejected even when tx_buf_size >= 4096 */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_isotp_send(&link, pro15_classic_tx, 4096U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_isotp_send(&link, pro15_classic_tx, 4095U));
+    link.tx_state = SYN_ISOTP_TX_IDLE;
+
+    /* 2. dlc == 0 ignored */
+    SYN_CAN_Frame zero_dlc = {.id = 0x700U, .dlc = 0U, .data = {0x02U, 0x11U, 0x22U}};
+    syn_isotp_process_rx_frame(&link, &zero_dlc);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, link.rx_state);
+
+    /* 3. Malformed Single Frames dropped instead of clamped */
+    SYN_CAN_Frame sf_dlc1_esc = {.id = 0x700U, .dlc = 1U, .data = {0x00U}};
+    syn_isotp_process_rx_frame(&link, &sf_dlc1_esc);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, link.rx_state);
+
+    SYN_CAN_Frame sf_zero_esc = {.id = 0x700U, .dlc = 8U, .data = {0x00U, 0x00U, 0xAAU}};
+    syn_isotp_process_rx_frame(&link, &sf_zero_esc);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, link.rx_state);
+
+    SYN_CAN_Frame sf_esc_over = {.id = 0x700U, .dlc = 8U, .data = {0x00U, 0x07U, 0xAAU}};
+    syn_isotp_process_rx_frame(&link, &sf_esc_over);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, link.rx_state);
+
+    SYN_CAN_Frame sf_short_dlc = {.id = 0x700U, .dlc = 4U, .data = {0x05U, 1U, 2U, 3U}};
+    syn_isotp_process_rx_frame(&link, &sf_short_dlc);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, link.rx_state);
+
+    SYN_ISOTP_Link tiny_link;
+    syn_isotp_init(&tiny_link, 0x700U, 0x708U, rx_buf_a, 2U, tx_buf_a, 8U);
+    SYN_CAN_Frame sf_over_buf = {.id = 0x700U, .dlc = 8U, .data = {0x03U, 1U, 2U, 3U}};
+    syn_isotp_process_rx_frame(&tiny_link, &sf_over_buf);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, tiny_link.rx_state);
+
+    /* 4. Malformed First Frames (dlc < 8, ff_len <= 7, FD escape <= 4095) and idle CF ignored */
+    SYN_CAN_Frame ff_short = {.id = 0x700U, .dlc = 7U, .data = {0x10U, 0x20U, 1U, 2U, 3U, 4U, 5U}};
+    syn_isotp_process_rx_frame(&link, &ff_short);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, link.rx_state);
+
+    SYN_CAN_Frame ff_tiny_len = {.id = 0x700U, .dlc = 8U, .data = {0x10U, 0x05U, 1U, 2U}};
+    syn_isotp_process_rx_frame(&link, &ff_tiny_len);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, link.rx_state);
+
+    SYN_CAN_Frame cf_idle = {.id = 0x700U, .dlc = 8U, .data = {0x21U, 1U}};
+    syn_isotp_process_rx_frame(&link, &cf_idle);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, link.rx_state);
+
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+    SYN_ISOTP_Link fd_link;
+    syn_isotp_init_fd(&fd_link, 0x700U, 0x708U, pro15_classic_rx, sizeof(pro15_classic_rx),
+                      pro15_classic_tx, sizeof(pro15_classic_tx), true);
+    SYN_CAN_Frame fd_bad_esc = {.id = 0x700U,
+                                .dlc = 64U,
+                                .is_fd = true,
+                                .data = {0x10U, 0x00U, 0x00U, 0x00U, 0x0FU, 0xFFU}};
+    syn_isotp_process_rx_frame(&fd_link, &fd_bad_esc);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, fd_link.rx_state);
+    TEST_ASSERT_FALSE(fd_link.rx_fc_pending);
+#endif
+
+    /* 5. FlowControl: idle FC ignored, short FC ignored, invalid FS (> 2) aborts TX */
+    SYN_CAN_Frame fc_bad_fs = {.id = 0x700U, .dlc = 8U, .data = {0x33U, 0U, 0U}};
+    syn_isotp_process_rx_frame(&link, &fc_bad_fs);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_isotp_send(&link, pro15_classic_tx, 20U));
+    SYN_CAN_Frame ff_out;
+    TEST_ASSERT_TRUE(syn_isotp_get_tx_frame(&link, &ff_out));
+    TEST_ASSERT_EQUAL(SYN_ISOTP_TX_WAIT_FC, link.tx_state);
+
+    SYN_CAN_Frame fc_short = {.id = 0x700U, .dlc = 2U, .data = {0x30U, 0U}};
+    syn_isotp_process_rx_frame(&link, &fc_short);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_TX_WAIT_FC, link.tx_state);
+
+    syn_isotp_process_rx_frame(&link, &fc_bad_fs);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_TX_IDLE, link.tx_state);
+    TEST_ASSERT_EQUAL_UINT32(0U, link.tx_timeout_timer_us);
+
+    /* 6. ms -> us conversion saturates at UINT32_MAX without 32-bit wraparound */
+    syn_isotp_set_timeouts(&link, 0U, 0U);
+    TEST_ASSERT_EQUAL_UINT32(SYN_ISOTP_DEFAULT_N_BS_MS * 1000U, link.n_bs_timeout_us);
+    syn_isotp_set_timeouts(&link, 5000000U, 5000000U);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, link.n_bs_timeout_us);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, link.n_cr_timeout_us);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_isotp_send(&link, pro15_classic_tx, 20U));
+    TEST_ASSERT_TRUE(syn_isotp_get_tx_frame(&link, &ff_out));
+    syn_isotp_step(&link, 5000000U);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_TX_IDLE, link.tx_state);
+}
+
 void run_isotp_tests(void)
 {
     RUN_TEST(test_isotp_single_frame);
@@ -698,6 +796,7 @@ void run_isotp_tests(void)
     RUN_TEST(test_isotp_block_size_flow_control);
     RUN_TEST(test_isotp_tx_wait_flow_control);
     RUN_TEST(test_isotp_frame_padding);
+    RUN_TEST(test_isotp_pro15_frame_validation_and_saturation);
 #if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
     RUN_TEST(test_isotp_canfd_single_frame);
     RUN_TEST(test_isotp_canfd_multi_frame);

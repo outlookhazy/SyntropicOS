@@ -232,12 +232,17 @@ SYN_Status syn_ir_decoder_init(SYN_IR_Decoder *decoder)
 
 /**
  * @brief Unpack 32-bit NEC, NEC-Extended, or Apple IR bit stream into a decoded frame.
+ * @param bit_idx Total number of decoded bits.
  * @param bits Raw 32-bit LSB-first received bit pattern.
  * @param frame_out Output decoded IR frame.
- * @return true if checksum/signature is valid, false otherwise.
+ * @return true if bit count and checksum/signature are valid, false otherwise.
  */
-static bool unpack_nec_family(uint64_t bits, SYN_IR_Frame *frame_out)
+static bool unpack_nec_family(uint8_t bit_idx, uint64_t bits, SYN_IR_Frame *frame_out)
 {
+    if (bit_idx != 32U) {
+        return false;
+    }
+
     uint8_t addr = (uint8_t)(bits & 0xFFU);
     uint8_t addr_inv = (uint8_t)((bits >> 8U) & 0xFFU);
     uint8_t cmd = (uint8_t)((bits >> 16U) & 0xFFU);
@@ -295,6 +300,89 @@ static bool unpack_sony_family(uint8_t bit_idx, uint64_t bits, SYN_IR_Frame *fra
 }
 
 /**
+ * @brief Unpack 14-bit Philips RC5 bit stream into a decoded frame.
+ * @param bit_idx Total number of decoded bits.
+ * @param bits Raw MSB-first received bit pattern.
+ * @param frame_out Output decoded IR frame.
+ * @return true if valid 14-bit RC5 frame, false otherwise.
+ */
+static bool unpack_rc5(uint8_t bit_idx, uint64_t bits, SYN_IR_Frame *frame_out)
+{
+    if (bit_idx != 14U) {
+        return false;
+    }
+    if (((bits >> 11U) & 0x01U) != 0U) {
+        frame_out->flags |= SYN_IR_FLAG_TOGGLE;
+    }
+    frame_out->address = (uint32_t)((bits >> 6U) & 0x1FU);
+    frame_out->command = (uint32_t)(bits & 0x3FU);
+    return true;
+}
+
+/**
+ * @brief Unpack 21-bit Philips RC6 Mode 0 bit stream into a decoded frame.
+ * @param bit_idx Total number of decoded bits.
+ * @param bits Raw MSB-first received bit pattern.
+ * @param frame_out Output decoded IR frame.
+ * @return true if valid 21-bit RC6 Mode 0 frame (start bit == 1, mode == 0), false otherwise.
+ */
+static bool unpack_rc6(uint8_t bit_idx, uint64_t bits, SYN_IR_Frame *frame_out)
+{
+    if (bit_idx != 21U) {
+        return false;
+    }
+    if ((((bits >> 20U) & 0x01U) != 1U) || (((bits >> 17U) & 0x07U) != 0U)) {
+        return false;
+    }
+    if (((bits >> 16U) & 0x01U) != 0U) {
+        frame_out->flags |= SYN_IR_FLAG_TOGGLE;
+    }
+    frame_out->address = (uint32_t)((bits >> 8U) & 0xFFU);
+    frame_out->command = (uint32_t)(bits & 0xFFU);
+    return true;
+}
+
+/**
+ * @brief Unpack Samsung, Kaseikyo, or Denon PDM bit stream into a decoded frame.
+ * @param proto Active IR protocol identifier.
+ * @param bit_idx Total number of decoded bits.
+ * @param bits Raw LSB-first received bit pattern.
+ * @param frame_out Output decoded IR frame.
+ * @return true if bit count and protocol checks pass, false otherwise.
+ */
+static bool unpack_other_pdm(SYN_IR_Protocol proto, uint8_t bit_idx, uint64_t bits,
+                             SYN_IR_Frame *frame_out)
+{
+    if (proto == SYN_IR_PROTO_SAMSUNG) {
+        uint8_t cmd = (uint8_t)((bits >> 16U) & 0xFFU);
+        uint8_t cmd_inv = (uint8_t)((bits >> 24U) & 0xFFU);
+        if ((bit_idx != 32U) || ((cmd ^ cmd_inv) != 0xFFU)) {
+            return false;
+        }
+        frame_out->address = (uint16_t)(bits & 0xFFFFU);
+        frame_out->command = cmd;
+        return true;
+    }
+
+    if (proto == SYN_IR_PROTO_KASEIKYO) {
+        if (bit_idx != 48U) {
+            return false;
+        }
+        frame_out->address = (uint16_t)(bits & 0xFFFFU);
+        frame_out->command = (uint32_t)((bits >> 16U) & 0xFFFFFFFFULL);
+        return true;
+    }
+
+    /* SYN_IR_PROTO_DENON (15-bit) */
+    if (bit_idx != 15U) {
+        return false;
+    }
+    frame_out->address = (uint32_t)((bits >> 10U) & 0x1FU);
+    frame_out->command = (uint32_t)((bits >> 2U) & 0xFFU);
+    return true;
+}
+
+/**
  * @brief Unpack raw 64-bit frame buffer into decoded SYN_IR_Frame fields.
  * @param decoder Pointer to IR decoder instance.
  * @param frame_out Pointer to output frame structure.
@@ -316,10 +404,7 @@ static bool unpack_frame(const SYN_IR_Decoder *decoder, SYN_IR_Frame *frame_out)
     case SYN_IR_PROTO_NEC:
     case SYN_IR_PROTO_NEC_EXTENDED:
     case SYN_IR_PROTO_APPLE:
-        if (decoder->bit_idx != 32U) {
-            return false;
-        }
-        return unpack_nec_family(bits, frame_out);
+        return unpack_nec_family(decoder->bit_idx, bits, frame_out);
 
     case SYN_IR_PROTO_SONY_12:
     case SYN_IR_PROTO_SONY_15:
@@ -327,54 +412,13 @@ static bool unpack_frame(const SYN_IR_Decoder *decoder, SYN_IR_Frame *frame_out)
         return unpack_sony_family(decoder->bit_idx, bits, frame_out);
 
     case SYN_IR_PROTO_RC5:
-        if (decoder->bit_idx != 14U) {
-            return false;
-        }
-        if (((bits >> 11U) & 0x01U) != 0U) {
-            frame_out->flags |= SYN_IR_FLAG_TOGGLE;
-        }
-        frame_out->address = (uint32_t)((bits >> 6U) & 0x1FU);
-        frame_out->command = (uint32_t)(bits & 0x3FU);
-        return true;
+        return unpack_rc5(decoder->bit_idx, bits, frame_out);
 
     case SYN_IR_PROTO_RC6:
-        if (decoder->bit_idx != 21U) {
-            return false;
-        }
-        if (((bits >> 16U) & 0x01U) != 0U) {
-            frame_out->flags |= SYN_IR_FLAG_TOGGLE;
-        }
-        frame_out->address = (uint32_t)((bits >> 8U) & 0xFFU);
-        frame_out->command = (uint32_t)(bits & 0xFFU);
-        return true;
-
-    case SYN_IR_PROTO_SAMSUNG: {
-        uint8_t cmd = (uint8_t)((bits >> 16U) & 0xFFU);
-        uint8_t cmd_inv = (uint8_t)((bits >> 24U) & 0xFFU);
-        if (decoder->bit_idx != 32U || (cmd ^ cmd_inv) != 0xFFU) {
-            return false;
-        }
-        frame_out->address = (uint16_t)(bits & 0xFFFFU);
-        frame_out->command = cmd;
-        return true;
-    }
-
-    case SYN_IR_PROTO_KASEIKYO:
-        if (decoder->bit_idx != 48U) {
-            return false;
-        }
-        frame_out->address = (uint16_t)(bits & 0xFFFFU);
-        frame_out->command = (uint32_t)((bits >> 16U) & 0xFFFFFFFFULL);
-        return true;
+        return unpack_rc6(decoder->bit_idx, bits, frame_out);
 
     default:
-        /* SYN_IR_PROTO_DENON (15-bit) */
-        if (decoder->bit_idx != 15U) {
-            return false;
-        }
-        frame_out->address = (uint32_t)((bits >> 10U) & 0x1FU);
-        frame_out->command = (uint32_t)((bits >> 2U) & 0xFFU);
-        return true;
+        return unpack_other_pdm(proto, decoder->bit_idx, bits, frame_out);
     }
 }
 
@@ -575,6 +619,71 @@ static bool ir_decode_pdm_space(SYN_IR_Decoder *decoder, const SYN_IR_ProtoDesc 
 }
 
 /**
+ * @brief Check whether protocol uses NEC-compatible 9ms+2.25ms repeat pulses.
+ * @param proto IR protocol identifier.
+ * @return true if NEC, NEC_EXTENDED, or APPLE; false otherwise.
+ */
+static bool ir_is_nec_family(SYN_IR_Protocol proto)
+{
+    return (proto == SYN_IR_PROTO_NEC) || (proto == SYN_IR_PROTO_NEC_EXTENDED) ||
+           (proto == SYN_IR_PROTO_APPLE);
+}
+
+/**
+ * @brief Check whether mark/space matches an NEC-family repeat frame.
+ * @param decoder   IR decoder instance.
+ * @param mark_us   Preceding mark duration in microseconds.
+ * @param space_us  Current space duration in microseconds.
+ * @param frame_out Output decoded IR frame (populated on repeat).
+ * @return true if repeat frame emitted, false otherwise.
+ */
+static bool ir_try_nec_repeat(const SYN_IR_Decoder *decoder, uint16_t mark_us, uint16_t space_us,
+                              SYN_IR_Frame *frame_out)
+{
+    const SYN_IR_ProtoDesc *nec = &proto_table[SYN_IR_PROTO_NEC];
+    if (decoder->have_last && ir_is_nec_family(decoder->last_frame.protocol) &&
+        timing_match(mark_us, nec->leader_mark_us, nec->tolerance_us) &&
+        timing_match(space_us, nec->repeat_space_us, nec->tolerance_us)) {
+        *frame_out = decoder->last_frame;
+        frame_out->flags |= SYN_IR_FLAG_REPEAT;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief Match leader mark/space against protocol descriptor table.
+ * @param decoder  IR decoder instance.
+ * @param mark_us  Preceding mark duration in microseconds.
+ * @param space_us Current space duration in microseconds.
+ * @return true if a protocol leader matched and transitioned state, false otherwise.
+ */
+static bool ir_match_leader(SYN_IR_Decoder *decoder, uint16_t mark_us, uint16_t space_us)
+{
+    for (int p = 1; p < SYN_IR_PROTO_COUNT; p++) {
+        if ((p == SYN_IR_PROTO_SONY_12) || (p == SYN_IR_PROTO_SONY_15) ||
+            (p == SYN_IR_PROTO_NEC_EXTENDED)) {
+            continue;
+        }
+
+        const SYN_IR_ProtoDesc *desc = &proto_table[p];
+        if ((desc->leader_mark_us > 0U) &&
+            timing_match(mark_us, desc->leader_mark_us, desc->tolerance_us) &&
+            timing_match(space_us, desc->leader_space_us, desc->tolerance_us)) {
+            decoder->active_proto = (SYN_IR_Protocol)p;
+            decoder->expected_bits = desc->total_bits;
+            decoder->state = SYN_IR_STATE_DATA;
+            decoder->bits = 0ULL;
+            decoder->bit_idx = 0U;
+            decoder->manchester_phase = false;
+            decoder->last_space_us = 0U;
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * @brief Detect protocol preamble, repeat code, or leaderless start from idle mark/space pair.
  * @param decoder IR decoder instance.
  * @param mark_us Preceding mark duration in microseconds.
@@ -585,34 +694,11 @@ static bool ir_decode_pdm_space(SYN_IR_Decoder *decoder, const SYN_IR_ProtoDesc 
 static bool ir_decode_idle_space(SYN_IR_Decoder *decoder, uint16_t mark_us, uint16_t space_us,
                                  SYN_IR_Frame *frame_out)
 {
-    for (int p = 1; p < SYN_IR_PROTO_COUNT; p++) {
-        if (p == SYN_IR_PROTO_SONY_12 || p == SYN_IR_PROTO_SONY_15 ||
-            p == SYN_IR_PROTO_NEC_EXTENDED) {
-            continue;
-        }
-
-        const SYN_IR_ProtoDesc *desc = &proto_table[p];
-        if ((p == SYN_IR_PROTO_NEC || p == SYN_IR_PROTO_APPLE) &&
-            timing_match(mark_us, desc->leader_mark_us, desc->tolerance_us) &&
-            timing_match(space_us, desc->repeat_space_us, desc->tolerance_us) &&
-            decoder->have_last) {
-            *frame_out = decoder->last_frame;
-            frame_out->flags |= SYN_IR_FLAG_REPEAT;
-            return true;
-        }
-
-        if (desc->leader_mark_us > 0U &&
-            timing_match(mark_us, desc->leader_mark_us, desc->tolerance_us) &&
-            timing_match(space_us, desc->leader_space_us, desc->tolerance_us)) {
-            decoder->active_proto = (SYN_IR_Protocol)p;
-            decoder->expected_bits = desc->total_bits;
-            decoder->state = SYN_IR_STATE_DATA;
-            decoder->bits = 0ULL;
-            decoder->bit_idx = 0U;
-            decoder->manchester_phase = false;
-            decoder->last_space_us = 0U;
-            return false;
-        }
+    if (ir_try_nec_repeat(decoder, mark_us, space_us, frame_out)) {
+        return true;
+    }
+    if (ir_match_leader(decoder, mark_us, space_us)) {
+        return false;
     }
 
     const SYN_IR_ProtoDesc *denon = &proto_table[SYN_IR_PROTO_DENON];
@@ -677,7 +763,12 @@ bool syn_ir_decode_pulse(SYN_IR_Decoder *decoder, uint16_t duration_us, bool is_
         return false;
     }
 
+    if (decoder->last_mark_us == 0U) {
+        return false;
+    }
+
     uint16_t mark_us = decoder->last_mark_us;
+    decoder->last_mark_us = 0U;
     decoder->last_space_us = duration_us;
 
     if (decoder->state == SYN_IR_STATE_IDLE) {

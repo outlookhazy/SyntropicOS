@@ -260,6 +260,36 @@ static void test_r5_a04_stack_tx_copy_and_cf_nad_check(void)
     TEST_ASSERT_EQUAL_INT(2, syn_lintp_receive(&tiny_rx, out, 2U));
 }
 
+static void test_lintp_pro23_functional_ff_reject_and_timer_saturation(void)
+{
+    SYN_LINTP_Link link;
+    syn_lintp_init(&link, 0x02U, g_rx_buf, sizeof(g_rx_buf), g_tx_buf, sizeof(g_tx_buf));
+
+    /* 1. Reject First Frame addressed to functional NAD (0x7E) per ISO 17987-2 */
+    uint8_t func_ff[8] = {SYN_LINTP_NAD_FUNCTIONAL, 0x10U, 0x0CU, 1U, 2U, 3U, 4U, 5U};
+    syn_lintp_process_rx_frame(&link, func_ff);
+    TEST_ASSERT_EQUAL_INT(SYN_LINTP_STATE_IDLE, link.rx_state);
+
+    /* Functional FF during active physical multi-frame RX must NOT abort physical RX */
+    uint8_t phys_ff[8] = {0x02U, 0x10U, 0x0AU, 0xA1U, 0xA2U, 0xA3U, 0xA4U, 0xA5U};
+    syn_lintp_process_rx_frame(&link, phys_ff);
+    TEST_ASSERT_EQUAL_INT(SYN_LINTP_STATE_RECEIVING_CF, link.rx_state);
+    syn_lintp_process_rx_frame(&link, func_ff);
+    TEST_ASSERT_EQUAL_INT(SYN_LINTP_STATE_RECEIVING_CF, link.rx_state);
+    TEST_ASSERT_EQUAL_HEX8(0x02U, link.rx_nad);
+
+    /* 2. Saturate rx_timer_ms and tx_timer_ms additions against UINT32_MAX wraparound */
+    syn_lintp_step(&link, 500U);
+    syn_lintp_step(&link, UINT32_MAX);
+    TEST_ASSERT_EQUAL_INT(SYN_LINTP_STATE_IDLE, link.rx_state);
+
+    uint8_t sf_payload[4] = {0x10U, 0x01U, 0x02U, 0x03U};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lintp_send(&link, 0x02U, sf_payload, sizeof(sf_payload)));
+    syn_lintp_step(&link, 400U);
+    syn_lintp_step(&link, UINT32_MAX);
+    TEST_ASSERT_TRUE(syn_lintp_is_tx_idle(&link));
+}
+
 void run_lintp_tests(void)
 {
     RUN_TEST(test_lintp_init_and_idle);
@@ -268,6 +298,7 @@ void run_lintp_tests(void)
     RUN_TEST(test_lintp_sn_error_and_timeout);
     RUN_TEST(test_lintp_edge_cases_and_nulls);
     RUN_TEST(test_r5_a04_stack_tx_copy_and_cf_nad_check);
+    RUN_TEST(test_lintp_pro23_functional_ff_reject_and_timer_saturation);
 }
 
 #endif /* SYN_USE_LINTP */

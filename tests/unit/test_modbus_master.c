@@ -715,6 +715,126 @@ static void test_r5_a08_master_builders_and_tick_stamping(void)
     mock_port_reset();
 }
 
+typedef struct {
+    uint32_t calls;
+    SYN_Status last_status;
+    uint8_t last_fc;
+} Pro10QueueCbCtx;
+
+static void pro10_queue_cb(uint8_t slave_addr, uint8_t fc, const uint16_t *data, uint16_t count,
+                           SYN_Status status, void *user_ctx)
+{
+    (void)slave_addr;
+    (void)data;
+    (void)count;
+    Pro10QueueCbCtx *ctx = (Pro10QueueCbCtx *)user_ctx;
+    ctx->calls++;
+    ctx->last_status = status;
+    ctx->last_fc = fc;
+}
+
+static void feed_master_crc_frame(SYN_ModbusMaster *m, uint8_t *frame, uint16_t payload_len)
+{
+    uint16_t crc = syn_crc16_modbus(frame, payload_len);
+    frame[payload_len] = (uint8_t)(crc & 0xFFU);
+    frame[payload_len + 1U] = (uint8_t)((crc >> 8U) & 0xFFU);
+    for (uint16_t i = 0U; i < (uint16_t)(payload_len + 2U); i++) {
+        syn_modbus_master_feed(m, frame[i]);
+    }
+}
+
+static void test_pro10_master_expected_len_and_queue_invalid_pop(void)
+{
+    mock_port_reset();
+    SYN_ModbusMaster m;
+
+    /* 1. Truncated valid-CRC FC 0x03 response (claims byte_count=4 -> 9B, only 7B fed) */
+    syn_modbus_master_init(&m, 200U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_read_holding(&m, 1U, 0U, 2U));
+    uint8_t trunc_fc03[7] = {1U, 0x03U, 4U, 0x00U, 0x0AU, 0U, 0U};
+    feed_master_crc_frame(&m, trunc_fc03, 5U);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_WAITING_RESPONSE, syn_modbus_master_process(&m, 50U));
+    TEST_ASSERT_EQUAL_UINT16(0U, m.read_count);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_TIMEOUT, syn_modbus_master_process(&m, 300U));
+
+    /* 2. Truncated valid-CRC FC 0x06 (6B < 8B) and FC 0x16 (8B < 10B) */
+    syn_modbus_master_init(&m, 200U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_write_single(&m, 1U, 0U, 0x1234U));
+    uint8_t trunc_fc06[6] = {1U, 0x06U, 0U, 0U, 0U, 0U};
+    feed_master_crc_frame(&m, trunc_fc06, 4U);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_WAITING_RESPONSE, syn_modbus_master_process(&m, 50U));
+
+    syn_modbus_master_init(&m, 200U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_mask_write_register(&m, 1U, 0U, 0xFFU, 0x01U));
+    uint8_t trunc_fc16[8] = {1U, 0x16U, 0U, 0U, 0U, 0xFFU, 0U, 0U};
+    feed_master_crc_frame(&m, trunc_fc16, 6U);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_WAITING_RESPONSE, syn_modbus_master_process(&m, 50U));
+
+    /* 3. Truncated valid-CRC FC 0x18: 6B (< 8B) and 8B claiming fifo_count=2 (< 12B) */
+    syn_modbus_master_init(&m, 200U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_read_fifo_queue(&m, 1U, 0U));
+    uint8_t trunc_fc18_6[6] = {1U, 0x18U, 0U, 6U, 0U, 0U};
+    feed_master_crc_frame(&m, trunc_fc18_6, 4U);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_WAITING_RESPONSE, syn_modbus_master_process(&m, 50U));
+
+    syn_modbus_master_init(&m, 200U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_read_fifo_queue(&m, 1U, 0U));
+    uint8_t trunc_fc18_8[8] = {1U, 0x18U, 0U, 6U, 0U, 2U, 0U, 0U};
+    feed_master_crc_frame(&m, trunc_fc18_8, 6U);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_WAITING_RESPONSE, syn_modbus_master_process(&m, 50U));
+
+    /* Overflowing fifo_count = 0x8000 must not wrap uint16_t to 8B */
+    syn_modbus_master_init(&m, 200U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_read_fifo_queue(&m, 1U, 0U));
+    uint8_t ovf_fc18_8[8] = {1U, 0x18U, 0xFFU, 0xFFU, 0x80U, 0x00U, 0U, 0U};
+    feed_master_crc_frame(&m, ovf_fc18_8, 6U);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_WAITING_RESPONSE, syn_modbus_master_process(&m, 50U));
+
+    /* Default 5B length fallback for FC 0x07 */
+    syn_modbus_master_init(&m, 200U);
+    m.slave_addr = 1U;
+    m.func_code = SYN_MB_FC_READ_EXCEPTION_STATUS;
+    m.state = SYN_MB_MASTER_STATE_WAITING_RESPONSE;
+    uint8_t fc07_resp[5] = {1U, 0x07U, 0x5AU, 0U, 0U};
+    feed_master_crc_frame(&m, fc07_resp, 3U);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_WAITING_RESPONSE, syn_modbus_master_process(&m, 50U));
+
+    /* 4. Queue step pops invalid query (SYN_INVALID_PARAM) and notifies callback without wedging */
+    syn_modbus_master_init(&m, 200U);
+    SYN_ModbusMasterQueue q;
+    syn_modbus_master_queue_init(&q, 1U);
+    Pro10QueueCbCtx cb_ctx = {0};
+
+    SYN_ModbusMasterQuery bad_qry = {
+        .slave_addr = 0U, /* invalid slave_addr -> SYN_INVALID_PARAM */
+        .func_code = SYN_MB_FC_READ_HOLDING,
+        .start_addr = 0U,
+        .count = 1U,
+        .callback = pro10_queue_cb,
+        .user_ctx = &cb_ctx,
+    };
+    SYN_ModbusMasterQuery good_qry = {
+        .slave_addr = 1U,
+        .func_code = SYN_MB_FC_READ_HOLDING,
+        .start_addr = 0U,
+        .count = 1U,
+        .callback = pro10_queue_cb,
+        .user_ctx = &cb_ctx,
+    };
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_queue_push(&q, &bad_qry));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_queue_push(&q, &good_qry));
+    TEST_ASSERT_EQUAL_UINT8(2U, q.count);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_queue_step(&m, &q, 100U));
+    TEST_ASSERT_EQUAL_UINT32(1U, cb_ctx.calls);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, cb_ctx.last_status);
+    TEST_ASSERT_EQUAL_UINT8(1U, q.count);
+
+    /* Next step dispatches the good query behind it */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_queue_step(&m, &q, 110U));
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_WAITING_RESPONSE, m.state);
+}
+
 void run_modbus_master_tests(void)
 {
     RUN_TEST(test_modbus_master_read_holding);
@@ -731,4 +851,5 @@ void run_modbus_master_tests(void)
     RUN_TEST(test_modbus_master_busy_state_checks);
     RUN_TEST(test_modbus_master_exception_response_handling);
     RUN_TEST(test_r5_a08_master_builders_and_tick_stamping);
+    RUN_TEST(test_pro10_master_expected_len_and_queue_invalid_pop);
 }

@@ -589,6 +589,47 @@ void test_r5_a02_pec_read_and_process_call_roundtrips(void)
     TEST_ASSERT_EQUAL_HEX8(0xB5U, sb_rx.data[21]);
 }
 
+static void test_tier_a_smbus_exact_u8_u16_and_process_call_len(void)
+{
+    SYN_SMBUS_Packet pkt;
+    memset(&pkt, 0, sizeof(pkt));
+    pkt.slave_addr = 0x50U;
+    pkt.command = 0x10U;
+
+    /* 1. Truncated PROCESS_CALL (4B/5B/6B without PEC) must NOT return master write word! */
+    uint8_t pc_trunc4[4] = {0xA0U, 0x10U, 0xADU, 0xDEU};
+    TEST_ASSERT_EQUAL(
+        SYN_INVALID_PARAM,
+        syn_smbus_decode_packet(&pkt, pc_trunc4, 4U, SYN_SMBUS_PROTO_PROCESS_CALL, false));
+
+    uint8_t pc_trunc6[6] = {0xA0U, 0x10U, 0xADU, 0xDEU, 0xA1U, 0xEFU};
+    TEST_ASSERT_EQUAL(
+        SYN_INVALID_PARAM,
+        syn_smbus_decode_packet(&pkt, pc_trunc6, 6U, SYN_SMBUS_PROTO_PROCESS_CALL, false));
+
+    /* Exact 7-byte PROCESS_CALL without PEC succeeds and extracts response word at [5..6] */
+    uint8_t pc_valid7[7] = {0xA0U, 0x10U, 0xADU, 0xDEU, 0xA1U, 0xEFU, 0xBEU};
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_smbus_decode_packet(&pkt, pc_valid7, 7U, SYN_SMBUS_PROTO_PROCESS_CALL, false));
+    TEST_ASSERT_EQUAL_HEX8(0xEFU, pkt.data[0]);
+    TEST_ASSERT_EQUAL_HEX8(0xBEU, pkt.data[1]);
+
+    /* Overlong u8 and u16 buffers must be rejected instead of silently ignoring trailing bytes */
+    uint8_t over_u8[6] = {0xA0U, 0x10U, 0xA1U, 0x55U, 0xFFU, 0xFFU};
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_smbus_decode_packet(&pkt, over_u8, 6U, SYN_SMBUS_PROTO_READ_BYTE, false));
+    TEST_ASSERT_EQUAL(
+        SYN_INVALID_PARAM,
+        syn_smbus_decode_packet(&pkt, over_u8, 3U, SYN_SMBUS_PROTO_RECEIVE_BYTE, false));
+
+    uint8_t over_u16[9] = {0xA0U, 0x10U, 0xADU, 0xDEU, 0xA1U, 0xEFU, 0xBEU, 0x00U, 0x00U};
+    TEST_ASSERT_EQUAL(
+        SYN_INVALID_PARAM,
+        syn_smbus_decode_packet(&pkt, over_u16, 9U, SYN_SMBUS_PROTO_PROCESS_CALL, false));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_smbus_decode_packet(&pkt, over_u16, 6U,
+                                                                 SYN_SMBUS_PROTO_READ_WORD, false));
+}
+
 void run_smbus_tests(void)
 {
     RUN_TEST(test_smbus_pec_calculation);
@@ -600,4 +641,5 @@ void run_smbus_tests(void)
     RUN_TEST(test_smbus_invalid_params_and_overflow);
     RUN_TEST(test_smbus_alert_and_host_notify);
     RUN_TEST(test_r5_a02_pec_read_and_process_call_roundtrips);
+    RUN_TEST(test_tier_a_smbus_exact_u8_u16_and_process_call_len);
 }

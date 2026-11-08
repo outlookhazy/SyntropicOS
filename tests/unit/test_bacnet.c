@@ -373,6 +373,64 @@ static void test_r5_bacnet_be_real_and_object_type_isolation(void)
     TEST_ASSERT_EQUAL_FLOAT(12.5f, node.objects[1].present_value);
 }
 
+static void test_pro12_bacnet_iam_4byte_obj_null_payload_and_broadcast_confirmed(void)
+{
+    /* 1. encode_frame rejects NULL payload when payload_len > 0 */
+    uint8_t wire[32];
+    TEST_ASSERT_EQUAL_size_t(
+        0U, syn_bacnet_mstp_encode_frame(SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY, 2U, 1U,
+                                         NULL, 4U, wire));
+    TEST_ASSERT_EQUAL_size_t(
+        8U, syn_bacnet_mstp_encode_frame(SYN_BACNET_MSTP_FRAME_TOKEN, 2U, 1U, NULL, 0U, wire));
+
+    /* 2. I-Am encodes all 4 big-endian bytes of ((8UL << 22) | (instance & 0x3FFFFF)) */
+    SYN_BACnet_Node node;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bacnet_node_init(&node, 7U, 0x002ABCDEUL));
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_bacnet_add_object(&node, SYN_BACNET_OBJ_ANALOG_INPUT, 1U, 42.0f, "T"));
+
+    SYN_BACnet_MSTP_Frame who_is = {
+        .frame_type = SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY,
+        .destination_mac = SYN_BACNET_BROADCAST_MAC,
+        .source_mac = 1U,
+        .data_len = 2U,
+        .payload = {0x10U, SYN_BACNET_SERVICE_UNCONFIRMED_WHO_IS},
+    };
+    SYN_BACnet_MSTP_Frame tx_frame;
+    bool has_tx = false;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bacnet_node_process(&node, &who_is, &tx_frame, &has_tx));
+    TEST_ASSERT_TRUE(has_tx);
+    TEST_ASSERT_EQUAL_UINT16(9U, tx_frame.data_len);
+    TEST_ASSERT_EQUAL_HEX8(0xC4U, tx_frame.payload[2]);
+    /* (8 << 22) | 0x002ABCDE = 0x022ABCDE */
+    TEST_ASSERT_EQUAL_HEX8(0x02U, tx_frame.payload[3]);
+    TEST_ASSERT_EQUAL_HEX8(0x2AU, tx_frame.payload[4]);
+    TEST_ASSERT_EQUAL_HEX8(0xBCU, tx_frame.payload[5]);
+    TEST_ASSERT_EQUAL_HEX8(0xDEU, tx_frame.payload[6]);
+    TEST_ASSERT_EQUAL_HEX8(0x21U, tx_frame.payload[7]);
+    TEST_ASSERT_EQUAL_HEX8(0x05U, tx_frame.payload[8]);
+
+    /* 3. Broadcast Confirmed-Request (dest == 0xFF) is ignored without ACK/mutation */
+    SYN_BACnet_MSTP_Frame bcast_wr = {
+        .frame_type = SYN_BACNET_MSTP_FRAME_DATA_EXPECTING_REPLY,
+        .destination_mac = SYN_BACNET_BROADCAST_MAC,
+        .source_mac = 2U,
+        .data_len = 14U,
+        .payload = {0x00U, 0x05U, 0x01U, SYN_BACNET_SERVICE_CONFIRMED_WRITE_PROPERTY, 0x0CU, 0x00U,
+                    0x00U, 0x00U, 0x01U, 0x44U, 0x41U, 0x20U, 0x00U, 0x00U},
+    };
+    has_tx = false;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bacnet_node_process(&node, &bcast_wr, &tx_frame, &has_tx));
+    TEST_ASSERT_FALSE(has_tx);
+    TEST_ASSERT_EQUAL_FLOAT(42.0f, node.objects[1].present_value);
+
+    /* Unicast short Confirmed-Request (< 4B) is also ignored */
+    bcast_wr.destination_mac = 7U;
+    bcast_wr.data_len = 3U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bacnet_node_process(&node, &bcast_wr, &tx_frame, &has_tx));
+    TEST_ASSERT_FALSE(has_tx);
+}
+
 void run_bacnet_tests(void)
 {
     RUN_TEST(test_bacnet_crc8);
@@ -388,4 +446,5 @@ void run_bacnet_tests(void)
     RUN_TEST(test_bacnet_mstp_decode_error_cases);
     RUN_TEST(test_bacnet_mstp_frame_header_checksum_errors);
     RUN_TEST(test_r5_bacnet_be_real_and_object_type_isolation);
+    RUN_TEST(test_pro12_bacnet_iam_4byte_obj_null_payload_and_broadcast_confirmed);
 }

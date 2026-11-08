@@ -167,7 +167,11 @@ void syn_uds_tick(SYN_UDS_Server *server, uint32_t dt_ms)
     }
 
     if (server->reset_type_requested > 0U) {
-        server->reset_wait_elapsed_ms += dt_ms;
+        if (dt_ms > (UINT32_MAX - server->reset_wait_elapsed_ms)) {
+            server->reset_wait_elapsed_ms = UINT32_MAX;
+        } else {
+            server->reset_wait_elapsed_ms += dt_ms;
+        }
         if (server->reset_wait_elapsed_ms >= (uint32_t)server->reset_tx_wait_ms) {
             uint8_t reset_type = server->reset_type_requested;
             server->reset_type_requested = 0U;
@@ -469,8 +473,11 @@ static bool uds_sid_has_subfunction(uint8_t sid)
     switch (sid) {
     case SYN_UDS_SID_DIAGNOSTIC_SESSION_CONTROL:
     case SYN_UDS_SID_ECU_RESET:
+    case SYN_UDS_SID_READ_DTC_INFORMATION:
     case SYN_UDS_SID_SECURITY_ACCESS:
     case SYN_UDS_SID_COMMUNICATION_CONTROL:
+    case SYN_UDS_SID_AUTHENTICATION:
+    case SYN_UDS_SID_DYNAMICALLY_DEFINE_DATA_IDENTIFIER:
     case SYN_UDS_SID_ROUTINE_CONTROL:
     case SYN_UDS_SID_TESTER_PRESENT:
     case SYN_UDS_SID_ACCESS_TIMING_PARAMETER:
@@ -604,6 +611,9 @@ static bool uds_sid_session_control(UDS_ReqCtx *ctx)
     if ((sub < (uint8_t)SYN_UDS_SESSION_DEFAULT) ||
         (sub > (uint8_t)SYN_UDS_SESSION_SAFETY_SYSTEM)) {
         return uds_nrc(ctx, SYN_UDS_NRC_SUBFUNCTION_NOT_SUPPORTED);
+    }
+    if (ctx->max_resp_len < 6U) {
+        return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
     }
 
     if (server->session_transition_cb != NULL) {
@@ -742,6 +752,10 @@ static bool uds_sid_security_access(UDS_ReqCtx *ctx)
 
     if (server->security_delay_timer_ms > 0U) {
         return uds_nrc(ctx, SYN_UDS_NRC_REQUIRED_TIME_DELAY_NOT_EXPIRED);
+    }
+    uint16_t seed_len = server->use_aes128_security ? 16U : 4U;
+    if ((uint16_t)(2U + seed_len) > ctx->max_resp_len) {
+        return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
     }
     ctx->resp_buf[0] = ctx->sid + 0x40U;
     ctx->resp_buf[1] = sub;
@@ -895,6 +909,9 @@ static bool uds_sid_routine_control(UDS_ReqCtx *ctx)
     uint8_t sub = ctx->req[1] & 0x7FU;
     if ((sub < 0x01U) || (sub > 0x03U)) {
         return uds_nrc(ctx, SYN_UDS_NRC_SUBFUNCTION_NOT_SUPPORTED);
+    }
+    if (ctx->max_resp_len < 4U) {
+        return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
     }
     uint16_t routine_id = syn_peek_u16(ctx->req, 2);
     uint16_t out_payload_len = 0U;
@@ -1254,6 +1271,9 @@ static bool uds_dtc_severity_and_fdc(UDS_ReqCtx *ctx, uint8_t sub)
         if (ctx->req_len != 4U) {
             return uds_nrc(ctx, SYN_UDS_NRC_INCORRECT_MESSAGE_LENGTH);
         }
+        if (ctx->max_resp_len < 6U) {
+            return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
+        }
         uint16_t match_cnt = 0U;
         for (uint8_t i = 0U; i < server->dtc_count; i++) {
             if (((server->dtc_table[i].severity & ctx->req[2]) != 0U) &&
@@ -1447,6 +1467,9 @@ static bool uds_dtc_misc_records(UDS_ReqCtx *ctx, uint8_t sub)
         if (ctx->req_len != 4U) {
             return uds_nrc(ctx, SYN_UDS_NRC_INCORRECT_MESSAGE_LENGTH);
         }
+        if (ctx->max_resp_len < 4U) {
+            return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
+        }
         ctx->resp_buf[0] = ctx->sid + 0x40U;
         ctx->resp_buf[1] = sub;
         ctx->resp_buf[2] = ctx->req[3];
@@ -1458,6 +1481,9 @@ static bool uds_dtc_misc_records(UDS_ReqCtx *ctx, uint8_t sub)
     if (sub == SYN_UDS_DTC_REPORT_WWH_OBD_BY_MASK_RECORD) {
         if (ctx->req_len != 8U) {
             return uds_nrc(ctx, SYN_UDS_NRC_INCORRECT_MESSAGE_LENGTH);
+        }
+        if (ctx->max_resp_len < 4U) {
+            return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
         }
         ctx->resp_buf[0] = ctx->sid + 0x40U;
         ctx->resp_buf[1] = sub;
@@ -1701,6 +1727,7 @@ static bool uds_sid_request_transfer(UDS_ReqCtx *ctx)
     server->transfer_address = transfer_addr;
     server->transfer_size = transfer_size;
     server->transfer_bytes_processed = 0U;
+    server->transfer_last_chunk_len = 0U;
     server->expected_block_seq = 1U;
 
     ctx->resp_buf[0] = ctx->sid + 0x40U;
@@ -1722,7 +1749,8 @@ static bool uds_transfer_download(UDS_ReqCtx *ctx, uint8_t block_seq)
     SYN_UDS_Server *server = ctx->server;
     uint16_t payload_len = ctx->req_len - 2U;
     if ((server->transfer_size > 0U) &&
-        ((server->transfer_bytes_processed + payload_len) > server->transfer_size)) {
+        ((server->transfer_bytes_processed >= server->transfer_size) ||
+         ((uint32_t)payload_len > (server->transfer_size - server->transfer_bytes_processed)))) {
         return uds_nrc(ctx, SYN_UDS_NRC_TRANSFER_DATA_SUSPENDED);
     }
     if (server->memory_cb != NULL) {
@@ -1741,6 +1769,36 @@ static bool uds_transfer_download(UDS_ReqCtx *ctx, uint8_t block_seq)
 }
 
 /**
+ * @brief Encode one TransferData (0x36) upload response block from server memory.
+ * @param ctx UDS request processing context.
+ * @param block_seq Block sequence counter byte for response header.
+ * @param offset Byte offset from transfer_address to read.
+ * @param chunk_len Payload byte count to read into response buffer.
+ * @return true after encoding positive or negative response.
+ */
+static bool uds_transfer_upload_chunk(UDS_ReqCtx *ctx, uint8_t block_seq, uint32_t offset,
+                                      uint16_t chunk_len)
+{
+    SYN_UDS_Server *server = ctx->server;
+    if (((uint32_t)2U + chunk_len) > ctx->max_resp_len) {
+        return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
+    }
+    if (server->memory_cb != NULL) {
+        if (!server->memory_cb(false, server->transfer_address + offset, chunk_len,
+                               &ctx->resp_buf[2], server->memory_ctx)) {
+            return uds_nrc(ctx, SYN_UDS_NRC_GENERAL_PROGRAMMING_FAILURE);
+        }
+    } else {
+        memset(&ctx->resp_buf[2], 0, chunk_len);
+    }
+    ctx->resp_buf[0] = ctx->sid + 0x40U;
+    ctx->resp_buf[1] = block_seq;
+    *ctx->resp_len = 2U + chunk_len;
+    ctx->success = true;
+    return true;
+}
+
+/**
  * @brief Process one TransferData (0x36) block read during an active upload session.
  * @param ctx UDS request processing context.
  * @param block_seq Validated block sequence counter byte.
@@ -1751,26 +1809,20 @@ static bool uds_transfer_upload(UDS_ReqCtx *ctx, uint8_t block_seq)
     SYN_UDS_Server *server = ctx->server;
     uint16_t chunk_len = 0x03FEU;
     if (server->transfer_size > 0U) {
+        if (server->transfer_bytes_processed >= server->transfer_size) {
+            return uds_nrc(ctx, SYN_UDS_NRC_TRANSFER_DATA_SUSPENDED);
+        }
         uint32_t remaining = server->transfer_size - server->transfer_bytes_processed;
         if (remaining < chunk_len) {
             chunk_len = (uint16_t)remaining;
         }
     }
-    if (((uint32_t)2U + chunk_len) > ctx->max_resp_len) {
-        return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
+    (void)uds_transfer_upload_chunk(ctx, block_seq, server->transfer_bytes_processed, chunk_len);
+    if (ctx->success) {
+        server->transfer_bytes_processed += chunk_len;
+        server->transfer_last_chunk_len = chunk_len;
+        server->expected_block_seq++;
     }
-    if (server->memory_cb != NULL) {
-        if (!server->memory_cb(false, server->transfer_address + server->transfer_bytes_processed,
-                               chunk_len, &ctx->resp_buf[2], server->memory_ctx)) {
-            return uds_nrc(ctx, SYN_UDS_NRC_GENERAL_PROGRAMMING_FAILURE);
-        }
-    }
-    server->transfer_bytes_processed += chunk_len;
-    server->expected_block_seq++;
-    ctx->resp_buf[0] = ctx->sid + 0x40U;
-    ctx->resp_buf[1] = block_seq;
-    *ctx->resp_len = 2U + chunk_len;
-    ctx->success = true;
     return true;
 }
 
@@ -1792,6 +1844,12 @@ static bool uds_sid_transfer_data(UDS_ReqCtx *ctx)
     uint8_t block_seq = ctx->req[1];
     if ((server->transfer_bytes_processed > 0U) &&
         (block_seq == (uint8_t)(server->expected_block_seq - 1U))) {
+        if (server->transfer_state == SYN_UDS_TRANSFER_UPLOAD) {
+            uint32_t prev_offset =
+                server->transfer_bytes_processed - (uint32_t)server->transfer_last_chunk_len;
+            return uds_transfer_upload_chunk(ctx, block_seq, prev_offset,
+                                             server->transfer_last_chunk_len);
+        }
         ctx->resp_buf[0] = ctx->sid + 0x40U;
         ctx->resp_buf[1] = block_seq;
         *ctx->resp_len = 2U;
@@ -1898,6 +1956,9 @@ static bool uds_sid_write_memory(UDS_ReqCtx *ctx)
     if (size > (uint32_t)(ctx->req_len - header_len)) {
         return uds_nrc(ctx, SYN_UDS_NRC_INCORRECT_MESSAGE_LENGTH);
     }
+    if (header_len > ctx->max_resp_len) {
+        return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
+    }
     if (server->memory_cb != NULL) {
         if (!server->memory_cb(true, address, size, (uint8_t *)&ctx->req[header_len],
                                server->memory_ctx)) {
@@ -1927,6 +1988,9 @@ static bool uds_sid_read_scaling(UDS_ReqCtx *ctx)
     int did_idx = find_did_index(server, target_did);
     if ((did_idx < 0) && (server->scaling_cb == NULL)) {
         return uds_nrc(ctx, SYN_UDS_NRC_REQUEST_OUT_OF_RANGE);
+    }
+    if (ctx->max_resp_len < 4U) {
+        return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
     }
     ctx->resp_buf[0] = ctx->sid + 0x40U;
     syn_poke_u16(target_did, ctx->resp_buf, 1);
@@ -1965,6 +2029,9 @@ static bool uds_sid_authentication(UDS_ReqCtx *ctx)
         if (!server->auth_cb(sub, &ctx->req[2], ctx->req_len - 2U, &ctx->resp_buf[2],
                              ctx->max_resp_len - 2U, &out_payload_len, server->auth_ctx)) {
             return uds_nrc(ctx, SYN_UDS_NRC_CONDITIONS_NOT_CORRECT);
+        }
+        if (out_payload_len > (uint16_t)(ctx->max_resp_len - 2U)) {
+            return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
         }
     }
     ctx->resp_buf[0] = ctx->sid + 0x40U;
@@ -2018,6 +2085,9 @@ static bool uds_sid_dynamic_did(UDS_ReqCtx *ctx)
     if ((sub < 0x01U) || (sub > 0x03U)) {
         return uds_nrc(ctx, SYN_UDS_NRC_SUBFUNCTION_NOT_SUPPORTED);
     }
+    if (ctx->max_resp_len < 4U) {
+        return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
+    }
     uint16_t dyn_did = syn_peek_u16(ctx->req, 2);
     uint16_t out_payload_len = 0U;
     if (server->dynamic_did_cb != NULL) {
@@ -2054,6 +2124,9 @@ static bool uds_sid_io_control(UDS_ReqCtx *ctx)
     int did_idx = find_did_index(server, target_did);
     if ((did_idx < 0) && (server->io_control_cb == NULL)) {
         return uds_nrc(ctx, SYN_UDS_NRC_REQUEST_OUT_OF_RANGE);
+    }
+    if (ctx->max_resp_len < 4U) {
+        return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
     }
     uint16_t out_payload_len = 0U;
     if (server->io_control_cb != NULL) {
@@ -2094,7 +2167,13 @@ static bool uds_sid_file_transfer(UDS_ReqCtx *ctx)
                                       server->file_transfer_ctx)) {
             return uds_nrc(ctx, SYN_UDS_NRC_CONDITIONS_NOT_CORRECT);
         }
+        if (out_len > (uint16_t)(ctx->max_resp_len - 2U)) {
+            return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
+        }
     } else {
+        if (ctx->max_resp_len < 5U) {
+            return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
+        }
         ctx->resp_buf[2] = 0x20U;
         syn_poke_u16(0x0400U, ctx->resp_buf, 3);
         out_len = 3U;
@@ -2213,6 +2292,23 @@ static bool uds_check_preconditions(UDS_ReqCtx *ctx)
     return true;
 }
 
+/**
+ * @brief Reload non-default S3 session timer and apply positive-response suppression bit.
+ * @param ctx UDS request processing context.
+ */
+static void uds_finalize_response(UDS_ReqCtx *ctx)
+{
+    SYN_UDS_Server *server = ctx->server;
+    bool valid_nrc = (*ctx->resp_len == 3U) && (ctx->resp_buf[0] == SYN_UDS_RESPONSE_NEGATIVE);
+    if ((server->session != SYN_UDS_SESSION_DEFAULT) && (ctx->success || valid_nrc)) {
+        server->s3_timer_ms = SYN_UDS_S3_TIMEOUT_MS;
+    }
+    if (ctx->success && (ctx->req_len >= 2U) && uds_sid_has_subfunction(ctx->sid) &&
+        ((ctx->req[1] & 0x80U) != 0U)) {
+        *ctx->resp_len = 0U;
+    }
+}
+
 bool syn_uds_process_request(SYN_UDS_Server *server, const uint8_t *req, uint16_t req_len,
                              uint8_t *resp_buf, uint16_t max_resp_len, uint16_t *resp_len,
                              SYN_UDS_AddrMode addr_mode)
@@ -2222,6 +2318,7 @@ bool syn_uds_process_request(SYN_UDS_Server *server, const uint8_t *req, uint16_
         return false;
     }
 
+    *resp_len = 0U;
     UDS_ReqCtx ctx = {
         .server = server,
         .sid = req[0],
@@ -2234,26 +2331,16 @@ bool syn_uds_process_request(SYN_UDS_Server *server, const uint8_t *req, uint16_
         .success = false,
     };
 
-    if (!uds_check_preconditions(&ctx)) {
-        return true;
-    }
-
-    UDS_ServiceFn fn = uds_find_service(ctx.sid);
-    if (fn == NULL) {
-        return uds_nrc(&ctx, SYN_UDS_NRC_SERVICE_NOT_SUPPORTED);
-    }
-
-    (void)fn(&ctx);
-
-    if (ctx.success) {
-        if (server->session != SYN_UDS_SESSION_DEFAULT) {
-            server->s3_timer_ms = SYN_UDS_S3_TIMEOUT_MS;
-        }
-        if ((req_len >= 2U) && uds_sid_has_subfunction(ctx.sid) && ((req[1] & 0x80U) != 0U)) {
-            *resp_len = 0U;
+    if (uds_check_preconditions(&ctx)) {
+        UDS_ServiceFn fn = uds_find_service(ctx.sid);
+        if (fn != NULL) {
+            (void)fn(&ctx);
+        } else {
+            (void)uds_nrc(&ctx, SYN_UDS_NRC_SERVICE_NOT_SUPPORTED);
         }
     }
 
+    uds_finalize_response(&ctx);
     return true;
 }
 

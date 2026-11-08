@@ -1448,6 +1448,186 @@ static void test_r5_n10_lwm2m_fw_uri_observe_cancel_and_instance_notify(void)
                                              &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
 }
 
+static void test_pro06_lwm2m_hardening(void)
+{
+    /* 1. TLV encode > 0xFFFFFFU and subtraction overflow checks */
+    uint8_t tlv_out[16];
+    SYN_LwM2M_TLV huge_tlv = {
+        .type = SYN_LWM2M_TLV_RESOURCE, .id = 1U, .val = NULL, .len = 0x1000000U};
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)syn_lwm2m_tlv_encode(&huge_tlv, tlv_out, 16U));
+
+    SYN_LwM2M_TLV small_hdr_tlv = {
+        .type = SYN_LWM2M_TLV_RESOURCE, .id = 1U, .val = NULL, .len = 0U};
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)syn_lwm2m_tlv_encode(&small_hdr_tlv, tlv_out, 1U));
+
+    SYN_LwM2M_TLV max24_tlv = {
+        .type = SYN_LWM2M_TLV_RESOURCE, .id = 1U, .val = NULL, .len = 0xFFFFFFU};
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)syn_lwm2m_tlv_encode(&max24_tlv, tlv_out, 16U));
+
+    /* 2. Multi-segment & edge location_path splitting in Update and Deregister */
+    static SYN_Transport dummy_tr;
+    static SYN_LwM2M_Client s_client;
+    static SYN_LwM2M_DeviceContext s_dev_ctx;
+    (void)memset(&dummy_tr, 0, sizeof(dummy_tr));
+    (void)memset(&s_dev_ctx, 0, sizeof(s_dev_ctx));
+    TEST_ASSERT_TRUE(syn_lwm2m_client_init(&s_client, "pro06-ep", 300U, &dummy_tr));
+    SYN_LwM2M_Object dev_obj = syn_lwm2m_make_device_object(&s_dev_ctx);
+    TEST_ASSERT_TRUE(syn_lwm2m_register_object(&s_client, &dev_obj));
+
+    SYN_CoapMsg req = {0};
+    SYN_CoapOption opts[8];
+    size_t opt_cnt = 0U;
+    uint8_t pld[64];
+
+    (void)strcpy(s_client.location_path, "rd/tenant/1234/");
+    (void)syn_lwm2m_build_update_request(&s_client, 10U, NULL, 0U, 120U, &req, opts, 8U, &opt_cnt,
+                                         pld, sizeof(pld));
+    TEST_ASSERT_EQUAL_UINT8(COAP_CODE_POST, req.code);
+    TEST_ASSERT_EQUAL_UINT32(4U, (uint32_t)opt_cnt);
+    TEST_ASSERT_EQUAL_UINT32(2U, (uint32_t)opts[0].len);
+    TEST_ASSERT_EQUAL_MEMORY("rd", opts[0].val, 2U);
+    TEST_ASSERT_EQUAL_UINT32(6U, (uint32_t)opts[1].len);
+    TEST_ASSERT_EQUAL_MEMORY("tenant", opts[1].val, 6U);
+    TEST_ASSERT_EQUAL_UINT32(4U, (uint32_t)opts[2].len);
+    TEST_ASSERT_EQUAL_MEMORY("1234", opts[2].val, 4U);
+
+    /* Insufficient max_req_opts for 3-segment location_path */
+    (void)syn_lwm2m_build_update_request(&s_client, 11U, NULL, 0U, 120U, &req, opts, 3U, &opt_cnt,
+                                         pld, sizeof(pld));
+    TEST_ASSERT_EQUAL_UINT8(0U, req.code);
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)syn_lwm2m_build_deregister_request(
+                                     &s_client, 12U, NULL, 0U, &req, opts, 2U, &opt_cnt));
+    TEST_ASSERT_EQUAL_UINT32(1U, (uint32_t)syn_lwm2m_build_deregister_request(
+                                     &s_client, 13U, NULL, 0U, &req, opts, 8U, &opt_cnt));
+    TEST_ASSERT_EQUAL_UINT32(3U, (uint32_t)opt_cnt);
+
+    /* Slash-only location_path rejected */
+    (void)strcpy(s_client.location_path, "///");
+    (void)syn_lwm2m_build_update_request(&s_client, 14U, NULL, 0U, 120U, &req, opts, 8U, &opt_cnt,
+                                         pld, sizeof(pld));
+    TEST_ASSERT_EQUAL_UINT8(0U, req.code);
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)syn_lwm2m_build_deregister_request(
+                                     &s_client, 15U, NULL, 0U, &req, opts, 8U, &opt_cnt));
+
+    /* 3. Observe NULL token w/ non-zero len rejected; zero-len token allowed */
+    TEST_ASSERT_FALSE(syn_lwm2m_observe_add(&s_client, 3U, 0U, 0, NULL, 2U, 0U, 10U));
+    TEST_ASSERT_FALSE(syn_lwm2m_observe_remove(&s_client, NULL, 2U));
+    TEST_ASSERT_TRUE(syn_lwm2m_observe_add(&s_client, 3U, 0U, 0, NULL, 0U, 0U, 10U));
+    TEST_ASSERT_TRUE(syn_lwm2m_observe_add(&s_client, 3U, 0U, 0, NULL, 0U, 5U, 20U));
+    TEST_ASSERT_TRUE(syn_lwm2m_observe_remove(&s_client, NULL, 0U));
+
+    /* 4. token_len > 8 rejected in lwm2m_prepare_response */
+    SYN_CoapMsg resp = {0};
+    SYN_CoapOption resp_opts[4];
+    size_t resp_opt_cnt = 0U;
+    uint8_t resp_buf[128];
+    req.type = COAP_TYPE_CON;
+    req.code = COAP_CODE_GET;
+    req.token_len = 9U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_lwm2m_process_request(&s_client, &req, opts, 0U, &resp, resp_opts, 4U,
+                                                    &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    req.token_len = 0U;
+
+    /* 5. Strict bounded Uri-Path decimal parsing (no strtoul overread, <= 65535, <= 3 segs) */
+    const uint8_t non_nul_alpha[4] = {'3', 'a', '9', '9'};
+    SYN_CoapOption bad_uri[4] = {
+        {.num = COAP_OPT_URI_PATH, .val = NULL, .len = 0U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+    };
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_lwm2m_process_request(&s_client, &req, bad_uri, 1U, &resp, resp_opts,
+                                                    4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_BAD_REQ, resp.code);
+
+    bad_uri[0].val = non_nul_alpha;
+    bad_uri[0].len = 2U; /* "3a" without NUL */
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_lwm2m_process_request(&s_client, &req, bad_uri, 2U, &resp, resp_opts,
+                                                    4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_BAD_REQ, resp.code);
+
+    bad_uri[0].val = (const uint8_t *)"70000";
+    bad_uri[0].len = 5U; /* > 65535 */
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_lwm2m_process_request(&s_client, &req, bad_uri, 2U, &resp, resp_opts,
+                                                    4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_BAD_REQ, resp.code);
+
+    bad_uri[0].val = (const uint8_t *)"100000";
+    bad_uri[0].len = 6U; /* > 5 digits */
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_lwm2m_process_request(&s_client, &req, bad_uri, 2U, &resp, resp_opts,
+                                                    4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_BAD_REQ, resp.code);
+
+    bad_uri[0].val = (const uint8_t *)"3";
+    bad_uri[0].len = 1U; /* 4 segments -> invalid */
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_lwm2m_process_request(&s_client, &req, bad_uri, 4U, &resp, resp_opts,
+                                                    4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_BAD_REQ, resp.code);
+
+    /* 6. PUT cannot execute Reboot (/3/0/4) or Factory Reset (/3/0/5) and requires 3 segments */
+    SYN_CoapOption dev_path[3] = {
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"3", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"4", .len = 1U},
+    };
+    req.code = COAP_CODE_PUT;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_lwm2m_process_request(&s_client, &req, dev_path, 2U, &resp, resp_opts,
+                                                    4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_METHOD_NA, resp.code);
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_lwm2m_process_request(&s_client, &req, dev_path, 3U, &resp, resp_opts,
+                                                    4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_METHOD_NA, resp.code);
+    TEST_ASSERT_FALSE(s_dev_ctx.reboot_requested);
+
+    dev_path[2].val = (const uint8_t *)"5";
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_lwm2m_process_request(&s_client, &req, dev_path, 3U, &resp, resp_opts,
+                                                    4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_METHOD_NA, resp.code);
+    TEST_ASSERT_FALSE(s_dev_ctx.factory_reset_requested);
+
+    /* 7. Device /3/0/14 (UTC Offset) & /3/0/15 (Timezone) bounded writes */
+    dev_path[2].val = (const uint8_t *)"14";
+    dev_path[2].len = 2U;
+    req.payload = (const uint8_t *)"+05:30";
+    req.payload_len = 6U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_lwm2m_process_request(&s_client, &req, dev_path, 3U, &resp, resp_opts,
+                                                    4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_CHANGED, resp.code);
+    TEST_ASSERT_EQUAL_STRING("+05:30", s_dev_ctx.utc_offset);
+
+    /* Overflow >= 16 bytes for UTC offset returns 5.00 */
+    req.payload = (const uint8_t *)"+00:00-too-long!";
+    req.payload_len = 16U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_lwm2m_process_request(&s_client, &req, dev_path, 3U, &resp, resp_opts,
+                                                    4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_INTERNAL, resp.code);
+
+    dev_path[2].val = (const uint8_t *)"15";
+    req.payload = (const uint8_t *)"America/New_York";
+    req.payload_len = 16U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_lwm2m_process_request(&s_client, &req, dev_path, 3U, &resp, resp_opts,
+                                                    4U, &resp_opt_cnt, resp_buf, sizeof(resp_buf)));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_CHANGED, resp.code);
+    TEST_ASSERT_EQUAL_STRING("America/New_York", s_dev_ctx.timezone);
+
+    /* Direct callback non-string / NULL str rejection */
+    SYN_LwM2M_Value bad_str_val = {.type = SYN_LWM2M_TYPE_INT, .val.integer = 1};
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, dev_obj.write(0U, 14U, &bad_str_val, dev_obj.user_ctx));
+}
+
 void run_lwm2m_tests(void)
 {
     RUN_TEST(test_lwm2m_tlv_integer_codec);
@@ -1460,4 +1640,5 @@ void run_lwm2m_tests(void)
     RUN_TEST(test_lwm2m_boundary_and_error_handling);
     RUN_TEST(test_lwm2m_r4_p01_p05_regressions);
     RUN_TEST(test_r5_n10_lwm2m_fw_uri_observe_cancel_and_instance_notify);
+    RUN_TEST(test_pro06_lwm2m_hardening);
 }

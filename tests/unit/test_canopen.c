@@ -792,6 +792,101 @@ static void test_r5_a17_canopen_tx_fifo_and_sdo_u32_shift(void)
     TEST_ASSERT_FALSE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
 }
 
+static void test_pro11_pro22_canopen_sdo_guards_stopped_hb_and_cia303(void)
+{
+    uint8_t valid_blob[8] = {1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U};
+    SYN_CANOpenODEntry od_mix[2] = {
+        {0x2100U, 0x00U, SYN_CANOPEN_TYPE_U32, SYN_CANOPEN_ACCESS_RW, NULL, 8U},
+        {0x2101U, 0x00U, SYN_CANOPEN_TYPE_U32, SYN_CANOPEN_ACCESS_RW, valid_blob, 8U},
+    };
+    SYN_CANOpenNode node;
+    SYN_CANOpenNodeConfig cfg = {
+        .node_id = 5U,
+        .heartbeat_ms = 1000U,
+        .rpdo = {{0x205U, 0x2101U, 0x00U, 1U}},
+    };
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_init(&node, &cfg, od_mix, 2U));
+    uint32_t tx_id = 0U;
+    uint8_t tx_buf[8] = {0};
+    uint8_t tx_len = 0U;
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len)); /* drain bootup */
+
+    /* 1. SDO download to NULL data_ptr aborts with UNSUPPORTED_ACCESS (0x06010000) */
+    uint8_t dl_null[8] = {0x21U, 0x00U, 0x21U, 0x00U, 8U, 0U, 0U, 0U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x605U, dl_null, 8U));
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL_HEX8(0x80U, tx_buf[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x06U, tx_buf[7]);
+
+    /* 2. Segmented download segment when entry->data_ptr becomes NULL aborts cleanly */
+    uint8_t dl_ok[8] = {0x21U, 0x01U, 0x21U, 0x00U, 8U, 0U, 0U, 0U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x605U, dl_ok, 8U));
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+    od_mix[1].data_ptr = NULL;
+    uint8_t dl_seg[8] = {0x00U, 9U, 9U, 9U, 9U, 9U, 9U, 9U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x605U, dl_seg, 8U));
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL_HEX8(0x80U, tx_buf[0]);
+    TEST_ASSERT_EQUAL(SYN_CANOPEN_SDO_IDLE, node.sdo_session.state);
+    od_mix[1].data_ptr = valid_blob;
+
+    /* 3. Segmented upload initiate on NULL data_ptr succeeds (PRO-11b), segment aborts cleanly */
+    uint8_t ul_init[8] = {0x40U, 0x00U, 0x21U, 0x00U, 0U, 0U, 0U, 0U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x605U, ul_init, 8U));
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL_HEX8(0x41U, tx_buf[0]);
+    uint8_t ul_seg[8] = {0x60U, 0U, 0U, 0U, 0U, 0U, 0U, 0U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x605U, ul_seg, 8U));
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL_HEX8(0x80U, tx_buf[0]);
+    TEST_ASSERT_EQUAL(SYN_CANOPEN_SDO_IDLE, node.sdo_session.state);
+
+    /* 4. Client SDO abort (0x80) resets session to IDLE without sending server abort back */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x605U, dl_ok, 8U));
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_CANOPEN_SDO_SEG_DOWNLOAD, node.sdo_session.state);
+    uint8_t cli_abort[8] = {0x80U, 0x01U, 0x21U, 0x00U, 0U, 0U, 0x04U, 0x05U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x605U, cli_abort, 8U));
+    TEST_ASSERT_EQUAL(SYN_CANOPEN_SDO_IDLE, node.sdo_session.state);
+    TEST_ASSERT_FALSE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+
+    /* 5. STOPPED state ignores SDO & RPDO; NMT RESET_COMM clears sdo_session & heartbeat_timer */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x605U, dl_ok, 8U));
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_update(&node, 400U));
+    TEST_ASSERT_EQUAL_UINT16(400U, node.heartbeat_timer_ms);
+
+    uint8_t nmt_stop[2] = {SYN_CANOPEN_NMT_CMD_STOP, 0x05U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x000U, nmt_stop, 2U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x605U, ul_init, 8U));
+    TEST_ASSERT_FALSE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+
+    uint8_t nmt_rst[2] = {SYN_CANOPEN_NMT_CMD_RESET_NODE, 0x05U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_process_rx(&node, 0x000U, nmt_rst, 2U));
+    TEST_ASSERT_EQUAL(SYN_CANOPEN_SDO_IDLE, node.sdo_session.state);
+    TEST_ASSERT_EQUAL_UINT16(0U, node.heartbeat_timer_ms);
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len)); /* drain bootup */
+
+    /* 6. Heartbeat timer with dt_ms = 65536 (previously truncated to 0) produces heartbeat */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_canopen_update(&node, 65536U));
+    TEST_ASSERT_TRUE(syn_canopen_get_tx(&node, &tx_id, tx_buf, &tx_len));
+    TEST_ASSERT_EQUAL_HEX32(0x705U, tx_id);
+
+    /* 7. PRO-22: CiA 303 updates run_state & err_state even when LED pointers are NULL */
+    SYN_CiA303_Indicator ind;
+    syn_cia303_init(&ind, NULL, NULL);
+    syn_cia303_set_nmt_state(&ind, 0x05U);
+    TEST_ASSERT_EQUAL(SYN_CIA303_RUN_SOLID_ON, ind.run_state);
+    syn_cia303_set_nmt_state(&ind, 0x7FU);
+    TEST_ASSERT_EQUAL(SYN_CIA303_RUN_BLINKING, ind.run_state);
+    syn_cia303_set_nmt_state(&ind, 0x04U);
+    TEST_ASSERT_EQUAL(SYN_CIA303_RUN_SINGLE_FLASH, ind.run_state);
+    syn_cia303_set_nmt_state(&ind, 0x00U);
+    TEST_ASSERT_EQUAL(SYN_CIA303_RUN_OFF, ind.run_state);
+    syn_cia303_set_error_state(&ind, SYN_CIA303_ERR_DOUBLE_FLASH);
+    TEST_ASSERT_EQUAL(SYN_CIA303_ERR_DOUBLE_FLASH, ind.err_state);
+}
+
 void run_canopen_tests(void)
 {
     RUN_TEST(test_canopen_init_and_bootup);
@@ -808,4 +903,5 @@ void run_canopen_tests(void)
     RUN_TEST(test_canopen_sdo_expedited_transfer_aborts);
     RUN_TEST(test_canopen_pdo_mapping_overflow_protection);
     RUN_TEST(test_r5_a17_canopen_tx_fifo_and_sdo_u32_shift);
+    RUN_TEST(test_pro11_pro22_canopen_sdo_guards_stopped_hb_and_cia303);
 }

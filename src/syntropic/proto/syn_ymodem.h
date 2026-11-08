@@ -111,6 +111,7 @@ typedef struct {
     char filename[SYN_YMODEM_MAX_FILENAME];          /**< Parsed filename from Block 0 */
     uint32_t filesize;                               /**< Parsed file size from Block 0 */
     uint32_t bytes_received;                         /**< Accumulated payload bytes received */
+    bool has_file_size;                              /**< True if Block 0 specified file size */
 } SYN_YMODEM_Receiver;
 
 /**

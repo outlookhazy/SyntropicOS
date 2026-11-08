@@ -466,6 +466,100 @@ static void test_r5_a15_unicast_rts_cts_eomack_and_da_dlc_filters(void)
     TEST_ASSERT_FALSE(ecu.tp_rx.active);
 }
 
+static void test_j1939_pro16_tp_concurrency_ext_filter_and_dm2_dedup(void)
+{
+    SYN_J1939_Node ecu;
+    SYN_J1939_Name name = {.identity_number = 77U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_node_init(&ecu, 0x25U, &name));
+
+    uint32_t out_pgn = 0U;
+    const uint8_t *out_data = NULL;
+    size_t out_len = 0U;
+
+    /* 1. Reject Standard 11-bit CAN frames in syn_j1939_process_frame */
+    SYN_CAN_Frame std_frame = {.id = 0x123U, .dlc = 8U, .extended = false};
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_j1939_process_frame(&ecu, &std_frame, &out_pgn, &out_data, &out_len));
+
+    /* 2. Active BAM session must NOT be overwritten by a second BAM, and concurrent RTS receives
+     *    TP.Conn_Abort (reason 1) without clobbering the active BAM session */
+    SYN_CAN_Frame bam1;
+    SYN_CAN_Frame bam2;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_build_tp_bam(0x10U, SYN_J1939_PGN_ET1, 10U, &bam1));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_build_tp_bam(0x30U, SYN_J1939_PGN_DM1, 14U, &bam2));
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &bam1, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_TRUE(ecu.tp_rx.active);
+    TEST_ASSERT_EQUAL_UINT8(0x10U, ecu.tp_rx.sa);
+
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &bam2, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_EQUAL_UINT8(0x10U, ecu.tp_rx.sa);
+    TEST_ASSERT_EQUAL_UINT32(SYN_J1939_PGN_ET1, ecu.tp_rx.pgn);
+
+    SYN_CAN_Frame rts_collide;
+    SYN_CAN_Frame tx_resp;
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_j1939_build_tp_rts(0x44U, 0x25U, SYN_J1939_PGN_DM2, 16U, 4U, &rts_collide));
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &rts_collide, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_EQUAL_UINT8(0x10U, ecu.tp_rx.sa);
+    TEST_ASSERT_TRUE(syn_j1939_get_tx(&ecu, &tx_resp));
+    TEST_ASSERT_EQUAL_UINT8(SYN_J1939_TP_CTRL_ABORT, tx_resp.data[0]);
+    TEST_ASSERT_EQUAL_UINT8(1U, tx_resp.data[1]);
+    SYN_J1939_Header abort_hdr;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_id_unpack(tx_resp.id, &abort_hdr));
+    TEST_ASSERT_EQUAL_UINT8(0x44U, abort_hdr.da);
+
+    /* Abort BAM session, then start unicast RTS and verify TP_CTRL_ABORT clears tx_pending */
+    ecu.tp_rx.active = false;
+    SYN_CAN_Frame rts_ok;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_j1939_build_tp_rts(0x10U, 0x25U, SYN_J1939_PGN_DM1, 14U, 2U, &rts_ok));
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &rts_ok, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_TRUE(ecu.tx_pending);
+
+    SYN_CAN_Frame abort_rx = rts_ok;
+    abort_rx.data[0] = SYN_J1939_TP_CTRL_ABORT;
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &abort_rx, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_FALSE(ecu.tp_rx.active);
+    TEST_ASSERT_FALSE(ecu.tx_pending);
+    TEST_ASSERT_FALSE(syn_j1939_get_tx(&ecu, &tx_resp));
+
+    /* 3. Deduplicate (spn, fmi) in prev_dtcs on repeated syn_j1939_dtc_clear_active & saturate */
+    SYN_J1939_DTCLog log;
+    syn_j1939_dtc_log_init(&log);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_dtc_add_active(&log, 500U, 4U));
+    log.active_dtcs[0].occurrence_count = 100U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_dtc_clear_active(&log, 500U, 4U));
+    TEST_ASSERT_EQUAL(1U, log.prev_count);
+    TEST_ASSERT_EQUAL_UINT8(100U, log.prev_dtcs[0].occurrence_count);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_dtc_add_active(&log, 500U, 4U));
+    log.active_dtcs[0].occurrence_count = 20U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_dtc_clear_active(&log, 500U, 4U));
+    TEST_ASSERT_EQUAL(1U, log.prev_count);
+    TEST_ASSERT_EQUAL_UINT8(120U, log.prev_dtcs[0].occurrence_count);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_dtc_add_active(&log, 500U, 4U));
+    log.active_dtcs[0].occurrence_count = 20U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_dtc_clear_active(&log, 500U, 4U));
+    TEST_ASSERT_EQUAL(1U, log.prev_count);
+    TEST_ASSERT_EQUAL_UINT8(126U, log.prev_dtcs[0].occurrence_count);
+
+    /* Fill remaining prev_dtcs slots and verify graceful drop when prev_dtcs is full */
+    for (uint32_t idx = 1U; idx < SYN_J1939_MAX_LOGGED_DTCS; idx++) {
+        TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_dtc_add_active(&log, 600U + idx, 1U));
+        TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_dtc_clear_active(&log, 600U + idx, 1U));
+    }
+    TEST_ASSERT_EQUAL(SYN_J1939_MAX_LOGGED_DTCS, log.prev_count);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_dtc_add_active(&log, 900U, 2U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_dtc_clear_active(&log, 900U, 2U));
+    TEST_ASSERT_EQUAL(SYN_J1939_MAX_LOGGED_DTCS, log.prev_count);
+}
+
 void run_j1939_tests(void)
 {
     RUN_TEST(test_j1939_id_pack_unpack_pdu1_pdu2);
@@ -479,4 +573,5 @@ void run_j1939_tests(void)
     RUN_TEST(test_j1939_single_frame_rx_and_dm2_encoding);
     RUN_TEST(test_j1939_pgn_filter_and_claim_conflict);
     RUN_TEST(test_r5_a15_unicast_rts_cts_eomack_and_da_dlc_filters);
+    RUN_TEST(test_j1939_pro16_tp_concurrency_ext_filter_and_dm2_dedup);
 }

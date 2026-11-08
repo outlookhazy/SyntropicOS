@@ -1053,6 +1053,32 @@ static void opcua_service_write(SYN_OPCUA_Server *srv, OPCUA_Reader *r, OPCUA_Wr
 }
 
 /**
+ * @brief Write numeric or string OPC UA NodeId.
+ * @param w  Writer context.
+ * @param id NodeId descriptor to encode.
+ * @return True on success, false on overflow.
+ */
+static bool opcua_write_nodeid(OPCUA_Writer *w, const SYN_OPCUA_NodeId *id)
+{
+    if (id->id_type == SYN_OPCUA_NODEID_STRING) {
+        (void)opcua_write_u8(w, 0x03U);
+        (void)opcua_write_u16(w, id->ns_index);
+        return opcua_write_string(w, id->id.str);
+    }
+    return opcua_write_nodeid_num(w, id->ns_index, id->id.num);
+}
+
+/**
+ * @brief Check whether a NodeId identifies the standard RootFolder node.
+ * @param id NodeId descriptor to inspect.
+ * @return true if numeric RootFolder NodeId, false otherwise.
+ */
+static bool opcua_is_root_node(const SYN_OPCUA_NodeId *id)
+{
+    return (id->id_type == SYN_OPCUA_NODEID_NUMERIC) && (id->id.num == SYN_OPCUA_NODEID_ROOT);
+}
+
+/**
  * @brief Encode BrowseResponse listing registered non-root nodes.
  * @param srv    Server instance.
  * @param w      Response writer.
@@ -1071,19 +1097,19 @@ static void opcua_service_browse(const SYN_OPCUA_Server *srv, OPCUA_Writer *w, u
 
     uint32_t ref_count = 0U;
     for (size_t i = 0U; i < srv->node_count; i++) {
-        if (srv->nodes[i].node_id.id.num != SYN_OPCUA_NODEID_ROOT) {
+        if (!opcua_is_root_node(&srv->nodes[i].node_id)) {
             ref_count++;
         }
     }
     (void)opcua_write_u32(w, ref_count);
     for (size_t i = 0U; i < srv->node_count; i++) {
         const SYN_OPCUA_Node *n = &srv->nodes[i];
-        if (n->node_id.id.num == SYN_OPCUA_NODEID_ROOT) {
+        if (opcua_is_root_node(&n->node_id)) {
             continue;
         }
         (void)opcua_write_nodeid_num(w, 0U, 47U);
         (void)opcua_write_u8(w, 0U);
-        (void)opcua_write_nodeid_num(w, n->node_id.ns_index, n->node_id.id.num);
+        (void)opcua_write_nodeid(w, &n->node_id);
         (void)opcua_write_string(w, n->browse_name);
         (void)opcua_write_string(w, n->display_name);
         (void)opcua_write_u32(w, (uint32_t)n->node_class);

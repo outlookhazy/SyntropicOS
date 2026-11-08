@@ -105,3 +105,62 @@ void test_sbus_null_and_error_handling(void)
     parser.buf[0] = 0x00; /* Corrupt header */
     TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_sbus_parse_byte(&parser, 0x00, &frame));
 }
+
+void test_tier_a_sbus_footer_flags_and_resync(void)
+{
+    SYN_SBUS_Frame frame;
+    uint8_t buf[25];
+    memset(buf, 0, sizeof(buf));
+    buf[0] = SYN_SBUS_HEADER;
+
+    /* Valid SBUS2 footer (low nibble == 0x04, e.g. 0x14) must be accepted */
+    buf[24] = 0x14U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_sbus_decode_buffer(buf, &frame));
+
+    /* Invalid footer byte (e.g. 0x55) must be rejected */
+    buf[24] = 0x55U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_sbus_decode_buffer(buf, &frame));
+
+    /* Non-zero reserved flag bits in byte 23 (bits 7:4) must be rejected */
+    buf[24] = 0x00U;
+    buf[23] = 0x10U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_sbus_decode_buffer(buf, &frame));
+
+    /* Null frame pointer with valid buf must return SYN_INVALID_PARAM */
+    buf[23] = 0x00U;
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_sbus_decode_buffer(buf, NULL));
+
+    /* Overlapping stream resync: 3 noise bytes starting with 0x0F followed by valid 25B frame */
+    SYN_SBUS_Parser parser;
+    syn_sbus_init(&parser);
+
+    uint8_t real_frame[25];
+    memset(real_frame, 0, sizeof(real_frame));
+    real_frame[0] = SYN_SBUS_HEADER;
+    real_frame[1] = 0xE0U;
+    real_frame[2] = 0x03U;  /* ch0 = 992 */
+    real_frame[21] = 0xFFU; /* byte 24 of false candidate has footer 0xFF != 0x00/0xX4 */
+    real_frame[23] = 0x03U; /* ch17 + ch18 */
+    real_frame[24] = 0x04U; /* valid SBUS2 footer */
+
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_sbus_parse_byte(&parser, 0x0FU, &frame));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_sbus_parse_byte(&parser, 0xAAU, &frame));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_sbus_parse_byte(&parser, 0xBBU, &frame));
+
+    /* Feed first 22 bytes of real_frame: 22nd byte completes 25B false candidate -> SYN_ERROR +
+     * resync */
+    for (size_t i = 0; i < 21U; i++) {
+        TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_sbus_parse_byte(&parser, real_frame[i], &frame));
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_sbus_parse_byte(&parser, real_frame[21], &frame));
+    TEST_ASSERT_EQUAL_UINT8(22U, parser.idx);
+
+    /* Feed remaining 3 bytes of real_frame -> recovers frame cleanly! */
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_sbus_parse_byte(&parser, real_frame[22], &frame));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_sbus_parse_byte(&parser, real_frame[23], &frame));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_sbus_parse_byte(&parser, real_frame[24], &frame));
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.frames_received);
+    TEST_ASSERT_EQUAL_UINT16(992U, frame.channels[0]);
+    TEST_ASSERT_TRUE(frame.ch17);
+    TEST_ASSERT_TRUE(frame.ch18);
+}

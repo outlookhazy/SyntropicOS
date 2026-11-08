@@ -321,18 +321,71 @@ static void j1939_queue_tp_ack(SYN_J1939_Node *node, uint8_t da, uint16_t total_
 }
 
 /**
+ * @brief Queue a J1939 TP.CM Connection Abort frame on the node transmit slot.
+ * @param node J1939 node instance.
+ * @param da Destination CAN node address.
+ * @param reason J1939-21 Connection Abort reason code (e.g. 1 = already in session).
+ * @param pgn Target multi-packet parameter group number.
+ */
+static void j1939_queue_tp_abort(SYN_J1939_Node *node, uint8_t da, uint8_t reason, uint32_t pgn)
+{
+    node->tx_id = syn_j1939_id_pack(7U, SYN_J1939_PGN_TP_CM, node->sa, da);
+    node->tx_data[0] = SYN_J1939_TP_CTRL_ABORT;
+    node->tx_data[1] = reason;
+    node->tx_data[2] = 0xFFU;
+    node->tx_data[3] = 0xFFU;
+    node->tx_data[4] = 0xFFU;
+    node->tx_data[5] = (uint8_t)(pgn & 0xFFU);
+    node->tx_data[6] = (uint8_t)((pgn >> 8U) & 0xFFU);
+    node->tx_data[7] = (uint8_t)((pgn >> 16U) & 0xFFU);
+    node->tx_pending = true;
+}
+
+/**
+ * @brief Initialize multi-packet TP RX state and emit initial CTS for unicast RTS sessions.
+ * @param node J1939 node instance.
+ * @param hdr Unpacked J1939 CAN identifier header.
+ * @param frame Validated 8-byte TP.CM BAM or RTS CAN frame.
+ * @param pgn Unpacked 24-bit parameter group number.
+ * @param total_bytes Validated payload byte count (9..1785).
+ * @param total_packets Validated TP.DT packet count.
+ */
+static void j1939_start_tp_rx(SYN_J1939_Node *node, const SYN_J1939_Header *hdr,
+                              const SYN_CAN_Frame *frame, uint32_t pgn, uint16_t total_bytes,
+                              uint8_t total_packets)
+{
+    node->tp_rx.active = true;
+    node->tp_rx.is_bam = (frame->data[0] == SYN_J1939_TP_CTRL_BAM);
+    node->tp_rx.sa = hdr->sa;
+    node->tp_rx.da = hdr->da;
+    node->tp_rx.pgn = pgn;
+    node->tp_rx.total_bytes = total_bytes;
+    node->tp_rx.total_packets = total_packets;
+    node->tp_rx.next_seq = 1U;
+    node->tp_rx.received_packets = 0U;
+
+    if (!node->tp_rx.is_bam) {
+        uint8_t max_cts = frame->data[4];
+        uint8_t window = (max_cts < total_packets) ? max_cts : total_packets;
+        node->tp_rx.cts_window = window;
+        node->tp_rx.cts_remaining = window;
+        j1939_queue_tp_cts(node, hdr->sa, window, 1U, pgn);
+    }
+}
+
+/**
  * @brief Validate inbound TP.CM BAM or RTS addressing, session precedence, and window parameters.
  * @param node J1939 node instance.
  * @param hdr Unpacked J1939 CAN identifier header.
  * @param frame Received 8-byte TP.CM CAN frame.
- * @return true if control frame is accepted to start an RX session.
+ * @return true if control frame is accepted to start or abort-check an RX session.
  */
 static bool j1939_tp_cm_accept(const SYN_J1939_Node *node, const SYN_J1939_Header *hdr,
                                const SYN_CAN_Frame *frame)
 {
     uint8_t ctrl = frame->data[0];
     if (ctrl == SYN_J1939_TP_CTRL_BAM) {
-        return (hdr->da == SYN_J1939_ADDR_GLOBAL) && (!node->tp_rx.active || node->tp_rx.is_bam);
+        return (hdr->da == SYN_J1939_ADDR_GLOBAL) && (!node->tp_rx.active);
     }
     if (ctrl == SYN_J1939_TP_CTRL_RTS) {
         return (node->sa < SYN_J1939_ADDR_NULL) && (hdr->da == node->sa) && (frame->data[4] > 0U);
@@ -358,6 +411,7 @@ static SYN_Status j1939_handle_tp_cm(SYN_J1939_Node *node, const SYN_J1939_Heade
     if (ctrl == SYN_J1939_TP_CTRL_ABORT) {
         if (node->tp_rx.active && hdr->sa == node->tp_rx.sa && hdr->da == node->tp_rx.da) {
             node->tp_rx.active = false;
+            node->tx_pending = false;
         }
         return SYN_BUSY;
     }
@@ -366,30 +420,19 @@ static SYN_Status j1939_handle_tp_cm(SYN_J1939_Node *node, const SYN_J1939_Heade
         return SYN_BUSY;
     }
 
+    uint32_t pgn = (uint32_t)syn_peek_u16_le(frame->data, 5U) | ((uint32_t)frame->data[7] << 16U);
+    if (node->tp_rx.active) {
+        j1939_queue_tp_abort(node, hdr->sa, 1U, pgn);
+        return SYN_BUSY;
+    }
+
     uint16_t total_bytes = syn_peek_u16_le(frame->data, 1U);
     uint8_t total_packets = frame->data[3];
-    uint32_t pgn = (uint32_t)syn_peek_u16_le(frame->data, 5U) | ((uint32_t)frame->data[7] << 16U);
     uint8_t expected_packets = (uint8_t)((total_bytes + 6U) / 7U);
 
     if (total_bytes >= 9U && total_bytes <= sizeof(node->tp_rx.data) &&
         total_packets == expected_packets) {
-        node->tp_rx.active = true;
-        node->tp_rx.is_bam = (ctrl == SYN_J1939_TP_CTRL_BAM);
-        node->tp_rx.sa = hdr->sa;
-        node->tp_rx.da = hdr->da;
-        node->tp_rx.pgn = pgn;
-        node->tp_rx.total_bytes = total_bytes;
-        node->tp_rx.total_packets = total_packets;
-        node->tp_rx.next_seq = 1U;
-        node->tp_rx.received_packets = 0U;
-
-        if (!node->tp_rx.is_bam) {
-            uint8_t max_cts = frame->data[4];
-            uint8_t window = (max_cts < total_packets) ? max_cts : total_packets;
-            node->tp_rx.cts_window = window;
-            node->tp_rx.cts_remaining = window;
-            j1939_queue_tp_cts(node, hdr->sa, window, 1U, pgn);
-        }
+        j1939_start_tp_rx(node, hdr, frame, pgn, total_bytes, total_packets);
     }
     return SYN_BUSY;
 }
@@ -457,7 +500,7 @@ static SYN_Status j1939_handle_tp_dt(SYN_J1939_Node *node, const SYN_J1939_Heade
 SYN_Status syn_j1939_process_frame(SYN_J1939_Node *node, const SYN_CAN_Frame *frame,
                                    uint32_t *out_pgn, const uint8_t **out_data, size_t *out_len)
 {
-    if (!node || !frame || !out_pgn || !out_data || !out_len) {
+    if (!node || !frame || !out_pgn || !out_data || !out_len || !frame->extended) {
         return SYN_INVALID_PARAM;
     }
 
@@ -522,6 +565,27 @@ SYN_Status syn_j1939_dtc_add_active(SYN_J1939_DTCLog *log, uint32_t spn, uint8_t
     return SYN_OK;
 }
 
+/**
+ * @brief Record or merge a cleared active DTC into the DM2 previously-active table.
+ * @param log Pointer to DTC log container.
+ * @param dtc Cleared active DTC entry to merge or append.
+ */
+static void j1939_dtc_record_prev(SYN_J1939_DTCLog *log, const SYN_J1939_DTC *dtc)
+{
+    for (size_t k = 0U; k < log->prev_count; k++) {
+        if ((log->prev_dtcs[k].spn == dtc->spn) && (log->prev_dtcs[k].fmi == dtc->fmi)) {
+            uint16_t merged =
+                (uint16_t)log->prev_dtcs[k].occurrence_count + (uint16_t)dtc->occurrence_count;
+            log->prev_dtcs[k].occurrence_count = (merged > 126U) ? 126U : (uint8_t)merged;
+            return;
+        }
+    }
+    if (log->prev_count < SYN_J1939_MAX_LOGGED_DTCS) {
+        log->prev_dtcs[log->prev_count] = *dtc;
+        log->prev_count++;
+    }
+}
+
 SYN_Status syn_j1939_dtc_clear_active(SYN_J1939_DTCLog *log, uint32_t spn, uint8_t fmi)
 {
     if (log == NULL) {
@@ -530,11 +594,7 @@ SYN_Status syn_j1939_dtc_clear_active(SYN_J1939_DTCLog *log, uint32_t spn, uint8
 
     for (size_t i = 0; i < log->active_count; i++) {
         if (log->active_dtcs[i].spn == spn && log->active_dtcs[i].fmi == fmi) {
-            /* Copy to prev_dtcs if space exists */
-            if (log->prev_count < SYN_J1939_MAX_LOGGED_DTCS) {
-                log->prev_dtcs[log->prev_count] = log->active_dtcs[i];
-                log->prev_count++;
-            }
+            j1939_dtc_record_prev(log, &log->active_dtcs[i]);
             /* Remove from active_dtcs */
             for (size_t j = i; j + 1 < log->active_count; j++) {
                 log->active_dtcs[j] = log->active_dtcs[j + 1];

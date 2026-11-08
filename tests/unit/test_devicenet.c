@@ -318,6 +318,57 @@ static void test_r5_a18_devicenet_dup_mac_resp_collision(void)
     TEST_ASSERT_EQUAL(SYN_DEVICENET_STATE_OFFLINE, g_dnet.state);
 }
 
+static void test_pro22_devicenet_set_attr_errors_frag_and_runt_explicit(void)
+{
+    syn_devicenet_init(&g_dnet, 6U, SYN_DEVICENET_BAUD_500K);
+    g_dnet.state = SYN_DEVICENET_STATE_ONLINE;
+
+    uint32_t exp_req_id = 0x400U | (6U << 3U) | 4U;
+    uint32_t tx_can_id = 0U;
+    uint8_t tx_data[8] = {0};
+    uint8_t tx_len = 0U;
+
+    /* 1. Runt (< 4B) and fragmented (data[0] & 0x80) Explicit frames do NOT set explicit_connected
+     */
+    uint8_t runt_exp[3] = {6U, 0x0EU, 0x01U};
+    TEST_ASSERT_FALSE(
+        syn_devicenet_on_can_rx(&g_dnet, exp_req_id, runt_exp, 3U, &tx_can_id, tx_data, &tx_len));
+    TEST_ASSERT_FALSE(g_dnet.explicit_connected);
+
+    uint8_t frag_exp[4] = {0x86U, 0x0EU, 0x01U, 1U};
+    TEST_ASSERT_FALSE(
+        syn_devicenet_on_can_rx(&g_dnet, exp_req_id, frag_exp, 4U, &tx_can_id, tx_data, &tx_len));
+    TEST_ASSERT_FALSE(g_dnet.explicit_connected);
+
+    /* 2. Set_Attribute_Single returns 0x94 error on invalid MAC ID >= 64 & unsupported class/attr
+     */
+    uint8_t bad_mac[5] = {6U, 0x10U, 0x03U, 1U, 64U};
+    TEST_ASSERT_TRUE(
+        syn_devicenet_on_can_rx(&g_dnet, exp_req_id, bad_mac, 5U, &tx_can_id, tx_data, &tx_len));
+    TEST_ASSERT_TRUE(g_dnet.explicit_connected);
+    TEST_ASSERT_EQUAL_HEX8(0x94U, tx_data[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x09U, tx_data[2]);
+    TEST_ASSERT_EQUAL_UINT8(3U, tx_len);
+
+    uint8_t bad_attr1[5] = {6U, 0x10U, 0x01U, 1U, 0U};
+    TEST_ASSERT_TRUE(
+        syn_devicenet_on_can_rx(&g_dnet, exp_req_id, bad_attr1, 5U, &tx_can_id, tx_data, &tx_len));
+    TEST_ASSERT_EQUAL_HEX8(0x94U, tx_data[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x14U, tx_data[2]);
+
+    uint8_t bad_attr3[5] = {6U, 0x10U, 0x03U, 99U, 0U};
+    TEST_ASSERT_TRUE(
+        syn_devicenet_on_can_rx(&g_dnet, exp_req_id, bad_attr3, 5U, &tx_can_id, tx_data, &tx_len));
+    TEST_ASSERT_EQUAL_HEX8(0x94U, tx_data[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x14U, tx_data[2]);
+
+    uint8_t bad_cls[5] = {6U, 0x10U, 0x99U, 1U, 0U};
+    TEST_ASSERT_TRUE(
+        syn_devicenet_on_can_rx(&g_dnet, exp_req_id, bad_cls, 5U, &tx_can_id, tx_data, &tx_len));
+    TEST_ASSERT_EQUAL_HEX8(0x94U, tx_data[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x05U, tx_data[2]);
+}
+
 void run_devicenet_tests(void)
 {
     RUN_TEST(test_devicenet_init_and_config);
@@ -328,4 +379,5 @@ void run_devicenet_tests(void)
     RUN_TEST(test_devicenet_polled_io_output_overflow);
     RUN_TEST(test_devicenet_explicit_msg_fragmentation);
     RUN_TEST(test_r5_a18_devicenet_dup_mac_resp_collision);
+    RUN_TEST(test_pro22_devicenet_set_attr_errors_frag_and_runt_explicit);
 }

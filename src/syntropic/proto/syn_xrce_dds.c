@@ -39,7 +39,7 @@ static size_t cdr_pad_writer(SYN_CDR_Writer *w, size_t align)
     size_t remainder = w->pos % align;
     if (remainder != 0U) {
         size_t pad = align - remainder;
-        if (w->pos + pad > w->size) {
+        if (pad > (w->size - w->pos)) {
             w->error = true;
             return w->pos;
         }
@@ -60,7 +60,7 @@ static size_t cdr_pad_reader(SYN_CDR_Reader *r, size_t align)
     size_t remainder = r->pos % align;
     if (remainder != 0U) {
         size_t pad = align - remainder;
-        if (r->pos + pad > r->size) {
+        if (pad > (r->size - r->pos)) {
             r->error = true;
             return r->pos;
         }
@@ -84,7 +84,7 @@ void syn_cdr_writer_init(SYN_CDR_Writer *w, uint8_t *buf, size_t size)
 
 bool syn_cdr_write_u8(SYN_CDR_Writer *w, uint8_t v)
 {
-    if (w == NULL || w->error || w->pos + 1U > w->size) {
+    if (w == NULL || w->error || (w->size - w->pos) < 1U) {
         if (w != NULL) {
             w->error = true;
         }
@@ -100,7 +100,7 @@ bool syn_cdr_write_u16(SYN_CDR_Writer *w, uint16_t v)
         return false;
     }
     (void)cdr_pad_writer(w, 2U);
-    if (w->error || w->pos + 2U > w->size) {
+    if (w->error || (w->size - w->pos) < 2U) {
         w->error = true;
         return false;
     }
@@ -115,7 +115,7 @@ bool syn_cdr_write_u32(SYN_CDR_Writer *w, uint32_t v)
         return false;
     }
     (void)cdr_pad_writer(w, 4U);
-    if (w->error || w->pos + 4U > w->size) {
+    if (w->error || (w->size - w->pos) < 4U) {
         w->error = true;
         return false;
     }
@@ -132,7 +132,7 @@ bool syn_cdr_write_u64(SYN_CDR_Writer *w, uint64_t v)
         return false;
     }
     (void)cdr_pad_writer(w, 8U);
-    if (w->error || w->pos + 8U > w->size) {
+    if (w->error || (w->size - w->pos) < 8U) {
         w->error = true;
         return false;
     }
@@ -193,7 +193,7 @@ bool syn_cdr_write_string(SYN_CDR_Writer *w, const char *str)
     if (!syn_cdr_write_u32(w, (uint32_t)str_len)) {
         return false;
     }
-    if (w->pos + str_len > w->size) {
+    if (str_len > (w->size - w->pos)) {
         w->error = true;
         return false;
     }
@@ -210,7 +210,7 @@ bool syn_cdr_write_bytes(SYN_CDR_Writer *w, const uint8_t *bytes, size_t len)
         }
         return false;
     }
-    if (w->pos + len > w->size) {
+    if (len > (w->size - w->pos)) {
         w->error = true;
         return false;
     }
@@ -236,7 +236,7 @@ void syn_cdr_reader_init(SYN_CDR_Reader *r, const uint8_t *buf, size_t size)
 
 bool syn_cdr_read_u8(SYN_CDR_Reader *r, uint8_t *out)
 {
-    if (r == NULL || r->error || out == NULL || r->pos + 1U > r->size) {
+    if (r == NULL || r->error || out == NULL || (r->size - r->pos) < 1U) {
         if (r != NULL) {
             r->error = true;
         }
@@ -252,7 +252,7 @@ bool syn_cdr_read_u16(SYN_CDR_Reader *r, uint16_t *out)
         return false;
     }
     (void)cdr_pad_reader(r, 2U);
-    if (r->error || r->pos + 2U > r->size) {
+    if (r->error || (r->size - r->pos) < 2U) {
         r->error = true;
         return false;
     }
@@ -267,7 +267,7 @@ bool syn_cdr_read_u32(SYN_CDR_Reader *r, uint32_t *out)
         return false;
     }
     (void)cdr_pad_reader(r, 4U);
-    if (r->error || r->pos + 4U > r->size) {
+    if (r->error || (r->size - r->pos) < 4U) {
         r->error = true;
         return false;
     }
@@ -283,7 +283,7 @@ bool syn_cdr_read_u64(SYN_CDR_Reader *r, uint64_t *out)
         return false;
     }
     (void)cdr_pad_reader(r, 8U);
-    if (r->error || r->pos + 8U > r->size) {
+    if (r->error || (r->size - r->pos) < 8U) {
         r->error = true;
         return false;
     }
@@ -358,14 +358,13 @@ bool syn_cdr_read_string(SYN_CDR_Reader *r, char *out_buf, size_t max_len)
     if (!syn_cdr_read_u32(r, &str_len)) {
         return false;
     }
-    if (str_len == 0U || r->pos + str_len > r->size) {
+    if (str_len == 0U || (size_t)str_len > (r->size - r->pos) || (size_t)str_len > max_len ||
+        r->data[r->pos + (size_t)str_len - 1U] != '\0') {
         r->error = true;
         return false;
     }
-    size_t copy_len = (str_len < max_len) ? str_len : max_len - 1U;
-    (void)memcpy(out_buf, &r->data[r->pos], copy_len);
-    out_buf[copy_len] = '\0';
-    r->pos += str_len;
+    (void)memcpy(out_buf, &r->data[r->pos], (size_t)str_len);
+    r->pos += (size_t)str_len;
     return true;
 }
 
@@ -377,7 +376,7 @@ bool syn_cdr_read_bytes(SYN_CDR_Reader *r, uint8_t *out_buf, size_t len)
         }
         return false;
     }
-    if (r->pos + len > r->size) {
+    if (len > (r->size - r->pos)) {
         r->error = true;
         return false;
     }
@@ -433,10 +432,10 @@ static size_t xrce_start_submessage(SYN_CDR_Writer *w, uint8_t submsg_id, uint8_
  */
 static void xrce_finish_submessage(SYN_CDR_Writer *w, size_t len_pos)
 {
-    if (w->error || len_pos + 2U > w->pos) {
+    if (w->error || w->pos < 2U || len_pos > (w->pos - 2U)) {
         return;
     }
-    size_t payload_len = w->pos - (len_pos + 2U);
+    size_t payload_len = (w->pos - 2U) - len_pos;
     if (payload_len > UINT16_MAX) {
         w->error = true;
         return;
@@ -503,35 +502,35 @@ SYN_Status syn_xrce_client_create_session(SYN_XRCE_Client *client)
     }
 
     client->state = SYN_XRCE_STATE_CONNECTING;
+    client->heartbeat_sent = false;
+    client->last_heartbeat_ms = 0U;
     return SYN_OK;
 }
 
 /**
  * @brief Register local XRCE object in client's internal entity table.
- * @param client Client instance pointer.
+ * @param client Client instance pointer (caller guarantees object_count < SYN_XRCE_MAX_OBJECTS).
  * @param id Object identifier.
  * @param kind Object kind (participant, topic, publisher, etc.).
  * @param parent Parent object identifier.
- * @return SYN_OK on success, SYN_ERROR on table overflow.
  */
-static SYN_Status xrce_register_local_object(SYN_XRCE_Client *client, uint16_t id, uint8_t kind,
-                                             uint16_t parent)
+static void xrce_register_local_object(SYN_XRCE_Client *client, uint16_t id, uint8_t kind,
+                                       uint16_t parent)
 {
-    if (client->object_count >= SYN_XRCE_MAX_OBJECTS) {
-        return SYN_ERROR;
-    }
     SYN_XRCE_Object *obj = &client->objects[client->object_count++];
     obj->id = id;
     obj->kind = kind;
     obj->parent = parent;
-    obj->configured = true;
-    return SYN_OK;
+    obj->configured = false;
 }
 
 SYN_Status syn_xrce_client_create_participant(SYN_XRCE_Client *client, uint16_t participant_id)
 {
     if (client == NULL || client->cfg.transport == NULL) {
         return SYN_INVALID_PARAM;
+    }
+    if (client->object_count >= SYN_XRCE_MAX_OBJECTS) {
+        return SYN_ERROR;
     }
 
     SYN_CDR_Writer w;
@@ -553,15 +552,20 @@ SYN_Status syn_xrce_client_create_participant(SYN_XRCE_Client *client, uint16_t 
         return SYN_ERROR;
     }
 
-    return xrce_register_local_object(client, participant_id, SYN_XRCE_OBJKIND_PARTICIPANT, 0U);
+    xrce_register_local_object(client, participant_id, SYN_XRCE_OBJKIND_PARTICIPANT, 0U);
+    return SYN_OK;
 }
 
 SYN_Status syn_xrce_client_create_topic(SYN_XRCE_Client *client, uint16_t topic_id,
                                         uint16_t participant_id, const char *topic_name,
                                         const char *type_name)
 {
-    if (client == NULL || topic_name == NULL || type_name == NULL) {
+    if (client == NULL || client->cfg.transport == NULL || topic_name == NULL ||
+        type_name == NULL) {
         return SYN_INVALID_PARAM;
+    }
+    if (client->object_count >= SYN_XRCE_MAX_OBJECTS) {
+        return SYN_ERROR;
     }
 
     SYN_CDR_Writer w;
@@ -585,14 +589,18 @@ SYN_Status syn_xrce_client_create_topic(SYN_XRCE_Client *client, uint16_t topic_
         return SYN_ERROR;
     }
 
-    return xrce_register_local_object(client, topic_id, SYN_XRCE_OBJKIND_TOPIC, participant_id);
+    xrce_register_local_object(client, topic_id, SYN_XRCE_OBJKIND_TOPIC, participant_id);
+    return SYN_OK;
 }
 
 SYN_Status syn_xrce_client_create_publisher(SYN_XRCE_Client *client, uint16_t publisher_id,
                                             uint16_t participant_id)
 {
-    if (client == NULL) {
+    if (client == NULL || client->cfg.transport == NULL) {
         return SYN_INVALID_PARAM;
+    }
+    if (client->object_count >= SYN_XRCE_MAX_OBJECTS) {
+        return SYN_ERROR;
     }
 
     SYN_CDR_Writer w;
@@ -614,15 +622,18 @@ SYN_Status syn_xrce_client_create_publisher(SYN_XRCE_Client *client, uint16_t pu
         return SYN_ERROR;
     }
 
-    return xrce_register_local_object(client, publisher_id, SYN_XRCE_OBJKIND_PUBLISHER,
-                                      participant_id);
+    xrce_register_local_object(client, publisher_id, SYN_XRCE_OBJKIND_PUBLISHER, participant_id);
+    return SYN_OK;
 }
 
 SYN_Status syn_xrce_client_create_subscriber(SYN_XRCE_Client *client, uint16_t subscriber_id,
                                              uint16_t participant_id)
 {
-    if (client == NULL) {
+    if (client == NULL || client->cfg.transport == NULL) {
         return SYN_INVALID_PARAM;
+    }
+    if (client->object_count >= SYN_XRCE_MAX_OBJECTS) {
+        return SYN_ERROR;
     }
 
     SYN_CDR_Writer w;
@@ -644,15 +655,18 @@ SYN_Status syn_xrce_client_create_subscriber(SYN_XRCE_Client *client, uint16_t s
         return SYN_ERROR;
     }
 
-    return xrce_register_local_object(client, subscriber_id, SYN_XRCE_OBJKIND_SUBSCRIBER,
-                                      participant_id);
+    xrce_register_local_object(client, subscriber_id, SYN_XRCE_OBJKIND_SUBSCRIBER, participant_id);
+    return SYN_OK;
 }
 
 SYN_Status syn_xrce_client_create_datawriter(SYN_XRCE_Client *client, uint16_t writer_id,
                                              uint16_t publisher_id, uint16_t topic_id)
 {
-    if (client == NULL) {
+    if (client == NULL || client->cfg.transport == NULL) {
         return SYN_INVALID_PARAM;
+    }
+    if (client->object_count >= SYN_XRCE_MAX_OBJECTS) {
+        return SYN_ERROR;
     }
 
     SYN_CDR_Writer w;
@@ -675,14 +689,18 @@ SYN_Status syn_xrce_client_create_datawriter(SYN_XRCE_Client *client, uint16_t w
         return SYN_ERROR;
     }
 
-    return xrce_register_local_object(client, writer_id, SYN_XRCE_OBJKIND_DATAWRITER, publisher_id);
+    xrce_register_local_object(client, writer_id, SYN_XRCE_OBJKIND_DATAWRITER, publisher_id);
+    return SYN_OK;
 }
 
 SYN_Status syn_xrce_client_create_datareader(SYN_XRCE_Client *client, uint16_t reader_id,
                                              uint16_t subscriber_id, uint16_t topic_id)
 {
-    if (client == NULL) {
+    if (client == NULL || client->cfg.transport == NULL) {
         return SYN_INVALID_PARAM;
+    }
+    if (client->object_count >= SYN_XRCE_MAX_OBJECTS) {
+        return SYN_ERROR;
     }
 
     SYN_CDR_Writer w;
@@ -705,8 +723,8 @@ SYN_Status syn_xrce_client_create_datareader(SYN_XRCE_Client *client, uint16_t r
         return SYN_ERROR;
     }
 
-    return xrce_register_local_object(client, reader_id, SYN_XRCE_OBJKIND_DATAREADER,
-                                      subscriber_id);
+    xrce_register_local_object(client, reader_id, SYN_XRCE_OBJKIND_DATAREADER, subscriber_id);
+    return SYN_OK;
 }
 
 SYN_Status syn_xrce_client_write_data(SYN_XRCE_Client *client, uint16_t writer_id,
@@ -765,6 +783,47 @@ SYN_Status syn_xrce_client_read_data(SYN_XRCE_Client *client, uint16_t reader_id
 }
 
 /**
+ * @brief Apply an inbound XRCE STATUS result to session state and local object table.
+ * @param client XRCE client instance.
+ * @param req_id Request identifier reported in STATUS.
+ * @param obj_id Target object identifier reported in STATUS.
+ * @param status XRCE status byte (0x00 OK, 0x01 OK_MATCHED, >= 0x11 / 0x80 error).
+ */
+static void xrce_handle_status(SYN_XRCE_Client *client, uint16_t req_id, uint16_t obj_id,
+                               uint8_t status)
+{
+    bool is_ok = (status == SYN_XRCE_STATUS_OK) || (status == SYN_XRCE_STATUS_OK_MATCHED);
+    if (is_ok) {
+        if (client->state == SYN_XRCE_STATE_CONNECTING) {
+            client->state = SYN_XRCE_STATE_CONNECTED;
+        }
+        for (size_t i = 0U; i < client->object_count; i++) {
+            if (client->objects[i].id == obj_id) {
+                client->objects[i].configured = true;
+            }
+        }
+    } else {
+        if (client->state == SYN_XRCE_STATE_CONNECTING && obj_id == 0U) {
+            client->state = SYN_XRCE_STATE_ERROR;
+        }
+        for (size_t i = 0U; i < client->object_count; i++) {
+            if (client->objects[i].id == obj_id) {
+                client->object_count--;
+                for (size_t j = i; j < client->object_count; j++) {
+                    client->objects[j] = client->objects[j + 1U];
+                }
+                (void)memset(&client->objects[client->object_count], 0, sizeof(SYN_XRCE_Object));
+                break;
+            }
+        }
+    }
+
+    if (client->cfg.on_status != NULL) {
+        client->cfg.on_status(req_id, status, client->cfg.user_data);
+    }
+}
+
+/**
  * @brief Decode a single inbound XRCE submessage body within [r->pos, submsg_end).
  * @param client     XRCE client instance.
  * @param r          CDR reader positioned at submessage payload start.
@@ -785,13 +844,7 @@ static void xrce_dispatch_submessage(SYN_XRCE_Client *client, SYN_CDR_Reader *r,
         (void)syn_cdr_read_u8(r, &impl_status);
 
         if (!r->error && r->pos <= submsg_end) {
-            if (client->state == SYN_XRCE_STATE_CONNECTING && status == SYN_XRCE_STATUS_OK) {
-                client->state = SYN_XRCE_STATE_CONNECTED;
-            }
-
-            if (client->cfg.on_status != NULL) {
-                client->cfg.on_status(req_id, status, client->cfg.user_data);
-            }
+            xrce_handle_status(client, req_id, obj_id, status);
         }
     } else if (submsg_id == SYN_XRCE_SUBMSG_DATA) {
         uint16_t req_id = 0U;
@@ -889,8 +942,8 @@ static SYN_Status xrce_client_step_ex(SYN_XRCE_Client *client, uint32_t now_ms,
 
     /* 2. Check periodic heartbeat / keep-alive */
     if (client->state == SYN_XRCE_STATE_CONNECTED &&
-        (now_ms - client->last_heartbeat_ms >= client->cfg.heartbeat_period_ms ||
-         client->last_heartbeat_ms == 0U)) {
+        (!client->heartbeat_sent ||
+         (now_ms - client->last_heartbeat_ms) >= client->cfg.heartbeat_period_ms)) {
         SYN_CDR_Writer w;
         syn_cdr_writer_init(&w, client->cfg.tx_buf, client->cfg.tx_buf_size);
 
@@ -906,6 +959,7 @@ static SYN_Status xrce_client_step_ex(SYN_XRCE_Client *client, uint32_t now_ms,
         if (!w.error) {
             (void)syn_transport_send(client->cfg.transport, w.data, w.pos);
             client->last_heartbeat_ms = now_ms;
+            client->heartbeat_sent = true;
         }
     }
 

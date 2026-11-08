@@ -359,6 +359,59 @@ static void test_r5_dlt645_bad_checksum_resync(void)
     TEST_ASSERT_EQUAL_INT(0, dec.rx_len);
 }
 
+static void test_tier_a_dlt645_non_di_controls_and_oversize_resync(void)
+{
+    uint8_t raw[64];
+    SYN_DLT645_Frame tx;
+    SYN_DLT645_Frame rx;
+
+    /* 1. Non-DI control codes (0x13 read addr, 0x93 resp, 0x08 time sync, 0x15/0x16/0x17, error
+     * 0xD1) */
+    const uint8_t non_di_ctrls[] = {0x08U, 0x13U, 0x93U, 0x15U, 0x95U,
+                                    0x16U, 0x96U, 0x17U, 0x97U, 0xD1U};
+    for (size_t i = 0U; i < sizeof(non_di_ctrls); i++) {
+        memset(&tx, 0, sizeof(tx));
+        tx.version = SYN_DLT645_VER_2007;
+        tx.control = non_di_ctrls[i];
+        memset(tx.address, 0xAA, SYN_DLT645_ADDR_LEN);
+        tx.payload[0] = 0x12U;
+        tx.payload_len = (non_di_ctrls[i] == 0x13U) ? 0U : 1U;
+
+        size_t enc_len = syn_dlt645_encode(&tx, raw, sizeof(raw));
+        TEST_ASSERT_EQUAL_size_t(12U + tx.payload_len, enc_len);
+        TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dlt645_parse(raw, enc_len, SYN_DLT645_VER_2007, &rx));
+        TEST_ASSERT_EQUAL_UINT8(non_di_ctrls[i], rx.control);
+        TEST_ASSERT_EQUAL_UINT32(0U, rx.data_id);
+        TEST_ASSERT_EQUAL_UINT8(tx.payload_len, rx.payload_len);
+    }
+
+    /* 2. False 0x68 header with oversized data_len (e.g. 0xFF) must immediately resync on EOF */
+    memset(&tx, 0, sizeof(tx));
+    tx.version = SYN_DLT645_VER_2007;
+    tx.control = SYN_DLT645_CMD_READ_DATA_RESP;
+    tx.data_id = 0x00010000U;
+    memset(tx.address, 0x55, SYN_DLT645_ADDR_LEN);
+    tx.payload[0] = 0x77U;
+    tx.payload_len = 1U;
+    size_t good_len = syn_dlt645_encode(&tx, raw, sizeof(raw));
+    TEST_ASSERT_TRUE(good_len > 0U);
+
+    uint8_t false_hdr[10] = {0x68U, 0x01U, 0x02U, 0x03U, 0x04U, 0x05U, 0x06U, 0x68U, 0x11U, 0xFFU};
+    SYN_DLT645_Decoder dec;
+    syn_dlt645_decoder_init(&dec, SYN_DLT645_VER_2007, on_frame_decoded, NULL);
+    callback_count = 0;
+
+    for (size_t i = 0U; i < sizeof(false_hdr); i++) {
+        syn_dlt645_decoder_feed(&dec, false_hdr[i]);
+    }
+    for (size_t i = 0U; i < good_len; i++) {
+        syn_dlt645_decoder_feed(&dec, raw[i]);
+    }
+    TEST_ASSERT_EQUAL_INT(1, callback_count);
+    TEST_ASSERT_EQUAL_UINT32(0x00010000U, last_decoded_frame.data_id);
+    TEST_ASSERT_EQUAL_UINT8(0x77U, last_decoded_frame.payload[0]);
+}
+
 void run_dlt645_tests(void)
 {
     RUN_TEST(test_dlt645_checksum);
@@ -369,4 +422,5 @@ void run_dlt645_tests(void)
     RUN_TEST(test_dlt645_frame_checksum_and_address_mismatch);
     RUN_TEST(test_dlt645_decoder_embedded_eof_and_null_cb);
     RUN_TEST(test_r5_dlt645_bad_checksum_resync);
+    RUN_TEST(test_tier_a_dlt645_non_di_controls_and_oversize_resync);
 }

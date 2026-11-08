@@ -493,6 +493,78 @@ static void test_r5_nmea_strict_hex_and_empty_talker(void)
     TEST_ASSERT_FALSE(syn_nmea_parser_feed(&parser, 'X', NULL));
 }
 
+static void test_tier_a_nmea_framing_coord_and_field_bounds(void)
+{
+    /* 1. syn_nmea_validate: reject embedded CR/LF/'$', multiple '*', and trailing garbage */
+    TEST_ASSERT_FALSE(syn_nmea_validate("$AA\nBB*33"));
+    TEST_ASSERT_FALSE(syn_nmea_validate("$AA\rBB*33"));
+    TEST_ASSERT_FALSE(syn_nmea_validate("$AA$BB*24"));
+    TEST_ASSERT_FALSE(syn_nmea_validate("$AA*00*00"));
+    TEST_ASSERT_FALSE(syn_nmea_validate("$AA*00XYZ"));
+    TEST_ASSERT_TRUE(syn_nmea_validate("$AA*00\r\n"));
+
+    /* 2. Coordinate validation: leading '+', non-digits, min >= 60, deg > 180, > 180.0 deg */
+    TEST_ASSERT_DOUBLE_WITHIN(0.0001, 48.1173, syn_nmea_parse_coord("+4807.038", 'N'));
+    TEST_ASSERT_DOUBLE_WITHIN(0.0001, 0.0, syn_nmea_parse_coord("12345", 'N'));    /* No dot */
+    TEST_ASSERT_DOUBLE_WITHIN(0.0001, 0.0, syn_nmea_parse_coord("12.34", 'N'));    /* pre_len < 3 */
+    TEST_ASSERT_DOUBLE_WITHIN(0.0001, 0.0, syn_nmea_parse_coord("123456.7", 'N')); /* pre_len > 5 */
+    TEST_ASSERT_DOUBLE_WITHIN(0.0001, 0.0,
+                              syn_nmea_parse_coord("48A7.038", 'N'));           /* Bad pre digit */
+    TEST_ASSERT_DOUBLE_WITHIN(0.0001, 0.0, syn_nmea_parse_coord("4807.", 'N')); /* Empty frac */
+    TEST_ASSERT_DOUBLE_WITHIN(0.0001, 0.0, syn_nmea_parse_coord("4807.03X", 'N'));  /* Bad frac */
+    TEST_ASSERT_DOUBLE_WITHIN(0.0001, 0.0, syn_nmea_parse_coord("4860.000", 'N'));  /* min >= 60 */
+    TEST_ASSERT_DOUBLE_WITHIN(0.0001, 0.0, syn_nmea_parse_coord("18100.000", 'E')); /* deg > 180 */
+    TEST_ASSERT_DOUBLE_WITHIN(0.0001, 0.0,
+                              syn_nmea_parse_coord("18000.100", 'E')); /* > 180.0 deg */
+    TEST_ASSERT_DOUBLE_WITHIN(0.0001, -180.0, syn_nmea_parse_coord("18000.000", 'W'));
+
+    /* 3. Bounded integer validation in GGA, RMC, GSA, ZDA (no atoi wrap!) */
+    char buf[128];
+    SYN_NMEA_GGA gga;
+    const char *bad_gga1 = "GPGGA,250000,4807.038,N,01131.000,E,-1,300,0.9,10.0,M,0.0,M,,";
+    snprintf(buf, sizeof(buf), "$%s*%02X", bad_gga1, syn_nmea_checksum(bad_gga1));
+    TEST_ASSERT_TRUE(syn_nmea_parse_gga(buf, &gga));
+    TEST_ASSERT_EQUAL_UINT8(0U, gga.hours);
+    TEST_ASSERT_EQUAL(SYN_NMEA_FIX_INVALID, gga.fix_quality);
+    TEST_ASSERT_EQUAL_UINT8(0U, gga.num_satellites);
+
+    const char *bad_gga2 = "GPGGA,123519.5X,4807.038,N,01131.000,E,9,12,0.9,10.0,M,0.0,M,,";
+    snprintf(buf, sizeof(buf), "$%s*%02X", bad_gga2, syn_nmea_checksum(bad_gga2));
+    TEST_ASSERT_TRUE(syn_nmea_parse_gga(buf, &gga));
+    TEST_ASSERT_EQUAL_UINT8(0U, gga.hours);
+    TEST_ASSERT_EQUAL_UINT8(12U, gga.num_satellites);
+
+    const char *leap_gga = "GPGGA,235960.1234,4807.038,N,01131.000,E,1,08,0.9,10.0,M,0.0,M,,";
+    snprintf(buf, sizeof(buf), "$%s*%02X", leap_gga, syn_nmea_checksum(leap_gga));
+    TEST_ASSERT_TRUE(syn_nmea_parse_gga(buf, &gga));
+    TEST_ASSERT_EQUAL_UINT8(23U, gga.hours);
+    TEST_ASSERT_EQUAL_UINT8(60U, gga.seconds);
+    TEST_ASSERT_EQUAL_UINT16(123U, gga.milliseconds);
+
+    SYN_NMEA_RMC rmc;
+    const char *bad_rmc = "GPRMC,126000,A,4807.038,N,01131.000,E,1.0,2.0,320324,,,";
+    snprintf(buf, sizeof(buf), "$%s*%02X", bad_rmc, syn_nmea_checksum(bad_rmc));
+    TEST_ASSERT_TRUE(syn_nmea_parse_rmc(buf, &rmc));
+    TEST_ASSERT_EQUAL_UINT8(0U, rmc.minutes);
+    TEST_ASSERT_EQUAL_UINT8(0U, rmc.day);
+    TEST_ASSERT_EQUAL_UINT16(0U, rmc.year);
+
+    SYN_NMEA_GSA gsa;
+    const char *bad_gsa = "GPGSA,A,0,01,02,03,,,,,,,,,,2.5,1.3,2.1";
+    snprintf(buf, sizeof(buf), "$%s*%02X", bad_gsa, syn_nmea_checksum(bad_gsa));
+    TEST_ASSERT_TRUE(syn_nmea_parse_gsa(buf, &gsa));
+    TEST_ASSERT_EQUAL_UINT8(0U, gsa.fix_type);
+
+    SYN_NMEA_ZDA zda;
+    const char *bad_zda = "GPZDA,120061,00,13,1899,00,00";
+    snprintf(buf, sizeof(buf), "$%s*%02X", bad_zda, syn_nmea_checksum(bad_zda));
+    TEST_ASSERT_TRUE(syn_nmea_parse_zda(buf, &zda));
+    TEST_ASSERT_EQUAL_UINT8(0U, zda.seconds);
+    TEST_ASSERT_EQUAL_UINT8(0U, zda.day);
+    TEST_ASSERT_EQUAL_UINT8(0U, zda.month);
+    TEST_ASSERT_EQUAL_UINT16(0U, zda.year);
+}
+
 void run_nmea_tests(void)
 {
     RUN_TEST(test_nmea_checksum_and_validate);
@@ -508,4 +580,5 @@ void run_nmea_tests(void)
     RUN_TEST(test_nmea_date_time_parsing_and_null_coordinates);
     RUN_TEST(test_nmea_branch_coverage);
     RUN_TEST(test_r5_nmea_strict_hex_and_empty_talker);
+    RUN_TEST(test_tier_a_nmea_framing_coord_and_field_bounds);
 }

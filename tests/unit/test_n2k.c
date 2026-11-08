@@ -339,6 +339,45 @@ static void test_r5_a12_dc_detailed_fastpacket_750ah_roundtrip(void)
     TEST_ASSERT_EQUAL_UINT16(7500U, dc_rx.capacity_ah_1e1);
 }
 
+static void test_n2k_pro16_fastpacket_cross_pgn_guard(void)
+{
+    SYN_N2K_FastPacketRx rx;
+    memset(&rx, 0, sizeof(rx));
+
+    uint32_t pgn_a = 129029U;
+    uint32_t pgn_b = SYN_N2K_PGN_DC_DETAILED_STATUS;
+    uint32_t id_a = syn_j1939_id_pack(6U, pgn_a, 0x10U, SYN_J1939_ADDR_GLOBAL);
+    uint32_t id_b = syn_j1939_id_pack(6U, pgn_b, 0x10U, SYN_J1939_ADDR_GLOBAL);
+
+    /* Start PGN A Fast-Packet (seq_id = 3, index = 0, total 11 bytes) */
+    SYN_CAN_Frame f0_a = {.id = id_a, .dlc = 8U, .extended = true};
+    f0_a.data[0] = (uint8_t)((3U << 5U) | 0U);
+    f0_a.data[1] = 11U;
+    memcpy(&f0_a.data[2], "AAAAAA", 6U);
+
+    const uint8_t *payload = NULL;
+    size_t len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_n2k_fastpacket_process(&rx, &f0_a, pgn_a, &payload, &len));
+
+    /* Interleaved continuation frame from same SA & seq_id but DIFFERENT PGN B must be rejected
+     * without splicing into PGN A's active buffer */
+    SYN_CAN_Frame f1_b = {.id = id_b, .dlc = 8U, .extended = true};
+    f1_b.data[0] = (uint8_t)((3U << 5U) | 1U);
+    memcpy(&f1_b.data[1], "BBBBBBB", 7U);
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_n2k_fastpacket_process(&rx, &f1_b, pgn_b, &payload, &len));
+    TEST_ASSERT_TRUE(rx.active);
+    TEST_ASSERT_EQUAL_UINT8(1U, rx.expected_frame);
+
+    /* Legitimate PGN A continuation frame still completes cleanly */
+    SYN_CAN_Frame f1_a = {.id = id_a, .dlc = 8U, .extended = true};
+    f1_a.data[0] = (uint8_t)((3U << 5U) | 1U);
+    memcpy(&f1_a.data[1], "12345", 5U);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_n2k_fastpacket_process(&rx, &f1_a, pgn_a, &payload, &len));
+    TEST_ASSERT_EQUAL_UINT32(11U, (uint32_t)len);
+    TEST_ASSERT_EQUAL_MEMORY("AAAAAA12345", payload, 11U);
+}
+
 void run_n2k_tests(void)
 {
     RUN_TEST(test_n2k_position_rapid_encode_decode);
@@ -351,4 +390,5 @@ void run_n2k_tests(void)
     RUN_TEST(test_n2k_encode_decode_null_checks);
     RUN_TEST(test_n2k_fastpacket_single_frame_short);
     RUN_TEST(test_r5_a12_dc_detailed_fastpacket_750ah_roundtrip);
+    RUN_TEST(test_n2k_pro16_fastpacket_cross_pgn_guard);
 }

@@ -210,7 +210,9 @@ static void canopen_handle_nmt(SYN_CANOpenNode *node, const uint8_t *data)
     case SYN_CANOPEN_NMT_CMD_RESET_COMM: {
         uint8_t boot_payload[1] = {0x00U};
         node->nmt_state = SYN_CANOPEN_NMT_STATE_PREOP;
-        canopen_queue_tx(node, 0x700U + node->node_id, boot_payload, 1U);
+        node->heartbeat_timer_ms = 0U;
+        (void)memset(&node->sdo_session, 0, sizeof(node->sdo_session));
+        (void)canopen_queue_tx(node, 0x700U + node->node_id, boot_payload, 1U);
         break;
     }
     default:
@@ -236,6 +238,10 @@ static void canopen_sdo_download(SYN_CANOpenNode *node, uint8_t cmd, uint16_t in
     }
     if (entry->access == SYN_CANOPEN_ACCESS_RO) {
         canopen_send_sdo_abort(node, index, subindex, SYN_CANOPEN_SDO_ABORT_READ_ONLY);
+        return;
+    }
+    if (entry->data_ptr == NULL) {
+        canopen_send_sdo_abort(node, index, subindex, SYN_CANOPEN_SDO_ABORT_UNSUPPORTED_ACCESS);
         return;
     }
     if ((cmd & 0x02U) != 0U) {
@@ -284,7 +290,8 @@ static void canopen_sdo_seg_download(SYN_CANOpenNode *node, uint8_t cmd, const u
     uint8_t n = (cmd >> 1U) & 0x07U;
     size_t seg_len = 7U - n;
 
-    if (entry != NULL && (node->sdo_session.transferred_bytes + seg_len) <= entry->size) {
+    if (entry != NULL && entry->data_ptr != NULL &&
+        (node->sdo_session.transferred_bytes + seg_len) <= entry->size) {
         (void)memcpy((uint8_t *)entry->data_ptr + node->sdo_session.transferred_bytes, &data[1],
                      seg_len);
         node->sdo_session.transferred_bytes += seg_len;
@@ -375,9 +382,10 @@ static void canopen_sdo_seg_upload(SYN_CANOpenNode *node, uint8_t cmd)
 
     const SYN_CANOpenODEntry *entry =
         canopen_find_od(node, node->sdo_session.index, node->sdo_session.subindex);
-    if (entry == NULL) {
-        canopen_send_sdo_abort(node, node->sdo_session.index, node->sdo_session.subindex,
-                               SYN_CANOPEN_SDO_ABORT_NOT_EXIST);
+    if (entry == NULL || entry->data_ptr == NULL) {
+        uint32_t code = (entry == NULL) ? SYN_CANOPEN_SDO_ABORT_NOT_EXIST
+                                        : SYN_CANOPEN_SDO_ABORT_UNSUPPORTED_ACCESS;
+        canopen_send_sdo_abort(node, node->sdo_session.index, node->sdo_session.subindex, code);
         node->sdo_session.state = SYN_CANOPEN_SDO_IDLE;
         return;
     }
@@ -414,7 +422,9 @@ static void canopen_handle_sdo(SYN_CANOpenNode *node, const uint8_t *data)
     uint8_t subindex = syn_unpack_u8(data, &sdo_pos);
     uint8_t ccs = cmd & 0xE0U;
 
-    if (ccs == 0x20U) {
+    if (ccs == 0x80U) {
+        (void)memset(&node->sdo_session, 0, sizeof(node->sdo_session));
+    } else if (ccs == 0x20U) {
         canopen_sdo_download(node, cmd, index, subindex, data);
     } else if (ccs == 0x00U && node->sdo_session.state == SYN_CANOPEN_SDO_SEG_DOWNLOAD) {
         canopen_sdo_seg_download(node, cmd, data);
@@ -438,6 +448,9 @@ SYN_Status syn_canopen_process_rx(SYN_CANOpenNode *node, uint32_t cob_id, const 
     }
 
     if (cob_id == (0x600U + node->node_id) && len == 8U) {
+        if (node->nmt_state == SYN_CANOPEN_NMT_STATE_STOPPED) {
+            return SYN_OK;
+        }
         if (node->tx_count >= SYN_CANOPEN_TX_QUEUE_DEPTH) {
             return SYN_BUSY;
         }
@@ -466,12 +479,14 @@ SYN_Status syn_canopen_update(SYN_CANOpenNode *node, uint32_t dt_ms)
 
     /* Periodic Heartbeat Producer */
     if (node->cfg.heartbeat_ms > 0U) {
-        node->heartbeat_timer_ms += (uint16_t)dt_ms;
-        if (node->heartbeat_timer_ms >= node->cfg.heartbeat_ms) {
+        uint64_t elapsed = (uint64_t)node->heartbeat_timer_ms + (uint64_t)dt_ms;
+        if (elapsed >= (uint64_t)node->cfg.heartbeat_ms) {
             node->heartbeat_timer_ms = 0U;
 
             uint8_t hb_payload[1] = {node->nmt_state};
-            canopen_queue_tx(node, 0x700U + node->node_id, hb_payload, 1U);
+            (void)canopen_queue_tx(node, 0x700U + node->node_id, hb_payload, 1U);
+        } else {
+            node->heartbeat_timer_ms = (uint16_t)elapsed;
         }
     }
 

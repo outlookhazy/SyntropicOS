@@ -290,6 +290,39 @@ static void test_lin_null_checks(void)
     TEST_ASSERT_EQUAL_UINT8(cs_classic, cs_enhanced); /* Overridden to Classic for 0x3C */
 }
 
+static void test_lin_pro23_master_slot_timer_saturation_and_sentinel(void)
+{
+    SYN_LIN_ScheduleSlot slots[2] = {
+        {.id = 0x01U,
+         .len = 2U,
+         .checksum_mode = SYN_LIN_CHECKSUM_ENHANCED,
+         .dir = SYN_LIN_SLOT_PUBLISH,
+         .delay_ms = UINT32_MAX},
+        {.id = 0x02U,
+         .len = 2U,
+         .checksum_mode = SYN_LIN_CHECKSUM_CLASSIC,
+         .dir = SYN_LIN_SLOT_SUBSCRIBE,
+         .delay_ms = 50U},
+    };
+    SYN_LIN_Master master;
+    const SYN_LIN_ScheduleSlot *active = NULL;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lin_master_init(&master, slots, 2U));
+    TEST_ASSERT_FALSE(master.started);
+
+    /* Initial step emits Slot 0 and sets started = true */
+    TEST_ASSERT_TRUE(syn_lin_master_step(&master, 0U, &active));
+    TEST_ASSERT_TRUE(master.started);
+    TEST_ASSERT_EQUAL_PTR(&slots[0], active);
+
+    /* Accumulate near UINT32_MAX, then saturate past UINT32_MAX -> advances to Slot 1 (not reset!)
+     */
+    TEST_ASSERT_FALSE(syn_lin_master_step(&master, UINT32_MAX - 10U, &active));
+    TEST_ASSERT_EQUAL_PTR(&slots[0], active);
+    TEST_ASSERT_TRUE(syn_lin_master_step(&master, 100U, &active));
+    TEST_ASSERT_EQUAL_PTR(&slots[1], active);
+    TEST_ASSERT_EQUAL_UINT32(0U, master.slot_timer);
+}
+
 void run_lin_tests(void)
 {
     RUN_TEST(test_lin_pid_parity);
@@ -298,6 +331,7 @@ void run_lin_tests(void)
     RUN_TEST(test_lin_slave_byte_parser);
     RUN_TEST(test_lin_edge_cases);
     RUN_TEST(test_lin_null_checks);
+    RUN_TEST(test_lin_pro23_master_slot_timer_saturation_and_sentinel);
 }
 
 #endif /* SYN_USE_LIN */

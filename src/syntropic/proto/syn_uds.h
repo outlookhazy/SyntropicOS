@@ -484,6 +484,7 @@ typedef struct {
     uint32_t transfer_address;                    /**< Target transfer memory address */
     uint32_t transfer_size;                       /**< Total transfer size in bytes */
     uint32_t transfer_bytes_processed;            /**< Transferred byte count */
+    uint16_t transfer_last_chunk_len;             /**< Byte length of last uploaded chunk */
     uint8_t expected_block_seq;                   /**< Expected block sequence counter */
     uint8_t reset_type_requested;                 /**< Pending ECU reset type requested */
     uint8_t custom_session_sids[SYN_UDS_MAX_SERVICE_OVERRIDES];  /**< Custom session mask SID

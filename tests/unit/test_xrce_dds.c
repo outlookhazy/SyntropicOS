@@ -889,6 +889,135 @@ void test_r5_a17_xrce_session_id_client_key_flag(void)
     TEST_ASSERT_EQUAL_HEX8(SYN_XRCE_SUBMSG_READ_DATA, mock.tx_buf[4]);
 }
 
+static void pro05_queue_status(MockXRCETransport *mock, uint16_t req_id, uint16_t obj_id,
+                               uint8_t status)
+{
+    SYN_CDR_Writer w;
+    syn_cdr_writer_init(&w, mock->rx_buf, sizeof(mock->rx_buf));
+    (void)syn_cdr_write_u8(&w, 0x81U);
+    (void)syn_cdr_write_u8(&w, 0x00U);
+    (void)syn_cdr_write_u16(&w, 1U);
+    (void)syn_cdr_write_u8(&w, SYN_XRCE_SUBMSG_STATUS);
+    (void)syn_cdr_write_u8(&w, 0x01U);
+    (void)syn_cdr_write_u16(&w, 6U);
+    (void)syn_cdr_write_u16(&w, req_id);
+    (void)syn_cdr_write_u16(&w, obj_id);
+    (void)syn_cdr_write_u8(&w, status);
+    (void)syn_cdr_write_u8(&w, 0U);
+    mock->rx_len = w.pos;
+}
+
+void test_pro05_xrce_cdr_bounds_status_and_hb(void)
+{
+    /* 1. CDR string bounds: len == 0, overlong > max_len, missing NUL, 0xFFFFFFFC wraparound */
+    char out_str[8];
+    SYN_CDR_Reader r;
+
+    const uint8_t zero_len_wire[8] = {0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U};
+    syn_cdr_reader_init(&r, zero_len_wire, sizeof(zero_len_wire));
+    TEST_ASSERT_FALSE(syn_cdr_read_string(&r, out_str, sizeof(out_str)));
+    TEST_ASSERT_TRUE(r.error);
+
+    const uint8_t overlong_wire[10] = {6U, 0U, 0U, 0U, 'h', 'e', 'l', 'l', 'o', '\0'};
+    syn_cdr_reader_init(&r, overlong_wire, sizeof(overlong_wire));
+    TEST_ASSERT_FALSE(syn_cdr_read_string(&r, out_str, 4U));
+    TEST_ASSERT_TRUE(r.error);
+
+    const uint8_t no_nul_wire[8] = {4U, 0U, 0U, 0U, 'a', 'b', 'c', 'd'};
+    syn_cdr_reader_init(&r, no_nul_wire, sizeof(no_nul_wire));
+    TEST_ASSERT_FALSE(syn_cdr_read_string(&r, out_str, sizeof(out_str)));
+    TEST_ASSERT_TRUE(r.error);
+
+    const uint8_t wrap_wire[8] = {0xFCU, 0xFFU, 0xFFU, 0xFFU, 'a', 'b', 'c', '\0'};
+    syn_cdr_reader_init(&r, wrap_wire, sizeof(wrap_wire));
+    TEST_ASSERT_FALSE(syn_cdr_read_string(&r, out_str, sizeof(out_str)));
+    TEST_ASSERT_TRUE(r.error);
+
+    /* Exact-fit NUL-terminated string succeeds */
+    const uint8_t ok_wire[8] = {4U, 0U, 0U, 0U, 'a', 'b', 'c', '\0'};
+    syn_cdr_reader_init(&r, ok_wire, sizeof(ok_wire));
+    TEST_ASSERT_TRUE(syn_cdr_read_string(&r, out_str, 4U));
+    TEST_ASSERT_EQUAL_STRING("abc", out_str);
+
+    /* Read/write bytes subtraction check against SIZE_MAX wraparound */
+    uint8_t small_io[4] = {1U, 2U, 3U, 4U};
+    uint8_t one_b = 0U;
+    syn_cdr_reader_init(&r, small_io, sizeof(small_io));
+    TEST_ASSERT_TRUE(syn_cdr_read_u8(&r, &one_b));
+    TEST_ASSERT_FALSE(syn_cdr_read_bytes(&r, small_io, (size_t)-1));
+    TEST_ASSERT_TRUE(r.error);
+
+    SYN_CDR_Writer w;
+    syn_cdr_writer_init(&w, small_io, sizeof(small_io));
+    TEST_ASSERT_TRUE(syn_cdr_write_u8(&w, 1U));
+    TEST_ASSERT_FALSE(syn_cdr_write_bytes(&w, small_io, (size_t)-1));
+    TEST_ASSERT_TRUE(w.error);
+
+    /* 2. Pre-TX object_count >= SYN_XRCE_MAX_OBJECTS guard across all 6 create_* helpers */
+    static MockXRCETransport s_mock;
+    static uint8_t s_rx[256];
+    static uint8_t s_tx[256];
+    static SYN_XRCE_Client s_client;
+    (void)memset(&s_mock, 0, sizeof(s_mock));
+    SYN_Transport transport = {.send = mock_send, .recv = mock_recv, .ctx = &s_mock};
+    SYN_XRCE_Config cfg = {
+        .session_id = 0x81U,
+        .transport = &transport,
+        .heartbeat_period_ms = 1000U,
+        .on_status = on_test_status,
+        .rx_buf = s_rx,
+        .rx_buf_size = sizeof(s_rx),
+        .tx_buf = s_tx,
+        .tx_buf_size = sizeof(s_tx),
+    };
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_init(&s_client, &cfg));
+    s_client.object_count = SYN_XRCE_MAX_OBJECTS;
+    s_mock.tx_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_xrce_client_create_participant(&s_client, 1U));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_xrce_client_create_topic(&s_client, 2U, 1U, "t", "T"));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_xrce_client_create_publisher(&s_client, 3U, 1U));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_xrce_client_create_subscriber(&s_client, 4U, 1U));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_xrce_client_create_datawriter(&s_client, 5U, 3U, 2U));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_xrce_client_create_datareader(&s_client, 6U, 4U, 2U));
+    TEST_ASSERT_EQUAL_UINT(0U, s_mock.tx_len);
+
+    /* 3. Session error STATUS (>= 0x80) transitions CONNECTING -> ERROR */
+    s_client.object_count = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_create_session(&s_client));
+    pro05_queue_status(&s_mock, 0U, 0U, 0x80U);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_step(&s_client, 0U));
+    TEST_ASSERT_EQUAL_INT(SYN_XRCE_STATE_ERROR, s_client.state);
+
+    /* 4. STATUS_OK_MATCHED (0x01) confirms session at now_ms == 0 without heartbeat flood */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_create_session(&s_client));
+    s_mock.tx_len = 0U;
+    pro05_queue_status(&s_mock, 0U, 0U, SYN_XRCE_STATUS_OK_MATCHED);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_step(&s_client, 0U));
+    TEST_ASSERT_EQUAL_INT(SYN_XRCE_STATE_CONNECTED, s_client.state);
+    TEST_ASSERT_GREATER_THAN_UINT(0U, s_mock.tx_len);
+
+    s_mock.tx_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_step(&s_client, 0U));
+    TEST_ASSERT_EQUAL_UINT(0U, s_mock.tx_len);
+
+    /* 5. Entity STATUS_OK_MATCHED marks configured; error STATUS removes failed entity */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_create_participant(&s_client, 10U));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_create_publisher(&s_client, 20U, 10U));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_create_subscriber(&s_client, 30U, 10U));
+    TEST_ASSERT_EQUAL_UINT(3U, s_client.object_count);
+    TEST_ASSERT_FALSE(s_client.objects[0].configured);
+
+    pro05_queue_status(&s_mock, 1U, 10U, SYN_XRCE_STATUS_OK_MATCHED);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_step(&s_client, 10U));
+    TEST_ASSERT_TRUE(s_client.objects[0].configured);
+
+    pro05_queue_status(&s_mock, 2U, 20U, 0x80U);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_xrce_client_step(&s_client, 20U));
+    TEST_ASSERT_EQUAL_UINT(2U, s_client.object_count);
+    TEST_ASSERT_EQUAL_UINT16(10U, s_client.objects[0].id);
+    TEST_ASSERT_EQUAL_UINT16(30U, s_client.objects[1].id);
+}
+
 void run_xrce_dds_tests(void)
 {
     RUN_TEST(test_xrce_cdr_primitives_and_alignments);
@@ -901,4 +1030,5 @@ void run_xrce_dds_tests(void)
     RUN_TEST(test_xrce_submessage_bounds_and_multi_submsg);
     RUN_TEST(test_xrce_r4_p10_regressions);
     RUN_TEST(test_r5_a17_xrce_session_id_client_key_flag);
+    RUN_TEST(test_pro05_xrce_cdr_bounds_status_and_hb);
 }

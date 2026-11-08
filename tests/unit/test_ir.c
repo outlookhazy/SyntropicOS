@@ -587,6 +587,86 @@ static void test_r5_ir_sony_single_frame_and_manchester_roundtrip(void)
     TEST_ASSERT_FALSE(syn_ir_decode_timeout(&decoder, &rx_frame));
 }
 
+static void test_tier_a_ir_rc6_mode_repeat_and_orphan_space(void)
+{
+    SYN_IR_Decoder decoder;
+    SYN_IR_Frame rx_frame;
+    SYN_IR_Pulse pulses[150];
+    size_t count = 0U;
+
+    /* 1. Orphan space pulse at idle (last_mark_us == 0) and stale mark reuse prevention */
+    syn_ir_decoder_init(&decoder);
+    TEST_ASSERT_FALSE(syn_ir_decode_pulse(&decoder, 4500U, false, &rx_frame));
+
+    syn_ir_decode_pulse(&decoder, 9000U, true, &rx_frame);
+    TEST_ASSERT_FALSE(
+        syn_ir_decode_pulse(&decoder, 100U, false, &rx_frame)); /* Consumes 9000us mark */
+    TEST_ASSERT_EQUAL_UINT16(0U, decoder.last_mark_us);
+    TEST_ASSERT_FALSE(syn_ir_decode_pulse(&decoder, 4500U, false, &rx_frame)); /* Ignored! */
+    TEST_ASSERT_EQUAL(SYN_IR_STATE_IDLE, decoder.state);
+
+    /* 2. NEC repeat pulse is ONLY accepted after NEC-family frames (NEC, NEC_EXT, APPLE) */
+    SYN_IR_Frame sony_tx = {.protocol = SYN_IR_PROTO_SONY_12, .address = 0x01U, .command = 0x15U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ir_encode_frame(&sony_tx, pulses, 150U, &count));
+    syn_ir_decoder_init(&decoder);
+    bool got = false;
+    for (size_t i = 0U; i < count; i++) {
+        if (syn_ir_decode_pulse(&decoder, pulses[i].duration_us, pulses[i].is_mark, &rx_frame)) {
+            got = true;
+        }
+    }
+    TEST_ASSERT_TRUE(got);
+    /* NEC repeat (9000us mark + 2250us space) after Sony must NOT repeat Sony! */
+    syn_ir_decode_pulse(&decoder, 9000U, true, &rx_frame);
+    TEST_ASSERT_FALSE(syn_ir_decode_pulse(&decoder, 2250U, false, &rx_frame));
+
+    /* NEC_EXTENDED and APPLE DO accept NEC repeat pulses */
+    SYN_IR_Frame nec_ext_tx = {
+        .protocol = SYN_IR_PROTO_NEC_EXTENDED, .address = 0x1234U, .command = 0x56U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ir_encode_frame(&nec_ext_tx, pulses, 150U, &count));
+    syn_ir_decoder_init(&decoder);
+    got = false;
+    for (size_t i = 0U; i < count; i++) {
+        if (syn_ir_decode_pulse(&decoder, pulses[i].duration_us, pulses[i].is_mark, &rx_frame)) {
+            got = true;
+        }
+    }
+    TEST_ASSERT_TRUE(got);
+    syn_ir_decode_pulse(&decoder, 9000U, true, &rx_frame);
+    TEST_ASSERT_TRUE(syn_ir_decode_pulse(&decoder, 2250U, false, &rx_frame));
+    TEST_ASSERT_EQUAL(SYN_IR_PROTO_NEC_EXTENDED, rx_frame.protocol);
+    TEST_ASSERT_TRUE((rx_frame.flags & SYN_IR_FLAG_REPEAT) != 0U);
+
+    SYN_IR_Frame apple_tx = {.protocol = SYN_IR_PROTO_APPLE, .address = 0xEE87U, .command = 0x0BU};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ir_encode_frame(&apple_tx, pulses, 150U, &count));
+    syn_ir_decoder_init(&decoder);
+    got = false;
+    for (size_t i = 0U; i < count; i++) {
+        if (syn_ir_decode_pulse(&decoder, pulses[i].duration_us, pulses[i].is_mark, &rx_frame)) {
+            got = true;
+        }
+    }
+    TEST_ASSERT_TRUE(got);
+    syn_ir_decode_pulse(&decoder, 9000U, true, &rx_frame);
+    TEST_ASSERT_TRUE(syn_ir_decode_pulse(&decoder, 2250U, false, &rx_frame));
+    TEST_ASSERT_EQUAL(SYN_IR_PROTO_APPLE, rx_frame.protocol);
+
+    /* 3. RC6 Mode != 0 (e.g. Mode 6) or Start bit == 0 must be rejected in unpack_rc6 */
+    syn_ir_decoder_init(&decoder);
+    decoder.state = SYN_IR_STATE_DATA;
+    decoder.active_proto = SYN_IR_PROTO_RC6;
+    decoder.bit_idx = 21U;
+    decoder.bits = (1ULL << 20U) | (6ULL << 17U) | 0x0411ULL; /* Mode 6 != 0 */
+    TEST_ASSERT_FALSE(syn_ir_decode_timeout(&decoder, &rx_frame));
+
+    syn_ir_decoder_init(&decoder);
+    decoder.state = SYN_IR_STATE_DATA;
+    decoder.active_proto = SYN_IR_PROTO_RC6;
+    decoder.bit_idx = 21U;
+    decoder.bits = 0x0411ULL; /* Start bit 20 == 0 */
+    TEST_ASSERT_FALSE(syn_ir_decode_timeout(&decoder, &rx_frame));
+}
+
 void run_ir_tests(void)
 {
     RUN_TEST(test_ir_nec_decode_encode);
@@ -594,6 +674,7 @@ void run_ir_tests(void)
     RUN_TEST(test_ir_rc5_rc6_samsung_kaseikyo_denon);
     RUN_TEST(test_ir_edge_cases);
     RUN_TEST(test_r5_ir_sony_single_frame_and_manchester_roundtrip);
+    RUN_TEST(test_tier_a_ir_rc6_mode_repeat_and_orphan_space);
 }
 
 #endif /* SYN_USE_IR */

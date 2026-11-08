@@ -2112,6 +2112,39 @@ static void test_tier_a_ethercat_regressions(void)
     TEST_ASSERT_EQUAL_HEX8(0x33U, slave.mbox_out[127]);
 }
 
+static void test_pro20_ecat_fmmu_logical_addr_u64_no_wraparound(void)
+{
+    SYN_EcatNode slave;
+    syn_ecat_init(&slave, 0x1001U, NULL);
+    memset(slave.mbox_out, 0x77U, sizeof(slave.mbox_out));
+
+    /* FMMU0 at 0xFFFFFFFC..0x100000004 (8B crossing 32-bit boundary) mapped to 0x1000 */
+    slave.fmmu[0] = (SYN_EcatFMMUConfig){
+        .logical_start = 0xFFFFFFFCU,
+        .length = 8U,
+        .logical_end_bit = 7U,
+        .phys_start_addr = 0x1000U,
+        .type = 0x03U,
+        .enable = true,
+    };
+
+    /* Datagram at 0xFFFFFFF8, len 12 (0xFFFFFFF8..0x100000004) overlaps 4B at
+     * 0xFFFFFFFC..0xFFFFFFFF */
+    uint8_t wire[128];
+    uint8_t dg_payload[12] = {1U,    2U,    3U,    4U,    0xA1U, 0xB2U,
+                              0xC3U, 0xD4U, 0xE5U, 0xF6U, 0x07U, 0x08U};
+    syn_ecat_frame_begin(wire, sizeof(wire));
+    size_t flen = syn_ecat_frame_add_datagram(wire, sizeof(wire), SYN_ECAT_CMD_LRW, 1U, 0xFFFFFFF8U,
+                                              dg_payload, 12U, false);
+    uint16_t wkc = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_slave_process_frame(&slave, wire, flen, &wkc));
+    TEST_ASSERT_EQUAL_UINT16(3U, wkc);
+    TEST_ASSERT_EQUAL_HEX8(0xA1U, slave.mbox_out[0]);
+    TEST_ASSERT_EQUAL_HEX8(0xD4U, slave.mbox_out[3]);
+    TEST_ASSERT_EQUAL_HEX8(0xE5U, slave.mbox_out[4]);
+    TEST_ASSERT_EQUAL_HEX8(0x08U, slave.mbox_out[7]);
+}
+
 void run_ethercat_tests(void)
 {
     RUN_TEST(test_ecat_init_and_esm);
@@ -2133,4 +2166,5 @@ void run_ethercat_tests(void)
     RUN_TEST(test_ecat_r4_p09_regressions);
     RUN_TEST(test_r5_a07_master_slave_loopback_and_wkc_sdo_guards);
     RUN_TEST(test_tier_a_ethercat_regressions);
+    RUN_TEST(test_pro20_ecat_fmmu_logical_addr_u64_no_wraparound);
 }

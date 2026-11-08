@@ -139,6 +139,7 @@ static void dali_reset_state(SYN_DALI_SlaveState *slave)
     slave->dapc_sequence_active = false;
     slave->write_mem_enabled = false;
     slave->initialise_active = false;
+    slave->withdrawn = false;
 }
 
 /**
@@ -251,6 +252,37 @@ static bool dali_exec_preset_cmd(SYN_DALI_SlaveState *slave, uint8_t cmd)
 }
 
 /**
+ * @brief Clamp an 8-bit level into [lo, hi].
+ * @param val Input value.
+ * @param lo  Lower bound (inclusive).
+ * @param hi  Upper bound (inclusive).
+ * @return Clamped 8-bit value.
+ */
+static inline uint8_t dali_clamp_u8(uint8_t val, uint8_t lo, uint8_t hi)
+{
+    if (val < lo) {
+        return lo;
+    }
+    if (val > hi) {
+        return hi;
+    }
+    return val;
+}
+
+/**
+ * @brief Decode DALI short-address argument byte (0xFF = unassigned, else bits 6..1).
+ * @param raw Encoded short-address byte from DTR0 or PROGRAM_SHORT_ADDR.
+ * @return Short address 0..63 or SYN_DALI_SHORT_ADDR_UNASSIGNED (0xFF).
+ */
+static inline uint8_t dali_decode_short_addr_arg(uint8_t raw)
+{
+    if (raw == 0xFFU) {
+        return SYN_DALI_SHORT_ADDR_UNASSIGNED;
+    }
+    return (uint8_t)((raw >> 1U) & 0x3FU);
+}
+
+/**
  * @brief Execute DTR0 configuration store and write-enable commands.
  * @param slave Pointer to DALI slave state.
  * @param cmd   DALI command opcode.
@@ -263,10 +295,10 @@ static bool dali_exec_dtr_store_cmd(SYN_DALI_SlaveState *slave, uint8_t cmd)
         slave->dtr0 = slave->actual_level;
         return true;
     case SYN_DALI_CMD_STORE_DTR_AS_MAX_LEVEL:
-        slave->cfg.max_level = slave->dtr0;
+        slave->cfg.max_level = dali_clamp_u8(slave->dtr0, slave->cfg.min_level, 254U);
         return true;
     case SYN_DALI_CMD_STORE_DTR_AS_MIN_LEVEL:
-        slave->cfg.min_level = slave->dtr0;
+        slave->cfg.min_level = dali_clamp_u8(slave->dtr0, 1U, slave->cfg.max_level);
         return true;
     case SYN_DALI_CMD_STORE_DTR_AS_SYS_FAIL_LEVEL:
         slave->cfg.system_failure_level = slave->dtr0;
@@ -281,7 +313,7 @@ static bool dali_exec_dtr_store_cmd(SYN_DALI_SlaveState *slave, uint8_t cmd)
         slave->cfg.fade_rate = slave->dtr0;
         return true;
     case SYN_DALI_CMD_STORE_DTR_AS_SHORT_ADDR:
-        slave->cfg.short_address = (slave->dtr0 >> 1) & 0x3FU;
+        slave->cfg.short_address = dali_decode_short_addr_arg(slave->dtr0);
         return true;
     case SYN_DALI_CMD_ENABLE_WRITE_MEMORY:
         slave->write_mem_enabled = true;
@@ -407,6 +439,47 @@ static void dali_exec_scene_group_cmd(SYN_DALI_SlaveState *slave, uint8_t cmd)
 }
 
 /**
+ * @brief Execute YES/NO status queries and device capability queries (0x91..0x9A).
+ * @param slave     Pointer to DALI slave state.
+ * @param cmd       DALI query opcode.
+ * @param resp_data Output backward frame byte.
+ * @param has_resp  Set to true if backward frame response is generated.
+ * @return true if query opcode matched, false otherwise.
+ */
+static bool dali_exec_query_capabilities(const SYN_DALI_SlaveState *slave, uint8_t cmd,
+                                         uint8_t *resp_data, bool *has_resp)
+{
+    switch (cmd) {
+    case SYN_DALI_CMD_QUERY_CONTROL_GEAR:
+        *resp_data = 0xFFU;
+        *has_resp = true;
+        return true;
+    case SYN_DALI_CMD_QUERY_LAMP_FAILURE:
+        if (slave->lamp_failure) {
+            *resp_data = 0xFFU;
+            *has_resp = true;
+        }
+        return true;
+    case SYN_DALI_CMD_QUERY_LAMP_POWER_ON:
+        if (slave->lamp_on) {
+            *resp_data = 0xFFU;
+            *has_resp = true;
+        }
+        return true;
+    case SYN_DALI_CMD_QUERY_DEVICE_TYPE:
+        *resp_data = 0U;
+        *has_resp = true;
+        return true;
+    case SYN_DALI_CMD_QUERY_PHYSICAL_MIN_LEVEL:
+        *resp_data = 1U;
+        *has_resp = true;
+        return true;
+    default:
+        return false;
+    }
+}
+
+/**
  * @brief Dispatch an addressed indirect arc, configuration, or query command.
  * @param slave     Pointer to DALI slave state.
  * @param cmd       DALI command opcode.
@@ -425,6 +498,9 @@ static void dali_exec_indirect_cmd(SYN_DALI_SlaveState *slave, uint8_t cmd, uint
         *has_resp = true;
         return;
     }
+    if (dali_exec_query_capabilities(slave, cmd, resp_data, has_resp)) {
+        return;
+    }
     dali_exec_scene_group_cmd(slave, cmd);
 }
 
@@ -441,6 +517,7 @@ static bool dali_exec_special_search(SYN_DALI_SlaveState *slave, uint8_t spec_co
     switch (spec_code) {
     case SYN_DALI_SPEC_TERMINATE:
         slave->initialise_active = false;
+        slave->withdrawn = false;
         return true;
     case SYN_DALI_SPEC_DTR0:
         slave->dtr0 = spec_data;
@@ -453,6 +530,7 @@ static bool dali_exec_special_search(SYN_DALI_SlaveState *slave, uint8_t spec_co
         return true;
     case SYN_DALI_SPEC_INITIALISE:
         slave->initialise_active = true;
+        slave->withdrawn = false;
         return true;
     case SYN_DALI_SPEC_RANDOMISE:
         if (slave->initialise_active) {
@@ -474,7 +552,7 @@ static bool dali_exec_special_search(SYN_DALI_SlaveState *slave, uint8_t spec_co
 }
 
 /**
- * @brief Execute compare and short-address programming/verification special commands.
+ * @brief Execute compare, withdraw, and short-address programming/verification special commands.
  * @param slave     Pointer to DALI slave state.
  * @param spec_code Special command address byte.
  * @param spec_data Special command data byte.
@@ -486,18 +564,25 @@ static void dali_exec_special_addr(SYN_DALI_SlaveState *slave, uint8_t spec_code
 {
     switch (spec_code) {
     case SYN_DALI_SPEC_COMPARE:
-        if (slave->initialise_active && slave->random_address <= slave->search_address) {
+        if (slave->initialise_active && !slave->withdrawn &&
+            (slave->random_address <= slave->search_address)) {
             *resp_data = 0xFFU;
             *has_resp = true;
         }
         break;
+    case SYN_DALI_SPEC_WITHDRAW:
+        if (slave->initialise_active && (slave->random_address == slave->search_address)) {
+            slave->withdrawn = true;
+        }
+        break;
     case SYN_DALI_SPEC_PROGRAM_SHORT_ADDR:
         if (slave->initialise_active) {
-            slave->cfg.short_address = (spec_data >> 1) & 0x3FU;
+            slave->cfg.short_address = dali_decode_short_addr_arg(spec_data);
         }
         break;
     case SYN_DALI_SPEC_VERIFY_SHORT_ADDR:
-        if (((spec_data >> 1) & 0x3FU) == slave->cfg.short_address) {
+        if ((slave->cfg.short_address != SYN_DALI_SHORT_ADDR_UNASSIGNED) && (spec_data != 0xFFU) &&
+            (((spec_data >> 1U) & 0x3FU) == slave->cfg.short_address)) {
             *resp_data = 0xFFU;
             *has_resp = true;
         }

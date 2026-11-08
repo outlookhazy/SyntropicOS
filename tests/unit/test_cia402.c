@@ -480,6 +480,32 @@ static void test_r5_a17_quick_stop_reenable_and_fractional_step(void)
     TEST_ASSERT_EQUAL(SYN_CIA402_STATE_SWITCHED_ON, drive.state);
 }
 
+static void test_pro22_cia402_update_large_dt_ms_saturation(void)
+{
+    SYN_CIA402_Axis drive;
+    SYN_CIA402_Config cfg = {
+        .max_profile_velocity = 10000U,
+        .profile_acceleration = 100000U,
+        .profile_deceleration = 100000U,
+        .quick_stop_deceleration = 100000U,
+    };
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_init(&drive, &cfg));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_mode(&drive, SYN_CIA402_MODE_PV));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x0006U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x0007U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_controlword(&drive, 0x000FU));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_set_target_velocity(&drive, 10));
+    drive.current_speed = 10.0f;
+
+    /* dt_ms = 0 defaults to 1000 us */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_update(&drive, 0U));
+
+    /* dt_ms = 5000000 (5e9 us > UINT32_MAX) saturates to UINT32_MAX (~4294.967s) -> > 40000 counts
+     */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_cia402_update(&drive, 5000000U));
+    TEST_ASSERT_TRUE(drive.actual_position > 40000);
+}
+
 void run_cia402_tests(void)
 {
     RUN_TEST(test_cia402_init_and_state_transitions);
@@ -491,4 +517,5 @@ void run_cia402_tests(void)
     RUN_TEST(test_cia402_canopen_od_binding);
     RUN_TEST(test_cia402_invalid_params);
     RUN_TEST(test_r5_a17_quick_stop_reenable_and_fractional_step);
+    RUN_TEST(test_pro22_cia402_update_large_dt_ms_saturation);
 }

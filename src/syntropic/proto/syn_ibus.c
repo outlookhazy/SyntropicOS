@@ -39,6 +39,10 @@ SYN_Status syn_ibus_parse_byte(SYN_IBUS_Parser *parser, uint8_t byte, SYN_IBUS_F
             return SYN_ERROR;
         }
     } else if (parser->idx == 1) {
+        if (byte == SYN_IBUS_HEADER1) {
+            parser->buf[0] = byte;
+            return SYN_BUSY;
+        }
         if (byte != SYN_IBUS_HEADER2) {
             parser->idx = 0;
             return SYN_ERROR;

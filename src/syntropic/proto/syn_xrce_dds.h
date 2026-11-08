@@ -143,9 +143,9 @@ typedef struct {
     void *user_data;              /**< Context pointer for callbacks */
 
     uint8_t *rx_buf;    /**< RX scratch buffer */
-    size_t rx_buf_size; /**< RX buffer size (>= 256 bytes) */
+    size_t rx_buf_size; /**< RX buffer size (>= 128 bytes) */
     uint8_t *tx_buf;    /**< TX scratch buffer */
-    size_t tx_buf_size; /**< TX buffer size (>= 256 bytes) */
+    size_t tx_buf_size; /**< TX buffer size (>= 128 bytes) */
 } SYN_XRCE_Config;
 
 /**
@@ -159,6 +159,7 @@ typedef struct {
     uint16_t stream_seq_num;    /**< Outgoing sequence number */
     uint16_t next_req_id;       /**< Request ID counter */
     uint32_t last_heartbeat_ms; /**< Timestamp of last transmitted heartbeat */
+    bool heartbeat_sent;        /**< True after initial session heartbeat is sent */
 
     SYN_XRCE_Object objects[SYN_XRCE_MAX_OBJECTS]; /**< Tracked local entity table */
     size_t object_count;                           /**< Count of configured entities */
@@ -400,7 +401,7 @@ bool syn_cdr_read_bytes(SYN_CDR_Reader *r, uint8_t *out_buf, size_t len);
 /**
  * @brief Initialize Micro XRCE-DDS Client.
  * @param client Client context to initialize.
- * @param cfg    Configuration options and buffers.
+ * @param cfg    Configuration options and buffers (rx_buf_size/tx_buf_size >= 128 bytes).
  * @return SYN_OK on success, SYN_INVALID_PARAM on invalid argument.
  */
 SYN_Status syn_xrce_client_init(SYN_XRCE_Client *client, const SYN_XRCE_Config *cfg);
