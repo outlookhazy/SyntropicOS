@@ -18,13 +18,32 @@
 
 #define SYN_USE_GPIO 1     /**< GPIO pin control                    */
 #define SYN_USE_UART 1     /**< Peripheral UARTs (Modbus, GPS, etc) */
+#define SYN_USE_I2C 1      /**< I2C master/slave driver             */
+#define SYN_USE_SPI 1      /**< SPI master/slave driver             */
+#define SYN_USE_CAN 1      /**< CAN bus driver abstraction          */
+#define SYN_USE_CAN_FD 0   /**< CAN FD 64-byte frame support        */
 #define SYN_USE_ADC 1      /**< ADC with oversampling + calibration */
+#define SYN_USE_DAC 1      /**< Digital-to-Analog Converter driver  */
+#define SYN_USE_COMP 1     /**< Analog comparator driver            */
+#define SYN_USE_PWM 1      /**< Hardware PWM driver                 */
+#define SYN_USE_HRPWM 1    /**< High-resolution PWM driver          */
 #define SYN_USE_EXTI 1     /**< GPIO interrupt dispatcher           */
+#define SYN_USE_RTC 1      /**< Real-Time Clock (RTC) driver        */
 #define SYN_USE_HPCLOCK 1  /**< High-precision 64-bit system clock  */
 #define SYN_USE_TIMESYNC 1 /**< GPS/RTC time discipline service     */
 #define SYN_USE_GEO 1      /**< WGS84 & 3D local ENU geodetic math  */
 #define SYN_GNSS_USE_FIXED_POINT \
-    0 /**< 0 = 64-bit double, 1 = 32-bit Micro-Degree (1e-7 deg) integer */
+    0                      /**< 0 = 64-bit double, 1 = 32-bit Micro-Degree (1e-7 deg) integer */
+#define SYN_USE_SD 1       /**< SD card SPI block driver            */
+#define SYN_USE_IOEXP 1    /**< I2C GPIO expander driver            */
+#define SYN_USE_SHIFTREG 1 /**< Shift register I/O expander driver  */
+#define SYN_USE_RFID 1     /**< RFID / NFC card reader driver       */
+#define SYN_USE_ONEWIRE 1  /**< Software 1-Wire master driver       */
+#define SYN_USE_SOFT_I2C 1 /**< Software bit-bang I2C driver        */
+#define SYN_USE_SOFT_SPI 1 /**< Software bit-bang SPI driver        */
+#define SYN_USE_USB_CDC 1  /**< USB 2.0 CDC ACM virtual COM port    */
+#define SYN_USE_USB_MIDI 1 /**< USB MIDI Class 1.0 device           */
+#define SYN_USE_USB_MSC 1  /**< USB Mass Storage Class BOT device   */
 
 /* Console serial (syn_port_serial) is always available — used by CLI/log.  */
 /* I2C/SPI device helpers are header-only — always available.               */
@@ -57,6 +76,8 @@
 /* ── Services ───────────────────────────────────────────────────────────── */
 
 #define SYN_USE_LOG 1        /**< Logging system (requires: FMT)      */
+#define SYN_USE_DATALOG 1    /**< Data logger (ring buffer to flash)  */
+#define SYN_USE_BLACKBOX 1   /**< Flight telemetry blackbox recorder  */
 #define SYN_USE_CLI 1        /**< Command-line interface (requires: FMT) */
 #define SYN_USE_WASM 1       /**< [EXPERIMENTAL] WebAssembly MVP interpreter */
 #define SYN_WASM_USE_FIXED 0 /**< f32 opcodes use Q16.16 fixed-point */
@@ -76,29 +97,48 @@
 
 /* ── Input / Output ─────────────────────────────────────────────────────── */
 
-#define SYN_USE_BUTTON 1   /**< Button debouncer (requires: FSM)    */
-#define SYN_USE_ENCODER 1  /**< Rotary encoder (quadrature)         */
-#define SYN_USE_LED 1      /**< LED controller (blink/flash/pattern)*/
-#define SYN_USE_SOFT_PWM 1 /**< Software PWM on any GPIO            */
+#define SYN_USE_BUTTON 1          /**< Button debouncer (requires: FSM)    */
+#define SYN_USE_ENCODER 1         /**< Rotary encoder (quadrature)         */
+#define SYN_USE_DIPSWITCH 1       /**< DIP switch & rotary selector        */
+#define SYN_USE_KEYPAD 1          /**< Matrix keypad scanner               */
+#define SYN_USE_JOYSTICK 1        /**< Analog joystick & potentiometer     */
+#define SYN_USE_TOUCH 1           /**< Capacitive touch sensor             */
+#define SYN_USE_PPM 1             /**< PPM multi-channel RC decoder        */
+#define SYN_USE_LED 1             /**< LED controller (blink/flash/pattern)*/
+#define SYN_USE_SMARTLED 1        /**< Addressable RGB/RGBW LED strip      */
+#define SYN_USE_BUZZER 1          /**< Piezo buzzer & tone generator       */
+#define SYN_USE_SOFT_PWM 1        /**< Software PWM on any GPIO            */
+#define SYN_USE_DSHOT 1           /**< DShot150/300/600 digital ESC output */
+#define SYN_USE_DSHOT_TELEMETRY 1 /**< Bidirectional DShot telemetry       */
 
 /* ── Control & Motor ────────────────────────────────────────────────────── */
 
-#define SYN_USE_PID 1        /**< PID controller                      */
-#define SYN_USE_STEPPER 1    /**< Stepper motor (step/dir + accel)    */
-#define SYN_USE_SERVO 1      /**< Hobby servo (pulse-width control)   */
-#define SYN_USE_DC_MOTOR 1   /**< DC motor (H-bridge + ramp)          */
-#define SYN_USE_MOTOR_CTRL 1 /**< Closed-loop motor controller (requires: PID) */
-#define SYN_USE_AUTOTUNE 1   /**< Motor auto-tuner (requires: MOTOR_CTRL) */
-#define SYN_USE_ACTUATOR 1   /**< Linear actuator (requires: PID)     */
-#define SYN_USE_GCODE 1      /**< G-Code RS-274 motion interpreter (requires: INTERPOLATOR) */
-#define SYN_USE_KINEMATICS 1 /**< Multi-axis robot forward & inverse kinematics */
+#define SYN_USE_PID 1          /**< PID controller                      */
+#define SYN_USE_FLIGHT_PID 1   /**< 3-axis flight PID & motor mixer     */
+#define SYN_USE_RC_CURVE 1     /**< RC expo & deadband curve mapper     */
+#define SYN_USE_RC_FAILSAFE 1  /**< RC link failsafe monitor            */
+#define SYN_USE_STEPPER 1      /**< Stepper motor (step/dir + accel)    */
+#define SYN_USE_SERVO 1        /**< Hobby servo (pulse-width control)   */
+#define SYN_USE_DC_MOTOR 1     /**< DC motor (H-bridge + ramp)          */
+#define SYN_USE_BLDC_6STEP 1   /**< 6-step trapezoidal BLDC commutation */
+#define SYN_USE_FOC 1          /**< Field-Oriented Control (Clarke/Park)*/
+#define SYN_USE_MOTOR_CTRL 1   /**< Closed-loop motor controller (requires: PID) */
+#define SYN_USE_AUTOTUNE 1     /**< Motor auto-tuner (requires: MOTOR_CTRL) */
+#define SYN_USE_ACTUATOR 1     /**< Linear actuator (requires: PID)     */
+#define SYN_USE_INTERPOLATOR 1 /**< Multi-axis linear/arc interpolator  */
+#define SYN_USE_GCODE 1        /**< G-Code RS-274 motion interpreter (requires: INTERPOLATOR) */
+#define SYN_USE_KINEMATICS 1   /**< Multi-axis robot forward & inverse kinematics */
 
 /* ── DSP / Filters ──────────────────────────────────────────────────────── */
 
 #define SYN_USE_FILTER 1         /**< Digital filters (MA, EMA, Median)   */
 #define SYN_USE_SIGNAL 1         /**< Signal statistics (sliding window)  */
 #define SYN_USE_BIQUAD 1         /**< Biquad digital filter               */
+#define SYN_USE_KALMAN 1         /**< Fixed-point Kalman filter           */
 #define SYN_USE_FFT 1            /**< Fast Fourier Transform (FFT)        */
+#define SYN_USE_DDS 1            /**< Direct Digital Synthesis waveform   */
+#define SYN_USE_GOERTZEL 1       /**< Goertzel tone detector              */
+#define SYN_USE_MFCC 1           /**< Fixed-point MFCC feature extractor  */
 #define SYN_FILTER_MAX_WINDOW 32 /**< Max filter window size              */
 
 /* ── State Machines / Concurrency ───────────────────────────────────────── */
@@ -108,14 +148,28 @@
 
 /* ── Cryptography ───────────────────────────────────────────────────────── */
 
+#define SYN_USE_AES 1              /**< Unified AES block cipher & AEAD     */
+#define SYN_USE_PORT_AES 0         /**< Hardware AES/crypto port offload    */
+#define SYN_AES_MAX_KEY_BITS 256   /**< Max AES key bits: 128, 192, or 256  */
+#define SYN_USE_AES_DECRYPT 1      /**< AES ECB/CBC decryption (+256B Flash)*/
+#define SYN_USE_AES_CBC 1          /**< AES-CBC mode with PKCS#7            */
+#define SYN_USE_AES_CTR 1          /**< AES-CTR stream cipher mode          */
+#define SYN_USE_AES_GCM 1          /**< AES-GCM AEAD authenticated cipher   */
+#define SYN_USE_AES_CCM 1          /**< AES-CCM AEAD (NIST SP 800-38C / BLE)*/
+#define SYN_AES_GCM_TABLE 0        /**< GCM GHASH table: 0=none, 4=256B, 8=4KB*/
+#define SYN_USE_AES_CMAC 1         /**< AES-CMAC message authentication     */
+#define SYN_USE_SHA256 1           /**< SHA-256 hash + HMAC-SHA256          */
+#define SYN_USE_SHA512 1           /**< SHA-512 / SHA-384 / HMAC-SHA512/384 */
+#define SYN_USE_HKDF 1             /**< HKDF key derivation (RFC 5869)      */
 #define SYN_USE_BLAKE2S 1          /**< BLAKE2s hash + keyed MAC (RFC 7693) */
 #define SYN_USE_CHACHA20POLY1305 1 /**< ChaCha20-Poly1305 AEAD (RFC 8439)  */
 #define SYN_USE_X25519 1           /**< X25519 Diffie-Hellman (RFC 7748)   */
+#define SYN_USE_ED25519 1          /**< Ed25519 signatures (RFC 8032)       */
 #define SYN_USE_P256 1             /**< NIST P-256 / secp256r1 ECC          */
 #define SYN_P256_USE_COMB_TABLE 0  /**< Precomputed G comb table (opt-in)   */
+#define SYN_USE_ASN1 1             /**< ASN.1 DER TLV parser                */
+#define SYN_USE_X509 1             /**< X.509 v3 certificate parser         */
 #define SYN_USE_HMAC_DRBG 1        /**< NIST SP 800-90A HMAC-DRBG (SHA-256) */
-#define SYN_USE_BASE64 1           /**< RFC 4648 Base64 & Base64URL codec   */
-#define SYN_USE_SHA512 1           /**< SHA-512 / SHA-384 / HMAC-SHA512/384 */
 #define SYN_USE_TPM2 1             /**< TCG TPM 2.0 command & measured boot engine */
 
 /* ── Bluetooth Low Energy ───────────────────────────────────────────────── */
@@ -130,21 +184,46 @@
 
 #define SYN_USE_CANOPEN 1        /**< CANopen DS301 slave protocol engine */
 #define SYN_USE_CIA402 1         /**< CiA 402 Drive & Motion profile engine */
+#define SYN_USE_DEVICENET 1      /**< ODVA DeviceNet (CIP over CAN) stack */
+#define SYN_USE_J1939 1          /**< SAE J1939 heavy-duty CAN stack      */
+#define SYN_USE_N2K 1            /**< NMEA 2000 marine CAN protocol stack */
+#define SYN_USE_GBT27930 1       /**< GB/T 27930 EV DC fast charging stack*/
+#define SYN_USE_ISOTP 1          /**< ISO 15765-2 (ISO-TP) CAN transport  */
+#define SYN_USE_CANNM 1          /**< AUTOSAR CAN Network Management      */
+#define SYN_USE_UDS 1            /**< ISO 14229 Unified Diagnostic Server */
+#define SYN_USE_DOIP 1           /**< ISO 13400-2 Diagnostics over IP     */
+#define SYN_USE_CCP 1            /**< ASAM CCP v2.1 calibration slave     */
+#define SYN_USE_XCP 1            /**< ASAM XCP v1.x calibration slave     */
 #define SYN_USE_COBS 1           /**< COBS packet framing                 */
 #define SYN_USE_COSE 1           /**< COSE (RFC 9052) signing & encryption */
 #define SYN_USE_ETHERCAT 1       /**< EtherCAT bare-metal protocol stack  */
 #define SYN_USE_LIN 1            /**< LIN bus 2.1/2.2a & ISO 17987 stack  */
+#define SYN_USE_LINTP 1          /**< ISO 17987-2 LIN transport layer     */
 #define SYN_USE_DALI 1           /**< DALI / IEC 62386 lighting stack    */
+#define SYN_USE_DMX512 1         /**< USITT DMX512-A lighting stack       */
+#define SYN_USE_BACNET 1         /**< BACnet MS/TP & APDU (ISO 16484-5)   */
 #define SYN_USE_SMBUS 1          /**< SMBus 1.1/2.0/3.0 protocol engine   */
 #define SYN_USE_PMBUS 1          /**< PMBus 1.2/1.3 protocol & linear fmt */
 #define SYN_USE_MBUS 1           /**< M-Bus (EN 13757-2/3) protocol engine */
+#define SYN_USE_CJT188 1         /**< CJ/T 188 smart metering protocol    */
 #define SYN_USE_MODBUS 1         /**< Modbus RTU slave (requires: CRC)    */
+#define SYN_USE_MODBUS_MASTER 1  /**< Modbus RTU master / client          */
+#define SYN_USE_AT_PARSER 1      /**< Stream-oriented AT command parser   */
+#define SYN_USE_NMEA 1           /**< NMEA 0183 GNSS parser & encoder     */
+#define SYN_USE_MAVLINK 1        /**< MAVLink v2 encoder & decoder        */
+#define SYN_USE_CRSF 1           /**< CRSF RC & telemetry parser          */
+#define SYN_USE_SBUS 1           /**< SBUS 16-channel RC receiver decoder */
+#define SYN_USE_IBUS 1           /**< IBUS 14-channel RC receiver decoder */
+#define SYN_USE_MSP 1            /**< MultiWii Serial Protocol v1 codec   */
+#define SYN_USE_IR 1             /**< Infrared remote protocol codec      */
+#define SYN_USE_YMODEM 1         /**< YMODEM / XMODEM-1K file receiver    */
 #define SYN_USE_MQTT 1           /**< MQTT 3.1.1 client                   */
 #define SYN_USE_MQTTSN 1         /**< MQTT-SN v1.2 datagram client engine */
 #define SYN_USE_HTTP 1           /**< HTTP client                         */
 #define SYN_USE_HTTPD 1          /**< HTTP server (embedded web server)   */
 #define SYN_USE_WEBSOCKET 1      /**< WebSocket client                    */
 #define SYN_USE_COAP 1           /**< CoAP protocol client                */
+#define SYN_USE_TLS 1            /**< TLS 1.3 engine & transport (RFC 8446)*/
 #define SYN_USE_DTLS 1           /**< DTLS 1.3 datagram security (RFC 9147) */
 #define SYN_USE_LWM2M 1          /**< OMA Lightweight M2M client engine   */
 #define SYN_USE_LWM2M_TASK 1     /**< LwM2M Autonomous Client Task engine */
@@ -162,14 +241,22 @@
 #define SYN_USE_ROUTER 1         /**< Network router / dispatcher         */
 #define SYN_USE_HEARTBEAT 1      /**< Heartbeat / keep-alive service      */
 #define SYN_USE_SNTP 1           /**< SNTP time synchronization client    */
+#define SYN_USE_NTP_SERVER 1     /**< NTP v4 time server                  */
 #define SYN_USE_WG \
     1 /**< WireGuard VPN client (requires: BLAKE2S, CHACHA20POLY1305, X25519, SNTP) */
 #define SYN_WG_MTU 1420         /**< WireGuard tunnel MTU (inner payload) */
 #define SYN_USE_TRANSPORT_TCP 1 /**< TCP transport layer                 */
+#define SYN_USE_TRANSPORT_UDP 1 /**< UDP port-to-native stack bridge     */
 
 /* ── Sensor ─────────────────────────────────────────────────────────────── */
 
-#define SYN_USE_SENSOR 1 /**< Sensor polling framework            */
+#define SYN_USE_SENSOR 1    /**< Sensor polling framework            */
+#define SYN_USE_CLIMATE 1   /**< Temperature, humidity & pressure    */
+#define SYN_USE_POWERMON 1  /**< Power, voltage & current monitor    */
+#define SYN_USE_DISTANCE 1  /**< Ultrasonic, ToF & IR distance       */
+#define SYN_USE_LUX 1       /**< Ambient light & RGB color sensor    */
+#define SYN_USE_SCALE 1     /**< Load cell & weight scale ADC        */
+#define SYN_USE_BIOMETRIC 1 /**< Pulse oximeter & heart rate sensor  */
 
 /* ── Storage ────────────────────────────────────────────────────────────── */
 
@@ -185,9 +272,12 @@
 #define SYN_GFX_BACKEND_DIRECT 1               /**< Direct-draw (no framebuffer)       */
 #define SYN_GFX_BACKEND SYN_GFX_BACKEND_CANVAS /**< Active renderer */
 
-#define SYN_USE_CANVAS 1 /**< Display canvas / framebuffer        */
-#define SYN_USE_MENU 1   /**< UI menu system                      */
-#define SYN_USE_IMGUI 1  /**< Immediate-mode GUI                  */
+#define SYN_USE_CANVAS 1  /**< Display canvas / framebuffer        */
+#define SYN_USE_OLED 1    /**< Monochrome I2C OLED display driver  */
+#define SYN_USE_CHARLCD 1 /**< Character LCD (HD44780) driver      */
+#define SYN_USE_SEG7 1    /**< 7-segment LED display driver        */
+#define SYN_USE_MENU 1    /**< UI menu system                      */
+#define SYN_USE_IMGUI 1   /**< Immediate-mode GUI                  */
 
 /* ── System ─────────────────────────────────────────────────────────────── */
 
@@ -226,45 +316,25 @@
 #define SYN_USE_TRACE 1    /**< Event trace buffer                  */
 #define SYN_USE_PROFILER 1 /**< Task CPU profiler                   */
 
-/* ── Logging ────────────────────────────────────────────────────────────── */
-
-#define SYN_USE_DATALOG 1 /**< Data logger (ring buffer to flash)  */
-
-/* ── Cryptography ───────────────────────────────────────────────────────── */
-
-#define SYN_USE_AES 1            /**< Unified AES block cipher & AEAD     */
-#define SYN_USE_PORT_AES 0       /**< Hardware AES/crypto port offload    */
-#define SYN_AES_MAX_KEY_BITS 256 /**< Max AES key bits: 128, 192, or 256  */
-#define SYN_USE_AES_DECRYPT 1    /**< AES ECB/CBC decryption (+256B Flash)*/
-#define SYN_USE_AES_CBC 1        /**< AES-CBC mode with PKCS#7            */
-#define SYN_USE_AES_CTR 1        /**< AES-CTR stream cipher mode          */
-#define SYN_USE_AES_GCM 1        /**< AES-GCM AEAD authenticated cipher   */
-#define SYN_USE_AES_CCM 1        /**< AES-CCM AEAD (NIST SP 800-38C / BLE)*/
-#define SYN_AES_GCM_TABLE 0      /**< GCM GHASH table: 0=none, 4=256B, 8=4KB*/
-#define SYN_USE_AES_CMAC 1       /**< AES-CMAC message authentication     */
-#define SYN_USE_SHA256 1         /**< SHA-256 hash + HMAC-SHA256          */
-
 /* ── Utilities ──────────────────────────────────────────────────────────── */
 
 #define SYN_USE_FMT 1           /**< Lightweight printf alternative      */
+#define SYN_USE_QMATH 1         /**< Q16.16 transcendental math & I/O    */
+#define SYN_USE_MATRIX 1        /**< Q16.16 fixed-point matrix math      */
+#define SYN_USE_METRICS 0       /**< Telemetry counters/gauges (opt-in)  */
+#define SYN_USE_BASE64 1        /**< RFC 4648 Base64 & Base64URL codec   */
 #define SYN_USE_CBOR 1          /**< CBOR binary serializer              */
 #define SYN_USE_JSON 1          /**< JSON reader/writer                  */
+#define SYN_USE_PROTOBUF 1      /**< Protocol Buffers wire format        */
 #define SYN_USE_POOL 1          /**< Fixed-size block memory pool        */
 #define SYN_USE_PUBSUB 1        /**< Publish-subscribe message bus       */
 #define SYN_USE_RAMP 1          /**< Ramp / slew rate generator          */
 #define SYN_USE_SCURVE 1        /**< S-curve motion profile              */
-#define SYN_USE_GOERTZEL 1      /**< Goertzel tone detector              */
 #define SYN_USE_LZ4 1           /**< Zero-heap LZ4 compression           */
-#define SYN_USE_USB_MIDI 1      /**< USB MIDI Class 1.0 device           */
-#define SYN_USE_MFCC 1          /**< Fixed-point MFCC feature extractor  */
-#define SYN_USE_VAD 1           /**< Zero-heap Voice Activity Detector   */
-#define SYN_USE_USB_MSC 1       /**< USB Mass Storage Class BOT device   */
-#define SYN_USE_NTP_SERVER 1    /**< NTP v4 time server                  */
-#define SYN_USE_PROTOBUF 1      /**< Protocol Buffers wire format        */
 #define SYN_LZ4_HASH_SIZE 4096U /**< 4096 entries (8 KB)              */
 #define SYN_CRC_USE_TABLE 1     /**< 1=lookup table (fast), 0=bitwise    */
 /* Ring buffer, assert, bits, timeout, hysteresis, change filter, LUT,        */
-/* Q-math, rate limiter, ping-pong, CRC, and mailbox are always available.    */
+/* inline Q-math, rate limiter, ping-pong, CRC, and mailbox are header-only.  */
 
 /* ── Assert configuration ───────────────────────────────────────────────── */
 
@@ -272,6 +342,11 @@
 /* #define SYN_DISABLE_ASSERT */
 
 /* ── Audio configuration ────────────────────────────────────────────────── */
+
+#define SYN_USE_AUDIO 1 /**< Double-buffered PCM audio engine    */
+#define SYN_USE_ADPCM 1 /**< IMA/DVI ADPCM speech & audio codec  */
+#define SYN_USE_SBC 1   /**< Bluetooth A2DP SBC audio decoder    */
+#define SYN_USE_VAD 1   /**< Zero-heap Voice Activity Detector   */
 #ifndef SYN_AUDIO_MIXER_MAX_CHANNELS
 #define SYN_AUDIO_MIXER_MAX_CHANNELS 4U /**< Maximum concurrent mixer channels */
 #endif
