@@ -161,11 +161,14 @@ SYN_Status syn_aes_cbc_encrypt(const SYN_AES_Context *ctx, const uint8_t iv[SYN_
 /**
  * @brief Decrypt data using AES-CBC with PKCS#7 unpadding.
  *
+ * @note @p out must not alias @p in. On invalid PKCS#7 padding, @p out is zeroized
+ *       across all decrypted blocks before returning SYN_INVALID_PARAM.
+ *
  * @param[in]  ctx          Initialized AES context.
  * @param[in]  iv           16-byte initialization vector.
  * @param[in]  in           Ciphertext buffer (must be non-empty multiple of 16 bytes).
  * @param[in]  in_len       Ciphertext length in bytes.
- * @param[out] out          Plaintext output buffer.
+ * @param[out] out          Plaintext output buffer (must not alias @p in).
  * @param[in]  out_capacity Capacity of plaintext output buffer.
  * @param[out] out_len      Number of plaintext bytes written.
  * @return SYN_OK on success, or SYN_INVALID_PARAM on invalid padding or parameters.

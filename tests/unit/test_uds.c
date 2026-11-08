@@ -4098,6 +4098,21 @@ static bool pro02_overlong_ft_cb(uint8_t mode, const char *file_path, uint16_t p
     return true;
 }
 
+static bool pro02_overlong_routine_cb(uint8_t subfunction, uint16_t routine_id,
+                                      const uint8_t *in_data, uint16_t in_len, uint8_t *out_buf,
+                                      uint16_t max_out_len, uint16_t *out_len, void *ctx)
+{
+    (void)subfunction;
+    (void)routine_id;
+    (void)in_data;
+    (void)in_len;
+    (void)out_buf;
+    (void)max_out_len;
+    (void)ctx;
+    *out_len = 0xFFFFU;
+    return true;
+}
+
 static bool pro14_upload_mem_cb(bool is_write, uint32_t address, uint32_t size, uint8_t *data_buf,
                                 void *ctx)
 {
@@ -4234,6 +4249,12 @@ void test_uds_pro02_max_resp_len_guards(void)
     TEST_ASSERT_TRUE(syn_uds_register_file_transfer(&srv, pro02_overlong_ft_cb, NULL));
     TEST_ASSERT_TRUE(
         syn_uds_process_request(&srv, req_38, 3U, resp, 3U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
+    TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
+
+    /* 0x31 RoutineControl callback returning 0xFFFF -> NRC 0x14 without uint16_t wraparound */
+    TEST_ASSERT_TRUE(syn_uds_register_routine_control(&srv, pro02_overlong_routine_cb, NULL));
+    TEST_ASSERT_TRUE(
+        syn_uds_process_request(&srv, req_31, 4U, resp, 8U, &resp_len, SYN_UDS_ADDR_PHYSICAL));
     TEST_ASSERT_EQUAL_HEX8(SYN_UDS_NRC_RESPONSE_TOO_LONG, resp[2]);
 }
 

@@ -58,18 +58,29 @@ SYN_Status syn_ble_l2cap_disconnect(SYN_BLE_L2CAP *l2cap, uint16_t conn_handle)
 }
 
 /**
- * @brief Find or allocate connection slot for incoming ACL packet.
+ * @brief Find an active L2CAP connection slot by handle.
  * @param l2cap L2CAP context handle.
  * @param conn_handle Connection handle.
- * @return Active connection entry pointer, or NULL if pool full.
+ * @return Active connection entry pointer, or NULL if not found.
  */
-static SYN_BLE_L2CAP_Connection *l2cap_get_or_alloc_conn(SYN_BLE_L2CAP *l2cap, uint16_t conn_handle)
+static SYN_BLE_L2CAP_Connection *l2cap_find_conn(SYN_BLE_L2CAP *l2cap, uint16_t conn_handle)
 {
     for (size_t i = 0U; i < SYN_BLE_MAX_CONNECTIONS; i++) {
-        if (l2cap->conns[i].active && l2cap->conns[i].conn_handle == conn_handle) {
+        if (l2cap->conns[i].active && (l2cap->conns[i].conn_handle == conn_handle)) {
             return &l2cap->conns[i];
         }
     }
+    return NULL;
+}
+
+/**
+ * @brief Allocate a free connection slot for an incoming start-of-PDU ACL packet.
+ * @param l2cap L2CAP context handle.
+ * @param conn_handle Connection handle.
+ * @return Newly allocated connection entry pointer, or NULL if pool full.
+ */
+static SYN_BLE_L2CAP_Connection *l2cap_alloc_conn(SYN_BLE_L2CAP *l2cap, uint16_t conn_handle)
+{
     for (size_t i = 0U; i < SYN_BLE_MAX_CONNECTIONS; i++) {
         if (!l2cap->conns[i].active) {
             memset(&l2cap->conns[i], 0, sizeof(l2cap->conns[i]));
@@ -81,73 +92,94 @@ static SYN_BLE_L2CAP_Connection *l2cap_get_or_alloc_conn(SYN_BLE_L2CAP *l2cap, u
     return NULL;
 }
 
+/**
+ * @brief Reassemble an L2CAP continuation fragment (PB == 0x01) on an active connection.
+ * @param l2cap L2CAP context handle.
+ * @param conn Active connection slot (may be NULL).
+ * @param data Fragment payload bytes.
+ * @param len Fragment payload length.
+ * @return SYN_OK on success, SYN_ERROR on stray or overflowing continuation fragment.
+ */
+static SYN_Status l2cap_process_cont(SYN_BLE_L2CAP *l2cap, SYN_BLE_L2CAP_Connection *conn,
+                                     const uint8_t *data, uint16_t len)
+{
+    if ((conn == NULL) || !conn->reassembling) {
+        return SYN_ERROR;
+    }
+    if (((uint32_t)conn->rx_len + (uint32_t)len) > (uint32_t)conn->expected_len) {
+        conn->reassembling = false;
+        return SYN_ERROR;
+    }
+    memcpy(&conn->rx_buf[conn->rx_len], data, len);
+    conn->rx_len = (uint16_t)(conn->rx_len + len);
+
+    if (conn->rx_len == conn->expected_len) {
+        conn->reassembling = false;
+        if (l2cap->rx_cb != NULL) {
+            l2cap->rx_cb(l2cap, conn->conn_handle, conn->cid, conn->rx_buf, conn->expected_len,
+                         l2cap->user_data);
+        }
+    }
+    return SYN_OK;
+}
+
 SYN_Status syn_ble_l2cap_process_acl(SYN_BLE_L2CAP *l2cap, uint16_t conn_handle,
                                      uint8_t pb_bc_flags, const uint8_t *data, uint16_t len)
 {
-    if (l2cap == NULL || data == NULL || len == 0U) {
+    if ((l2cap == NULL) || (data == NULL) || (len == 0U)) {
         return SYN_INVALID_PARAM;
     }
 
-    SYN_BLE_L2CAP_Connection *conn = l2cap_get_or_alloc_conn(l2cap, conn_handle);
+    SYN_BLE_L2CAP_Connection *conn = l2cap_find_conn(l2cap, conn_handle);
+    uint8_t pb_flags = pb_bc_flags & 0x03U;
+
+    if (pb_flags == 0x01U) {
+        return l2cap_process_cont(l2cap, conn, data, len);
+    }
+
+    if (((pb_flags != 0x02U) && (pb_flags != 0x00U)) || (len < 4U)) {
+        if (conn != NULL) {
+            conn->reassembling = false;
+        }
+        return SYN_INVALID_PARAM;
+    }
+
+    bool newly_allocated = false;
     if (conn == NULL) {
+        conn = l2cap_alloc_conn(l2cap, conn_handle);
+        if (conn == NULL) {
+            return SYN_ERROR;
+        }
+        newly_allocated = true;
+    }
+
+    uint16_t pdu_len = (uint16_t)((uint16_t)data[0] | (uint16_t)((uint16_t)data[1] << 8U));
+    uint16_t cid = (uint16_t)((uint16_t)data[2] | (uint16_t)((uint16_t)data[3] << 8U));
+    const uint8_t *pdu_payload = &data[4];
+    uint16_t payload_len = (uint16_t)(len - 4U);
+
+    if (((size_t)pdu_len > sizeof(conn->rx_buf)) || (payload_len > pdu_len)) {
+        if (newly_allocated) {
+            conn->active = false;
+        } else {
+            conn->reassembling = false;
+        }
         return SYN_ERROR;
     }
 
-    uint8_t pb_flags = pb_bc_flags & 0x03U;
-
-    if (pb_flags == 0x02U || pb_flags == 0x00U) {
-        if (len < 4U) {
-            conn->reassembling = false;
-            return SYN_INVALID_PARAM;
+    if (payload_len == pdu_len) {
+        conn->reassembling = false;
+        if (l2cap->rx_cb != NULL) {
+            l2cap->rx_cb(l2cap, conn_handle, cid, pdu_payload, pdu_len, l2cap->user_data);
         }
-        uint16_t pdu_len = (uint16_t)((uint16_t)data[0] | (uint16_t)((uint16_t)data[1] << 8U));
-        uint16_t cid = (uint16_t)((uint16_t)data[2] | (uint16_t)((uint16_t)data[3] << 8U));
-        const uint8_t *pdu_payload = &data[4];
-        uint16_t payload_len = (uint16_t)(len - 4U);
-
-        if ((size_t)pdu_len > sizeof(conn->rx_buf) || payload_len > pdu_len) {
-            conn->reassembling = false;
-            return SYN_ERROR;
-        }
-
-        if (payload_len == pdu_len) {
-            conn->reassembling = false;
-            if (l2cap->rx_cb != NULL) {
-                l2cap->rx_cb(l2cap, conn_handle, cid, pdu_payload, pdu_len, l2cap->user_data);
-            }
-        } else {
-            memcpy(conn->rx_buf, pdu_payload, payload_len);
-            conn->rx_len = payload_len;
-            conn->expected_len = pdu_len;
-            conn->cid = cid;
-            conn->reassembling = true;
-        }
-        return SYN_OK;
+    } else {
+        memcpy(conn->rx_buf, pdu_payload, payload_len);
+        conn->rx_len = payload_len;
+        conn->expected_len = pdu_len;
+        conn->cid = cid;
+        conn->reassembling = true;
     }
-
-    if (pb_flags == 0x01U) {
-        if (!conn->reassembling) {
-            return SYN_ERROR;
-        }
-        if ((uint32_t)conn->rx_len + (uint32_t)len > (uint32_t)conn->expected_len) {
-            conn->reassembling = false;
-            return SYN_ERROR;
-        }
-        memcpy(&conn->rx_buf[conn->rx_len], data, len);
-        conn->rx_len = (uint16_t)(conn->rx_len + len);
-
-        if (conn->rx_len == conn->expected_len) {
-            conn->reassembling = false;
-            if (l2cap->rx_cb != NULL) {
-                l2cap->rx_cb(l2cap, conn_handle, conn->cid, conn->rx_buf, conn->expected_len,
-                             l2cap->user_data);
-            }
-        }
-        return SYN_OK;
-    }
-
-    conn->reassembling = false;
-    return SYN_INVALID_PARAM;
+    return SYN_OK;
 }
 
 /** @brief Maximum L2CAP PDU bytes (including 4-byte header) fitting in HCI ACL TX buffer. */

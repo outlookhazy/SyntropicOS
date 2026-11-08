@@ -72,7 +72,7 @@ static inline size_t syn_base64_calc_encoded_size(size_t raw_len)
  */
 static inline size_t syn_base64_calc_max_decoded_size(size_t b64_len)
 {
-    if (b64_len > ((SIZE_MAX / 3U) * 4U)) {
+    if (b64_len > (SIZE_MAX - 3U)) {
         return 0U;
     }
     return ((b64_len / 4U) * 3U) + (((b64_len % 4U) != 0U) ? 3U : 0U);

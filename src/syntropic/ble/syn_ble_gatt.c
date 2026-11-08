@@ -660,7 +660,7 @@ SYN_Status syn_ble_gatt_process_att_pdu(SYN_BLE_GATT *gatt, uint16_t conn_handle
         return gatt_handle_write_cmd(gatt, conn_handle, att_pdu, pdu_len, resp_len);
 
     default:
-        if (((opcode & 0x01U) != 0U) || (opcode == 0x1EU)) {
+        if (((opcode & 0x01U) != 0U) || ((opcode & 0x40U) != 0U) || (opcode == 0x1EU)) {
             *resp_len = 0U;
             return SYN_OK;
         }

@@ -325,7 +325,7 @@ void test_iolink_master_errors_and_edge_cases(void)
     /* Checksum corruption and send failure during PD exchange */
     syn_iolink_master_start(&master);
     lb.corrupt_rx = true;
-    uint8_t dummy_in[8];
+    uint8_t dummy_in[8] = {0};
     size_t in_len = 0;
     TEST_ASSERT_EQUAL_INT(SYN_ERROR,
                           syn_iolink_master_exchange_pd(&master, rx, 1, dummy_in, &in_len));

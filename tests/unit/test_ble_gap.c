@@ -6,6 +6,9 @@
 static SYN_BLE_GAP_EventType last_gap_evt;
 static bool gap_evt_called;
 static int8_t last_rssi;
+static SYN_BLE_GAP_AdvReport captured_reports[4];
+static uint8_t captured_report_Data[4][31];
+static size_t captured_report_count;
 
 static void test_gap_cb(SYN_BLE_GAP *gap, SYN_BLE_GAP_EventType evt_type, const void *evt_data,
                         void *user_data)
@@ -17,6 +20,15 @@ static void test_gap_cb(SYN_BLE_GAP *gap, SYN_BLE_GAP_EventType evt_type, const 
     if (evt_type == SYN_BLE_GAP_EVT_ADV_REPORT && evt_data != NULL) {
         const SYN_BLE_GAP_AdvReport *rep = (const SYN_BLE_GAP_AdvReport *)evt_data;
         last_rssi = rep->rssi;
+        if (captured_report_count < 4U) {
+            captured_reports[captured_report_count] = *rep;
+            if ((rep->data != NULL) && (rep->data_len <= 31U)) {
+                memcpy(captured_report_Data[captured_report_count], rep->data, rep->data_len);
+                captured_reports[captured_report_count].data =
+                    captured_report_Data[captured_report_count];
+            }
+            captured_report_count++;
+        }
     }
 }
 
@@ -307,36 +319,62 @@ void test_r5_ble_gap_regressions(void)
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_gap_process_hci_evt(&gap, SYN_BLE_HCI_EVT_LE_META,
                                                              too_many, sizeof(too_many)));
 
+    /* AUD-H3: Bluetooth Core Spec Vol 4 Part E §5.2 & §7.7.65.2 sequential report tuples */
     uint8_t multi_rep[] = {
         SYN_BLE_HCI_LE_SUBEVT_ADV_REPORT,
         0x02U, /* Num_Reports = 2 */
+        /* Report 0: Event_Type, Address_Type, Address[6], Data_Length, Data[2], RSSI */
         0x00U,
-        0x03U, /* Event_Type[2] */
         0x00U,
-        0x01U, /* Address_Type[2] */
         0xA1U,
         0xA2U,
         0xA3U,
         0xA4U,
         0xA5U,
-        0xA6U, /* Address[0] */
+        0xA6U,
+        0x02U,
+        0xAAU,
+        0xBBU,
+        (uint8_t)-42,
+        /* Report 1: Event_Type, Address_Type, Address[6], Data_Length, Data[1], RSSI */
+        0x03U,
+        0x01U,
         0xB1U,
         0xB2U,
         0xB3U,
         0xB4U,
         0xB5U,
-        0xB6U, /* Address[1] */
-        0x02U,
-        0x01U, /* Data_Length[2] = {2, 1} */
-        0xAAU,
-        0xBBU, /* Data[0] */
-        0xCCU, /* Data[1] */
-        (uint8_t)-42,
-        (uint8_t)-67 /* RSSI[2] */
+        0xB6U,
+        0x01U,
+        0xCCU,
+        (uint8_t)-67,
     };
+    /* Truncated 2-report packet (missing trailing RSSI of Report 1) rejected with zero callbacks */
+    captured_report_count = 0U;
+    gap_evt_called = false;
+    TEST_ASSERT_EQUAL(SYN_ERROR,
+                      syn_ble_gap_process_hci_evt(&gap, SYN_BLE_HCI_EVT_LE_META, multi_rep,
+                                                  (uint8_t)(sizeof(multi_rep) - 1U)));
+    TEST_ASSERT_FALSE(gap_evt_called);
+    TEST_ASSERT_EQUAL_size_t(0U, captured_report_count);
+
     last_rssi = 0;
     TEST_ASSERT_EQUAL(SYN_OK, syn_ble_gap_process_hci_evt(&gap, SYN_BLE_HCI_EVT_LE_META, multi_rep,
                                                           sizeof(multi_rep)));
+    TEST_ASSERT_EQUAL_size_t(2U, captured_report_count);
+    TEST_ASSERT_EQUAL_UINT8(0x00U, captured_reports[0].evt_type);
+    TEST_ASSERT_EQUAL_UINT8(0x00U, captured_reports[0].addr_type);
+    TEST_ASSERT_EQUAL_UINT8(0xA1U, captured_reports[0].addr[0]);
+    TEST_ASSERT_EQUAL_UINT8(2U, captured_reports[0].data_len);
+    TEST_ASSERT_EQUAL_UINT8(0xAAU, captured_reports[0].data[0]);
+    TEST_ASSERT_EQUAL_UINT8(0xBBU, captured_reports[0].data[1]);
+    TEST_ASSERT_EQUAL_INT8(-42, captured_reports[0].rssi);
+    TEST_ASSERT_EQUAL_UINT8(0x03U, captured_reports[1].evt_type);
+    TEST_ASSERT_EQUAL_UINT8(0x01U, captured_reports[1].addr_type);
+    TEST_ASSERT_EQUAL_UINT8(0xB1U, captured_reports[1].addr[0]);
+    TEST_ASSERT_EQUAL_UINT8(1U, captured_reports[1].data_len);
+    TEST_ASSERT_EQUAL_UINT8(0xCCU, captured_reports[1].data[0]);
+    TEST_ASSERT_EQUAL_INT8(-67, captured_reports[1].rssi);
     TEST_ASSERT_EQUAL_INT8(-67, last_rssi);
 
     /* BLE2-4: Reject NULL adv data with len > 0, and clear advertising on Peripheral connect */

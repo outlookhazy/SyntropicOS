@@ -51,6 +51,38 @@ SYN_Status syn_ble_gap_set_adv_enable(SYN_BLE_GAP *gap, bool enable, uint8_t *tx
 }
 
 /**
+ * @brief Validate sequential HCI LE Advertising Report tuples in a single pass.
+ * @param payload LE Meta event payload.
+ * @param len     Total LE Meta event payload length.
+ * @param num     Number of reports (> 0).
+ * @return true if all report tuples fit within payload bounds and legacy AD length limits.
+ */
+static bool gap_adv_reports_valid(const uint8_t *payload, size_t len, size_t num)
+{
+    if (num > 25U) {
+        return false;
+    }
+
+    size_t off = 2U;
+    for (size_t i = 0U; i < num; i++) {
+        if ((off + 9U) > len) {
+            return false;
+        }
+        uint8_t dlen = payload[off + 8U];
+        if ((dlen > 31U) || ((off + 9U + (size_t)dlen) > len)) {
+            return false;
+        }
+        off += 9U + (size_t)dlen;
+        if (off < len) {
+            off += 1U;
+        } else if (num > 1U) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
  * @brief Validate and dispatch LE Advertising Report subevent.
  * @param gap GAP context handle.
  * @param payload LE Meta event payload.
@@ -67,40 +99,26 @@ static SYN_Status gap_process_adv_report(SYN_BLE_GAP *gap, const uint8_t *payloa
     if (num == 0U) {
         return SYN_OK;
     }
-
-    size_t data_base = 2U + (9U * num);
-    if (num > 25U || (size_t)len < data_base) {
-        return SYN_ERROR;
-    }
-
-    size_t dlen_base = 2U + (8U * num);
-    size_t total_data = 0U;
-    for (size_t i = 0U; i < num; i++) {
-        if (payload[dlen_base + i] > 31U) {
-            return SYN_ERROR;
-        }
-        total_data += (size_t)payload[dlen_base + i];
-    }
-
-    size_t rssi_base = data_base + total_data;
-    if (rssi_base > (size_t)len) {
+    if (!gap_adv_reports_valid(payload, (size_t)len, num)) {
         return SYN_ERROR;
     }
 
     if (gap->evt_cb != NULL) {
-        bool has_rssi = (rssi_base + num) <= (size_t)len;
-        size_t data_off = data_base;
+        size_t off = 2U;
         for (size_t i = 0U; i < num; i++) {
-            uint8_t dlen = payload[dlen_base + i];
+            uint8_t dlen = payload[off + 8U];
             SYN_BLE_GAP_AdvReport report;
             memset(&report, 0, sizeof(report));
-            report.evt_type = payload[2U + i];
-            report.addr_type = payload[2U + num + i];
-            memcpy(report.addr, &payload[2U + (2U * num) + (6U * i)], 6U);
+            report.evt_type = payload[off];
+            report.addr_type = payload[off + 1U];
+            memcpy(report.addr, &payload[off + 2U], 6U);
             report.data_len = dlen;
-            report.data = (dlen > 0U) ? &payload[data_off] : NULL;
-            report.rssi = has_rssi ? (int8_t)payload[rssi_base + i] : 0;
-            data_off += (size_t)dlen;
+            report.data = (dlen > 0U) ? &payload[off + 9U] : NULL;
+            off += 9U + (size_t)dlen;
+            if (off < (size_t)len) {
+                report.rssi = (int8_t)payload[off];
+                off += 1U;
+            }
             gap->evt_cb(gap, SYN_BLE_GAP_EVT_ADV_REPORT, &report, gap->user_data);
         }
     }

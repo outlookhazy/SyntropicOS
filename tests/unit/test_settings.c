@@ -712,6 +712,33 @@ static void test_tier_a_settings_dual_bank_and_vfs_guards(void)
                                                           sizeof(fb_data), &defaults));
     TEST_ASSERT_EQUAL_UINT8(1U, fb_db.active_bank);
     TEST_ASSERT_EQUAL_INT32(888, fb_data.velocity);
+    /* Monotonic next_seq must exceed BOTH banks (max_seq=3 -> next_seq=4) so next save wins */
+    TEST_ASSERT_EQUAL_UINT16(4U, fb_db.bank_a.store.next_seq);
+    TEST_ASSERT_EQUAL_UINT16(4U, fb_db.bank_b.store.next_seq);
+    mock_flash_read_fail_after = -1;
+    fb_data.velocity = 1111;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_save(&fb_db));
+    TestSettings rb_data = {0};
+    SYN_DualBankSettings rb_db;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_init(&rb_db, 0U, 2048U, 2U, &rb_data,
+                                                          sizeof(rb_data), &defaults));
+    TEST_ASSERT_EQUAL_INT32(1111, rb_data.velocity);
+
+    /* Also test prefer_b == true (Bank B seq=5 > Bank A seq=4) where Bank B load fails ->
+     * falls back to Bank A with next_seq = 6, so subsequent save (seq=6) beats stale Bank B (5) */
+    rb_data.velocity = 2222;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_save(&rb_db));
+    mock_flash_read_fail_after = (slots + 3) + (slots + 2);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_init(&fb_db, 0U, 2048U, 2U, &fb_data,
+                                                          sizeof(fb_data), &defaults));
+    TEST_ASSERT_EQUAL_UINT8(0U, fb_db.active_bank);
+    TEST_ASSERT_EQUAL_UINT16(6U, fb_db.bank_a.store.next_seq);
+    mock_flash_read_fail_after = -1;
+    fb_data.velocity = 3333;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_save(&fb_db));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_init(&rb_db, 0U, 2048U, 2U, &rb_data,
+                                                          sizeof(rb_data), &defaults));
+    TEST_ASSERT_EQUAL_INT32(3333, rb_data.velocity);
 
     /* 2. Only Bank A valid (seq=1), fail Bank A load -> must fall back to defaults (500) */
     mock_port_reset();
@@ -737,6 +764,12 @@ static void test_tier_a_settings_dual_bank_and_vfs_guards(void)
 
     /* Oversized file rejected before touching data */
     s_tier_a_seek_len = (int32_t)sizeof(data) + 4;
+    s_tier_a_rewind_fail = 0;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_settings_import_vfs(&store, "/scfg/ok.bin", false));
+    TEST_ASSERT_EQUAL_INT32(777, data.velocity);
+
+    /* Seek-end error (< 0) on a seekable VFS (e.g. >2GiB file) rejected before reading */
+    s_tier_a_seek_len = -2;
     s_tier_a_rewind_fail = 0;
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_settings_import_vfs(&store, "/scfg/ok.bin", false));
     TEST_ASSERT_EQUAL_INT32(777, data.velocity);

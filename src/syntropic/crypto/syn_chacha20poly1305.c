@@ -484,6 +484,12 @@ void syn_aead_encrypt(const uint8_t key[32], const uint8_t nonce[12], const uint
         return;
     if (pt_len > 0 && (plaintext == NULL || ciphertext == NULL))
         return;
+#if (SIZE_MAX > 0xFFFFFFFFU)
+    if ((uint64_t)pt_len > 0x3FFFFFFFC0ULL) {
+        memset(tag, 0, 16U);
+        return;
+    }
+#endif
 
     /* Step 1: Generate Poly1305 one-time key (counter = 0) */
     uint8_t poly_key[64];
@@ -506,6 +512,11 @@ bool syn_aead_decrypt(const uint8_t key[32], const uint8_t nonce[12], const uint
         return false;
     if (ct_len > 0 && (ciphertext == NULL || plaintext == NULL))
         return false;
+#if (SIZE_MAX > 0xFFFFFFFFU)
+    if ((uint64_t)ct_len > 0x3FFFFFFFC0ULL) {
+        return false;
+    }
+#endif
 
     /* Step 1: Generate Poly1305 one-time key */
     uint8_t poly_key[64];

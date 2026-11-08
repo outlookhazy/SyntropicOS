@@ -35,6 +35,9 @@ static bool tcp_send(const uint8_t *data, size_t len, void *ctx)
     len_hdr[1] = (uint8_t)(len & 0xFFU);
 
     if (syn_port_sock_send_all(tcp->sock, len_hdr, 2U) != 2) {
+        syn_port_sock_close(tcp->sock);
+        tcp->sock = SYN_SOCKET_INVALID;
+        tcp->state = 0U;
         return false;
     }
 

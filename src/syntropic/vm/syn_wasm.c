@@ -633,21 +633,75 @@ typedef struct {
 } WASM_LoadState;
 
 /**
- * @brief Read a required unsigned 32-bit LEB128 value when at least 1 byte remains in section.
+ * @brief Read and strictly validate an unsigned 32-bit LEB128 integer within section bounds.
  * @param bytes Module byte buffer.
  * @param section_end Exclusive end offset of current section.
  * @param offset In/out cursor offset.
  * @param out Decoded uint32_t output.
- * @return true if at least one byte was available and consumed, false if at section end.
+ * @return true if a complete, non-overflowing u32 LEB128 was decoded, false otherwise.
  */
 static bool wasm_sec_read_u32(const uint8_t *bytes, uint32_t section_end, uint32_t *offset,
                               uint32_t *out)
 {
-    if (*offset >= section_end) {
-        return false;
+    uint32_t result = 0U;
+    uint32_t shift = 0U;
+    uint32_t cur = *offset;
+
+    for (;;) {
+        if (cur >= section_end) {
+            return false;
+        }
+        uint8_t byte = bytes[cur++];
+        if ((shift == 28U) && ((byte & 0xF0U) != 0U)) {
+            return false;
+        }
+        result |= (uint32_t)(byte & 0x7FU) << shift;
+        if ((byte & 0x80U) == 0U) {
+            *offset = cur;
+            *out = result;
+            return true;
+        }
+        shift += 7U;
     }
-    *out = read_u32_leb128(bytes, section_end, offset);
-    return true;
+}
+
+/**
+ * @brief Read and strictly validate a signed 32-bit LEB128 integer within section bounds.
+ * @param bytes Module byte buffer.
+ * @param section_end Exclusive end offset of current section.
+ * @param offset In/out cursor offset.
+ * @param out Decoded int32_t output.
+ * @return true if a complete, canonical-range s32 LEB128 was decoded, false otherwise.
+ */
+static bool wasm_sec_read_i32(const uint8_t *bytes, uint32_t section_end, uint32_t *offset,
+                              int32_t *out)
+{
+    uint32_t result = 0U;
+    uint32_t shift = 0U;
+    uint32_t cur = *offset;
+
+    for (;;) {
+        if (cur >= section_end) {
+            return false;
+        }
+        uint8_t byte = bytes[cur++];
+        if (shift == 28U) {
+            uint8_t top = (uint8_t)(byte & 0xF8U);
+            if ((top != 0x00U) && (top != 0x78U)) {
+                return false;
+            }
+        }
+        result |= (uint32_t)(byte & 0x7FU) << shift;
+        shift += 7U;
+        if ((byte & 0x80U) == 0U) {
+            if ((shift < 32U) && ((byte & 0x40U) != 0U)) {
+                result |= (~0U << shift);
+            }
+            *offset = cur;
+            *out = (int32_t)result;
+            return true;
+        }
+    }
 }
 
 /**
@@ -662,33 +716,58 @@ static bool wasm_parse_type_section(const uint8_t *bytes, uint32_t section_end, 
                                     WASM_LoadState *st)
 {
     uint32_t num_types = 0U;
-    if (!wasm_sec_read_u32(bytes, section_end, offset, &num_types)) {
+    if (!wasm_sec_read_u32(bytes, section_end, offset, &num_types) ||
+        (num_types > SYN_WASM_MAX_FUNCTIONS)) {
         return false;
     }
     for (uint32_t i = 0U; i < num_types; i++) {
-        if (*offset >= section_end || bytes[(*offset)++] != 0x60U) {
+        if ((*offset >= section_end) || (bytes[(*offset)++] != 0x60U)) {
             return false;
         }
         uint32_t num_params = 0U;
         if (!wasm_sec_read_u32(bytes, section_end, offset, &num_params) ||
-            num_params > WASM_MAX_FUNC_PARAMS ||
-            (uint64_t)(*offset) + (uint64_t)num_params > (uint64_t)section_end) {
+            (num_params > WASM_MAX_FUNC_PARAMS) ||
+            (((uint64_t)(*offset) + (uint64_t)num_params) > (uint64_t)section_end)) {
             return false;
         }
         *offset += num_params;
 
         uint32_t num_results = 0U;
         if (!wasm_sec_read_u32(bytes, section_end, offset, &num_results) ||
-            num_results > WASM_MAX_FUNC_RESULTS ||
-            (uint64_t)(*offset) + (uint64_t)num_results > (uint64_t)section_end) {
+            (num_results > WASM_MAX_FUNC_RESULTS) ||
+            (((uint64_t)(*offset) + (uint64_t)num_results) > (uint64_t)section_end)) {
             return false;
         }
         *offset += num_results;
 
-        if (st->type_count < SYN_WASM_MAX_FUNCTIONS) {
-            st->parsed_types[st->type_count].param_count = (uint8_t)num_params;
-            st->parsed_types[st->type_count].result_count = (uint8_t)num_results;
-            st->type_count++;
+        st->parsed_types[st->type_count].param_count = (uint8_t)num_params;
+        st->parsed_types[st->type_count].result_count = (uint8_t)num_results;
+        st->type_count++;
+    }
+    return true;
+}
+
+/**
+ * @brief Parse Wasm resizable limits (flags in {0, 1}, min, optional max >= min).
+ * @param bytes Module byte buffer.
+ * @param section_end Exclusive end offset of section.
+ * @param offset In/out cursor offset.
+ * @return true if limits are valid and within section bounds, false otherwise.
+ */
+static bool wasm_parse_limits(const uint8_t *bytes, uint32_t section_end, uint32_t *offset)
+{
+    if (*offset >= section_end) {
+        return false;
+    }
+    uint8_t flags = bytes[(*offset)++];
+    uint32_t min_val = 0U;
+    if ((flags > 1U) || !wasm_sec_read_u32(bytes, section_end, offset, &min_val)) {
+        return false;
+    }
+    if ((flags & 1U) != 0U) {
+        uint32_t max_val = 0U;
+        if (!wasm_sec_read_u32(bytes, section_end, offset, &max_val) || (max_val < min_val)) {
+            return false;
         }
     }
     return true;
@@ -710,39 +789,32 @@ static bool wasm_parse_import_desc(SYN_WASM_Module *mod, const uint8_t *bytes, u
     if (kind == 0U) {
         uint32_t type_idx = 0U;
         if (!wasm_sec_read_u32(bytes, section_end, offset, &type_idx) ||
-            type_idx >= (uint32_t)st->type_count) {
+            (type_idx >= (uint32_t)st->type_count) || (mod->func_count >= SYN_WASM_MAX_FUNCTIONS)) {
             return false;
         }
-        if (mod->func_count < SYN_WASM_MAX_FUNCTIONS) {
-            mod->funcs[mod->func_count].type_idx = type_idx;
-            mod->funcs[mod->func_count].code_offset = 0U;
-            mod->funcs[mod->func_count].code_size = 0U;
-            mod->funcs[mod->func_count].param_count = st->parsed_types[type_idx].param_count;
-            mod->funcs[mod->func_count].result_count = st->parsed_types[type_idx].result_count;
-            mod->func_count++;
-            mod->import_func_count++;
-        }
+        mod->funcs[mod->func_count].type_idx = type_idx;
+        mod->funcs[mod->func_count].code_offset = 0U;
+        mod->funcs[mod->func_count].code_size = 0U;
+        mod->funcs[mod->func_count].param_count = st->parsed_types[type_idx].param_count;
+        mod->funcs[mod->func_count].result_count = st->parsed_types[type_idx].result_count;
+        mod->func_count++;
+        mod->import_func_count++;
         return true;
     }
-    if (kind == 1U || kind == 3U) {
-        if ((uint64_t)(*offset) + 2ULL > (uint64_t)section_end) {
+    if (kind == 1U) {
+        if ((*offset >= section_end) || (bytes[(*offset)++] != 0x70U)) {
+            return false;
+        }
+        return wasm_parse_limits(bytes, section_end, offset);
+    }
+    if (kind == 2U) {
+        return wasm_parse_limits(bytes, section_end, offset);
+    }
+    if (kind == 3U) {
+        if (((uint64_t)(*offset) + 2ULL) > (uint64_t)section_end) {
             return false;
         }
         *offset += 2U;
-        return true;
-    }
-    if (kind == 2U) {
-        if (*offset >= section_end) {
-            return false;
-        }
-        uint8_t flags = bytes[(*offset)++];
-        uint32_t lim_val = 0U;
-        if (!wasm_sec_read_u32(bytes, section_end, offset, &lim_val)) {
-            return false;
-        }
-        if ((flags & 1U) != 0U && !wasm_sec_read_u32(bytes, section_end, offset, &lim_val)) {
-            return false;
-        }
         return true;
     }
     return false;
@@ -790,28 +862,29 @@ static bool wasm_parse_import_section(SYN_WASM_Module *mod, const uint8_t *bytes
 
 /**
  * @brief Parse and bounds-check Wasm Function section (ID 3).
+ * @param mod Module structure holding imported function count.
  * @param bytes Module byte buffer.
  * @param section_end Exclusive end offset of section.
  * @param offset In/out cursor offset.
  * @param st Loader state to record declared function type indices.
- * @return true if all declared functions reference valid types, false otherwise.
+ * @return true if all declared functions reference valid types and fit capacity, false otherwise.
  */
-static bool wasm_parse_func_section(const uint8_t *bytes, uint32_t section_end, uint32_t *offset,
-                                    WASM_LoadState *st)
+static bool wasm_parse_func_section(const SYN_WASM_Module *mod, const uint8_t *bytes,
+                                    uint32_t section_end, uint32_t *offset, WASM_LoadState *st)
 {
     uint32_t num_funcs = 0U;
-    if (!wasm_sec_read_u32(bytes, section_end, offset, &num_funcs)) {
+    if (!wasm_sec_read_u32(bytes, section_end, offset, &num_funcs) ||
+        (((uint64_t)mod->import_func_count + (uint64_t)num_funcs) >
+         (uint64_t)SYN_WASM_MAX_FUNCTIONS)) {
         return false;
     }
     for (uint32_t i = 0U; i < num_funcs; i++) {
         uint32_t type_idx = 0U;
         if (!wasm_sec_read_u32(bytes, section_end, offset, &type_idx) ||
-            type_idx >= (uint32_t)st->type_count) {
+            (type_idx >= (uint32_t)st->type_count)) {
             return false;
         }
-        if (st->func_decl_count < SYN_WASM_MAX_FUNCTIONS) {
-            st->type_func_indices[st->func_decl_count++] = type_idx;
-        }
+        st->type_func_indices[st->func_decl_count++] = type_idx;
     }
     return true;
 }
@@ -863,6 +936,33 @@ static bool wasm_parse_export_section(SYN_WASM_Module *mod, const uint8_t *bytes
 }
 
 /**
+ * @brief Parse active segment header (flags == 0) and constant i32 offset expression.
+ * @param bytes Module byte buffer.
+ * @param section_end Exclusive end offset of section.
+ * @param offset In/out cursor offset.
+ * @param out_val Decoded signed 32-bit constant offset.
+ * @return true if flags == 0 and OP_I32_CONST + s32 + OP_END parsed cleanly, false otherwise.
+ */
+static bool wasm_read_active_i32_expr(const uint8_t *bytes, uint32_t section_end, uint32_t *offset,
+                                      int32_t *out_val)
+{
+    uint32_t flags = 0U;
+    if (!wasm_sec_read_u32(bytes, section_end, offset, &flags) || (flags != 0U)) {
+        return false;
+    }
+    if ((*offset >= section_end) || (bytes[(*offset)++] != OP_I32_CONST)) {
+        return false;
+    }
+    if (!wasm_sec_read_i32(bytes, section_end, offset, out_val)) {
+        return false;
+    }
+    if ((*offset >= section_end) || (bytes[(*offset)++] != OP_END)) {
+        return false;
+    }
+    return true;
+}
+
+/**
  * @brief Parse active Wasm Element segment header and constant non-negative table offset.
  * @param bytes Module byte buffer.
  * @param section_end Exclusive end offset of section.
@@ -873,15 +973,8 @@ static bool wasm_parse_export_section(SYN_WASM_Module *mod, const uint8_t *bytes
 static bool wasm_read_elem_offset(const uint8_t *bytes, uint32_t section_end, uint32_t *offset,
                                   uint32_t *out_offset)
 {
-    uint32_t flags = 0U;
-    if (!wasm_sec_read_u32(bytes, section_end, offset, &flags) || flags != 0U) {
-        return false;
-    }
-    if ((uint64_t)(*offset) + 2ULL > (uint64_t)section_end || bytes[(*offset)++] != OP_I32_CONST) {
-        return false;
-    }
-    int32_t elem_offset = read_i32_leb128(bytes, section_end, offset);
-    if (elem_offset < 0 || *offset >= section_end || bytes[(*offset)++] != OP_END) {
+    int32_t elem_offset = 0;
+    if (!wasm_read_active_i32_expr(bytes, section_end, offset, &elem_offset) || (elem_offset < 0)) {
         return false;
     }
     *out_offset = (uint32_t)elem_offset;
@@ -906,17 +999,17 @@ static bool wasm_parse_elem_segment(SYN_WASM_Module *mod, const uint8_t *bytes,
     }
     uint32_t num_funcs = 0U;
     if (!wasm_sec_read_u32(bytes, section_end, offset, &num_funcs) ||
-        (uint64_t)base_offset + (uint64_t)num_funcs > (uint64_t)WASM_MAX_TABLE_ELEMS) {
+        (((uint64_t)base_offset + (uint64_t)num_funcs) > (uint64_t)WASM_MAX_TABLE_ELEMS)) {
         return false;
     }
     for (uint32_t f = 0U; f < num_funcs; f++) {
         uint32_t f_idx = 0U;
-        if (!wasm_sec_read_u32(bytes, section_end, offset, &f_idx) || f_idx >= max_func_idx) {
+        if (!wasm_sec_read_u32(bytes, section_end, offset, &f_idx) || (f_idx >= max_func_idx)) {
             return false;
         }
         uint32_t dest = base_offset + f;
         mod->table_elements[dest] = (uint16_t)f_idx;
-        if (dest + 1U > (uint32_t)mod->table_element_count) {
+        if ((dest + 1U) > (uint32_t)mod->table_element_count) {
             mod->table_element_count = (uint16_t)(dest + 1U);
         }
     }
@@ -941,12 +1034,34 @@ static bool wasm_parse_elem_section(SYN_WASM_Module *mod, const uint8_t *bytes,
         return false;
     }
     uint32_t total_funcs = (uint32_t)mod->import_func_count + (uint32_t)st->func_decl_count;
-    uint32_t max_func_idx = (total_funcs > 0U) ? total_funcs : (uint32_t)SYN_WASM_MAX_FUNCTIONS;
     for (uint32_t s = 0U; s < num_segments; s++) {
-        if (!wasm_parse_elem_segment(mod, bytes, section_end, offset, max_func_idx)) {
+        if (!wasm_parse_elem_segment(mod, bytes, section_end, offset, total_funcs)) {
             return false;
         }
     }
+    return true;
+}
+
+/**
+ * @brief Parse and bounds-check Wasm Start section (ID 8).
+ * @param mod Module structure to populate start function index.
+ * @param bytes Module byte buffer.
+ * @param section_end Exclusive end offset of section.
+ * @param offset In/out cursor offset.
+ * @param st Loader state holding declared function count.
+ * @return true if single valid start function index with zero params/results, false otherwise.
+ */
+static bool wasm_parse_start_section(SYN_WASM_Module *mod, const uint8_t *bytes,
+                                     uint32_t section_end, uint32_t *offset,
+                                     const WASM_LoadState *st)
+{
+    uint32_t total_funcs = (uint32_t)mod->import_func_count + (uint32_t)st->func_decl_count;
+    if (mod->has_start_func ||
+        !wasm_sec_read_u32(bytes, section_end, offset, &mod->start_func_idx) ||
+        (mod->start_func_idx >= total_funcs) || (*offset != section_end)) {
+        return false;
+    }
+    mod->has_start_func = true;
     return true;
 }
 
@@ -965,27 +1080,25 @@ static bool wasm_parse_code_section(SYN_WASM_Module *mod, const uint8_t *bytes,
 {
     uint32_t num_bodies = 0U;
     if (!wasm_sec_read_u32(bytes, section_end, offset, &num_bodies) ||
-        num_bodies != (uint32_t)st->func_decl_count) {
+        (num_bodies != (uint32_t)st->func_decl_count)) {
         return false;
     }
     for (uint32_t i = 0U; i < num_bodies; i++) {
         uint32_t body_size = 0U;
-        if (!wasm_sec_read_u32(bytes, section_end, offset, &body_size) || body_size == 0U) {
+        if (!wasm_sec_read_u32(bytes, section_end, offset, &body_size) || (body_size == 0U)) {
             return false;
         }
         uint32_t body_start = *offset;
-        if ((uint64_t)body_start + (uint64_t)body_size > (uint64_t)section_end) {
+        if (((uint64_t)body_start + (uint64_t)body_size) > (uint64_t)section_end) {
             return false;
         }
-        if (mod->func_count < SYN_WASM_MAX_FUNCTIONS) {
-            uint32_t t_idx = st->type_func_indices[i];
-            mod->funcs[mod->func_count].type_idx = t_idx;
-            mod->funcs[mod->func_count].code_offset = body_start;
-            mod->funcs[mod->func_count].code_size = body_size;
-            mod->funcs[mod->func_count].param_count = st->parsed_types[t_idx].param_count;
-            mod->funcs[mod->func_count].result_count = st->parsed_types[t_idx].result_count;
-            mod->func_count++;
-        }
+        uint32_t t_idx = st->type_func_indices[i];
+        mod->funcs[mod->func_count].type_idx = t_idx;
+        mod->funcs[mod->func_count].code_offset = body_start;
+        mod->funcs[mod->func_count].code_size = body_size;
+        mod->funcs[mod->func_count].param_count = st->parsed_types[t_idx].param_count;
+        mod->funcs[mod->func_count].result_count = st->parsed_types[t_idx].result_count;
+        mod->func_count++;
         *offset = body_start + body_size;
     }
     return true;
@@ -1009,17 +1122,11 @@ static bool wasm_dispatch_load_section(SYN_WASM_Module *mod, uint8_t section_id,
     case WASM_SEC_IMPORT:
         return wasm_parse_import_section(mod, mod->bytes, section_end, offset, st);
     case WASM_SEC_FUNCTION:
-        return wasm_parse_func_section(mod->bytes, section_end, offset, st);
+        return wasm_parse_func_section(mod, mod->bytes, section_end, offset, st);
     case WASM_SEC_EXPORT:
         return wasm_parse_export_section(mod, mod->bytes, section_end, offset, st);
-    /* LCOV_EXCL_START: Wasm module start section */
     case WASM_SEC_START:
-        if (!wasm_sec_read_u32(mod->bytes, section_end, offset, &mod->start_func_idx)) {
-            return false;
-        }
-        mod->has_start_func = true;
-        return true;
-    /* LCOV_EXCL_STOP */
+        return wasm_parse_start_section(mod, mod->bytes, section_end, offset, st);
     case WASM_SEC_ELEMENT:
         return wasm_parse_elem_section(mod, mod->bytes, section_end, offset, st);
     case WASM_SEC_CODE:
@@ -1075,28 +1182,23 @@ bool syn_wasm_module_load(SYN_WASM_Module *mod, const uint8_t *bytes, uint32_t s
 static bool wasm_load_data_section(SYN_WASM_Context *ctx, const SYN_WASM_Module *mod,
                                    uint32_t section_end, uint32_t *offset)
 {
-    uint32_t num_segments = read_u32_leb128(mod->bytes, section_end, offset);
-    for (uint32_t s = 0U; s < num_segments && *offset < section_end; s++) {
-        uint32_t flags = read_u32_leb128(mod->bytes, section_end, offset);
-        (void)flags;
+    uint32_t num_segments = 0U;
+    if (!wasm_sec_read_u32(mod->bytes, section_end, offset, &num_segments)) {
+        ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+        return false;
+    }
+    for (uint32_t s = 0U; s < num_segments; s++) {
         int32_t data_offset = 0;
-        if (*offset < section_end) {
-            uint8_t op = mod->bytes[(*offset)++];
-            if (op == OP_I32_CONST) {
-                data_offset = read_i32_leb128(mod->bytes, section_end, offset);
-            }
-            if (*offset < section_end && mod->bytes[*offset] == OP_END) {
-                (*offset)++;
-            }
-        }
-        uint32_t data_size = read_u32_leb128(mod->bytes, section_end, offset);
-        if ((uint64_t)(*offset) + (uint64_t)data_size > (uint64_t)section_end) {
+        uint32_t data_size = 0U;
+        if (!wasm_read_active_i32_expr(mod->bytes, section_end, offset, &data_offset) ||
+            !wasm_sec_read_u32(mod->bytes, section_end, offset, &data_size) ||
+            (((uint64_t)(*offset) + (uint64_t)data_size) > (uint64_t)section_end)) {
             ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
             return false;
         }
-        if (data_offset < 0 || (data_size > 0U && ctx->linear_mem == NULL) ||
-            (uint64_t)(uint32_t)data_offset + (uint64_t)data_size >
-                (uint64_t)ctx->linear_mem_size) {
+        if ((data_offset < 0) || ((data_size > 0U) && (ctx->linear_mem == NULL)) ||
+            (((uint64_t)(uint32_t)data_offset + (uint64_t)data_size) >
+             (uint64_t)ctx->linear_mem_size)) {
             ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
             return false;
         }

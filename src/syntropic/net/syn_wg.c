@@ -379,6 +379,19 @@ static uint8_t wg_dh_mix_key(uint8_t ck[32], uint8_t k[32], const uint8_t priv[3
 }
 
 /**
+ * @brief Zeroize pending Noise handshake state and mark handshake inactive.
+ * @param wg Client context.
+ */
+static void wg_clear_handshake_state(SYN_WG *wg)
+{
+    wg->hs_valid = false;
+    wg->hs_sender_index = 0U;
+    syn_secure_zero(wg->hs_ephemeral_priv, sizeof(wg->hs_ephemeral_priv));
+    syn_secure_zero(wg->hs_chaining_key, sizeof(wg->hs_chaining_key));
+    syn_secure_zero(wg->hs_hash, sizeof(wg->hs_hash));
+}
+
+/**
  * @brief Initialize Noise_IKpsk2 chaining key and handshake hash with responder static public key.
  * @param ck       [out] 32-byte initial chaining key.
  * @param h        [out] 32-byte initial handshake hash.
@@ -458,6 +471,7 @@ static bool wg_send_initiation(SYN_WG *wg)
         memcpy(wg->hs_chaining_key, ck_tmp, 32U);
         memcpy(wg->hs_hash, h_tmp, 32U);
         wg->hs_sender_index = init_sender_idx;
+        wg->hs_valid = true;
         if (wg->state != SYN_WG_ESTABLISHED) {
             wg->session.sender_index = init_sender_idx;
         }
@@ -507,7 +521,7 @@ static bool wg_consume_response(SYN_WG *wg, const uint8_t *msg, size_t len)
     uint8_t k[32];
     uint8_t buf[32];
 
-    if ((len != SYN_WG_RESPONSE_SIZE) || (load32_le(msg) != SYN_WG_MSG_RESPONSE)) {
+    if ((len != SYN_WG_RESPONSE_SIZE) || (load32_le(msg) != SYN_WG_MSG_RESPONSE) || !wg->hs_valid) {
         return false;
     }
 
@@ -544,10 +558,7 @@ static bool wg_consume_response(SYN_WG *wg, const uint8_t *msg, size_t len)
         wg->session.recv_bitmap = 0U;
         wg->session.established_ms = syn_port_get_tick_ms();
         wg->rekey_in_progress = false;
-        wg->hs_sender_index = 0U;
-        syn_secure_zero(wg->hs_ephemeral_priv, sizeof(wg->hs_ephemeral_priv));
-        syn_secure_zero(wg->hs_chaining_key, sizeof(wg->hs_chaining_key));
-        syn_secure_zero(wg->hs_hash, sizeof(wg->hs_hash));
+        wg_clear_handshake_state(wg);
     }
 
     syn_secure_zero(h_tmp, sizeof(h_tmp));
@@ -897,7 +908,7 @@ static bool wg_step_established_timers(SYN_WG *wg)
     if ((now - wg->session.established_ms) > (uint32_t)SYN_WG_REJECT_AFTER_TIME * 1000U) {
         syn_secure_zero(&wg->session, sizeof(wg->session));
         wg->rekey_in_progress = false;
-        wg->hs_sender_index = 0U;
+        wg_clear_handshake_state(wg);
         wg->state = SYN_WG_DISCONNECTED;
         return true;
     }
@@ -923,8 +934,9 @@ static bool wg_step_established_timers(SYN_WG *wg)
 static void wg_process_datagram(SYN_WG *wg, size_t len)
 {
     uint32_t msg_type = (len >= 4U) ? load32_le(wg->rx_buf) : 0U;
-    bool accepting_resp = (wg->state == SYN_WG_HANDSHAKE_INIT) ||
-                          (wg->state == SYN_WG_ESTABLISHED && wg->rekey_in_progress);
+    bool accepting_resp =
+        wg->hs_valid && ((wg->state == SYN_WG_HANDSHAKE_INIT) ||
+                         (wg->state == SYN_WG_ESTABLISHED && wg->rekey_in_progress));
 
     if (msg_type == SYN_WG_MSG_RESPONSE && accepting_resp) {
         if (wg_consume_response(wg, wg->rx_buf, len)) {
@@ -972,6 +984,7 @@ SYN_PT_Status syn_wg_task(SYN_PT *pt, SYN_Task *task)
         }
 
         if (wg_handshake_timed_out(wg)) {
+            wg_clear_handshake_state(wg);
             wg->state = SYN_WG_DISCONNECTED;
             PT_TASK_DELAY_MS(pt, task, 500);
             continue;
@@ -1013,13 +1026,10 @@ void syn_wg_disconnect(SYN_WG *wg)
 
     wg->state = SYN_WG_DISCONNECTED;
     wg->rekey_in_progress = false;
-    wg->hs_sender_index = 0U;
     wg->tx_bytes = 0U;
     wg->rx_bytes = 0U;
     syn_secure_zero(&wg->session, sizeof(wg->session));
-    syn_secure_zero(wg->hs_ephemeral_priv, sizeof(wg->hs_ephemeral_priv));
-    syn_secure_zero(wg->hs_chaining_key, sizeof(wg->hs_chaining_key));
-    syn_secure_zero(wg->hs_hash, sizeof(wg->hs_hash));
+    wg_clear_handshake_state(wg);
 }
 
 SYN_Status syn_wg_get_stats(const SYN_WG *wg, SYN_WgStats *stats)

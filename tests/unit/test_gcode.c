@@ -507,6 +507,24 @@ void test_tier_a_gcode_long_fraction_and_dwell_overflow(void)
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_block(&ctrl, &nan_dwell));
     TEST_ASSERT_EQUAL_UINT32(0U, ctrl.dwell_steps);
     TEST_ASSERT_EQUAL_UINT32(0U, ctrl.dwell_ms);
+
+    /* Non-finite coordinates in hand-constructed blocks and inch-scaling overflow rejected */
+    SYN_GCode_Controller direct_ctrl;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_init(&direct_ctrl, NULL));
+    SYN_GCode_Block nan_x = {.has_x = true, .x = NAN};
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_block(&direct_ctrl, &nan_x));
+    SYN_GCode_Block inf_i = {.has_i = true, .i = INFINITY};
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_block(&direct_ctrl, &inf_i));
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&direct_ctrl, "G20"));
+    SYN_GCode_Block huge_g92 = {
+        .has_non_modal = true, .non_modal = SYN_GCODE_NONMODAL_OFFSET, .has_x = true, .x = 3.0e38f};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_block(&direct_ctrl, &huge_g92));
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.0f, direct_ctrl.offset_pos.x);
+
+    SYN_GCode_Block huge_move = {.has_x = true, .x = 3.0e38f};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_block(&direct_ctrl, &huge_move));
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.0f, direct_ctrl.current_pos.x);
 }
 
 void run_gcode_tests(void)

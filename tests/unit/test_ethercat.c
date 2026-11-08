@@ -1270,19 +1270,35 @@ static void run_pdo_discovery_abort_at_stage(uint16_t abort_idx, uint8_t abort_s
 
 static void test_ecat_cyclic_zero_frame_and_pdo_stage_failures(void)
 {
-    /* 1. syn_ecat_master_cyclic_task when syn_ecat_encode_cyclic returns 0 (syn_ethercat.c:857) */
+    /* 1. syn_ecat_master_cyclic_task when syn_ecat_encode_cyclic returns 0 (both sizes == 0) */
     SYN_EcatMaster m = {0};
     uint8_t tx[64] = {0};
     uint8_t rx[64] = {0};
     uint8_t out_img[8] = {0};
     uint8_t in_img[8] = {0};
     TEST_ASSERT_EQUAL(
-        SYN_OK, syn_ecat_master_init(&m, tx, sizeof(tx), rx, sizeof(rx), out_img, 0, in_img, 4));
+        SYN_OK, syn_ecat_master_init(&m, tx, sizeof(tx), rx, sizeof(rx), out_img, 0, in_img, 0));
 
     SYN_PT pt;
     PT_INIT(&pt);
     TEST_ASSERT_EQUAL(PT_EXITED, syn_ecat_master_cyclic_task(&pt, &m));
     TEST_ASSERT_FALSE(m.frame_tx_pending);
+
+    /* 1b. Pure-input cyclic PDO (output_size == 0, input_size == 4) encodes & decodes LRW */
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ecat_master_init(&m, tx, sizeof(tx), rx, sizeof(rx), NULL, 0, in_img, 4));
+    size_t cyc_flen = syn_ecat_encode_cyclic(&m);
+    TEST_ASSERT_TRUE(cyc_flen >= 18U);
+    memcpy(rx, tx, cyc_flen);
+    rx[12] = 0xDE;
+    rx[13] = 0xAD;
+    rx[14] = 0xBE;
+    rx[15] = 0xEF;
+    rx[cyc_flen - 2U] = 1U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_master_set_rx_frame(&m, rx, cyc_flen));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ecat_decode_cyclic(&m, cyc_flen));
+    TEST_ASSERT_EQUAL_HEX8(0xDEU, in_img[0]);
+    TEST_ASSERT_EQUAL_HEX8(0xEFU, in_img[3]);
 
     /* 2. SDO failure at each remaining PDO discovery stage (syn_ethercat.c:1058, 1067, 1077, 1112)
      */

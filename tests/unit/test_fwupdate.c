@@ -754,11 +754,24 @@ void test_fwupdate_aes_gcm_streaming_decryption_and_tamper(void)
     TEST_ASSERT_FALSE(syn_fwupdate_active(&upd_fail));
     mock_flash_fail_at = -1;
 
-    /* 12. Boundary guards on finish_gcm */
+    /* 12. Boundary guards on finish_gcm + AUD-M8 direct syn_fwupdate_finish rejection */
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(NULL, tag, 0x00020000U));
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd, NULL, 0x00020000U));
     TEST_ASSERT_EQUAL(SYN_ERROR,
                       syn_fwupdate_finish_gcm(&upd, tag, 0x00020000U)); /* already inactive */
+
+    SYN_FwUpdate upd_bypass;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_begin(&upd_bypass, SLOT_A_ADDR, SLOT_SIZE, page_buf,
+                                                 sizeof(page_buf)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_fwupdate_set_aes_gcm_key(&upd_bypass, key, sizeof(key), iv, sizeof(iv)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_fwupdate_bind_aes_gcm_meta(&upd_bypass, 0x00020000U, sizeof(plaintext)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_write(&upd_bypass, ciphertext, sizeof(ciphertext)));
+    TEST_ASSERT_EQUAL(
+        SYN_ERROR,
+        TEST_FWUPDATE_FINISH(&upd_bypass, syn_crc32(plaintext, sizeof(plaintext)), 0x00020000U));
+    TEST_ASSERT_FALSE(syn_fwupdate_active(&upd_bypass));
 }
 #endif
 

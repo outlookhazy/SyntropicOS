@@ -365,17 +365,17 @@ static void test_tier_a_dlt645_non_di_controls_and_oversize_resync(void)
     SYN_DLT645_Frame tx;
     SYN_DLT645_Frame rx;
 
-    /* 1. Non-DI control codes (0x13 read addr, 0x93 resp, 0x08 time sync, 0x15/0x16/0x17, error
-     * 0xD1) */
-    const uint8_t non_di_ctrls[] = {0x08U, 0x13U, 0x93U, 0x15U, 0x95U,
-                                    0x16U, 0x96U, 0x17U, 0x97U, 0xD1U};
+    /* 1. Non-DI control codes (0x13 read addr, 0x93 resp, 0x08 time sync, 0x15/0x16/0x17,
+     * 0x94 write ACK, error 0xD1) */
+    const uint8_t non_di_ctrls[] = {0x08U, 0x13U, 0x93U, 0x15U, 0x95U, 0x16U,
+                                    0x96U, 0x17U, 0x97U, 0x94U, 0xD1U};
     for (size_t i = 0U; i < sizeof(non_di_ctrls); i++) {
         memset(&tx, 0, sizeof(tx));
         tx.version = SYN_DLT645_VER_2007;
         tx.control = non_di_ctrls[i];
         memset(tx.address, 0xAA, SYN_DLT645_ADDR_LEN);
         tx.payload[0] = 0x12U;
-        tx.payload_len = (non_di_ctrls[i] == 0x13U) ? 0U : 1U;
+        tx.payload_len = ((non_di_ctrls[i] == 0x13U) || (non_di_ctrls[i] == 0x94U)) ? 0U : 1U;
 
         size_t enc_len = syn_dlt645_encode(&tx, raw, sizeof(raw));
         TEST_ASSERT_EQUAL_size_t(12U + tx.payload_len, enc_len);
@@ -384,6 +384,33 @@ static void test_tier_a_dlt645_non_di_controls_and_oversize_resync(void)
         TEST_ASSERT_EQUAL_UINT32(0U, rx.data_id);
         TEST_ASSERT_EQUAL_UINT8(tx.payload_len, rx.payload_len);
     }
+
+    /* 1b. DL/T 645-1997 Write Data ACK (0x84 -> L=0, 12B) and Read Subsequent Resp (0x92 -> 4B DI)
+     */
+    memset(&tx, 0, sizeof(tx));
+    tx.version = SYN_DLT645_VER_1997;
+    tx.control = 0x84U;
+    memset(tx.address, 0x22, SYN_DLT645_ADDR_LEN);
+    tx.payload_len = 0U;
+    size_t ack97_len = syn_dlt645_encode(&tx, raw, sizeof(raw));
+    TEST_ASSERT_EQUAL_size_t(12U, ack97_len);
+    TEST_ASSERT_EQUAL_UINT8(0x00U, raw[9]);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dlt645_parse(raw, ack97_len, SYN_DLT645_VER_1997, &rx));
+    TEST_ASSERT_EQUAL_UINT8(0x84U, rx.control);
+    TEST_ASSERT_EQUAL_UINT8(0U, rx.payload_len);
+
+    memset(&tx, 0, sizeof(tx));
+    tx.version = SYN_DLT645_VER_2007;
+    tx.control = 0x92U;
+    tx.data_id = 0x00010100U;
+    memset(tx.address, 0x33, SYN_DLT645_ADDR_LEN);
+    tx.payload[0] = 0x5AU;
+    tx.payload_len = 1U;
+    size_t sub_len = syn_dlt645_encode(&tx, raw, sizeof(raw));
+    TEST_ASSERT_EQUAL_size_t(17U, sub_len);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dlt645_parse(raw, sub_len, SYN_DLT645_VER_2007, &rx));
+    TEST_ASSERT_EQUAL_UINT32(0x00010100U, rx.data_id);
+    TEST_ASSERT_EQUAL_UINT8(1U, rx.payload_len);
 
     /* 2. False 0x68 header with oversized data_len (e.g. 0xFF) must immediately resync on EOF */
     memset(&tx, 0, sizeof(tx));

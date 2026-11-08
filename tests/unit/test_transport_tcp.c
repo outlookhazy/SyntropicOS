@@ -326,6 +326,15 @@ static void test_tier_a_transport_tcp_regressions(void)
     TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, tcp.sock);
     TEST_ASSERT_EQUAL_UINT8(0U, tcp.state);
     TEST_ASSERT_FALSE(mock_sock_connected);
+
+    /* AUD-L1: partial 1-byte header send failure also closes and invalidates sock */
+    syn_transport_tcp_init(&t, &tcp, 10);
+    mock_sock_connected = true;
+    mock_sock_send_fail_after_bytes = 1;
+    TEST_ASSERT_FALSE(syn_transport_send(&t, dummy, sizeof(dummy)));
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, tcp.sock);
+    TEST_ASSERT_EQUAL_UINT8(0U, tcp.state);
+    TEST_ASSERT_FALSE(mock_sock_connected);
     mock_sock_send_fail_after_bytes = -1;
 }
 

@@ -503,23 +503,28 @@ static void test_wasm_opcodes_branch_coverage(void)
     TEST_ASSERT_EQUAL_UINT32(42, g_wasm_ctx.globals[0]);
     TEST_ASSERT_EQUAL_UINT32(42, g_wasm_ctx.locals[1]);
 
-    /* Test Table (kind 1), Memory (kind 2), Global (kind 3) imports and Element section (sec 9) */
+    /* Test Func/Table/Memory/Global imports, Start section (sec 8), and Element section (sec 9) */
     static const uint8_t wasm_extra_sections[] = {
         0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, /* magic & version */
         0x01, 0x04, 0x01, 0x60, 0x00, 0x00,             /* Type: () -> () */
-        0x02, 0x26, 0x03, /* Import Section (3 entries, 38 bytes payload) */
-        0x03, 'e',  'n',  'v',  0x05, 't',  'a',  'b',  'l',  'e',
-        0x01, 0x70, 0x00, /* Table import: funcref, min 0 */
-        0x03, 'e',  'n',  'v',  0x03, 'm',  'e',  'm',  0x02, 0x01,
-        0x01, 0x02, /* Memory import: flags=1, min 1, max 2 */
-        0x03, 'e',  'n',  'v',  0x04, 'g',  'l',  'o',  'b',  0x03,
-        0x7f, 0x00,                                           /* Global import: i32, const */
+        0x02, 0x30, 0x04, /* Import Section (4 entries, 48 bytes payload) */
+        0x03, 'e',  'n',  'v',  0x02, 'f',  'n',  0x00, 0x00, /* Func import: type 0 */
+        0x03, 'e',  'n',  'v',  0x05, 't',  'a',  'b',  'l',  'e',  0x01, 0x70, 0x00,
+        0x01, /* Table import: funcref, flags=0, min 1 */
+        0x03, 'e',  'n',  'v',  0x03, 'm',  'e',  'm',  0x02, 0x01, 0x01, 0x02, /* Memory import:
+                                                                                   flags=1, min 1,
+                                                                                   max 2 */
+        0x03, 'e',  'n',  'v',  0x04, 'g',  'l',  'o',  'b',  0x03, 0x7f, 0x00, /* Global import:
+                                                                                   i32, const */
+        0x08, 0x01, 0x00,                                     /* Start section: func 0 */
         0x09, 0x07, 0x01, 0x00, 0x41, 0x00, 0x0b, 0x01, 0x00, /* Element section: table 0, offset
                                                                  i32.const 0, func 0 */
     };
     SYN_WASM_Module extra_mod;
     TEST_ASSERT_TRUE(
         syn_wasm_module_load(&extra_mod, wasm_extra_sections, sizeof(wasm_extra_sections)));
+    TEST_ASSERT_TRUE(extra_mod.has_start_func);
+    TEST_ASSERT_EQUAL_UINT32(0U, extra_mod.start_func_idx);
     TEST_ASSERT_EQUAL_UINT16(1, extra_mod.table_element_count);
 }
 
@@ -1455,6 +1460,83 @@ static void test_tier_a_wasm_loader_bounds(void)
     tier_a_expect_bad_sec(s_e_bfi, (uint32_t)sizeof(s_e_bfi), true);
     tier_a_expect_bad_sec(s_c_zbd, (uint32_t)sizeof(s_c_zbd), true);
     tier_a_expect_bad_sec(s_c_oob, (uint32_t)sizeof(s_c_oob), true);
+
+    /* AUD-M5: Strict LEB128, tabletype, >32 func/type caps, 0-func elem, Start, and Data checks */
+    static const uint8_t s_u32_ovf[] = {0x01, 0x05, 0x80, 0x80, 0x80, 0x80, 0x10};
+    static const uint8_t s_u32_trc[] = {0x01, 0x01, 0x80};
+    static const uint8_t s_t_gt32[] = {0x01, 0x01, 33U};
+    static const uint8_t s_f_gt32[] = {0x03, 0x01, 33U};
+    static const uint8_t s_i_tbad[] = {0x02, 0x09, 0x01, 0x01, 0x61, 0x01,
+                                       0x62, 0x01, 0x6F, 0x00, 0x01};
+    static const uint8_t s_i_lflg[] = {0x02, 0x08, 0x01, 0x01, 0x61, 0x01, 0x62, 0x02, 0x02, 0x01};
+    static const uint8_t s_i_lmax[] = {0x02, 0x09, 0x01, 0x01, 0x61, 0x01,
+                                       0x62, 0x02, 0x01, 0x05, 0x02};
+    static const uint8_t s_e_zfn[] = {0x09, 0x07, 0x01, 0x00, 0x41, 0x00, 0x0b, 0x01, 0x00};
+    static const uint8_t s_e_itrc[] = {0x09, 0x04, 0x01, 0x00, 0x41, 0x80};
+    static const uint8_t s_e_iovf[] = {0x09, 0x09, 0x01, 0x00, 0x41, 0x80,
+                                       0x80, 0x80, 0x80, 0x08, 0x0b};
+    static const uint8_t s_e_i5ok[] = {0x09, 0x0b, 0x01, 0x00, 0x41, 0x80,
+                                       0x80, 0x80, 0x80, 0x78, 0x0b, 0x00};
+    static const uint8_t s_st_oob[] = {0x08, 0x01, 0x05};
+    static const uint8_t s_st_trl[] = {0x08, 0x02, 0x00, 0x00};
+    static const uint8_t s_st_dup[] = {0x08, 0x01, 0x00, 0x08, 0x01, 0x00};
+
+    tier_a_expect_bad_sec(s_u32_ovf, (uint32_t)sizeof(s_u32_ovf), false);
+    tier_a_expect_bad_sec(s_u32_trc, (uint32_t)sizeof(s_u32_trc), false);
+    tier_a_expect_bad_sec(s_t_gt32, (uint32_t)sizeof(s_t_gt32), false);
+    tier_a_expect_bad_sec(s_f_gt32, (uint32_t)sizeof(s_f_gt32), true);
+    tier_a_expect_bad_sec(s_i_tbad, (uint32_t)sizeof(s_i_tbad), false);
+    tier_a_expect_bad_sec(s_i_lflg, (uint32_t)sizeof(s_i_lflg), false);
+    tier_a_expect_bad_sec(s_i_lmax, (uint32_t)sizeof(s_i_lmax), false);
+    tier_a_expect_bad_sec(s_e_zfn, (uint32_t)sizeof(s_e_zfn), false);
+    tier_a_expect_bad_sec(s_e_itrc, (uint32_t)sizeof(s_e_itrc), true);
+    tier_a_expect_bad_sec(s_e_iovf, (uint32_t)sizeof(s_e_iovf), true);
+    tier_a_expect_bad_sec(s_e_i5ok, (uint32_t)sizeof(s_e_i5ok), true);
+    tier_a_expect_bad_sec(s_st_oob, (uint32_t)sizeof(s_st_oob), true);
+    tier_a_expect_bad_sec(s_st_trl, (uint32_t)sizeof(s_st_trl), true);
+    tier_a_expect_bad_sec(s_st_dup, (uint32_t)sizeof(s_st_dup), true);
+
+    /* >32 imported functions rejected */
+    uint8_t imp33[256];
+    uint32_t ipos = 0U;
+    static const uint8_t tsec[] = {0x01, 0x04, 0x01, 0x60, 0x00, 0x00};
+    memcpy(&imp33[ipos], hdr, sizeof(hdr));
+    ipos += (uint32_t)sizeof(hdr);
+    memcpy(&imp33[ipos], tsec, sizeof(tsec));
+    ipos += (uint32_t)sizeof(tsec);
+    imp33[ipos++] = 0x02U;
+    imp33[ipos++] = (uint8_t)(1U + (33U * 6U)); /* 199 = 0xC7 -> 2-byte LEB128! */
+    imp33[ipos - 1U] = 0xC7U;
+    imp33[ipos++] = 0x01U;
+    imp33[ipos++] = 33U;
+    for (uint32_t i = 0U; i < 33U; i++) {
+        imp33[ipos++] = 0x01U;
+        imp33[ipos++] = 0x65U;
+        imp33[ipos++] = 0x01U;
+        imp33[ipos++] = (uint8_t)(0x41U + (i & 15U));
+        imp33[ipos++] = 0x00U;
+        imp33[ipos++] = 0x00U;
+    }
+    TEST_ASSERT_FALSE(syn_wasm_module_load(&mod, imp33, ipos));
+
+    /* Malformed Data sections in syn_wasm_init: empty section & passive segment (flags=1) */
+    static const uint8_t d_emp[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x0b, 0x00};
+    static const uint8_t d_pas[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00,
+                                    0x00, 0x0b, 0x04, 0x01, 0x01, 0x01, 0xAA};
+    TEST_ASSERT_TRUE(syn_wasm_module_load(&mod, d_emp, (uint32_t)sizeof(d_emp)));
+    TEST_ASSERT_FALSE(syn_wasm_init(&g_wasm_ctx, &mod, g_linear_mem, 16U));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE, g_wasm_ctx.status);
+
+    TEST_ASSERT_TRUE(syn_wasm_module_load(&mod, d_pas, (uint32_t)sizeof(d_pas)));
+    TEST_ASSERT_FALSE(syn_wasm_init(&g_wasm_ctx, &mod, g_linear_mem, 16U));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE, g_wasm_ctx.status);
+
+    /* Negative i32.const (-5 = 0x7b) global initializer sign-extension */
+    static const uint8_t g_neg[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+                                    0x06, 0x06, 0x01, 0x7f, 0x01, 0x41, 0x7b, 0x0b};
+    TEST_ASSERT_TRUE(syn_wasm_module_load(&mod, g_neg, (uint32_t)sizeof(g_neg)));
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &mod, g_linear_mem, 16U));
+    TEST_ASSERT_EQUAL_HEX64((uint64_t)(int64_t)-5, g_wasm_ctx.globals[0]);
 }
 
 void run_wasm_tests(void)

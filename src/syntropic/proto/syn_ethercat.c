@@ -1188,15 +1188,18 @@ SYN_Status syn_ecat_decode_coe_sdo_response(SYN_EcatMaster *m, size_t rx_len, vo
 
 size_t syn_ecat_encode_cyclic(SYN_EcatMaster *m)
 {
-    if (m == NULL || m->tx_buf == NULL || m->output_size == 0U) {
+    if (m == NULL || m->tx_buf == NULL) {
         return 0;
     }
 
     uint16_t xfer_size = (m->output_size >= m->input_size) ? m->output_size : m->input_size;
+    if (xfer_size == 0U) {
+        return 0;
+    }
     syn_ecat_frame_begin(m->tx_buf, m->tx_buf_size);
     size_t flen = syn_ecat_frame_add_datagram(m->tx_buf, m->tx_buf_size, SYN_ECAT_CMD_LRW, 0x10U,
                                               m->logical_addr, NULL, xfer_size, false);
-    if (flen > 0U && m->output_image != NULL) {
+    if ((flen > 0U) && (m->output_size > 0U) && (m->output_image != NULL)) {
         memcpy(&m->tx_buf[12], m->output_image, m->output_size);
     }
     return flen;

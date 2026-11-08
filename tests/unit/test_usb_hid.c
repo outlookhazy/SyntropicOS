@@ -311,4 +311,19 @@ void test_tier_a_usb_hid_regressions(void)
     TEST_ASSERT_EQUAL_INT(SYN_ERROR,
                           syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(0U, rlen);
+
+    /* AUD-L4: SET_CONFIGURATION clears staged tx_len and release_pending */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_hid_mouse_click(&hid, SYN_USB_HID_MOUSE_BTN_LEFT));
+    TEST_ASSERT_TRUE(hid.release_pending);
+    TEST_ASSERT_FALSE(syn_usb_hid_tx_ready(&hid));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, drv->configured(NULL, 1U));
+    pkt.bmRequestType = 0x00U;
+    pkt.bRequest = SYN_USB_REQ_SET_CONFIGURATION;
+    pkt.wValue = 1U;
+    pkt.wIndex = 0U;
+    pkt.wLength = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
+    TEST_ASSERT_FALSE(hid.release_pending);
+    TEST_ASSERT_TRUE(syn_usb_hid_tx_ready(&hid));
 }

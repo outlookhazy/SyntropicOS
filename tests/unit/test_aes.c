@@ -757,6 +757,20 @@ void test_tier_a_aes_bounds_and_cbc_zeroize(void)
     st = syn_aes_cbc_decrypt(&ctx, iv, bad_ct, 32U, pt, sizeof(pt), &out_len);
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
     TEST_ASSERT_EQUAL_HEX8_ARRAY(zero, pt, 32U);
+
+#if (SIZE_MAX > 0xFFFFFFFFU)
+    /* AUD-L8: GCM 64-bit bit-length overflow guards on in_len, aad_len, and nonce_len */
+    SYN_AES_GCM_Context gcm;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_init(&gcm, key, sizeof(key)));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_aes_gcm_encrypt(&gcm, nonce12, 12U, aad, 8U, msg,
+                                                             (size_t)0xFFFFFFFE1ULL, ct, tag));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_aes_gcm_encrypt(&gcm, nonce12, 12U, aad,
+                                          (size_t)((UINT64_MAX / 8ULL) + 1ULL), msg, 16U, ct, tag));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_aes_gcm_encrypt(&gcm, nonce12, (size_t)((UINT64_MAX / 8ULL) + 1ULL), aad,
+                                          8U, msg, 16U, ct, tag));
+#endif
 }
 
 void run_aes_tests(void)

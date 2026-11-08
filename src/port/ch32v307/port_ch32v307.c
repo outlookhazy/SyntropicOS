@@ -225,6 +225,8 @@ typedef struct {
     volatile uint32_t IOFR2;
     volatile uint32_t IOFR3;
     volatile uint32_t IOFR4;
+    volatile uint32_t WDHTR;
+    volatile uint32_t WDLTR;
     volatile uint32_t RSQR1;
     volatile uint32_t RSQR2;
     volatile uint32_t RSQR3;
@@ -238,9 +240,11 @@ typedef struct {
 
 #define ADC1 ((ADC_TypeDef *)(APB2_BASE + 0x2400))
 
-#define ADC_CTLR2_ADON (1U << 0)
-#define ADC_CTLR2_SWSTART (1U << 22)
-#define ADC_STATR_EOC (1U << 1)
+#define ADC_CTLR2_ADON (1UL << 0)
+#define ADC_CTLR2_EXTSEL_SWSTART (7UL << 17)
+#define ADC_CTLR2_EXTTRIG (1UL << 20)
+#define ADC_CTLR2_SWSTART (1UL << 22)
+#define ADC_STATR_EOC (1UL << 1)
 
 /* ── EXTI ───────────────────────────────────────────────────────────────── */
 
@@ -1032,7 +1036,7 @@ SYN_Status syn_port_adc_init(uint8_t adc_id, uint32_t channel_mask)
         return SYN_NOT_IMPLEMENTED;
 
     RCC_APB2PCENR |= RCC_ADC1EN;
-    ADC1->CTLR2 |= ADC_CTLR2_ADON;
+    ADC1->CTLR2 |= ADC_CTLR2_EXTSEL_SWSTART | ADC_CTLR2_EXTTRIG | ADC_CTLR2_ADON;
     return SYN_OK;
 }
 
@@ -1054,7 +1058,11 @@ uint16_t syn_port_adc_read_channel(uint8_t adc_id, uint8_t channel)
     ADC1->RSQR1 &= ~(0xFUL << 20);
     ADC1->RSQR3 = (uint32_t)channel & 0x1FUL;
     ADC1->CTLR2 |= ADC_CTLR2_SWSTART;
+    uint32_t timeout = 100000U;
     while ((ADC1->STATR & ADC_STATR_EOC) == 0U) {
+        if (--timeout == 0U) {
+            return 0U;
+        }
     }
     return (uint16_t)ADC1->RDATAR;
 }
@@ -1148,6 +1156,7 @@ typedef struct {
     volatile uint32_t CNTR;
     volatile uint32_t PADDR;
     volatile uint32_t MADDR;
+    volatile uint32_t RESERVED;
 } DMA_Channel_TypeDef;
 
 typedef struct {
@@ -1232,6 +1241,8 @@ SYN_Status syn_port_dma_start(const SYN_PortDmaTransfer *xfer)
     if (ch32_dma_encode_size(xfer->data_size, &cfgr) != SYN_OK) {
         return SYN_INVALID_PARAM;
     }
+
+    RCC_AHBCNTR |= (1UL << 0);
 
     DMA_Channel_TypeDef *ch = &DMA1->CH[xfer->channel_id];
     ch->CFGR &= ~1UL;

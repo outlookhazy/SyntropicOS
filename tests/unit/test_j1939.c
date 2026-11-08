@@ -511,13 +511,36 @@ static void test_j1939_pro16_tp_concurrency_ext_filter_and_dm2_dedup(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_id_unpack(tx_resp.id, &abort_hdr));
     TEST_ASSERT_EQUAL_UINT8(0x44U, abort_hdr.da);
 
-    /* Abort BAM session, then start unicast RTS and verify TP_CTRL_ABORT clears tx_pending */
+    /* Abort BAM session, then start unicast RTS and verify:
+     * (a) competing RTS from Peer B (0x44) does NOT overwrite Peer A's pending CTS in tx_data;
+     * (b) duplicate RTS from Peer A (0x10) aborts session and clears tp_rx.active;
+     * (c) TP_CTRL_ABORT clears tx_pending on a fresh RTS. */
     ecu.tp_rx.active = false;
     SYN_CAN_Frame rts_ok;
     TEST_ASSERT_EQUAL(SYN_OK,
                       syn_j1939_build_tp_rts(0x10U, 0x25U, SYN_J1939_PGN_DM1, 14U, 2U, &rts_ok));
     TEST_ASSERT_EQUAL(SYN_BUSY,
                       syn_j1939_process_frame(&ecu, &rts_ok, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_TRUE(ecu.tx_pending);
+
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &rts_collide, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_TRUE(ecu.tp_rx.active);
+    TEST_ASSERT_EQUAL_UINT8(0x10U, ecu.tp_rx.sa);
+    TEST_ASSERT_TRUE(syn_j1939_get_tx(&ecu, &tx_resp));
+    TEST_ASSERT_EQUAL_UINT8(SYN_J1939_TP_CTRL_CTS, tx_resp.data[0]);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_id_unpack(tx_resp.id, &abort_hdr));
+    TEST_ASSERT_EQUAL_UINT8(0x10U, abort_hdr.da);
+
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &rts_ok, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_FALSE(ecu.tp_rx.active);
+    TEST_ASSERT_TRUE(syn_j1939_get_tx(&ecu, &tx_resp));
+    TEST_ASSERT_EQUAL_UINT8(SYN_J1939_TP_CTRL_ABORT, tx_resp.data[0]);
+
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &rts_ok, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_TRUE(ecu.tp_rx.active);
     TEST_ASSERT_TRUE(ecu.tx_pending);
 
     SYN_CAN_Frame abort_rx = rts_ok;

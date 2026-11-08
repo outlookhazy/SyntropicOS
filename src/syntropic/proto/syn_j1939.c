@@ -422,7 +422,12 @@ static SYN_Status j1939_handle_tp_cm(SYN_J1939_Node *node, const SYN_J1939_Heade
 
     uint32_t pgn = (uint32_t)syn_peek_u16_le(frame->data, 5U) | ((uint32_t)frame->data[7] << 16U);
     if (node->tp_rx.active) {
-        j1939_queue_tp_abort(node, hdr->sa, 1U, pgn);
+        if (hdr->sa == node->tp_rx.sa) {
+            node->tp_rx.active = false;
+            j1939_queue_tp_abort(node, hdr->sa, 1U, pgn);
+        } else if (!node->tx_pending) {
+            j1939_queue_tp_abort(node, hdr->sa, 1U, pgn);
+        }
         return SYN_BUSY;
     }
 

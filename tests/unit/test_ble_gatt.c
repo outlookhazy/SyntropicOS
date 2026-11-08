@@ -180,11 +180,20 @@ void test_ble_gatt_write_request(void)
         SYN_OK, syn_ble_gatt_process_att_pdu(&gatt, 1, mtu_req, sizeof(mtu_req), resp, &resp_len));
     TEST_ASSERT_EQUAL_UINT8(SYN_BLE_ATT_OP_EXCHANGE_MTU_RSP, resp[0]);
 
-    /* Unsupported PDU opcode */
-    uint8_t unknown_pdu[] = {0xFE, 0x00, 0x00};
-    TEST_ASSERT_EQUAL(SYN_OK, syn_ble_gatt_process_att_pdu(&gatt, 1, unknown_pdu,
-                                                           sizeof(unknown_pdu), resp, &resp_len));
+    /* Unsupported Request PDU opcode (Command Flag bit 6 == 0) -> ATT_ERROR_RSP */
+    uint8_t unknown_req_pdu[] = {0x3E, 0x00, 0x00};
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ble_gatt_process_att_pdu(&gatt, 1, unknown_req_pdu,
+                                                   sizeof(unknown_req_pdu), resp, &resp_len));
+    TEST_ASSERT_EQUAL_UINT16(5U, resp_len);
     TEST_ASSERT_EQUAL_UINT8(SYN_BLE_ATT_OP_ERROR_RSP, resp[0]);
+
+    /* Unsupported Command PDU opcode (Command Flag bit 6 == 1) -> silent drop */
+    uint8_t unknown_cmd_pdu[] = {0xFE, 0x00, 0x00};
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_ble_gatt_process_att_pdu(&gatt, 1, unknown_cmd_pdu,
+                                                   sizeof(unknown_cmd_pdu), resp, &resp_len));
+    TEST_ASSERT_EQUAL_UINT16(0U, resp_len);
 }
 
 void test_ble_gatt_notification(void)
@@ -542,8 +551,8 @@ void test_r5_ble_gatt_regressions(void)
     uint16_t resp_len = 99U;
     TEST_ASSERT_EQUAL(SYN_OK, syn_ble_gatt_init(&gatt, test_gatt_table, 4U, NULL));
 
-    static const uint8_t silent_ops[4] = {0x01U, 0x03U, 0x1BU, 0x1EU};
-    for (size_t i = 0U; i < 4U; i++) {
+    static const uint8_t silent_ops[5] = {0x01U, 0x03U, 0x1BU, 0x1EU, 0xD2U};
+    for (size_t i = 0U; i < 5U; i++) {
         uint8_t pdu[3] = {silent_ops[i], 0x00U, 0x00U};
         resp_len = 99U;
         TEST_ASSERT_EQUAL(SYN_OK,

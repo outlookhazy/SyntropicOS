@@ -539,14 +539,13 @@ static bool gcode_execute_non_modal(SYN_GCode_Controller *ctrl, const SYN_GCode_
         return false;
     }
     if (block->non_modal == SYN_GCODE_NONMODAL_OFFSET) {
-        if (block->has_x) {
-            ctrl->offset_pos.x = ctrl->current_pos.x - (block->x * scale);
-        }
-        if (block->has_y) {
-            ctrl->offset_pos.y = ctrl->current_pos.y - (block->y * scale);
-        }
-        if (block->has_z) {
-            ctrl->offset_pos.z = ctrl->current_pos.z - (block->z * scale);
+        float ox = block->has_x ? (ctrl->current_pos.x - (block->x * scale)) : ctrl->offset_pos.x;
+        float oy = block->has_y ? (ctrl->current_pos.y - (block->y * scale)) : ctrl->offset_pos.y;
+        float oz = block->has_z ? (ctrl->current_pos.z - (block->z * scale)) : ctrl->offset_pos.z;
+        if (isfinite(ox) && isfinite(oy) && isfinite(oz)) {
+            ctrl->offset_pos.x = ox;
+            ctrl->offset_pos.y = oy;
+            ctrl->offset_pos.z = oz;
         }
     } else if (block->non_modal == SYN_GCODE_NONMODAL_HOME) {
         gcode_execute_home(ctrl, block);
@@ -618,6 +617,9 @@ static void gcode_execute_motion(SYN_GCode_Controller *ctrl, const SYN_GCode_Blo
     ctrl->dwell_steps = 0U;
     ctrl->dwell_ms = 0U;
     SYN_Vector3F target = gcode_compute_target(ctrl, block, scale);
+    if (!isfinite(target.x) || !isfinite(target.y) || !isfinite(target.z)) {
+        return;
+    }
     if (ctrl->cfg.interpolator == NULL) {
         ctrl->current_pos = target;
         return;
@@ -705,6 +707,21 @@ static void gcode_apply_aux_words(SYN_GCode_Controller *ctrl, const SYN_GCode_Bl
     }
 }
 
+/**
+ * @brief Verify that all present X/Y/Z/I/J/K axis words in @p block hold finite float values.
+ * @param block Parsed G-Code block to validate.
+ * @return true if every present coordinate/offset word is finite, false otherwise.
+ */
+static bool gcode_block_coords_finite(const SYN_GCode_Block *block)
+{
+    if ((block->has_x && !isfinite(block->x)) || (block->has_y && !isfinite(block->y)) ||
+        (block->has_z && !isfinite(block->z))) {
+        return false;
+    }
+    return (!block->has_i || isfinite(block->i)) && (!block->has_j || isfinite(block->j)) &&
+           (!block->has_k || isfinite(block->k));
+}
+
 SYN_Status syn_gcode_execute_block(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block)
 {
     if (ctrl == NULL || block == NULL) {
@@ -712,6 +729,9 @@ SYN_Status syn_gcode_execute_block(SYN_GCode_Controller *ctrl, const SYN_GCode_B
     }
 
     SYN_GCode_Block eff = *block;
+    if (!gcode_block_coords_finite(&eff)) {
+        return SYN_INVALID_PARAM;
+    }
     if (eff.has_g && !gcode_has_classified_group(&eff)) {
         if (!gcode_classify_g_word(&eff, eff.g_code)) {
             return SYN_INVALID_PARAM;

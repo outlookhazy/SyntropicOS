@@ -101,7 +101,7 @@ SYN_Status syn_usb_midi_send_note_on(SYN_USB_MIDI *midi, uint8_t channel, uint8_
  * @param channel MIDI Channel (0..15).
  * @param note MIDI Note Number (0..127).
  * @param velocity Release Velocity (0..127).
- * @return SYN_OK on success, SYN_INVALID_PARAM if invalid.
+ * @return SYN_OK on success, SYN_BUSY if staging buffer is full, SYN_INVALID_PARAM if invalid.
  */
 SYN_Status syn_usb_midi_send_note_off(SYN_USB_MIDI *midi, uint8_t channel, uint8_t note,
                                       uint8_t velocity);
@@ -112,7 +112,7 @@ SYN_Status syn_usb_midi_send_note_off(SYN_USB_MIDI *midi, uint8_t channel, uint8
  * @param channel MIDI Channel (0..15).
  * @param controller Controller Number (0..127).
  * @param value Controller Value (0..127).
- * @return SYN_OK on success, SYN_INVALID_PARAM if invalid.
+ * @return SYN_OK on success, SYN_BUSY if staging buffer is full, SYN_INVALID_PARAM if invalid.
  */
 SYN_Status syn_usb_midi_send_cc(SYN_USB_MIDI *midi, uint8_t channel, uint8_t controller,
                                 uint8_t value);
@@ -122,7 +122,7 @@ SYN_Status syn_usb_midi_send_cc(SYN_USB_MIDI *midi, uint8_t channel, uint8_t con
  * @param midi Pointer to USB MIDI instance.
  * @param channel MIDI Channel (0..15).
  * @param value Pitch Bend value (-8192..+8191, center 0).
- * @return SYN_OK on success, SYN_INVALID_PARAM if invalid.
+ * @return SYN_OK on success, SYN_BUSY if staging buffer is full, SYN_INVALID_PARAM if invalid.
  */
 SYN_Status syn_usb_midi_send_pitch_bend(SYN_USB_MIDI *midi, uint8_t channel, int16_t value);
 

@@ -708,8 +708,9 @@ static bool gcm_params_valid(const SYN_AES_GCM_Context *ctx, const uint8_t *nonc
         return false;
     }
 #if (SIZE_MAX > 0xFFFFFFFFU)
-    if ((uint64_t)in_len > 0xFFFFFFFE0ULL) {
-        return false; /* LCOV_EXCL_LINE */
+    if (((uint64_t)in_len > 0xFFFFFFFE0ULL) || ((uint64_t)aad_len > (UINT64_MAX / 8ULL)) ||
+        ((uint64_t)nonce_len > (UINT64_MAX / 8ULL))) {
+        return false;
     }
 #endif
     return true;

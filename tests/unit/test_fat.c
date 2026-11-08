@@ -534,7 +534,7 @@ static void test_fat_io_and_allocation_errors(void)
 
     /* Premature EOF in get_cluster_for_offset (size=600, cluster 2=EOF) + FAT read error at 512 */
     sd_emu_reset_counters();
-    TEST_ASSERT_EQUAL_INT(600, syn_vfs_read(fd, blk, 600U));
+    TEST_ASSERT_EQUAL_INT(-2, syn_vfs_read(fd, blk, 600U));
     TEST_ASSERT_EQUAL_INT32(512, syn_vfs_seek(fd, 512, SYN_SEEK_SET));
     sd_emu_reset_counters();
     s_fail_read_at = 1U;
@@ -859,6 +859,13 @@ static void test_tier_a_fat_bpb_and_chain_bounds(void)
     TEST_ASSERT_EQUAL_INT32(20000, syn_vfs_seek(fd, 20000, SYN_SEEK_SET));
     TEST_ASSERT_EQUAL_INT(-2, syn_vfs_read(fd, io_buf, sizeof(io_buf)));
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_vfs_write(fd, io_buf, sizeof(io_buf)));
+
+    /* Premature EOF in cluster chain (file_size = 32768 > 1 cluster, cluster 2 -> 0xFFFF EOF)
+     * must return read error (-2) instead of repeating cluster 2 data */
+    syn_poke_u16_le(0xFFFFU, s_disk[1], 4U);
+    memcpy(s_disk[2], s_disk[1], SECTOR_BYTES);
+    TEST_ASSERT_EQUAL_INT32(1024, syn_vfs_seek(fd, 1024, SYN_SEEK_SET));
+    TEST_ASSERT_EQUAL_INT(-2, syn_vfs_read(fd, io_buf, sizeof(io_buf)));
     TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd));
 
     syn_vfs_init();

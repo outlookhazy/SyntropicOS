@@ -159,7 +159,7 @@ static void test_dma_ringbuf(void)
     uint8_t rx_buf[64] = {0};
     uint8_t dummy_periph[64] = {0xAA};
 
-    SYN_DMA_RingBuf rbuf;
+    SYN_DMA_RingBuf rbuf = {0};
     /* NULL guards */
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_dma_ringbuf_init(NULL, &dma, rx_buf, 64));
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_dma_ringbuf_start(NULL, &dummy_periph));

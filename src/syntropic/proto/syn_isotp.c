@@ -359,13 +359,18 @@ static void isotp_handle_sf(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)
     size_t sf_len = (size_t)(frame->data[0] & 0x0FU);
     size_t data_offset = 1U;
 
-    if (sf_len == 0U) {
-        if (frame->dlc < 2U) {
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+    if (frame->dlc > 8U) {
+        if (sf_len != 0U) {
             return;
         }
         sf_len = (size_t)frame->data[1];
+        if (sf_len <= 7U) {
+            return;
+        }
         data_offset = 2U;
     }
+#endif
 
     size_t avail_bytes = (size_t)frame->dlc - data_offset;
     if ((sf_len == 0U) || (sf_len > avail_bytes)) {
@@ -376,6 +381,8 @@ static void isotp_handle_sf(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)
         memcpy(link->rx_buf, &frame->data[data_offset], sf_len);
         link->rx_len = sf_len;
         link->rx_state = SYN_ISOTP_RX_COMPLETE;
+        link->rx_fc_pending = false;
+        link->rx_timeout_timer_us = 0U;
     }
 }
 
@@ -406,7 +413,8 @@ static void isotp_handle_ff(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)
 #endif
     }
 
-    if ((ff_len <= 7U) || (link->rx_buf == NULL)) {
+    size_t max_sf = (frame->dlc > 8U) ? ((size_t)frame->dlc - 2U) : 7U;
+    if ((ff_len <= max_sf) || (link->rx_buf == NULL)) {
         return;
     }
     if (ff_len > link->rx_buf_size) {
@@ -417,9 +425,6 @@ static void isotp_handle_ff(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)
     }
 
     size_t payload_in_ff = (size_t)frame->dlc - data_offset;
-    if (payload_in_ff > ff_len) {
-        payload_in_ff = ff_len;
-    }
 
     memcpy(link->rx_buf, &frame->data[data_offset], payload_in_ff);
     link->rx_len = payload_in_ff;
@@ -500,9 +505,31 @@ static void isotp_handle_fc(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)
     }
 }
 
+/**
+ * @brief Validate link/frame pointers, CAN ID, RTR flag, and Classical/FD DLC bounds on RX.
+ * @param link  ISO-TP link instance.
+ * @param frame Incoming CAN or CAN FD frame.
+ * @return true if frame is a valid data frame addressed to @p link, false otherwise.
+ */
+static bool isotp_rx_frame_valid(const SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)
+{
+    if ((link == NULL) || (frame == NULL) || frame->rtr || (frame->id != link->rx_id)) {
+        return false;
+    }
+    if ((frame->dlc == 0U) || (frame->dlc > (uint8_t)sizeof(frame->data))) {
+        return false;
+    }
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+    if (!frame->is_fd && (frame->dlc > 8U)) {
+        return false;
+    }
+#endif
+    return true;
+}
+
 void syn_isotp_process_rx_frame(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)
 {
-    if ((link == NULL) || (frame == NULL) || (frame->id != link->rx_id) || (frame->dlc == 0U)) {
+    if (!isotp_rx_frame_valid(link, frame)) {
         return;
     }
 

@@ -153,6 +153,7 @@ typedef struct {
     uint8_t hs_chaining_key[32];   /**< Noise chaining key (CK)                      */
     uint8_t hs_hash[32];           /**< Noise handshake hash (H)                     */
     uint32_t hs_sender_index;      /**< Pending handshake initiator sender index     */
+    bool hs_valid;                 /**< True when hs_* holds an in-flight initiation */
     bool rekey_in_progress;        /**< True while negotiating hitless rekey session */
 
     /* Cumulative tunnel payload counters */

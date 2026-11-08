@@ -896,6 +896,24 @@ static bool uds_sid_write_did(UDS_ReqCtx *ctx)
 }
 
 /**
+ * @brief Validate variable callback payload length and finalize positive UDS response.
+ * @param ctx UDS request processing context.
+ * @param hdr_len Fixed response header length already populated in resp_buf[1..hdr_len-1].
+ * @param payload_len Variable payload length returned by service callback.
+ * @return true after encoding positive response or NRC 0x14 on overflow.
+ */
+static bool uds_commit_var_resp(UDS_ReqCtx *ctx, uint16_t hdr_len, uint16_t payload_len)
+{
+    if (((uint32_t)hdr_len + (uint32_t)payload_len) > (uint32_t)ctx->max_resp_len) {
+        return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
+    }
+    ctx->resp_buf[0] = ctx->sid + 0x40U;
+    *ctx->resp_len = hdr_len + payload_len;
+    ctx->success = true;
+    return true;
+}
+
+/**
  * @brief Handle RoutineControl (0x31) start, stop, and request-results sub-functions.
  * @param ctx UDS request processing context.
  * @return true after encoding positive or negative response.
@@ -921,12 +939,9 @@ static bool uds_sid_routine_control(UDS_ReqCtx *ctx)
             return uds_nrc(ctx, SYN_UDS_NRC_CONDITIONS_NOT_CORRECT);
         }
     }
-    ctx->resp_buf[0] = ctx->sid + 0x40U;
     ctx->resp_buf[1] = sub;
     syn_poke_u16(routine_id, ctx->resp_buf, 2);
-    *ctx->resp_len = 4U + out_payload_len;
-    ctx->success = true;
-    return true;
+    return uds_commit_var_resp(ctx, 4U, out_payload_len);
 }
 
 /**
@@ -1085,10 +1100,7 @@ static bool uds_sid_secured_data(UDS_ReqCtx *ctx)
         sec_out_len = sec_in_len;
     }
 
-    ctx->resp_buf[0] = ctx->sid + 0x40U;
-    *ctx->resp_len = 1U + sec_out_len;
-    ctx->success = true;
-    return true;
+    return uds_commit_var_resp(ctx, 1U, sec_out_len);
 }
 
 /**
@@ -1586,11 +1598,8 @@ static bool uds_sid_read_dtc_info(UDS_ReqCtx *ctx)
                             ctx->max_resp_len - 2U, &cb_out_len, server->dtc_ctx)) {
             return uds_nrc(ctx, SYN_UDS_NRC_CONDITIONS_NOT_CORRECT);
         }
-        ctx->resp_buf[0] = ctx->sid + 0x40U;
         ctx->resp_buf[1] = sub;
-        *ctx->resp_len = 2U + cb_out_len;
-        ctx->success = true;
-        return true;
+        return uds_commit_var_resp(ctx, 2U, cb_out_len);
     }
 
     if (uds_dtc_status_queries(ctx, sub) || uds_dtc_severity_and_fdc(ctx, sub) ||
@@ -1644,22 +1653,20 @@ static bool uds_sid_roe(UDS_ReqCtx *ctx)
                             ctx->max_resp_len - 2U, &out_payload_len, server->roe_ctx)) {
             return uds_nrc(ctx, SYN_UDS_NRC_CONDITIONS_NOT_CORRECT);
         }
-        ctx->resp_buf[0] = ctx->sid + 0x40U;
         ctx->resp_buf[1] = sub;
-        *ctx->resp_len = 2U + out_payload_len;
+        return uds_commit_var_resp(ctx, 2U, out_payload_len);
+    }
+    if (ctx->max_resp_len < 4U) {
+        return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
+    }
+    ctx->resp_buf[0] = ctx->sid + 0x40U;
+    ctx->resp_buf[1] = sub;
+    ctx->resp_buf[2] = 0x00U;
+    if (sub == 0x04U) {
+        *ctx->resp_len = 3U;
     } else {
-        if (ctx->max_resp_len < 4U) {
-            return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
-        }
-        ctx->resp_buf[0] = ctx->sid + 0x40U;
-        ctx->resp_buf[1] = sub;
-        ctx->resp_buf[2] = 0x00U;
-        if (sub == 0x04U) {
-            *ctx->resp_len = 3U;
-        } else {
-            ctx->resp_buf[3] = 0x02U;
-            *ctx->resp_len = 4U;
-        }
+        ctx->resp_buf[3] = 0x02U;
+        *ctx->resp_len = 4U;
     }
     ctx->success = true;
     return true;
@@ -1992,7 +1999,6 @@ static bool uds_sid_read_scaling(UDS_ReqCtx *ctx)
     if (ctx->max_resp_len < 4U) {
         return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
     }
-    ctx->resp_buf[0] = ctx->sid + 0x40U;
     syn_poke_u16(target_did, ctx->resp_buf, 1);
     if (server->scaling_cb != NULL) {
         uint16_t out_payload_len = 0U;
@@ -2000,11 +2006,11 @@ static bool uds_sid_read_scaling(UDS_ReqCtx *ctx)
                                 &out_payload_len, server->scaling_ctx)) {
             return uds_nrc(ctx, SYN_UDS_NRC_CONDITIONS_NOT_CORRECT);
         }
-        *ctx->resp_len = 3U + out_payload_len;
-    } else {
-        ctx->resp_buf[3] = 0x01U;
-        *ctx->resp_len = 4U;
+        return uds_commit_var_resp(ctx, 3U, out_payload_len);
     }
+    ctx->resp_buf[0] = ctx->sid + 0x40U;
+    ctx->resp_buf[3] = 0x01U;
+    *ctx->resp_len = 4U;
     ctx->success = true;
     return true;
 }
@@ -2030,15 +2036,9 @@ static bool uds_sid_authentication(UDS_ReqCtx *ctx)
                              ctx->max_resp_len - 2U, &out_payload_len, server->auth_ctx)) {
             return uds_nrc(ctx, SYN_UDS_NRC_CONDITIONS_NOT_CORRECT);
         }
-        if (out_payload_len > (uint16_t)(ctx->max_resp_len - 2U)) {
-            return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
-        }
     }
-    ctx->resp_buf[0] = ctx->sid + 0x40U;
     ctx->resp_buf[1] = sub;
-    *ctx->resp_len = 2U + out_payload_len;
-    ctx->success = true;
-    return true;
+    return uds_commit_var_resp(ctx, 2U, out_payload_len);
 }
 
 /**
@@ -2063,11 +2063,8 @@ static bool uds_sid_read_periodic(UDS_ReqCtx *ctx)
             return uds_nrc(ctx, SYN_UDS_NRC_CONDITIONS_NOT_CORRECT);
         }
     }
-    ctx->resp_buf[0] = ctx->sid + 0x40U;
     ctx->resp_buf[1] = ctx->req[2];
-    *ctx->resp_len = 2U + out_payload_len;
-    ctx->success = true;
-    return true;
+    return uds_commit_var_resp(ctx, 2U, out_payload_len);
 }
 
 /**
@@ -2097,12 +2094,9 @@ static bool uds_sid_dynamic_did(UDS_ReqCtx *ctx)
             return uds_nrc(ctx, SYN_UDS_NRC_CONDITIONS_NOT_CORRECT);
         }
     }
-    ctx->resp_buf[0] = ctx->sid + 0x40U;
     ctx->resp_buf[1] = sub;
     syn_poke_u16(dyn_did, ctx->resp_buf, 2);
-    *ctx->resp_len = 4U + out_payload_len;
-    ctx->success = true;
-    return true;
+    return uds_commit_var_resp(ctx, 4U, out_payload_len);
 }
 
 /**
@@ -2136,12 +2130,9 @@ static bool uds_sid_io_control(UDS_ReqCtx *ctx)
             return uds_nrc(ctx, SYN_UDS_NRC_CONDITIONS_NOT_CORRECT);
         }
     }
-    ctx->resp_buf[0] = ctx->sid + 0x40U;
     syn_poke_u16(target_did, ctx->resp_buf, 1);
     ctx->resp_buf[3] = control_opt;
-    *ctx->resp_len = 4U + out_payload_len;
-    ctx->success = true;
-    return true;
+    return uds_commit_var_resp(ctx, 4U, out_payload_len);
 }
 
 /**
@@ -2167,9 +2158,6 @@ static bool uds_sid_file_transfer(UDS_ReqCtx *ctx)
                                       server->file_transfer_ctx)) {
             return uds_nrc(ctx, SYN_UDS_NRC_CONDITIONS_NOT_CORRECT);
         }
-        if (out_len > (uint16_t)(ctx->max_resp_len - 2U)) {
-            return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
-        }
     } else {
         if (ctx->max_resp_len < 5U) {
             return uds_nrc(ctx, SYN_UDS_NRC_RESPONSE_TOO_LONG);
@@ -2178,11 +2166,8 @@ static bool uds_sid_file_transfer(UDS_ReqCtx *ctx)
         syn_poke_u16(0x0400U, ctx->resp_buf, 3);
         out_len = 3U;
     }
-    ctx->resp_buf[0] = ctx->sid + 0x40U;
     ctx->resp_buf[1] = mode;
-    *ctx->resp_len = 2U + out_len;
-    ctx->success = true;
-    return true;
+    return uds_commit_var_resp(ctx, 2U, out_len);
 }
 
 /**
@@ -2208,11 +2193,8 @@ static bool uds_sid_link_control(UDS_ReqCtx *ctx)
             return uds_nrc(ctx, SYN_UDS_NRC_CONDITIONS_NOT_CORRECT);
         }
     }
-    ctx->resp_buf[0] = ctx->sid + 0x40U;
     ctx->resp_buf[1] = sub;
-    *ctx->resp_len = 2U + out_payload_len;
-    ctx->success = true;
-    return true;
+    return uds_commit_var_resp(ctx, 2U, out_payload_len);
 }
 
 /** @brief Static UDS service identifier to handler dispatch table. */

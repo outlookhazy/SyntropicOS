@@ -244,6 +244,19 @@ static void test_tier_a_interpolator_nan_inf_and_step_overflow(void)
     st = syn_interpolator_plan_circular(&interp, origin, dest, inf_vec, true, 10.0f, 50.0f, 100.0f,
                                         0.1f);
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+    TEST_ASSERT_EQUAL(SYN_INTERP_MODE_IDLE, interp.mode);
+
+    /* Zero / overflowed radius leaves interp in SYN_INTERP_MODE_IDLE (no zero-step teleport) */
+    st = syn_interpolator_plan_circular(&interp, origin, dest, origin, true, 10.0f, 50.0f, 100.0f,
+                                        0.1f);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+    TEST_ASSERT_EQUAL(SYN_INTERP_MODE_IDLE, interp.mode);
+
+    SYN_Vector3F huge_off = {3.0e38f, 3.0e38f, 0.0f};
+    st = syn_interpolator_plan_circular(&interp, origin, dest, huge_off, false, 10.0f, 50.0f,
+                                        100.0f, 0.1f);
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, st);
+    TEST_ASSERT_EQUAL(SYN_INTERP_MODE_IDLE, interp.mode);
 
     st = syn_interpolator_plan_bezier(&interp, origin, nan_vec, dest, dest, 10.0f, 50.0f, 100.0f,
                                       0.1f);
@@ -259,6 +272,13 @@ static void test_tier_a_interpolator_nan_inf_and_step_overflow(void)
     st = syn_interpolator_plan_linear(&interp, origin, dest, 100.0f, 0.0f, 5.0e6f, 0.001f);
     TEST_ASSERT_EQUAL(SYN_OK, st);
     TEST_ASSERT_EQUAL_UINT32(10000U, interp.total_steps);
+
+    /* Defensive step_index >= total_steps clamp snaps to target_pos and idles */
+    interp.step_index = interp.total_steps;
+    SYN_Vector3F snap_pos = {0.0f, 0.0f, 0.0f};
+    TEST_ASSERT_FALSE(syn_interpolator_step(&interp, &snap_pos));
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, dest.x, snap_pos.x);
+    TEST_ASSERT_EQUAL(SYN_INTERP_MODE_IDLE, interp.mode);
 }
 
 void run_interpolator_tests(void)

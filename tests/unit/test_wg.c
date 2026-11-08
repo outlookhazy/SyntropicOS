@@ -1990,6 +1990,63 @@ static void test_tier_a_wg_low_order_dh_staged_hs_and_msg_limits(void)
     SYN_WgSession rx_lim = {0};
     TEST_ASSERT_TRUE(wg_replay_check(&rx_lim, SYN_WG_REJECT_AFTER_MESSAGES - 1ULL));
     TEST_ASSERT_FALSE(wg_replay_check(&rx_lim, SYN_WG_REJECT_AFTER_MESSAGES));
+
+    /* 5. AUD-H1: Failed initial rekey sendto leaves hs_valid == false; forged response over 0^32
+     *    handshake state must be rejected by both wg_consume_response and syn_wg_task */
+    SYN_WgConfig zero_psk_cfg = cfg;
+    memset(zero_psk_cfg.preshared_key, 0, sizeof(zero_psk_cfg.preshared_key));
+    SYN_WG wg_h1;
+    syn_wg_init(&wg_h1, &zero_psk_cfg, &sntp, rx_buf, sizeof(rx_buf), tx_buf, sizeof(tx_buf));
+    SYN_PT pt_h1;
+    PT_INIT(&pt_h1);
+    SYN_Task task_h1 = {.user_data = &wg_h1};
+    mock_udp_tx_len = 0U;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_wg_task(&pt_h1, &task_h1));
+    uint8_t resp_h1[SYN_WG_RESPONSE_SIZE];
+    uint8_t send_kh1[32], recv_kh1[32];
+    build_responder_handshake_reply(&zero_psk_cfg, resp_s_priv, mock_udp_tx_buf, 0x61U, 0xCCCC3333U,
+                                    resp_h1, send_kh1, recv_kh1);
+    mock_udp_set_response(resp_h1, sizeof(resp_h1), &from);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_wg_task(&pt_h1, &task_h1));
+    TEST_ASSERT_TRUE(syn_wg_is_established(&wg_h1));
+    TEST_ASSERT_FALSE(wg_h1.hs_valid);
+
+    mock_tick_advance(125000U);
+    mock_udp_sendto_fail = true;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_wg_task(&pt_h1, &task_h1));
+    mock_udp_sendto_fail = false;
+    TEST_ASSERT_TRUE(wg_h1.rekey_in_progress);
+    TEST_ASSERT_FALSE(wg_h1.hs_valid);
+
+    uint8_t forged_h1[SYN_WG_RESPONSE_SIZE];
+    memset(forged_h1, 0, sizeof(forged_h1));
+    store32_le(forged_h1 + 0U, SYN_WG_MSG_RESPONSE);
+    store32_le(forged_h1 + 4U, 0xDEADBEEFU);
+    store32_le(forged_h1 + 8U, 0U);
+    {
+        uint8_t atk_e_priv[32], atk_e_pub[32];
+        uint8_t zero_priv[32] = {0U};
+        uint8_t f_ck[32] = {0U}, f_h[32] = {0U}, f_k[32], f_dh[32], f_tau[32];
+        memset(atk_e_priv, 0x62, 32U);
+        syn_x25519_clamp(atk_e_priv);
+        syn_x25519_pubkey(atk_e_pub, atk_e_priv);
+        memcpy(forged_h1 + 12U, atk_e_pub, 32U);
+        wg_mix_key(f_ck, f_k, atk_e_pub, 32U);
+        wg_mix_hash(f_h, atk_e_pub, 32U);
+        syn_x25519(f_dh, zero_priv, atk_e_pub);
+        wg_mix_key(f_ck, f_k, f_dh, 32U);
+        syn_x25519(f_dh, atk_e_priv, wg_h1.public_key);
+        wg_mix_key(f_ck, f_k, f_dh, 32U);
+        wg_hkdf3(f_ck, f_tau, f_k, f_ck, zero_psk_cfg.preshared_key, 32U);
+        wg_mix_hash(f_h, f_tau, 32U);
+        wg_encrypt_and_hash(f_h, f_k, NULL, 0U, NULL, forged_h1 + 44U);
+        wg_mac1(forged_h1 + 60U, wg_h1.public_key, forged_h1, 60U);
+    }
+    TEST_ASSERT_FALSE(wg_consume_response(&wg_h1, forged_h1, sizeof(forged_h1)));
+    mock_udp_set_response(forged_h1, sizeof(forged_h1), &from);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_wg_task(&pt_h1, &task_h1));
+    TEST_ASSERT_EQUAL_HEX32(0xCCCC3333U, wg_h1.session.receiver_index);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(send_kh1, wg_h1.session.send_key, 32U);
 }
 
 void run_wg_tests(void)

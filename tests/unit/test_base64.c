@@ -195,6 +195,9 @@ static void test_tier_a_base64_size_overflow_guards(void)
     TEST_ASSERT_TRUE(syn_base64_calc_encoded_size(SYN_BASE64_MAX_RAW_LEN) > 0U);
 
     TEST_ASSERT_EQUAL_size_t(0U, syn_base64_calc_max_decoded_size(SIZE_MAX));
+    TEST_ASSERT_EQUAL_size_t(0U, syn_base64_calc_max_decoded_size(SIZE_MAX - 2U));
+    TEST_ASSERT_TRUE(syn_base64_calc_max_decoded_size(SIZE_MAX - 3U) > 0U);
+    TEST_ASSERT_TRUE(syn_base64_calc_max_decoded_size((SIZE_MAX / 3U) + 4U) > 0U);
     TEST_ASSERT_EQUAL_size_t(6U, syn_base64_calc_max_decoded_size(5U));
 
     TEST_ASSERT_FALSE(syn_base64_encode(bin, SIZE_MAX, enc, sizeof(enc), &len));

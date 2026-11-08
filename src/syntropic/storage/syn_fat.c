@@ -592,15 +592,14 @@ static bool scan_root_dir(const FAT_Volume *vol, const char *name, DirEntryLoc *
  * @param vol           Mounted FAT volume metadata.
  * @param start_cluster First cluster of the file.
  * @param offset        Byte offset within the file.
- * @param out_cluster   [out] Cluster index covering @p offset (or last valid cluster on EOF).
- * @return true on success, false on SD FAT read failure.
+ * @param out_cluster   [out] Cluster index covering @p offset.
+ * @return true on success, false on SD FAT read failure or corrupt/truncated cluster chain.
  */
 static bool get_cluster_for_offset(const FAT_Volume *vol, uint32_t start_cluster, uint32_t offset,
                                    uint32_t *out_cluster)
 {
     uint32_t cluster_size = (uint32_t)vol->sectors_per_cluster * 512U;
     uint32_t target_idx = offset / cluster_size;
-    uint32_t eof_val = vol->is_fat32 ? 0x0FFFFFF8U : 0xFFF8U;
 
     uint32_t curr_cluster = start_cluster;
     for (uint32_t i = 0U; i < target_idx; i++) {
@@ -608,14 +607,7 @@ static bool get_cluster_for_offset(const FAT_Volume *vol, uint32_t start_cluster
             return false;
         }
         uint32_t next = 0U;
-        if (!read_fat_entry(vol, curr_cluster, &next)) {
-            return false;
-        }
-        if (next >= eof_val) {
-            *out_cluster = curr_cluster;
-            return true;
-        }
-        if (!is_valid_cluster(vol, next)) {
+        if (!read_fat_entry(vol, curr_cluster, &next) || !is_valid_cluster(vol, next)) {
             return false;
         }
         curr_cluster = next;

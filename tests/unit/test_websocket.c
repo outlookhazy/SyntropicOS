@@ -413,7 +413,8 @@ static void test_websocket_recv_too_large(void)
 
 static void test_websocket_send_too_large(void)
 {
-    SYN_WebsocketSession ws;
+    SYN_WebsocketSession ws = {0};
+    ws.sock = 5;
     ws.state = SYN_WS_STATE_CONNECTED;
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_websocket_send(&ws, 0x01, NULL, 0x10000));
 }

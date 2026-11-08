@@ -94,7 +94,9 @@ void syn_errlog_clear(SYN_ErrLog *log)
     syn_port_enter_critical();
     log->head = 0U;
     log->total_count = 0U;
-    memset(log->entries, 0, sizeof(SYN_ErrEntry) * log->capacity);
+    if ((log->entries != NULL) && (log->capacity > 0U)) {
+        memset(log->entries, 0, sizeof(SYN_ErrEntry) * log->capacity);
+    }
     syn_port_exit_critical();
 }
 

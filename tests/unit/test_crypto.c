@@ -714,6 +714,16 @@ static void test_tier_a_chacha_x25519_blake2s_guards(void)
     /* HASH-1: HMAC-BLAKE2s with NULL empty key (UBSan memcpy guard) */
     syn_hmac_blake2s(NULL, 0U, "test", 4U, out32);
     TEST_ASSERT_NOT_EQUAL(0x77U, out32[0]);
+
+#if (SIZE_MAX > 0xFFFFFFFFU)
+    /* AUD-M8: RFC 8439 §2.8 32-bit block counter limit (274,877,906,880 B) in AEAD */
+    uint8_t tag16[16];
+    memset(tag16, 0xEEU, sizeof(tag16));
+    syn_aead_encrypt(key, nonce, NULL, 0U, in65, (size_t)0x3FFFFFFFC1ULL, out65, tag16);
+    TEST_ASSERT_EQUAL_HEX8(0x00U, tag16[0]);
+    TEST_ASSERT_FALSE(
+        syn_aead_decrypt(key, nonce, NULL, 0U, in65, (size_t)0x3FFFFFFFC1ULL, tag16, out65));
+#endif
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

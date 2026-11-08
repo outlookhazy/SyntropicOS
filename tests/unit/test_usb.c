@@ -386,6 +386,26 @@ void test_tier_a_usb_regressions(void)
                           syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(0U, rlen);
 
+    /* AUD-M1: Vendor / unmatched Class requests colliding with SET_ADDRESS / SET_CONFIGURATION
+     * must NOT mutate Chapter 9 device state */
+    pkt.bmRequestType = 0x40U;
+    pkt.bRequest = SYN_USB_REQ_SET_ADDRESS;
+    pkt.wValue = 0x002AU;
+    pkt.wLength = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
+    TEST_ASSERT_EQUAL_UINT8(0U, dev.dev_address);
+    TEST_ASSERT_EQUAL_INT(SYN_USB_STATE_DEFAULT, dev.state);
+
+    pkt.bmRequestType = 0x21U;
+    pkt.bRequest = SYN_USB_REQ_SET_CONFIGURATION;
+    pkt.wValue = 1U;
+    pkt.wIndex = 99U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
+    TEST_ASSERT_EQUAL_UINT8(0U, dev.config_value);
+    TEST_ASSERT_EQUAL_INT(SYN_USB_STATE_DEFAULT, dev.state);
+
     /* USB-1: 75-byte CDC config descriptor rejected on 64B buffer, fits dev.ep0_buf (256B) */
     uint8_t small_ep0[64];
     pkt.bmRequestType = 0x80U;

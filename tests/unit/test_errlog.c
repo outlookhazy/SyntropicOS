@@ -124,6 +124,11 @@ static void test_tier_a_errlog_critical_section(void)
 
     syn_errlog_clear(&elog);
     TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    /* Zero-initialized SYN_ErrLog (entries == NULL, capacity == 0) clears safely without UB */
+    SYN_ErrLog zero_log = {0};
+    syn_errlog_clear(&zero_log);
+    TEST_ASSERT_EQUAL_size_t(0U, zero_log.total_count);
 }
 
 void run_errlog_tests(void)

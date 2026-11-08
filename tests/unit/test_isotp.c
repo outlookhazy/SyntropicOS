@@ -143,7 +143,9 @@ static void test_isotp_canfd_extended_first_frame(void)
     TEST_ASSERT_TRUE(receiver.rx_fc_pending);
     TEST_ASSERT_EQUAL(SYN_ISOTP_FC_CTS, receiver.rx_fc_status);
 
-    /* Also exercise payload_in_ff > ff_len defensive clamp (FF DLC=64, ff_len=20) */
+    /* ISO 15765-2 §9.6.3.2: FF with ff_len (20) <= CAN_DL - 2 (62) is ignored */
+    receiver.rx_state = SYN_ISOTP_RX_IDLE;
+    receiver.rx_fc_pending = false;
     SYN_CAN_Frame oversized_ff = {0};
     oversized_ff.id = 0x7E0U;
     oversized_ff.dlc = 64U;
@@ -151,7 +153,8 @@ static void test_isotp_canfd_extended_first_frame(void)
     oversized_ff.data[0] = 0x10U;
     oversized_ff.data[1] = 20U;
     syn_isotp_process_rx_frame(&receiver, &oversized_ff);
-    TEST_ASSERT_EQUAL_UINT32(20U, (uint32_t)receiver.rx_len);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, receiver.rx_state);
+    TEST_ASSERT_FALSE(receiver.rx_fc_pending);
 }
 #endif
 
@@ -179,17 +182,21 @@ static void test_isotp_single_frame(void)
     TEST_ASSERT_EQUAL(3, syn_isotp_receive(&node_b, out, sizeof(out)));
     TEST_ASSERT_EQUAL_MEMORY(payload, out, 3);
 
-    /* CAN FD 8-bit single frame test (data[0] = 0x00, data[1] = len) */
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+    /* CAN FD 8-bit single frame test (dlc > 8, data[0] = 0x00, data[1] = len > 7) */
     SYN_CAN_Frame fd_frame = {0};
     fd_frame.id = 0x7E0;
-    fd_frame.dlc = 8;
+    fd_frame.dlc = 12;
+    fd_frame.is_fd = true;
     fd_frame.data[0] = 0x00;
-    fd_frame.data[1] = 0x03;
-    fd_frame.data[2] = 0x02;
-    fd_frame.data[3] = 0x10;
-    fd_frame.data[4] = 0x01;
+    fd_frame.data[1] = 0x08;
+    for (uint8_t k = 0; k < 8U; k++) {
+        fd_frame.data[2U + k] = (uint8_t)(0x10U + k);
+    }
     syn_isotp_process_rx_frame(&node_b, &fd_frame);
-    TEST_ASSERT_EQUAL(3, syn_isotp_receive(&node_b, out, sizeof(out)));
+    TEST_ASSERT_EQUAL(8, syn_isotp_receive(&node_b, out, sizeof(out)));
+    TEST_ASSERT_EQUAL_MEMORY(&fd_frame.data[2], out, 8U);
+#endif
 }
 
 static void test_isotp_multi_frame_flow(void)
@@ -694,9 +701,17 @@ static void test_isotp_pro15_frame_validation_and_saturation(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_isotp_send(&link, pro15_classic_tx, 4095U));
     link.tx_state = SYN_ISOTP_TX_IDLE;
 
-    /* 2. dlc == 0 ignored */
+    /* 2. dlc == 0, rtr == true, and dlc > sizeof(data) ignored */
     SYN_CAN_Frame zero_dlc = {.id = 0x700U, .dlc = 0U, .data = {0x02U, 0x11U, 0x22U}};
     syn_isotp_process_rx_frame(&link, &zero_dlc);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, link.rx_state);
+
+    SYN_CAN_Frame rtr_frame = {.id = 0x700U, .dlc = 8U, .rtr = true, .data = {0x02U, 0x11U, 0x22U}};
+    syn_isotp_process_rx_frame(&link, &rtr_frame);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, link.rx_state);
+
+    SYN_CAN_Frame over_dlc = {.id = 0x700U, .dlc = 99U, .data = {0x02U, 0x11U, 0x22U}};
+    syn_isotp_process_rx_frame(&link, &over_dlc);
     TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, link.rx_state);
 
     /* 3. Malformed Single Frames dropped instead of clamped */
@@ -746,7 +761,41 @@ static void test_isotp_pro15_frame_validation_and_saturation(void)
     syn_isotp_process_rx_frame(&fd_link, &fd_bad_esc);
     TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, fd_link.rx_state);
     TEST_ASSERT_FALSE(fd_link.rx_fc_pending);
+
+    /* Classic non-FD frame with dlc > 8 rejected; FD SF with nonzero low nibble or <=7 escape
+     * rejected */
+    SYN_CAN_Frame nonfd_gt8 = {.id = 0x700U, .dlc = 12U, .is_fd = false, .data = {0x00U, 0x08U}};
+    syn_isotp_process_rx_frame(&fd_link, &nonfd_gt8);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, fd_link.rx_state);
+
+    SYN_CAN_Frame fd_sf_nonzero_lo = {
+        .id = 0x700U, .dlc = 12U, .is_fd = true, .data = {0x03U, 0x08U}};
+    syn_isotp_process_rx_frame(&fd_link, &fd_sf_nonzero_lo);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, fd_link.rx_state);
+
+    SYN_CAN_Frame fd_sf_le7 = {.id = 0x700U, .dlc = 12U, .is_fd = true, .data = {0x00U, 0x07U}};
+    syn_isotp_process_rx_frame(&fd_link, &fd_sf_le7);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, fd_link.rx_state);
+
+    SYN_CAN_Frame fd_sf_over = {.id = 0x700U, .dlc = 12U, .is_fd = true, .data = {0x00U, 0x0BU}};
+    syn_isotp_process_rx_frame(&fd_link, &fd_sf_over);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, fd_link.rx_state);
 #endif
+
+    /* SF interrupting an active RX_WAIT_CF clears rx_fc_pending and rx_timeout_timer_us */
+    SYN_CAN_Frame ff_start = {
+        .id = 0x700U, .dlc = 8U, .data = {0x10U, 0x10U, 1U, 2U, 3U, 4U, 5U, 6U}};
+    syn_isotp_process_rx_frame(&link, &ff_start);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_WAIT_CF, link.rx_state);
+    TEST_ASSERT_TRUE(link.rx_fc_pending);
+    TEST_ASSERT_TRUE(link.rx_timeout_timer_us > 0U);
+
+    SYN_CAN_Frame sf_interrupt = {.id = 0x700U, .dlc = 4U, .data = {0x02U, 0xAAU, 0xBBU}};
+    syn_isotp_process_rx_frame(&link, &sf_interrupt);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_COMPLETE, link.rx_state);
+    TEST_ASSERT_FALSE(link.rx_fc_pending);
+    TEST_ASSERT_EQUAL_UINT32(0U, link.rx_timeout_timer_us);
+    link.rx_state = SYN_ISOTP_RX_IDLE;
 
     /* 5. FlowControl: idle FC ignored, short FC ignored, invalid FS (> 2) aborts TX */
     SYN_CAN_Frame fc_bad_fs = {.id = 0x700U, .dlc = 8U, .data = {0x33U, 0U, 0U}};

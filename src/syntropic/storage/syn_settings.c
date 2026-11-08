@@ -94,17 +94,21 @@ static void select_dual_bank(SYN_DualBankSettings *db, bool valid_a, bool valid_
     uint16_t seq_a = (uint16_t)(db->bank_a.store.next_seq - 1U);
     uint16_t seq_b = (uint16_t)(db->bank_b.store.next_seq - 1U);
     bool prefer_b = valid_b && (!valid_a || ((int16_t)(seq_b - seq_a) > 0));
+    uint16_t max_seq = prefer_b ? seq_b : seq_a;
 
-    if (prefer_b && try_activate_bank(db, 1U, seq_b, data)) {
+    if (prefer_b && try_activate_bank(db, 1U, max_seq, data)) {
         return;
     }
-    if (valid_a && try_activate_bank(db, 0U, seq_a, data)) {
+    if (valid_a && try_activate_bank(db, 0U, max_seq, data)) {
         return;
     }
-    if (!prefer_b && valid_b && try_activate_bank(db, 1U, seq_b, data)) {
+    if (!prefer_b && valid_b && try_activate_bank(db, 1U, max_seq, data)) {
         return;
     }
 
+    if (valid_a || valid_b) {
+        db->bank_a.store.next_seq = (uint16_t)(max_seq + 1U);
+    }
     memcpy(data, defaults, data_size);
     (void)syn_param_save(&db->bank_a.store, data);
     db->active_bank = 0U;
@@ -280,6 +284,9 @@ SYN_Status syn_settings_import_vfs(SYN_Settings *s, const char *filepath, bool s
             (void)syn_vfs_close(fd);
             return SYN_ERROR;
         }
+    } else if (syn_vfs_seek(fd, 0, SYN_SEEK_SET) >= 0) {
+        (void)syn_vfs_close(fd);
+        return SYN_ERROR;
     }
 
     int read_bytes = syn_vfs_read(fd, s->data, s->data_size);

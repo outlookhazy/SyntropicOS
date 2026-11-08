@@ -197,24 +197,23 @@ SYN_Status syn_interpolator_plan_circular(SYN_Interpolator *interp, SYN_Vector3F
         return SYN_INVALID_PARAM;
     }
 
+    /* Center X, Y relative to start; validate radius before mutating interp state */
+    float cx = start.x + center_offset.x;
+    float cy = start.y + center_offset.y;
+    float rx = -center_offset.x;
+    float ry = -center_offset.y;
+    float radius = sqrtf((rx * rx) + (ry * ry));
+    if (!isfinite(radius) || (radius < 1e-6f)) {
+        return SYN_INVALID_PARAM;
+    }
+
     memset(interp, 0, sizeof(SYN_Interpolator));
     interp->mode = is_cw ? SYN_INTERP_MODE_CIRCULAR_CW : SYN_INTERP_MODE_CIRCULAR_CCW;
     interp->start_pos = start;
     interp->target_pos = target;
     interp->center_offset = center_offset;
     interp->current_pos = start;
-
-    /* Center X, Y relative to start */
-    float cx = start.x + center_offset.x;
-    float cy = start.y + center_offset.y;
-
-    float rx = -center_offset.x;
-    float ry = -center_offset.y;
-    interp->radius = sqrtf((rx * rx) + (ry * ry));
-
-    if (!isfinite(interp->radius) || (interp->radius < 1e-6f)) {
-        return SYN_INVALID_PARAM;
-    }
+    interp->radius = radius;
 
     interp->start_angle = atan2f(-center_offset.y, -center_offset.x);
     float end_angle = atan2f(target.y - cy, target.x - cx);

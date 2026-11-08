@@ -142,7 +142,7 @@ bool syn_modbus_tcp_process_slave(SYN_Modbus *mb, const uint8_t *req_adu, uint16
     }
 
     uint16_t pdu_len = expected_payload_len - 1U; /* Unit ID is 1 byte */
-    if ((mb->buf_size < 3U) || ((size_t)pdu_len > (size_t)(mb->buf_size - 3U))) {
+    if ((mb->buf_size < 5U) || ((size_t)pdu_len > (size_t)(mb->buf_size - 3U))) {
         return false;
     }
 
@@ -164,11 +164,11 @@ bool syn_modbus_tcp_process_slave(SYN_Modbus *mb, const uint8_t *req_adu, uint16
     /* Process PDU using slave dispatcher without emitting RTU UART bytes */
     uint32_t prev_tx = mb->frames_tx;
     mb->suppress_uart_tx = true;
-    bool has_response = syn_modbus_process(mb);
+    (void)syn_modbus_process(mb);
     mb->suppress_uart_tx = false;
 
-    /* Broadcast or exception without response */
-    if ((!has_response && mb->frames_tx == prev_tx) || req_hdr.unit_id == 0U) {
+    /* Broadcast or dropped frame without TX response */
+    if (mb->frames_tx == prev_tx) {
         return false;
     }
 

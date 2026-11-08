@@ -216,4 +216,24 @@ void test_r5_ble_l2cap_regressions(void)
     TEST_ASSERT_EQUAL_UINT16(SYN_BLE_HCI_TX_BUF_SIZE, tx_len);
     TEST_ASSERT_EQUAL(SYN_ERROR,
                       syn_ble_l2cap_encode_pdu(0x0001U, 0x0004U, max_pay, 253U, hci_tx, &tx_len));
+
+    /* AUD-L3: Stray continuation / runt / oversized start on unknown handles do not leak slots */
+    SYN_BLE_L2CAP l2cap_leak;
+    syn_ble_l2cap_init(&l2cap_leak, test_l2cap_cb, NULL);
+    uint8_t stray_cont[2] = {0xAAU, 0xBBU};
+    for (uint16_t h = 0x0010U; h < 0x0016U; h++) {
+        TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_l2cap_process_acl(&l2cap_leak, h, 0x01U, stray_cont,
+                                                               sizeof(stray_cont)));
+        TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_l2cap_process_acl(&l2cap_leak, h, 0x02U, big_single,
+                                                               sizeof(big_single)));
+    }
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ble_l2cap_process_acl(&l2cap_leak, 0x0001U, 0x02U, single_ok,
+                                                        sizeof(single_ok)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ble_l2cap_process_acl(&l2cap_leak, 0x0002U, 0x02U, single_ok,
+                                                        sizeof(single_ok)));
+    /* Malformed start on existing active connection clears reassembling without dropping slot */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_l2cap_process_acl(&l2cap_leak, 0x0001U, 0x02U, extra_start,
+                                                           sizeof(extra_start)));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_l2cap_process_acl(&l2cap_leak, 0x0001U, 0x01U, stray_cont,
+                                                           sizeof(stray_cont)));
 }

@@ -362,6 +362,10 @@ SYN_Status syn_usb_process_setup(SYN_USB_Device *dev, const SYN_USB_SetupPacket 
         }
     }
 
+    if ((pkt->bmRequestType & 0x60U) != 0x00U) {
+        return SYN_OK;
+    }
+
     switch (pkt->bRequest) {
     case SYN_USB_REQ_SET_ADDRESS:
         dev->dev_address = (uint8_t)(pkt->wValue & 0x7FU);

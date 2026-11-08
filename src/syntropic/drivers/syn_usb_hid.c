@@ -129,6 +129,24 @@ static void hid_class_data_in(void *ctx, uint8_t ep)
     }
 }
 
+/**
+ * @brief Reset staged HID IN report state upon USB SET_CONFIGURATION.
+ *
+ * @param ctx        Pointer to SYN_USB_HID instance.
+ * @param config_val Active configuration value.
+ * @return SYN_OK.
+ */
+static SYN_Status hid_class_configured(void *ctx, uint8_t config_val)
+{
+    (void)config_val;
+    SYN_USB_HID *hid = (SYN_USB_HID *)ctx;
+    if (hid != NULL) {
+        hid->tx_len = 0U;
+        hid->release_pending = false;
+    }
+    return SYN_OK;
+}
+
 SYN_Status syn_usb_hid_init(SYN_USB_HID *hid)
 {
     if (hid == NULL) {
@@ -164,6 +182,7 @@ SYN_Status syn_usb_hid_register(SYN_USB_Device *dev, SYN_USB_HID *hid, const uin
     cls.iface_start = hid->iface_num;
     cls.iface_count = 1U;
     cls.ctx = hid;
+    cls.configured = hid_class_configured;
     cls.setup = hid_class_setup;
     cls.data_in = hid_class_data_in;
 

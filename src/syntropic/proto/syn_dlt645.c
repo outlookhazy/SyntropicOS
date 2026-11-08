@@ -35,9 +35,13 @@ static size_t dlt645_di_len(uint8_t control, SYN_DLT645_Ver version)
     if ((control & 0x40U) != 0U) {
         return 0U;
     }
-    uint8_t base = (uint8_t)(control & 0x7FU);
-    if ((control == 0x08U) || (base == 0x13U) || (base == 0x15U) || (base == 0x16U) ||
-        (base == 0x17U)) {
+    uint8_t fn = (uint8_t)(control & 0x1FU);
+    if ((control & 0x80U) != 0U) {
+        if (((fn & 0x0FU) != 0x01U) && ((fn & 0x0FU) != 0x02U)) {
+            return 0U;
+        }
+    } else if ((control == 0x08U) || (fn == 0x13U) || (fn == 0x15U) || (fn == 0x16U) ||
+               (fn == 0x17U)) {
         return 0U;
     }
     return (version == SYN_DLT645_VER_1997) ? 2U : 4U;

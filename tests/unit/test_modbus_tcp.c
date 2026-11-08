@@ -325,7 +325,12 @@ static void test_pro09_tcp_tiny_rtu_buf_size_underflow_guard(void)
         syn_modbus_tcp_process_slave(&mb, req_adu, 12U, resp_adu, sizeof(resp_adu), &resp_len));
     TEST_ASSERT_EQUAL_UINT16(0U, resp_len);
 
-    /* mb.buf_size < 3U -> guarded against unsigned underflow */
+    /* mb.buf_size < 5U -> guarded against unsigned underflow and runt exception OOB read */
+    mb.buf_size = 4U;
+    uint8_t runt_fc03_adu[8] = {0U, 2U, 0U, 0U, 0U, 2U, 1U, 0x03U};
+    TEST_ASSERT_FALSE(syn_modbus_tcp_process_slave(&mb, runt_fc03_adu, sizeof(runt_fc03_adu),
+                                                   resp_adu, sizeof(resp_adu), &resp_len));
+
     mb.buf_size = 2U;
     TEST_ASSERT_FALSE(
         syn_modbus_tcp_process_slave(&mb, req_adu, 12U, resp_adu, sizeof(resp_adu), &resp_len));

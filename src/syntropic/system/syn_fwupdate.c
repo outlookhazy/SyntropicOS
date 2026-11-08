@@ -322,6 +322,12 @@ SYN_Status syn_fwupdate_finish(SYN_FwUpdate *upd, uint32_t expected_crc,
     if (!upd->active || upd->error) {
         return SYN_ERROR;
     }
+#if defined(SYN_FW_USE_AES_GCM) && SYN_FW_USE_AES_GCM
+    if (upd->gcm_key_set) {
+        syn_fwupdate_abort(upd);
+        return SYN_ERROR;
+    }
+#endif
 
     SYN_Status st = flush_page(upd);
     if (st != SYN_OK) {

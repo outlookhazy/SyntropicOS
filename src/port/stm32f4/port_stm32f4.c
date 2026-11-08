@@ -1079,6 +1079,9 @@ SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
             FLASH->SR = FLASH_SR_ERR_MASK;
             FLASH->CR = 0UL;
             flash_lock();
+            if (i > 0U) {
+                flash_flush_art_cache();
+            }
             return (s != SYN_OK) ? s : SYN_ERROR;
         }
     }
