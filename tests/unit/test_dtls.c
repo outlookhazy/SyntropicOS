@@ -961,10 +961,23 @@ void test_dtls_round4_seq_wrap_cid_epoch_spill_and_auth(void)
     TEST_ASSERT_TRUE(syn_ed25519_sign(unk_cert + 3U, 107U, ca_sec, ca_pub, unk_cert + 120U));
 
     dtls_duplex_init(&dw, &c_io, &s_io, &c_tr, &s_tr, false);
+    /* DTLS-1: Non-PSK modes require >= 184B (SHA-256) or >= 200B (SHA-384) at syn_dtls_init */
+    TEST_ASSERT_FALSE(syn_dtls_init(&x509_ctx, &c_x509, &c_tr, g_dc_rx_buf, 183U, g_dc_tx_buf,
+                                    sizeof(g_dc_tx_buf)));
+    TEST_ASSERT_FALSE(syn_dtls_init(&x509_srv, &s_x509, &s_tr, g_ds_rx_buf, sizeof(g_ds_rx_buf),
+                                    g_ds_tx_buf, 183U));
+    SYN_DTLS_Config c_x509_384 = c_x509;
+    c_x509_384.cipher_suite = SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384;
+    TEST_ASSERT_FALSE(syn_dtls_init(&x509_ctx, &c_x509_384, &c_tr, g_dc_rx_buf, 199U, g_dc_tx_buf,
+                                    sizeof(g_dc_tx_buf)));
+    TEST_ASSERT_FALSE(syn_dtls_init(&x509_ctx, &c_x509_384, &c_tr, g_dc_rx_buf, sizeof(g_dc_rx_buf),
+                                    g_dc_tx_buf, 199U));
+
     TEST_ASSERT_TRUE(syn_dtls_init(&x509_ctx, &c_x509, &c_tr, g_dc_rx_buf, sizeof(g_dc_rx_buf),
                                    g_dc_tx_buf, sizeof(g_dc_tx_buf)));
     TEST_ASSERT_TRUE(syn_dtls_init(&x509_srv, &s_x509, &s_tr, g_ds_rx_buf, sizeof(g_ds_rx_buf),
-                                   g_ds_tx_buf, 140U));
+                                   g_ds_tx_buf, sizeof(g_ds_tx_buf)));
+    x509_srv.tx_buf_size = 140U;
     TEST_ASSERT_TRUE(syn_dtls_handshake(&x509_ctx));
     TEST_ASSERT_FALSE(syn_dtls_handshake(&x509_srv));
     TEST_ASSERT_EQUAL(SYN_DTLS_STATE_ERROR, x509_srv.state);

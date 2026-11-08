@@ -41,13 +41,13 @@ void test_usb_cdc_registration(void)
                                  .wLength = 0};
     uint8_t resp[16];
     uint16_t rlen = 0;
-    syn_usb_process_setup(&dev, &setup, resp, &rlen);
+    syn_usb_process_setup(&dev, &setup, resp, (uint16_t)sizeof(resp), &rlen);
     TEST_ASSERT_TRUE(cdc.configured);
 
     setup.bmRequestType = 0x21;
     setup.bRequest = SYN_USB_CDC_SET_CONTROL_LINE_STATE;
     setup.wValue = 0x03;
-    syn_usb_process_setup(&dev, &setup, resp, &rlen);
+    syn_usb_process_setup(&dev, &setup, resp, (uint16_t)sizeof(resp), &rlen);
 }
 
 void test_usb_cdc_setup_requests(void)
@@ -264,4 +264,16 @@ void test_tier_a_usb_cdc_regressions(void)
     dev.classes[0].data_out(&cdc, cdc.ep_out, extra, sizeof(extra));
     TEST_ASSERT_EQUAL_UINT16(128U, cdc.rx_len);
     TEST_ASSERT_EQUAL_UINT8(0xAAU, cdc.rx_buf[127]);
+
+    /* 3. USB-1: GET_LINE_CODING rejects resp_cap < 7U */
+    SYN_USB_SetupPacket lc_pkt = {.bmRequestType = 0xA1U,
+                                  .bRequest = SYN_USB_CDC_GET_LINE_CODING,
+                                  .wValue = 0U,
+                                  .wIndex = 0U,
+                                  .wLength = 7U};
+    uint8_t tiny_resp[4] = {0};
+    uint16_t rlen16 = 99U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_usb_process_setup(&dev, &lc_pkt, tiny_resp,
+                                                           (uint16_t)sizeof(tiny_resp), &rlen16));
+    TEST_ASSERT_EQUAL_UINT16(0U, rlen16);
 }

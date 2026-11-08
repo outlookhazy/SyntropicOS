@@ -287,8 +287,13 @@ void test_tls_task_protothread(void)
     SYN_Transport c_tr, s_tr;
     duplex_init(&dw, &c_io, &s_io, &c_tr, &s_tr, true);
 
-    SYN_TLS_Config c_cfg = {.mode = SYN_TLS_AUTH_MODE_PSK};
-    SYN_TLS_Config s_cfg = {.mode = SYN_TLS_AUTH_MODE_PSK, .is_server = true};
+    static const uint8_t pt_psk[32] = {0x31U, 0x32U, 0x33U, 0x34U};
+    SYN_TLS_Config c_cfg = {
+        .mode = SYN_TLS_AUTH_MODE_PSK, .psk_secret = pt_psk, .psk_secret_len = sizeof(pt_psk)};
+    SYN_TLS_Config s_cfg = {.mode = SYN_TLS_AUTH_MODE_PSK,
+                            .is_server = true,
+                            .psk_secret = pt_psk,
+                            .psk_secret_len = sizeof(pt_psk)};
 
     SYN_TLS_Context client, server;
     TEST_ASSERT_TRUE(syn_tls_init(&client, &c_cfg, &c_tr, g_c_rx_buf, sizeof(g_c_rx_buf),
@@ -342,8 +347,22 @@ void test_tls_null_and_bounds_checks(void)
 
     syn_tls_bind_transport(NULL, NULL);
 
+    /* TLS-3: PSK mode with NULL or 0-length psk_secret MUST fail closed */
+    SYN_TLS_Config null_psk_cfg = {
+        .mode = SYN_TLS_AUTH_MODE_PSK, .psk_secret = NULL, .psk_secret_len = 16U};
+    TEST_ASSERT_TRUE(syn_tls_init(&tls, &null_psk_cfg, &c_tr, g_c_rx_buf, sizeof(g_c_rx_buf),
+                                  g_c_tx_buf, sizeof(g_c_tx_buf)));
+    TEST_ASSERT_FALSE(syn_tls_handshake(&tls));
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, tls.state);
+
     uint8_t long_psk[64];
     memset(long_psk, 0xAA, sizeof(long_psk));
+    SYN_TLS_Config zero_len_psk_cfg = {
+        .mode = SYN_TLS_AUTH_MODE_PSK, .psk_secret = long_psk, .psk_secret_len = 0U};
+    TEST_ASSERT_TRUE(syn_tls_init(&tls, &zero_len_psk_cfg, &c_tr, g_c_rx_buf, sizeof(g_c_rx_buf),
+                                  g_c_tx_buf, sizeof(g_c_tx_buf)));
+    TEST_ASSERT_FALSE(syn_tls_handshake(&tls));
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, tls.state);
     SYN_TLS_Config psk_cfg = {
         .mode = SYN_TLS_AUTH_MODE_PSK, .psk_secret = long_psk, .psk_secret_len = sizeof(long_psk)};
     SYN_TLS_Config srv_psk_cfg = psk_cfg;

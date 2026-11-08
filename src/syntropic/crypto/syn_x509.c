@@ -610,10 +610,42 @@ bool syn_x509_parse(const uint8_t *der, size_t der_len, SYN_X509_Cert *cert_out)
     return parse_outer_sig_fields(cert_cur, cert_len, tbs_sig_algo, cert_out);
 }
 
+/**
+ * @brief Verify an ECDSA-P256 SHA-256 certificate signature against raw or 0x04-prefixed key.
+ * @param cert              Parsed child certificate.
+ * @param issuer_pubkey     64-byte raw (X||Y) or 65-byte uncompressed (0x04||X||Y) public key.
+ * @param issuer_pubkey_len Length of @p issuer_pubkey in bytes.
+ * @return true if ECDSA-P256 signature verifies over `cert->tbs_bytes`.
+ */
+static bool verify_ecdsa_p256_cert(const SYN_X509_Cert *cert, const uint8_t *issuer_pubkey,
+                                   size_t issuer_pubkey_len)
+{
+    const uint8_t *px = issuer_pubkey;
+    const uint8_t *py = issuer_pubkey + 32;
+    if (issuer_pubkey_len == 65U && issuer_pubkey[0] == 0x04U) {
+        px = issuer_pubkey + 1;
+        py = issuer_pubkey + 33;
+    } else if (issuer_pubkey_len != 64U) {
+        return false;
+    }
+
+    uint8_t r32[32];
+    uint8_t s32[32];
+    if (!decode_ecdsa_sig(cert->signature, cert->signature_len, r32, s32)) {
+        return false;
+    }
+
+    uint8_t hash[SYN_SHA256_DIGEST_SIZE];
+    syn_sha256(cert->tbs_bytes, cert->tbs_len, hash);
+
+    return syn_p256_verify_ecdsa(hash, r32, s32, px, py);
+}
+
 bool syn_x509_verify_signature(const SYN_X509_Cert *cert, const uint8_t *issuer_pubkey,
                                size_t issuer_pubkey_len, SYN_X509_Algo algo)
 {
-    if (cert == NULL || issuer_pubkey == NULL || cert->tbs_bytes == NULL || cert->tbs_len == 0U) {
+    if (cert == NULL || issuer_pubkey == NULL || cert->tbs_bytes == NULL || cert->tbs_len == 0U ||
+        cert->sig_algo != algo) {
         return false;
     }
 
@@ -626,25 +658,7 @@ bool syn_x509_verify_signature(const SYN_X509_Cert *cert, const uint8_t *issuer_
     }
 
     if (algo == SYN_X509_ALGO_ECDSA_P256) {
-        const uint8_t *px = issuer_pubkey;
-        const uint8_t *py = issuer_pubkey + 32;
-        if (issuer_pubkey_len == 65U && issuer_pubkey[0] == 0x04U) {
-            px = issuer_pubkey + 1;
-            py = issuer_pubkey + 33;
-        } else if (issuer_pubkey_len != 64U) {
-            return false;
-        }
-
-        uint8_t r32[32];
-        uint8_t s32[32];
-        if (!decode_ecdsa_sig(cert->signature, cert->signature_len, r32, s32)) {
-            return false;
-        }
-
-        uint8_t hash[SYN_SHA256_DIGEST_SIZE];
-        syn_sha256(cert->tbs_bytes, cert->tbs_len, hash);
-
-        return syn_p256_verify_ecdsa(hash, r32, s32, px, py);
+        return verify_ecdsa_p256_cert(cert, issuer_pubkey, issuer_pubkey_len);
     }
 
     return false;

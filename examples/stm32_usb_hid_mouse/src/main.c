@@ -57,12 +57,12 @@ void HAL_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd)
         SYN_USB_SetupPacket pkt;
         memcpy(&pkt, hpcd->Setup, sizeof(pkt));
 
-        uint8_t  resp[64];
         uint16_t rlen = 0;
 
-        if (syn_usb_process_setup(&usb_dev, &pkt, resp, &rlen) == SYN_OK) {
+        if (syn_usb_process_setup(&usb_dev, &pkt, usb_dev.ep0_buf,
+                                  (uint16_t)sizeof(usb_dev.ep0_buf), &rlen) == SYN_OK) {
             if (rlen > 0) {
-                HAL_PCD_EP_Transmit(hpcd, 0x00, resp, rlen);
+                HAL_PCD_EP_Transmit(hpcd, 0x00, usb_dev.ep0_buf, rlen);
             }
         } else {
             HAL_PCD_EP_SetStall(hpcd, 0x00);

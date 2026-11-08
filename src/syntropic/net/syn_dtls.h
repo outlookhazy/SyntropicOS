@@ -208,6 +208,11 @@ void syn_dtls_replay_update(SYN_DTLS_ReplayWindow *win, uint64_t seq);
 /**
  * @brief Initialize DTLS 1.3 engine context with caller-allocated memory.
  *
+ * Minimum buffer capacity (`rx_buf_size` and `tx_buf_size`):
+ * - `140` bytes in PSK mode (`SYN_DTLS_AUTH_MODE_PSK`)
+ * - `184` bytes in RPK / X.509 / mTLS modes with SHA-256 cipher suites
+ * - `200` bytes in RPK / X.509 / mTLS modes with `SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384`
+ *
  * @param ctx         Context to initialize.
  * @param config      Engine configuration.
  * @param transport   Underlying transport (UDP, Socket, Serial).
@@ -215,7 +220,7 @@ void syn_dtls_replay_update(SYN_DTLS_ReplayWindow *win, uint64_t seq);
  * @param rx_buf_size Size of rx_buf in bytes.
  * @param tx_buf      Caller-allocated buffer for outgoing datagrams.
  * @param tx_buf_size Size of tx_buf in bytes.
- * @return true on success, false on invalid parameters.
+ * @return true on success, false on invalid parameters or insufficient buffer size.
  */
 bool syn_dtls_init(SYN_DTLS_Context *ctx, const SYN_DTLS_Config *config, SYN_Transport *transport,
                    uint8_t *rx_buf, size_t rx_buf_size, uint8_t *tx_buf, size_t tx_buf_size);

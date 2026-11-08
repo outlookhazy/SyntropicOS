@@ -21,6 +21,18 @@
 static uint8_t page_buf[256];
 static SYN_FwUpdate upd;
 
+static bool sign_fw_ed25519(const uint8_t *fw, size_t fw_len, uint32_t version_code,
+                            const uint8_t seckey[32], const uint8_t pubkey[32], uint8_t sig[64])
+{
+    uint8_t msg[512U + SYN_FWIMAGE_AUTH_META_SIZE];
+    if (fw_len > 512U) {
+        return false;
+    }
+    memcpy(msg, fw, fw_len);
+    syn_fwimage_encode_auth_meta(version_code, (uint32_t)fw_len, msg + fw_len);
+    return syn_ed25519_sign(msg, fw_len + SYN_FWIMAGE_AUTH_META_SIZE, seckey, pubkey, sig);
+}
+
 void test_ed25519_fwupdate_roundtrip(void)
 {
     /* Generate Ed25519 keypair */
@@ -38,7 +50,7 @@ void test_ed25519_fwupdate_roundtrip(void)
 
     uint32_t crc = syn_crc32_final(syn_crc32_update(SYN_CRC32_INIT, firmware, sizeof(firmware)));
     uint8_t sig[64];
-    TEST_ASSERT_TRUE(syn_ed25519_sign(firmware, sizeof(firmware), seckey, pubkey, sig));
+    TEST_ASSERT_TRUE(sign_fw_ed25519(firmware, sizeof(firmware), 0x00020000U, seckey, pubkey, sig));
 
     /* Begin update and configure public key */
     memset(&upd, 0, sizeof(upd));
@@ -95,7 +107,7 @@ void test_ed25519_fwupdate_signature_mismatch_fails(void)
 
     uint32_t crc = syn_crc32_final(syn_crc32_update(SYN_CRC32_INIT, firmware, sizeof(firmware)));
     uint8_t sig[64];
-    TEST_ASSERT_TRUE(syn_ed25519_sign(firmware, sizeof(firmware), seckey, pubkey, sig));
+    TEST_ASSERT_TRUE(sign_fw_ed25519(firmware, sizeof(firmware), 0x00020000U, seckey, pubkey, sig));
 
     /* Corrupt signature */
     sig[0] ^= 0x01;
@@ -138,7 +150,7 @@ void test_ed25519_fwupdate_wrong_public_key_fails(void)
     memset(firmware, 0x77, sizeof(firmware));
     uint32_t crc = syn_crc32_final(syn_crc32_update(SYN_CRC32_INIT, firmware, sizeof(firmware)));
     uint8_t sig[64];
-    TEST_ASSERT_TRUE(syn_ed25519_sign(firmware, sizeof(firmware), sec1, pub1, sig));
+    TEST_ASSERT_TRUE(sign_fw_ed25519(firmware, sizeof(firmware), 0x00020000U, sec1, pub1, sig));
 
     /* Configure with pubkey2 (wrong key) */
     memset(&upd, 0, sizeof(upd));
@@ -234,7 +246,7 @@ static void test_r5_ed25519_null_sig_and_boot_confirm_intact(void)
 
     /* 2. R5-S01: Ed25519 signature + payload CRC remain intact across select + confirm */
     uint8_t sig[64];
-    TEST_ASSERT_TRUE(syn_ed25519_sign(firmware, sizeof(firmware), seckey, pubkey, sig));
+    TEST_ASSERT_TRUE(sign_fw_ed25519(firmware, sizeof(firmware), 0x00020200U, seckey, pubkey, sig));
     memset(mock_flash, 0xAA, sizeof(mock_flash));
     memset(&upd, 0, sizeof(upd));
     TEST_ASSERT_EQUAL_INT(
@@ -261,6 +273,24 @@ static void test_r5_ed25519_null_sig_and_boot_confirm_intact(void)
     TEST_ASSERT_NOT_NULL(confirmed_hdr);
     TEST_ASSERT_EQUAL(SYN_FW_STATE_CONFIRMED, confirmed_hdr->state);
     TEST_ASSERT_TRUE(syn_fwimage_verify_signature(confirmed_hdr, SLOT_ADDR, pubkey));
+
+    /* SYS-03: Mutating version_code or image_size and re-sealing header_crc must fail Ed25519 */
+    SYN_FwImageHeader tampered_hdr = *confirmed_hdr;
+    tampered_hdr.version_code = 0x00010000U;
+    syn_fwimage_seal_header(&tampered_hdr);
+    TEST_ASSERT_TRUE(syn_fwimage_header_valid(&tampered_hdr));
+    TEST_ASSERT_FALSE(syn_fwimage_verify_signature(&tampered_hdr, SLOT_ADDR, pubkey));
+
+    /* Also reject mismatched version_code at syn_fwupdate_finish time */
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_fwupdate_begin(&upd, SLOT_B_ADDR, SLOT_SIZE, page_buf, sizeof(page_buf)));
+    syn_fwupdate_set_public_key(&upd, pubkey);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_fwupdate_write(&upd, firmware, sizeof(firmware)));
+#if defined(SYN_FW_USE_HMAC) && SYN_FW_USE_HMAC
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_fwupdate_finish(&upd, crc, NULL, sig, 0x00090000U));
+#else
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_fwupdate_finish(&upd, crc, sig, 0x00090000U));
+#endif
 #endif
 
     mock_port_reset();

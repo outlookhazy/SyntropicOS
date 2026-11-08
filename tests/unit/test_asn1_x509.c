@@ -304,11 +304,17 @@ void test_x509_cert_parse_and_chain(void)
     TEST_ASSERT_FALSE(syn_x509_parse(tbs_t6, sizeof(tbs_t6), &trunc_cert));
     TEST_ASSERT_FALSE(syn_x509_parse(tbs_t7, sizeof(tbs_t7), &trunc_cert));
     TEST_ASSERT_FALSE(syn_x509_parse(tbs_t8, sizeof(tbs_t8), &trunc_cert));
-    SYN_X509_Cert v_cert = {
-        .tbs_bytes = dummy_der, .tbs_len = sizeof(dummy_der), .signature_len = 64};
+    SYN_X509_Cert v_cert = {.tbs_bytes = dummy_der,
+                            .tbs_len = sizeof(dummy_der),
+                            .sig_algo = SYN_X509_ALGO_ED25519,
+                            .signature_len = 64};
     uint8_t dummy_key[32] = {0};
     syn_x509_verify_signature(&v_cert, dummy_key, 32, SYN_X509_ALGO_ED25519);
+    TEST_ASSERT_FALSE(syn_x509_verify_signature(&v_cert, dummy_key, 32, SYN_X509_ALGO_ECDSA_P256));
     TEST_ASSERT_FALSE(syn_x509_verify_signature(&v_cert, dummy_key, 32, (SYN_X509_Algo)999));
+    v_cert.sig_algo = SYN_X509_ALGO_UNKNOWN;
+    TEST_ASSERT_FALSE(syn_x509_verify_signature(&v_cert, dummy_key, 32, SYN_X509_ALGO_UNKNOWN));
+    v_cert.sig_algo = SYN_X509_ALGO_ED25519;
     TEST_ASSERT_FALSE(syn_x509_verify_signature(&v_cert, dummy_key, 10, SYN_X509_ALGO_ED25519));
     v_cert.signature_len = 10;
     TEST_ASSERT_FALSE(syn_x509_verify_signature(&v_cert, dummy_key, 32, SYN_X509_ALGO_ED25519));

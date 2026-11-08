@@ -71,7 +71,7 @@ SYN_Status syn_usb_cdc_register(SYN_USB_Device *dev, SYN_USB_CDC *cdc);
  *
  * @param cdc   Pointer to USB CDC instance.
  * @param setup Pointer to setup packet.
- * @param resp  Pointer to response buffer.
+ * @param resp  Pointer to response buffer (at least 7 bytes for `SYN_USB_CDC_GET_LINE_CODING`).
  * @param rlen  Pointer to receive response length.
  * @return SYN_OK on success.
  */

@@ -84,11 +84,11 @@ extern "C" {
 /**@}*/
 
 #ifndef SYN_BLE_HCI_RX_BUF_SIZE
-#define SYN_BLE_HCI_RX_BUF_SIZE 256U /**< HCI RX packet reassembly capacity */
+#define SYN_BLE_HCI_RX_BUF_SIZE 260U /**< HCI RX packet capacity (4B ACL + 256B L2CAP) */
 #endif
 
 #ifndef SYN_BLE_HCI_TX_BUF_SIZE
-#define SYN_BLE_HCI_TX_BUF_SIZE 256U /**< HCI TX packet capacity */
+#define SYN_BLE_HCI_TX_BUF_SIZE 261U /**< HCI TX packet capacity (1B H:4 + 4B ACL + 256B L2CAP) */
 #endif
 
 typedef struct SYN_BLE_HCI_s SYN_BLE_HCI;

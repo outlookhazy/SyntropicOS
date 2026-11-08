@@ -28,6 +28,7 @@
 #include "../util/syn_crc.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -38,6 +39,9 @@ extern "C" {
 
 /** @brief Magic number identifying a SyntropicOS firmware image header ("SYNF"). */
 #define SYN_FW_MAGIC 0x53594E46u /* "SYNF" in little-endian */
+
+/** @brief Byte size of canonical authenticated firmware metadata (magic || version || size). */
+#define SYN_FWIMAGE_AUTH_META_SIZE 12U
 
 /* ── Image state ────────────────────────────────────────────────────────── */
 
@@ -67,10 +71,10 @@ typedef struct {
     uint8_t state;         /**< SYN_FwState                           */
     uint8_t reserved[3];   /**< Pad to 4-byte alignment               */
 #if defined(SYN_FW_USE_HMAC) && SYN_FW_USE_HMAC
-    uint8_t image_hmac[32]; /**< HMAC-SHA256 over the firmware binary  */
+    uint8_t image_hmac[32]; /**< HMAC-SHA256 over firmware binary + canonical metadata */
 #endif
 #if defined(SYN_FW_USE_ED25519) && SYN_FW_USE_ED25519
-    uint8_t image_sig[64]; /**< Ed25519 digital signature over the firmware binary */
+    uint8_t image_sig[64]; /**< Ed25519 signature over firmware binary + canonical metadata */
 #endif
     uint32_t header_crc; /**< CRC-32 over all preceding fields      */
 } SYN_FwImageHeader;
@@ -144,12 +148,39 @@ static inline bool syn_fwimage_is_bootable(const SYN_FwImageHeader *hdr)
             hdr->state == SYN_FW_STATE_CONFIRMED);
 }
 
+/**
+ * @brief Encode canonical 12-byte firmware metadata for cryptographic binding.
+ *
+ * Encodes little-endian `SYN_FW_MAGIC (4B) || version_code (4B) || image_size (4B)`.
+ * Appended to HMAC-SHA256 and Ed25519 message streams and supplied as AES-GCM AAD
+ * so header version or payload length tampering cannot bypass verification.
+ *
+ * @param version_code  Packed firmware version code.
+ * @param image_size    Firmware binary payload size in bytes (excluding header).
+ * @param out_meta      Output 12-byte metadata buffer.
+ */
+static inline void syn_fwimage_encode_auth_meta(uint32_t version_code, uint32_t image_size,
+                                                uint8_t out_meta[SYN_FWIMAGE_AUTH_META_SIZE])
+{
+    uint32_t fields[3];
+    fields[0] = SYN_FW_MAGIC;
+    fields[1] = version_code;
+    fields[2] = image_size;
+    for (size_t i = 0U; i < 3U; i++) {
+        out_meta[i * 4U + 0U] = (uint8_t)(fields[i] & 0xFFU);
+        out_meta[i * 4U + 1U] = (uint8_t)((fields[i] >> 8U) & 0xFFU);
+        out_meta[i * 4U + 2U] = (uint8_t)((fields[i] >> 16U) & 0xFFU);
+        out_meta[i * 4U + 3U] = (uint8_t)((fields[i] >> 24U) & 0xFFU);
+    }
+}
+
 #if defined(SYN_FW_USE_ED25519) && SYN_FW_USE_ED25519
 /**
  * @brief Verify the Ed25519 digital signature of a firmware image stored in flash.
  *
- * Reads the firmware binary in chunks from flash and verifies against
- * hdr->image_sig using the provided Ed25519 public key.
+ * Streams the firmware binary from flash followed by the canonical 12-byte
+ * authenticated metadata (`syn_fwimage_encode_auth_meta`) and verifies against
+ * `hdr->image_sig` using the provided Ed25519 public key.
  *
  * @param hdr         Validated image header.
  * @param slot_addr   Flash base address of the slot.

@@ -146,6 +146,11 @@ static uint8_t gcm_decrypt_byte(SYN_FwUpdate *upd, uint8_t ct_byte)
  */
 static SYN_Status gcm_write_stream(SYN_FwUpdate *upd, const uint8_t *data, size_t len)
 {
+    if (!upd->gcm_meta_bound) {
+        upd->error = true;
+        return SYN_ERROR;
+    }
+
     uint8_t dec_chunk[256] = {0};
     size_t ct_offset = 0U;
     while (ct_offset < len) {
@@ -329,6 +334,9 @@ SYN_Status syn_fwupdate_finish(SYN_FwUpdate *upd, uint32_t expected_crc,
 #if defined(SYN_FW_USE_HMAC) && SYN_FW_USE_HMAC
     uint8_t computed_hmac[32] = {0};
     if (upd->key_set) {
+        uint8_t auth_meta[SYN_FWIMAGE_AUTH_META_SIZE];
+        syn_fwimage_encode_auth_meta(version_code, upd->bytes_written, auth_meta);
+        syn_hmac_sha256_update(&upd->hmac_ctx, auth_meta, sizeof(auth_meta));
         syn_hmac_sha256_final(&upd->hmac_ctx, computed_hmac);
     }
 #endif
@@ -463,6 +471,10 @@ bool syn_fwimage_verify_signature(const SYN_FwImageHeader *hdr, uint32_t slot_ad
         remaining -= to_read;
     }
 
+    uint8_t auth_meta[SYN_FWIMAGE_AUTH_META_SIZE];
+    syn_fwimage_encode_auth_meta(hdr->version_code, hdr->image_size, auth_meta);
+    syn_sha512_update(&hash_ctx, auth_meta, sizeof(auth_meta));
+
     uint8_t h[64];
     syn_sha512_final(&hash_ctx, h);
 
@@ -506,15 +518,94 @@ SYN_Status syn_fwupdate_set_aes_gcm_key(SYN_FwUpdate *upd, const uint8_t *key, s
     memset(upd->gcm_stream_buf, 0, 16);
     upd->gcm_stream_used = 0;
     upd->gcm_total_bytes = 0;
+    upd->gcm_bound_version = 0U;
+    upd->gcm_bound_size = 0U;
     upd->gcm_key_set = true;
+    upd->gcm_meta_bound = false;
 
     return SYN_OK;
+}
+
+SYN_Status syn_fwupdate_bind_aes_gcm_meta(SYN_FwUpdate *upd, uint32_t version_code,
+                                          uint32_t image_size)
+{
+    if (upd == NULL) {
+        return SYN_INVALID_PARAM;
+    }
+    if (!upd->active || upd->error || !upd->gcm_key_set || upd->gcm_total_bytes > 0ULL ||
+        upd->gcm_meta_bound) {
+        return SYN_ERROR;
+    }
+
+    uint8_t aad_block[16] = {0};
+    syn_fwimage_encode_auth_meta(version_code, image_size, aad_block);
+    memcpy(upd->gcm_s, aad_block, sizeof(aad_block));
+    syn_aes_ghash_mult(upd->gcm_s, upd->gcm_h, upd->gcm_s);
+    upd->gcm_bound_version = version_code;
+    upd->gcm_bound_size = image_size;
+    upd->gcm_meta_bound = true;
+    return SYN_OK;
+}
+
+/**
+ * @brief Check whether @p upd is in a valid state to finalize an AES-GCM update.
+ * @param upd  Firmware update context.
+ * @return true if active, error-free, key-configured, and metadata-bound.
+ */
+static bool gcm_ctx_ready(const SYN_FwUpdate *upd)
+{
+    return (upd != NULL && upd->active && !upd->error && upd->gcm_key_set && upd->gcm_meta_bound);
+}
+
+/**
+ * @brief Finalize running GHASH over AAD + ciphertext and verify constant-time GCM tag.
+ * @param upd           Firmware update context.
+ * @param expected_tag  Expected 16-byte authentication tag.
+ * @return true if tag matches, false otherwise.
+ */
+static bool gcm_verify_final_tag(SYN_FwUpdate *upd, const uint8_t expected_tag[16])
+{
+    if (upd->gcm_partial_used > 0U) {
+        for (uint8_t i = upd->gcm_partial_used; i < 16U; i++) {
+            upd->gcm_partial_ct[i] = 0U;
+        }
+        for (int j = 0; j < 16; j++) {
+            upd->gcm_s[j] ^= upd->gcm_partial_ct[j];
+        }
+        syn_aes_ghash_mult(upd->gcm_s, upd->gcm_h, upd->gcm_s);
+        upd->gcm_partial_used = 0U;
+    }
+
+    /* Length block: [len(AAD)*8 = 96 (64-bit BE)] || [len(CT)*8 (64-bit BE)] */
+    uint8_t len_block[16] = {0};
+    len_block[7] = (uint8_t)(SYN_FWIMAGE_AUTH_META_SIZE * 8U);
+    uint64_t ct_bits = upd->gcm_total_bytes * 8ULL;
+    for (int i = 0; i < 8; i++) {
+        len_block[15 - i] = (uint8_t)((ct_bits >> (i * 8)) & 0xFFU);
+    }
+    for (int j = 0; j < 16; j++) {
+        upd->gcm_s[j] ^= len_block[j];
+    }
+    syn_aes_ghash_mult(upd->gcm_s, upd->gcm_h, upd->gcm_s);
+
+    uint8_t tag_mask[16];
+    syn_aes_encrypt_block(&upd->gcm_aes, upd->gcm_j0, tag_mask);
+
+    uint8_t computed_tag[16];
+    uint8_t diff = 0U;
+    for (int j = 0; j < 16; j++) {
+        computed_tag[j] = (uint8_t)(upd->gcm_s[j] ^ tag_mask[j]);
+        diff |= (uint8_t)(computed_tag[j] ^ expected_tag[j]);
+    }
+    fwupdate_secure_zero(tag_mask, sizeof(tag_mask));
+    fwupdate_secure_zero(computed_tag, sizeof(computed_tag));
+    return (diff == 0U);
 }
 
 SYN_Status syn_fwupdate_finish_gcm(SYN_FwUpdate *upd, const uint8_t expected_tag[16],
                                    uint32_t version_code)
 {
-    if (upd == NULL || expected_tag == NULL || !upd->active || upd->error || !upd->gcm_key_set) {
+    if (!gcm_ctx_ready(upd) || expected_tag == NULL) {
         return SYN_ERROR;
     }
 
@@ -525,43 +616,9 @@ SYN_Status syn_fwupdate_finish_gcm(SYN_FwUpdate *upd, const uint8_t expected_tag
         return st;
     }
 
-    /* Finalize partial GHASH block if any */
-    if (upd->gcm_partial_used > 0) {
-        for (uint8_t i = upd->gcm_partial_used; i < 16U; i++) {
-            upd->gcm_partial_ct[i] = 0;
-        }
-        for (int j = 0; j < 16; j++) {
-            upd->gcm_s[j] ^= upd->gcm_partial_ct[j];
-        }
-        syn_aes_ghash_mult(upd->gcm_s, upd->gcm_h, upd->gcm_s);
-        upd->gcm_partial_used = 0;
-    }
-
-    /* Length block: [len(AAD)*8 = 0 (64-bit)] || [len(CT)*8 (64-bit)] */
-    uint8_t len_block[16] = {0};
-    uint64_t ct_bits = upd->gcm_total_bytes * 8ULL;
-    for (int i = 0; i < 8; i++) {
-        len_block[15 - i] = (uint8_t)((ct_bits >> (i * 8)) & 0xFF);
-    }
-    for (int j = 0; j < 16; j++) {
-        upd->gcm_s[j] ^= len_block[j];
-    }
-    syn_aes_ghash_mult(upd->gcm_s, upd->gcm_h, upd->gcm_s);
-
-    /* Encrypt J0 for tag mask */
-    uint8_t tag_mask[16];
-    syn_aes_encrypt_block(&upd->gcm_aes, upd->gcm_j0, tag_mask);
-
-    uint8_t computed_tag[16];
-    uint8_t diff = 0;
-    for (int j = 0; j < 16; j++) {
-        computed_tag[j] = (uint8_t)(upd->gcm_s[j] ^ tag_mask[j]);
-        diff |= (uint8_t)(computed_tag[j] ^ expected_tag[j]);
-    }
-    fwupdate_secure_zero(tag_mask, sizeof(tag_mask));
-    fwupdate_secure_zero(computed_tag, sizeof(computed_tag));
-
-    if (diff != 0) {
+    bool meta_ok =
+        (version_code == upd->gcm_bound_version) && (upd->bytes_written == upd->gcm_bound_size);
+    if (!gcm_verify_final_tag(upd, expected_tag) || !meta_ok) {
         syn_fwupdate_abort(upd);
         return SYN_ERROR;
     }
@@ -574,6 +631,15 @@ SYN_Status syn_fwupdate_finish_gcm(SYN_FwUpdate *upd, const uint8_t expected_tag
     hdr.image_size = upd->bytes_written;
     hdr.image_crc = syn_crc32_final(upd->crc_state);
     hdr.state = SYN_FW_STATE_NEW;
+
+#if defined(SYN_FW_USE_HMAC) && SYN_FW_USE_HMAC
+    if (upd->key_set) {
+        uint8_t auth_meta[SYN_FWIMAGE_AUTH_META_SIZE];
+        syn_fwimage_encode_auth_meta(version_code, upd->bytes_written, auth_meta);
+        syn_hmac_sha256_update(&upd->hmac_ctx, auth_meta, sizeof(auth_meta));
+        syn_hmac_sha256_final(&upd->hmac_ctx, hdr.image_hmac);
+    }
+#endif
 
     syn_fwimage_seal_header(&hdr);
 

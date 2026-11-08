@@ -212,7 +212,7 @@ static bool derive_tls13_hs_secrets(SYN_TLS_Context *ctx)
     memset(buf1, 0, sizeof(buf1));
     size_t copy_len = hash_len;
 
-    if (ctx->config.mode == SYN_TLS_AUTH_MODE_PSK && ctx->config.psk_secret != NULL) {
+    if (ctx->config.mode == SYN_TLS_AUTH_MODE_PSK) {
         copy_len = ctx->config.psk_secret_len;
         if (copy_len > SYN_TLS_SECRET_LEN) {
             copy_len = SYN_TLS_SECRET_LEN;
@@ -448,6 +448,9 @@ static bool tls_record_decrypt(SYN_TLS_Context *ctx, const uint8_t *key, const u
  */
 static bool tls_verify_local_auth(const SYN_TLS_Context *ctx)
 {
+    if (ctx->config.mode == SYN_TLS_AUTH_MODE_PSK) {
+        return (ctx->config.psk_secret != NULL) && (ctx->config.psk_secret_len > 0U);
+    }
     if (ctx->config.mode == SYN_TLS_AUTH_MODE_RAW_PUBKEY) {
         if (ctx->config.is_server) {
             return ctx->config.client_privkey != NULL;

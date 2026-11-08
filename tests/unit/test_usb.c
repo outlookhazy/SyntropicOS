@@ -18,10 +18,10 @@ static const uint8_t TEST_DEVICE_DESC[18] = {0x12, 0x01, 0x00, 0x02, 0x00, 0x00,
 
 /* Test Class Setup Callback */
 static SYN_Status test_class_setup(void *ctx, const SYN_USB_SetupPacket *pkt, uint8_t *resp,
-                                   uint16_t *rlen)
+                                   uint16_t resp_cap, uint16_t *rlen)
 {
     (void)ctx;
-    if (pkt->bRequest == 0x77) {
+    if (pkt->bRequest == 0x77 && resp_cap >= 1U) {
         resp[0] = 0xAA;
         *rlen = 1;
         return SYN_OK;
@@ -50,18 +50,21 @@ void test_usb_set_address_and_config(void)
     uint8_t resp[64];
     uint16_t rlen = 0;
 
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT8(10, dev.dev_address);
     TEST_ASSERT_EQUAL_UINT8(SYN_USB_STATE_ADDRESS, dev.state);
 
     pkt.bRequest = SYN_USB_REQ_SET_CONFIGURATION;
     pkt.wValue = 1;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT8(SYN_USB_STATE_CONFIGURED, dev.state);
     TEST_ASSERT_TRUE(syn_usb_is_configured(&dev));
 
     pkt.bRequest = SYN_USB_REQ_GET_CONFIGURATION;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(1, rlen);
     TEST_ASSERT_EQUAL_UINT8(1, resp[0]);
 }
@@ -79,30 +82,34 @@ void test_usb_get_descriptors(void)
                                .wValue = (SYN_USB_DESC_TYPE_DEVICE << 8),
                                .wIndex = 0,
                                .wLength = 18};
-    uint8_t resp[64];
+    uint8_t resp[SYN_USB_EP0_BUF_SIZE];
     uint16_t rlen = 0;
 
     /* Get Device Descriptor */
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(18, rlen);
     TEST_ASSERT_EQUAL_MEMORY(TEST_DEVICE_DESC, resp, 18);
 
     /* Get Config Descriptor */
     pkt.wValue = (SYN_USB_DESC_TYPE_CONFIGURATION << 8);
     pkt.wLength = 256;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(9, rlen);
 
     /* Get String Descriptor */
     pkt.wValue = (SYN_USB_DESC_TYPE_STRING << 8);
     pkt.wLength = 4;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(4, rlen);
     TEST_ASSERT_EQUAL_MEMORY(str0, resp, 4);
 
     /* Get Status */
     pkt.bRequest = SYN_USB_REQ_GET_STATUS;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(2, rlen);
     TEST_ASSERT_EQUAL_UINT8(0x01, resp[0]);
 }
@@ -134,7 +141,8 @@ void test_usb_class_registration_and_routing(void)
     uint8_t resp[16];
     uint16_t rlen = 0;
 
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(1, rlen);
     TEST_ASSERT_EQUAL_UINT8(0xAA, resp[0]);
 }
@@ -156,7 +164,8 @@ void test_usb_raw_config_override(void)
     uint8_t resp[16];
     uint16_t rlen = 0;
 
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(9, rlen);
     TEST_ASSERT_EQUAL_MEMORY(raw_config, resp, 9);
 }
@@ -167,7 +176,7 @@ void test_usb_null_checks(void)
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_usb_register_class(NULL, NULL, NULL, 0));
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_usb_set_string_desc(NULL, 0, NULL));
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_usb_set_raw_config_desc(NULL, NULL, 0));
-    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_usb_process_setup(NULL, NULL, NULL, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_usb_process_setup(NULL, NULL, NULL, 0U, NULL));
     TEST_ASSERT_FALSE(syn_usb_is_configured(NULL));
 
     SYN_USB_Device dev;
@@ -188,13 +197,13 @@ void test_usb_null_checks(void)
         .bmRequestType = 0, .bRequest = SYN_USB_REQ_SET_ADDRESS, .wValue = 0};
     uint8_t resp[16];
     uint16_t rlen = 0;
-    syn_usb_process_setup(&dev, &pkt, resp, &rlen);
+    syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen);
     TEST_ASSERT_EQUAL_INT(SYN_USB_STATE_DEFAULT, dev.state);
 
     /* SET_CONFIGURATION 0 -> ADDRESS state */
     pkt.bRequest = SYN_USB_REQ_SET_CONFIGURATION;
     pkt.wValue = 0;
-    syn_usb_process_setup(&dev, &pkt, resp, &rlen);
+    syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen);
     TEST_ASSERT_EQUAL_INT(SYN_USB_STATE_ADDRESS, dev.state);
 
     /* String desc request wLength truncation & invalid index */
@@ -203,15 +212,18 @@ void test_usb_null_checks(void)
     pkt.bRequest = SYN_USB_REQ_GET_DESCRIPTOR;
     pkt.wValue = (SYN_USB_DESC_TYPE_STRING << 8) | 0;
     pkt.wLength = 2;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(2, rlen);
 
     pkt.wValue = (SYN_USB_DESC_TYPE_STRING << 8) | 10;
-    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
 
     /* Unknown bRequest */
     pkt.bRequest = 0xFF;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
 }
 
 void test_r5_usb_regressions(void)
@@ -275,17 +287,19 @@ void test_r5_usb_regressions(void)
     TEST_ASSERT_EQUAL_UINT8(5U, dev.config_buf[midi_off + 20U]);
 
     /* Verify setup packet routing to each composite interface + unmatched fallback */
-    uint8_t resp[64];
+    uint8_t resp[SYN_USB_EP0_BUF_SIZE];
     uint16_t rlen = 0U;
     SYN_USB_SetupPacket pkt = {
         .bmRequestType = 0xA1U, .bRequest = 0xFEU, .wValue = 0U, .wIndex = 0U, .wLength = 1U};
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(1U, rlen);
 
     pkt.bRequest = SYN_USB_CDC_GET_LINE_CODING;
     pkt.wIndex = 1U;
     pkt.wLength = 7U;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(7U, rlen);
 
     pkt.bmRequestType = 0x81U;
@@ -293,14 +307,16 @@ void test_r5_usb_regressions(void)
     pkt.wValue = (uint16_t)(0x22U << 8);
     pkt.wIndex = 3U;
     pkt.wLength = sizeof(hid_rep_desc);
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(sizeof(hid_rep_desc), rlen);
 
     /* Unmatched interface falls through to standard handler */
     pkt.bmRequestType = 0x21U;
     pkt.bRequest = 0x99U;
     pkt.wIndex = 99U;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
 
     /* Endpoint allocator edge cases & exhaustion rollback */
     uint8_t ep_out = 0U;
@@ -345,24 +361,42 @@ void test_tier_a_usb_regressions(void)
                                .wValue = 0U,
                                .wIndex = 0U,
                                .wLength = 2U};
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(2U, rlen);
     TEST_ASSERT_EQUAL_UINT8(0x00U, resp[0]);
     TEST_ASSERT_EQUAL_UINT8(0x00U, resp[1]);
 
     /* Standard GET_STATUS to Endpoint (0x82) returns 0x0000; Device (0x80) returns 0x0001 */
     pkt.bmRequestType = 0x82U;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT8(0x00U, resp[0]);
 
     pkt.bmRequestType = 0x80U;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT8(0x01U, resp[0]);
 
     /* Vendor request to interface (0x41) is not misrouted to CDC class setup */
     pkt.bmRequestType = 0x41U;
     pkt.bRequest = SYN_USB_CDC_GET_LINE_CODING;
     pkt.wLength = 7U;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(0U, rlen);
+
+    /* USB-1: 75-byte CDC config descriptor rejected on 64B buffer, fits dev.ep0_buf (256B) */
+    uint8_t small_ep0[64];
+    pkt.bmRequestType = 0x80U;
+    pkt.bRequest = SYN_USB_REQ_GET_DESCRIPTOR;
+    pkt.wValue = (uint16_t)(SYN_USB_DESC_TYPE_CONFIGURATION << 8);
+    pkt.wIndex = 0U;
+    pkt.wLength = 255U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_usb_process_setup(&dev, &pkt, small_ep0,
+                                                           (uint16_t)sizeof(small_ep0), &rlen));
+    TEST_ASSERT_EQUAL_UINT16(0U, rlen);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, dev.ep0_buf,
+                                                        (uint16_t)sizeof(dev.ep0_buf), &rlen));
+    TEST_ASSERT_EQUAL_UINT16(75U, rlen);
 }

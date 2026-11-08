@@ -17,22 +17,41 @@ static const uint8_t HID_INTERFACE_DESC[25] = {
     0x07U, 0x05U, 0x83U, 0x03U, 0x40U, 0x00U, 0x0AU};
 
 /**
+ * @brief Copy a HID EP0 IN response into @p resp after checking @p resp_cap.
+ * @param resp     Destination response buffer.
+ * @param resp_cap Capacity of @p resp in bytes.
+ * @param src      Source payload bytes.
+ * @param len      Payload byte length.
+ * @param rlen     Output response length pointer.
+ * @return SYN_OK on success, SYN_ERROR if @p len exceeds @p resp_cap.
+ */
+static SYN_Status hid_write_resp(uint8_t *resp, uint16_t resp_cap, const uint8_t *src, uint16_t len,
+                                 uint16_t *rlen)
+{
+    if (len > resp_cap) {
+        return SYN_ERROR;
+    }
+    memcpy(resp, src, len);
+    *rlen = len;
+    return SYN_OK;
+}
+
+/**
  * @brief Handle HID GET_DESCRIPTOR setup requests (0x22 Report Descriptor).
  *
- * @param hid  Pointer to SYN_USB_HID instance.
- * @param pkt  Setup packet pointer.
- * @param resp Response buffer.
- * @param rlen Output response length pointer.
- * @return SYN_OK on success, SYN_ERROR if unsupported.
+ * @param hid      Pointer to SYN_USB_HID instance.
+ * @param pkt      Setup packet pointer.
+ * @param resp     Response buffer.
+ * @param resp_cap Capacity of @p resp in bytes.
+ * @param rlen     Output response length pointer.
+ * @return SYN_OK on success, SYN_ERROR if unsupported or exceeds @p resp_cap.
  */
 static SYN_Status hid_handle_get_descriptor(const SYN_USB_HID *hid, const SYN_USB_SetupPacket *pkt,
-                                            uint8_t *resp, uint16_t *rlen)
+                                            uint8_t *resp, uint16_t resp_cap, uint16_t *rlen)
 {
     if (((uint8_t)(pkt->wValue >> 8) == 0x22U) && (hid->report_desc != NULL)) {
         uint16_t len = (pkt->wLength < hid->report_desc_len) ? pkt->wLength : hid->report_desc_len;
-        memcpy(resp, hid->report_desc, len);
-        *rlen = len;
-        return SYN_OK;
+        return hid_write_resp(resp, resp_cap, hid->report_desc, len, rlen);
     }
     return SYN_ERROR;
 }
@@ -40,14 +59,15 @@ static SYN_Status hid_handle_get_descriptor(const SYN_USB_HID *hid, const SYN_US
 /**
  * @brief Class setup request dispatcher for HID class requests.
  *
- * @param ctx Pointer to SYN_USB_HID instance.
- * @param pkt Pointer to received Setup Packet.
- * @param resp Response buffer.
- * @param rlen Output pointer to receive response byte length.
+ * @param ctx      Pointer to SYN_USB_HID instance.
+ * @param pkt      Pointer to received Setup Packet.
+ * @param resp     Response buffer.
+ * @param resp_cap Capacity of @p resp in bytes.
+ * @param rlen     Output pointer to receive response byte length.
  * @return SYN_OK on success.
  */
 static SYN_Status hid_class_setup(void *ctx, const SYN_USB_SetupPacket *pkt, uint8_t *resp,
-                                  uint16_t *rlen)
+                                  uint16_t resp_cap, uint16_t *rlen)
 {
     SYN_USB_HID *hid = (SYN_USB_HID *)ctx;
     if ((hid == NULL) || (pkt == NULL) || (resp == NULL) || (rlen == NULL)) {
@@ -60,8 +80,7 @@ static SYN_Status hid_class_setup(void *ctx, const SYN_USB_SetupPacket *pkt, uin
     case SYN_USB_HID_REQ_GET_REPORT:
         if (hid->tx_len > 0U) {
             uint16_t copy_len = (pkt->wLength < hid->tx_len) ? pkt->wLength : hid->tx_len;
-            memcpy(resp, hid->tx_buf, copy_len);
-            *rlen = copy_len;
+            return hid_write_resp(resp, resp_cap, hid->tx_buf, copy_len, rlen);
         }
         return SYN_OK;
 
@@ -69,25 +88,21 @@ static SYN_Status hid_class_setup(void *ctx, const SYN_USB_SetupPacket *pkt, uin
         return SYN_OK;
 
     case SYN_USB_HID_REQ_GET_IDLE:
-        resp[0] = hid->idle_rate;
-        *rlen = 1U;
-        return SYN_OK;
+        return hid_write_resp(resp, resp_cap, &hid->idle_rate, 1U, rlen);
 
     case SYN_USB_HID_REQ_SET_IDLE:
         hid->idle_rate = (uint8_t)(pkt->wValue >> 8);
         return SYN_OK;
 
     case SYN_USB_HID_REQ_GET_PROTOCOL:
-        resp[0] = hid->active_protocol;
-        *rlen = 1U;
-        return SYN_OK;
+        return hid_write_resp(resp, resp_cap, &hid->active_protocol, 1U, rlen);
 
     case SYN_USB_HID_REQ_SET_PROTOCOL:
         hid->active_protocol = (uint8_t)(pkt->wValue & 0xFFU);
         return SYN_OK;
 
     case SYN_USB_REQ_GET_DESCRIPTOR:
-        return hid_handle_get_descriptor(hid, pkt, resp, rlen);
+        return hid_handle_get_descriptor(hid, pkt, resp, resp_cap, rlen);
 
     default:
         return SYN_OK;

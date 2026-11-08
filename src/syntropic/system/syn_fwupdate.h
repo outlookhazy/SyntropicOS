@@ -94,7 +94,10 @@ typedef struct {
     uint8_t gcm_stream_buf[16]; /**< Buffered CTR keystream block          */
     uint8_t gcm_stream_used;    /**< Number of keystream bytes used        */
     uint64_t gcm_total_bytes;   /**< Total ciphertext bytes processed      */
+    uint32_t gcm_bound_version; /**< Version code bound into GCM AAD       */
+    uint32_t gcm_bound_size;    /**< Image size bound into GCM AAD         */
     bool gcm_key_set;           /**< GCM key and IV configured?            */
+    bool gcm_meta_bound;        /**< Canonical metadata AAD bound?         */
 #endif
 } SYN_FwUpdate;
 
@@ -224,6 +227,21 @@ void syn_fwupdate_set_public_key(SYN_FwUpdate *upd, const uint8_t *public_key);
  */
 SYN_Status syn_fwupdate_set_aes_gcm_key(SYN_FwUpdate *upd, const uint8_t *key, size_t key_len,
                                         const uint8_t *iv, size_t iv_len);
+
+/**
+ * @brief Bind canonical firmware metadata (`SYN_FW_MAGIC || version_code || image_size`) as GCM
+ * AAD.
+ *
+ * Must be called after `syn_fwupdate_set_aes_gcm_key()` and before the first
+ * `syn_fwupdate_write()` call.
+ *
+ * @param upd           Updater instance.
+ * @param version_code  Expected firmware version code.
+ * @param image_size    Expected total firmware payload size in bytes.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on NULL @p upd, SYN_ERROR on invalid state.
+ */
+SYN_Status syn_fwupdate_bind_aes_gcm_meta(SYN_FwUpdate *upd, uint32_t version_code,
+                                          uint32_t image_size);
 
 /**
  * @brief Finalize an encrypted update and verify 16-byte AES-GCM authentication tag.

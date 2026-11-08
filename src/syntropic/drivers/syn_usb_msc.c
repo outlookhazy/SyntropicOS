@@ -367,14 +367,15 @@ static void msc_handle_data_out_stream(SYN_USB_MSC *msc, const uint8_t *data, ui
 
 /**
  * @brief Setup handler callback for USB MSC class setup requests.
- * @param ctx Class driver context (SYN_USB_MSC pointer).
- * @param pkt Setup packet pointer.
- * @param resp Response payload buffer.
- * @param rlen Output response payload byte length pointer.
- * @return SYN_OK on success, SYN_INVALID_PARAM if NULL.
+ * @param ctx      Class driver context (SYN_USB_MSC pointer).
+ * @param pkt      Setup packet pointer.
+ * @param resp     Response payload buffer.
+ * @param resp_cap Capacity of @p resp in bytes.
+ * @param rlen     Output response payload byte length pointer.
+ * @return SYN_OK on success, SYN_INVALID_PARAM if NULL, SYN_ERROR if response exceeds @p resp_cap.
  */
 static SYN_Status usb_msc_setup_handler(void *ctx, const SYN_USB_SetupPacket *pkt, uint8_t *resp,
-                                        uint16_t *rlen)
+                                        uint16_t resp_cap, uint16_t *rlen)
 {
     SYN_USB_MSC *msc = (SYN_USB_MSC *)ctx;
     if ((msc == NULL) || (pkt == NULL) || (resp == NULL) || (rlen == NULL)) {
@@ -383,6 +384,9 @@ static SYN_Status usb_msc_setup_handler(void *ctx, const SYN_USB_SetupPacket *pk
 
     *rlen = 0U;
     if (pkt->bRequest == 0xFEU) {
+        if (resp_cap < 1U) {
+            return SYN_ERROR;
+        }
         resp[0] = 0U;
         *rlen = 1U;
     } else if (pkt->bRequest == 0xFFU) {

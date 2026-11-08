@@ -88,12 +88,14 @@ void test_renode_usb_device_stack(void)
     uint8_t resp[128];
     uint16_t rlen = 0;
 
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT8(5, dev.dev_address);
 
     pkt.bRequest = SYN_USB_REQ_SET_CONFIGURATION;
     pkt.wValue = 1;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_TRUE(syn_usb_is_configured(&dev));
     TEST_ASSERT_TRUE(cdc.configured);
 

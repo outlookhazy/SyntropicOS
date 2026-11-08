@@ -140,26 +140,29 @@ void test_ble_hci_rx_overflow_and_invalid(void)
     /* Invalid Indicator Byte */
     TEST_ASSERT_EQUAL(SYN_OK, syn_ble_hci_rx_byte(&hci, 0xFF));
 
-    /* ACL payload size exceeding buffer */
-    uint8_t huge_acl_hdr[] = {SYN_BLE_HCI_PKT_ACL, 0x01, 0x00, 0xFF,
-                              0x01}; /* len = 511 B > 256 B */
+    /* ACL payload size exceeding buffer (len = 257 B -> 4 + 257 = 261 B > 260 B) */
+    uint8_t huge_acl_hdr[] = {SYN_BLE_HCI_PKT_ACL, 0x01, 0x00, 0x01, 0x01};
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_hci_rx_buf(&hci, huge_acl_hdr, sizeof(huge_acl_hdr)));
 
-    /* Event parameter size exceeding buffer */
-    uint8_t huge_evt_hdr[] = {SYN_BLE_HCI_PKT_EVT, 0x01, 0xFF}; /* 255 B > remaining 254 B */
+    /* Max-length 255B HCI Event (2B hdr + 255B params = 257B <= 260B) succeeds cleanly */
+    uint8_t max_evt[258];
+    memset(max_evt, 0x5AU, sizeof(max_evt));
+    max_evt[0] = SYN_BLE_HCI_PKT_EVT;
+    max_evt[1] = 0x3EU;
+    max_evt[2] = 0xFFU;
     syn_ble_hci_init(&hci, NULL);
-    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_hci_rx_buf(&hci, huge_evt_hdr, sizeof(huge_evt_hdr)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ble_hci_rx_buf(&hci, max_evt, sizeof(max_evt)));
 
     /* Payload state overflow */
     syn_ble_hci_init(&hci, NULL);
     hci.rx_state = 2; /* PAYLOAD state */
-    hci.rx_idx = 256; /* rx_buf full */
+    hci.rx_idx = SYN_BLE_HCI_RX_BUF_SIZE;
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_hci_rx_byte(&hci, 0xAA));
 
     /* Header state overflow */
     syn_ble_hci_init(&hci, NULL);
     hci.rx_state = 1; /* HDR state */
-    hci.rx_idx = 256;
+    hci.rx_idx = SYN_BLE_HCI_RX_BUF_SIZE;
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_ble_hci_rx_byte(&hci, 0xAA));
 
     /* Invalid state machine enum value (triggers default branch) */

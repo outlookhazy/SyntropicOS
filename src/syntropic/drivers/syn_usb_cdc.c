@@ -37,18 +37,22 @@ static const uint8_t CDC_INTERFACE_DESC[66] = {
 /**
  * @brief Setup request callback wrapper for CDC class requests.
  *
- * @param ctx Pointer to SYN_USB_CDC instance.
- * @param pkt Pointer to received Setup Packet.
- * @param resp Output buffer for data stage response.
- * @param rlen Pointer to receive response length.
- * @return SYN_OK on success.
+ * @param ctx      Pointer to SYN_USB_CDC instance.
+ * @param pkt      Pointer to received Setup Packet.
+ * @param resp     Output buffer for data stage response.
+ * @param resp_cap Capacity of @p resp in bytes.
+ * @param rlen     Pointer to receive response length.
+ * @return SYN_OK on success, SYN_ERROR if response exceeds @p resp_cap.
  */
 static SYN_Status cdc_class_setup(void *ctx, const SYN_USB_SetupPacket *pkt, uint8_t *resp,
-                                  uint16_t *rlen)
+                                  uint16_t resp_cap, uint16_t *rlen)
 {
     SYN_USB_CDC *cdc = (SYN_USB_CDC *)ctx;
     size_t size_rlen = 0U;
-    SYN_Status st = syn_usb_cdc_handle_setup(cdc, pkt, resp, &size_rlen);
+    SYN_Status st =
+        ((pkt != NULL) && (pkt->bRequest == SYN_USB_CDC_GET_LINE_CODING) && (resp_cap < 7U))
+            ? SYN_ERROR
+            : syn_usb_cdc_handle_setup(cdc, pkt, resp, &size_rlen);
     if (rlen != NULL) {
         *rlen = (uint16_t)size_rlen;
     }

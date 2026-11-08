@@ -23,14 +23,18 @@ static SYN_FwUpdate upd;
 
 static const uint8_t test_key[] = "SyntropicSecretKey1234567890ABCD"; /* 32 bytes */
 
-static void compute_crc_hmac(const uint8_t *data, size_t len, uint32_t *out_crc,
-                             uint8_t out_hmac[32])
+static void compute_crc_hmac(const uint8_t *data, size_t len, uint32_t version_code,
+                             uint32_t *out_crc, uint8_t out_hmac[32])
 {
     *out_crc = syn_crc32_final(syn_crc32_update(SYN_CRC32_INIT, data, len));
+
+    uint8_t auth_meta[SYN_FWIMAGE_AUTH_META_SIZE];
+    syn_fwimage_encode_auth_meta(version_code, (uint32_t)len, auth_meta);
 
     SYN_HMAC_SHA256 ctx;
     syn_hmac_sha256_init(&ctx, test_key, sizeof(test_key));
     syn_hmac_sha256_update(&ctx, data, len);
+    syn_hmac_sha256_update(&ctx, auth_meta, sizeof(auth_meta));
     syn_hmac_sha256_final(&ctx, out_hmac);
 }
 
@@ -44,7 +48,7 @@ void test_hmac_roundtrip(void)
 
     uint32_t crc;
     uint8_t hmac[32];
-    compute_crc_hmac(firmware, sizeof(firmware), &crc, hmac);
+    compute_crc_hmac(firmware, sizeof(firmware), 0x00010200U, &crc, hmac);
 
     /* begin, then set key (begin zeroes the struct) */
     memset(&upd, 0, sizeof(upd));
@@ -80,7 +84,7 @@ void test_hmac_mismatch_fails(void)
 
     uint32_t crc;
     uint8_t hmac[32];
-    compute_crc_hmac(firmware, sizeof(firmware), &crc, hmac);
+    compute_crc_hmac(firmware, sizeof(firmware), 0x00010200U, &crc, hmac);
 
     /* Corrupt the HMAC */
     uint8_t bad_hmac[32];
@@ -163,7 +167,7 @@ void test_hmac_multi_chunk_write(void)
 
     uint32_t crc;
     uint8_t hmac[32];
-    compute_crc_hmac(firmware, sizeof(firmware), &crc, hmac);
+    compute_crc_hmac(firmware, sizeof(firmware), 0x00010200U, &crc, hmac);
 
     memset(&upd, 0, sizeof(upd));
     syn_fwupdate_begin(&upd, SLOT_ADDR, SLOT_SIZE, page_buf, sizeof(page_buf));
@@ -182,6 +186,33 @@ void test_hmac_multi_chunk_write(void)
     TEST_ASSERT_EQUAL(SYN_OK, st);
 }
 
+void test_hmac_version_tamper_fails(void)
+{
+    uint8_t firmware[64];
+    memset(firmware, 0x5E, sizeof(firmware));
+
+    uint32_t crc;
+    uint8_t hmac_v1[32];
+    compute_crc_hmac(firmware, sizeof(firmware), 0x00010200U, &crc, hmac_v1);
+
+    memset(&upd, 0, sizeof(upd));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_fwupdate_begin(&upd, SLOT_ADDR, SLOT_SIZE, page_buf, sizeof(page_buf)));
+    syn_fwupdate_set_key(&upd, test_key, sizeof(test_key));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_write(&upd, firmware, sizeof(firmware)));
+
+#if defined(SYN_FW_USE_ED25519) && SYN_FW_USE_ED25519
+    SYN_Status st = syn_fwupdate_finish(&upd, crc, hmac_v1, NULL, 0x00010300U);
+#else
+    SYN_Status st = syn_fwupdate_finish(&upd, crc, hmac_v1, 0x00010300U);
+#endif
+    TEST_ASSERT_EQUAL(SYN_ERROR, st);
+
+    SYN_FwImageHeader hdr;
+    memcpy(&hdr, mock_flash + SLOT_ADDR, sizeof(hdr));
+    TEST_ASSERT_EQUAL(SYN_FW_STATE_INVALID, hdr.state);
+}
+
 /* ── Runner ─────────────────────────────────────────────────────────────── */
 
 void run_fwupdate_hmac_tests(void)
@@ -191,4 +222,5 @@ void run_fwupdate_hmac_tests(void)
     RUN_TEST(test_hmac_null_skips_verification);
     RUN_TEST(test_hmac_crc_only_without_key);
     RUN_TEST(test_hmac_multi_chunk_write);
+    RUN_TEST(test_hmac_version_tamper_fails);
 }

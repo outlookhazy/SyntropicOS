@@ -123,8 +123,8 @@
 #define SYN_USE_BLE 1                /**< BLE Host Stack (HCI/GAP/GATT)       */
 #define SYN_BLE_MAX_CONNECTIONS 2U   /**< Max simultaneous BLE connections   */
 #define SYN_BLE_MAX_ATTRIBUTES 32U   /**< Max GATT attribute table capacity   */
-#define SYN_BLE_HCI_RX_BUF_SIZE 256U /**< HCI RX packet capacity              */
-#define SYN_BLE_HCI_TX_BUF_SIZE 256U /**< HCI TX packet capacity              */
+#define SYN_BLE_HCI_RX_BUF_SIZE 260U /**< HCI RX packet capacity              */
+#define SYN_BLE_HCI_TX_BUF_SIZE 261U /**< HCI TX packet capacity              */
 
 /* ── Communication / Protocols ──────────────────────────────────────────── */
 

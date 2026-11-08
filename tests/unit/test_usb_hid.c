@@ -102,11 +102,13 @@ void test_usb_hid_class_requests(void)
     uint8_t resp[64];
     uint16_t rlen = 0;
 
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT8(10, hid.idle_rate);
 
     pkt.bRequest = SYN_USB_HID_REQ_GET_IDLE;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(1, rlen);
     TEST_ASSERT_EQUAL_UINT8(10, resp[0]);
 
@@ -116,7 +118,8 @@ void test_usb_hid_class_requests(void)
     pkt.wValue = (0x22U << 8);
     pkt.wLength = sizeof(SAMPLE_REPORT_DESC);
 
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(sizeof(SAMPLE_REPORT_DESC), rlen);
     TEST_ASSERT_EQUAL_MEMORY(SAMPLE_REPORT_DESC, resp, rlen);
 
@@ -124,28 +127,33 @@ void test_usb_hid_class_requests(void)
     pkt.bmRequestType = 0xA1;
     pkt.bRequest = SYN_USB_HID_REQ_GET_REPORT;
     pkt.wLength = 8;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
 
     /* Get Report request when tx_len > 0 */
     uint8_t dummy_report[8] = {0x11, 0x22};
     syn_usb_hid_send_report(&hid, dummy_report, sizeof(dummy_report));
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(8, rlen);
     TEST_ASSERT_EQUAL_MEMORY(dummy_report, resp, 8);
 
     /* Set Report request */
     pkt.bmRequestType = 0x21;
     pkt.bRequest = SYN_USB_HID_REQ_SET_REPORT;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
 
     /* Get & Set Protocol requests */
     pkt.bRequest = SYN_USB_HID_REQ_SET_PROTOCOL;
     pkt.wValue = 0; /* Boot protocol */
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT8(0, hid.active_protocol);
 
     pkt.bRequest = SYN_USB_HID_REQ_GET_PROTOCOL;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(1, rlen);
     TEST_ASSERT_EQUAL_UINT8(0, resp[0]);
 
@@ -153,11 +161,13 @@ void test_usb_hid_class_requests(void)
     pkt.bmRequestType = 0x81;
     pkt.bRequest = SYN_USB_REQ_GET_DESCRIPTOR;
     pkt.wValue = (0x99U << 8);
-    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
 
     /* Default unknown setup request */
     pkt.bRequest = 0xFF;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
 }
 
 #include "syntropic/drivers/syn_usb_hid_keyboard.h"
@@ -218,7 +228,7 @@ void test_usb_hid_null_checks(void)
     syn_usb_hid_register(&dev, &hid, SAMPLE_REPORT_DESC, sizeof(SAMPLE_REPORT_DESC));
 
     /* Call registered setup callback with NULL params (line 33) */
-    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, dev.classes[0].setup(NULL, NULL, NULL, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, dev.classes[0].setup(NULL, NULL, NULL, 0U, NULL));
     TEST_ASSERT_FALSE(syn_usb_hid_tx_ready(NULL));
 }
 
@@ -290,5 +300,15 @@ void test_tier_a_usb_hid_regressions(void)
     uint8_t resp[8];
     uint16_t rlen = 0U;
     SYN_USB_SetupPacket pkt = {0x21U, 0xFFU, 0U, 0U, 0U};
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_usb_process_setup(&dev, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
+
+    /* USB-1: HID Report Descriptor (0x22) exceeding resp_cap returns SYN_ERROR */
+    pkt.bmRequestType = 0x81U;
+    pkt.bRequest = SYN_USB_REQ_GET_DESCRIPTOR;
+    pkt.wValue = (uint16_t)(0x22U << 8);
+    pkt.wLength = 255U;
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_usb_process_setup(&dev, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
+    TEST_ASSERT_EQUAL_UINT16(0U, rlen);
 }

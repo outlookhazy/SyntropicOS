@@ -580,13 +580,35 @@ void test_fwupdate_aes_gcm_streaming_decryption_and_tamper(void)
 
     SYN_AES_GCM_Context gcm_ctx;
     TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_init(&gcm_ctx, key, sizeof(key)));
-    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_encrypt(&gcm_ctx, iv, sizeof(iv), NULL, 0, plaintext,
+    uint8_t auth_meta_v2[SYN_FWIMAGE_AUTH_META_SIZE];
+    syn_fwimage_encode_auth_meta(0x00020000U, (uint32_t)sizeof(plaintext), auth_meta_v2);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_encrypt(&gcm_ctx, iv, sizeof(iv), auth_meta_v2,
+                                                  sizeof(auth_meta_v2), plaintext,
                                                   sizeof(plaintext), ciphertext, tag));
 
-    /* 3. Begin updater on Slot B */
+    /* 3. Begin updater on Slot B + test metadata bind parameter/state guards */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_fwupdate_bind_aes_gcm_meta(NULL, 0x00020000U, sizeof(plaintext)));
     TEST_ASSERT_EQUAL(SYN_OK,
                       syn_fwupdate_begin(&upd, SLOT_B_ADDR, SLOT_SIZE, page_buf, sizeof(page_buf)));
+    /* Bind before set_aes_gcm_key must fail */
+    TEST_ASSERT_EQUAL(SYN_ERROR,
+                      syn_fwupdate_bind_aes_gcm_meta(&upd, 0x00020000U, sizeof(plaintext)));
     TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_set_aes_gcm_key(&upd, key, sizeof(key), iv, sizeof(iv)));
+    /* finish_gcm or write before bind_aes_gcm_meta must fail */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd, tag, 0x00020000U));
+    SYN_FwUpdate upd_unbound;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_begin(&upd_unbound, SLOT_A_ADDR, SLOT_SIZE, page_buf,
+                                                 sizeof(page_buf)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_fwupdate_set_aes_gcm_key(&upd_unbound, key, sizeof(key), iv, sizeof(iv)));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_write(&upd_unbound, ciphertext, 16U));
+    TEST_ASSERT_TRUE(upd_unbound.error);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_bind_aes_gcm_meta(&upd, 0x00020000U, sizeof(plaintext)));
+    /* Duplicate bind must fail */
+    TEST_ASSERT_EQUAL(SYN_ERROR,
+                      syn_fwupdate_bind_aes_gcm_meta(&upd, 0x00020000U, sizeof(plaintext)));
 
     /* 4. Stream ciphertext in irregular chunk sizes (17, 33, 100, 150) */
     size_t chunk_sizes[] = {17, 33, 100, 150};
@@ -598,14 +620,14 @@ void test_fwupdate_aes_gcm_streaming_decryption_and_tamper(void)
     TEST_ASSERT_EQUAL(sizeof(plaintext), offset);
 
     /* 5. Finish with valid tag -> must succeed */
-    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_finish_gcm(&upd, tag, 0x00020000));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_finish_gcm(&upd, tag, 0x00020000U));
     TEST_ASSERT_FALSE(syn_fwupdate_active(&upd));
 
     /* 6. Verify written image header and decrypted payload in flash */
     SYN_FwImageHeader hdr;
     syn_port_flash_read(SLOT_B_ADDR, &hdr, sizeof(hdr));
     TEST_ASSERT_TRUE(syn_fwimage_header_valid(&hdr));
-    TEST_ASSERT_EQUAL(0x00020000, hdr.version_code);
+    TEST_ASSERT_EQUAL(0x00020000U, hdr.version_code);
     TEST_ASSERT_EQUAL(sizeof(plaintext), hdr.image_size);
     TEST_ASSERT_EQUAL(SYN_FW_STATE_NEW, hdr.state);
 
@@ -620,34 +642,87 @@ void test_fwupdate_aes_gcm_streaming_decryption_and_tamper(void)
         SYN_OK, syn_fwupdate_begin(&upd_bad, SLOT_A_ADDR, SLOT_SIZE, page_buf, sizeof(page_buf)));
     TEST_ASSERT_EQUAL(SYN_OK,
                       syn_fwupdate_set_aes_gcm_key(&upd_bad, key, sizeof(key), iv, sizeof(iv)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_fwupdate_bind_aes_gcm_meta(&upd_bad, 0x00020000U, sizeof(plaintext)));
     TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_write(&upd_bad, ciphertext, sizeof(ciphertext)));
 
     uint8_t bad_tag[16];
     memcpy(bad_tag, tag, 16);
     bad_tag[0] ^= 0x01;
-    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd_bad, bad_tag, 0x00020000));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd_bad, bad_tag, 0x00020000U));
     TEST_ASSERT_FALSE(syn_fwupdate_active(&upd_bad));
+
+    /* 7b. SYS-03: Valid tag for v2 finished with tampered version v9 -> must fail and abort */
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_fwupdate_begin(&upd_bad, SLOT_A_ADDR, SLOT_SIZE, page_buf, sizeof(page_buf)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_fwupdate_set_aes_gcm_key(&upd_bad, key, sizeof(key), iv, sizeof(iv)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_fwupdate_bind_aes_gcm_meta(&upd_bad, 0x00020000U, sizeof(plaintext)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_write(&upd_bad, ciphertext, sizeof(ciphertext)));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd_bad, tag, 0x00090000U));
+    TEST_ASSERT_FALSE(syn_fwupdate_active(&upd_bad));
+
+    /* 7c. SYS-03: Truncated ciphertext stream (bytes_written != gcm_bound_size) -> must fail */
+    uint8_t trunc_ct[64];
+    uint8_t trunc_tag[16];
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_encrypt(&gcm_ctx, iv, sizeof(iv), auth_meta_v2,
+                                                  sizeof(auth_meta_v2), plaintext, sizeof(trunc_ct),
+                                                  trunc_ct, trunc_tag));
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_fwupdate_begin(&upd_bad, SLOT_A_ADDR, SLOT_SIZE, page_buf, sizeof(page_buf)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_fwupdate_set_aes_gcm_key(&upd_bad, key, sizeof(key), iv, sizeof(iv)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_fwupdate_bind_aes_gcm_meta(&upd_bad, 0x00020000U, sizeof(plaintext)));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_write(&upd_bad, trunc_ct, sizeof(trunc_ct)));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd_bad, trunc_tag, 0x00020000U));
 
     /* 8. HMAC + AES-GCM combined */
 #if defined(SYN_FW_USE_HMAC) && SYN_FW_USE_HMAC
     SYN_FwUpdate upd_hmac_gcm;
+    uint8_t auth_meta_v3[SYN_FWIMAGE_AUTH_META_SIZE];
+    uint8_t tag_v3[16];
+    syn_fwimage_encode_auth_meta(0x00030000U, (uint32_t)sizeof(plaintext), auth_meta_v3);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_encrypt(&gcm_ctx, iv, sizeof(iv), auth_meta_v3,
+                                                  sizeof(auth_meta_v3), plaintext,
+                                                  sizeof(plaintext), ciphertext, tag_v3));
     mock_port_reset();
     TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_begin(&upd_hmac_gcm, SLOT_A_ADDR, SLOT_SIZE, page_buf,
                                                  sizeof(page_buf)));
     syn_fwupdate_set_key(&upd_hmac_gcm, key, 32);
     TEST_ASSERT_EQUAL(
         SYN_OK, syn_fwupdate_set_aes_gcm_key(&upd_hmac_gcm, key, sizeof(key), iv, sizeof(iv)));
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_fwupdate_bind_aes_gcm_meta(&upd_hmac_gcm, 0x00030000U, sizeof(plaintext)));
     TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_write(&upd_hmac_gcm, ciphertext, sizeof(ciphertext)));
-    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_finish_gcm(&upd_hmac_gcm, tag, 0x00030000));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_finish_gcm(&upd_hmac_gcm, tag_v3, 0x00030000U));
+
+    uint8_t expected_gcm_hmac[32];
+    SYN_HMAC_SHA256 gcm_hmac_ctx;
+    syn_hmac_sha256_init(&gcm_hmac_ctx, key, 32);
+    syn_hmac_sha256_update(&gcm_hmac_ctx, plaintext, sizeof(plaintext));
+    syn_hmac_sha256_update(&gcm_hmac_ctx, auth_meta_v3, sizeof(auth_meta_v3));
+    syn_hmac_sha256_final(&gcm_hmac_ctx, expected_gcm_hmac);
+    syn_port_flash_read(SLOT_A_ADDR, &hdr, sizeof(hdr));
+    TEST_ASSERT_EQUAL_MEMORY(expected_gcm_hmac, hdr.image_hmac, sizeof(expected_gcm_hmac));
 #endif
 
     /* 9. Flash error during GCM write page flush */
     SYN_FwUpdate upd_fail;
+    uint8_t auth_meta_v4[SYN_FWIMAGE_AUTH_META_SIZE];
+    uint8_t tag_v4[16];
+    syn_fwimage_encode_auth_meta(0x00040000U, (uint32_t)sizeof(plaintext), auth_meta_v4);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_encrypt(&gcm_ctx, iv, sizeof(iv), auth_meta_v4,
+                                                  sizeof(auth_meta_v4), plaintext,
+                                                  sizeof(plaintext), ciphertext, tag_v4));
     mock_port_reset();
     TEST_ASSERT_EQUAL(
         SYN_OK, syn_fwupdate_begin(&upd_fail, SLOT_A_ADDR, SLOT_SIZE, page_buf, sizeof(page_buf)));
     TEST_ASSERT_EQUAL(SYN_OK,
                       syn_fwupdate_set_aes_gcm_key(&upd_fail, key, sizeof(key), iv, sizeof(iv)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_fwupdate_bind_aes_gcm_meta(&upd_fail, 0x00040000U, sizeof(plaintext)));
     mock_flash_fail_at = (int32_t)(SLOT_A_ADDR + syn_fwimage_data_offset(SLOT_A_ADDR));
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_write(&upd_fail, ciphertext, sizeof(page_buf) + 16));
     mock_flash_fail_at = -1;
@@ -658,9 +733,11 @@ void test_fwupdate_aes_gcm_streaming_decryption_and_tamper(void)
         SYN_OK, syn_fwupdate_begin(&upd_fail, SLOT_A_ADDR, SLOT_SIZE, page_buf, sizeof(page_buf)));
     TEST_ASSERT_EQUAL(SYN_OK,
                       syn_fwupdate_set_aes_gcm_key(&upd_fail, key, sizeof(key), iv, sizeof(iv)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_fwupdate_bind_aes_gcm_meta(&upd_fail, 0x00040000U, sizeof(plaintext)));
     TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_write(&upd_fail, ciphertext, 64));
     mock_flash_fail_at = (int32_t)(SLOT_A_ADDR + syn_fwimage_data_offset(SLOT_A_ADDR));
-    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd_fail, tag, 0x00040000));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd_fail, tag_v4, 0x00040000U));
     mock_flash_fail_at = -1;
 
     /* 11. Flash error during finish_gcm header write */
@@ -669,17 +746,19 @@ void test_fwupdate_aes_gcm_streaming_decryption_and_tamper(void)
         SYN_OK, syn_fwupdate_begin(&upd_fail, SLOT_A_ADDR, SLOT_SIZE, page_buf, sizeof(page_buf)));
     TEST_ASSERT_EQUAL(SYN_OK,
                       syn_fwupdate_set_aes_gcm_key(&upd_fail, key, sizeof(key), iv, sizeof(iv)));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_fwupdate_bind_aes_gcm_meta(&upd_fail, 0x00040000U, sizeof(plaintext)));
     TEST_ASSERT_EQUAL(SYN_OK, syn_fwupdate_write(&upd_fail, ciphertext, sizeof(ciphertext)));
     mock_flash_fail_at = SLOT_A_ADDR;
-    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd_fail, tag, 0x00040000));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd_fail, tag_v4, 0x00040000U));
     TEST_ASSERT_FALSE(syn_fwupdate_active(&upd_fail));
     mock_flash_fail_at = -1;
 
     /* 12. Boundary guards on finish_gcm */
-    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(NULL, tag, 0x00020000));
-    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd, NULL, 0x00020000));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(NULL, tag, 0x00020000U));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fwupdate_finish_gcm(&upd, NULL, 0x00020000U));
     TEST_ASSERT_EQUAL(SYN_ERROR,
-                      syn_fwupdate_finish_gcm(&upd, tag, 0x00020000)); /* already inactive */
+                      syn_fwupdate_finish_gcm(&upd, tag, 0x00020000U)); /* already inactive */
 }
 #endif
 

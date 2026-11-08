@@ -82,11 +82,14 @@ bool syn_x509_parse(const uint8_t *der, size_t der_len, SYN_X509_Cert *cert_out)
 /**
  * @brief Verify certificate signature against an issuer's public key.
  *
- * @param cert             Parsed child certificate to verify.
- * @param issuer_pubkey    Issuer's public key.
+ * Rejects verification when `cert->sig_algo` does not match @p algo or equals
+ * `SYN_X509_ALGO_UNKNOWN`.
+ *
+ * @param cert              Parsed child certificate to verify.
+ * @param issuer_pubkey     Issuer's public key.
  * @param issuer_pubkey_len Issuer's public key length.
- * @param algo             Algorithm of issuer's public key.
- * @return true if signature is valid.
+ * @param algo              Algorithm of issuer's public key and expected certificate signature.
+ * @return true if signature is valid and matches @p algo.
  */
 bool syn_x509_verify_signature(const SYN_X509_Cert *cert, const uint8_t *issuer_pubkey,
                                size_t issuer_pubkey_len, SYN_X509_Algo algo);

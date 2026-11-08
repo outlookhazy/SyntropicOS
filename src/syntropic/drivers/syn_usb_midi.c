@@ -35,18 +35,20 @@ static const uint8_t MIDI_INTERFACE_DESC[SYN_USB_MIDI_DESC_SIZE] = {
 
 /**
  * @brief Setup handler callback for USB MIDI class setup requests.
- * @param ctx Class driver context (SYN_USB_MIDI pointer).
- * @param pkt Setup packet pointer.
- * @param resp Response payload buffer.
- * @param rlen Output response payload byte length pointer.
+ * @param ctx      Class driver context (SYN_USB_MIDI pointer).
+ * @param pkt      Setup packet pointer.
+ * @param resp     Response payload buffer.
+ * @param resp_cap Capacity of @p resp in bytes.
+ * @param rlen     Output response payload byte length pointer.
  * @return SYN_OK on success.
  */
 static SYN_Status usb_midi_setup_handler(void *ctx, const SYN_USB_SetupPacket *pkt, uint8_t *resp,
-                                         uint16_t *rlen)
+                                         uint16_t resp_cap, uint16_t *rlen)
 {
     (void)ctx;
     (void)pkt;
     (void)resp;
+    (void)resp_cap;
     if (rlen != NULL) {
         *rlen = 0U;
     }

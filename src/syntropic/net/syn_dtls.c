@@ -1281,11 +1281,27 @@ void syn_dtls_bind_transport(SYN_DTLS_Context *dtls_ctx, SYN_Transport *tr_out)
 
 /* ── Main DTLS API ───────────────────────────────────────────────────────── */
 
+/**
+ * @brief Compute minimum RX/TX handshake datagram buffer capacity for @p config.
+ * @param config DTLS configuration pointer.
+ * @return Minimum buffer size in bytes (140 PSK, 184 SHA-256 CV, 200 SHA-384 CV).
+ */
+static size_t dtls_min_buf_size(const SYN_DTLS_Config *config)
+{
+    if (config->mode == SYN_DTLS_AUTH_MODE_PSK) {
+        return 140U;
+    }
+    return (config->cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384) ? 200U : 184U;
+}
+
 bool syn_dtls_init(SYN_DTLS_Context *ctx, const SYN_DTLS_Config *config, SYN_Transport *transport,
                    uint8_t *rx_buf, size_t rx_buf_size, uint8_t *tx_buf, size_t tx_buf_size)
 {
-    if (ctx == NULL || config == NULL || transport == NULL || rx_buf == NULL || tx_buf == NULL ||
-        rx_buf_size < 140U || tx_buf_size < 140U) {
+    if (ctx == NULL || config == NULL || transport == NULL || rx_buf == NULL || tx_buf == NULL) {
+        return false;
+    }
+    size_t min_buf = dtls_min_buf_size(config);
+    if (rx_buf_size < min_buf || tx_buf_size < min_buf) {
         return false;
     }
 

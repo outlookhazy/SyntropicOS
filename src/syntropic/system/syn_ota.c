@@ -85,6 +85,7 @@ static SYN_LwM2M_FirmwareResult ota_map_lwm2m_result(SYN_OTA_State state, SYN_OT
     case SYN_OTA_ERR_NONE:
         return (state == SYN_OTA_STATE_APPLIED) ? SYN_LWM2M_FW_RESULT_SUCCESS
                                                 : SYN_LWM2M_FW_RESULT_DEFAULT;
+    case SYN_OTA_ERR_NO_FLASH_SLOT:
     case SYN_OTA_ERR_OUT_OF_SPACE:
     case SYN_OTA_ERR_FLASH_ERASE:
     case SYN_OTA_ERR_FLASH_WRITE:
@@ -100,6 +101,69 @@ static SYN_LwM2M_FirmwareResult ota_map_lwm2m_result(SYN_OTA_State state, SYN_OT
 }
 #endif
 
+/**
+ * @brief Resolve explicit or automatic target flash slot index.
+ * @param mgr  OTA manager instance.
+ * @return Slot index (0 or 1), or > 1 when no inactive slot can be determined.
+ */
+static uint8_t ota_resolve_slot(const SYN_OTA_Manager *mgr)
+{
+    uint8_t slot = mgr->target_slot;
+    if (slot == SYN_OTA_SLOT_AUTO) {
+        uint8_t active = mgr->boot_mgr->active_slot;
+        if (active == SYN_FW_SLOT_A) {
+            slot = (uint8_t)SYN_FW_SLOT_B;
+        } else if (active == SYN_FW_SLOT_B) {
+            slot = (uint8_t)SYN_FW_SLOT_A;
+        }
+    }
+    return slot;
+}
+
+/**
+ * @brief Compute reserved header sector offset for a resolved or unresolved slot.
+ * @param boot_mgr  Dual-bank boot manager instance.
+ * @param slot      Slot index (0 or 1, or > 1 for worst-case across both slots).
+ * @return Reserved header byte offset.
+ */
+static uint32_t ota_slot_hdr_offset(const SYN_FwBootManager *boot_mgr, uint8_t slot)
+{
+    if (slot <= 1U) {
+        return syn_fwimage_data_offset(boot_mgr->slot_addr[slot]);
+    }
+    uint32_t off_a = syn_fwimage_data_offset(boot_mgr->slot_addr[0]);
+    uint32_t off_b = syn_fwimage_data_offset(boot_mgr->slot_addr[1]);
+    return (off_a >= off_b) ? off_a : off_b;
+}
+
+/**
+ * @brief Configure streaming cryptographic hooks on `mgr->fw_upd` for the active session.
+ * @param mgr  OTA manager instance.
+ */
+static void ota_configure_crypto(SYN_OTA_Manager *mgr)
+{
+#if defined(SYN_FW_USE_HMAC) && SYN_FW_USE_HMAC
+    if (mgr->crypto_mode == SYN_OTA_CRYPTO_HMAC_SHA256) {
+        syn_fwupdate_set_key(&mgr->fw_upd, mgr->hmac_key, mgr->hmac_key_len);
+    }
+#endif
+
+#if defined(SYN_FW_USE_ED25519) && SYN_FW_USE_ED25519
+    if (mgr->crypto_mode == SYN_OTA_CRYPTO_ED25519) {
+        syn_fwupdate_set_public_key(&mgr->fw_upd, mgr->ed25519_pubkey);
+    }
+#endif
+
+#if defined(SYN_FW_USE_AES_GCM) && SYN_FW_USE_AES_GCM
+    if (mgr->crypto_mode == SYN_OTA_CRYPTO_AES_GCM) {
+        (void)syn_fwupdate_set_aes_gcm_key(&mgr->fw_upd, mgr->gcm_key, mgr->gcm_key_len,
+                                           mgr->gcm_iv, sizeof(mgr->gcm_iv));
+        (void)syn_fwupdate_bind_aes_gcm_meta(&mgr->fw_upd, mgr->target_version,
+                                             mgr->expected_total_sz);
+    }
+#endif
+}
+
 /* ── API Implementation ─────────────────────────────────────────────────── */
 
 SYN_Status syn_ota_init(SYN_OTA_Manager *mgr, SYN_FwBootManager *boot_mgr, uint32_t slot_size,
@@ -110,9 +174,7 @@ SYN_Status syn_ota_init(SYN_OTA_Manager *mgr, SYN_FwBootManager *boot_mgr, uint3
         return SYN_INVALID_PARAM;
     }
 
-    uint32_t hdr_off_a = syn_fwimage_data_offset(boot_mgr->slot_addr[0]);
-    uint32_t hdr_off_b = syn_fwimage_data_offset(boot_mgr->slot_addr[1]);
-    uint32_t hdr_off = (hdr_off_a >= hdr_off_b) ? hdr_off_a : hdr_off_b;
+    uint32_t hdr_off = ota_slot_hdr_offset(boot_mgr, SYN_OTA_SLOT_AUTO);
     if (slot_size <= hdr_off) {
         return SYN_INVALID_PARAM;
     }
@@ -236,11 +298,13 @@ SYN_Status syn_ota_begin(SYN_OTA_Manager *mgr, uint32_t expected_total_sz, uint3
         return SYN_INVALID_PARAM;
     }
 
-    /* Resolve destination flash slot */
-    uint8_t slot = mgr->target_slot;
-    if (slot == SYN_OTA_SLOT_AUTO) {
-        uint8_t active = mgr->boot_mgr->active_slot;
-        slot = (active == SYN_FW_SLOT_A) ? (uint8_t)SYN_FW_SLOT_B : (uint8_t)SYN_FW_SLOT_A;
+    /* Resolve destination flash slot and verify payload capacity */
+    uint8_t slot = ota_resolve_slot(mgr);
+    uint32_t hdr_offset = ota_slot_hdr_offset(mgr->boot_mgr, slot);
+    uint32_t max_img_sz = (mgr->slot_size > hdr_offset) ? (mgr->slot_size - hdr_offset) : 0U;
+    if (expected_total_sz > max_img_sz) {
+        mgr->last_error = SYN_OTA_ERR_OUT_OF_SPACE;
+        return SYN_INVALID_PARAM;
     }
 
     if (slot > 1U) {
@@ -250,15 +314,7 @@ SYN_Status syn_ota_begin(SYN_OTA_Manager *mgr, uint32_t expected_total_sz, uint3
         return SYN_ERROR;
     }
 
-    uint32_t target_addr = mgr->boot_mgr->slot_addr[slot];
-    uint32_t hdr_offset = syn_fwimage_data_offset(target_addr);
-    uint32_t max_img_sz = (mgr->slot_size > hdr_offset) ? (mgr->slot_size - hdr_offset) : 0U;
-    if (expected_total_sz > max_img_sz) {
-        mgr->last_error = SYN_OTA_ERR_OUT_OF_SPACE;
-        return SYN_INVALID_PARAM;
-    }
-
-    mgr->target_slot_addr = target_addr;
+    mgr->target_slot_addr = mgr->boot_mgr->slot_addr[slot];
     mgr->expected_total_sz = expected_total_sz;
     mgr->target_version = target_version;
     mgr->expected_crc = expected_crc;
@@ -272,25 +328,7 @@ SYN_Status syn_ota_begin(SYN_OTA_Manager *mgr, uint32_t expected_total_sz, uint3
         return st;
     }
 
-    /* Configure cryptographic verification hooks */
-#if defined(SYN_FW_USE_HMAC) && SYN_FW_USE_HMAC
-    if (mgr->crypto_mode == SYN_OTA_CRYPTO_HMAC_SHA256) {
-        syn_fwupdate_set_key(&mgr->fw_upd, mgr->hmac_key, mgr->hmac_key_len);
-    }
-#endif
-
-#if defined(SYN_FW_USE_ED25519) && SYN_FW_USE_ED25519
-    if (mgr->crypto_mode == SYN_OTA_CRYPTO_ED25519) {
-        syn_fwupdate_set_public_key(&mgr->fw_upd, mgr->ed25519_pubkey);
-    }
-#endif
-
-#if defined(SYN_FW_USE_AES_GCM) && SYN_FW_USE_AES_GCM
-    if (mgr->crypto_mode == SYN_OTA_CRYPTO_AES_GCM) {
-        (void)syn_fwupdate_set_aes_gcm_key(&mgr->fw_upd, mgr->gcm_key, mgr->gcm_key_len,
-                                           mgr->gcm_iv, sizeof(mgr->gcm_iv));
-    }
-#endif
+    ota_configure_crypto(mgr);
 
     mgr->state = SYN_OTA_STATE_DOWNLOADING;
     mgr->last_error = SYN_OTA_ERR_NONE;

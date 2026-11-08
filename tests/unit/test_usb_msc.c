@@ -93,20 +93,24 @@ void test_usb_msc_init_and_null_checks(void)
     SYN_USB_SetupPacket pkt = {.bRequest = 0xFEU};
     uint8_t resp[16] = {0};
     uint16_t rlen = 0;
-    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(&g_msc, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(&g_msc, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL(1, rlen);
+    TEST_ASSERT_EQUAL(SYN_ERROR, drv->setup(&g_msc, &pkt, resp, 0U, &rlen));
 
     pkt.bRequest = 0xFFU; /* Bulk-Only Mass Storage Reset */
-    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(&g_msc, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(&g_msc, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL(SYN_USB_MSC_BOT_IDLE, g_msc.bot_state);
 
-    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, drv->setup(NULL, &pkt, resp, &rlen));
-    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, drv->setup(&g_msc, NULL, resp, &rlen));
-    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, drv->setup(&g_msc, &pkt, NULL, &rlen));
-    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, drv->setup(&g_msc, &pkt, resp, NULL));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      drv->setup(NULL, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      drv->setup(&g_msc, NULL, resp, (uint16_t)sizeof(resp), &rlen));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, drv->setup(&g_msc, &pkt, NULL, 0U, &rlen));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      drv->setup(&g_msc, &pkt, resp, (uint16_t)sizeof(resp), NULL));
 
     pkt.bRequest = 0x00U;
-    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(&g_msc, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(&g_msc, &pkt, resp, (uint16_t)sizeof(resp), &rlen));
 
     TEST_ASSERT_EQUAL(SYN_OK, drv->configured(&g_msc, 1));
     TEST_ASSERT_EQUAL(SYN_OK, drv->configured(NULL, 0));
@@ -436,7 +440,7 @@ static void test_tier_a_usb_msc_regressions(void)
     SYN_USB_SetupPacket bomsr = {.bmRequestType = 0x21U, .bRequest = 0xFFU};
     uint8_t resp[4] = {0};
     uint16_t rlen = 0U;
-    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(&g_msc, &bomsr, resp, &rlen));
+    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(&g_msc, &bomsr, resp, (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL_UINT16(0U, g_msc.data_in_len);
 
     g_msc.data_in_len = 18U;

@@ -56,7 +56,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     uint16_t resp_len = 0;
 
     /* Fuzz core setup packet processing */
-    syn_usb_process_setup(&dev, &pkt, resp_buf, &resp_len);
+    syn_usb_process_setup(&dev, &pkt, resp_buf, (uint16_t)sizeof(resp_buf), &resp_len);
 
     /* Fuzz CDC setup processing */
     size_t cdc_rlen = 0;

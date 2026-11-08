@@ -260,10 +260,13 @@ void test_ota_hmac_sha256_verification_flow(void)
     }
     uint32_t fw_crc = syn_crc32(fw_data, sizeof(fw_data));
 
+    uint8_t auth_meta_hmac[SYN_FWIMAGE_AUTH_META_SIZE];
+    syn_fwimage_encode_auth_meta(0x00010500U, (uint32_t)sizeof(fw_data), auth_meta_hmac);
     uint8_t expected_hmac[32];
     SYN_HMAC_SHA256 hmac;
     syn_hmac_sha256_init(&hmac, hmac_key, sizeof(hmac_key));
     syn_hmac_sha256_update(&hmac, fw_data, sizeof(fw_data));
+    syn_hmac_sha256_update(&hmac, auth_meta_hmac, sizeof(auth_meta_hmac));
     syn_hmac_sha256_final(&hmac, expected_hmac);
 
     /* Test corrupted HMAC fails and aborts */
@@ -275,6 +278,12 @@ void test_ota_hmac_sha256_verification_flow(void)
     bad_hmac[0] ^= 0x55;
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_ota_finish(&s_ota_mgr, bad_hmac, sizeof(bad_hmac)));
     TEST_ASSERT_EQUAL(SYN_OTA_STATE_ERROR, syn_ota_get_state(&s_ota_mgr));
+    TEST_ASSERT_EQUAL(SYN_OTA_ERR_INTEGRITY_CHECK, syn_ota_get_last_error(&s_ota_mgr));
+
+    /* SYS-03: Valid HMAC for v1.5.0 must fail when session declares v1.6.0 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_begin(&s_ota_mgr, sizeof(fw_data), 0x00010600U, fw_crc));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_write_chunk(&s_ota_mgr, fw_data, sizeof(fw_data)));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ota_finish(&s_ota_mgr, expected_hmac, sizeof(expected_hmac)));
     TEST_ASSERT_EQUAL(SYN_OTA_ERR_INTEGRITY_CHECK, syn_ota_get_last_error(&s_ota_mgr));
 
     /* Fresh session with valid HMAC */
@@ -317,8 +326,12 @@ void test_ota_ed25519_verification_flow(void)
     }
     uint32_t fw_crc = syn_crc32(fw_data, sizeof(fw_data));
 
+    uint8_t signed_msg[sizeof(fw_data) + SYN_FWIMAGE_AUTH_META_SIZE];
+    (void)memcpy(signed_msg, fw_data, sizeof(fw_data));
+    syn_fwimage_encode_auth_meta(0x00020000U, (uint32_t)sizeof(fw_data),
+                                 signed_msg + sizeof(fw_data));
     uint8_t sig[64];
-    TEST_ASSERT_TRUE(syn_ed25519_sign(fw_data, sizeof(fw_data), privkey, pubkey, sig));
+    TEST_ASSERT_TRUE(syn_ed25519_sign(signed_msg, sizeof(signed_msg), privkey, pubkey, sig));
 
     /* Corrupt signature test */
     s_boot_mgr.active_slot = SYN_FW_SLOT_A;
@@ -329,6 +342,12 @@ void test_ota_ed25519_verification_flow(void)
     bad_sig[0] ^= 0xFF;
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_ota_finish(&s_ota_mgr, bad_sig, sizeof(bad_sig)));
     TEST_ASSERT_EQUAL(SYN_OTA_STATE_ERROR, syn_ota_get_state(&s_ota_mgr));
+    TEST_ASSERT_EQUAL(SYN_OTA_ERR_INTEGRITY_CHECK, syn_ota_get_last_error(&s_ota_mgr));
+
+    /* SYS-03: Valid Ed25519 signature for v2.0.0 must fail when session declares v2.1.0 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_begin(&s_ota_mgr, sizeof(fw_data), 0x00020100U, fw_crc));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_write_chunk(&s_ota_mgr, fw_data, sizeof(fw_data)));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ota_finish(&s_ota_mgr, sig, sizeof(sig)));
     TEST_ASSERT_EQUAL(SYN_OTA_ERR_INTEGRITY_CHECK, syn_ota_get_last_error(&s_ota_mgr));
 
     /* Fresh session with valid signature */
@@ -374,7 +393,10 @@ void test_ota_aes_gcm_encrypted_flow(void)
 
     SYN_AES_GCM_Context gcm_ctx;
     TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_init(&gcm_ctx, key, sizeof(key)));
-    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_encrypt(&gcm_ctx, iv, sizeof(iv), NULL, 0U, plaintext,
+    uint8_t auth_meta_gcm[SYN_FWIMAGE_AUTH_META_SIZE];
+    syn_fwimage_encode_auth_meta(0x00030000U, (uint32_t)sizeof(plaintext), auth_meta_gcm);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_encrypt(&gcm_ctx, iv, sizeof(iv), auth_meta_gcm,
+                                                  sizeof(auth_meta_gcm), plaintext,
                                                   sizeof(plaintext), ciphertext, tag));
 
     s_boot_mgr.active_slot = SYN_FW_SLOT_A;
@@ -386,6 +408,12 @@ void test_ota_aes_gcm_encrypted_flow(void)
     (void)memcpy(bad_tag, tag, sizeof(tag));
     bad_tag[0] ^= 0x01;
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_ota_finish(&s_ota_mgr, bad_tag, sizeof(bad_tag)));
+
+    /* SYS-03: Valid GCM ciphertext + tag for v3.0.0 must fail when session declares v3.1.0 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_begin(&s_ota_mgr, sizeof(ciphertext), 0x00030100U, 0U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_write_chunk(&s_ota_mgr, ciphertext, sizeof(ciphertext)));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ota_finish(&s_ota_mgr, tag, sizeof(tag)));
+    TEST_ASSERT_EQUAL(SYN_OTA_ERR_INTEGRITY_CHECK, syn_ota_get_last_error(&s_ota_mgr));
 
     /* Finish with invalid sig length */
     TEST_ASSERT_EQUAL(SYN_OK, syn_ota_begin(&s_ota_mgr, sizeof(ciphertext), 0x00030000U, 0U));
@@ -458,6 +486,9 @@ void test_ota_lwm2m_integration(void)
     syn_ota_abort(&s_ota_mgr, SYN_OTA_ERR_OUT_OF_SPACE);
     TEST_ASSERT_EQUAL(SYN_LWM2M_FW_RESULT_NO_FLASH, fw_ctx.result);
 
+    syn_ota_abort(&s_ota_mgr, SYN_OTA_ERR_NO_FLASH_SLOT);
+    TEST_ASSERT_EQUAL(SYN_LWM2M_FW_RESULT_NO_FLASH, fw_ctx.result);
+
     /* Abort bad pkg test */
     syn_ota_abort(&s_ota_mgr, SYN_OTA_ERR_INVALID_PARAM);
     TEST_ASSERT_EQUAL(SYN_LWM2M_FW_RESULT_BAD_PKG_TYPE, fw_ctx.result);
@@ -516,7 +547,20 @@ static void test_r5_ota_regressions(void)
                       syn_ota_begin(&s_ota_mgr, (TEST_SLOT_SIZE - MOCK_FLASH_SECTOR) + 1U, 1U, 0U));
     TEST_ASSERT_EQUAL(SYN_OTA_ERR_OUT_OF_SPACE, syn_ota_get_last_error(&s_ota_mgr));
 
+    /* SYS-01: SYN_OTA_SLOT_AUTO with uninitialized active_slot (SYN_FW_SLOT_NONE) must fail closed
+     */
+    SYN_LwM2M_FirmwareContext lwm2m_ctx;
+    memset(&lwm2m_ctx, 0, sizeof(lwm2m_ctx));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_ota_bind_lwm2m(&s_ota_mgr, &lwm2m_ctx));
+    TEST_ASSERT_EQUAL(SYN_FW_SLOT_NONE, s_boot_mgr.active_slot);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_ota_begin(&s_ota_mgr, 64U, 1U, 0U));
+    TEST_ASSERT_EQUAL(SYN_OTA_STATE_ERROR, syn_ota_get_state(&s_ota_mgr));
+    TEST_ASSERT_EQUAL(SYN_OTA_ERR_NO_FLASH_SLOT, syn_ota_get_last_error(&s_ota_mgr));
+    TEST_ASSERT_EQUAL(SYN_LWM2M_FW_STATE_IDLE, lwm2m_ctx.state);
+    TEST_ASSERT_EQUAL(SYN_LWM2M_FW_RESULT_NO_FLASH, lwm2m_ctx.result);
+
     /* 2. R5-S03: HMAC & Ed25519 fail closed on NULL or truncated sig_len in syn_ota_finish */
+    s_boot_mgr.active_slot = SYN_FW_SLOT_A;
     uint8_t key32[32] = {0x11, 0x22, 0x33, 0x44};
     uint8_t fw[64];
     memset(fw, 0x7A, sizeof(fw));
@@ -534,8 +578,11 @@ static void test_r5_ota_regressions(void)
 
     uint8_t pubkey[32], privkey[32];
     TEST_ASSERT_TRUE(syn_ed25519_create_keypair(pubkey, privkey, key32));
+    uint8_t fw_msg[sizeof(fw) + SYN_FWIMAGE_AUTH_META_SIZE];
+    memcpy(fw_msg, fw, sizeof(fw));
+    syn_fwimage_encode_auth_meta(3U, (uint32_t)sizeof(fw), fw_msg + sizeof(fw));
     uint8_t sig[64];
-    TEST_ASSERT_TRUE(syn_ed25519_sign(fw, sizeof(fw), privkey, pubkey, sig));
+    TEST_ASSERT_TRUE(syn_ed25519_sign(fw_msg, sizeof(fw_msg), privkey, pubkey, sig));
 
     TEST_ASSERT_EQUAL(
         SYN_OK, syn_ota_set_verification_key(&s_ota_mgr, SYN_OTA_CRYPTO_ED25519, pubkey, 32U));

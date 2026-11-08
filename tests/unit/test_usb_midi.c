@@ -32,7 +32,8 @@ void test_usb_midi_init_and_null_checks(void)
     SYN_USB_SetupPacket pkt = {0};
     uint8_t resp[16];
     uint16_t rlen = 0;
-    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(g_midi.ep_in == 0 ? NULL : &g_midi, &pkt, resp, &rlen));
+    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(g_midi.ep_in == 0 ? NULL : &g_midi, &pkt, resp,
+                                         (uint16_t)sizeof(resp), &rlen));
     TEST_ASSERT_EQUAL(SYN_OK, drv->configured(&g_midi, 1));
 
     uint8_t dummy_data[4] = {0x09, 0x90, 0x3C, 0x64};
@@ -137,7 +138,7 @@ static void test_r5_usb_midi_regressions(void)
     SYN_USB_ClassDriver *drv = &g_usb_dev.classes[0];
     SYN_USB_SetupPacket pkt = {0};
     uint8_t resp[8];
-    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(&g_midi, &pkt, resp, NULL));
+    TEST_ASSERT_EQUAL(SYN_OK, drv->setup(&g_midi, &pkt, resp, (uint16_t)sizeof(resp), NULL));
     TEST_ASSERT_EQUAL(SYN_OK, drv->configured(NULL, 0U));
 
     for (uint8_t i = 0U; i < 16U; i++) {

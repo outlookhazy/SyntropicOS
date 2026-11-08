@@ -105,16 +105,38 @@ static SYN_Status usb_patch_class_desc(SYN_USB_Device *dev, uint8_t *buf, uint16
 }
 
 /**
+ * @brief Copy an EP0 IN stage payload into @p resp after checking @p resp_cap.
+ * @param resp     Destination response buffer.
+ * @param resp_cap Capacity of @p resp in bytes.
+ * @param src      Source payload bytes.
+ * @param len      Payload byte length.
+ * @param rlen     Output response length pointer.
+ * @return SYN_OK on success, SYN_ERROR if @p len exceeds @p resp_cap.
+ */
+static SYN_Status usb_write_resp(uint8_t *resp, uint16_t resp_cap, const uint8_t *src, uint16_t len,
+                                 uint16_t *rlen)
+{
+    if (len > resp_cap) {
+        return SYN_ERROR;
+    }
+    memcpy(resp, src, len);
+    *rlen = len;
+    return SYN_OK;
+}
+
+/**
  * @brief Route class-specific or interface-targeted setup packets to matching driver.
- * @param dev     Pointer to USB device context.
- * @param pkt     Setup packet pointer.
- * @param resp    Response buffer.
- * @param rlen    Output response length pointer.
- * @param handled Output flag set true when a matching class setup handler handled pkt.
+ * @param dev      Pointer to USB device context.
+ * @param pkt      Setup packet pointer.
+ * @param resp     Response buffer.
+ * @param resp_cap Capacity of @p resp in bytes.
+ * @param rlen     Output response length pointer.
+ * @param handled  Output flag set true when a matching class setup handler handled pkt.
  * @return Status returned by the matched class handler.
  */
 static SYN_Status usb_route_class_setup(SYN_USB_Device *dev, const SYN_USB_SetupPacket *pkt,
-                                        uint8_t *resp, uint16_t *rlen, bool *handled)
+                                        uint8_t *resp, uint16_t resp_cap, uint16_t *rlen,
+                                        bool *handled)
 {
     uint8_t iface = (uint8_t)(pkt->wIndex & 0xFFU);
     *handled = false;
@@ -124,7 +146,7 @@ static SYN_Status usb_route_class_setup(SYN_USB_Device *dev, const SYN_USB_Setup
         if ((iface >= cls->iface_start) &&
             (iface < (uint8_t)(cls->iface_start + cls->iface_count)) && (cls->setup != NULL)) {
             *handled = true;
-            return cls->setup(cls->ctx, pkt, resp, rlen);
+            return cls->setup(cls->ctx, pkt, resp, resp_cap, rlen);
         }
     }
 
@@ -133,40 +155,35 @@ static SYN_Status usb_route_class_setup(SYN_USB_Device *dev, const SYN_USB_Setup
 
 /**
  * @brief Handle standard USB GET_DESCRIPTOR setup requests on EP0.
- * @param dev  Pointer to USB device context.
- * @param pkt  Setup packet pointer.
- * @param resp Response buffer.
- * @param rlen Output response length pointer.
- * @return SYN_OK on success, SYN_ERROR if descriptor is unsupported/missing.
+ * @param dev      Pointer to USB device context.
+ * @param pkt      Setup packet pointer.
+ * @param resp     Response buffer.
+ * @param resp_cap Capacity of @p resp in bytes.
+ * @param rlen     Output response length pointer.
+ * @return SYN_OK on success, SYN_ERROR if descriptor is unsupported/missing or exceeds @p resp_cap.
  */
 static SYN_Status usb_handle_get_descriptor(const SYN_USB_Device *dev,
                                             const SYN_USB_SetupPacket *pkt, uint8_t *resp,
-                                            uint16_t *rlen)
+                                            uint16_t resp_cap, uint16_t *rlen)
 {
     uint8_t desc_type = (uint8_t)(pkt->wValue >> 8);
     uint8_t desc_idx = (uint8_t)(pkt->wValue & 0xFFU);
 
     if (desc_type == SYN_USB_DESC_TYPE_DEVICE) {
         uint16_t len = (pkt->wLength < 18U) ? pkt->wLength : 18U;
-        memcpy(resp, dev->device_desc, len);
-        *rlen = len;
-        return SYN_OK;
+        return usb_write_resp(resp, resp_cap, dev->device_desc, len, rlen);
     }
 
     if (desc_type == SYN_USB_DESC_TYPE_CONFIGURATION) {
         uint16_t len = (pkt->wLength < dev->config_desc_len) ? pkt->wLength : dev->config_desc_len;
-        memcpy(resp, dev->config_desc, len);
-        *rlen = len;
-        return SYN_OK;
+        return usb_write_resp(resp, resp_cap, dev->config_desc, len, rlen);
     }
 
     if ((desc_type == SYN_USB_DESC_TYPE_STRING) && (desc_idx < SYN_USB_MAX_STRING_DESCS) &&
         (dev->string_descs[desc_idx] != NULL)) {
         const uint8_t *sdesc = dev->string_descs[desc_idx];
         uint16_t slen = (pkt->wLength < sdesc[0]) ? pkt->wLength : (uint16_t)sdesc[0];
-        memcpy(resp, sdesc, slen);
-        *rlen = slen;
-        return SYN_OK;
+        return usb_write_resp(resp, resp_cap, sdesc, slen, rlen);
     }
 
     return SYN_ERROR;
@@ -328,7 +345,7 @@ static void usb_apply_configuration(SYN_USB_Device *dev, uint8_t config_val)
 }
 
 SYN_Status syn_usb_process_setup(SYN_USB_Device *dev, const SYN_USB_SetupPacket *pkt, uint8_t *resp,
-                                 uint16_t *rlen)
+                                 uint16_t resp_cap, uint16_t *rlen)
 {
     if ((dev == NULL) || (pkt == NULL) || (resp == NULL) || (rlen == NULL)) {
         return SYN_INVALID_PARAM;
@@ -339,7 +356,7 @@ SYN_Status syn_usb_process_setup(SYN_USB_Device *dev, const SYN_USB_SetupPacket 
 
     if (usb_is_class_routed_setup(pkt)) {
         bool handled = false;
-        SYN_Status cls_st = usb_route_class_setup(dev, pkt, resp, rlen, &handled);
+        SYN_Status cls_st = usb_route_class_setup(dev, pkt, resp, resp_cap, rlen, &handled);
         if (handled) {
             return cls_st;
         }
@@ -356,18 +373,15 @@ SYN_Status syn_usb_process_setup(SYN_USB_Device *dev, const SYN_USB_SetupPacket 
         return SYN_OK;
 
     case SYN_USB_REQ_GET_CONFIGURATION:
-        resp[0] = dev->config_value;
-        *rlen = 1U;
-        return SYN_OK;
+        return usb_write_resp(resp, resp_cap, &dev->config_value, 1U, rlen);
 
-    case SYN_USB_REQ_GET_STATUS:
-        resp[0] = (recipient == 0x00U) ? 0x01U : 0x00U;
-        resp[1] = 0x00U;
-        *rlen = 2U;
-        return SYN_OK;
+    case SYN_USB_REQ_GET_STATUS: {
+        uint8_t status_bytes[2] = {(recipient == 0x00U) ? 0x01U : 0x00U, 0x00U};
+        return usb_write_resp(resp, resp_cap, status_bytes, 2U, rlen);
+    }
 
     case SYN_USB_REQ_GET_DESCRIPTOR:
-        return usb_handle_get_descriptor(dev, pkt, resp, rlen);
+        return usb_handle_get_descriptor(dev, pkt, resp, resp_cap, rlen);
 
     default:
         return SYN_OK;

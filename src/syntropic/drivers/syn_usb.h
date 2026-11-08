@@ -30,7 +30,8 @@ extern "C" {
 #define SYN_USB_MAX_STRING_DESCS 8U /**< Maximum string descriptor slots */
 #endif
 
-#define SYN_USB_EP0_BUF_SIZE 64U /**< EP0 control buffer size */
+#define SYN_USB_EP0_BUF_SIZE \
+    SYN_USB_MAX_CONFIG_DESC /**< EP0 control buffer size (fits full config descriptor) */
 
 /** USB Device States per USB 2.0 Spec §9.1.1 */
 #define SYN_USB_STATE_DEFAULT 0U    /**< USB Default state */
@@ -69,7 +70,7 @@ typedef struct {
     uint8_t iface_count; /**< Interface count */
     void *ctx;           /**< Driver context */
 
-    SYN_Status (*setup)(void *ctx, const SYN_USB_SetupPacket *pkt, uint8_t *resp,
+    SYN_Status (*setup)(void *ctx, const SYN_USB_SetupPacket *pkt, uint8_t *resp, uint16_t resp_cap,
                         uint16_t *rlen); /**< Class setup handler */
     void (*data_out)(void *ctx, uint8_t ep, const uint8_t *data,
                      uint16_t len);                      /**< Data OUT handler */
@@ -160,14 +161,15 @@ SYN_Status syn_usb_set_raw_config_desc(SYN_USB_Device *dev, const uint8_t *desc,
 /**
  * @brief Process Control Setup packet from Host (EP0).
  *
- * @param dev Pointer to USB device context.
- * @param pkt Pointer to received Setup Packet.
- * @param resp Output buffer for data stage response.
- * @param rlen Output pointer to receive response byte length.
- * @return SYN_OK on success.
+ * @param dev      Pointer to USB device context.
+ * @param pkt      Pointer to received Setup Packet.
+ * @param resp     Output buffer for data stage response.
+ * @param resp_cap Capacity of @p resp in bytes.
+ * @param rlen     Output pointer to receive response byte length.
+ * @return SYN_OK on success, SYN_ERROR if unsupported or response exceeds @p resp_cap.
  */
 SYN_Status syn_usb_process_setup(SYN_USB_Device *dev, const SYN_USB_SetupPacket *pkt, uint8_t *resp,
-                                 uint16_t *rlen);
+                                 uint16_t resp_cap, uint16_t *rlen);
 
 /**
  * @brief Check if USB device is in CONFIGURED state.
