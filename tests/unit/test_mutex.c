@@ -766,6 +766,459 @@ static void test_tier_a_mutex_evicted_waiter_wakeup_isolation(void)
     TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[0].priority);
 }
 
+static void test_mutex_pi_cycle_demotion_and_unlock_recovery(void)
+{
+    SYN_Mutex m1;
+    SYN_Mutex m2;
+    SYN_Mutex m3;
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+
+    PT_MUTEX_INIT(&m1);
+    PT_MUTEX_INIT(&m2);
+    PT_MUTEX_INIT(&m3);
+    mock_tick_ms = 0U;
+
+    syn_task_create(&tasks[0], "low_a", dummy_pt_fn, SYN_PRIO_LOW, NULL);
+    syn_task_create(&tasks[1], "low_b", dummy_pt_fn, SYN_PRIO_LOW, NULL);
+    syn_task_create(&tasks[2], "crit_c", dummy_pt_fn, SYN_PRIO_CRITICAL, NULL);
+    syn_sched_init(&sched, tasks, 3U);
+
+    /* A holds m1 + m3, B holds m2; A <-> B non-blocking try_lock cycle */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m1, &tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m3, &tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m2, &tasks[1]));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m2, &tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m1, &tasks[1]));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[0].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[1].priority);
+
+    /* External CRITICAL waiter C contends on m3 -> boosts both A and B to CRITICAL */
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m3, &tasks[2]));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[0].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[1].priority);
+
+    /* Suspending C drops the cycle back to intrinsic LOW (no self-reinforcing pin!) */
+    syn_task_suspend(&tasks[2]);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[0].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[1].priority);
+
+    /* Re-contend C on m3, then unlock m3 -> A and B again relax back to LOW */
+    syn_task_resume(&tasks[2]);
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m3, &tasks[2]));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[0].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[1].priority);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m3, &tasks[0]));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[0].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[1].priority);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m1, &tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m2, &tasks[1]));
+}
+
+typedef struct {
+    SYN_Mutex *mtx;
+    int step;
+} ContendContinueCtx;
+
+static SYN_PT_Status crit_contend_continue_fn(SYN_PT *pt, SYN_Task *task)
+{
+    ContendContinueCtx *ctx = (ContendContinueCtx *)task->user_data;
+    PT_BEGIN(pt);
+    ctx->step = 1;
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(ctx->mtx, task));
+    PT_CONTINUE(pt); /* Yields PT_MORE while still contending! */
+    ctx->step = 2;
+    PT_PASS(pt); /* Next dispatch stops contending */
+    PT_END(pt);
+}
+
+static SYN_PT_Status owner_pass_fn(SYN_PT *pt, SYN_Task *task)
+{
+    (void)task;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_PASS(pt);
+    }
+    PT_END(pt);
+}
+
+static void test_mutex_try_lock_pt_continue_and_standalone_unlock_wake(void)
+{
+    /* 1. Contending task yielding PT_CONTINUE (PT_MORE) retains MUTEX_WAIT + owner boost */
+    SYN_Mutex m1;
+    PT_MUTEX_INIT(&m1);
+    ContendContinueCtx ctx = {&m1, 0};
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+
+    mock_tick_ms = 0U;
+    syn_task_create(&tasks[0], "crit_more", crit_contend_continue_fn, SYN_PRIO_CRITICAL, &ctx);
+    syn_task_create(&tasks[1], "low_own", owner_pass_fn, SYN_PRIO_LOW, NULL);
+    syn_sched_init(&sched, tasks, 2U);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m1, &tasks[1]));
+
+    /* Dispatch 1: crit_more contends on m1 and returns PT_MORE -> owner boosted to CRITICAL */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(1, ctx.step);
+    TEST_ASSERT_TRUE((tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[1].priority);
+
+    /* Dispatch 2: RR at CRITICAL runs boosted owner low_own; crit_more still holds MUTEX_WAIT */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(1, ctx.step);
+    TEST_ASSERT_TRUE((tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[1].priority);
+
+    /* Dispatch 3: crit_more stops contending and returns PT_IDLE -> owner drops back to LOW */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(2, ctx.step);
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[1].priority);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m1, &tasks[1]));
+
+    /* 2. Standalone (owner == NULL) mutex records task waiters, wakes them to MORE on unlock,
+     * and is isolated from normal (non-overflowing) unlocks of task-owned mutexes */
+    SYN_Mutex m_standalone;
+    SYN_Mutex m_other;
+    PT_MUTEX_INIT(&m_standalone);
+    PT_MUTEX_INIT(&m_other);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_standalone, NULL));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_other, &tasks[1]));
+
+    tasks[0].sched_flags = SYN_SCHED_FLAG_PASSED;
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_standalone, &tasks[0]));
+    TEST_ASSERT_TRUE((tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+
+    /* Unlocking unrelated task-owned m_other does NOT clobber tasks[0]'s standalone wait */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_other, &tasks[1]));
+    TEST_ASSERT_TRUE((tasks[0].sched_flags & SYN_SCHED_FLAG_PASSED) != 0U);
+    TEST_ASSERT_TRUE((tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+
+    /* Unlocking m_standalone promotes tasks[0] from PASSED to MORE and clears MUTEX_WAIT */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_standalone, NULL));
+    TEST_ASSERT_TRUE((tasks[0].sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_PASSED);
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+}
+
+typedef struct {
+    SYN_Mutex *m1;
+    SYN_Mutex *m2;
+    int phase;
+} MutexSwitchCtx;
+
+static SYN_PT_Status crit_switch_mutex_fn(SYN_PT *pt, SYN_Task *task)
+{
+    MutexSwitchCtx *ctx = (MutexSwitchCtx *)task->user_data;
+    PT_BEGIN(pt);
+    ctx->phase = 1;
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(ctx->m1, task));
+    PT_CONTINUE(pt);
+    ctx->phase = 2;
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(ctx->m2, task));
+    PT_CONTINUE(pt);
+    ctx->phase = 3;
+    PT_PASS(pt);
+    PT_END(pt);
+}
+
+static void test_mutex_switch_and_dual_contention_pi(void)
+{
+    SYN_Mutex m1;
+    SYN_Mutex m2;
+    SYN_Mutex m3;
+    PT_MUTEX_INIT(&m1);
+    PT_MUTEX_INIT(&m2);
+    PT_MUTEX_INIT(&m3);
+
+    MutexSwitchCtx ctx = {&m1, &m2, 0};
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+
+    mock_tick_ms = 0U;
+    syn_task_create(&tasks[0], "crit_sw", crit_switch_mutex_fn, SYN_PRIO_CRITICAL, &ctx);
+    syn_task_create(&tasks[1], "own1", owner_pass_fn, SYN_PRIO_LOW, NULL);
+    syn_task_create(&tasks[2], "own2", owner_pass_fn, SYN_PRIO_LOW, NULL);
+    syn_sched_init(&sched, tasks, 3U);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m1, &tasks[1]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m2, &tasks[2]));
+
+    /* Dispatch 1: crit_sw contends on m1 and returns PT_MORE -> own1 boosted to CRITICAL */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(1, ctx.phase);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[1].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[2].priority);
+
+    /* Dispatch 2: RR at CRITICAL runs boosted own1 */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(1, ctx.phase);
+
+    /* Dispatch 3: crit_sw switches contention from m1 to m2 -> own1 drops to LOW immediately */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(2, ctx.phase);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[1].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[2].priority);
+    TEST_ASSERT_NULL(m1.waiters[0]);
+    TEST_ASSERT_EQUAL_PTR(&tasks[0], m2.waiters[0]);
+
+    /* Unlocking abandoned m1 does NOT drop crit_sw's MUTEX_WAIT or own2's CRITICAL boost */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m1, &tasks[1]));
+    TEST_ASSERT_TRUE((tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[2].priority);
+
+    /* Dual contention in a single step + duplicate try_lock while holding m3 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m3, &tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m3, &tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m1, &tasks[1]));
+    tasks[0].sched_flags = SYN_SCHED_FLAG_PASSED;
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m1, &tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m1, &tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m2, &tasks[0]));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[1].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[2].priority);
+
+    /* Unlocking m1 wakes crit_sw to MORE while keeping MUTEX_WAIT and own2 boosted on m2 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m1, &tasks[1]));
+    TEST_ASSERT_TRUE((tasks[0].sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_PASSED);
+    TEST_ASSERT_TRUE((tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[2].priority);
+
+    /* Unlocking m2 clears crit_sw's final MUTEX_WAIT and restores own2 to LOW */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m2, &tasks[2]));
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[2].priority);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m3, &tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m3, &tasks[0]));
+}
+
+static void test_mutex_standalone_evicted_wake_and_unbound_owner_refresh(void)
+{
+    SYN_Task tasks[6];
+    SYN_Sched sched;
+    SYN_Mutex m_sa1;
+    SYN_Mutex m_sa2;
+    SYN_Mutex m_ext;
+    SYN_Mutex m_unb;
+    PT_MUTEX_INIT(&m_sa1);
+    PT_MUTEX_INIT(&m_sa2);
+    PT_MUTEX_INIT(&m_ext);
+    PT_MUTEX_INIT(&m_unb);
+
+    mock_tick_ms = 0U;
+    syn_task_create(&tasks[0], "w_evict", owner_pass_fn, SYN_PRIO_LOW, NULL);
+    for (int i = 1; i < 6; i++) {
+        syn_task_create(&tasks[i], "w_high", owner_pass_fn, SYN_PRIO_HIGH, NULL);
+    }
+    syn_sched_init(&sched, tasks, 6U);
+
+    /* Standalone overflow + suspended direct waiters + peer waiting on second standalone mutex */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_sa1, NULL));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_sa2, NULL));
+
+    tasks[5].sched_flags = SYN_SCHED_FLAG_PASSED;
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_sa2, &tasks[5]));
+
+    tasks[0].sched_flags = SYN_SCHED_FLAG_PASSED;
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_sa1, &tasks[0]));
+    for (int i = 1; i <= 4; i++) {
+        TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_sa1, &tasks[i]));
+    }
+    TEST_ASSERT_TRUE(m_sa1.has_evicted);
+
+    /* Suspend all 4 direct waiters; verify try_lock by a suspended task does NOT set MUTEX_WAIT */
+    for (int i = 1; i <= 4; i++) {
+        syn_task_suspend(&tasks[i]);
+    }
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_sa1, &tasks[1]));
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[1].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+
+    /* Unlocking m_sa1 wakes evicted tasks[0] via wait_sched while keeping tasks[5] on m_sa2 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_sa1, NULL));
+    TEST_ASSERT_TRUE((tasks[0].sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+    TEST_ASSERT_TRUE((tasks[5].sched_flags & SYN_SCHED_FLAG_PASSED) != 0U);
+    TEST_ASSERT_TRUE((tasks[5].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_sa2, NULL));
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[5].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+    TEST_ASSERT_NULL(sched.standalone_mutexes);
+
+    /* Unbound owner (ext_owner.sched == NULL) unlock refreshes bound waiter's scheduler share */
+    SYN_Task ext_owner = {0};
+    syn_task_create(&ext_owner, "ext", owner_pass_fn, SYN_PRIO_LOW, NULL);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_ext, &ext_owner));
+    tasks[5].sched_flags = SYN_SCHED_FLAG_PASSED;
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_ext, &tasks[5]));
+    sched.running = &tasks[0];
+    sched.share_contended = false;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_ext, &ext_owner));
+    TEST_ASSERT_TRUE(sched.share_contended);
+    sched.running = NULL;
+
+    /* Unbound overflow (wake_sched == NULL) safely skips evicted scheduler scan */
+    SYN_Task unb[5];
+    for (int i = 0; i < 5; i++) {
+        syn_task_create(&unb[i], "unb", owner_pass_fn, (i == 0) ? SYN_PRIO_LOW : SYN_PRIO_HIGH,
+                        NULL);
+    }
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_unb, &ext_owner));
+    for (int i = 0; i < 5; i++) {
+        TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_unb, &unb[i]));
+    }
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_unb, &ext_owner));
+}
+
+static void test_mutex_recursive_relock_wait_keep_and_cross_sched_pi(void)
+{
+    mock_tick_ms = 0U;
+
+    /* 1. Recursive re-lock on an already-owned mutex preserves active MUTEX_WAIT + owner boost */
+    SYN_Mutex m_rec;
+    SYN_Mutex m_contended;
+    SYN_Task rec_tasks[2];
+    SYN_Sched rec_sched;
+    PT_MUTEX_INIT(&m_rec);
+    PT_MUTEX_INIT(&m_contended);
+
+    syn_task_create(&rec_tasks[0], "crit_rec", owner_pass_fn, SYN_PRIO_CRITICAL, NULL);
+    syn_task_create(&rec_tasks[1], "low_own", owner_pass_fn, SYN_PRIO_LOW, NULL);
+    syn_sched_init(&rec_sched, rec_tasks, 2U);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_rec, &rec_tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_contended, &rec_tasks[1]));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_contended, &rec_tasks[0]));
+    TEST_ASSERT_TRUE((rec_tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, rec_tasks[1].priority);
+
+    /* Case 2 recursive re-lock on m_rec must NOT clear rec_tasks[0]'s wait on m_contended */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_rec, &rec_tasks[0]));
+    TEST_ASSERT_EQUAL_UINT16(2U, m_rec.lock_count);
+    TEST_ASSERT_TRUE((rec_tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, rec_tasks[1].priority);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_contended, &rec_tasks[1]));
+    TEST_ASSERT_EQUAL_UINT8(0U, rec_tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, rec_tasks[1].priority);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_rec, &rec_tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_rec, &rec_tasks[0]));
+
+    /* 2. Unbound owner (ext_owner.sched == NULL) holding TWO contended mutexes + standalone NULL:
+     *    - Contend m_ext1 FIRST, m_ext2 SECOND, m_null THIRD -> standalone_mutexes =
+     * m_null->m_ext2->m_ext1
+     *    - Unlock m_ext1 FIRST -> walks next_contended tail and keeps waiter on m_ext2
+     *    - Boost/restore waiter on m_ext2 -> propagates boost & demotion to unbound ext_owner! */
+    SYN_Task ext_owner;
+    syn_task_create(&ext_owner, "ext_unb", owner_pass_fn, SYN_PRIO_LOW, NULL);
+    SYN_Mutex m_ext1;
+    SYN_Mutex m_ext2;
+    SYN_Mutex m_null;
+    PT_MUTEX_INIT(&m_ext1);
+    PT_MUTEX_INIT(&m_ext2);
+    PT_MUTEX_INIT(&m_null);
+
+    SYN_Task w_unb;
+    SYN_Sched unb_sched;
+    syn_task_create(&w_unb, "w_unb", owner_pass_fn, SYN_PRIO_HIGH, NULL);
+    syn_sched_init(&unb_sched, &w_unb, 1U);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_ext1, &ext_owner));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_ext2, &ext_owner));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_null, NULL));
+
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_ext1, &w_unb));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_ext2, &w_unb));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_null, &w_unb));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, ext_owner.priority);
+
+    /* Unlock tail m_ext1: exercises mutex_unlink_contended list traversal while keeping m_ext2 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_ext1, &ext_owner));
+    TEST_ASSERT_TRUE((w_unb.sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, ext_owner.priority);
+
+    /* Boost & restore w_unb -> exercises unbound owner boost & demotion + owner==NULL skip */
+    syn_task_boost_priority(&w_unb, SYN_PRIO_CRITICAL);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, ext_owner.priority);
+    syn_task_restore_priority(&w_unb);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, ext_owner.priority);
+
+    /* Suspend w_unb -> unbound ext_owner drops back to intrinsic SYN_PRIO_LOW! */
+    syn_task_suspend(&w_unb);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, ext_owner.priority);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_ext2, &ext_owner));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_null, NULL));
+
+    /* 3. Cross-scheduler PI: sched2 waiter -> m_shared -> sched1 owner -> m_s1_chain -> s1_root */
+    SYN_Task s1_tasks[3];
+    SYN_Task s2_tasks[6];
+    SYN_Sched sched1;
+    SYN_Sched sched2;
+    SYN_Mutex m_shared;
+    SYN_Mutex m_s1_chain;
+    SYN_Mutex m_s2_local;
+    PT_MUTEX_INIT(&m_shared);
+    PT_MUTEX_INIT(&m_s1_chain);
+    PT_MUTEX_INIT(&m_s2_local);
+
+    syn_task_create(&s1_tasks[0], "s1_root", owner_pass_fn, SYN_PRIO_LOW, NULL);
+    syn_task_create(&s1_tasks[1], "s1_mid", owner_pass_fn, SYN_PRIO_LOW, NULL);
+    syn_task_create(&s1_tasks[2], "s1_run", owner_pass_fn, SYN_PRIO_NORMAL, NULL);
+    syn_sched_init(&sched1, s1_tasks, 3U);
+
+    syn_task_create(&s2_tasks[0], "s2_evict", owner_pass_fn, SYN_PRIO_LOW, NULL);
+    for (int i = 1; i < 5; i++) {
+        syn_task_create(&s2_tasks[i], "s2_high", owner_pass_fn, SYN_PRIO_HIGH, NULL);
+    }
+    syn_task_create(&s2_tasks[5], "s2_lown", owner_pass_fn, SYN_PRIO_LOW, NULL);
+    syn_sched_init(&sched2, s2_tasks, 6U);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_s1_chain, &s1_tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_shared, &s1_tasks[1]));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_s1_chain, &s1_tasks[1]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_s2_local, &s2_tasks[5]));
+
+    /* Evict s2_tasks[0] with 4 HIGH waiters from sched2; s2_tasks[1] also waits on m_s2_local */
+    s2_tasks[0].sched_flags = SYN_SCHED_FLAG_PASSED;
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_shared, &s2_tasks[0]));
+    for (int i = 1; i <= 4; i++) {
+        s2_tasks[i].sched_flags = SYN_SCHED_FLAG_PASSED;
+        TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_shared, &s2_tasks[i]));
+    }
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_s2_local, &s2_tasks[1]));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, s1_tasks[1].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, s1_tasks[0].priority);
+
+    /* Boosting s2_tasks[1] to CRITICAL boosts s1_mid & s1_root in sched1 and refreshes sched1! */
+    sched1.running = &s1_tasks[2];
+    sched1.share_contended = false;
+    syn_task_boost_priority(&s2_tasks[1], SYN_PRIO_CRITICAL);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, s1_tasks[1].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, s1_tasks[0].priority);
+    TEST_ASSERT_TRUE(sched1.share_contended);
+
+    /* Restoring s2_tasks[1] demotes s1_mid & s1_root back to HIGH across schedulers! */
+    syn_task_restore_priority(&s2_tasks[1]);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, s1_tasks[1].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, s1_tasks[0].priority);
+    sched1.running = NULL;
+
+    /* Unlocking m_shared wakes sched2 evicted s2_tasks[0] while keeping s2_tasks[1] on m_s2_local
+     */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_shared, &s1_tasks[1]));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, s1_tasks[1].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, s1_tasks[0].priority);
+    TEST_ASSERT_TRUE((s2_tasks[0].sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
+    TEST_ASSERT_EQUAL_UINT8(0U, s2_tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+    TEST_ASSERT_TRUE((s2_tasks[1].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_s2_local, &s2_tasks[5]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_s1_chain, &s1_tasks[0]));
+}
+
 void run_mutex_tests(void)
 {
     RUN_TEST(test_mutex_init_and_query);
@@ -782,4 +1235,9 @@ void run_mutex_tests(void)
     RUN_TEST(test_r4_mutex_manual_boost_stale_waiter_and_full_array);
     RUN_TEST(test_mutex_transitive_inheritance_and_probe);
     RUN_TEST(test_tier_a_mutex_evicted_waiter_wakeup_isolation);
+    RUN_TEST(test_mutex_pi_cycle_demotion_and_unlock_recovery);
+    RUN_TEST(test_mutex_try_lock_pt_continue_and_standalone_unlock_wake);
+    RUN_TEST(test_mutex_switch_and_dual_contention_pi);
+    RUN_TEST(test_mutex_standalone_evicted_wake_and_unbound_owner_refresh);
+    RUN_TEST(test_mutex_recursive_relock_wait_keep_and_cross_sched_pi);
 }

@@ -60,7 +60,7 @@ void syn_seq_start(SYN_Sequencer *seq)
         return;        /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
     }
     seq->current = 0;
-    seq->run_gen++;
+    seq->cb_untouched = false;
     seq->state = SYN_SEQ_RUNNING;
 }
 
@@ -71,6 +71,7 @@ void syn_seq_stop(SYN_Sequencer *seq)
     if (seq == NULL) { /* LCOV_EXCL_LINE: Defensive bounds check / hardware port fallback */
         return;        /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
     }
+    seq->cb_untouched = false;
     seq->state = SYN_SEQ_IDLE;
 }
 
@@ -80,17 +81,18 @@ void syn_seq_stop(SYN_Sequencer *seq)
  */
 static void execute_step(SYN_Sequencer *seq)
 {
-    uint16_t step_idx = seq->current;
-    uint8_t start_gen = seq->run_gen;
-    const SYN_SeqStep *step = &seq->steps[step_idx];
+    const SYN_SeqStep *step = &seq->steps[seq->current];
 
+    seq->cb_untouched = true;
     /* Execute action if present */
     if (step->action != NULL) {
         step->action(step->ctx);
     }
+    bool untouched = seq->cb_untouched;
+    seq->cb_untouched = false;
 
-    /* Respect state/restart changes requested inside action callback (including step-0 restart) */
-    if (seq->state != SYN_SEQ_RUNNING || seq->run_gen != start_gen) {
+    /* Respect init/start/stop/nested-update changes requested inside action callback */
+    if (!untouched) {
         return;
     }
 
@@ -103,6 +105,45 @@ static void execute_step(SYN_Sequencer *seq)
         seq->current++;
     }
 }
+
+/** @cond INTERNAL */
+static bool complete_sequence(SYN_Sequencer *seq, bool *out_done)
+{
+    seq->loop_count++;
+    if (seq->loop) {
+        seq->current = 0;
+        seq->state = SYN_SEQ_RUNNING;
+    } else {
+        seq->state = SYN_SEQ_DONE;
+    }
+
+    seq->cb_untouched = true;
+    if (seq->on_complete != NULL) {
+        seq->on_complete(seq, seq->on_complete_ctx);
+    }
+    bool untouched = seq->cb_untouched;
+    seq->cb_untouched = false;
+
+    if (untouched) {
+        if (seq->loop) {
+            seq->current = 0;
+            seq->state = SYN_SEQ_RUNNING;
+        } else {
+            seq->state = SYN_SEQ_DONE;
+        }
+    }
+
+    if (seq->state == SYN_SEQ_DONE) {
+        *out_done = true;
+        return true;
+    }
+    if (seq->state != SYN_SEQ_RUNNING) {
+        *out_done = false;
+        return true;
+    }
+    return false;
+}
+/** @endcond */
 
 bool syn_seq_update(SYN_Sequencer *seq)
 {
@@ -133,23 +174,9 @@ bool syn_seq_update(SYN_Sequencer *seq)
     size_t executed = 0;
     while (seq->state == SYN_SEQ_RUNNING && executed < max_exec) {
         if (seq->current >= seq->step_count) {
-            /* Sequence complete */
-            seq->loop_count++;
-            if (!seq->loop) {
-                seq->state = SYN_SEQ_DONE;
-            } else {
-                seq->current = 0;
-            }
-
-            if (seq->on_complete != NULL) {
-                seq->on_complete(seq, seq->on_complete_ctx);
-            }
-
-            if (seq->state == SYN_SEQ_DONE) {
-                return true;
-            }
-            if (seq->state != SYN_SEQ_RUNNING) {
-                return false;
+            bool done = false;
+            if (complete_sequence(seq, &done)) {
+                return done;
             }
         }
 

@@ -40,8 +40,11 @@ extern "C" {
 typedef struct SYN_Mutex {
     SYN_Task *owner;                          /**< Current owner task (NULL if unlocked) */
     SYN_Task *waiters[SYN_MUTEX_MAX_WAITERS]; /**< Active contended waiter tasks         */
-    struct SYN_Mutex *next_held;              /**< Next mutex held by owner              */
+    struct SYN_Mutex *next_held;              /**< Next mutex in owner lock list         */
+    struct SYN_Mutex *next_contended;         /**< Next mutex in wait_sched list         */
+    struct SYN_Sched *wait_sched;             /**< Scheduler tracking external waiters   */
     uint16_t lock_count;                      /**< Recursive lock acquisition depth      */
+    bool has_evicted;                         /**< True if waiters[] overflowed          */
 } SYN_Mutex;
 
 /* ── Public API ─────────────────────────────────────────────────────────── */

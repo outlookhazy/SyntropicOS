@@ -349,9 +349,8 @@ uint32_t syn_port_get_tick_ms(void)
 
 uint32_t syn_port_get_tick_us(void)
 {
-    uint32_t load = SYSTICK_LOAD;
-    uint32_t cycles_per_us = (uint32_t)(SYSTEM_CLOCK_HZ / 1000000UL);
-    if (load == 0U || cycles_per_us == 0U) {
+    uint32_t load = SYSTICK_LOAD & 0x00FFFFFFUL;
+    if (load == 0U) {
         return systick_ms * 1000U;
     }
 
@@ -363,7 +362,7 @@ uint32_t syn_port_get_tick_us(void)
     do {
         ms1 = systick_ms;
         pend1 = SCB_ICSR & SCB_ICSR_PENDSTSET;
-        val = SYSTICK_VAL;
+        val = SYSTICK_VAL & 0x00FFFFFFUL;
         ms2 = systick_ms;
         pend2 = SCB_ICSR & SCB_ICSR_PENDSTSET;
     } while (ms1 != ms2 || pend1 != pend2);
@@ -372,8 +371,10 @@ uint32_t syn_port_get_tick_us(void)
         ms1++;
     }
 
-    uint32_t elapsed_cycles = (load >= val) ? (load - val) : 0U;
-    return (ms1 * 1000U) + (elapsed_cycles / cycles_per_us);
+    uint32_t elapsed_cycles = (val == 0U || val > load) ? 0U : (load - val);
+    uint32_t elapsed_us =
+        (uint32_t)(((uint64_t)elapsed_cycles * 1000ULL) / ((uint64_t)load + 1ULL));
+    return (ms1 * 1000U) + elapsed_us;
 }
 
 void syn_port_delay_ms(uint32_t ms)
@@ -411,7 +412,7 @@ void syn_port_enter_critical(void)
 {
     uint32_t primask;
     __asm volatile("mrs %0, primask" : "=r"(primask));
-    __asm volatile("cpsid i");
+    __asm volatile("cpsid i" ::: "memory");
     if (critical_nesting == 0U) {
         critical_status = primask;
     }
@@ -420,11 +421,12 @@ void syn_port_enter_critical(void)
 
 void syn_port_exit_critical(void)
 {
+    __asm volatile("" ::: "memory");
     if (critical_nesting > 0U) {
         critical_nesting--;
         if (critical_nesting == 0U) {
             if ((critical_status & 1U) == 0U) {
-                __asm volatile("cpsie i");
+                __asm volatile("cpsie i" ::: "memory");
             }
         }
     }

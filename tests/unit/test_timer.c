@@ -8,6 +8,8 @@
 #include "syntropic/syntropic.h"
 #include "unity/unity.h"
 
+#include <string.h>
+
 static int timer_fire_count = 0;
 
 static void timer_callback(SYN_Timer *t, void *ctx)
@@ -306,6 +308,42 @@ static void test_tier_a_timer_critical_section_and_self_stop(void)
     TEST_ASSERT_EQUAL_INT(1, fires);
 }
 
+static void test_timer_next_expiry_wraparound_with_uint32_max_peer(void)
+{
+    SYN_Timer timers[2];
+
+    /* 1. Max-horizon 0x7FFFFFFEU vs 1-ms-ahead 0xFFFFFFFFU at now = 0xFFFFFFFEU */
+    memset(timers, 0, sizeof(timers));
+    mock_tick_ms = 0xFFFFFFFEU;
+    timers[0].active = true;
+    timers[0].target_tick = UINT32_MAX; /* 1 ms in future */
+    timers[1].active = true;
+    timers[1].target_tick = 0x7FFFFFFEU; /* 2^31 ms in future (not past!) */
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX - 1U, syn_timer_next_expiry(timers, 2U));
+
+    /* 2. Wrapped 0x00000005U vs 0xFFFFFFFFU at now = 0xFFFFFFF0U */
+    mock_tick_ms = 0xFFFFFFF0U;
+    syn_timer_init(&timers[0], 21U, false, NULL, NULL); /* target_tick = 0x00000005U */
+    syn_timer_init(&timers[1], 15U, false, NULL, NULL); /* target_tick = 0xFFFFFFFFU */
+    syn_timer_start(&timers[0]);
+    syn_timer_start(&timers[1]);
+
+    TEST_ASSERT_EQUAL_UINT32(0x00000005U, timers[0].target_tick);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, timers[1].target_tick);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX - 1U, syn_timer_next_expiry(timers, 2U));
+
+    /* 3. Already-expired timer at now == UINT32_MAX returns now */
+    mock_tick_ms = UINT32_MAX;
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, syn_timer_next_expiry(timers, 2U));
+
+    mock_tick_ms = 0xFFFFFFF0U;
+    syn_timer_stop(&timers[1]);
+    TEST_ASSERT_EQUAL_UINT32(0x00000005U, syn_timer_next_expiry(timers, 2U));
+
+    syn_timer_stop(&timers[0]);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, syn_timer_next_expiry(timers, 2U));
+}
+
 void run_timer_tests(void)
 {
     RUN_TEST(test_software_timer);
@@ -317,4 +355,5 @@ void run_timer_tests(void)
     RUN_TEST(test_timer_period_int32_max_clamp);
     RUN_TEST(test_r4_timer_zero_period_clamp_and_null_guards);
     RUN_TEST(test_tier_a_timer_critical_section_and_self_stop);
+    RUN_TEST(test_timer_next_expiry_wraparound_with_uint32_max_peer);
 }

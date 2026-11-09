@@ -25,8 +25,11 @@ void syn_workqueue_init(SYN_WorkQueue *wq, SYN_WorkItem *buf, size_t capacity)
         return; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
     }
 
-    syn_spsc_queue_init(&wq->queue, buf, sizeof(SYN_WorkItem), capacity);
-    wq->overflow = 0;
+    wq->overflow = 0U;
+    if (syn_spsc_queue_init(&wq->queue, buf, sizeof(SYN_WorkItem), capacity) != SYN_OK) {
+        memset(&wq->queue, 0, sizeof(wq->queue));
+        return;
+    }
 
     memset(buf, 0, sizeof(SYN_WorkItem) * capacity);
 }
@@ -40,8 +43,10 @@ bool syn_workqueue_post(SYN_WorkQueue *wq, SYN_WorkFunc func, void *ctx)
     SYN_WorkItem item = {.func = func, .ctx = ctx};
     SYN_Status status = syn_spsc_queue_push(&wq->queue, &item);
 
-    if (status != SYN_OK) {
+    if (status == SYN_BUSY) {
         wq->overflow++;
+    }
+    if (status != SYN_OK) {
         syn_port_exit_critical();
         return false;
     }

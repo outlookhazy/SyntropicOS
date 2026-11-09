@@ -67,12 +67,12 @@ extern "C" {
 
 /** @brief Typed message queue — fixed-size SPSC ring buffer. */
 typedef struct {
-    uint8_t *buf;         /**< Message storage (flat byte array)   */
-    size_t msg_size;      /**< Size of each message in bytes       */
-    size_t capacity;      /**< Max messages (slots)                */
-    volatile size_t head; /**< Write index (producer)              */
-    volatile size_t tail; /**< Read index (consumer)               */
-    uint32_t overflow;    /**< Messages dropped (queue full)       */
+    uint8_t *buf;               /**< Message storage (flat byte array)   */
+    size_t msg_size;            /**< Size of each message in bytes       */
+    size_t capacity;            /**< Max messages (slots)                */
+    volatile size_t head;       /**< Write index (producer)              */
+    volatile size_t tail;       /**< Read index (consumer)               */
+    volatile uint32_t overflow; /**< Messages dropped (queue full)       */
 #if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
     bool notify; /**< Auto-notify consumer core on post?  */
 #endif
@@ -122,6 +122,27 @@ void syn_port_ipc_notify(void);
 
 /* ── API ────────────────────────────────────────────────────────────────── */
 
+/** @cond INTERNAL */
+static inline void syn_mailbox_set_overflow(SYN_Mailbox *mb, uint32_t val)
+{
+#if defined(SYN_BARRIER_TSAN)
+    __atomic_store_n(&mb->overflow, val, __ATOMIC_RELAXED);
+#else
+    mb->overflow = val;
+#endif
+}
+
+static inline void syn_mailbox_inc_overflow(SYN_Mailbox *mb)
+{
+#if defined(SYN_BARRIER_TSAN)
+    uint32_t cur = __atomic_load_n(&mb->overflow, __ATOMIC_RELAXED);
+    __atomic_store_n(&mb->overflow, cur + 1U, __ATOMIC_RELAXED);
+#else
+    mb->overflow++;
+#endif
+}
+/** @endcond */
+
 /**
  * @brief Initialize a mailbox at runtime.
  * @param mb        Mailbox instance.
@@ -131,12 +152,13 @@ void syn_port_ipc_notify(void);
  */
 static inline void syn_mailbox_init(SYN_Mailbox *mb, void *buf, size_t msg_size, size_t capacity)
 {
-    mb->buf = (uint8_t *)buf;
+    bool bad_cap = (msg_size > 0U) && (capacity > (SIZE_MAX / msg_size));
+    mb->buf = bad_cap ? NULL : (uint8_t *)buf;
     mb->msg_size = msg_size;
-    mb->capacity = capacity;
+    mb->capacity = bad_cap ? 0U : capacity;
     mb->head = 0;
     mb->tail = 0;
-    mb->overflow = 0;
+    syn_mailbox_set_overflow(mb, 0U);
 #if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
     mb->notify = false;
 #endif
@@ -174,13 +196,22 @@ static inline void syn_mailbox_set_notify(SYN_Mailbox *mb, bool enable)
 #endif
 static inline bool syn_mailbox_post(SYN_Mailbox *mb, const void *msg)
 {
-    size_t head = mb->head;
-    size_t next = head + 1;
+    if (mb->msg_size == 0U || mb->buf == NULL || msg == NULL ||
+        mb->capacity > (SIZE_MAX / mb->msg_size)) {
+        return false;
+    }
+    if (mb->capacity <= 1U) {
+        syn_mailbox_inc_overflow(mb);
+        return false;
+    }
+
+    size_t head = SYN_LOAD_ACQUIRE(&mb->head);
+    size_t next = head + 1U;
     if (next >= mb->capacity)
-        next = 0;
+        next = 0U;
 
     if (next == SYN_LOAD_ACQUIRE(&mb->tail)) {
-        mb->overflow++;
+        syn_mailbox_inc_overflow(mb);
         return false;
     }
 
@@ -212,17 +243,21 @@ static inline bool syn_mailbox_post(SYN_Mailbox *mb, const void *msg)
  */
 static inline bool syn_mailbox_receive(SYN_Mailbox *mb, void *msg)
 {
+    if (mb->msg_size == 0U || mb->buf == NULL || msg == NULL ||
+        mb->capacity > (SIZE_MAX / mb->msg_size))
+        return false;
+
     size_t head = SYN_LOAD_ACQUIRE(&mb->head);
-    size_t tail = mb->tail;
+    size_t tail = SYN_LOAD_ACQUIRE(&mb->tail);
 
     if (tail == head)
         return false;
 
     memcpy(msg, &mb->buf[tail * mb->msg_size], mb->msg_size);
 
-    size_t next = tail + 1;
+    size_t next = tail + 1U;
     if (next >= mb->capacity)
-        next = 0;
+        next = 0U;
     SYN_STORE_RELEASE(&mb->tail, next);
 
     return true;
@@ -237,9 +272,12 @@ static inline bool syn_mailbox_receive(SYN_Mailbox *mb, void *msg)
  */
 static inline const void *syn_mailbox_peek(const SYN_Mailbox *mb)
 {
-    if (SYN_LOAD_ACQUIRE(&mb->head) == mb->tail)
+    size_t head = SYN_LOAD_ACQUIRE(&mb->head);
+    size_t tail = SYN_LOAD_ACQUIRE(&mb->tail);
+    if (head == tail || mb->buf == NULL || mb->msg_size == 0U ||
+        mb->capacity > (SIZE_MAX / mb->msg_size))
         return NULL;
-    return &mb->buf[mb->tail * mb->msg_size];
+    return &mb->buf[tail * mb->msg_size];
 }
 
 /**
@@ -249,7 +287,7 @@ static inline const void *syn_mailbox_peek(const SYN_Mailbox *mb)
  */
 static inline bool syn_mailbox_empty(const SYN_Mailbox *mb)
 {
-    return SYN_LOAD_ACQUIRE(&mb->head) == mb->tail;
+    return SYN_LOAD_ACQUIRE(&mb->head) == SYN_LOAD_ACQUIRE(&mb->tail);
 }
 
 /**
@@ -259,9 +297,11 @@ static inline bool syn_mailbox_empty(const SYN_Mailbox *mb)
  */
 static inline bool syn_mailbox_full(const SYN_Mailbox *mb)
 {
-    size_t next = mb->head + 1;
+    if (mb->capacity <= 1U)
+        return true;
+    size_t next = SYN_LOAD_ACQUIRE(&mb->head) + 1U;
     if (next >= mb->capacity)
-        next = 0;
+        next = 0U;
     return next == SYN_LOAD_ACQUIRE(&mb->tail);
 }
 
@@ -272,9 +312,11 @@ static inline bool syn_mailbox_full(const SYN_Mailbox *mb)
  */
 static inline size_t syn_mailbox_pending(const SYN_Mailbox *mb)
 {
+    if (mb->capacity <= 1U)
+        return 0U;
     size_t h = SYN_LOAD_ACQUIRE(&mb->head);
-    size_t t = mb->tail;
-    return (h >= t) ? h - t : mb->capacity - t + h;
+    size_t t = SYN_LOAD_ACQUIRE(&mb->tail);
+    return (h >= t) ? (h - t) : (mb->capacity - t + h);
 }
 
 /**
@@ -285,7 +327,11 @@ static inline size_t syn_mailbox_pending(const SYN_Mailbox *mb)
 static inline size_t syn_mailbox_free(const SYN_Mailbox *mb)
 {
     /* One slot is always reserved as sentinel */
-    return mb->capacity - 1 - syn_mailbox_pending(mb);
+    if (mb->capacity <= 1U)
+        return 0U;
+    size_t pending = syn_mailbox_pending(mb);
+    size_t usable = mb->capacity - 1U;
+    return (usable > pending) ? (usable - pending) : 0U;
 }
 
 /**
@@ -295,7 +341,11 @@ static inline size_t syn_mailbox_free(const SYN_Mailbox *mb)
  */
 static inline uint32_t syn_mailbox_overflows(const SYN_Mailbox *mb)
 {
+#if defined(SYN_BARRIER_TSAN)
+    return __atomic_load_n(&mb->overflow, __ATOMIC_RELAXED);
+#else
     return mb->overflow;
+#endif
 }
 
 /**

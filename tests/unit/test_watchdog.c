@@ -312,6 +312,30 @@ static void test_r4_watchdog_isr_toctou_and_zero_timeout_clamp(void)
     TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
 }
 
+static void test_watchdog_max_timeout_fires_past_int32_max_elapsed(void)
+{
+    SYN_Watchdog wdt;
+    SYN_WDT_Entry entries[1];
+
+    mock_tick_ms = 100U;
+    wdt_timeout_count = 0;
+    syn_watchdog_init(&wdt, entries, 1U, wdt_on_timeout, NULL);
+
+    int8_t id = syn_watchdog_register(&wdt, "max_tmo", 0x7FFFFFFFU);
+    TEST_ASSERT_TRUE(id >= 0);
+    TEST_ASSERT_EQUAL_UINT32(0x7FFFFFFFU, entries[id].timeout_ms);
+
+    /* Poll 1 ms past 0x7FFFFFFFU deadline (elapsed == 0x80000000U): must fire, not wrap negative */
+    mock_tick_ms = 100U + 0x80000000U;
+    syn_watchdog_update(&wdt);
+    TEST_ASSERT_EQUAL_INT(1, wdt_timeout_count);
+
+    /* Poll 4097 ms past the reset deadline (elapsed == 0x80001000U): also fires */
+    mock_tick_ms += 0x80001000U;
+    syn_watchdog_update(&wdt);
+    TEST_ASSERT_EQUAL_INT(2, wdt_timeout_count);
+}
+
 void run_watchdog_tests(void)
 {
     RUN_TEST(test_watchdog);
@@ -321,4 +345,5 @@ void run_watchdog_tests(void)
     RUN_TEST(test_watchdog_capacity_clamp_null_entries_and_isr_forward_checkin);
     RUN_TEST(test_watchdog_callback_checkin_preserved_and_timeout_clamp);
     RUN_TEST(test_r4_watchdog_isr_toctou_and_zero_timeout_clamp);
+    RUN_TEST(test_watchdog_max_timeout_fires_past_int32_max_elapsed);
 }

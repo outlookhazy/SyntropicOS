@@ -136,6 +136,19 @@ static void test_workqueue_self_repost_bounded_budget(void)
     TEST_ASSERT_EQUAL_size_t(2U, syn_workqueue_pending(&wq));
 }
 
+static void test_workqueue_oversized_capacity_guard(void)
+{
+    SYN_WorkItem items[2];
+    SYN_WorkQueue wq;
+    int val = 7;
+
+    syn_workqueue_init(&wq, items, (SIZE_MAX / sizeof(SYN_WorkItem)) + 1U);
+    TEST_ASSERT_TRUE(syn_workqueue_empty(&wq));
+    TEST_ASSERT_FALSE(syn_workqueue_post(&wq, wq_handler, &val));
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_workqueue_overflows(&wq));
+    TEST_ASSERT_EQUAL_size_t(0U, syn_workqueue_process(&wq));
+}
+
 void run_workqueue_tests(void)
 {
     RUN_TEST(test_workqueue);
@@ -143,4 +156,5 @@ void run_workqueue_tests(void)
     RUN_TEST(test_workqueue_null_context);
     RUN_TEST(test_workqueue_null_func_popped);
     RUN_TEST(test_workqueue_self_repost_bounded_budget);
+    RUN_TEST(test_workqueue_oversized_capacity_guard);
 }

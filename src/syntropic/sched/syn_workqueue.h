@@ -44,8 +44,8 @@ typedef struct {
 
 /** Work queue (lock-free SPSC ring). */
 typedef struct {
-    SYN_SPSC_Queue queue; /**< Embedded lock-free SPSC queue */
-    uint32_t overflow;    /**< Counter: posts dropped due to full */
+    SYN_SPSC_Queue queue;       /**< Embedded lock-free SPSC queue */
+    volatile uint32_t overflow; /**< Counter: posts dropped due to full */
 } SYN_WorkQueue;
 
 /**

@@ -8,7 +8,7 @@
 #include "unity/unity.h"
 
 enum { AO_ST_OFF, AO_ST_ON };
-enum { AO_EV_TOGGLE, AO_EV_SET_VAL, AO_EV_SUSPEND, AO_EV_RESTART };
+enum { AO_EV_TOGGLE, AO_EV_SET_VAL, AO_EV_SUSPEND, AO_EV_RESTART, AO_EV_SELF_POST };
 
 static int ao_action_called = 0;
 static int ao_last_val = 0;
@@ -41,6 +41,13 @@ static void ao_on_self_restart(void *ctx)
     syn_task_restart(ao->task);
 }
 
+static void ao_on_self_post(void *ctx)
+{
+    SYN_ActiveObject *ao = (SYN_ActiveObject *)ctx;
+    ao_action_called++;
+    (void)syn_ao_post(ao, AO_EV_SELF_POST, NULL);
+}
+
 static const SYN_FSM_Transition test_ao_table[] = {
     {AO_ST_OFF, AO_EV_TOGGLE, AO_ST_ON, NULL, ao_on_toggle},
     {AO_ST_ON, AO_EV_TOGGLE, AO_ST_OFF, NULL, ao_on_toggle},
@@ -48,6 +55,7 @@ static const SYN_FSM_Transition test_ao_table[] = {
     {AO_ST_ON, AO_EV_SET_VAL, AO_ST_ON, NULL, ao_on_set_val},
     {AO_ST_OFF, AO_EV_SUSPEND, AO_ST_ON, NULL, ao_on_self_suspend},
     {AO_ST_OFF, AO_EV_RESTART, AO_ST_ON, NULL, ao_on_self_restart},
+    {AO_ST_OFF, AO_EV_SELF_POST, AO_ST_OFF, NULL, ao_on_self_post},
     SYN_FSM_END};
 
 static SYN_ActiveObject test_ao_obj;
@@ -290,6 +298,30 @@ static void test_r4_active_object_self_suspend_and_restart(void)
     TEST_ASSERT_EQUAL(AO_ST_OFF, syn_fsm_state(&test_ao_obj.fsm));
 }
 
+static void test_active_object_self_post_burst_cap(void)
+{
+    SYN_Task ao_task;
+    SYN_Sched sched;
+
+    syn_ao_init(&test_ao_obj, &ao_task, "ao_self_post", SYN_PRIO_NORMAL, test_ao_table, AO_ST_OFF,
+                mbox_buf, 4);
+    syn_sched_init(&sched, &ao_task, 1U);
+
+    /* 1 initial event queued -> single syn_sched_run() executes initial budget (1) and yields */
+    TEST_ASSERT_TRUE(syn_ao_post(&test_ao_obj, AO_EV_SELF_POST, NULL));
+    ao_action_called = 0;
+    TEST_ASSERT_TRUE(syn_sched_run(&sched));
+    TEST_ASSERT_EQUAL_INT(1, ao_action_called);
+    TEST_ASSERT_EQUAL_size_t(1U, syn_mailbox_pending(&test_ao_obj.mailbox));
+    TEST_ASSERT_TRUE((ao_task.sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
+
+    /* Post a 2nd event so initial budget is 2 -> single syn_sched_run() executes 2 and yields */
+    TEST_ASSERT_TRUE(syn_ao_post(&test_ao_obj, AO_EV_SELF_POST, NULL));
+    TEST_ASSERT_TRUE(syn_sched_run(&sched));
+    TEST_ASSERT_EQUAL_INT(3, ao_action_called);
+    TEST_ASSERT_EQUAL_size_t(2U, syn_mailbox_pending(&test_ao_obj.mailbox));
+}
+
 void run_ao_tests(void)
 {
     RUN_TEST(test_active_object);
@@ -299,4 +331,5 @@ void run_ao_tests(void)
     RUN_TEST(test_active_object_multi_task_wakeup);
     RUN_TEST(test_active_object_burst_shares_cpu);
     RUN_TEST(test_r4_active_object_self_suspend_and_restart);
+    RUN_TEST(test_active_object_self_post_burst_cap);
 }

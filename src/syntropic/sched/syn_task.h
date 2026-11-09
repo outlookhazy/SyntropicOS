@@ -72,6 +72,9 @@ typedef enum {
 /** @brief Task is actively contended in a SYN_Mutex waiter list. */
 #define SYN_SCHED_FLAG_MUTEX_WAIT 0x20U
 
+/** @brief Task called syn_task_restart() on itself during its current dispatch. */
+#define SYN_SCHED_FLAG_RESTARTED 0x40U
+
 /** @brief Sentinel value for SYN_Task.manual_priority when no manual boost is active. */
 #define SYN_TASK_NO_MANUAL_PRIO 0xFFU
 

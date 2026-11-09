@@ -172,7 +172,8 @@ uint32_t syn_timer_next_expiry(const SYN_Timer *timers, size_t count)
 
     syn_port_enter_critical();
     uint32_t now = syn_port_get_tick_ms();
-    uint32_t earliest = UINT32_MAX;
+    uint32_t earliest = 0U;
+    bool has_earliest = false;
     bool any_ready_now = false;
 
     for (size_t i = 0U; i < count; i++) {
@@ -187,10 +188,9 @@ uint32_t syn_timer_next_expiry(const SYN_Timer *timers, size_t count)
             continue;
         }
 
-        /* Timer is in the future — track the earliest (avoid UINT32_MAX sentinel alias) */
-        uint32_t target = (raw_target == UINT32_MAX) ? (UINT32_MAX - 1U) : raw_target;
-        if (earliest == UINT32_MAX || (int32_t)(target - earliest) < 0) {
-            earliest = target;
+        if (!has_earliest || (int32_t)(raw_target - earliest) < 0) {
+            earliest = raw_target;
+            has_earliest = true;
         }
     }
     syn_port_exit_critical();
@@ -199,8 +199,11 @@ uint32_t syn_timer_next_expiry(const SYN_Timer *timers, size_t count)
     if (any_ready_now) {
         return now;
     }
+    if (!has_earliest) {
+        return UINT32_MAX;
+    }
 
-    return earliest;
+    return (earliest == UINT32_MAX) ? (UINT32_MAX - 1U) : earliest;
 }
 
 #endif /* SYN_USE_TIMER */

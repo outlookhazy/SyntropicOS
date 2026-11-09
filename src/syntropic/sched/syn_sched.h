@@ -97,6 +97,7 @@ typedef struct SYN_Sched {
     uint16_t max_wait_ms[SYN_SCHED_PRIO_LEVELS]; /**< Per-priority starvation bounds (ms)   */
     uint32_t share_deadline_ms;                  /**< Earliest peer due_ms during dispatch  */
     SYN_Task *running;                           /**< Task currently executing (or NULL)    */
+    struct SYN_Mutex *standalone_mutexes;        /**< Locked ownerless mutexes with waiters */
     bool share_contended;                        /**< Equal/higher-prio MORE peer waiting   */
     bool share_has_deadline;                     /**< True when share_deadline_ms is valid  */
     bool share_watch_wakeups;                    /**< Watch blocked/suspended urgent peers  */
@@ -326,8 +327,10 @@ void syn_task_restore_priority(SYN_Task *task);
 void syn_task_set_base_priority(SYN_Task *task, SYN_Prio new_prio);
 
 /** @cond INTERNAL */
+void syn_sched_boost_task_prio(SYN_Task *task);
 void syn_sched_recompute_task_prio(SYN_Task *task);
 void syn_sched_clear_mutex_wait(SYN_Task *task);
+void syn_sched_refresh_share(SYN_Sched *sched);
 /** @endcond */
 
 #ifdef __cplusplus

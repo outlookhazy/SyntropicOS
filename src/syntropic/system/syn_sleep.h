@@ -178,13 +178,16 @@ static inline bool syn_sleep_enter(SYN_Sleep *s)
     if (s == NULL) {
         return false;
     }
+    syn_port_enter_critical();
     if (!s->enabled || (s->max_depth == SYN_SLEEP_NONE) || (s->lock_mask != 0U)) {
         s->veto_count++;
+        syn_port_exit_critical();
         return false;
     }
 
     s->enter_count++;
     syn_port_sleep(s->max_depth);
+    syn_port_exit_critical();
     return true;
 }
 

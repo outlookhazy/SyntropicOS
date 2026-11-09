@@ -34,6 +34,7 @@ void syn_port_enter_critical(void)
 
 void syn_port_exit_critical(void)
 {
+    SYN_COMPILER_BARRIER();
     uint32_t core = get_core_num();
     if (critical_nesting[core] > 0) {
         critical_nesting[core]--;

@@ -117,8 +117,8 @@ void syn_watchdog_update(SYN_Watchdog *wdt)
         syn_port_enter_critical();
         if (wdt->entries[i].active) {
             uint32_t now = syn_port_get_tick_ms();
-            int32_t diff = (int32_t)(now - wdt->entries[i].last_checkin);
-            if (diff >= 0 && (uint32_t)diff >= wdt->entries[i].timeout_ms) {
+            uint32_t elapsed = now - wdt->entries[i].last_checkin;
+            if (elapsed >= wdt->entries[i].timeout_ms && elapsed <= 0xEFFFFFFFU) {
                 /* Reset check-in atomically so callback check-in/unregister is preserved */
                 wdt->entries[i].last_checkin = now;
                 timed_out = true;

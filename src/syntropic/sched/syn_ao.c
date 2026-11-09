@@ -22,6 +22,25 @@
 #include "../util/syn_assert.h"
 #include "syn_ao.h"
 
+/** @cond INTERNAL */
+static bool ao_dispatch_event(SYN_PT *pt, SYN_ActiveObject *ao, SYN_AO_Event ev)
+{
+    bool was_idle = PT_IS_IDLE(pt);
+    if (was_idle) {
+        pt->lc = 1U;
+    }
+    ao->last_event = ev;
+    syn_fsm_dispatch(&ao->fsm, (SYN_FSM_Event)ev.sig);
+    if (PT_IS_IDLE(pt)) {
+        return true;
+    }
+    if (was_idle) {
+        PT_INIT(pt);
+    }
+    return false;
+}
+/** @endcond */
+
 /**
  * @brief Protothread entry for active objects -- dispatches queued events.
  * @param pt    Protothread state.
@@ -35,6 +54,10 @@ static SYN_PT_Status syn_ao_pt_run(SYN_PT *pt, SYN_Task *task)
     }
 
     SYN_ActiveObject *ao = (SYN_ActiveObject *)task->user_data;
+    size_t burst_budget = syn_mailbox_pending(&ao->mailbox);
+    if (burst_budget == 0U) {
+        burst_budget = 1U;
+    }
 
     PT_BEGIN(pt);
 
@@ -43,26 +66,18 @@ static SYN_PT_Status syn_ao_pt_run(SYN_PT *pt, SYN_Task *task)
         PT_BLOCK_CONDITION(pt, task, !syn_mailbox_empty(&ao->mailbox));
 
         SYN_AO_Event ev;
-        bool has_msg = syn_mailbox_receive(&ao->mailbox, &ev);
-        if (has_msg) {
-            bool was_idle = PT_IS_IDLE(pt);
-            if (was_idle) {
-                pt->lc = 1U;
-            }
-            ao->last_event = ev;
-            syn_fsm_dispatch(&ao->fsm, (SYN_FSM_Event)ev.sig);
-            if (PT_IS_IDLE(pt)) {
+        if (syn_mailbox_receive(&ao->mailbox, &ev)) {
+            if (ao_dispatch_event(pt, ao, ev)) {
                 return PT_MORE;
             }
-            if (was_idle) {
-                PT_INIT(pt);
-            }
+            burst_budget--;
             if (task->state != (uint8_t)SYN_TASK_READY) {
                 PT_PASS(pt);
             }
         }
-        if (!syn_mailbox_empty(&ao->mailbox)) {
-            PT_CONTINUE_IF_NEEDED(pt, task);
+        if (!syn_mailbox_empty(&ao->mailbox) &&
+            (burst_budget == 0U || syn_task_should_share(task))) {
+            PT_CONTINUE(pt);
         }
     }
 

@@ -26,8 +26,8 @@ SYN_Status syn_timer_wheel_add(SYN_TimerWheel *wheel, SYN_TimerWheelNode *node,
     if (!wheel || !node || !cb || delay_ticks == 0)
         return SYN_INVALID_PARAM;
 
-    if (node->active) {
-        syn_timer_wheel_cancel(wheel, node);
+    if (node->active && syn_timer_wheel_cancel(wheel, node) != SYN_OK) {
+        return SYN_INVALID_PARAM;
     }
 
     uint32_t target_tick = wheel->current_tick + delay_ticks;
@@ -57,13 +57,20 @@ SYN_Status syn_timer_wheel_cancel(SYN_TimerWheel *wheel, SYN_TimerWheelNode *nod
     }
 
     uint32_t bucket_idx = node->expires_tick % SYN_TIMER_WHEEL_BUCKETS;
+    const SYN_TimerWheelNode *root = node;
+    while (root->prev != NULL) {
+        root = root->prev;
+    }
+    if (wheel->buckets[bucket_idx] != root && wheel->expired_head != root) {
+        return SYN_INVALID_PARAM;
+    }
 
     if (node->prev != NULL) {
         node->prev->next = node->next;
-    } else if (wheel->expired_head == node) {
-        wheel->expired_head = node->next;
-    } else {
+    } else if (wheel->buckets[bucket_idx] == node) {
         wheel->buckets[bucket_idx] = node->next;
+    } else {
+        wheel->expired_head = node->next;
     }
 
     if (node->next != NULL) {
@@ -82,9 +89,11 @@ SYN_Status syn_timer_wheel_cancel(SYN_TimerWheel *wheel, SYN_TimerWheelNode *nod
  * @param wheel        Timer wheel instance.
  * @param bucket_idx   Index of bucket to partition.
  * @param out_exp_head Output pointer receiving head of expired nodes list.
+ * @param out_exp_tail Output pointer receiving tail of expired nodes list.
  */
 static void timer_wheel_partition_bucket(SYN_TimerWheel *wheel, uint32_t bucket_idx,
-                                         SYN_TimerWheelNode **out_exp_head)
+                                         SYN_TimerWheelNode **out_exp_head,
+                                         SYN_TimerWheelNode **out_exp_tail)
 {
     SYN_TimerWheelNode *curr = wheel->buckets[bucket_idx];
     SYN_TimerWheelNode *keep_head = NULL;
@@ -120,6 +129,7 @@ static void timer_wheel_partition_bucket(SYN_TimerWheel *wheel, uint32_t bucket_
 
     wheel->buckets[bucket_idx] = keep_head;
     *out_exp_head = exp_head;
+    *out_exp_tail = exp_tail;
 }
 
 size_t syn_timer_wheel_step(SYN_TimerWheel *wheel)
@@ -130,16 +140,29 @@ size_t syn_timer_wheel_step(SYN_TimerWheel *wheel)
 
     wheel->current_tick++;
     uint32_t bucket_idx = wheel->current_tick % SYN_TIMER_WHEEL_BUCKETS;
+    SYN_TimerWheelNode *exp_head = NULL;
+    SYN_TimerWheelNode *exp_tail = NULL;
+
+    timer_wheel_partition_bucket(wheel, bucket_idx, &exp_head, &exp_tail);
+    if (exp_head == NULL) {
+        return 0U;
+    }
+
+    SYN_TimerWheelNode barrier;
+    memset(&barrier, 0, sizeof(barrier));
+    barrier.next = wheel->expired_head;
+    if (wheel->expired_head != NULL) {
+        wheel->expired_head->prev = &barrier;
+    }
+    barrier.prev = exp_tail;
+    exp_tail->next = &barrier;
+    wheel->expired_head = exp_head;
+
     size_t fired_count = 0U;
-
-    timer_wheel_partition_bucket(wheel, bucket_idx, &wheel->expired_head);
-
-    while (wheel->expired_head != NULL) {
+    while (wheel->expired_head != NULL && wheel->expired_head != &barrier) {
         SYN_TimerWheelNode *curr = wheel->expired_head;
         wheel->expired_head = curr->next;
-        if (wheel->expired_head != NULL) {
-            wheel->expired_head->prev = NULL;
-        }
+        wheel->expired_head->prev = NULL;
 
         curr->next = NULL;
         curr->prev = NULL;
@@ -147,6 +170,13 @@ size_t syn_timer_wheel_step(SYN_TimerWheel *wheel)
 
         curr->cb(curr->arg);
         fired_count++;
+    }
+
+    if (wheel->expired_head == &barrier) {
+        wheel->expired_head = barrier.next;
+        if (wheel->expired_head != NULL) {
+            wheel->expired_head->prev = NULL;
+        }
     }
 
     return fired_count;

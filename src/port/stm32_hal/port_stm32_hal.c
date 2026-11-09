@@ -13,6 +13,7 @@
      defined(STM32F7) || defined(STM32L4) || defined(STM32G0) || defined(STM32H7) ||         \
      defined(STM32C0) || defined(STM32U0))
 
+#include "syntropic/common/syn_compiler.h"
 #include "syntropic/common/syn_defs.h"
 #include "syntropic/port/syn_port_gpio.h"
 #include "syntropic/port/syn_port_system.h"
@@ -72,6 +73,7 @@ void syn_port_enter_critical(void)
 
 void syn_port_exit_critical(void)
 {
+    SYN_COMPILER_BARRIER();
     if (s_crit_depth > 0U) {
         s_crit_depth--;
         if (s_crit_depth == 0U && (s_saved_primask & 1U) == 0U) {
@@ -87,9 +89,8 @@ uint32_t syn_port_get_tick_ms(void)
 
 uint32_t syn_port_get_tick_us(void)
 {
-    uint32_t load = SysTick->LOAD;
-    uint32_t cycles_per_us = SystemCoreClock / 1000000U;
-    if (load == 0U || cycles_per_us == 0U) {
+    uint32_t load = SysTick->LOAD & 0x00FFFFFFUL;
+    if (load == 0U) {
         return HAL_GetTick() * 1000U;
     }
 
@@ -101,7 +102,7 @@ uint32_t syn_port_get_tick_us(void)
     do {
         ms1 = HAL_GetTick();
         pend1 = (*(volatile uint32_t *)0xE000ED04UL) & (1UL << 26);
-        val = SysTick->VAL;
+        val = SysTick->VAL & 0x00FFFFFFUL;
         ms2 = HAL_GetTick();
         pend2 = (*(volatile uint32_t *)0xE000ED04UL) & (1UL << 26);
     } while (ms1 != ms2 || pend1 != pend2);
@@ -110,8 +111,10 @@ uint32_t syn_port_get_tick_us(void)
         ms1++;
     }
 
-    uint32_t elapsed_cycles = (load >= val) ? (load - val) : 0U;
-    return (ms1 * 1000U) + (elapsed_cycles / cycles_per_us);
+    uint32_t elapsed_cycles = (val == 0U || val > load) ? 0U : (load - val);
+    uint32_t elapsed_us =
+        (uint32_t)(((uint64_t)elapsed_cycles * 1000ULL) / ((uint64_t)load + 1ULL));
+    return (ms1 * 1000U) + elapsed_us;
 }
 
 void syn_port_delay_ms(uint32_t ms)

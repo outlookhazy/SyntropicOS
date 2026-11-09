@@ -710,6 +710,74 @@ static void test_run_tickless_ex_timers_and_tasks(void)
     TEST_ASSERT_EQUAL_INT(1, mock_sleep_count);
 }
 
+static SYN_PT_Status task_delay_1ms_longjmp(SYN_PT *pt, SYN_Task *task)
+{
+    PT_BEGIN(pt);
+    PT_TASK_DELAY_MS(pt, task, 1U);
+    longjmp(g_tickless_jmp, 1);
+    PT_END(pt);
+}
+
+static void test_run_tickless_uint32_max_deadline_no_busyspin(void)
+{
+    static SYN_Task tasks[1];
+    static SYN_Sched sched;
+    static SYN_Sleep sleep;
+    static SYN_Timer tmr;
+
+    /* 1. syn_sched_run_tickless passes exact 0xFFFFFFFFU deadline without 0xFFFFFFFEU busy-spin */
+    memset(tasks, 0, sizeof(tasks));
+    mock_tick_ms = 0xFFFFFFFEU;
+    mock_sleep_until_count = 0;
+    mock_sleep_count = 0;
+    mock_critical_depth = 0;
+
+    syn_task_create(&tasks[0], "d1_wrap", task_delay_1ms_longjmp, SYN_PRIO_CRITICAL, NULL);
+    syn_sched_init(&sched, tasks, 1U);
+    syn_sleep_init(&sleep, SYN_SLEEP_LIGHT);
+
+    if (setjmp(g_tickless_jmp) == 0) {
+        syn_sched_run_tickless(&sched, &sleep);
+        TEST_FAIL_MESSAGE("syn_sched_run_tickless should not return normally");
+    } else {
+        TEST_ASSERT_EQUAL_INT(1, mock_sleep_until_count);
+        TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, mock_sleep_until_tick);
+        TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, mock_tick_ms);
+        TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+    }
+
+    /* 2. syn_sched_run_tickless_ex passes exact 0xFFFFFFFFU timer deadline without busy-spin */
+    mock_tick_ms = 0xFFFFFFFEU;
+    g_timer_cb_count = 0;
+    mock_sleep_until_count = 0;
+    mock_sleep_count = 0;
+    mock_critical_depth = 0;
+
+    syn_task_create(&tasks[0], "dead_wrap", dummy_task, SYN_PRIO_CRITICAL, NULL);
+    tasks[0].state = (uint8_t)SYN_TASK_DEAD;
+    syn_sched_init(&sched, tasks, 1U);
+    syn_sleep_init(&sleep, SYN_SLEEP_LIGHT);
+    syn_timer_init(&tmr, 1U, false, timer_longjmp_cb, NULL);
+    syn_timer_start(&tmr);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, tmr.target_tick);
+
+    if (setjmp(g_tickless_jmp) == 0) {
+        syn_sched_run_tickless_ex(&sched, &sleep, &tmr, 1U);
+        TEST_FAIL_MESSAGE("syn_sched_run_tickless_ex should not return normally");
+    } else {
+        TEST_ASSERT_EQUAL_INT(1, g_timer_cb_count);
+        TEST_ASSERT_EQUAL_INT(1, mock_sleep_until_count);
+        TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, mock_sleep_until_tick);
+        TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+    }
+
+    /* 3. Ready task at now == UINT32_MAX returns now (per K-05) without tickless false sleep */
+    mock_tick_ms = UINT32_MAX;
+    syn_task_create(&tasks[0], "rdy_wrap", dummy_task, SYN_PRIO_CRITICAL, NULL);
+    syn_sched_init(&sched, tasks, 1U);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, syn_sched_next_wakeup(&sched));
+}
+
 /* ── Runner ─────────────────────────────────────────────────────────────── */
 
 void run_tickless_tests(void)
@@ -734,4 +802,5 @@ void run_tickless_tests(void)
     RUN_TEST(test_run_tickless_active_hint_continue);
     RUN_TEST(test_run_tickless_no_deadlines_and_veto);
     RUN_TEST(test_run_tickless_ex_timers_and_tasks);
+    RUN_TEST(test_run_tickless_uint32_max_deadline_no_busyspin);
 }

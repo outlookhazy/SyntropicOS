@@ -79,7 +79,8 @@ void syn_port_enter_critical(void)
     s_crit_depth++;
 #elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_SAM) || defined(CORE_TEENSY) || \
     defined(ARDUINO_ARCH_STM32) || defined(ARDUINO_ARCH_NRF52) || defined(ARDUINO_ARCH_MBED) || \
-    defined(ARDUINO_ARCH_RENESAS) || defined(__ARM_ARCH_ISA_THUMB)
+    defined(ARDUINO_ARCH_RENESAS) || defined(__ARM_ARCH_ISA_THUMB) || defined(__arm__) || \
+    defined(__thumb__)
     uint32_t primask = 0U;
     __asm__ volatile("mrs %0, primask" : "=r"(primask));
     __asm__ volatile("cpsid i" ::: "memory");
@@ -89,27 +90,26 @@ void syn_port_enter_critical(void)
     s_crit_depth++;
 #elif defined(__riscv)
     uint32_t mstatus = 0U;
-    __asm__ volatile("csrrci %0, mstatus, 8" : "=r"(mstatus));
+    __asm__ volatile("csrrci %0, mstatus, 8" : "=r"(mstatus) :: "memory");
     if (s_crit_depth == 0U) {
         s_saved_irq = mstatus;
     }
     s_crit_depth++;
-#elif defined(ARDUINO_ARCH_ESP8266)
+#elif defined(ARDUINO_ARCH_ESP8266) || defined(__XTENSA__)
     uint32_t ps = xt_rsil(15);
     if (s_crit_depth == 0U) {
         s_saved_irq = ps;
     }
     s_crit_depth++;
 #else
-    if (s_crit_depth == 0U) {
-        noInterrupts();
-    }
+    noInterrupts();
     s_crit_depth++;
 #endif
 }
 
 void syn_port_exit_critical(void)
 {
+    SYN_COMPILER_BARRIER();
 #if defined(ARDUINO_ARCH_ESP32)
     portEXIT_CRITICAL_SAFE(&s_crit_mux);
 #elif defined(ARDUINO_ARCH_RP2040)
@@ -129,7 +129,8 @@ void syn_port_exit_critical(void)
     }
 #elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_SAM) || defined(CORE_TEENSY) || \
     defined(ARDUINO_ARCH_STM32) || defined(ARDUINO_ARCH_NRF52) || defined(ARDUINO_ARCH_MBED) || \
-    defined(ARDUINO_ARCH_RENESAS) || defined(__ARM_ARCH_ISA_THUMB)
+    defined(ARDUINO_ARCH_RENESAS) || defined(__ARM_ARCH_ISA_THUMB) || defined(__arm__) || \
+    defined(__thumb__)
     if (s_crit_depth > 0U) {
         s_crit_depth--;
         if (s_crit_depth == 0U && (s_saved_irq & 1U) == 0U) {
@@ -137,13 +138,14 @@ void syn_port_exit_critical(void)
         }
     }
 #elif defined(__riscv)
+    __asm__ volatile("" ::: "memory");
     if (s_crit_depth > 0U) {
         s_crit_depth--;
         if (s_crit_depth == 0U && (s_saved_irq & 0x8U) != 0U) {
-            __asm__ volatile("csrsi mstatus, 8");
+            __asm__ volatile("csrsi mstatus, 8" ::: "memory");
         }
     }
-#elif defined(ARDUINO_ARCH_ESP8266)
+#elif defined(ARDUINO_ARCH_ESP8266) || defined(__XTENSA__)
     if (s_crit_depth > 0U) {
         s_crit_depth--;
         if (s_crit_depth == 0U) {

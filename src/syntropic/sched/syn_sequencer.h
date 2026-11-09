@@ -88,7 +88,7 @@ typedef struct SYN_Sequencer {
     SYN_SeqState state;       /**< Current sequencer operational state */
     uint32_t wait_start;      /**< Tick when delay started       */
     bool loop;                /**< Auto-restart on completion?   */
-    uint8_t run_gen;          /**< Generation counter for mid-step restarts */
+    bool cb_untouched;        /**< Callback reentrancy guard     */
     uint16_t loop_count;      /**< Times completed (for looping) */
 
     SYN_SeqCompleteCallback on_complete; /**< Callback function when sequence finishes */

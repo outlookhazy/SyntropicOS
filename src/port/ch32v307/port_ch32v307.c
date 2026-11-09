@@ -286,8 +286,17 @@ static volatile uint32_t s_saved_mstatus = 0U;
  */
 SYN_ISR_ATTR void SysTick_Handler(void)
 {
-    STK_SR = 0U;
+#if defined(__riscv)
+    uint32_t mstatus;
+    __asm__ volatile("csrrci %0, mstatus, 8" : "=r"(mstatus)::"memory");
+#endif
     s_tick_ms++;
+    STK_SR = 0U;
+#if defined(__riscv)
+    if ((mstatus & 0x8U) != 0U) {
+        __asm__ volatile("csrsi mstatus, 8" ::: "memory");
+    }
+#endif
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -322,7 +331,7 @@ void syn_port_enter_critical(void)
 {
     uint32_t mstatus = 0U;
 #if defined(__riscv)
-    __asm__ volatile("csrrci %0, mstatus, 8" : "=r"(mstatus));
+    __asm__ volatile("csrrci %0, mstatus, 8" : "=r"(mstatus)::"memory");
 #endif
     if (s_critical_nesting == 0U) {
         s_saved_mstatus = mstatus;
@@ -332,11 +341,14 @@ void syn_port_enter_critical(void)
 
 void syn_port_exit_critical(void)
 {
+#if defined(__riscv)
+    __asm__ volatile("" ::: "memory");
+#endif
     if (s_critical_nesting > 0U) {
         s_critical_nesting--;
         if (s_critical_nesting == 0U && (s_saved_mstatus & 0x8U) != 0U) {
 #if defined(__riscv)
-            __asm__ volatile("csrsi mstatus, 8");
+            __asm__ volatile("csrsi mstatus, 8" ::: "memory");
 #endif
         }
     }
@@ -350,8 +362,7 @@ uint32_t syn_port_get_tick_ms(void)
 uint32_t syn_port_get_tick_us(void)
 {
     uint32_t reload = STK_CMPLR;
-    uint32_t cycles_per_us = (uint32_t)(SYN_PORT_SYSCLK_HZ / 1000000UL);
-    if ((STK_CTLR & STK_CTLR_STE) == 0U || reload == 0U || cycles_per_us == 0U) {
+    if ((STK_CTLR & STK_CTLR_STE) == 0U || reload == 0U || reload == UINT32_MAX) {
         return s_tick_ms * 1000U;
     }
 
@@ -370,12 +381,15 @@ uint32_t syn_port_get_tick_us(void)
 
     if (sr1 != 0U) {
         ms1++;
-    }
-    if (cnt > reload) {
+        if (cnt >= reload) {
+            cnt = 0U;
+        }
+    } else if (cnt > reload) {
         cnt = reload;
     }
 
-    return (ms1 * 1000U) + (cnt / cycles_per_us);
+    uint32_t elapsed_us = (uint32_t)(((uint64_t)cnt * 1000ULL) / ((uint64_t)reload + 1ULL));
+    return (ms1 * 1000U) + elapsed_us;
 }
 
 void syn_port_delay_ms(uint32_t ms)

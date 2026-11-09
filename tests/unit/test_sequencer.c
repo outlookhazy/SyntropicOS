@@ -276,6 +276,116 @@ static void test_tier_a_sequencer_step0_restart_and_delay_clamp(void)
     TEST_ASSERT_EQUAL_INT(1, seq_action_count);
 }
 
+typedef struct {
+    SYN_Sequencer *seq;
+    const SYN_SeqStep *next_steps;
+    uint16_t next_count;
+    int step_a_runs;
+    int step_b_runs;
+} SeqReinitCtx;
+
+static void seq_reinit_in_step0_action(void *ctx)
+{
+    SeqReinitCtx *rc = (SeqReinitCtx *)ctx;
+    rc->step_a_runs++;
+    syn_seq_init(rc->seq, rc->next_steps, rc->next_count);
+    syn_seq_start(rc->seq);
+}
+
+static void seq_step_b_action(void *ctx)
+{
+    SeqReinitCtx *rc = (SeqReinitCtx *)ctx;
+    rc->step_b_runs++;
+}
+
+static void seq_disable_loop_after_two_cb(SYN_Sequencer *seq, void *ctx)
+{
+    int *cb_calls = (int *)ctx;
+    (*cb_calls)++;
+    if (syn_seq_loops(seq) >= 2U) {
+        syn_seq_set_loop(seq, false);
+    }
+}
+
+static void seq_enable_loop_once_cb(SYN_Sequencer *seq, void *ctx)
+{
+    int *cb_calls = (int *)ctx;
+    (*cb_calls)++;
+    syn_seq_set_loop(seq, (*cb_calls) == 1);
+}
+
+static void test_sequencer_reinit_in_step0_and_on_complete_set_loop(void)
+{
+    mock_tick_ms = 0U;
+
+    /* 1. Step 0 on run 1 calls syn_seq_init + syn_seq_start: step B[0] must NOT be skipped */
+    SYN_Sequencer seq;
+    SeqReinitCtx rc = {&seq, NULL, 2U, 0, 0};
+    SYN_SeqStep steps_b[2] = {
+        {seq_step_b_action, &rc, 25U},
+        {seq_step_b_action, &rc, 0U},
+    };
+    SYN_SeqStep steps_a[1] = {
+        {seq_reinit_in_step0_action, &rc, 0U},
+    };
+    rc.next_steps = steps_b;
+
+    syn_seq_init(&seq, steps_a, 1U);
+    syn_seq_start(&seq);
+    TEST_ASSERT_FALSE(syn_seq_update(&seq));
+    TEST_ASSERT_EQUAL_INT(1, rc.step_a_runs);
+    TEST_ASSERT_EQUAL_INT(1, rc.step_b_runs);
+    TEST_ASSERT_EQUAL_INT(SYN_SEQ_WAITING, seq.state);
+    TEST_ASSERT_EQUAL_UINT16(0U, syn_seq_current_step(&seq));
+
+    mock_tick_advance(25U);
+    TEST_ASSERT_TRUE(syn_seq_update(&seq));
+    TEST_ASSERT_EQUAL_INT(2, rc.step_b_runs);
+    TEST_ASSERT_TRUE(syn_seq_is_done(&seq));
+
+    /* 2. on_complete calling syn_seq_set_loop(seq, false) stops cleanly without extra step-0 run */
+    seq_action_count = 0;
+    int loop_off_calls = 0;
+    static const SYN_SeqStep loop_steps[1] = {
+        {seq_action_a, NULL, 10U},
+    };
+    syn_seq_init(&seq, loop_steps, 1U);
+    syn_seq_set_loop(&seq, true);
+    syn_seq_on_complete(&seq, seq_disable_loop_after_two_cb, &loop_off_calls);
+    syn_seq_start(&seq);
+
+    TEST_ASSERT_FALSE(syn_seq_update(&seq)); /* Loop 1 step 0 runs, waits 10ms */
+    mock_tick_advance(10U);
+    TEST_ASSERT_FALSE(
+        syn_seq_update(&seq)); /* Loop 1 completes -> Loop 2 step 0 runs, waits 10ms */
+    mock_tick_advance(10U);
+    TEST_ASSERT_TRUE(syn_seq_update(&seq)); /* Loop 2 completes -> cb sets loop=false -> DONE! */
+    TEST_ASSERT_EQUAL_INT(2, loop_off_calls);
+    TEST_ASSERT_EQUAL_INT(2, seq_action_count);
+    TEST_ASSERT_TRUE(syn_seq_is_done(&seq));
+
+    /* 3. on_complete calling syn_seq_set_loop(seq, true) transitions DONE -> RUNNING */
+    seq_action_count = 0;
+    int loop_on_calls = 0;
+    syn_seq_init(&seq, loop_steps, 1U);
+    syn_seq_set_loop(&seq, false);
+    syn_seq_on_complete(&seq, seq_enable_loop_once_cb, &loop_on_calls);
+    syn_seq_start(&seq);
+
+    TEST_ASSERT_FALSE(syn_seq_update(&seq)); /* Run 1 step 0 */
+    mock_tick_advance(10U);
+    TEST_ASSERT_FALSE(syn_seq_update(&seq)); /* cb enables loop -> Run 2 step 0 runs, waits 10ms */
+    TEST_ASSERT_EQUAL_INT(1, loop_on_calls);
+    TEST_ASSERT_EQUAL_INT(2, seq_action_count);
+    TEST_ASSERT_FALSE(syn_seq_is_done(&seq));
+
+    mock_tick_advance(10U);
+    TEST_ASSERT_TRUE(syn_seq_update(&seq)); /* 2nd cb disables loop -> DONE */
+    TEST_ASSERT_EQUAL_INT(2, loop_on_calls);
+    TEST_ASSERT_EQUAL_INT(2, seq_action_count);
+    TEST_ASSERT_TRUE(syn_seq_is_done(&seq));
+}
+
 void run_sequencer_tests(void)
 {
     RUN_TEST(test_sequencer);
@@ -283,4 +393,5 @@ void run_sequencer_tests(void)
     RUN_TEST(test_sequencer_getters_and_uninitialized_update);
     RUN_TEST(test_sequencer_mid_step_stop_and_restart);
     RUN_TEST(test_tier_a_sequencer_step0_restart_and_delay_clamp);
+    RUN_TEST(test_sequencer_reinit_in_step0_and_on_complete_set_loop);
 }

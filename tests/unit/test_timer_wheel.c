@@ -245,9 +245,196 @@ static void test_r5_timer_wheel_callback_cancel_and_readd(void)
     TEST_ASSERT_EQUAL_INT(2, ctx.a_count);
 }
 
+typedef struct {
+    SYN_TimerWheel *wheel;
+    SYN_TimerWheelNode a;
+    SYN_TimerWheelNode b;
+    SYN_TimerWheelNode c;
+    SYN_TimerWheelNode x;
+    SYN_TimerWheelNode y;
+    SYN_TimerWheelNode z_head;
+    size_t inner_fired;
+    int a_count;
+    int b_count;
+    int c_count;
+    int x_count;
+    int y_count;
+    int z_count;
+} ReentrantWheelCtx;
+
+static void reent_step_cb(void *arg)
+{
+    ReentrantWheelCtx *ctx = (ReentrantWheelCtx *)arg;
+    ctx->a_count++;
+    ctx->inner_fired = syn_timer_wheel_step(ctx->wheel);
+}
+
+static void reent_inner_x_cb(void *arg)
+{
+    ReentrantWheelCtx *ctx = (ReentrantWheelCtx *)arg;
+    ctx->x_count++;
+    /* Cancel outer pending head B AND future bucket head Z while inside nested step */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_cancel(ctx->wheel, &ctx->b));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_cancel(ctx->wheel, &ctx->z_head));
+}
+
+static void reent_b_cb(void *arg)
+{
+    ((ReentrantWheelCtx *)arg)->b_count++;
+}
+
+static void reent_c_cb(void *arg)
+{
+    ((ReentrantWheelCtx *)arg)->c_count++;
+}
+
+static void reent_y_cb(void *arg)
+{
+    ((ReentrantWheelCtx *)arg)->y_count++;
+}
+
+static void reent_z_cb(void *arg)
+{
+    ((ReentrantWheelCtx *)arg)->z_count++;
+}
+
+static void test_timer_wheel_reentrant_step_and_bucket_head_cancel(void)
+{
+    SYN_TimerWheel wheel;
+    ReentrantWheelCtx ctx;
+
+    /* 1. Re-entrant step() onto an empty bucket preserves remaining outer expired list (B, C) */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&wheel));
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.wheel = &wheel;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &ctx.c, 1U, reent_c_cb, &ctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &ctx.b, 1U, reent_b_cb, &ctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &ctx.a, 1U, reent_step_cb, &ctx));
+
+    TEST_ASSERT_EQUAL_size_t(3U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_size_t(0U, ctx.inner_fired);
+    TEST_ASSERT_EQUAL_INT(1, ctx.a_count);
+    TEST_ASSERT_EQUAL_INT(1, ctx.b_count);
+    TEST_ASSERT_EQUAL_INT(1, ctx.c_count);
+    TEST_ASSERT_NULL(wheel.expired_head);
+
+    /* 2. Re-entrant step() onto non-empty bucket [X, Y] where X cancels outer pending head B
+     * and future bucket head Z: X and Y fire inner, cancelled B skips, C fires outer */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&wheel));
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.wheel = &wheel;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &ctx.c, 1U, reent_c_cb, &ctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &ctx.b, 1U, reent_b_cb, &ctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &ctx.a, 1U, reent_step_cb, &ctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &ctx.y, 2U, reent_y_cb, &ctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &ctx.x, 2U, reent_inner_x_cb, &ctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &ctx.z_head, 3U, reent_z_cb, &ctx));
+
+    TEST_ASSERT_EQUAL_size_t(2U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_size_t(2U, ctx.inner_fired);
+    TEST_ASSERT_EQUAL_INT(1, ctx.a_count);
+    TEST_ASSERT_EQUAL_INT(0, ctx.b_count);
+    TEST_ASSERT_EQUAL_INT(1, ctx.c_count);
+    TEST_ASSERT_EQUAL_INT(1, ctx.x_count);
+    TEST_ASSERT_EQUAL_INT(1, ctx.y_count);
+    TEST_ASSERT_NULL(wheel.expired_head);
+
+    /* Step tick 3: cancelled bucket-head z_head must not fire */
+    TEST_ASSERT_EQUAL_size_t(0U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_INT(0, ctx.z_count);
+}
+
+typedef struct {
+    SYN_TimerWheel *wheel;
+    SYN_TimerWheelNode post_init_node;
+    int reinit_cb_runs;
+    int second_cb_runs;
+    int post_init_runs;
+} WheelReinitCtx;
+
+static void post_init_cb(void *arg)
+{
+    ((WheelReinitCtx *)arg)->post_init_runs++;
+}
+
+static void reinit_wheel_in_cb(void *arg)
+{
+    WheelReinitCtx *ctx = (WheelReinitCtx *)arg;
+    ctx->reinit_cb_runs++;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(ctx->wheel));
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_timer_wheel_add(ctx->wheel, &ctx->post_init_node, 1U, post_init_cb, ctx));
+}
+
+static void never_reached_after_reinit_cb(void *arg)
+{
+    ((WheelReinitCtx *)arg)->second_cb_runs++;
+}
+
+static void test_timer_wheel_cross_wheel_reject_and_reinit_in_cb(void)
+{
+    SYN_TimerWheel wheel_a;
+    SYN_TimerWheel wheel_b;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&wheel_a));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&wheel_b));
+
+    SYN_TimerWheelNode n_tail, n_head, b_other;
+    memset(&n_tail, 0, sizeof(n_tail));
+    memset(&n_head, 0, sizeof(n_head));
+    memset(&b_other, 0, sizeof(b_other));
+    s_timer1_fired = 0;
+    s_timer2_fired = 0;
+
+    /* Populate wheel_a bucket 1 with [n_head -> n_tail] and wheel_b bucket 1 with [b_other] */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel_a, &n_tail, 1U, timer1_cb, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel_a, &n_head, 1U, timer1_cb, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel_b, &b_other, 1U, timer2_cb, NULL));
+
+    /* Cancelling or adding wheel_a's head OR non-head node against wheel_b must fail cleanly */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_timer_wheel_cancel(&wheel_b, &n_head));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_timer_wheel_cancel(&wheel_b, &n_tail));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_timer_wheel_add(&wheel_b, &n_head, 2U, timer2_cb, NULL));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_timer_wheel_add(&wheel_b, &n_tail, 2U, timer2_cb, NULL));
+
+    /* Both wheels remain intact and fire their own timers */
+    TEST_ASSERT_EQUAL_size_t(2U, syn_timer_wheel_step(&wheel_a));
+    TEST_ASSERT_EQUAL_INT(2, s_timer1_fired);
+    TEST_ASSERT_EQUAL_size_t(1U, syn_timer_wheel_step(&wheel_b));
+    TEST_ASSERT_EQUAL_INT(1, s_timer2_fired);
+
+    /* Callback calling syn_timer_wheel_init(wheel) mid-step aborts stale list without NULL deref */
+    WheelReinitCtx rctx;
+    memset(&rctx, 0, sizeof(rctx));
+    rctx.wheel = &wheel_a;
+    SYN_TimerWheelNode first_exp, second_exp;
+    memset(&first_exp, 0, sizeof(first_exp));
+    memset(&second_exp, 0, sizeof(second_exp));
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&wheel_a));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel_a, &second_exp, 1U,
+                                                      never_reached_after_reinit_cb, &rctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_timer_wheel_add(&wheel_a, &first_exp, 1U, reinit_wheel_in_cb, &rctx));
+
+    TEST_ASSERT_EQUAL_size_t(1U, syn_timer_wheel_step(&wheel_a));
+    TEST_ASSERT_EQUAL_INT(1, rctx.reinit_cb_runs);
+    TEST_ASSERT_EQUAL_INT(0, rctx.second_cb_runs);
+    TEST_ASSERT_NULL(wheel_a.expired_head);
+
+    /* Post-reinit node added inside the callback fires cleanly on the next tick */
+    TEST_ASSERT_EQUAL_size_t(1U, syn_timer_wheel_step(&wheel_a));
+    TEST_ASSERT_EQUAL_INT(1, rctx.post_init_runs);
+}
+
 void run_timer_wheel_tests(void)
 {
     RUN_TEST(test_timer_wheel_add_step_cancel);
     RUN_TEST(test_timer_wheel_exact_bucket_multiple);
     RUN_TEST(test_r5_timer_wheel_callback_cancel_and_readd);
+    RUN_TEST(test_timer_wheel_reentrant_step_and_bucket_head_cancel);
+    RUN_TEST(test_timer_wheel_cross_wheel_reject_and_reinit_in_cb);
 }

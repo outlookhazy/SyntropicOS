@@ -2969,6 +2969,586 @@ static void test_low_prio_isr_wakeup_and_boosted_rr_fairness(void)
     TEST_ASSERT_EQUAL_INT(300, run_log[5]);
 }
 
+typedef struct {
+    SYN_Task *noise_peer;
+    SYN_EventGroup *evt;
+    uint32_t steps;
+    int low_ran;
+} RefreshDueCtx;
+
+static SYN_PT_Status low_due_preserve_fn(SYN_PT *pt, SYN_Task *task)
+{
+    RefreshDueCtx *ctx = (RefreshDueCtx *)task->user_data;
+    PT_BEGIN(pt);
+    PT_BLOCK_EVENT(pt, task, ctx->evt, 0x01U);
+    ctx->low_ran++;
+    PT_END(pt);
+}
+
+static SYN_PT_Status crit_refresh_noise_fn(SYN_PT *pt, SYN_Task *task)
+{
+    RefreshDueCtx *ctx = (RefreshDueCtx *)task->user_data;
+    PT_BEGIN(pt);
+    while (ctx->low_ran == 0) {
+        ctx->steps++;
+        mock_tick_ms += 5U;
+        if (ctx->steps == 2U) {
+            syn_event_set(ctx->evt, 0x01U); /* Wakes low peer at t=10 */
+        }
+        /* Repeatedly trigger sched_refresh_share_locked every 5 ms */
+        syn_task_boost_priority(ctx->noise_peer, SYN_PRIO_HIGH);
+        syn_task_restore_priority(ctx->noise_peer);
+        TEST_ASSERT_TRUE(ctx->steps <= 20U);
+        PT_CONTINUE_IF_NEEDED(pt, task);
+    }
+    PT_END(pt);
+}
+
+static SYN_PT_Status delay_20ms_record_fn(SYN_PT *pt, SYN_Task *task)
+{
+    int *id = (int *)task->user_data;
+    PT_BEGIN(pt);
+    PT_TASK_DELAY_MS(pt, task, 20U);
+    run_log[run_log_idx++] = *id;
+    PT_END(pt);
+}
+
+static void test_mid_dispatch_refresh_preserves_low_peer_due_and_delay_base(void)
+{
+    /* 1. Repeated mid-dispatch share refreshes must not push woken LOW peer's due_ms forward */
+    SYN_EventGroup evt;
+    syn_event_init(&evt);
+    RefreshDueCtx ctx = {NULL, &evt, 0U, 0};
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+    int noise_id = 99;
+
+    mock_tick_ms = 0U;
+    log_reset();
+    syn_task_create(&tasks[0], "crit_noise", crit_refresh_noise_fn, SYN_PRIO_CRITICAL, &ctx);
+    syn_task_create(&tasks[1], "low_target", low_due_preserve_fn, SYN_PRIO_LOW, &ctx);
+    syn_task_create(&tasks[2], "idle_peer", pass_task, SYN_PRIO_NORMAL, &noise_id);
+    ctx.noise_peer = &tasks[2];
+    syn_sched_init(&sched, tasks, 3U);
+
+    syn_task_suspend(&tasks[0]);
+    syn_sched_run(&sched); /* low_target parks on evt */
+    syn_sched_run(&sched); /* idle_peer passes */
+    syn_task_suspend(&tasks[2]);
+    syn_task_resume(&tasks[0]);
+
+    int guard = 0;
+    while (ctx.low_ran == 0 && guard++ < 10) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_EQUAL_INT(1, ctx.low_ran);
+    /* Woken at t=10 with LOW max_wait=50 -> must run at t=60, not starve past t=60 */
+    TEST_ASSERT_EQUAL_UINT32(60U, mock_tick_ms);
+
+    /* 2. Expired PT_TASK_DELAY_MS computes due_ms from delay_until, preempting HIGH when overdue */
+    SYN_Task d_tasks[2];
+    SYN_Sched d_sched;
+    int high_id = 11;
+    int low_id = 22;
+
+    mock_tick_ms = 0U;
+    log_reset();
+    syn_task_create(&d_tasks[0], "high_work", continue_task, SYN_PRIO_HIGH, &high_id);
+    syn_task_create(&d_tasks[1], "low_dly", delay_20ms_record_fn, SYN_PRIO_LOW, &low_id);
+    syn_sched_init(&d_sched, d_tasks, 2U);
+
+    syn_task_suspend(&d_tasks[0]);
+    syn_sched_run(&d_sched); /* low_dly arms delay_until = 20 */
+
+    /* Resume high_work at t=74 (due_ms = 74 + 5 = 79, WORK rank), then step at t=75:
+     * low_dly (20 + 50 = 70 <= 75) is OVERDUE relative to wakeup tick 20 and preempts high_work! */
+    mock_tick_ms = 74U;
+    syn_task_resume(&d_tasks[0]);
+    mock_tick_ms = 75U;
+    syn_sched_run(&d_sched);
+    TEST_ASSERT_EQUAL_INT(1, run_log_idx);
+    TEST_ASSERT_EQUAL_INT(22, run_log[0]);
+}
+
+typedef struct {
+    SYN_EventGroup *evt;
+    bool share_before_isr;
+    bool share_after_isr;
+    int w0_done;
+    int w1_done;
+} SharedEvtResleepCtx;
+
+static SYN_PT_Status shared_evt_w0_fn(SYN_PT *pt, SYN_Task *task)
+{
+    SharedEvtResleepCtx *ctx = (SharedEvtResleepCtx *)task->user_data;
+    PT_BEGIN(pt);
+    PT_BLOCK_EVENT(pt, task, ctx->evt, 0x01U);
+    ctx->share_before_isr = syn_task_should_share(task);
+    syn_event_set(ctx->evt, 0x01U); /* Simulate ISR re-setting auto-cleared flag mid-dispatch */
+    ctx->share_after_isr = syn_task_should_share(task);
+    ctx->w0_done = 1;
+    PT_END(pt);
+}
+
+static SYN_PT_Status shared_evt_w1_fn(SYN_PT *pt, SYN_Task *task)
+{
+    SharedEvtResleepCtx *ctx = (SharedEvtResleepCtx *)task->user_data;
+    PT_BEGIN(pt);
+    PT_BLOCK_EVENT(pt, task, ctx->evt, 0x01U);
+    ctx->w1_done = 1;
+    PT_END(pt);
+}
+
+static void test_shared_event_flags_autoclear_resleeps_loser_for_isr_rewake(void)
+{
+    SYN_EventGroup evt;
+    syn_event_init(&evt);
+    SharedEvtResleepCtx ctx = {&evt, true, false, 0, 0};
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+
+    mock_tick_ms = 0U;
+    syn_task_create(&tasks[0], "w0", shared_evt_w0_fn, SYN_PRIO_HIGH, &ctx);
+    syn_task_create(&tasks[1], "w1", shared_evt_w1_fn, SYN_PRIO_HIGH, &ctx);
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched); /* w0 parks on evt */
+    syn_sched_run(&sched); /* w1 parks on evt */
+
+    syn_event_set(&evt, 0x01U);
+    syn_sched_run(&sched); /* w0 wins, auto-clears 0x01U, w1 re-sleeps; ISR sets 0x01U again */
+    TEST_ASSERT_EQUAL_INT(1, ctx.w0_done);
+    TEST_ASSERT_FALSE(ctx.share_before_isr);
+    TEST_ASSERT_TRUE(ctx.share_after_isr);
+
+    syn_sched_run(&sched); /* w1 consumes second event */
+    TEST_ASSERT_EQUAL_INT(1, ctx.w1_done);
+}
+
+typedef struct {
+    SYN_EventGroup *evt;
+    bool share_when_unready;
+    bool share_when_set;
+} ResumeEvtShareCtx;
+
+static SYN_PT_Status crit_evt_timeout_waiter_fn(SYN_PT *pt, SYN_Task *task)
+{
+    ResumeEvtShareCtx *ctx = (ResumeEvtShareCtx *)task->user_data;
+    PT_BEGIN(pt);
+    PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, ctx->evt, 0x01U, 100U, NULL);
+    PT_END(pt);
+}
+
+static SYN_PT_Status high_check_resumed_evt_share_fn(SYN_PT *pt, SYN_Task *task)
+{
+    ResumeEvtShareCtx *ctx = (ResumeEvtShareCtx *)task->user_data;
+    PT_BEGIN(pt);
+    ctx->share_when_unready = syn_task_should_share(task);
+    syn_event_set(ctx->evt, 0x01U);
+    ctx->share_when_set = syn_task_should_share(task);
+    PT_END(pt);
+}
+
+static void test_suspend_resume_on_event_wait_and_expired_delay(void)
+{
+    /* 1. Suspended + resumed PT_BLOCK_EVENT_TIMEOUT task stays READY per API contract,
+     * does not cause false should_share() while event == 0, and triggers should_share() on ISR set
+     */
+    SYN_EventGroup evt;
+    syn_event_init(&evt);
+    ResumeEvtShareCtx ctx = {&evt, true, false};
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+
+    mock_tick_ms = 10U;
+    syn_task_create(&tasks[0], "crit_evt", crit_evt_timeout_waiter_fn, SYN_PRIO_CRITICAL, &ctx);
+    syn_task_create(&tasks[1], "high_chk", high_check_resumed_evt_share_fn, SYN_PRIO_HIGH, &ctx);
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched); /* crit_evt arms wait_event + delay_until=110 and blocks */
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, tasks[0].state);
+
+    syn_task_suspend(&tasks[0]);
+    mock_tick_ms = 20U;
+    syn_task_resume(&tasks[0]);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[0].state);
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_DUE_VALID);
+
+    syn_sched_run(&sched); /* crit_evt is unready (re-parks), high_chk runs */
+    TEST_ASSERT_FALSE(ctx.share_when_unready);
+    TEST_ASSERT_TRUE(ctx.share_when_set);
+
+    /* 2. Suspend + resume after PT_TASK_DELAY_MS deadline expired stamps DUE_VALID immediately */
+    SYN_Task d_task;
+    SYN_Sched d_sched;
+    int id = 7;
+    mock_tick_ms = 0U;
+    syn_task_create(&d_task, "dly", delay_20ms_record_fn, SYN_PRIO_LOW, &id);
+    syn_sched_init(&d_sched, &d_task, 1U);
+    syn_sched_run(&d_sched); /* delay_until = 20 */
+    syn_task_suspend(&d_task);
+    mock_tick_ms = 30U;
+    syn_task_resume(&d_task);
+    TEST_ASSERT_TRUE((d_task.sched_flags & SYN_SCHED_FLAG_DUE_VALID) != 0U);
+    TEST_ASSERT_EQUAL_UINT32(80U, d_task.due_ms);
+}
+
+typedef struct {
+    SYN_Mutex *mtx;
+    int mode;
+    int runs;
+} SelfRestartCtx;
+
+static SYN_PT_Status self_restart_task_fn(SYN_PT *pt, SYN_Task *task)
+{
+    SelfRestartCtx *ctx = (SelfRestartCtx *)task->user_data;
+    PT_BEGIN(pt);
+    ctx->runs++;
+    if (ctx->runs == 1) {
+        if (ctx->mtx != NULL) {
+            TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_try_lock(ctx->mtx, task));
+        }
+        syn_task_restart(task);
+        if (ctx->mode == 0) {
+            PT_EXIT(pt);
+        } else if (ctx->mode == 1) {
+            PT_PASS(pt);
+        }
+    }
+    PT_END(pt);
+}
+
+static void test_task_self_restart_preserves_ready_more_state(void)
+{
+    for (int mode = 0; mode < 3; mode++) {
+        SYN_Mutex mtx;
+        PT_MUTEX_INIT(&mtx);
+        SelfRestartCtx ctx = {&mtx, mode, 0};
+        SYN_Task task;
+        SYN_Sched sched;
+
+        mock_tick_ms = 0U;
+        syn_task_create(&task, "self_rst", self_restart_task_fn, SYN_PRIO_NORMAL, &ctx);
+        syn_sched_init(&sched, &task, 1U);
+
+        /* First run: locks mtx, calls syn_task_restart(task), returns EXITED/IDLE/ENDED */
+        TEST_ASSERT_TRUE(syn_sched_run(&sched));
+        TEST_ASSERT_EQUAL_INT(1, ctx.runs);
+        TEST_ASSERT_FALSE(syn_mutex_is_locked(&mtx));
+        TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, task.state);
+        TEST_ASSERT_TRUE((task.sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
+        TEST_ASSERT_EQUAL_UINT8(0U, task.sched_flags & SYN_SCHED_FLAG_RESTARTED);
+        TEST_ASSERT_EQUAL_UINT16(0U, task.pt.lc);
+
+        /* Second run: starts cleanly from PT_BEGIN and runs to PT_END -> DEAD */
+        TEST_ASSERT_TRUE(syn_sched_run(&sched));
+        TEST_ASSERT_EQUAL_INT(2, ctx.runs);
+        TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEAD, task.state);
+    }
+}
+
+typedef struct {
+    SYN_Mutex *m_owned;
+    SYN_Mutex *m_busy;
+    int runs;
+} SelfRestartPostOpsCtx;
+
+static SYN_PT_Status self_restart_post_ops_fn(SYN_PT *pt, SYN_Task *task)
+{
+    SelfRestartPostOpsCtx *ctx = (SelfRestartPostOpsCtx *)task->user_data;
+    PT_BEGIN(pt);
+    ctx->runs++;
+    if (ctx->runs == 1) {
+        syn_task_restart(task);
+        /* Operations performed after syn_task_restart(task) before yielding must be cleaned up */
+        TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_try_lock(ctx->m_owned, task));
+        syn_task_boost_priority(task, SYN_PRIO_CRITICAL);
+        TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_mutex_try_lock(ctx->m_busy, task));
+        PT_PASS(pt);
+    }
+    PT_END(pt);
+}
+
+static void test_boost_priority_ignores_non_higher_and_self_restart_post_ops(void)
+{
+    /* 1. syn_task_boost_priority ignores equal/lower temp_prio without latching manual_priority */
+    SYN_Task t;
+    SYN_Sched s;
+    int id = 1;
+    mock_tick_ms = 0U;
+    syn_task_create(&t, "hi", pass_task, SYN_PRIO_HIGH, &id);
+    syn_sched_init(&s, &t, 1U);
+
+    syn_task_boost_priority(&t, SYN_PRIO_NORMAL);
+    syn_task_boost_priority(&t, SYN_PRIO_HIGH);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_NO_MANUAL_PRIO, t.manual_priority);
+
+    syn_task_set_base_priority(&t, SYN_PRIO_LOW);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, t.priority);
+
+    /* 2. Post-restart mutex lock, contention, and manual boost in same step are cleaned up */
+    SYN_Mutex m_owned;
+    SYN_Mutex m_busy;
+    PT_MUTEX_INIT(&m_owned);
+    PT_MUTEX_INIT(&m_busy);
+
+    SelfRestartPostOpsCtx ctx = {&m_owned, &m_busy, 0};
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    syn_task_create(&tasks[0], "rst", self_restart_post_ops_fn, SYN_PRIO_NORMAL, &ctx);
+    syn_task_create(&tasks[1], "holder", pass_task, SYN_PRIO_LOW, &id);
+    syn_sched_init(&sched, tasks, 2U);
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_try_lock(&m_busy, &tasks[1]));
+
+    TEST_ASSERT_TRUE(syn_sched_run(&sched));
+    TEST_ASSERT_EQUAL_INT(1, ctx.runs);
+    TEST_ASSERT_FALSE(syn_mutex_is_locked(&m_owned));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, tasks[1].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_NORMAL, tasks[0].priority);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_NO_MANUAL_PRIO, tasks[0].manual_priority);
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+    TEST_ASSERT_EQUAL_UINT16(0U, tasks[0].pt.lc);
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_unlock(&m_busy, &tasks[1]));
+}
+
+static SYN_PT_Status exit_with_dirty_wait_fields_fn(SYN_PT *pt, SYN_Task *task)
+{
+    SYN_EventGroup *evt = (SYN_EventGroup *)task->user_data;
+    PT_BEGIN(pt);
+    task->wait_event = evt;
+    task->wait_mask = 0x01U;
+    task->delay_until = 50U;
+    PT_EXIT(pt);
+    PT_END(pt);
+}
+
+typedef struct {
+    SYN_Task *low_dly;
+    bool share_at_65;
+    bool share_at_70;
+} ResumedDelayPeerCtx;
+
+static SYN_PT_Status crit_check_resumed_delay_fn(SYN_PT *pt, SYN_Task *task)
+{
+    ResumedDelayPeerCtx *ctx = (ResumedDelayPeerCtx *)task->user_data;
+    PT_BEGIN(pt);
+    mock_tick_ms = 10U;
+    syn_task_resume(ctx->low_dly);
+    mock_tick_ms = 65U;
+    ctx->share_at_65 = syn_task_should_share(task);
+    mock_tick_ms = 70U;
+    ctx->share_at_70 = syn_task_should_share(task);
+    PT_END(pt);
+}
+
+static void test_resleep_skips_dead_suspended_and_resumed_delay_wake_base(void)
+{
+    /* 1. PT_EXIT clears wait fields; sched_resleep_event_peers skips DEAD & SUSPENDED peers */
+    SYN_EventGroup evt;
+    syn_event_init(&evt);
+    SharedEvtResleepCtx ectx = {&evt, false, false, 0, 0};
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+
+    mock_tick_ms = 0U;
+    syn_task_create(&tasks[0], "exiter", exit_with_dirty_wait_fields_fn, SYN_PRIO_CRITICAL, &evt);
+    syn_task_create(&tasks[1], "winner", shared_evt_w1_fn, SYN_PRIO_HIGH, &ectx);
+    syn_task_create(&tasks[2], "susp", shared_evt_w1_fn, SYN_PRIO_HIGH, &ectx);
+    syn_sched_init(&sched, tasks, 3U);
+
+    syn_sched_run(&sched); /* exiter runs PT_EXIT -> clears wait_event/wait_mask/delay_until */
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEAD, tasks[0].state);
+    TEST_ASSERT_NULL(tasks[0].wait_event);
+    TEST_ASSERT_EQUAL_UINT32(0U, tasks[0].wait_mask);
+    TEST_ASSERT_EQUAL_UINT32(0U, tasks[0].delay_until);
+
+    syn_sched_run(&sched); /* winner parks on evt */
+    syn_sched_run(&sched); /* susp parks on evt */
+    syn_task_suspend(&tasks[2]);
+
+    /* Defensively ensure DEAD and SUSPENDED peers with non-SLEEPING flags stay untouched */
+    tasks[0].wait_event = &evt;
+    tasks[0].wait_mask = 0x01U;
+    tasks[2].sched_flags = 0U;
+
+    syn_event_set(&evt, 0x01U);
+    syn_sched_run(&sched); /* winner consumes evt and runs sched_resleep_event_peers */
+    TEST_ASSERT_EQUAL_INT(1, ectx.w1_done);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEAD, tasks[0].state);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_SUSPENDED, tasks[2].state);
+    tasks[0].wait_event = NULL;
+
+    /* 2. Resumed delayed LOW peer computes sched_peer_woke due_ms from delay_until (20+50=70) */
+    ResumedDelayPeerCtx rctx = {NULL, true, false};
+    SYN_Task d_tasks[2];
+    SYN_Sched d_sched;
+    int low_id = 42;
+
+    mock_tick_ms = 0U;
+    log_reset();
+    syn_task_create(&d_tasks[0], "crit", crit_check_resumed_delay_fn, SYN_PRIO_CRITICAL, &rctx);
+    syn_task_create(&d_tasks[1], "low_dly", delay_20ms_record_fn, SYN_PRIO_LOW, &low_id);
+    rctx.low_dly = &d_tasks[1];
+    syn_sched_init(&d_sched, d_tasks, 2U);
+
+    syn_task_suspend(&d_tasks[0]);
+    syn_sched_run(&d_sched); /* low_dly arms delay_until = 20 */
+    syn_task_suspend(&d_tasks[1]);
+    syn_task_resume(&d_tasks[0]);
+
+    syn_sched_run(&d_sched);
+    TEST_ASSERT_FALSE(rctx.share_at_65);
+    TEST_ASSERT_TRUE(rctx.share_at_70);
+}
+
+typedef struct {
+    SYN_Task *dead_slot;
+    bool share_before;
+    bool share_after;
+    int respawn_runs;
+} DeadSlotRespawnCtx;
+
+static SYN_PT_Status respawned_peer_fn(SYN_PT *pt, SYN_Task *task)
+{
+    DeadSlotRespawnCtx *ctx = (DeadSlotRespawnCtx *)task->user_data;
+    PT_BEGIN(pt);
+    ctx->respawn_runs++;
+    PT_END(pt);
+}
+
+static SYN_PT_Status spawner_low_fn(SYN_PT *pt, SYN_Task *task)
+{
+    DeadSlotRespawnCtx *ctx = (DeadSlotRespawnCtx *)task->user_data;
+    PT_BEGIN(pt);
+    ctx->share_before = syn_task_should_share(task);
+    syn_task_create(ctx->dead_slot, "respawned", respawned_peer_fn, SYN_PRIO_CRITICAL, ctx);
+    ctx->share_after = syn_task_should_share(task);
+    PT_CONTINUE_IF_NEEDED(pt, task);
+    PT_END(pt);
+}
+
+typedef struct {
+    SYN_Sched *sched;
+    SYN_Task *new_tasks;
+    size_t new_count;
+    SYN_Mutex *mtx;
+    bool exit_task;
+} ReinitSchedCtx;
+
+static SYN_PT_Status reinit_sched_mid_dispatch_fn(SYN_PT *pt, SYN_Task *task)
+{
+    ReinitSchedCtx *ctx = (ReinitSchedCtx *)task->user_data;
+    PT_BEGIN(pt);
+    if (ctx->mtx != NULL) {
+        TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(ctx->mtx, task));
+    }
+    syn_sched_init(ctx->sched, ctx->new_tasks, ctx->new_count);
+    if (!ctx->exit_task) {
+        PT_PASS(pt);
+    }
+    PT_END(pt);
+}
+
+static SYN_PT_Status idle_keep_fn(SYN_PT *pt, SYN_Task *task)
+{
+    (void)task;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_PASS(pt);
+    }
+    PT_END(pt);
+}
+
+static void test_dead_slot_respawn_suspended_wrap_and_mid_reinit(void)
+{
+    /* 1. Respawning a SYN_TASK_DEAD slot mid-dispatch triggers syn_task_should_share() */
+    SYN_Task r_tasks[2];
+    SYN_Sched r_sched;
+    DeadSlotRespawnCtx rctx = {&r_tasks[1], true, false, 0};
+
+    mock_tick_ms = 0U;
+    syn_task_create(&r_tasks[0], "spawner", spawner_low_fn, SYN_PRIO_LOW, &rctx);
+    syn_task_create(&r_tasks[1], "initial_dead", respawned_peer_fn, SYN_PRIO_CRITICAL, &rctx);
+    syn_sched_init(&r_sched, r_tasks, 2U);
+
+    /* Run 1: initial_dead runs to PT_END -> r_tasks[1].state == SYN_TASK_DEAD */
+    TEST_ASSERT_TRUE(syn_sched_run(&r_sched));
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEAD, r_tasks[1].state);
+    TEST_ASSERT_EQUAL_INT(1, rctx.respawn_runs);
+
+    /* Run 2: spawner runs while r_tasks[1] is DEAD, calls syn_task_create(&r_tasks[1], ...)
+     * and sees syn_task_should_share() flip from false -> true immediately! */
+    TEST_ASSERT_TRUE(syn_sched_run(&r_sched));
+    TEST_ASSERT_FALSE(rctx.share_before);
+    TEST_ASSERT_TRUE(rctx.share_after);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, r_tasks[0].state);
+
+    /* Run 3: newly respawned CRITICAL peer preempts spawner cleanly */
+    TEST_ASSERT_TRUE(syn_sched_run(&r_sched));
+    TEST_ASSERT_EQUAL_INT(2, rctx.respawn_runs);
+
+    /* 2. Suspended task with expired delay_until anchors across >24.85-day wraparound
+     *    (covering both now == 0U -> 0xFFFFFFFFU and now != 0U branches) */
+    SYN_Task w_task;
+    SYN_Sched w_sched;
+    int wake_id = 77;
+    log_reset();
+
+    mock_tick_ms = 0xFFFFFFF0U;
+    syn_task_create(&w_task, "dly_susp", delayed_low_worker_fn, SYN_PRIO_HIGH, &wake_id);
+    syn_sched_init(&w_sched, &w_task, 1U);
+
+    syn_sched_run(&w_sched); /* w_task arms delay_until = 0xFFFFFFF5U */
+    TEST_ASSERT_EQUAL_UINT32(0xFFFFFFF5U, w_task.delay_until);
+    syn_task_suspend(&w_task);
+
+    /* Tick wraps to exact 0: expired delay anchors to 0xFFFFFFFFU (avoiding 0 sentinel) */
+    mock_tick_ms = 0U;
+    syn_sched_run(&w_sched);
+    TEST_ASSERT_EQUAL_UINT32(0xFFFFFFFFU, w_task.delay_until);
+
+    /* Advance past 2^31 ms in two 0x50000000U steps while suspended -> stays anchored! */
+    mock_tick_ms = 0x50000000U;
+    syn_sched_run(&w_sched);
+    TEST_ASSERT_EQUAL_UINT32(0x50000000U, w_task.delay_until);
+
+    mock_tick_ms = 0xA0000000U; /* > 2^31 ms past original 0xFFFFFFF5U! */
+    syn_task_resume(&w_task);
+    syn_sched_run(&w_sched);
+    TEST_ASSERT_EQUAL_INT(1, run_log_idx);
+    TEST_ASSERT_EQUAL_INT(77, run_log[0]);
+
+    /* 3. Calling syn_sched_init(sched, ...) inside a running task exits post-dispatch safely */
+    SYN_Task old_tasks[2];
+    SYN_Task replacement_task;
+    SYN_Sched m_sched;
+    SYN_Mutex held_m;
+    syn_mutex_init(&held_m);
+
+    syn_task_create(&replacement_task, "repl", idle_keep_fn, SYN_PRIO_NORMAL, NULL);
+    ReinitSchedCtx ictx1 = {&m_sched, &replacement_task, 1U, &held_m, true};
+    syn_task_create(&old_tasks[0], "peer0", idle_keep_fn, SYN_PRIO_LOW, NULL);
+    syn_task_create(&old_tasks[1], "reinit_exit", reinit_sched_mid_dispatch_fn, SYN_PRIO_CRITICAL,
+                    &ictx1);
+    syn_sched_init(&m_sched, old_tasks, 2U);
+
+    TEST_ASSERT_TRUE(syn_sched_run(&m_sched));
+    TEST_ASSERT_FALSE(syn_mutex_is_locked(&held_m));
+    TEST_ASSERT_NULL(m_sched.running);
+    TEST_ASSERT_EQUAL_size_t(1U, m_sched.task_count);
+
+    /* Subcase 3b: reinit to empty scheduler (count = 0) while yielding PT_IDLE returns false */
+    ReinitSchedCtx ictx2 = {&m_sched, NULL, 0U, NULL, false};
+    syn_task_create(&old_tasks[0], "reinit_empty", reinit_sched_mid_dispatch_fn, SYN_PRIO_CRITICAL,
+                    &ictx2);
+    syn_sched_init(&m_sched, old_tasks, 1U);
+    TEST_ASSERT_FALSE(syn_sched_run(&m_sched));
+    TEST_ASSERT_NULL(m_sched.running);
+    TEST_ASSERT_EQUAL_size_t(0U, m_sched.task_count);
+}
+
 void run_sched_tests(void)
 {
     RUN_TEST(test_scheduler);
@@ -3033,4 +3613,11 @@ void run_sched_tests(void)
     RUN_TEST(test_r3_k12_post_init_task_create_binds_sched_before_dispatch);
     RUN_TEST(test_r4_sched_mutex_wait_lifecycle_and_share_refresh);
     RUN_TEST(test_low_prio_isr_wakeup_and_boosted_rr_fairness);
+    RUN_TEST(test_mid_dispatch_refresh_preserves_low_peer_due_and_delay_base);
+    RUN_TEST(test_shared_event_flags_autoclear_resleeps_loser_for_isr_rewake);
+    RUN_TEST(test_suspend_resume_on_event_wait_and_expired_delay);
+    RUN_TEST(test_task_self_restart_preserves_ready_more_state);
+    RUN_TEST(test_boost_priority_ignores_non_higher_and_self_restart_post_ops);
+    RUN_TEST(test_resleep_skips_dead_suspended_and_resumed_delay_wake_base);
+    RUN_TEST(test_dead_slot_respawn_suspended_wrap_and_mid_reinit);
 }

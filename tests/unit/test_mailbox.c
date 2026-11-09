@@ -134,9 +134,73 @@ static void test_mailbox_wraparound_and_notify(void)
     TEST_ASSERT_TRUE(syn_mailbox_empty(&mb));
 }
 
+static void test_mailbox_zero_and_single_slot_raw_capacity_guards(void)
+{
+    uint8_t buf[sizeof(TestMsg)];
+    TestMsg m = {.id = 9, .value = 99};
+    TestMsg rx;
+
+    for (size_t cap = 0U; cap <= 1U; cap++) {
+        SYN_Mailbox mb;
+        syn_mailbox_init(&mb, buf, sizeof(TestMsg), cap);
+
+        TEST_ASSERT_EQUAL_size_t(0U, syn_mailbox_free(&mb));
+        TEST_ASSERT_EQUAL_size_t(0U, syn_mailbox_pending(&mb));
+        TEST_ASSERT_TRUE(syn_mailbox_empty(&mb));
+        TEST_ASSERT_TRUE(syn_mailbox_full(&mb));
+        TEST_ASSERT_NULL(syn_mailbox_peek(&mb));
+        TEST_ASSERT_FALSE(syn_mailbox_post(&mb, &m));
+        TEST_ASSERT_EQUAL_UINT32(1U, syn_mailbox_overflows(&mb));
+        TEST_ASSERT_FALSE(syn_mailbox_receive(&mb, &rx));
+    }
+
+    /* Zero msg_size, NULL buf, or NULL msg rejected safely without memcpy UB */
+    SYN_Mailbox zero_sz_mb;
+    syn_mailbox_init(&zero_sz_mb, buf, 0U, 4U);
+    TEST_ASSERT_FALSE(syn_mailbox_post(&zero_sz_mb, &m));
+    zero_sz_mb.head = 1U;
+    TEST_ASSERT_NULL(syn_mailbox_peek(&zero_sz_mb));
+    TEST_ASSERT_FALSE(syn_mailbox_receive(&zero_sz_mb, &rx));
+
+    SYN_Mailbox null_buf_mb;
+    syn_mailbox_init(&null_buf_mb, NULL, sizeof(TestMsg), 4U);
+    TEST_ASSERT_FALSE(syn_mailbox_post(&null_buf_mb, &m));
+    null_buf_mb.head = 1U;
+    TEST_ASSERT_NULL(syn_mailbox_peek(&null_buf_mb));
+    TEST_ASSERT_FALSE(syn_mailbox_receive(&null_buf_mb, &rx));
+
+    SYN_Mailbox valid_mb;
+    uint8_t valid_buf[4U * sizeof(TestMsg)];
+    syn_mailbox_init(&valid_mb, valid_buf, sizeof(TestMsg), 4U);
+    TEST_ASSERT_FALSE(syn_mailbox_post(&valid_mb, NULL));
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_mailbox_overflows(&valid_mb));
+    TEST_ASSERT_TRUE(syn_mailbox_post(&valid_mb, &m));
+    TEST_ASSERT_FALSE(syn_mailbox_receive(&valid_mb, NULL));
+    TEST_ASSERT_TRUE(syn_mailbox_receive(&valid_mb, &rx));
+
+    /* Oversized capacity multiplication overflow guard */
+    SYN_Mailbox over_mb;
+    syn_mailbox_init(&over_mb, valid_buf, sizeof(TestMsg), (SIZE_MAX / sizeof(TestMsg)) + 1U);
+    TEST_ASSERT_NULL(over_mb.buf);
+    TEST_ASSERT_EQUAL_size_t(0U, over_mb.capacity);
+    TEST_ASSERT_FALSE(syn_mailbox_post(&over_mb, &m));
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_mailbox_overflows(&over_mb));
+    TEST_ASSERT_FALSE(syn_mailbox_receive(&over_mb, &rx));
+    TEST_ASSERT_NULL(syn_mailbox_peek(&over_mb));
+
+    /* Corrupted post-init capacity > SIZE_MAX / msg_size rejected in post/receive/peek */
+    valid_mb.capacity = (SIZE_MAX / sizeof(TestMsg)) + 1U;
+    valid_mb.head = 1U;
+    valid_mb.tail = 0U;
+    TEST_ASSERT_FALSE(syn_mailbox_post(&valid_mb, &m));
+    TEST_ASSERT_FALSE(syn_mailbox_receive(&valid_mb, &rx));
+    TEST_ASSERT_NULL(syn_mailbox_peek(&valid_mb));
+}
+
 void run_mailbox_tests(void)
 {
     RUN_TEST(test_mailbox);
     RUN_TEST(test_mailbox_capacity_one);
     RUN_TEST(test_mailbox_wraparound_and_notify);
+    RUN_TEST(test_mailbox_zero_and_single_slot_raw_capacity_guards);
 }
