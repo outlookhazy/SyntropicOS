@@ -9,6 +9,27 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (`YYYY.M.
 
 ## [Unreleased]
 
+### Added
+- **Priority-Inheriting Mutex (`syn_mutex`)**: Recursive zero-heap mutex primitive (`PT_MUTEX_LOCK`, `PT_MUTEX_TRYLOCK`, `syn_mutex_unlock`) with bounded transitive priority inheritance, cycle-safe demotion, automatic release on task exit or restart, and standalone/cross-scheduler owner support.
+- **Unified AES, SHA-512/384, NIST P-256, Ed25519 Signing, HMAC-DRBG & TPM 2.0 (`syn_aes`, `syn_aes_cmac`, `syn_sha512`, `syn_p256`, `syn_ed25519`, `syn_hmac_drbg`, `syn_tpm2`, `syn_port_aes`)**:
+  - Unified AES-128/192/256 engine supporting ECB, CBC (PKCS#7), CTR, GCM (AEAD), CCM/CCM-8, RFC 4493 AES-CMAC, and hardware acceleration port hooks (`syn_port_aes.h`, STM32 and ESP32).
+  - FIPS 180-4 SHA-512 / SHA-384, RFC 4231 HMAC-SHA512 / HMAC-SHA384, and RFC 5869 / TLS 1.3 HKDF-SHA384 / HKDF-SHA512 key derivation (`syn_hkdf`).
+  - Constant-time NIST P-256 (`secp256r1`) ECDH and ECDSA (including RFC 6979 deterministic signing), RFC 8032 Ed25519 key generation and signing, X.509 P-256/Ed25519 certificate chain verification (`syn_x509`), and NIST SP 800-90A HMAC-DRBG (`syn_hmac_drbg`).
+  - Zero-heap TPM 2.0 command/response driver (`syn_tpm2`) for startup, self-test, TRNG, PCR read/extend, `TPM2_Quote` attestation, and NVRAM operations.
+- **DTLS 1.3, CoAPS, DNS-SD, MQTT 5.0 / MQTT-SN & TLS 1.3 Cipher Suites (`syn_dtls`, `syn_coap`, `syn_dnssd`, `syn_mqtt`, `syn_mqttsn`, `syn_tls`)**:
+  - RFC 9147 DTLS 1.3 datagram engine with 64-packet anti-replay sliding window, stateless `HelloRetryRequest` cookie verification, X.509 and PSK authentication, and CoAP-over-DTLS (`coaps://`) transport adapter.
+  - CoAP RFC 7959 Block1/Block2 transfers and RFC 7641 Observe subscriptions (`syn_coap`), RFC 6763 / RFC 6762 mDNS/DNS-SD service responder and browser (`syn_dnssd`), MQTT v5.0 variable-byte integers and user properties (`syn_mqtt`), and OASIS MQTT-SN v1.2 client (`syn_mqttsn`).
+  - Added TLS 1.3 X.509 authentication and AES-128/256-GCM, AES-CCM, and AES-CCM-8 cipher suites (`syn_tls`).
+- **OMA LwM2M, RFC 9052 COSE & Streaming OTA (`syn_lwm2m`, `syn_lwm2m_task`, `syn_cose`, `syn_ota`, `syn_fwupdate`)**:
+  - OMA LwM2M v1.1/v1.2 client engine (`syn_lwm2m`) and cooperative supervisor task (`syn_lwm2m_task`) supporting bootstrap, registration, IPSO object access, and Object 5 firmware updates.
+  - RFC 9052 / RFC 9053 COSE signing, MAC, encryption, and key serialization (`COSE_Sign1`, `COSE_Mac0`, `COSE_Encrypt0`, `COSE_Key` across EdDSA, ES256, ChaCha20-Poly1305, AES-GCM, and HMAC-SHA256).
+  - Zero-heap streaming OTA orchestrator (`syn_ota`) and Ed25519 / streaming AES-GCM firmware image verification (`syn_fwupdate`).
+- **Industrial, Robotics, Audio & Encoding Subsystems (`syn_xrce_dds`, `syn_opcua`, `syn_iolink`, `syn_ethercat`, `syn_cia402`, `syn_gcode`, `syn_kinematics`, `syn_vad`, `syn_base64`)**:
+  - Micro XRCE-DDS client with CDR codec (`syn_xrce_dds`), Micro OPC UA binary server (`syn_opcua`), IEC 61131-9 IO-Link master/device engine (`syn_iolink`), non-blocking EtherCAT master protothread engine (`syn_ethercat`), and expanded CiA 402 axis motion profiler (`syn_cia402`).
+  - RS-274 G-code parser (`syn_gcode`), forward/inverse robot kinematics (`syn_kinematics`), Voice Activity Detection (`syn_vad`), and RFC 4648 Base64 / Base64URL codec (`syn_base64`).
+- **Platform Flash Port & Configuration Manifest (`port_stm32_hal`, `syn_config_template.h`)**:
+  - Added STM32F4 HAL flash sector erase and write drivers for `syn_settings` (`src/port/stm32_hal/`), and populated all 209 `SYN_USE_*` compile-time feature gates in `src/syntropic/syn_config_template.h`.
+
 ### Changed (Breaking)
 - **Cooperative Scheduler & Protothread Yield Intent (`syn_pt`, `syn_task`, `syn_sched`)**:
   - Replaced ambiguous yield macros (`PT_YIELD`, `PT_YIELD_UNTIL`, `PT_DEFER` removed) with explicit intent macros `PT_PASS(pt)` (`PT_IDLE`), `PT_CONTINUE(pt)` (`PT_MORE`), and `PT_CONTINUE_IF_NEEDED(pt, task)` (`syn_task_should_share`).
@@ -19,12 +40,44 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (`YYYY.M.
 - **Active Object Task Binding (`syn_ao`)**:
   - Updated `syn_ao_init()` to accept caller-owned `SYN_Task *task` and `SYN_Prio priority` parameters (`syn_ao_init(ao, task, name, priority, transitions, initial_state, mailbox_buf, mailbox_cap)`).
   - Replaced embedded `SYN_Task task` field in `SYN_ActiveObject` with `SYN_Task *task` pointer, removed unused `SYN_PT pt` field, and enforced `mailbox_cap >= 2` (usable mailbox depth `mailbox_cap - 1`).
+- **Module Header Relocations & Unified AES (`syn_aes`, `syn_sha256`, `syn_hmac`, `syn_dsp`, `syn_netbuf`)**:
+  - Removed `syntropic/util/syn_aes128.h` (`SYN_AES128_Context`, `syn_aes128_*`) in favor of `syntropic/crypto/syn_aes.h` (`SYN_AES_Context`, `syn_aes_*`).
+  - Relocated `syn_hmac.h` and `syn_sha256.h` from `syntropic/util/` to `syntropic/crypto/`, `syn_dsp.h` from `syntropic/util/` to `syntropic/dsp/`, and `syn_netbuf.h` from `syntropic/util/` to `syntropic/net/`.
+- **USB EP0 Setup Capacity Parameter (`syn_usb`)**:
+  - Added `uint16_t resp_cap` parameter to `syn_usb_process_setup()` and `SYN_USB_ClassDriver.setup` to bound EP0 control-stage responses, and increased `SYN_USB_EP0_BUF_SIZE` from `64` to `SYN_USB_MAX_CONFIG_DESC` (`256`).
+- **Firmware Image Cryptographic Metadata Binding (`syn_fwimage`, `syn_fwupdate`)**:
+  - Bound canonical 12-byte metadata (`SYN_FW_MAGIC || version_code || image_size` via `syn_fwimage_encode_auth_meta()`) into `SYN_FwImageHeader` HMAC-SHA256 tags, Ed25519 signatures, and AES-GCM AAD; firmware images signed or MAC'd under prior formats must be re-generated.
+- **ISO-TP Default Padding & Mutable Buffer Signatures (`syn_isotp`, `syn_kwp2000`, `syn_httpd`, `syn_button`)**:
+  - Changed default ISO 15765-2 TX CAN frame padding in `syn_isotp` to `0xCC` (`SYN_ISOTP_DEFAULT_PADDING`, configurable via `syn_isotp_set_padding()`).
+  - Updated `syn_kwp2000_register_lid()` / `syn_kwp2000_register_cid()` `data` parameters from `const void *` to `void *`, `syn_httpd_read_body()` `resp` parameter to mutable `SYN_HttpdResponse *`, and `syn_button_combo_init()` `buttons` parameter to `SYN_Button *const *`.
 
 ### Fixed
+- **Scheduler, Transitive Mutex PI, Timers & Sleep Coordinator (`syn_sched`, `syn_mutex`, `syn_ao`, `syn_sequencer`, `syn_timer`, `syn_timer_wheel`, `syn_watchdog`, `syn_mailbox`, `syn_workqueue`, `syn_sleep`)**:
+  - Fixed transitive and cross-scheduler mutex priority inheritance, cycle-safe owner demotion, stale waiter pruning on task exit/restart/suspend/switch, and preserved `SYN_SCHED_FLAG_MUTEX_WAIT` across recursive re-locks.
+  - Added critical-section guards to `syn_task_create()`, `syn_sleep_enter()`, and tickless wakeup clamping; anchored expired `delay_until` timestamps across >24.85-day `SYN_TASK_SUSPENDED` intervals; and detected mid-slice `SYN_TASK_DEAD` slot respawns for `syn_task_should_share()`.
+  - Capped single-dispatch event bursts in `syn_ao` to prevent self-post starvation, guarded step-0 re-initialization and `on_complete` loop toggles in `syn_sequencer`, rejected cross-wheel node corruption and callback re-initialization races in `syn_timer_wheel`, and prevented `capacity * size` multiplication overflow in `syn_mailbox` and `syn_workqueue`.
+- **MCU Port Timers, Flash & Critical Sections (`port_stm32f4`, `port_stm32_hal`, `port_ch32v307`, `port_rp2040`, `port_arduino`)**:
+  - Fixed Cortex-M `syn_port_get_tick_us()` `+999 us` jump at `SYSTICK_VAL == 0` and integer-MHz truncation drift on `HCLK/8` clocks; flushed STM32F4 ART instruction/data caches on partial flash write errors.
+  - Restored CH32V307 ADC/DMA register layouts and masked `mstatus.MIE` across SysTick increments; added `SEV` on wake in RP2040; and saved/restored caller interrupt state in Arduino critical sections.
+- **IEEE 802.3 CRC-32 Lookup Table (`syn_crc`)**: Corrected 12 corrupted entries in the standard IEEE 802.3 CRC-32 lookup table.
+- **Storage, File Systems & Async Peripheral Queues (`syn_fat`, `syn_lfs`, `syn_vfs`, `syn_settings`, `syn_flash_wl`, `syn_i2c_queue`, `syn_spi_queue`)**:
+  - Fixed FAT16/32 BPB geometry validation, cluster-chain cycle/premature-EOF checks, and seek bounds; preserved monotonic `next_seq` across dual-bank `syn_settings` fallback; rejected negative VFS seeks; and copied active transactions onto the stack in `syn_i2c_queue` and `syn_spi_queue` to prevent pointer invalidation on reentrant callbacks.
+- **Network, Automotive & Industrial Protocol Engines (`syn_tcp`, `syn_udp`, `syn_eth`, `syn_dhcp`, `syn_isotp`, `syn_j1939`, `syn_n2k`, `syn_modbus`, `syn_modbus_tcp`, `syn_bacnet`, `syn_devicenet`, `syn_dlt645`, `syn_cjt188`, `syn_mbus`, `syn_ocpp`, `syn_ethercat`)**:
+  - Fixed TCP sequence/RST/FIN window validation and partial-send socket cleanup, UDP IPv4 IHL options offset, DHCP `BOOTREQUEST` rejection, Ethernet multicast/IGMP dispatch, ISO-TP CAN FD SF/FF bounds, J1939 TP RTS collision handling, NMEA 2000 Fast-Packet cross-PGN isolation, Modbus coil/TCP frame bounds, BACnet instance lookup, DL/T 645 / CJ/T 188 / M-Bus streaming resynchronization, and EtherCAT pure-input cyclic LRW framing.
 - **WireGuard Transport Padding & Standalone Modularity (`syn_wg`, `syn_hkdf`, `syn_ethercat`)**: Trimmed 16-byte WireGuard transport padding on receive using inner IPv4/IPv6 header length (`syn_wg`), split `SYN_HKDF_SHA512_ENABLED` so HKDF-SHA256 builds standalone when `SYN_USE_SHA512=0`, and split `SYN_ECAT_COE_OD_ENABLED` so EtherCAT builds standalone when `SYN_USE_CANOPEN=0`.
 - **UDS Service 0x19 (ReadDTCInformation)**: Fixed fallback response wire formatting for subfunctions `0x04`, `0x06`, `0x10`, `0x18`, and `0x19` to return authoritative `statusOfDTC` instead of `SYN_UDS_DTC_STATUS_AVAILABILITY_MASK`. Enforced NRC `0x31` (`RequestOutOfRange`) when requested DTC is not registered.
 - **UDS DTC Lifecycle & State Machine**: Aligned `syn_uds_dtc_report_test_result()` and `syn_uds_dtc_start_operation_cycle()` with ISO 14229-1: set Fault Detection Counter to +127 on qualified failure and -128 on qualified pass; clear `pendingDTC` (bit 2) on operation cycle transition if preceding cycle completed without malfunction.
 - **DTC Manager Demo (`examples/stm32_dtc_manager_demo`)**: Corrected wire format in callback handlers for subfunctions `0x04` and `0x06` to adhere to ISO 14229-1 Tables 258 and 260. Consolidated DTC status tracking to use `syn_uds_dtc_get_status()` as single source of truth.
+
+### Security
+- **Constant-Time ECC, AEAD Bounds, Zeroization & X.509 Signature Binding (`syn_p256`, `syn_ed25519`, `syn_x25519`, `syn_x509`, `syn_aes`, `syn_chacha20poly1305`)**:
+  - Enforced constant-time scalar multiplication, RFC 8032 canonical `S < L` and point encoding checks in Ed25519, RFC 7748 all-zero shared-secret rejection across X25519 callers, 64-bit AEAD length guards in AES-GCM and ChaCha20-Poly1305, volatile-safe secret scrubbing (`syn_hmac_secure_zero`, `syn_blake2s_secure_zero`), and X.509 verification binding against `cert->sig_algo` (rejecting `SYN_X509_ALGO_UNKNOWN` mismatches).
+- **TLS 1.3, DTLS 1.3, WireGuard & OTA Fail-Closed Guards (`syn_tls`, `syn_dtls`, `syn_wg`, `syn_ota`, `syn_fwupdate`)**:
+  - Rejected `NULL` or zero-length PSK secrets in TLS 1.3 / DTLS 1.3, enforced handshake transcript reflection checks and AEAD sequence-number exhaustion limits, gated WireGuard response processing on `hs_valid` while scrubbing ephemeral handshake state on timeout/disconnect, verified `syn_aes_gcm_decrypt()` tag completion in `syn_fwupdate`, and failed closed with `SYN_OTA_ERR_NO_FLASH_SLOT` when `SYN_OTA_SLOT_AUTO` encounters an uninitialized active slot.
+- **Diagnostic & Fieldbus Access Controls (`syn_doip`, `syn_kwp2000`, `syn_ccp`, `syn_canopen`)**:
+  - Enforced ISO 13400 DoIP routing activation prior to diagnostic message forwarding, KWP2000 session and SecurityAccess checks on `WriteData` and download/transfer services, ASAM CCP privilege masks on memory/calibration commands, and CANopen read-only/write-only Object Dictionary SDO enforcement.
+- **WebAssembly VM & Untrusted Frame Bounds (`syn_wasm`, `syn_ble`, `syn_usb`, `syn_dns`, `syn_http`, `syn_httpd`)**:
+  - Hardened Wasm binary loader against malformed LEB128 varints, section/table/memory/data out-of-bounds indices, and call/value stack overflows; sized BLE HCI RX/TX buffers (`260B` / `261B`) for full 255-byte HCI events and 251-byte L2CAP ATT MTU payloads; and enforced DNS compression-pointer loop bounds and HTTP/HTTPd header/body limits.
 
 ---
 
