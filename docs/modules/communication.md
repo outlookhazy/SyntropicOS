@@ -199,27 +199,46 @@ The DALI (Digital Addressable Lighting Interface / IEC 62386-101/102) engine imp
 
 ## 5. Modbus RTU Master & Slave (`syn_modbus.h`, `syn_modbus_master.h`)
 
-SyntropicOS provides non-blocking state-machine drivers for both Modbus RTU Slave (`syn_modbus`) and Modbus RTU Master (`syn_modbus_master`).
+SyntropicOS provides non-blocking state-machine drivers for Modbus RTU Slave (`proto/syn_modbus.h`), Modbus RTU Master (`proto/syn_modbus_master.h`), and Modbus TCP MBAP ADU framing (`proto/syn_modbus_tcp.h`).
 
 ### Features
 - **Non-blocking State Machine**: Processing occurs without thread blocking via periodic polling (`syn_modbus_process` / `syn_modbus_master_process`).
 - **Inter-Frame Silence (t3.5)**: Timing gap detection handles partial frame arrival cleanly over UART DMA / ring buffers.
+- **Modbus TCP (`proto/syn_modbus_tcp.h`)**: Encodes and decodes 7-byte MBAP headers (`SYN_MBAP_Header`, `syn_mbap_encode_header`, `syn_mbap_decode_header`) and wraps Slave/Client ADUs (`syn_modbus_tcp_process_slave`, `syn_modbus_tcp_build_client_adu`).
 
 ---
 
 ## 6. Zero-Heap Ethernet & IP Protocol Suite (`syn_eth`, `syn_dhcp`, `syn_icmp`, `syn_autoip`, `syn_netcfg`)
 
-SyntropicOS provides a standalone, zero-heap Ethernet II and IP networking stack engineered for embedded microcontrollers.
+SyntropicOS provides a standalone, zero-heap Ethernet II, TCP/UDP/IPv4, TLS/DTLS 1.3, and application networking stack engineered for embedded microcontrollers.
 
-### Sub-Modules
-- **Ethernet II & ARP (`syn_eth.h`)**: Raw Ethernet II framing, MAC address filtering, and configurable static ARP table cache (`SYN_ETH_ARP_CACHE_SIZE`, defaults to 8 entries).
-- **Native TCP Engine (`syn_tcp.h`)**: Zero-alloc IPv4 TCP state machine (`LISTEN`, `SYN_RCVD`, `ESTABLISHED`, `FIN_WAIT`), 3-way handshake (`SYN` → `SYN-ACK` → `ACK`), sequence/ACK tracking, and non-blocking `PT_TCP_BLOCK_READ` protothread task macro.
-- **Native UDP Engine (`syn_udp.h`)**: Zero-alloc IPv4 UDP demuxing stack, 8-byte header construction, pseudo-header checksum (`syn_udp_checksum`), targeted destination port waking (`syn_task_resume`), and `PT_UDP_BLOCK_READ` protothread macro.
-- **UDP Transport Bridge (`syn_transport_udp.h`)**: Dual-stack transport bridge connecting `syn_port_udp_*` platform abstraction layer directly to `syn_udp` across software MACRAW, WIZnet hardware sockets, or POSIX/OS sockets.
-- **DHCP Client (`syn_dhcp.h`)**: RFC 2131 BOOTP/DHCP client state machine (`DISCOVER` → `OFFER` → `REQUEST` → `ACK`) over UDP ports 67/68.
-- **ICMP Protocol Engine (`syn_icmp.h`)**: RFC 792 ICMP Echo Request / Reply (Ping) engine with RFC 1071 Ones-Complement Internet Checksum.
-- **RFC 3927 AutoIP (`syn_autoip.h`)**: Link-Local `169.254.x.x` address selection, ARP probing, and collision recovery.
-- **Network IP Manager (`syn_netcfg.h`)**: Unified IP configuration manager supporting Static IP, DHCP, automatic AutoIP fallback, and physical Link Up / Link Down state transitions.
+### Core Link, IP & Transport Sub-Modules
+- **Zero-Copy Packet Buffer Pool (`net/syn_netbuf.h`)**: Reference-counted packet buffers (`SYN_NetBuf`, `SYN_NetBufPool`, `syn_netbuf_alloc`, `syn_netbuf_push`, `syn_netbuf_free`) avoiding per-layer payload copies.
+- **Ethernet II & ARP (`net/syn_eth.h`)**: Raw Ethernet II framing, MAC address filtering, and configurable static ARP table cache (`SYN_ETH_ARP_CACHE_SIZE`, defaults to 8 entries).
+- **Native TCP Engine (`net/syn_tcp.h`)**: Zero-alloc IPv4 TCP state machine (`SYN_TCP_LISTEN`, `SYN_TCP_SYN_RCVD`, `SYN_TCP_ESTABLISHED`, `SYN_TCP_FIN_WAIT`), 3-way handshake (`SYN` → `SYN-ACK` → `ACK`), sequence/ACK tracking, and non-blocking `PT_TCP_BLOCK_READ` protothread task macro.
+- **Native UDP Engine (`net/syn_udp.h`)**: Zero-alloc IPv4 UDP demuxing stack, 8-byte header construction, pseudo-header checksum (`syn_udp_checksum`), targeted destination port waking (`syn_task_resume`), and `PT_UDP_BLOCK_READ` protothread macro.
+- **Pluggable Transport & Socket Bridges (`net/syn_transport.h`, `net/syn_transport_tcp.h`, `net/syn_transport_udp.h`)**: Generic `SYN_Transport` byte-stream/datagram vtable (`syn_transport_send`, `syn_transport_recv`), TCP socket adapter (`SYN_TransportTcp`, `syn_transport_tcp_init`), and UDP dual-stack bridge connecting `syn_port_udp_*` to `syn_udp`.
+- **DHCP Client (`net/syn_dhcp.h`)**: RFC 2131 BOOTP/DHCP client state machine (`DISCOVER` → `OFFER` → `REQUEST` → `ACK`) over UDP ports 67/68.
+- **ICMP & IGMPv2 (`net/syn_icmp.h`, `net/syn_igmp.h`)**: RFC 792 ICMP Echo Request / Reply (Ping) engine (`SYN_USE_ICMP`) and RFC 2236 IGMPv2 IPv4 multicast group join/leave/report engine (`SYN_USE_IGMP`, `syn_igmp_join_group`, `syn_igmp_leave_group`).
+- **RFC 3927 AutoIP (`net/syn_autoip.h`)**: Link-Local `169.254.x.x` address selection, ARP probing, and collision recovery.
+- **Network IP Manager (`net/syn_netcfg.h`)**: Unified IP configuration manager supporting Static IP, DHCP, automatic AutoIP fallback, and physical Link Up / Link Down state transitions.
+
+### Security, Naming, Time & Application Sub-Modules (`net/*.h`)
+
+| Header | Config Switch | Description |
+|---|---|---|
+| `net/syn_tls.h` | `SYN_USE_TLS` | Zero-heap RFC 8446 TLS 1.3 engine & `SYN_Transport` adapter (`SYN_TLS_Config`, `syn_tls_handshake`, `syn_tls_task`, `syn_tls_send`, `syn_tls_recv`) |
+| `net/syn_dtls.h` | `SYN_USE_DTLS` | Zero-heap RFC 9147 DTLS 1.3 datagram security engine with anti-replay sliding window (`syn_dtls_init`, `syn_dtls_handshake`, `syn_dtls_send`) |
+| `net/syn_wg.h` | `SYN_USE_WG` | WireGuard VPN client implementing Noise_IKpsk2 over X25519, ChaCha20-Poly1305, and BLAKE2s (`SYN_WG`, `syn_wg_init`, `syn_wg_task`, `syn_wg_send`) |
+| `net/syn_dns.h` | `SYN_USE_DNS` | Cooperative UDP DNS A-record resolver and `.local` mDNS responder (`SYN_DnsResolver`, `syn_dns_resolve_task`, `SYN_Mdns`, `syn_mdns_task`) |
+| `net/syn_sntp.h` | `SYN_USE_SNTP` | SNTPv4 UDP client resolving Unix epoch seconds and nanoseconds (`SYN_SNTP`, `syn_sntp_init`, `syn_sntp_task`, `syn_sntp_get_epoch_ns`) |
+| `net/syn_ntp_server.h` | `SYN_USE_NTP_SERVER` | Stratum-configurable NTPv4 server over UDP port 123 (`SYN_NTPServer`, `syn_ntp_server_init`, `syn_ntp_server_process_packet`) |
+| `net/syn_http.h` | `SYN_USE_HTTP` | Cooperative streaming HTTP/1.1 client (`SYN_HttpClient`, `syn_http_client_init`, `syn_http_client_task`) |
+| `net/syn_httpd.h` | `SYN_USE_HTTPD` | Zero-alloc route-table HTTP/1.1 embedded server (`SYN_HttpdRoute`, `syn_httpd_init`, `syn_httpd_task`, `syn_httpd_step`) |
+| `net/syn_websocket.h` | `SYN_USE_WEBSOCKET` | RFC 6455 WebSocket upgrade, masking, and frame coroutine over `syn_httpd` (`SYN_WebsocketSession`, `syn_websocket_upgrade`, `syn_websocket_task`) |
+| `net/syn_mqtt.h` | `SYN_USE_MQTT` | Cooperative MQTT 3.1.1 / 5.0 client supporting publish, subscribe, keep-alive ping, and user properties (`syn_mqtt_init`, `syn_mqtt_publish`, `syn_mqtt_subscribe`) |
+| `net/syn_coap.h` | `SYN_USE_COAP` | RFC 7252 CoAP parser, serializer, Block-Wise transfer (`RFC 7959`), and request coroutine (`SYN_CoapMsg`, `syn_coap_parse`, `syn_coap_request_task`) |
+| `net/syn_heartbeat.h` | `SYN_USE_HEARTBEAT` | Multi-peer liveness monitor firing peer-found and peer-lost timeout callbacks (`SYN_Heartbeat`, `syn_heartbeat_add_peer`, `syn_heartbeat_update`) |
 
 ```c
 #include <syntropic/syntropic.h>
@@ -370,9 +389,11 @@ syn_uds_dtc_report_test_result(&g_uds, 0x00B10016U, false); /* Clears testFailed
 /* 3. Driving / Operation cycle boundary */
 syn_uds_dtc_start_operation_cycle(&g_uds); /* Resets testFailedThisOpCycle; clears pendingDTC if cycle completed clean */
 
-/* 4. Querying authoritative status */
+/* 4. Querying authoritative status & SAE J2012 string formatting (proto/syn_uds_util.h) */
 uint8_t dtc_status = 0;
+char dtc_str[6];
 syn_uds_dtc_get_status(&g_uds, 0x00B10016U, &dtc_status);
+syn_uds_dtc_to_str(0x00B10016U, dtc_str); /* Formats "B1001" / parses via syn_uds_dtc_from_str() */
 ```
 
 ---
@@ -463,9 +484,9 @@ void dnssd_setup(void) {
 
 ---
 
-## 10. Autonomous OMA LwM2M Supervisor Task (`syn_lwm2m_task`)
+## 10. OMA LwM2M Client & Autonomous Supervisor (`proto/syn_lwm2m.h`, `proto/syn_lwm2m_task.h`)
 
-Zero-heap, event-driven supervisor task managing the complete lifecycle of an OMA LwM2M v1.1/v1.2 client:
+`proto/syn_lwm2m.h` (`SYN_USE_LWM2M`) implements the zero-heap OMA LwM2M v1.1/v1.2 client object tree (`SYN_LwM2M_Client`, `SYN_LwM2M_Object`), TLV and Core Link-Format encoders (`syn_lwm2m_tlv_encode_*`), and IPSO Device/Sensor object builders. `proto/syn_lwm2m_task.h` (`SYN_USE_LWM2M_TASK`) wraps the client in an event-driven supervisor task managing the complete connection lifecycle:
 - **Autonomous Registration**: Initial registration with core Link-Format serialization (`</3/0>`, `</5/0>`, `</3303/0>`).
 - **Autonomous Lifetime Renewal**: Automatic update requests dispatched when reaching 80% of configured `lifetime_s`.
 - **RFC 7641 Observe & Notify**: Periodic evaluation of resource changes with `pmin` suppression and `pmax` expiry.
@@ -668,4 +689,66 @@ void publish_telemetry(int16_t temperature_c) {
     syn_mqttsn_client_publish_short(&g_sn_client, "te", 0, false, (const uint8_t *)&temperature_c, sizeof(temperature_c));
 }
 ```
+
+---
+
+## 15. Industrial Fieldbuses: CANopen, DeviceNet & EtherCAT
+
+| Header | Config Switch | Specification & Key API |
+|---|---|---|
+| `proto/syn_canopen.h` | `SYN_USE_CANOPEN` | CiA 301 CANopen Slave engine: Object Dictionary, Expedited/Segmented SDO Server, TPDO/RPDO mapping, NMT Slave, Heartbeat, and EMCY (`syn_canopen_init`, `syn_canopen_process_rx`, `syn_canopen_update`) |
+| `proto/syn_canopen_mgr.h` | Always available | CiA 302 Network Manager, NMT Master, Heartbeat Consumer, and SDO Client (`SYN_CANOpenManager`, `syn_canopen_mgr_build_nmt`, `syn_canopen_mgr_sdo_read_init`) |
+| `proto/syn_lss.h` | Always available | CiA 305 Layer Setting Services Master/Slave for dynamic node-ID and bit-timing assignment (`SYN_LSSSlave`, `syn_lss_slave_process`, `syn_lss_master_build_config_node_id`) |
+| `proto/syn_cia303.h` | `SYN_USE_CANOPEN` | CiA 303-3 RUN/ERR LED blink-pattern generator driven by NMT and error state (`SYN_CiA303_Indicator`, `syn_cia303_step`) |
+| `proto/syn_cia401.h` | Always available | CiA 401 Generic Digital/Analog I/O Module profile & delta-trigger helper (`SYN_CiA401_Device`, `syn_cia401_populate_od`, `syn_cia401_check_analog_delta`) |
+| `proto/syn_cia402.h` | `SYN_USE_CIA402` | CiA 402 Drives and Motion Control FSA state machine (`Not Ready` → `Operation Enabled` / `Quick Stop`) and Controlword/Statusword codec (`syn_cia402_init`, `syn_cia402_set_controlword`) |
+| `proto/syn_cia418.h` | Always available | CiA 418 Battery Module Object Dictionary index and sub-index definitions (`0x6000`–`0x60FF`) |
+| `proto/syn_devicenet.h` | `SYN_USE_DEVICENET` | ODVA DeviceNet (CIP over CAN) Group 2 Only Server, Duplicate MAC ID check, Explicit/Polled I/O messaging (`SYN_CIP_DeviceNet`, `syn_devicenet_init`, `syn_devicenet_on_can_rx`) |
+| `proto/syn_ethercat.h` | `SYN_USE_ETHERCAT` | Bare-metal IEEE 802.3 EtherType `0x88A4` EtherCAT Slave frame processor, AL state machine (`INIT` → `PREOP` → `SAFEOP` → `OP`), and CoE SDO mailbox (`syn_ecat_init`, `syn_ecat_slave_process_frame`) |
+
+---
+
+## 16. Automotive Calibration, Bus Management, LIN & EV Charging
+
+| Header | Config Switch | Specification & Key API |
+|---|---|---|
+| `proto/syn_j1939.h` | `SYN_USE_J1939` | SAE J1939 29-bit CAN ID/PGN packing, 64-bit NAME address claiming, Transport Protocol (BAM / CMDT), and DM1 DTC encoding (`syn_j1939_id_pack`, `syn_j1939_name_encode`) |
+| `proto/syn_n2k.h` | `SYN_USE_N2K` | NMEA 2000 marine CAN PGN encoders/decoders for rapid position, COG/SOG, vessel heading, and battery status (`syn_n2k_encode_position_rapid`, `syn_n2k_decode_position_rapid`) |
+| `proto/syn_cannm.h` | `SYN_USE_CANNM` | AUTOSAR CAN Network Management state machine (`Bus-Sleep`, `Prepare Bus-Sleep`, `Repeat Message`, `Normal Operation`, `Ready Sleep`) (`SYN_CanNM_Session`, `syn_cannm_init`) |
+| `proto/syn_ccp.h` | `SYN_USE_CCP` | ASAM CAN Calibration Protocol v2.1 Slave supporting CRO/DTO commands, MTA memory access, and synchronous DAQ lists (`syn_ccp_init`, `syn_ccp_process_cro`, `syn_ccp_daq_event`) |
+| `proto/syn_xcp.h` | `SYN_USE_XCP` | Transport-agnostic ASAM XCP v1.x Slave (XCP-on-CAN / XCP-on-Ethernet / XCP-on-UART) with CTO command processor and ODT DAQ engine (`syn_xcp_init`, `syn_xcp_process_cto`) |
+| `proto/syn_kwp2000.h` | Always available | ISO 14230-3 KWP2000 diagnostic server supporting LID/CID tables, diagnostic sessions, and ECU reset handlers (`SYN_KWP2000_Server`, `syn_kwp2000_init`) |
+| `proto/syn_lin.h` | `SYN_USE_LIN` | LIN 2.1 / 2.2A & ISO 17987 schedule-table Master and Slave frame engine with protected ID parity and classic/enhanced checksums (`syn_lin_master_init`, `syn_lin_master_step`) |
+| `proto/syn_lintp.h` | `SYN_USE_LINTP` | ISO 17987-2 LIN Transport Layer (`0x3C` MasterReq / `0x3D` SlaveResp) multi-frame segmentation for UDS-on-LIN (`SYN_LINTP_Link`, `syn_lintp_init`, `syn_lintp_send`) |
+| `proto/syn_gbt27930.h` | `SYN_USE_GBT27930` | GB/T 27930 DC Fast Charging BMS & Charger handshake/parameter/charging state machine over J1939 CAN (`syn_gbt27930_init`, `syn_gbt27930_step`) |
+| `proto/syn_ocpp.h` | Always available | OCPP-J 1.6 / 2.0.1 EV Charge Point JSON-RPC formatter and parser (`BootNotification`, `Heartbeat`, `StatusNotification`, `StartTransaction`, V2G modes) (`syn_ocpp_init`) |
+
+---
+
+## 17. Smart Metering, Stage Lighting & Power Management Buses
+
+| Header | Config Switch | Specification & Key API |
+|---|---|---|
+| `proto/syn_cjt188.h` | `SYN_USE_CJT188` | CJ/T 188-2004 & 2018 water/gas/heat utility meter framing, BCD data decoding, and valve control (`SYN_CJT188_Decoder`, `syn_cjt188_encode_read_req`, `syn_cjt188_parse_frame`) |
+| `proto/syn_dlt645.h` | Always available | DL/T 645-1997 & 2007 electricity meter `0x68` framing, `+0x33` byte scrambling, and streaming decoder (`SYN_DLT645_Decoder`, `syn_dlt645_encode`, `syn_dlt645_decoder_feed`) |
+| `proto/syn_dmx512.h` | `SYN_USE_DMX512` | USITT DMX512-A 512-channel lighting universe Master frame builder and Slave slot receiver (`SYN_DMX512_Master`, `SYN_DMX512_Slave`, `syn_dmx512_master_set_channel`) |
+| `proto/syn_smbus.h` | `SYN_USE_SMBUS` | System Management Bus v1.1–3.0 packet codec with CRC-8 Packet Error Checking (PEC) (`syn_smbus_calc_pec`, `syn_smbus_encode_packet`, `syn_smbus_decode_packet`) |
+| `proto/syn_pmbus.h` | `SYN_USE_PMBUS` | Power Management Bus v1.2/1.3 command framing plus `LINEAR11` and `ULINEAR16` voltage/current float converters (`syn_pmbus_linear11_to_float`, `syn_pmbus_linear16_to_float`) |
+
+---
+
+## 18. UAV / RC Links, GNSS, Serial Modems & CBOR Object Security
+
+| Header | Config Switch | Specification & Key API |
+|---|---|---|
+| `proto/syn_mavlink.h` | `SYN_USE_MAVLINK` | MAVLink v2 packet encoder and byte-streaming decoder with `CRC_EXTRA` validation (`SYN_MAVLINK_Parser`, `syn_mavlink_parse_byte`, `syn_mavlink_encode_msg`) |
+| `proto/syn_msp.h` | `SYN_USE_MSP` | MultiWii / Betaflight Serial Protocol (MSP v1) telemetry & FC command codec (`SYN_MSP_Parser`, `syn_msp_parse_byte`, `syn_msp_encode_response`) |
+| `proto/syn_crsf.h` | `SYN_USE_CRSF` | TBS Crossfire / ExpressLRS 420 kbaud 16-channel 11-bit RC & link-statistics parser (`SYN_CRSF_Parser`, `syn_crsf_parse_byte`, `syn_crsf_raw_to_us`) |
+| `proto/syn_sbus.h` | `SYN_USE_SBUS` | Futaba / FrSky SBUS 25-byte 16-channel RC receiver decoder with failsafe/frame-lost flags (`SYN_SBUS_Parser`, `syn_sbus_parse_byte`, `syn_sbus_raw_to_us`) |
+| `proto/syn_ibus.h` | `SYN_USE_IBUS` | FlySky IBUS 32-byte 14-channel serial receiver parser with 16-bit checksum verification (`SYN_IBUS_Parser`, `syn_ibus_parse_byte`) |
+| `proto/syn_nmea.h` | `SYN_USE_NMEA` | NMEA 0183 GNSS streaming sentence parser (`GGA`, `RMC`, `GSA`, `VTG`) with integer micro-degree (`1e-6 deg`) coordinates (`syn_nmea_parser_feed`, `syn_udeg_to_deg`) |
+| `proto/syn_at_parser.h` | `SYN_USE_AT_PARSER` | Stream-oriented cellular/Wi-Fi AT command response & URC parser with `+CME ERROR` extraction (`SYN_AtParser`, `syn_at_parser_feed_stream`) |
+| `proto/syn_ymodem.h` | `SYN_USE_YMODEM` | YMODEM / XMODEM-1K CRC-16 batch serial file receiver for bootloader & VFS transfers (`SYN_YMODEM_Receiver`, `syn_ymodem_receiver_init`, `syn_ymodem_receive`) |
+| `proto/syn_ir.h` | `SYN_USE_IR` | Infrared pulse-distance/bi-phase remote encoder and decoder supporting NEC, Sony SIRC, Philips RC5/RC6, Samsung, and Panasonic (`syn_ir_decode_pulse`, `syn_ir_encode_frame`) |
+| `proto/syn_cose.h` | `SYN_USE_COSE` | RFC 9052 / RFC 8152 CBOR Object Signing and Encryption (`COSE_Sign1`, `COSE_Encrypt0`, `COSE_Mac0`) backed by SyntropicOS Ed25519/P-256/ChaCha20-Poly1305/AES-GCM (`syn_cose_sign1_create`, `syn_cose_sign1_verify`) |
 

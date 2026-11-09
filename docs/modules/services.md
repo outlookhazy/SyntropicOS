@@ -101,3 +101,17 @@ void app_check_watchdog(void) {
     syn_watchdog_update(&wdt);
 }
 ```
+
+---
+
+## 3. Structured Logging, Binary Data Logger & Flight Blackbox (`log/*.h`)
+
+- **Structured Console & Custom-Sink Logger (`log/syn_log.h`, `SYN_USE_LOG`)**:
+  - Tagged, severity-filtered logging (`SYN_LOG_T`, `SYN_LOG_D`, `SYN_LOG_I`, `SYN_LOG_W`, `SYN_LOG_E`, `SYN_LOG_F`) plus `syn_log_raw()` and `syn_log_hexdump()`.
+  - Calls below compile-time `SYN_LOG_LEVEL` (`0` = TRACE .. `5` = FATAL, `6` = NONE) compile out to `((void)0)`.
+  - `syn_log_init(NULL, SYN_LOG_INFO)` routes output to `syn_port_serial_write()`; pass a `SYN_LogOutputFn` callback (`syn_log_init(my_sink_fn, SYN_LOG_INFO)`) for RTT, SWO/ITM, USB CDC, or file backends.
+- **Framed Ring-Buffer Data Logger (`log/syn_datalog.h`, `SYN_USE_DATALOG`)**:
+  - Records binary telemetry packets prefixed with `SYN_DataLogHeader` (`uint16_t id`, `uint16_t len`) into a caller-owned `SYN_RingBuf` (`syn_datalog_init`, `syn_datalog_write`, `syn_datalog_read`) with dropped-frame accounting (`syn_datalog_get_dropped`).
+- **High-Rate Flight Telemetry Blackbox (`log/syn_blackbox.h`, `SYN_USE_BLACKBOX`)**:
+  - Compresses `SYN_Blackbox_Record` frames (3-axis gyro/accel, 4 setpoints, 4 motor outputs, microsecond timestamp) into full Intra (`'I'`, `syn_blackbox_encode_intra_ex`) and ZigZag-LEB128 delta Predictive (`'P'`, `syn_blackbox_encode_delta_ex`) frames for flash or SD storage.
+

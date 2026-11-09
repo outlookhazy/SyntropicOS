@@ -568,7 +568,8 @@ static SYN_PT_Status pulse_task(SYN_PT *pt, SYN_Task *task)
 | Module | Header | Config | Description |
 |---|---|---|---|
 | Timers | `sched/syn_timer.h` | `SYN_USE_TIMER` | Software timers — one-shot and periodic callbacks driven by `syn_port_get_tick_ms()` |
-| Events | `util/syn_event.h` | `SYN_USE_EVENT` | 32-bit event flag groups for inter-task signaling |
+| Timer Wheel | `sched/syn_timer_wheel.h` | Always available | O(1) 64-bucket hashed timing wheel (`syn_timer_wheel_add`, `syn_timer_wheel_cancel`, `syn_timer_wheel_step`) for high-count one-shot timeouts |
+| Events | `sched/syn_event_flags.h` / `util/syn_event.h` | `SYN_USE_EVENT` | 32-bit atomic event flag groups (`SYN_EventFlags` / `SYN_EventGroup`) for ISR & inter-task signaling |
 | Watchdog | `sched/syn_watchdog.h` | `SYN_USE_WATCHDOG` | Per-task software check-in deadlines. Timeout events auto-record to `syn_errlog` if configured. |
 | Sequencer | `sched/syn_sequencer.h` | `SYN_USE_SEQUENCER` | Step-based async sequence runner for timed action chains |
 | Work Queue | `sched/syn_workqueue.h` | `SYN_USE_WORKQUEUE` | Deferred work queue — safely post work from ISR to main thread |

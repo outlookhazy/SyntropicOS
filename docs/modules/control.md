@@ -182,3 +182,24 @@ void scara_pick_and_place_demo(void) {
 }
 ```
 
+---
+
+## 6. Additional Motor Drivers, Closed-Loop Controllers & Flight / RC Control
+
+### Motor Drivers & Closed-Loop Servo/Actuator Stack (`motor/*.h`)
+- **Motor Hardware Abstraction (`motor/syn_motor_output.h`, header-only)**: Three-callback vtable (`SYN_MotorOutput`: `set_output`, `coast`, `brake`) decoupling closed-loop controllers from PWM/H-bridge drivers.
+- **H-Bridge DC Motor (`motor/syn_dc_motor.h`, `SYN_USE_DC_MOTOR`)**: Drives PWM+Dir or Dual-PWM H-bridges (`SYN_DCMotor`: `syn_dc_motor_init`, `syn_dc_motor_set_speed`, `syn_dc_motor_ramp_to`, `syn_dc_motor_coast`, `syn_dc_motor_brake`, `syn_dc_motor_output`).
+- **Hobby Servo (`motor/syn_servo.h`, `SYN_USE_SERVO`)**: Maps degree targets or raw microsecond commands onto `pulse_min..pulse_max` (`SYN_Servo`: `syn_servo_init`, `syn_servo_set_angle`, `syn_servo_move_to`, `syn_servo_update`).
+- **6-Step Trapezoidal BLDC (`motor/syn_bldc_6step.h`, `SYN_USE_BLDC_6STEP`)**: Commutates 3-phase bridges from 3-bit Hall states (`SYN_BLDC_6Step`: `syn_bldc_6step_init`, `syn_bldc_6step_set_hall`, `syn_bldc_6step_update_speed`) with invalid-Hall fault detection and closed-loop RPM PID.
+- **FOC Rotor Encoder Interface (`motor/syn_foc_encoder.h`)**: Converts ABZ quadrature counts, 3-phase Hall transitions, or 14-bit absolute angles into Q16.16 electrical angle and speed (`syn_foc_encoder_init`, `syn_foc_encoder_get_elec_angle`, `syn_foc_encoder_get_elec_speed`).
+- **Closed-Loop Motor Controller (`motor/syn_motor_ctrl.h`, `SYN_USE_MOTOR_CTRL`)**: Combines `SYN_MotorOutput` + position reader with PID, velocity/acceleration feedforward (`ff_kv`, `ff_ka`), trapezoidal and S-curve moves (`syn_motor_ctrl_move_to`, `syn_motor_ctrl_move_to_scurve`), soft travel limits, and stall detection.
+- **Linear Actuator (`motor/syn_actuator.h`, `SYN_USE_ACTUATOR`)**: Closed-loop stroke positioner (`0..1000` = `0.0%..100.0%`) over potentiometer ADC feedback (`syn_actuator_init`, `syn_actuator_set_position`, `syn_actuator_update`).
+- **Multi-Axis Trajectory Interpolator (`motor/syn_interpolator.h`, `SYN_USE_INTERPOLATOR`)**: Coordinated 2D/3D linear, circular arc, and cubic Bezier S-curve motion planner (`syn_interpolator_plan_linear/circular/bezier`, `syn_interpolator_step`).
+
+### Auto-Tuning, Loop Diagnostics & Flight / RC Control (`control/*.h`)
+- **Relay & Feedforward Auto-Tuner (`control/syn_autotune.h`, `SYN_USE_AUTOTUNE`)**: Identifies `ff_kv`/`ff_ka` and Ziegler-Nichols or Tyreus-Luyben PID gains on `SYN_MotorCtrl` within bounded travel/watchdog limits (`syn_autotune_init`, `syn_autotune_start`, `syn_autotune_update`, `syn_autotune_apply`).
+- **Control Loop Statistics (`control/syn_control_stats.h`)**: Tracks RMS error, peak error, RMS effort, output slew jitter, and ITAE (`syn_control_stats_update`, `syn_control_stats_report`).
+- **Cascaded 3-Axis Flight PID & Quad-X Mixer (`control/syn_flight_pid.h`, `SYN_USE_FLIGHT_PID`)**: Outer-angle + inner-rate Q16.16 roll/pitch/yaw loops mixing into 4 motor `1000..2000 us` outputs (`syn_flight_init`, `syn_flight_update`).
+- **RC Stick Curve & Link Failsafe (`control/syn_rc_curve.h`, `SYN_USE_RC_CURVE`; `control/syn_rc_failsafe.h`, `SYN_USE_RC_FAILSAFE`)**: Applies deadband, cubic expo, and dual-rate scaling (`syn_rc_curve_apply`) and enforces per-channel hold/preset/disarm actions on receiver timeout (`syn_failsafe_init`, `syn_failsafe_feed_frame`, `syn_failsafe_step`).
+
+

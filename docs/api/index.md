@@ -21,17 +21,24 @@ Jump directly to module documentation guides and Doxygen API groups:
 
 | Subsystem | Functional Scope | Documentation Guide |
 |---|---|---|
-| **⚡ Core & Multitasking** | Protothreads, Task Scheduler, Active Objects, Workqueues, Mailboxes, Event Flags. | [Multitasking Guide](../modules/multitasking.md) |
-| **🎛️ Drivers & Peripherals** | GPIO, EXTI, UART, CAN, SPI, I2C, ADC, DAC, SD Card, RTC, DMA Engine. | [Drivers Guide](../modules/drivers.md) |
-| **🔘 Input / Output** | Debounced Buttons, Tap Gestures, Combos, Rotary Encoders, LEDs, Soft PWM. | [I/O Guide](../modules/io.md) |
-| **📡 Communications** | COBS Framing, Addressed Packet Router, Modbus RTU/TCP, M-Bus, ISO-TP, J1939. | [Communication Guide](../modules/communication.md) |
-| **⚙️ Motor & Control** | Integer PID Controller, Auto-Tuning, Steppers, Servos, DC Motors, FOC & Observer. | [Control Guide](../modules/control.md) |
-| **🖥️ Display & UI** | Framebuffer Canvas, Graphics Primitives, Immediate-Mode GUI (`syn_imgui`), Menus. | [Display Guide](../modules/display.md) |
-| **💾 Storage** | Persistent Settings Manager, Wear-Leveled Flash, LittleFS, FAT32, Virtual VFS. | [Storage Guide](../modules/storage.md) |
-| **🔬 Diagnostics & Debug** | ISR Event Tracer (`syn_trace`), CPU Profiler (`syn_profiler`), Serial CLI, Watchdog. | [Debug Guide](../modules/debug.md) |
-| **🛡️ System & Resilience** | Boot Manager, Crash-Loop Recovery, Core Dump Flash Capture, OTA Updates. | [System Guide](../modules/system.md) |
-| **📐 DSP & Signal Processing** | Biquad Butterworth IIR Filters, EMA, Median, Radix-2 FFT, Signal Statistics. | [DSP Guide](../modules/dsp.md) |
-| **🔒 Cryptography** | BLAKE2s Hash / MAC, ChaCha20-Poly1305 AEAD Cipher, X25519 Key Exchange. | [Crypto Guide](../modules/crypto.md) |
+| **📚 Overview & Catalog** | Complete directory of all 278 portable C99 module headers and `SYN_USE_*` switches. | [Module Catalog](../modules/index.md) |
+| **🧱 Core & Utilities** | Fixed-point & matrix math, CRCs, CBOR/JSON/Protobuf/Base64 codecs, lock-free queues, pools, FSM, pub/sub. | [Core & Utilities Guide](../modules/core.md) |
+| **⚡ Multitasking** | Protothreads, Task Scheduler, Active Objects, Workqueues, Mailboxes, Event Flags, Multicore. | [Multitasking Guide](../modules/multitasking.md) |
+| **🎛️ Drivers & Sensors** | GPIO, EXTI, UART, CAN, SPI, I2C, ADC, DAC, PWM/HRPWM, DMA, RTC/PPS, SD, USB 2.0, Sensors. | [Drivers Guide](../modules/drivers.md) |
+| **🛠️ Services** | Interactive CLI shell, leveled logger, binary ring datalogger, flight blackbox recorder. | [Services Guide](../modules/services.md) |
+| **🔘 Input / Output** | Debounced Buttons, Tap Gestures, Combos, Rotary Encoders, LEDs, WS2812, Soft PWM, DShot. | [I/O Guide](../modules/io.md) |
+| **🖥️ Display & UI** | Framebuffer Canvas, Graphics Primitives, Immediate-Mode GUI (`syn_imgui`), Menus, OLED/LCD. | [Display Guide](../modules/display.md) |
+| **⚙️ Motor & Control** | Integer & Flight PID, Auto-Tuning, Steppers, Servos, DC/BLDC Motors, FOC, G-code CNC. | [Control Guide](../modules/control.md) |
+| **📐 DSP & Signal Processing** | Biquad IIR & Filter Synthesis, FIR, EMA, Median, Radix-2 FFT, DDS, Goertzel, MFCC, Kalman. | [DSP Guide](../modules/dsp.md) |
+| **📡 Communications** | Ethernet/IPv4/TCP/UDP, TLS/DTLS 1.3, WireGuard, HTTP/MQTT/CoAP/LwM2M, CANopen, Modbus, UDS. | [Communication Guide](../modules/communication.md) |
+| **📶 Bluetooth Low Energy** | Zero-heap BLE Host stack over H:4 UART/SPI (HCI, L2CAP, ATT, GAP, GATT Server). | [BLE Guide](../modules/ble.md) |
+| **🔊 Audio & Codecs** | Non-blocking I2S/DMA PCM playback, multi-voice mixer, IMA ADPCM, Bluetooth SBC, WAV, VAD. | [Audio Guide](../modules/audio.md) |
+| **🔒 Cryptography & PKI** | AES-128/256, ChaCha20-Poly1305, SHA-256/512, BLAKE2s, X25519, Ed25519, P-256, X.509, TPM 2.0. | [Crypto Guide](../modules/crypto.md) |
+| **💾 Storage** | Parameter Store, Wear-Leveled Flash Settings, LittleFS, FAT16/FAT32, Virtual VFS. | [Storage Guide](../modules/storage.md) |
+| **🛡️ System & Power** | Boot Manager, A/B OTA & Secure Boot, Coredump Capture, Power Modes, Watchdogs. | [System Guide](../modules/system.md) |
+| **🧩 WebAssembly VM** | Cooperative fuel-metered 32-bit WebAssembly bytecode interpreter (experimental). | [Wasm VM Guide](../modules/wasm.md) |
+| **🔬 Diagnostics & Debug** | ISR Event Tracer (`syn_trace`), CPU Profiler (`syn_profiler`), Runtime Metrics. | [Debug Guide](../modules/debug.md) |
+| **🔗 Integration Patterns** | End-to-end pipelines combining scheduler, drivers, DSP, storage, and protocols. | [Integration Guide](../modules/integration.md) |
 
 ---
 

@@ -163,4 +163,21 @@ void measure_stage2_firmware(const uint8_t *fw_sha256) {
 }
 ```
 
+---
+
+## 7. AES Block/AEAD Modes, SHA-512, HMAC/HKDF, DRBG, Ed25519 & X.509 PKI
+
+| Module | Guard | Primary API | Summary |
+|---|---|---|---|
+| `crypto/syn_aes.h` | `SYN_USE_AES` | `syn_aes_init`, `syn_aes_cbc_encrypt/decrypt`, `syn_aes_ctr`, `syn_aes_gcm_encrypt/decrypt`, `syn_aes_ccm_encrypt/decrypt` | AES-128/192/256 ECB, PKCS#7 CBC, CTR, AES-GCM AEAD, and AES-CCM AEAD (optional `SYN_USE_PORT_AES` hardware offload) |
+| `crypto/syn_aes_cmac.h` | `SYN_USE_AES_CMAC` | `syn_aes_cmac`, `syn_aes_cmac_verify` | Constant-time 128-bit AES-CMAC (RFC 4493 / NIST SP 800-38B) |
+| `crypto/syn_hmac.h` | `SYN_USE_SHA256` | `syn_hmac_sha256_init/update/final`, `syn_hmac_sha256` | Streaming and single-shot HMAC-SHA256 with stack state zeroization |
+| `crypto/syn_sha512.h` | `SYN_USE_SHA512` | `syn_sha512`, `syn_sha384`, `syn_hmac_sha512`, `syn_hmac_sha384` | FIPS 180-4 SHA-512 / SHA-384 digests and RFC 4231 HMACs |
+| `crypto/syn_hkdf.h` | `SYN_USE_HKDF` | `syn_hkdf_extract`, `syn_hkdf_expand`, `syn_hkdf`, `syn_hkdf_expand_label` | RFC 5869 HKDF and RFC 8446 TLS 1.3 `HKDF-Expand-Label` (SHA-256/384/512) |
+| `crypto/syn_hmac_drbg.h` | `SYN_USE_HMAC_DRBG` | `syn_hmac_drbg_init`, `syn_hmac_drbg_reseed`, `syn_hmac_drbg_generate` | NIST SP 800-90A Rev. 1 HMAC-DRBG (SHA-256) CSPRNG |
+| `crypto/syn_ed25519.h` | `SYN_USE_ED25519` | `syn_ed25519_create_keypair`, `syn_ed25519_sign`, `syn_ed25519_verify` | RFC 8032 Ed25519 deterministic digital signatures |
+| `crypto/syn_asn1.h` | `SYN_USE_ASN1` | `syn_asn1_parse_element`, `syn_asn1_step`, `syn_asn1_enter_container`, `syn_asn1_match_oid` | Zero-copy ASN.1 DER TLV container, OID, integer, and bit-string parser |
+| `crypto/syn_x509.h` | `SYN_USE_X509` | `syn_x509_parse`, `syn_x509_verify_signature`, `syn_x509_validate_chain` | DER X.509 v3 certificate parser and Ed25519 / ECDSA-P256 chain validator |
+
+
 

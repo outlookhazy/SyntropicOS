@@ -37,8 +37,14 @@ The SyntropicOS Audio Subsystem provides lightweight, zero-heap, integer-only au
 - **Modes**: Mono, Dual Channel, Stereo, Joint Stereo.
 
 ### PCM Streaming Playback Engine (`syn_audio`)
-- **Double-Buffering**: Ping-pong PCM buffer preventing audio underrun.
+- **Double-Buffering**: Ping-pong PCM buffer (`SYN_Audio`, `syn_audio_init`, `syn_audio_start`, `syn_audio_feed`) preventing audio underrun.
 - **ISR Hooks**: Decoupled `syn_audio_isr_half()` and `syn_audio_isr_complete()` handlers.
+
+### Multi-Channel PCM Audio Mixer (`syn_audio_mixer`)
+- **Polyphonic Mixing (`audio/syn_audio_mixer.h`, `SYN_USE_AUDIO`)**: Blends up to `SYN_AUDIO_MIXER_MAX_CHANNELS` (`4U` default) 16-bit PCM streams into a single output buffer (`syn_audio_mixer_render`) with per-channel (`syn_audio_mixer_play`, `syn_audio_mixer_set_channel_volume`) and master (`syn_audio_mixer_set_master_volume`) Q15 gain scaling (`SYN_AUDIO_GAIN_UNITY = 32768U`), looping, and saturating clamp.
+
+### RIFF / WAVE Container Parser (`syn_wav`)
+- **Zero-Copy Header Parsing (`audio/syn_wav.h`, `SYN_USE_AUDIO`)**: `syn_wav_parse_header()` inspects in-memory RIFF/WAVE containers (`SYN_WAV_Info`) to extract sample rate, channel count, bit depth, payload offset, and total sample count for linear PCM (`SYN_WAV_FORMAT_PCM`) and IMA-ADPCM (`SYN_WAV_FORMAT_IMA_ADPCM`) assets.
 
 ### Voice Activity Detector (`syn_vad`)
 - **Algorithms**: Multi-feature acoustic onset/voice detector:

@@ -69,13 +69,14 @@ Every driver and protocol module in SyntropicOS is written from scratch as a coo
 
 ## Module Documentation Index
 
-Quick-jump to specific feature guides and API references:
+Browse the **[Complete Module Catalog →](modules/index.md)** (all 17 subsystem guides and 240+ modules), or jump directly to a subsystem:
 
-### ⚡ Core & Multitasking ([Read Core Docs →](modules/multitasking.md))
+### ⚡ Core, Utilities & Multitasking ([Multitasking →](modules/multitasking.md) · [Core & Utilities →](modules/core.md))
 - **[Protothreads (`syn_pt`)](modules/multitasking.md#protothreads)**: Stackless coroutines for non-blocking task execution.
-- **[Task Scheduler (`syn_sched`)](modules/multitasking.md#scheduler)**: Cooperative task runner with priority & delay timers.
-- **[Active Objects (`syn_ao`)](modules/integration.md#2-active-object-pattern-syn_ao--syn_fsm)**: FSM state machine + mailbox + task runner actor model.
-- **[Event Flags & Mailboxes](modules/core.md)**: Thread-safe inter-task messaging and synchronization.
+- **[Task Scheduler (`syn_sched`)](modules/multitasking.md#scheduler)**: Cooperative task runner with ranked dispatch & starvation bounds.
+- **[Active Objects (`syn_ao`)](modules/integration.md#2-active-object-pattern-syn_ao-syn_fsm)**: FSM state machine + mailbox + task runner actor model.
+- **[Event Flags, Mutexes & Mailboxes](modules/multitasking.md#timers-scheduling-extensions)**: Priority-inheriting mutexes, 32-bit event flags, and SPSC mailboxes.
+- **[Core Utilities, Pools & Wire Codecs](modules/core.md)**: Static pools/slabs, streams, Q16.16 linear algebra, JSON, CBOR, Protobuf, LZ4, and CRC.
 
 ### 🎛️ Input / Output Drivers ([Read I/O Docs →](modules/io.md))
 - **[Buttons (`syn_button`)](modules/io.md#1-button-driver-syn_buttonh)**: Debounced buttons, multi-click tap gestures, long-press, auto-repeat, and combos.
@@ -84,14 +85,14 @@ Quick-jump to specific feature guides and API references:
 - **[Software PWM (`syn_soft_pwm`)](modules/io.md#4-software-pwm-driver-syn_soft_pwmh)**: Timerless PWM generation on arbitrary GPIO pins.
 
 ### 📡 Communications & Protocol Stacks ([Read Comm Docs →](modules/communication.md))
-- **[Ethernet & IP Protocol Suite (`syn_eth` / `syn_dhcp` / `syn_icmp` / `syn_autoip` / `syn_netcfg`)](modules/communication.md#6-zero-heap-ethernet--ip-protocol-suite-syn_eth-syn_dhcp-syn_icmp-syn_autoip-syn_netcfg)**: Zero-heap Ethernet II, ARP, DHCP client, ICMP Echo ping, RFC 3927 AutoIP fallback, and Link Up/Down state machine.
-- **[COBS Framing (`syn_cobs`)](modules/communication.md#1-cobs--packet-router-pipeline-syn_cobs--syn_router)**: Zero-overhead `0x00`-delimited packet framing.
-- **[Packet Router (`syn_router`)](modules/communication.md#1-cobs--packet-router-pipeline-syn_cobs--syn_router)**: Addressed packet dispatch (Master/Slave Node IDs) with ACKs.
-- **[Industrial Modbus (`syn_modbus`)](modules/communication.md)**: Modbus RTU & Modbus TCP Master/Slave stacks.
-- **[Building Automation (`syn_bacnet` / `syn_dali`)](modules/communication.md)**: BACnet MS/TP (ISO 16484-5) & DALI Lighting (IEC 62386) protocol engines.
+- **[Ethernet & IP Protocol Suite (`syn_eth` / `syn_dhcp` / `syn_icmp` / `syn_autoip` / `syn_netcfg`)](modules/communication.md#6-zero-heap-ethernet-ip-protocol-suite-syn_eth-syn_dhcp-syn_icmp-syn_autoip-syn_netcfg)**: Zero-heap Ethernet II, ARP, DHCP client, ICMP Echo ping, RFC 3927 AutoIP fallback, and Link Up/Down state machine.
+- **[COBS Framing (`syn_cobs`)](modules/communication.md#1-cobs-packet-router-pipeline-syn_cobs-syn_router)**: Zero-overhead `0x00`-delimited packet framing.
+- **[Packet Router (`syn_router`)](modules/communication.md#1-cobs-packet-router-pipeline-syn_cobs-syn_router)**: Addressed packet dispatch (Master/Slave Node IDs) with ACKs.
+- **[Industrial Modbus (`syn_modbus`)](modules/communication.md#5-modbus-rtu-master-slave-syn_modbush-syn_modbus_masterh)**: Modbus RTU & Modbus TCP Master/Slave stacks.
+- **[Building Automation (`syn_bacnet` / `syn_dali`)](modules/communication.md#3-bacnet-mstp-protocol-syn_bacneth)**: BACnet MS/TP (ISO 16484-5) & DALI Lighting (IEC 62386) protocol engines.
 - **[M-Bus Metering (`syn_mbus`)](modules/communication.md#2-m-bus-protocol-syn_mbush)**: EN 13757 European utility meter bus decoder.
-- **[Automotive ISO-TP & J1939](modules/communication.md)**: CAN bus multi-frame transport and heavy vehicle PGN/SPN decoder.
-- **[USB 2.0 Device & Host Core (`syn_usb` / `syn_usb_host` / `syn_usb_cdc` / `syn_usb_hid`)](modules/drivers.md#9-usb-20-device-core--class-drivers-driverssyn_usbh-syn_usb_cdch-syn_usb_hidh)**: Zero-heap USB 2.0 device & host core engines, CDC ACM, HID class drivers, and protothread coroutines.
+- **[Automotive ISO-TP & J1939](modules/communication.md#7-unified-diagnostic-services-uds-iso-14229-iso-15765-2-syn_udsh-syn_isotph)**: CAN bus multi-frame transport, UDS, CANopen, and heavy vehicle PGN/SPN decoders.
+- **[USB 2.0 Device & Host Core (`syn_usb` / `syn_usb_host` / `syn_usb_cdc` / `syn_usb_hid`)](modules/drivers.md#9-usb-20-device-core-class-drivers-driverssyn_usbh-syn_usb_cdch-syn_usb_hidh)**: Zero-heap USB 2.0 device & host core engines, CDC ACM, HID, MIDI, and MSC class drivers.
 
 
 
@@ -105,9 +106,9 @@ Quick-jump to specific feature guides and API references:
 - **[Immediate-Mode GUI (`syn_imgui`)](modules/display.md#2-immediate-mode-gui-uisyn_imguih)**: Zero-heap UI widgets (buttons, sliders, gauges, graphs).
 
 ### 📈 DSP & TinyML Neural Networks ([Read DSP & TinyML Docs →](modules/dsp.md))
-- **[Fixed-Point Filters (`syn_filter`)](modules/dsp.md#1-digital-filters-dspsyn_filterh--dspsyn_biquadh)**: Biquad lowpass/highpass, EMA, and median spike rejection.
-- **[Spectral Analysis (`syn_fft` / `syn_dsp`)](modules/dsp.md#3-fast-fourier-transform--peak-detection-dspsyn_ffth)**: Radix-2 FFT, DCT-II, windowing, and peak tracking.
-- **[TinyML Neural Networks (`syn_nn`)](modules/dsp.md#4-tinyml--fixed-point-neural-networks-utilsyn_nnh)**: Quantized 1D-CNNs, 1D Pooling, Dense layers, Self-Attention, and Protothread inference.
+- **[Fixed-Point Filters (`syn_filter`)](modules/dsp.md#1-digital-filters-dspsyn_filterh-dspsyn_biquadh)**: Biquad lowpass/highpass, EMA, and median spike rejection.
+- **[Spectral Analysis (`syn_fft` / `syn_dsp`)](modules/dsp.md#3-fast-fourier-transform-peak-detection-dspsyn_ffth)**: Radix-2 FFT, DCT-II, windowing, and peak tracking.
+- **[TinyML Neural Networks (`syn_nn`)](modules/dsp.md#4-tinyml-fixed-point-neural-networks-utilsyn_nnh)**: Quantized 1D-CNNs, 1D Pooling, Dense layers, Self-Attention, and Protothread inference.
 
 ### 🔬 Diagnostics & System Services ([Read Debug Docs →](modules/debug.md))
 - **[Lightweight Event Tracer (`syn_trace`)](modules/debug.md#1-lightweight-event-tracer-syn_traceh)**: Timestamped circular event recorder for ISRs & tasks.

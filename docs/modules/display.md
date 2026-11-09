@@ -6,7 +6,7 @@ SyntropicOS provides hardware-independent framebuffer drawing (`syn_canvas`), 2D
 
 ## 1. Framebuffer Display Canvas (`display/syn_canvas.h`)
 
-The `syn_canvas` driver provides a hardware-agnostic framebuffer supporting both **1bpp (Monochrome OLED)** and **16bpp (RGB565 TFT)** displays.
+The `syn_canvas` driver (`SYN_USE_CANVAS`) provides a hardware-agnostic framebuffer supporting both **1bpp (Monochrome OLED)** and **16bpp (RGB565 TFT)** displays. Companion header `display/syn_gfx.h` (`SYN_GfxContext`, selected via `SYN_GFX_BACKEND = SYN_GFX_BACKEND_CANVAS`) wraps `syn_canvas_*` primitives (`syn_gfx_clear`, `syn_gfx_line`, `syn_gfx_rect_fill`, `syn_gfx_text`, `syn_gfx_set_clip`, `syn_gfx_flush`) as zero-overhead compile-time macros used by `syn_imgui` and application rendering code.
 
 ### Architecture Data Flow
 
@@ -185,4 +185,11 @@ void seg7_demo(const SYN_GPIO_Pin seg_pins[8], const SYN_GPIO_Pin digit_pins[4])
     syn_seg7_scan(&seg); // Call periodically to multiplex digits
 }
 ```
+
+---
+
+## 5. Declarative Hierarchical Menu System (`ui/syn_menu.h`)
+
+`SYN_Menu` (`SYN_USE_MENU`) navigates ROM-resident menu trees (`SYN_MENU_ROOT`, `SYN_MENU_SUBMENU`, `SYN_MENU_CALLBACK`, `SYN_MENU_TOGGLE`, `SYN_MENU_VALUE`) using a fixed-depth parent stack (`SYN_MENU_MAX_DEPTH = 8`) and a caller-supplied renderer callback (`syn_menu_init`, `syn_menu_up`, `syn_menu_down`, `syn_menu_enter`, `syn_menu_back`, `syn_menu_render`) suitable for character LCDs, OLEDs, or rotary-encoder front panels.
+
 

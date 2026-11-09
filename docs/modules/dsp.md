@@ -163,3 +163,14 @@ void run_sensor_inference(const q7_t *sensor_data, q7_t *class_probabilities) {
     size_t predicted_activity = syn_nn_argmax_q7(class_probabilities, 6);
 }
 ```
+
+---
+
+## 5. Waveform Synthesis, Tone Detection, Kalman Estimation & Audio Features
+
+- **Runtime Biquad Filter Designer (`dsp/syn_filter_design.h`, requires `SYN_USE_BIQUAD` & `SYN_USE_QMATH`)**: Computes normalized Q16.16 second-order IIR coefficients (`SYN_BiquadCoeffs`) at runtime for lowpass, highpass, bandpass, and notch responses (`syn_filter_design_lowpass/highpass/bandpass/notch`, `syn_filter_design_apply_to_biquad`).
+- **Direct Digital Synthesis (`dsp/syn_dds.h`, `SYN_USE_DDS`)**: 32-bit phase-accumulator waveform generator (`SYN_DDS`: `syn_dds_init`, `syn_dds_step`, `syn_dds_fill_q16`, `syn_dds_fill_u16`) producing sine, triangle, sawtooth, variable-duty square, and white-noise signals for DAC or test injection.
+- **Goertzel Single-Bin Tone Detector (`dsp/syn_goertzel.h`, `SYN_USE_GOERTZEL`)**: `SYN_Goertzel` (`syn_goertzel_init`, `syn_goertzel_process_sample`, `syn_goertzel_process_block`, `syn_goertzel_get_magnitude_sq`) computes Q15 single-frequency `|X(k)|^2` power for DTMF and pilot-tone detection without full FFT cost.
+- **Fixed-Point Linear Kalman Filter (`dsp/syn_kalman.h`, `SYN_USE_KALMAN`)**: Discrete-time Q16.16 state estimator (`SYN_Kalman`: `syn_kalman_init`, `syn_kalman_predict`, `syn_kalman_update`) operating on caller-allocated `SYN_Matrix` state/covariance workspaces (`SYN_KALMAN_SCRATCH_DECL`).
+- **MFCC & DCT-II Spectral Features (`dsp/syn_mfcc.h`, `SYN_USE_MFCC`; `dsp/syn_dsp.h`)**: `syn_mfcc_process_frame()` extracts 13 quantized `q7_t` Mel-Frequency Cepstral Coefficients across 26 Mel filterbanks from 16-bit PCM frames; `syn_dsp_dct2_q7()` computes standalone `q7_t` Type-II Discrete Cosine Transforms.
+

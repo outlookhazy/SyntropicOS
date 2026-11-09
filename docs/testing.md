@@ -4,7 +4,7 @@ SyntropicOS features a multi-tiered test and quality assurance architecture rang
 
 ## Containerized Testing Workflow
 
-All verification targets run inside an isolated **Podman** / **Docker** image (`syntropicos-test`) across developer hosts and CI/CD pipelines. Omit the `container-` prefix only when already inside the container or using an equivalent native toolchain.
+All verification targets are invoked from the root of a SyntropicOS repository checkout and run inside an isolated **Podman** or **Docker** image (`syntropicos-test`). Every `make container-*` target automatically builds `syntropicos-test` from `tools/containers/Containerfile` on first run. Omit the `container-` prefix only when already inside the container or using an equivalent native toolchain.
 
 | Containerized Target | In-Container / Native Target | Description |
 | :--- | :--- | :--- |

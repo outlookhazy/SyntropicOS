@@ -158,3 +158,21 @@ SYN_Status ota_complete(uint32_t expected_crc, uint32_t new_version) {
     return syn_fwupdate_finish(&fw, expected_crc, new_version);
 }
 ```
+
+---
+
+## 5. Dual-Bank A/B Bootloader & Streaming OTA Orchestrator (`syn_fwimage.h`, `syn_fwboot.h`, `syn_ota.h`)
+
+- **Firmware Slot Image Header (`system/syn_fwimage.h`, `SYN_USE_BOOT`)**: Defines `SYN_FwImageHeader` (`SYN_FW_MAGIC = 0x53594E46u`), slot lifecycle states (`EMPTY`, `WRITING`, `NEW`, `TESTING`, `CONFIRMED`, `INVALID`), CRC-32 header sealing (`syn_fwimage_seal_header`), and Ed25519 / HMAC image signature checks (`syn_fwimage_verify_signature`).
+- **Dual-Bank A/B Slot Selector (`system/syn_fwboot.h`, `SYN_USE_BOOT`)**: `SYN_FwBootManager` (`syn_fwboot_init`, `syn_fwboot_select`, `syn_fwboot_confirm`, `syn_fwboot_vector_addr`) selects the active slot across resets and automatically rolls back unconfirmed `TESTING` images on crash reboot.
+- **Secure Streaming OTA Manager (`system/syn_ota.h`, `SYN_USE_OTA`)**: `SYN_OTA_Manager` coordinates chunked downloads over HTTP, CoAP, BLE, LwM2M, or UART directly into the inactive A/B flash slot (`syn_ota_init`, `syn_ota_set_verification_key`, `syn_ota_begin`, `syn_ota_write_chunk`, `syn_ota_finish`, `syn_ota_apply`) supporting CRC-32, HMAC-SHA256, Ed25519, and AES-GCM modes.
+
+---
+
+## 6. Power Monitor, Sleep Coordinator, Hardware Watchdog & Build Metadata
+
+- **Supply Voltage & Brownout Monitor (`system/syn_power.h`, `SYN_USE_POWER`)**: `SYN_Power` (`syn_power_init`, `syn_power_update`, `syn_power_voltage_mv`) pairs an ADC channel with `SYN_Hysteresis` thresholds (`brownout_mv` / `restore_mv`), brownout/restore callbacks, and optional `SYN_ErrLog` / `SYN_Signal` recording.
+- **Low-Power Sleep Coordinator (`system/syn_sleep.h`, always available)**: `SYN_Sleep` (`syn_sleep_init`, `syn_sleep_lock`, `syn_sleep_unlock`, `syn_sleep_enter`) tracks peripheral wake-lock bitmasks (`SYN_SLEEP_LOCK_UART`, `SPI`, `I2C`, `DMA`, `ADC`, `APP0..3`) and coordinates `SYN_SLEEP_LIGHT` / `SYN_SLEEP_DEEP` entry with the tickless scheduler.
+- **Hardware Watchdog Driver (`system/syn_hwwdt.h`, `SYN_USE_HWWDT`)**: Thin wrapper (`syn_hwwdt_init(timeout_ms)`, `syn_hwwdt_feed()`) over `syn_port_wdt.h` for independent MCU watchdog timer reload.
+- **Compile-Time Version Metadata (`system/syn_version.h`, header-only)**: Exposes CalVer constants (`SYN_VERSION_YEAR`, `SYN_VERSION_MONTH`, `SYN_VERSION_RELEASE`, `SYN_VERSION_CODE`) and `syn_version()` returning static `SYN_Version` build/git metadata.
+

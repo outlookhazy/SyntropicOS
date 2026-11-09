@@ -196,3 +196,12 @@ void audio_visual_demo(void) {
 }
 ```
 
+---
+
+## 8. PPM RC Receiver Input & Bidirectional DShot ESC Output (`syn_ppm.h`, `syn_dshot.h`, `syn_dshot_telemetry.h`)
+
+- **PPM Multi-Channel Decoder (`input/syn_ppm.h`, `SYN_USE_PPM`)**: `SYN_PPM_Decoder` (`syn_ppm_init`, `syn_ppm_process_pulse`, `syn_ppm_get_channel`) decodes timer input-capture pulse widths (`> 2700 us` sync gap) into up to 12 `1000..2000 us` RC receiver channels.
+- **Digital ESC DShot Frame Encoder (`output/syn_dshot.h`, `SYN_USE_DSHOT`)**: `syn_dshot_encode(throttle, telemetry, &pkt)` and `syn_dshot_us_to_throttle(us)` pack 11-bit throttle commands (`0..2047`), telemetry request bits, and 4-bit nibble-XOR CRCs into 16-bit DShot150/300/600 frames (`SYN_DShot_Packet`).
+- **Bidirectional DShot GCR Telemetry (`output/syn_dshot_telemetry.h`, `SYN_USE_DSHOT_TELEMETRY`)**: `syn_dshot_decode_gcr_20bit()` and `syn_dshot_parse_telemetry()` decode 20-bit GCR (5b/4b) ESC responses, verify CRC, and compute commutation period (`us`), eRPM, and mechanical RPM (`SYN_DShot_Telemetry`).
+
+
