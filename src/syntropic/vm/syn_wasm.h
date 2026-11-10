@@ -20,6 +20,8 @@
 #define SYN_WASM_H
 
 #include "../common/syn_defs.h"
+#include "../pt/syn_pt.h"
+#include "../sched/syn_sched.h"
 #include "../util/syn_qmath.h"
 
 #include <stdbool.h>
@@ -58,6 +60,9 @@ extern "C" {
 
 #ifndef SYN_WASM_MAX_LABELS
 #define SYN_WASM_MAX_LABELS 16 /**< Maximum block/loop control labels */
+#endif
+#ifndef SYN_WASM_DEFAULT_QUANTUM
+#define SYN_WASM_DEFAULT_QUANTUM 64U /**< Default instruction slice per cooperative quantum */
 #endif
 /**@}*/
 
@@ -237,6 +242,36 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions);
  * @return 64-bit top-of-stack return value (32-bit Wasm types occupy low 32 bits).
  */
 uint64_t syn_wasm_result(const SYN_WASM_Context *ctx);
+
+/**
+ * @brief Child protothread that executes a Wasm function call in instruction quanta.
+ *
+ * Steps @p ctx by @p quantum_instructions opcodes per slice (defaults to
+ * SYN_WASM_DEFAULT_QUANTUM when 0) and yields PT_MORE via PT_CONTINUE(pt) whenever
+ * the slice expires with SYN_WASM_YIELDED. Composes directly with PT_SPAWN and
+ * PT_SPAWN_IF_NEEDED(pt, task, child, syn_wasm_exec_pt(...)).
+ *
+ * @param pt                   Child protothread control block.
+ * @param ctx                  Initialized Wasm context with an active syn_wasm_call() frame.
+ * @param quantum_instructions Opcodes per slice (0 uses SYN_WASM_DEFAULT_QUANTUM).
+ * @return PT_MORE while executing, PT_ENDED on SYN_WASM_HALTED, or PT_EXITED on NULL/trap.
+ */
+SYN_PT_Status syn_wasm_exec_pt(SYN_PT *pt, SYN_WASM_Context *ctx, uint16_t quantum_instructions);
+
+/**
+ * @brief Cooperative scheduler task entry point for a WebAssembly VM context.
+ *
+ * Expects `task->user_data` to point to an initialized `SYN_WASM_Context`.
+ * Executes active calls in SYN_WASM_DEFAULT_QUANTUM slices and defers via
+ * PT_CONTINUE_IF_NEEDED(pt, task) when a peer task requires CPU time, yields
+ * PT_IDLE via PT_PASS(pt) when halted or waiting for a new call, and terminates
+ * with PT_ENDED if the VM enters a fault trap state.
+ *
+ * @param pt   Protothread state.
+ * @param task Scheduler task (`task->user_data` is `SYN_WASM_Context *`).
+ * @return Protothread status.
+ */
+SYN_PT_Status syn_wasm_task(SYN_PT *pt, SYN_Task *task);
 
 #ifdef __cplusplus
 }

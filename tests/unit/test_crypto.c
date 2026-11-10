@@ -11,6 +11,7 @@
 #include "syntropic/crypto/syn_blake2s.h"
 #include "syntropic/crypto/syn_chacha20poly1305.h"
 #include "syntropic/crypto/syn_x25519.h"
+#include "syntropic/sched/syn_sched.h"
 #include "syntropic/util/syn_fmt.h"
 #include "unity/unity.h"
 
@@ -726,6 +727,126 @@ static void test_tier_a_chacha_x25519_blake2s_guards(void)
 #endif
 }
 
+typedef struct {
+    SYN_PT child_pt;
+    SYN_X25519_Ctx x_ctx;
+    uint16_t chunk;
+    uint8_t out[32];
+    uint32_t completed;
+} X25519TaskCtx;
+
+static SYN_PT_Status x25519_parent_task(SYN_PT *pt, SYN_Task *task)
+{
+    X25519TaskCtx *t = (X25519TaskCtx *)task->user_data;
+    PT_BEGIN(pt);
+    PT_SPAWN_IF_NEEDED(pt, task, &t->child_pt,
+                       syn_x25519_pt(&t->child_pt, &t->x_ctx, t->chunk, t->out));
+    t->completed++;
+    PT_END(pt);
+}
+
+static SYN_PT_Status x25519_peer_more_task(SYN_PT *pt, SYN_Task *task)
+{
+    uint32_t *runs = (uint32_t *)task->user_data;
+    (*runs)++;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static void test_x25519_cooperative_sliced_and_scheduled(void)
+{
+    uint8_t scalar[32], u_in[32], expected[32], out[32];
+    hex2bin("a546e36bf0527c9d3b16154b82465edd"
+            "62144c0ac1fc5a18506a2244ba449ac4",
+            scalar, 32);
+    hex2bin("e6db6867583030db3594c1a424b15f7c"
+            "726624ec26b3353b10a903a6d0ab1c4c",
+            u_in, 32);
+    hex2bin("c3da55379de9c6908e94ea4df28d084f"
+            "32eccf03491c71f754b4075577a28552",
+            expected, 32);
+
+    /* 1. Parameter guards on init, step, and pt */
+    SYN_X25519_Ctx x_ctx;
+    memset(&x_ctx, 0, sizeof(x_ctx));
+    TEST_ASSERT_FALSE(syn_x25519_init(NULL, scalar, u_in));
+    TEST_ASSERT_FALSE(syn_x25519_init(&x_ctx, NULL, u_in));
+    TEST_ASSERT_FALSE(syn_x25519_init(&x_ctx, scalar, NULL));
+    TEST_ASSERT_FALSE(syn_x25519_pubkey_init(NULL, scalar));
+    TEST_ASSERT_FALSE(syn_x25519_pubkey_init(&x_ctx, NULL));
+
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_x25519_step(NULL, 16U, out));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_x25519_step(&x_ctx, 16U, out)); /* inactive */
+    TEST_ASSERT_TRUE(syn_x25519_init(&x_ctx, scalar, u_in));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_x25519_step(&x_ctx, 16U, NULL));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_x25519_step(&x_ctx, 0U, out));
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_x25519_pt(NULL, &x_ctx, 16U, out));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_x25519_pt(&pt, NULL, 16U, out));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_x25519_pt(&pt, &x_ctx, 16U, NULL));
+
+    /* 2. Pubkey init + default chunk (0U -> 16 steps/slice) matches syn_x25519_pubkey */
+    uint8_t exp_pub[32];
+    syn_x25519_pubkey(exp_pub, scalar);
+    TEST_ASSERT_TRUE(syn_x25519_pubkey_init(&x_ctx, scalar));
+    PT_INIT(&pt);
+    uint32_t slices = 0U;
+    while (syn_x25519_pt(&pt, &x_ctx, 0U, out) == PT_MORE) {
+        slices++;
+    }
+    TEST_ASSERT_EQUAL_UINT32(31U, slices); /* ceil(509 / 16) - 1 = 31 PT_MORE yields */
+    TEST_ASSERT_FALSE(x_ctx.active);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(exp_pub, out, 32);
+
+    /* Calling syn_x25519_pt on an already-finished (scrubbed) context exits */
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_x25519_pt(&pt, &x_ctx, 16U, out));
+
+    /* 3. PT_SPAWN_IF_NEEDED under SYN_Sched: uncontended (1 turn) vs contended (interleaved) */
+    X25519TaskCtx tctx;
+    memset(&tctx, 0, sizeof(tctx));
+    tctx.chunk = 32U;
+    TEST_ASSERT_TRUE(syn_x25519_init(&tctx.x_ctx, scalar, u_in));
+
+    uint32_t peer_runs = 0U;
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    syn_task_create(&tasks[0], "x25519", x25519_parent_task, SYN_PRIO_HIGH, &tctx);
+    syn_task_create(&tasks[1], "peer", x25519_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_task_suspend(&tasks[1]);
+    syn_sched_init(&sched, tasks, 2U);
+
+    /* Uncontended: all 509 steps execute back-to-back in a single scheduler dispatch */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(1U, tctx.completed);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, tctx.out, 32);
+
+    /* Contended: yields after every 32-step chunk so peer runs between slices */
+    memset(&tctx, 0, sizeof(tctx));
+    tctx.chunk = 32U;
+    TEST_ASSERT_TRUE(syn_x25519_init(&tctx.x_ctx, scalar, u_in));
+    syn_task_create(&tasks[0], "x25519", x25519_parent_task, SYN_PRIO_HIGH, &tctx);
+    syn_task_create(&tasks[1], "peer", x25519_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched); /* x25519 executes 32 steps and yields PT_MORE */
+    TEST_ASSERT_EQUAL_UINT32(0U, tctx.completed);
+    TEST_ASSERT_EQUAL_UINT16(32U, tctx.x_ctx.step);
+    syn_sched_run(&sched); /* peer runs */
+    TEST_ASSERT_EQUAL_UINT32(1U, peer_runs);
+
+    while (tctx.completed == 0U) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_EQUAL_UINT32(15U, peer_runs); /* 15 intermediate yields for 16 chunks of 32 */
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, tctx.out, 32);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
  *  Test group runner
  * ═══════════════════════════════════════════════════════════════════════════ */
@@ -772,4 +893,5 @@ void run_crypto_tests(void)
     RUN_TEST(test_x25519_identity);
     RUN_TEST(test_x25519_low_order);
     RUN_TEST(test_tier_a_chacha_x25519_blake2s_guards);
+    RUN_TEST(test_x25519_cooperative_sliced_and_scheduled);
 }

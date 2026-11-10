@@ -3,6 +3,7 @@
  * @brief Unit tests for 32-bit WebAssembly (Wasm MVP) cooperative interpreter.
  */
 
+#include "mocks/mock_port.h"
 #include "syntropic/vm/syn_wasm.h"
 #include "unity/unity.h"
 
@@ -1539,6 +1540,144 @@ static void test_tier_a_wasm_loader_bounds(void)
     TEST_ASSERT_EQUAL_HEX64((uint64_t)(int64_t)-5, g_wasm_ctx.globals[0]);
 }
 
+typedef struct {
+    SYN_PT child_pt;
+    SYN_WASM_Context *ctx;
+    uint16_t quantum;
+    uint32_t completed;
+} WasmSpawnTaskCtx;
+
+static SYN_PT_Status wasm_spawn_parent_task(SYN_PT *pt, SYN_Task *task)
+{
+    WasmSpawnTaskCtx *w = (WasmSpawnTaskCtx *)task->user_data;
+    PT_BEGIN(pt);
+    PT_SPAWN_IF_NEEDED(pt, task, &w->child_pt, syn_wasm_exec_pt(&w->child_pt, w->ctx, w->quantum));
+    w->completed++;
+    PT_END(pt);
+}
+
+static SYN_PT_Status wasm_peer_more_task(SYN_PT *pt, SYN_Task *task)
+{
+    uint32_t *runs = (uint32_t *)task->user_data;
+    (*runs)++;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static void test_wasm_cooperative_exec_pt_and_task(void)
+{
+    SYN_PT pt;
+    PT_INIT(&pt);
+
+    /* 1. Parameter & trap guards */
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_exec_pt(NULL, &g_wasm_ctx, 8U));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_exec_pt(&pt, NULL, 8U));
+    memset(&g_wasm_ctx, 0, sizeof(g_wasm_ctx));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_exec_pt(&pt, &g_wasm_ctx, 8U));
+
+    SYN_Task dummy_task;
+    memset(&dummy_task, 0, sizeof(dummy_task));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_task(NULL, &dummy_task));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_task(&pt, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_task(&pt, &dummy_task));
+
+    TEST_ASSERT_TRUE(
+        syn_wasm_module_load(&g_wasm_mod, g_wasm_loop_binary, sizeof(g_wasm_loop_binary)));
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
+
+    /* Calling syn_wasm_exec_pt when not HALTED and call_depth == 0 exits with PT_EXITED */
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_exec_pt(&pt, &g_wasm_ctx, 0U));
+
+    /* 2. Standalone syn_wasm_exec_pt with default quantum (0U) and small quantum (5U) */
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 0U));
+    g_wasm_ctx.locals[0] = 3U;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_wasm_exec_pt(&pt, &g_wasm_ctx, 0U));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+
+    /* 3. PT_SPAWN_IF_NEEDED: uncontended (1 turn) vs contended (interleaved quanta) */
+    WasmSpawnTaskCtx wctx = {.ctx = &g_wasm_ctx, .quantum = 5U, .completed = 0U};
+    uint32_t peer_runs = 0U;
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 0U));
+    g_wasm_ctx.locals[0] = 10U;
+    syn_task_create(&tasks[0], "wasm_p", wasm_spawn_parent_task, SYN_PRIO_HIGH, &wctx);
+    syn_task_create(&tasks[1], "peer", wasm_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_task_suspend(&tasks[1]);
+    syn_sched_init(&sched, tasks, 2U);
+
+    /* Uncontended: all 5-opcode quanta execute back-to-back in a single dispatch */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(1U, wctx.completed);
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+
+    /* Contended: yields after each 5-opcode quantum so peer runs between slices */
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 0U));
+    g_wasm_ctx.locals[0] = 10U;
+    wctx.completed = 0U;
+    syn_task_create(&tasks[0], "wasm_p", wasm_spawn_parent_task, SYN_PRIO_HIGH, &wctx);
+    syn_task_create(&tasks[1], "peer", wasm_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched); /* wasm_p runs 1 quantum (5 opcodes) and yields PT_MORE */
+    TEST_ASSERT_EQUAL_UINT32(0U, wctx.completed);
+    TEST_ASSERT_EQUAL(SYN_WASM_OK, g_wasm_ctx.status);
+    syn_sched_run(&sched); /* peer runs */
+    TEST_ASSERT_EQUAL_UINT32(1U, peer_runs);
+
+    while (wctx.completed == 0U) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+    TEST_ASSERT_TRUE(peer_runs > 5U);
+
+    /* 4. syn_wasm_task: idle before call, contended quantum yielding, and uncontended burst */
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
+    peer_runs = 0U;
+    syn_task_create(&tasks[0], "wasm_t", syn_wasm_task, SYN_PRIO_HIGH, &g_wasm_ctx);
+    syn_task_create(&tasks[1], "peer", wasm_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_sched_init(&sched, tasks, 2U);
+
+    /* Before syn_wasm_call, call_depth == 0 -> syn_wasm_task yields PT_IDLE */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL(SYN_WASM_OK, g_wasm_ctx.status);
+
+    /* Start a 30-iteration loop (~210 opcodes > 64-opcode default quantum) while contended */
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 0U));
+    g_wasm_ctx.locals[0] = 30U;
+    mock_tick_advance(10U);
+    syn_sched_run(&sched); /* peer (overdue) */
+    syn_sched_run(&sched); /* wasm_t runs 1 quantum (64 opcodes) -> yields PT_MORE */
+    TEST_ASSERT_EQUAL(SYN_WASM_OK, g_wasm_ctx.status);
+    TEST_ASSERT_TRUE(g_wasm_ctx.locals[1] > 0U && g_wasm_ctx.locals[1] < 30U);
+
+    while (g_wasm_ctx.status == SYN_WASM_OK) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    /* Uncontended syn_wasm_task runs multi-quantum call to HALTED in a single turn */
+    syn_task_suspend(&tasks[1]);
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 0U));
+    g_wasm_ctx.locals[0] = 30U;
+    mock_tick_advance(10U);
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+
+    /* Fault trap terminates syn_wasm_task with PT_ENDED */
+    g_wasm_ctx.status = SYN_WASM_TRAP_UNREACHABLE;
+    mock_tick_advance(10U);
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL(SYN_TASK_DEAD, tasks[0].state);
+}
+
 void run_wasm_tests(void)
 {
     RUN_TEST(test_wasm_load_null_and_invalid);
@@ -1570,5 +1709,6 @@ void run_wasm_tests(void)
     RUN_TEST(test_r5_wasm_i64_global_init);
     RUN_TEST(test_tier_a_wasm_select64_and_host_call);
     RUN_TEST(test_tier_a_wasm_loader_bounds);
+    RUN_TEST(test_wasm_cooperative_exec_pt_and_task);
 }
 /* touch test_wasm.c */

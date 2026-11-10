@@ -3168,4 +3168,52 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
     return ctx->status;
 }
 
+SYN_PT_Status syn_wasm_exec_pt(SYN_PT *pt, SYN_WASM_Context *ctx, uint16_t quantum_instructions)
+{
+    if (pt == NULL || ctx == NULL || ctx->module == NULL) {
+        return PT_EXITED;
+    }
+
+    uint16_t step_limit =
+        (quantum_instructions == 0U) ? SYN_WASM_DEFAULT_QUANTUM : quantum_instructions;
+
+    PT_BEGIN(pt);
+
+    while (ctx->status == SYN_WASM_OK && ctx->call_depth > 0U) {
+        SYN_WASM_Status st = syn_wasm_step(ctx, step_limit);
+        if (st == SYN_WASM_YIELDED) {
+            PT_CONTINUE(pt);
+        }
+    }
+
+    if (ctx->status != SYN_WASM_HALTED) {
+        PT_EXIT(pt);
+    }
+
+    PT_END(pt);
+}
+
+SYN_PT_Status syn_wasm_task(SYN_PT *pt, SYN_Task *task)
+{
+    if (pt == NULL || task == NULL || task->user_data == NULL) {
+        return PT_EXITED;
+    }
+
+    SYN_WASM_Context *ctx = (SYN_WASM_Context *)task->user_data;
+
+    PT_BEGIN(pt);
+
+    while (ctx->status <= SYN_WASM_HALTED) {
+        if (ctx->status == SYN_WASM_OK && ctx->call_depth > 0U) {
+            if (syn_wasm_step(ctx, SYN_WASM_DEFAULT_QUANTUM) == SYN_WASM_YIELDED) {
+                PT_CONTINUE_IF_NEEDED(pt, task);
+            }
+        } else {
+            PT_PASS(pt);
+        }
+    }
+
+    PT_END(pt);
+}
+
 /** @endcond */

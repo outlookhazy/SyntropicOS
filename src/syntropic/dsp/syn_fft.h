@@ -8,6 +8,7 @@
 #define SYN_FFT_H
 
 #include "../common/syn_defs.h"
+#include "../pt/syn_pt.h"
 #include "../util/syn_qmath.h"
 
 #ifdef __cplusplus
@@ -29,6 +30,25 @@ extern "C" {
  * @return SYN_OK on success, SYN_ERROR on invalid parameters (e.g. not power of 2).
  */
 SYN_Status syn_dsp_fft(q16_t *real, q16_t *imag, uint16_t n);
+
+/**
+ * @brief Cooperative stage-sliced Radix-2 Decimation-in-Time FFT protothread.
+ *
+ * Performs bit-reversal sorting on the initial slice and executes one butterfly
+ * stage (1 .. log2(n)) per resumption, yielding PT_MORE via PT_CONTINUE(pt)
+ * between stages. Composes with PT_SPAWN_IF_NEEDED(pt, task, child, syn_dsp_fft_pt(...))
+ * so uncontended FFTs execute back-to-back in a single dispatch while contended
+ * runs yield between butterfly stages.
+ *
+ * @param pt            Child protothread control block.
+ * @param real          Array of real parts (size n).
+ * @param imag          Array of imaginary parts (size n).
+ * @param n             FFT size (power of 2 in [2, 256]).
+ * @param current_stage Caller-owned stage cursor (persistent across yields).
+ * @return PT_MORE while stages remain, PT_ENDED on completion, or PT_EXITED on invalid params.
+ */
+SYN_PT_Status syn_dsp_fft_pt(SYN_PT *pt, q16_t *real, q16_t *imag, uint16_t n,
+                             uint16_t *current_stage);
 
 /**
  * @brief Generate Hanning window: w[i] = 0.5 * (1 - cos(2*pi*i / (n-1))).

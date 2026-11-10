@@ -175,93 +175,133 @@ static void S(gf o, const gf a)
     M(o, a, a);
 }
 
-/** @brief Field inversion: o = a^(-1) mod p via Fermat's little theorem.
- * @param o Output element.
- * @param a Element to invert.
+/**
+ * @brief Execute one constant-time Montgomery ladder bit step on an X25519 context.
+ * @param ctx Active X25519 context with step < 255.
  */
-static void inv25519(gf o, const gf a)
+static void x25519_ladder_step(SYN_X25519_Ctx *ctx)
 {
-    gf c;
-    int i;
-    memcpy(c, a, sizeof(gf));
-    /* Compute a^(p-2) = a^(2^255 - 21) via repeated squaring */
-    for (i = 253; i >= 0; i--) {
-        S(c, c);
-        if (i != 2 && i != 4) {
-            M(c, c, a);
-        }
-    }
-    memcpy(o, c, sizeof(gf));
-    syn_secure_zero(c, sizeof(c));
+    gf e;
+    gf f;
+    uint16_t bit = (uint16_t)(254U - ctx->step);
+    int r = (int)((ctx->z[bit >> 3U] >> (bit & 7U)) & 1U);
+
+    sel25519(ctx->a, ctx->b, r);
+    sel25519(ctx->c, ctx->d, r);
+    A(e, ctx->a, ctx->c);
+    Z(ctx->a, ctx->a, ctx->c);
+    A(ctx->c, ctx->b, ctx->d);
+    Z(ctx->b, ctx->b, ctx->d);
+    S(ctx->d, e);
+    S(f, ctx->a);
+    M(ctx->a, ctx->c, ctx->a);
+    M(ctx->c, ctx->b, e);
+    A(e, ctx->a, ctx->c);
+    Z(ctx->a, ctx->a, ctx->c);
+    S(ctx->b, ctx->a);
+    Z(ctx->c, ctx->d, f);
+    M(ctx->a, ctx->c, _121665);
+    A(ctx->a, ctx->a, ctx->d);
+    M(ctx->c, ctx->c, ctx->a);
+    M(ctx->a, ctx->d, f);
+    M(ctx->d, ctx->b, ctx->x);
+    S(ctx->b, e);
+    sel25519(ctx->a, ctx->b, r);
+    sel25519(ctx->c, ctx->d, r);
+
+    syn_secure_zero(e, sizeof(e));
+    syn_secure_zero(f, sizeof(f));
 }
 
 /* ── X25519 scalar multiplication (Montgomery ladder) ───────────────── */
 
+bool syn_x25519_init(SYN_X25519_Ctx *ctx, const uint8_t scalar[32], const uint8_t point[32])
+{
+    if (ctx == NULL || scalar == NULL || point == NULL) {
+        return false;
+    }
+
+    memcpy(ctx->z, scalar, 32U);
+    ctx->z[31] = (uint8_t)((ctx->z[31] & 127U) | 64U);
+    ctx->z[0] &= 248U;
+
+    unpack25519(ctx->x, point);
+
+    memcpy(ctx->b, ctx->x, sizeof(gf));
+    memcpy(ctx->a, gf1, sizeof(gf));
+    memcpy(ctx->d, gf1, sizeof(gf));
+    memcpy(ctx->c, gf0, sizeof(gf));
+    ctx->step = 0U;
+    ctx->active = true;
+    return true;
+}
+
+bool syn_x25519_pubkey_init(SYN_X25519_Ctx *ctx, const uint8_t private_key[32])
+{
+    static const uint8_t basepoint[32] = {9U};
+    return syn_x25519_init(ctx, private_key, basepoint);
+}
+
+SYN_Status syn_x25519_step(SYN_X25519_Ctx *ctx, uint16_t max_steps, uint8_t shared_out[32])
+{
+    if (ctx == NULL || shared_out == NULL || !ctx->active || max_steps == 0U) {
+        return SYN_INVALID_PARAM;
+    }
+
+    uint16_t executed = 0U;
+    while (executed < max_steps && ctx->step < SYN_X25519_TOTAL_STEPS) {
+        if (ctx->step < 255U) {
+            x25519_ladder_step(ctx);
+            ctx->step++;
+            if (ctx->step == 255U) {
+                memcpy(ctx->d, ctx->c, sizeof(gf));
+            }
+        } else {
+            uint16_t inv_i = (uint16_t)(508U - ctx->step);
+            S(ctx->c, ctx->c);
+            if (inv_i != 2U && inv_i != 4U) {
+                M(ctx->c, ctx->c, ctx->d);
+            }
+            ctx->step++;
+        }
+        executed++;
+    }
+
+    if (ctx->step < SYN_X25519_TOTAL_STEPS) {
+        return SYN_BUSY;
+    }
+
+    M(ctx->a, ctx->a, ctx->c);
+    pack25519(shared_out, ctx->a);
+    syn_secure_zero(ctx, sizeof(*ctx));
+    return SYN_OK;
+}
+
+SYN_PT_Status syn_x25519_pt(SYN_PT *pt, SYN_X25519_Ctx *ctx, uint16_t steps_per_chunk,
+                            uint8_t shared_out[32])
+{
+    if (pt == NULL || ctx == NULL || shared_out == NULL || !ctx->active) {
+        return PT_EXITED;
+    }
+
+    uint16_t chunk = (steps_per_chunk == 0U) ? SYN_X25519_DEFAULT_CHUNK : steps_per_chunk;
+
+    PT_BEGIN(pt);
+
+    while (syn_x25519_step(ctx, chunk, shared_out) == SYN_BUSY) {
+        PT_CONTINUE(pt);
+    }
+
+    PT_END(pt);
+}
+
 void syn_x25519(uint8_t shared_out[32], const uint8_t scalar[32], const uint8_t point[32])
 {
-    if (shared_out == NULL || scalar == NULL || point == NULL) {
+    SYN_X25519_Ctx ctx;
+    if (shared_out == NULL || !syn_x25519_init(&ctx, scalar, point)) {
         return;
     }
-
-    uint8_t z[32];
-    gf x;
-    gf a;
-    gf b;
-    gf c;
-    gf d;
-    gf e;
-    gf f;
-    int64_t r;
-    int i;
-
-    memcpy(z, scalar, 32);
-    z[31] = (uint8_t)((z[31] & 127U) | 64U);
-    z[0] &= 248U;
-
-    unpack25519(x, point);
-
-    memcpy(b, x, sizeof(gf));
-    memcpy(a, gf1, sizeof(gf));
-    memcpy(d, gf1, sizeof(gf));
-    memcpy(c, gf0, sizeof(gf));
-
-    for (i = 254; i >= 0; i--) {
-        r = (z[i >> 3] >> (i & 7)) & 1;
-        sel25519(a, b, (int)r);
-        sel25519(c, d, (int)r);
-        A(e, a, c);
-        Z(a, a, c);
-        A(c, b, d);
-        Z(b, b, d);
-        S(d, e);
-        S(f, a);
-        M(a, c, a);
-        M(c, b, e);
-        A(e, a, c);
-        Z(a, a, c);
-        S(b, a);
-        Z(c, d, f);
-        M(a, c, _121665);
-        A(a, a, d);
-        M(c, c, a);
-        M(a, d, f);
-        M(d, b, x);
-        S(b, e);
-        sel25519(a, b, (int)r);
-        sel25519(c, d, (int)r);
-    }
-    inv25519(c, c);
-    M(a, a, c);
-    pack25519(shared_out, a);
-
-    syn_secure_zero(z, sizeof(z));
-    syn_secure_zero(x, sizeof(x));
-    syn_secure_zero(a, sizeof(a));
-    syn_secure_zero(b, sizeof(b));
-    syn_secure_zero(c, sizeof(c));
-    syn_secure_zero(d, sizeof(d));
-    syn_secure_zero(e, sizeof(e));
-    syn_secure_zero(f, sizeof(f));
+    (void)syn_x25519_step(&ctx, SYN_X25519_TOTAL_STEPS, shared_out);
 }
 
 void syn_x25519_pubkey(uint8_t public_out[32], const uint8_t private_key[32])

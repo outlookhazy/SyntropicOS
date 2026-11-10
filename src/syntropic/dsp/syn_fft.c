@@ -98,56 +98,102 @@ static void get_twiddle(uint16_t k, uint16_t stage, q16_t *wr, q16_t *wi)
     *wi = -s; /* e^(-i*theta) = cos(theta) - i*sin(theta) */
 }
 
+/**
+ * @brief Validate FFT length n and compute log2(n) stages.
+ * @param n FFT length.
+ * @return log2(n) in [1, 8] if n is a power of 2 in [2, 256], else 0.
+ */
+static uint16_t fft_log2_stages(uint16_t n)
+{
+    if (n < 2U || n > 256U || (n & (uint16_t)(n - 1U)) != 0U) {
+        return 0U;
+    }
+    uint16_t stages = 0U;
+    uint16_t temp = n;
+    while (temp > 1U) {
+        temp >>= 1U;
+        stages++;
+    }
+    return stages;
+}
+
+/**
+ * @brief Execute a single Cooley-Tukey Radix-2 butterfly stage in place.
+ * @param real  Real sample array (size n).
+ * @param imag  Imaginary sample array (size n).
+ * @param n     FFT length.
+ * @param stage 1-based stage index (1 .. log2(n)).
+ */
+static void fft_butterfly_stage(q16_t *real, q16_t *imag, uint16_t n, uint16_t stage)
+{
+    uint16_t m = (uint16_t)(1U << stage);
+    uint16_t m2 = (uint16_t)(m >> 1U);
+
+    for (uint16_t k = 0U; k < m2; k++) {
+        q16_t wr, wi;
+        get_twiddle(k, stage, &wr, &wi);
+
+        for (uint16_t j = 0U; j < n; j = (uint16_t)(j + m)) {
+            uint16_t i = (uint16_t)(j + k);
+            uint16_t ip = (uint16_t)(i + m2);
+
+            q16_t tr = q16_mul(wr, real[ip]) - q16_mul(wi, imag[ip]);
+            q16_t ti = q16_mul(wr, imag[ip]) + q16_mul(wi, real[ip]);
+
+            real[ip] = real[i] - tr;
+            imag[ip] = imag[i] - ti;
+            real[i] = real[i] + tr;
+            imag[i] = imag[i] + ti;
+        }
+    }
+}
+
 SYN_Status syn_dsp_fft(q16_t *real, q16_t *imag, uint16_t n)
 {
     SYN_ASSERT(real != NULL);
     SYN_ASSERT(imag != NULL);
 
-    /* Validate n: must be a power of 2, 8 <= n <= 256 */
-    if (n < 2 || n > 256 || (n & (n - 1)) != 0) {
+    uint16_t stages = fft_log2_stages(n);
+    if (stages == 0U) {
         return SYN_ERROR;
     }
 
-    /* Compute stages = log2(n) */
-    uint16_t stages = 0;
-    uint16_t temp = n;
-    while (temp > 1) {
-        temp >>= 1;
-        stages++;
-    }
-
-    /* 1. Bit-reversal sorting */
     bit_reverse_sort(real, imag, n, stages);
 
-    /* 2. Cooley-Tukey Radix-2 butterflies */
-    for (uint16_t stage = 1; stage <= stages; stage++) {
-        uint16_t m = 1 << stage;
-        uint16_t m2 = m >> 1;
-
-        for (uint16_t k = 0; k < m2; k++) {
-            q16_t wr, wi;
-            get_twiddle(k, stage, &wr, &wi);
-
-            for (uint16_t j = 0; j < n; j += m) {
-                uint16_t i = j + k;
-                uint16_t ip = i + m2;
-
-                /* complex multiply: t = w * input[ip] */
-                q16_t tr = q16_mul(wr, real[ip]) - q16_mul(wi, imag[ip]);
-                q16_t ti = q16_mul(wr, imag[ip]) + q16_mul(wi, real[ip]);
-
-                /* input[ip] = input[i] - t */
-                real[ip] = real[i] - tr;
-                imag[ip] = imag[i] - ti;
-
-                /* input[i] = input[i] + t */
-                real[i] = real[i] + tr;
-                imag[i] = imag[i] + ti;
-            }
-        }
+    for (uint16_t stage = 1U; stage <= stages; stage++) {
+        fft_butterfly_stage(real, imag, n, stage);
     }
 
     return SYN_OK;
+}
+
+SYN_PT_Status syn_dsp_fft_pt(SYN_PT *pt, q16_t *real, q16_t *imag, uint16_t n,
+                             uint16_t *current_stage)
+{
+    if (pt == NULL || real == NULL || imag == NULL || current_stage == NULL) {
+        return PT_EXITED;
+    }
+
+    uint16_t stages = fft_log2_stages(n);
+    if (stages == 0U) {
+        return PT_EXITED;
+    }
+
+    PT_BEGIN(pt);
+
+    *current_stage = 1U;
+    bit_reverse_sort(real, imag, n, stages);
+    PT_CONTINUE(pt);
+
+    while (*current_stage <= stages) {
+        fft_butterfly_stage(real, imag, n, *current_stage);
+        (*current_stage)++;
+        if (*current_stage <= stages) {
+            PT_CONTINUE(pt);
+        }
+    }
+
+    PT_END(pt);
 }
 
 /**

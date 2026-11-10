@@ -513,6 +513,103 @@ static void test_tier_a_fft_large_window_and_peak_bins(void)
     TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(4096), pk.freq_hz);
 }
 
+typedef struct {
+    SYN_PT child_pt;
+    q16_t *real;
+    q16_t *imag;
+    uint16_t n;
+    uint16_t stage;
+    uint32_t completed;
+} FftTaskCtx;
+
+static SYN_PT_Status fft_parent_task(SYN_PT *pt, SYN_Task *task)
+{
+    FftTaskCtx *f = (FftTaskCtx *)task->user_data;
+    PT_BEGIN(pt);
+    PT_SPAWN_IF_NEEDED(pt, task, &f->child_pt,
+                       syn_dsp_fft_pt(&f->child_pt, f->real, f->imag, f->n, &f->stage));
+    f->completed++;
+    PT_END(pt);
+}
+
+static SYN_PT_Status fft_peer_more_task(SYN_PT *pt, SYN_Task *task)
+{
+    uint32_t *runs = (uint32_t *)task->user_data;
+    (*runs)++;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static void test_fft_cooperative_stage_sliced_pt(void)
+{
+    static q16_t ref_r[256], ref_i[256];
+    static q16_t pt_r[256], pt_i[256];
+    uint16_t stage = 0U;
+    SYN_PT pt;
+    PT_INIT(&pt);
+
+    /* 1. Parameter & power-of-2 bounds */
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dsp_fft_pt(NULL, pt_r, pt_i, 32U, &stage));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dsp_fft_pt(&pt, NULL, pt_i, 32U, &stage));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dsp_fft_pt(&pt, pt_r, NULL, 32U, &stage));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dsp_fft_pt(&pt, pt_r, pt_i, 32U, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dsp_fft_pt(&pt, pt_r, pt_i, 1U, &stage));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dsp_fft_pt(&pt, pt_r, pt_i, 30U, &stage));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dsp_fft_pt(&pt, pt_r, pt_i, 512U, &stage));
+
+    for (uint16_t i = 0U; i < 256U; i++) {
+        q16_t val = (q16_t)(((int32_t)(i & 15U) - 8) * 1024);
+        ref_r[i] = val;
+        ref_i[i] = (q16_t)(-val / 2);
+        pt_r[i] = ref_r[i];
+        pt_i[i] = ref_i[i];
+    }
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dsp_fft(ref_r, ref_i, 256U));
+
+    /* 2. Uncontended PT_SPAWN_IF_NEEDED: runs bit-reversal + 8 butterfly stages in 1 turn */
+    FftTaskCtx fctx = {.real = pt_r, .imag = pt_i, .n = 256U, .stage = 0U, .completed = 0U};
+    uint32_t peer_runs = 0U;
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    syn_task_create(&tasks[0], "fft", fft_parent_task, SYN_PRIO_HIGH, &fctx);
+    syn_task_create(&tasks[1], "peer", fft_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_task_suspend(&tasks[1]);
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(1U, fctx.completed);
+    TEST_ASSERT_EQUAL_MEMORY(ref_r, pt_r, sizeof(ref_r));
+    TEST_ASSERT_EQUAL_MEMORY(ref_i, pt_i, sizeof(ref_i));
+
+    /* 3. Contended PT_SPAWN_IF_NEEDED: yields after bit-reversal and each of the 8 stages */
+    for (uint16_t i = 0U; i < 256U; i++) {
+        q16_t val = (q16_t)(((int32_t)(i & 15U) - 8) * 1024);
+        pt_r[i] = val;
+        pt_i[i] = (q16_t)(-val / 2);
+    }
+    fctx.completed = 0U;
+    fctx.stage = 0U;
+    syn_task_create(&tasks[0], "fft", fft_parent_task, SYN_PRIO_HIGH, &fctx);
+    syn_task_create(&tasks[1], "peer", fft_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched); /* Slice 0: bit-reversal sort -> stage = 1, yields PT_MORE */
+    TEST_ASSERT_EQUAL_UINT16(1U, fctx.stage);
+    TEST_ASSERT_EQUAL_UINT32(0U, fctx.completed);
+    syn_sched_run(&sched); /* peer runs */
+    TEST_ASSERT_EQUAL_UINT32(1U, peer_runs);
+
+    while (fctx.completed == 0U) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_EQUAL_UINT32(8U, peer_runs); /* 8 intermediate yields across 9 slices */
+    TEST_ASSERT_EQUAL_MEMORY(ref_r, pt_r, sizeof(ref_r));
+    TEST_ASSERT_EQUAL_MEMORY(ref_i, pt_i, sizeof(ref_i));
+}
+
 void run_biquad_tests(void)
 {
     RUN_TEST(test_biquad_filter);
@@ -535,4 +632,5 @@ void run_fft_tests(void)
     RUN_TEST(test_fft_spectrum_analytics);
     RUN_TEST(test_r5_fft_thd_max_harmonics_255);
     RUN_TEST(test_tier_a_fft_large_window_and_peak_bins);
+    RUN_TEST(test_fft_cooperative_stage_sliced_pt);
 }
