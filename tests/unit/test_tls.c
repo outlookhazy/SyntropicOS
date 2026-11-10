@@ -8,6 +8,7 @@
 #include "syntropic/crypto/syn_p256.h"
 #include "syntropic/crypto/syn_sha256.h"
 #include "syntropic/net/syn_tls.h"
+#include "syntropic/sched/syn_sched.h"
 #include "unity/unity.h"
 
 #include <string.h>
@@ -1406,6 +1407,146 @@ static void test_tier_a_tls_seq_backpressure_and_secret_scrub(void)
     TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, client.state);
 }
 
+static SYN_PT_Status tls_peer_more_task(SYN_PT *pt, SYN_Task *task)
+{
+    uint32_t *runs = (uint32_t *)task->user_data;
+    (*runs)++;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static void test_tls_cooperative_staged_handshake_yielding(void)
+{
+    DuplexWire dw;
+    EndpointIo c_io, s_io;
+    SYN_Transport c_tr, s_tr;
+    duplex_init(&dw, &c_io, &s_io, &c_tr, &s_tr, true);
+
+    uint8_t ca_seed[32] = {0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC};
+    uint8_t ca_pub[32], ca_sec[32];
+    TEST_ASSERT_TRUE(syn_ed25519_create_keypair(ca_pub, ca_sec, ca_seed));
+
+    uint8_t srv_seed[32] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0};
+    uint8_t srv_pub[32], srv_sec[32];
+    TEST_ASSERT_TRUE(syn_ed25519_create_keypair(srv_pub, srv_sec, srv_seed));
+
+    uint8_t cli_seed[32] = {0xA1, 0xB2, 0xC3, 0xD4, 0xE5, 0xF6, 0x07, 0x18};
+    uint8_t cli_pub[32], cli_sec[32];
+    TEST_ASSERT_TRUE(syn_ed25519_create_keypair(cli_pub, cli_sec, cli_seed));
+
+    uint8_t srv_cert_der[184], cli_cert_der[184];
+    build_ed25519_cert_der(srv_pub, ca_sec, ca_pub, srv_cert_der);
+    build_ed25519_cert_der(cli_pub, ca_sec, ca_pub, cli_cert_der);
+
+    SYN_X509_Cert root_ca;
+    memset(&root_ca, 0, sizeof(root_ca));
+    memcpy(root_ca.pubkey, ca_pub, 32U);
+    root_ca.pubkey_len = 32U;
+    root_ca.pubkey_algo = SYN_X509_ALGO_ED25519;
+    root_ca.is_ca = true;
+    strcpy(root_ca.subject_cn, "Test CA");
+
+    SYN_TLS_Config c_mtls = {.mode = SYN_TLS_AUTH_MODE_MTLS,
+                             .server_name = "Test Server",
+                             .root_ca = &root_ca,
+                             .client_cert_der = cli_cert_der,
+                             .client_cert_len = sizeof(cli_cert_der),
+                             .client_privkey = cli_sec,
+                             .peer_cert_der = srv_cert_der,
+                             .peer_cert_len = sizeof(srv_cert_der)};
+    SYN_TLS_Config s_mtls = {.mode = SYN_TLS_AUTH_MODE_MTLS,
+                             .is_server = true,
+                             .root_ca = &root_ca,
+                             .client_cert_der = srv_cert_der,
+                             .client_cert_len = sizeof(srv_cert_der),
+                             .client_privkey = srv_sec,
+                             .peer_cert_der = cli_cert_der,
+                             .peer_cert_len = sizeof(cli_cert_der)};
+
+    SYN_TLS_Context client, server;
+    TEST_ASSERT_TRUE(syn_tls_init(&client, &c_mtls, &c_tr, g_c_rx_buf, sizeof(g_c_rx_buf),
+                                  g_c_tx_buf, sizeof(g_c_tx_buf)));
+    TEST_ASSERT_TRUE(syn_tls_init(&server, &s_mtls, &s_tr, g_s_rx_buf, sizeof(g_s_rx_buf),
+                                  g_s_tx_buf, sizeof(g_s_tx_buf)));
+
+    /* Contended SYN_Sched execution: both client and server yield between asymmetric stages */
+    uint32_t peer_runs = 0U;
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+    syn_task_create(&tasks[0], "tls_c", syn_tls_task, SYN_PRIO_HIGH, &client);
+    syn_task_create(&tasks[1], "tls_s", syn_tls_task, SYN_PRIO_HIGH, &server);
+    syn_task_create(&tasks[2], "peer", tls_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_sched_init(&sched, tasks, 3U);
+
+    /* Turn 1 (c_task): Stage 1 verifies server X.509 cert + sends ClientHello -> yields PT_MORE */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_CLIENT_HELLO_SENT, client.state);
+    TEST_ASSERT_EQUAL_size_t(88U, dw.c2s.len);
+
+    /* Turn 2 (s_task): Stage 1 verifies client X.509 cert + parses CH + derives HS keys -> PT_MORE
+     */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED, server.state);
+    TEST_ASSERT_EQUAL_size_t(0U, dw.s2c.len);
+
+    /* Turn 3 (peer_task): peer runs */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(1U, peer_runs);
+
+    /* Turn 4 (c_task): ServerHello not sent yet -> yields PT_IDLE via PT_PASS */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_CLIENT_HELLO_SENT, client.state);
+
+    /* Turn 5 (s_task): Stage 2 signs Server CV + sends Flight 2 -> FINISHED_SENT, yields PT_MORE */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_FINISHED_SENT, server.state);
+    TEST_ASSERT_TRUE(dw.s2c.len > 0U);
+
+    /* Turn 6 (peer_task): peer runs */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(2U, peer_runs);
+
+    /* Turn 7 (s_task): waiting for Client Flight 3 -> yields PT_IDLE via PT_PASS */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_FINISHED_SENT, server.state);
+
+    /* Advance tick so c_task (polling after PT_PASS) is overdue and runs its 4 cooperative stages
+     */
+    mock_tick_advance(10U);
+    syn_sched_run(&sched); /* peer_task (overdue) */
+    syn_sched_run(
+        &sched); /* c_task Stage 2 (overdue): recv SH + X25519 -> HANDSHAKE_KEYS_DERIVED */
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED, client.state);
+    syn_sched_run(&sched); /* s_task (overdue): polls empty wire -> PT_IDLE (has_more = false) */
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_FINISHED_SENT, server.state);
+
+    uint32_t runs_before = peer_runs;
+    syn_sched_run(&sched); /* peer_task runs between Stage 2 and Stage 3 */
+    TEST_ASSERT_EQUAL_UINT32(runs_before + 1U, peer_runs);
+
+    syn_sched_run(&sched); /* c_task Stage 3: verify Server CV -> CERTIFICATE_VERIFIED */
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_CERTIFICATE_VERIFIED, client.state);
+
+    syn_sched_run(&sched); /* peer_task runs between Stage 3 and Stage 4 */
+    syn_sched_run(&sched); /* c_task Stage 4: verify Server Finished -> SERVER_HELLO_RECEIVED */
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_SERVER_HELLO_RECEIVED, client.state);
+
+    syn_sched_run(&sched); /* peer_task runs between Stage 4 and Stage 5 */
+    syn_sched_run(&sched); /* c_task Stage 5: sign Client CV + send Flight 3 -> ESTABLISHED */
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_ESTABLISHED, client.state);
+    TEST_ASSERT_TRUE(dw.c2s.len > 0U);
+
+    /* Advance tick so s_task processes Client Flight 3 -> ESTABLISHED */
+    mock_tick_advance(10U);
+    while (server.state != SYN_TLS_STATE_ESTABLISHED) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_ESTABLISHED, server.state);
+}
+
 void run_tls_tests(void)
 {
     RUN_TEST(test_tls_psk_mode_handshake_and_record_crypto);
@@ -1419,4 +1560,5 @@ void run_tls_tests(void)
     RUN_TEST(test_tls_round4_aad_framing_and_bounds);
     RUN_TEST(test_r5_n05_tls_handshake_reflection_and_fatal_error);
     RUN_TEST(test_tier_a_tls_seq_backpressure_and_secret_scrub);
+    RUN_TEST(test_tls_cooperative_staged_handshake_yielding);
 }

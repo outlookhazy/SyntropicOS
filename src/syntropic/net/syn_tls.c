@@ -10,6 +10,7 @@
 #include "syntropic/crypto/syn_ed25519.h"
 #include "syntropic/crypto/syn_hmac.h"
 #include "syntropic/crypto/syn_p256.h"
+#include "syntropic/sched/syn_sched.h"
 #include "syntropic/util/syn_random.h"
 
 #include <string.h>
@@ -785,16 +786,29 @@ static bool tls_parse_client_hello(SYN_TLS_Context *ctx, size_t rx_len)
 }
 
 /**
- * @brief Build and send ServerHello [+ CertificateVerify] + ServerFinished record.
- * @param ctx TLS server context.
- * @return true if derived, signed, and sent.
+ * @brief Server Stage 1: parse ClientHello, format ServerHello header, and derive HS secrets.
+ * @param ctx        TLS server context in SYN_TLS_STATE_UNINITIALIZED.
+ * @param progressed [out] Set true if ClientHello processed and HS secrets derived.
+ * @return true if waiting or Stage 1 succeeded, false on fatal error.
  */
-static bool tls_send_server_flight(SYN_TLS_Context *ctx)
+static bool tls_server_stage1_recv_ch(SYN_TLS_Context *ctx, bool *progressed)
 {
+    if (!tls_verify_peer_certificate(ctx)) {
+        return false;
+    }
+
+    size_t rx_len = 0U;
+    if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
+        return true;
+    }
+    if (!tls_parse_client_hello(ctx, rx_len)) {
+        ctx->state = SYN_TLS_STATE_ERROR;
+        return false;
+    }
+
     bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-    bool has_cv = (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK);
-    size_t cv_len = has_cv ? TLS_CERT_VERIFY_LEN : 0U;
+    size_t cv_len = (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK) ? TLS_CERT_VERIFY_LEN : 0U;
     size_t body_len = 80U + cv_len + 4U + hash_len;
     uint16_t suite_id = tls_cipher_wire_id(ctx->config.cipher_suite);
     uint8_t *tx = ctx->tx_buf;
@@ -830,7 +844,32 @@ static bool tls_send_server_flight(SYN_TLS_Context *ctx)
     memcpy(tx + 53U, ctx->my_pubkey, 32U);
 
     tls_transcript_update(ctx, tx + 5U, 80U);
-    if (!derive_tls13_hs_secrets(ctx) || (has_cv && !tls_build_local_cv(ctx, true, tx + 85U))) {
+    if (!derive_tls13_hs_secrets(ctx)) {
+        ctx->state = SYN_TLS_STATE_ERROR;
+        return false;
+    }
+
+    ctx->state = SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED;
+    *progressed = true;
+    return true;
+}
+
+/**
+ * @brief Server Stage 2: sign CertificateVerify, compute ServerFinished, and send flight.
+ * @param ctx        TLS server context in SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED.
+ * @param progressed [out] Set true when Server flight transmitted.
+ * @return true on success, false on fatal error.
+ */
+static bool tls_server_stage2_send_flight(SYN_TLS_Context *ctx, bool *progressed)
+{
+    bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
+    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
+    bool has_cv = (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK);
+    size_t cv_len = has_cv ? TLS_CERT_VERIFY_LEN : 0U;
+    size_t body_len = 80U + cv_len + 4U + hash_len;
+    uint8_t *tx = ctx->tx_buf;
+
+    if (has_cv && !tls_build_local_cv(ctx, true, tx + 85U)) {
         ctx->state = SYN_TLS_STATE_ERROR;
         return false;
     }
@@ -855,6 +894,7 @@ static bool tls_send_server_flight(SYN_TLS_Context *ctx)
         tls_scrub_handshake_secrets(ctx);
         ctx->state = SYN_TLS_STATE_ESTABLISHED;
     }
+    *progressed = true;
     return true;
 }
 
@@ -971,46 +1011,113 @@ static bool tls_process_client_mtls_flight(SYN_TLS_Context *ctx, size_t rx_len)
 }
 
 /**
- * @brief Parse ServerHello [+ CertificateVerify] + ServerFinished on client and finish handshake.
- * @param ctx    TLS client context.
- * @param rx_len Bytes received from underlying_transport.
- * @return true if server flight verified (and mTLS client flight sent when configured).
+ * @brief Client Stage 2: receive ServerHello flight, validate headers, and derive HS secrets.
+ * @param ctx        TLS client context in SYN_TLS_STATE_CLIENT_HELLO_SENT.
+ * @param progressed [out] Set true if ServerHello flight received and HS secrets derived.
+ * @return true if waiting or Stage 2 succeeded, false on fatal error.
  */
-static bool tls_process_server_flight(SYN_TLS_Context *ctx, size_t rx_len)
+static bool tls_client_stage2_recv_sh(SYN_TLS_Context *ctx, bool *progressed)
 {
+    size_t rx_len = 0U;
+    if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
+        return true;
+    }
+
     bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-    bool has_cv = (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK);
-    size_t cv_len = has_cv ? TLS_CERT_VERIFY_LEN : 0U;
+    size_t cv_len = (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK) ? TLS_CERT_VERIFY_LEN : 0U;
     size_t body_len = 80U + cv_len + 4U + hash_len;
     size_t fin_off = 85U + cv_len;
     uint16_t exp_suite = tls_cipher_wire_id(ctx->config.cipher_suite);
     const uint8_t *rx = ctx->rx_buf;
 
     if (!tls_check_server_flight_hdr(rx, rx_len, body_len, exp_suite, fin_off, hash_len)) {
+        ctx->state = SYN_TLS_STATE_ERROR;
         return false;
     }
 
+    ctx->rx_record_len = rx_len;
     memcpy(ctx->peer_pubkey, rx + 53U, 32U);
     tls_transcript_update(ctx, rx + 5U, 80U);
-    if (!derive_tls13_hs_secrets(ctx) || (has_cv && !tls_check_peer_cv(ctx, true, rx + 85U))) {
+    if (!derive_tls13_hs_secrets(ctx)) {
+        ctx->state = SYN_TLS_STATE_ERROR;
         return false;
     }
+
+    ctx->state = SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED;
+    *progressed = true;
+    return true;
+}
+
+/**
+ * @brief Client Stage 3: verify Server CertificateVerify signature (when non-PSK).
+ * @param ctx        TLS client context in SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED.
+ * @param progressed [out] Set true when stage completes.
+ * @return true on authentic signature, false on verification failure.
+ */
+static bool tls_client_stage3_verify_cv(SYN_TLS_Context *ctx, bool *progressed)
+{
+    if (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK &&
+        !tls_check_peer_cv(ctx, true, ctx->rx_buf + 85U)) {
+        ctx->state = SYN_TLS_STATE_ERROR;
+        return false;
+    }
+    ctx->state = SYN_TLS_STATE_CERTIFICATE_VERIFIED;
+    *progressed = true;
+    return true;
+}
+
+/**
+ * @brief Client Stage 4: verify ServerFinished MAC and derive application traffic keys.
+ * @param ctx        TLS client context in SYN_TLS_STATE_CERTIFICATE_VERIFIED.
+ * @param progressed [out] Set true when stage completes.
+ * @return true on authentic Finished MAC, false on mismatch.
+ */
+static bool tls_client_stage4_verify_fin(SYN_TLS_Context *ctx, bool *progressed)
+{
+    bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
+    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
+    size_t cv_len = (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK) ? TLS_CERT_VERIFY_LEN : 0U;
+    size_t fin_off = 85U + cv_len;
+    const uint8_t *rx = ctx->rx_buf;
 
     uint8_t expected_mac[SYN_TLS_SECRET_LEN];
     tls_compute_finished(ctx, ctx->server_handshake_secret, expected_mac);
     bool ok = tls_verify_mac_ct(expected_mac, rx + fin_off + 4U, hash_len);
     syn_secure_zero(expected_mac, sizeof(expected_mac));
     if (!ok) {
+        ctx->state = SYN_TLS_STATE_ERROR;
         return false;
     }
 
     tls_transcript_update(ctx, rx + fin_off, 4U + hash_len);
     derive_tls13_app_keys(ctx);
 
-    if (ctx->config.mode == SYN_TLS_AUTH_MODE_MTLS && !tls_send_client_mtls_flight(ctx)) {
+    if (ctx->config.mode == SYN_TLS_AUTH_MODE_MTLS) {
+        ctx->state = SYN_TLS_STATE_SERVER_HELLO_RECEIVED;
+    } else {
+        tls_scrub_handshake_secrets(ctx);
+        ctx->state = SYN_TLS_STATE_ESTABLISHED;
+    }
+    *progressed = true;
+    return true;
+}
+
+/**
+ * @brief Client Stage 5 (mTLS): sign Client CertificateVerify and transmit ClientFinished.
+ * @param ctx        TLS client context in SYN_TLS_STATE_SERVER_HELLO_RECEIVED.
+ * @param progressed [out] Set true when Flight 3 transmitted.
+ * @return true on success, false on signing or transport failure.
+ */
+static bool tls_client_stage5_send_mtls(SYN_TLS_Context *ctx, bool *progressed)
+{
+    if (!tls_send_client_mtls_flight(ctx)) {
+        ctx->state = SYN_TLS_STATE_ERROR;
         return false;
     }
+    tls_scrub_handshake_secrets(ctx);
+    ctx->state = SYN_TLS_STATE_ESTABLISHED;
+    *progressed = true;
     return true;
 }
 
@@ -1073,32 +1180,74 @@ static bool tls_parse_record_header(const uint8_t *rx_buf, size_t rx_len, size_t
 }
 
 /**
- * @brief Advance server-side TLS 1.3 handshake state machine by one non-blocking step.
- * @param ctx TLS server context.
- * @return true if progressing or completed, false on fatal error.
+ * @brief Advance server-side TLS 1.3 handshake state machine by one single-asymmetric-op stage.
+ * @param ctx        TLS server context.
+ * @param progressed [out] Set true if state advanced, false if waiting for transport RX.
+ * @return true if progressing or waiting, false on fatal error.
  */
-static bool tls_server_handshake_step(SYN_TLS_Context *ctx)
+static bool tls_server_handshake_step(SYN_TLS_Context *ctx, bool *progressed)
 {
+    if (ctx->state == SYN_TLS_STATE_UNINITIALIZED) {
+        return tls_server_stage1_recv_ch(ctx, progressed);
+    }
+    if (ctx->state == SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED) {
+        return tls_server_stage2_send_flight(ctx, progressed);
+    }
+
     size_t rx_len = 0U;
     if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
         return true;
     }
-
-    if (ctx->state == SYN_TLS_STATE_FINISHED_SENT) {
-        if (!tls_process_client_mtls_flight(ctx, rx_len)) {
-            ctx->state = SYN_TLS_STATE_ERROR;
-            return false;
-        }
-        tls_scrub_handshake_secrets(ctx);
-        ctx->state = SYN_TLS_STATE_ESTABLISHED;
-        return true;
-    }
-
-    if (!tls_parse_client_hello(ctx, rx_len)) {
+    if (!tls_process_client_mtls_flight(ctx, rx_len)) {
         ctx->state = SYN_TLS_STATE_ERROR;
         return false;
     }
-    return tls_send_server_flight(ctx);
+    tls_scrub_handshake_secrets(ctx);
+    ctx->state = SYN_TLS_STATE_ESTABLISHED;
+    *progressed = true;
+    return true;
+}
+
+/**
+ * @brief Advance client-side TLS 1.3 handshake state machine by one single-asymmetric-op stage.
+ * @param ctx        TLS client context.
+ * @param progressed [out] Set true if state advanced, false if waiting for transport RX.
+ * @return true if progressing or waiting, false on fatal error.
+ */
+static bool tls_client_handshake_step(SYN_TLS_Context *ctx, bool *progressed)
+{
+    if (ctx->state == SYN_TLS_STATE_UNINITIALIZED) {
+        if (!tls_verify_peer_certificate(ctx) || !tls_send_client_hello(ctx)) {
+            return false;
+        }
+        *progressed = true;
+        return true;
+    }
+    if (ctx->state == SYN_TLS_STATE_CLIENT_HELLO_SENT) {
+        return tls_client_stage2_recv_sh(ctx, progressed);
+    }
+    if (ctx->state == SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED) {
+        return tls_client_stage3_verify_cv(ctx, progressed);
+    }
+    if (ctx->state == SYN_TLS_STATE_CERTIFICATE_VERIFIED) {
+        return tls_client_stage4_verify_fin(ctx, progressed);
+    }
+    return tls_client_stage5_send_mtls(ctx, progressed);
+}
+
+/**
+ * @brief Execute one cooperative stage of the TLS 1.3 client or server handshake.
+ * @param ctx        TLS context.
+ * @param progressed [out] Set true if a handshake stage completed, false if waiting on RX.
+ * @return true if stage succeeded or waiting on RX, false on fatal error.
+ */
+static bool tls_handshake_step(SYN_TLS_Context *ctx, bool *progressed)
+{
+    *progressed = false;
+    if (ctx->config.is_server) {
+        return tls_server_handshake_step(ctx, progressed);
+    }
+    return tls_client_handshake_step(ctx, progressed);
 }
 
 /** @endcond */
@@ -1154,32 +1303,12 @@ bool syn_tls_handshake(SYN_TLS_Context *ctx)
     if (ctx == NULL || ctx->state == SYN_TLS_STATE_ERROR) {
         return false;
     }
-    if (ctx->state == SYN_TLS_STATE_ESTABLISHED) {
-        return true;
+    bool progressed = true;
+    while (progressed && ctx->state != SYN_TLS_STATE_ESTABLISHED) {
+        if (!tls_handshake_step(ctx, &progressed)) {
+            return false;
+        }
     }
-    if (!tls_verify_peer_certificate(ctx)) {
-        return false;
-    }
-
-    if (ctx->config.is_server) {
-        return tls_server_handshake_step(ctx);
-    }
-
-    if (ctx->state == SYN_TLS_STATE_UNINITIALIZED && !tls_send_client_hello(ctx)) {
-        return false;
-    }
-
-    size_t rx_len = 0U;
-    if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
-        return true;
-    }
-    if (!tls_process_server_flight(ctx, rx_len)) {
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
-    }
-
-    tls_scrub_handshake_secrets(ctx);
-    ctx->state = SYN_TLS_STATE_ESTABLISHED;
     return true;
 }
 
@@ -1194,12 +1323,16 @@ SYN_PT_Status syn_tls_task(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     while (ctx->state != SYN_TLS_STATE_ESTABLISHED) {
-        if (!syn_tls_handshake(ctx)) {
-            ctx->state = SYN_TLS_STATE_ERROR;
+        bool progressed = false;
+        if (ctx->state == SYN_TLS_STATE_ERROR || !tls_handshake_step(ctx, &progressed)) {
             PT_EXIT(pt);
         }
         if (ctx->state != SYN_TLS_STATE_ESTABLISHED) {
-            PT_PASS(pt);
+            if (progressed) {
+                PT_CONTINUE_IF_NEEDED(pt, task);
+            } else {
+                PT_PASS(pt);
+            }
         }
     }
 

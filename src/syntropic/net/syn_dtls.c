@@ -12,6 +12,7 @@
 #include "syntropic/crypto/syn_ed25519.h"
 #include "syntropic/crypto/syn_hkdf.h"
 #include "syntropic/crypto/syn_p256.h"
+#include "syntropic/sched/syn_sched.h"
 #include "syntropic/util/syn_random.h"
 
 #include <string.h>
@@ -980,13 +981,22 @@ static bool dtls_server_send_flight2(SYN_DTLS_Context *ctx, uint16_t exp_suite)
 }
 
 /**
- * @brief Parse ClientHello datagram on server; silently drop malformed packets per RFC 9147 §4.5.1.
- * @param ctx    DTLS server context.
- * @param rx_len Received datagram length.
+ * @brief Server Stage 1: parse ClientHello datagram and derive DTLS 1.3 handshake secrets.
+ * @param ctx        DTLS server context in SYN_DTLS_STATE_UNINITIALIZED.
+ * @param progressed [out] Set true if valid ClientHello processed and HS secrets derived.
  * @return true if valid ClientHello processed or stray packet discarded; false on local error.
  */
-static bool dtls_server_process_client_hello(SYN_DTLS_Context *ctx, size_t rx_len)
+static bool dtls_server_stage1_recv_ch(SYN_DTLS_Context *ctx, bool *progressed)
 {
+    if (!dtls_verify_peer_auth(ctx)) {
+        return false;
+    }
+
+    size_t rx_len = 0U;
+    if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
+        return true;
+    }
+
     static const uint8_t ch_hdr[14] = {DTLS_CONTENT_TYPE_HANDSHAKE,
                                        0xFEU,
                                        0xFDU,
@@ -1024,7 +1034,9 @@ static bool dtls_server_process_client_hello(SYN_DTLS_Context *ctx, size_t rx_le
         return true;
     }
 
-    return dtls_server_send_flight2(ctx, exp_suite);
+    ctx->state = SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED;
+    *progressed = true;
+    return true;
 }
 
 /**
@@ -1112,17 +1124,20 @@ static bool dtls_server_process_client_mtls_flight(SYN_DTLS_Context *ctx, size_t
 }
 
 /**
- * @brief Parse ServerHello [+ CertificateVerify] + Finished on client; drop invalid UDP packets.
- * @param ctx    DTLS client context.
- * @param rx_len Received datagram length.
- * @return true if verified or stray packet discarded, false on local mTLS send/sign error.
+ * @brief Client Stage 2: receive ServerHello datagram and derive DTLS 1.3 handshake secrets.
+ * @param ctx        DTLS client context in SYN_DTLS_STATE_CLIENT_HELLO_SENT.
+ * @param progressed [out] Set true if valid ServerHello header received and HS secrets derived.
  */
-static bool dtls_client_process_server_hello(SYN_DTLS_Context *ctx, size_t rx_len)
+static void dtls_client_stage2_recv_sh(SYN_DTLS_Context *ctx, bool *progressed)
 {
+    size_t rx_len = 0U;
+    if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
+        return;
+    }
+
     bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-    bool has_cv = (ctx->config.mode != SYN_DTLS_AUTH_MODE_PSK);
-    size_t cv_len = has_cv ? DTLS_CERT_VERIFY_LEN : 0U;
+    size_t cv_len = (ctx->config.mode != SYN_DTLS_AUTH_MODE_PSK) ? DTLS_CERT_VERIFY_LEN : 0U;
     size_t body_len = 67U + cv_len + hash_len;
     uint8_t sh_hdr[14] = {DTLS_CONTENT_TYPE_HANDSHAKE,
                           0xFEU,
@@ -1143,36 +1158,84 @@ static bool dtls_client_process_server_hello(SYN_DTLS_Context *ctx, size_t rx_le
 
     if (rx_len != DTLS_EPOCH0_HDR_LEN + body_len || memcmp(rx, sh_hdr, sizeof(sh_hdr)) != 0 ||
         (((uint16_t)rx[14] << 8U) | (uint16_t)rx[15]) != exp_suite) {
-        return true;
+        return;
     }
 
     memcpy(ctx->server_random, rx + 16U, 32U);
     memcpy(ctx->peer_ecdhe_pub, rx + 48U, 32U);
-
-    if (!dtls_derive_hs_secrets(ctx) ||
-        (has_cv && !dtls_check_peer_cv(ctx, true, ctx->transcript_digest, rx + 80U))) {
-        return true;
+    if (!dtls_derive_hs_secrets(ctx)) {
+        return;
     }
 
-    const uint8_t *fin = rx + 80U + cv_len;
+    ctx->state = SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED;
+    *progressed = true;
+}
+
+/**
+ * @brief Client Stage 3: verify Server CertificateVerify signature (when non-PSK); drop forged UDP.
+ * @param ctx        DTLS client context in SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED.
+ * @param progressed [out] Set true if verified, false if forged datagram was dropped.
+ */
+static void dtls_client_stage3_verify_cv(SYN_DTLS_Context *ctx, bool *progressed)
+{
+    if (ctx->config.mode != SYN_DTLS_AUTH_MODE_PSK &&
+        !dtls_check_peer_cv(ctx, true, ctx->transcript_digest, ctx->rx_buf + 80U)) {
+        ctx->state = SYN_DTLS_STATE_CLIENT_HELLO_SENT;
+        return;
+    }
+    ctx->state = SYN_DTLS_STATE_CERTIFICATE_VERIFIED;
+    *progressed = true;
+}
+
+/**
+ * @brief Client Stage 4: verify ServerFinished MAC and derive app keys; drop forged UDP.
+ * @param ctx        DTLS client context in SYN_DTLS_STATE_CERTIFICATE_VERIFIED.
+ * @param progressed [out] Set true if verified, false if forged datagram was dropped.
+ */
+static void dtls_client_stage4_verify_fin(SYN_DTLS_Context *ctx, bool *progressed)
+{
+    bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
+    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
+    size_t cv_len = (ctx->config.mode != SYN_DTLS_AUTH_MODE_PSK) ? DTLS_CERT_VERIFY_LEN : 0U;
+    const uint8_t *fin = ctx->rx_buf + 80U + cv_len;
+
     uint8_t expected_mac[SYN_DTLS_SECRET_LEN];
     dtls_compute_finished(ctx, ctx->server_handshake_secret, ctx->transcript_digest, expected_mac);
     bool ok = dtls_verify_mac_ct(expected_mac, fin, hash_len);
     syn_secure_zero(expected_mac, sizeof(expected_mac));
     if (!ok) {
-        return true;
+        ctx->state = SYN_DTLS_STATE_CLIENT_HELLO_SENT;
+        return;
     }
 
     dtls_chain_transcript(ctx, ctx->transcript_digest, fin, hash_len);
     dtls_derive_app_keys(ctx);
 
-    if (ctx->config.mode == SYN_DTLS_AUTH_MODE_MTLS && !dtls_send_client_mtls_flight(ctx)) {
+    if (ctx->config.mode == SYN_DTLS_AUTH_MODE_MTLS) {
+        ctx->state = SYN_DTLS_STATE_SERVER_HELLO_RECEIVED;
+    } else {
+        dtls_scrub_handshake_secrets(ctx);
+        ctx->state = SYN_DTLS_STATE_ESTABLISHED;
+        ctx->epoch = SYN_DTLS_EPOCH_APP_DATA;
+    }
+    *progressed = true;
+}
+
+/**
+ * @brief Client Stage 5 (mTLS): sign Client CertificateVerify and transmit ClientFinished.
+ * @param ctx        DTLS client context in SYN_DTLS_STATE_SERVER_HELLO_RECEIVED.
+ * @param progressed [out] Set true when Flight 3 transmitted.
+ * @return true on success, false on local sign/send failure.
+ */
+static bool dtls_client_stage5_send_mtls(SYN_DTLS_Context *ctx, bool *progressed)
+{
+    if (!dtls_send_client_mtls_flight(ctx)) {
         return false;
     }
-
     dtls_scrub_handshake_secrets(ctx);
     ctx->state = SYN_DTLS_STATE_ESTABLISHED;
     ctx->epoch = SYN_DTLS_EPOCH_APP_DATA;
+    *progressed = true;
     return true;
 }
 
@@ -1247,20 +1310,77 @@ static bool dtls_strip_inner_content_type(const uint8_t *pt_buf, size_t pt_with_
 }
 
 /**
- * @brief Advance server-side DTLS 1.3 handshake state machine by one non-blocking step.
- * @param ctx DTLS server context.
- * @return true if progressing or completed, false on fatal local error.
+ * @brief Advance server-side DTLS 1.3 handshake state machine by one single-asymmetric-op stage.
+ * @param ctx        DTLS server context.
+ * @param progressed [out] Set true if state advanced, false if waiting or forged packet dropped.
+ * @return true if progressing or waiting, false on fatal local error.
  */
-static bool dtls_server_handshake_step(SYN_DTLS_Context *ctx)
+static bool dtls_server_handshake_step(SYN_DTLS_Context *ctx, bool *progressed)
 {
+    if (ctx->state == SYN_DTLS_STATE_UNINITIALIZED) {
+        return dtls_server_stage1_recv_ch(ctx, progressed);
+    }
+    if (ctx->state == SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED) {
+        uint16_t exp_suite = dtls_cipher_wire_id(ctx->config.cipher_suite);
+        if (!dtls_server_send_flight2(ctx, exp_suite)) {
+            return false;
+        }
+        *progressed = true;
+        return true;
+    }
+
     size_t rx_len = 0U;
     if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
         return true;
     }
-    if (ctx->state == SYN_DTLS_STATE_FINISHED_SENT) {
-        return dtls_server_process_client_mtls_flight(ctx, rx_len);
+    (void)dtls_server_process_client_mtls_flight(ctx, rx_len);
+    *progressed = (ctx->state == SYN_DTLS_STATE_ESTABLISHED);
+    return true;
+}
+
+/**
+ * @brief Advance client-side DTLS 1.3 handshake state machine by one single-asymmetric-op stage.
+ * @param ctx        DTLS client context.
+ * @param progressed [out] Set true if state advanced, false if waiting or forged packet dropped.
+ * @return true if progressing or waiting, false on fatal local error.
+ */
+static bool dtls_client_handshake_step(SYN_DTLS_Context *ctx, bool *progressed)
+{
+    if (ctx->state == SYN_DTLS_STATE_UNINITIALIZED) {
+        if (!dtls_verify_peer_auth(ctx) || !dtls_send_client_hello(ctx)) {
+            return false;
+        }
+        *progressed = true;
+        return true;
     }
-    return dtls_server_process_client_hello(ctx, rx_len);
+    if (ctx->state == SYN_DTLS_STATE_CLIENT_HELLO_SENT) {
+        dtls_client_stage2_recv_sh(ctx, progressed);
+        return true;
+    }
+    if (ctx->state == SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED) {
+        dtls_client_stage3_verify_cv(ctx, progressed);
+        return true;
+    }
+    if (ctx->state == SYN_DTLS_STATE_CERTIFICATE_VERIFIED) {
+        dtls_client_stage4_verify_fin(ctx, progressed);
+        return true;
+    }
+    return dtls_client_stage5_send_mtls(ctx, progressed);
+}
+
+/**
+ * @brief Execute one cooperative stage of the DTLS 1.3 client or server handshake.
+ * @param ctx        DTLS context.
+ * @param progressed [out] Set true if a handshake stage completed, false if waiting/dropped.
+ * @return true if stage succeeded or waiting, false on fatal local error.
+ */
+static bool dtls_handshake_step(SYN_DTLS_Context *ctx, bool *progressed)
+{
+    *progressed = false;
+    if (ctx->config.is_server) {
+        return dtls_server_handshake_step(ctx, progressed);
+    }
+    return dtls_client_handshake_step(ctx, progressed);
 }
 
 /** @endcond */
@@ -1327,26 +1447,13 @@ bool syn_dtls_handshake(SYN_DTLS_Context *ctx)
     if (ctx == NULL || ctx->state == SYN_DTLS_STATE_ERROR) {
         return false;
     }
-    if (ctx->state == SYN_DTLS_STATE_ESTABLISHED) {
-        return true;
+    bool progressed = true;
+    while (progressed && ctx->state != SYN_DTLS_STATE_ESTABLISHED) {
+        if (!dtls_handshake_step(ctx, &progressed)) {
+            return false;
+        }
     }
-    if (!dtls_verify_peer_auth(ctx)) {
-        return false;
-    }
-
-    if (ctx->config.is_server) {
-        return dtls_server_handshake_step(ctx);
-    }
-
-    if (ctx->state == SYN_DTLS_STATE_UNINITIALIZED && !dtls_send_client_hello(ctx)) {
-        return false;
-    }
-
-    size_t rx_len = 0U;
-    if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
-        return true;
-    }
-    return dtls_client_process_server_hello(ctx, rx_len);
+    return true;
 }
 
 /** @cond INTERNAL */
@@ -1503,12 +1610,16 @@ SYN_PT_Status syn_dtls_task(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     while (ctx->state != SYN_DTLS_STATE_ESTABLISHED) {
-        if (!syn_dtls_handshake(ctx)) {
-            ctx->state = SYN_DTLS_STATE_ERROR;
+        bool progressed = false;
+        if (ctx->state == SYN_DTLS_STATE_ERROR || !dtls_handshake_step(ctx, &progressed)) {
             PT_EXIT(pt);
         }
         if (ctx->state != SYN_DTLS_STATE_ESTABLISHED) {
-            PT_PASS(pt);
+            if (progressed) {
+                PT_CONTINUE_IF_NEEDED(pt, task);
+            } else {
+                PT_PASS(pt);
+            }
         }
     }
 

@@ -124,6 +124,8 @@ typedef struct SYN_Task {
 } SYN_Task;
 
 /** @cond INTERNAL */
+void syn_sched_refresh_share(struct SYN_Sched *sched);
+
 static inline bool syn_task_arm_event_wait(SYN_Task *task, SYN_EventFlags *grp, uint32_t mask,
                                            bool use_timeout, uint32_t timeout_ms,
                                            uint32_t *out_matched)
@@ -139,10 +141,12 @@ static inline bool syn_task_arm_event_wait(SYN_Task *task, SYN_EventFlags *grp, 
     if (syn_event_flags_wait(
             grp, mask, (uint32_t)SYN_EVENT_FLAGS_WAIT_ANY | (uint32_t)SYN_EVENT_FLAGS_AUTO_CLEAR,
             out_matched) == SYN_OK) {
+        syn_sched_refresh_share(task->sched);
         syn_port_exit_critical();
         return false;
     }
 
+    task->delay_until = 0U;
     if (use_timeout &&
         !syn_pt_arm_ms_deadline(&task->delay_until, syn_port_get_tick_ms(), timeout_ms)) {
         syn_port_exit_critical();

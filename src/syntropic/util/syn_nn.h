@@ -137,6 +137,30 @@ SYN_Status syn_nn_attention_q7(const q7_t *q, const q7_t *k, const q7_t *v, size
                                size_t d_k, size_t d_v, q7_t *out, uint8_t attn_shift);
 
 /**
+ * @brief Evaluate a Scaled Dot-Product Self-Attention layer cooperatively inside a protothread.
+ *
+ * Slices attention evaluation across query tokens in chunks of @p chunk_size.
+ * Pair with PT_SPAWN_IF_NEEDED() inside a SYN_Task to run at full speed when
+ * uncontended and yield mid-sequence when another task requires CPU time.
+ *
+ * @param pt            Pointer to protothread state machine.
+ * @param q             Query matrix [seq_len * d_k].
+ * @param k             Key matrix [seq_len * d_k].
+ * @param v             Value matrix [seq_len * d_v].
+ * @param seq_len       Sequence length / token count (1 to 32).
+ * @param d_k           Query/Key dimension per token.
+ * @param d_v           Value dimension per token.
+ * @param out           Output matrix [seq_len * d_v].
+ * @param attn_shift    Right bit-shift for dot-product scaling.
+ * @param current_token State variable tracking query token progress across yields.
+ * @param chunk_size    Number of query tokens to evaluate per chunk.
+ * @return PT_MORE while evaluating chunks, PT_ENDED on completion, or PT_EXITED on invalid input.
+ */
+SYN_PT_Status syn_nn_attention_pt(SYN_PT *pt, const q7_t *q, const q7_t *k, const q7_t *v,
+                                  size_t seq_len, size_t d_k, size_t d_v, q7_t *out,
+                                  uint8_t attn_shift, size_t *current_token, size_t chunk_size);
+
+/**
  * @brief Evaluate a 1D Temporal Convolutional Neural Network layer in INT8 (q7_t).
  *
  * Scans a 1D kernel filter matrix [num_filters * kernel_size * num_channels] across a time series

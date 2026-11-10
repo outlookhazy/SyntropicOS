@@ -14,6 +14,7 @@
  */
 
 #include "../port/syn_port_system.h"
+#include "../sched/syn_sched.h"
 #include "../util/syn_assert.h"
 #include "syn_httpd.h"
 
@@ -368,10 +369,11 @@ static bool httpd_check_headers_complete(SYN_Httpd *srv)
 
 /**
  * @brief Non-blocking header and Content-Length body accumulation phase for an accepted client.
- * @param srv Server instance in SYN_HTTPD_READING_HEADERS or SYN_HTTPD_READING_BODY state.
- * @return SYN_OK on dispatch, SYN_TIMEOUT if awaiting bytes/expired, SYN_ERROR on failure.
+ * @param srv            Server instance in SYN_HTTPD_READING_HEADERS or SYN_HTTPD_READING_BODY.
+ * @param defer_dispatch When true, stop at SYN_HTTPD_DISPATCHING so syn_httpd_task can yield first.
+ * @return SYN_OK on dispatch/ready, SYN_TIMEOUT if awaiting bytes/expired, SYN_ERROR on failure.
  */
-static SYN_Status httpd_step_reading(SYN_Httpd *srv)
+static SYN_Status httpd_step_reading(SYN_Httpd *srv, bool defer_dispatch)
 {
     /* Check deadline — drop stale connections without blocking */
     if ((int32_t)(syn_port_get_tick_ms() - srv->recv_deadline) >= 0) {
@@ -415,14 +417,22 @@ static SYN_Status httpd_step_reading(SYN_Httpd *srv)
 
     if (srv->rx_total >= srv->expected_total) {
         srv->state = SYN_HTTPD_DISPATCHING;
-        dispatch_request(srv);
+        if (!defer_dispatch) {
+            dispatch_request(srv);
+        }
         return SYN_OK;
     }
 
     return SYN_TIMEOUT;
 }
 
-SYN_Status syn_httpd_step(SYN_Httpd *srv)
+/**
+ * @brief Advance server state machine by one phase, optionally deferring route dispatch.
+ * @param srv            Server instance.
+ * @param defer_dispatch true when called from cooperative syn_httpd_task.
+ * @return SYN_OK on phase completion, SYN_TIMEOUT if awaiting I/O, SYN_ERROR on failure.
+ */
+static SYN_Status httpd_step_phase(SYN_Httpd *srv, bool defer_dispatch)
 {
     SYN_ASSERT(srv != NULL);
     if (!srv->running) {
@@ -440,12 +450,12 @@ SYN_Status syn_httpd_step(SYN_Httpd *srv)
         srv->expected_total = 0U;
         srv->recv_deadline = syn_port_get_tick_ms() + HTTPD_CLIENT_TIMEOUT_MS;
         srv->state = SYN_HTTPD_READING_HEADERS;
-        return httpd_step_reading(srv);
+        return httpd_step_reading(srv, defer_dispatch);
     }
 
     case SYN_HTTPD_READING_HEADERS:
     case SYN_HTTPD_READING_BODY:
-        return httpd_step_reading(srv);
+        return httpd_step_reading(srv, defer_dispatch);
 
     case SYN_HTTPD_DISPATCHING:
         dispatch_request(srv);
@@ -455,6 +465,11 @@ SYN_Status syn_httpd_step(SYN_Httpd *srv)
         srv->state = SYN_HTTPD_IDLE;
         return SYN_ERROR;
     }
+}
+
+SYN_Status syn_httpd_step(SYN_Httpd *srv)
+{
+    return httpd_step_phase(srv, false);
 }
 
 void syn_httpd_stop(SYN_Httpd *srv)
@@ -595,7 +610,7 @@ static bool httpd_has_work(const SYN_Httpd *srv)
 }
 
 /**
- * @brief Run one HTTP server step and report whether state or RX bytes progressed.
+ * @brief Run one cooperative HTTP server phase and report whether state or RX bytes progressed.
  * @param srv Server instance.
  * @return true if progress occurred, false otherwise.
  */
@@ -603,8 +618,19 @@ static bool httpd_step_progressed(SYN_Httpd *srv)
 {
     SYN_HttpdState prev_state = srv->state;
     size_t prev_rx = srv->rx_total;
-    SYN_Status st = syn_httpd_step(srv);
+    SYN_Status st = httpd_step_phase(srv, true);
     return (st == SYN_OK) || (srv->state != prev_state) || (srv->rx_total != prev_rx);
+}
+
+/**
+ * @brief Check if server is still accumulating headers/body but work_buf has no remaining space.
+ * @param srv Server instance.
+ * @return true if reading state has filled work_buf capacity.
+ */
+static bool httpd_buffer_full_in_reading(const SYN_Httpd *srv)
+{
+    return (srv->state == SYN_HTTPD_READING_HEADERS || srv->state == SYN_HTTPD_READING_BODY) &&
+           (srv->rx_total + 1U >= srv->work_buf_size);
 }
 
 /* ── Protothread task ──────────────────────────────────────────────────── */
@@ -626,7 +652,11 @@ SYN_PT_Status syn_httpd_task(SYN_PT *pt, SYN_Task *task)
         if (!httpd_step_progressed(srv)) {
             PT_PASS(pt);
         } else if (srv->running && httpd_has_work(srv)) {
-            PT_CONTINUE(pt);
+            if (httpd_buffer_full_in_reading(srv)) {
+                PT_CONTINUE(pt);
+            } else {
+                PT_CONTINUE_IF_NEEDED(pt, task);
+            }
         }
     }
 

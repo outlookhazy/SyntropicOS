@@ -170,9 +170,8 @@ bool syn_seq_update(SYN_Sequencer *seq)
 
     /* Execute steps (limit execution per tick to step_count + 1 to prevent infinite loops on
      * 0-delay loop sequences while allowing completion check) */
-    size_t max_exec = (size_t)seq->step_count + 1;
     size_t executed = 0;
-    while (seq->state == SYN_SEQ_RUNNING && executed < max_exec) {
+    while (seq->state == SYN_SEQ_RUNNING && executed <= (size_t)seq->step_count) {
         if (seq->current >= seq->step_count) {
             bool done = false;
             if (complete_sequence(seq, &done)) {

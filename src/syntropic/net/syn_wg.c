@@ -389,6 +389,7 @@ static void wg_clear_handshake_state(SYN_WG *wg)
     syn_secure_zero(wg->hs_ephemeral_priv, sizeof(wg->hs_ephemeral_priv));
     syn_secure_zero(wg->hs_chaining_key, sizeof(wg->hs_chaining_key));
     syn_secure_zero(wg->hs_hash, sizeof(wg->hs_hash));
+    syn_secure_zero(&wg->hs_work, sizeof(wg->hs_work));
 }
 
 /**
@@ -408,68 +409,79 @@ static void wg_init_noise_state(uint8_t ck[32], uint8_t h[32], const uint8_t pee
     wg_mix_hash(h, peer_pub, 32U);
 }
 
-/** @brief Build and send a Noise_IKpsk2 handshake initiation message.
- * @param wg Client context.
- * @return true if message was built and sent.
+/**
+ * @brief Initiation Stage 1: generate ephemeral X25519 keypair and mix ephemeral public key.
+ * @param wg       Client context.
+ * @param is_rekey true when initiating a background hitless rekey.
+ * @return true if ephemeral keypair generated and mixed into hs_work.
  */
-static bool wg_send_initiation(SYN_WG *wg)
+static bool wg_init_stage1_ephemeral(SYN_WG *wg, bool is_rekey)
 {
-    if (wg->tx_buf_size < SYN_WG_INITIATION_SIZE) {
+    if (wg->tx_buf_size < SYN_WG_INITIATION_SIZE ||
+        syn_random_fill(wg->hs_work.eph_priv, 32U) != SYN_OK) {
         return false;
     }
+    syn_x25519_clamp(wg->hs_work.eph_priv);
 
-    uint8_t eph_priv[32];
-    if (syn_random_fill(eph_priv, 32U) != SYN_OK) {
-        return false;
-    }
-    syn_x25519_clamp(eph_priv);
+    uint8_t k[32];
+    wg_init_noise_state(wg->hs_work.ck, wg->hs_work.h, wg->config.peer_public_key);
+    syn_x25519_pubkey(wg->hs_work.eph_pub, wg->hs_work.eph_priv);
+    wg_mix_key(wg->hs_work.ck, k, wg->hs_work.eph_pub, 32U);
+    wg_mix_hash(wg->hs_work.h, wg->hs_work.eph_pub, 32U);
+    syn_secure_zero(k, sizeof(k));
 
-    uint8_t ck_tmp[32];
-    uint8_t h_tmp[32];
-    uint8_t eph_pub[32];
+    wg->hs_work.is_rekey = is_rekey;
+    wg->hs_work.stage = 1U;
+    return true;
+}
+
+/**
+ * @brief Initiation Stage 2: compute ephemeral-static X25519 DH and encrypt static public key.
+ * @param wg Client context with hs_work.stage == 1.
+ */
+static void wg_init_stage2_dh_es(SYN_WG *wg)
+{
+    uint8_t k[32];
+    wg->hs_work.dh_ok =
+        wg_dh_mix_key(wg->hs_work.ck, k, wg->hs_work.eph_priv, wg->config.peer_public_key);
+    wg_encrypt_and_hash(wg->hs_work.h, k, wg->public_key, 32U, wg->hs_work.enc_static,
+                        wg->hs_work.enc_static + 32U);
+    syn_secure_zero(k, sizeof(k));
+    wg->hs_work.stage = 2U;
+}
+
+/**
+ * @brief Initiation Stage 3: compute static-static X25519 DH, build 148B packet, and send over UDP.
+ * @param wg Client context with hs_work.stage == 2.
+ * @return true if DH succeeded and UDP initiation packet was transmitted.
+ */
+static bool wg_init_stage3_dh_ss_and_send(SYN_WG *wg)
+{
     uint8_t k[32];
     uint8_t timestamp[12];
     uint8_t *msg = wg->tx_buf;
 
-    wg_init_noise_state(ck_tmp, h_tmp, wg->config.peer_public_key);
-    syn_x25519_pubkey(eph_pub, eph_priv);
-
     uint32_t init_sender_idx = syn_random_u32();
-    size_t pos = 0U;
-    store32_le(msg + pos, SYN_WG_MSG_INITIATION);
-    pos += 4U;
-    store32_le(msg + pos, init_sender_idx);
-    pos += 4U;
+    store32_le(msg + 0U, SYN_WG_MSG_INITIATION);
+    store32_le(msg + 4U, init_sender_idx);
+    memcpy(msg + 8U, wg->hs_work.eph_pub, 32U);
+    memcpy(msg + 40U, wg->hs_work.enc_static, 48U);
 
-    memcpy(msg + pos, eph_pub, 32U);
-    wg_mix_key(ck_tmp, k, eph_pub, 32U);
-    wg_mix_hash(h_tmp, eph_pub, 32U);
-    pos += 32U;
-
-    /* DH #1 & DH #2: reject low-order peer static public key in constant time */
-    uint8_t dh_ok = wg_dh_mix_key(ck_tmp, k, eph_priv, wg->config.peer_public_key);
-    wg_encrypt_and_hash(h_tmp, k, wg->public_key, 32U, msg + pos, msg + pos + 32U);
-    pos += 48U;
-
-    dh_ok &= wg_dh_mix_key(ck_tmp, k, wg->config.private_key, wg->config.peer_public_key);
+    wg->hs_work.dh_ok &=
+        wg_dh_mix_key(wg->hs_work.ck, k, wg->config.private_key, wg->config.peer_public_key);
     wg_tai64n(timestamp, wg->sntp);
-    wg_encrypt_and_hash(h_tmp, k, timestamp, 12U, msg + pos, msg + pos + 12U);
-    pos += 28U;
+    wg_encrypt_and_hash(wg->hs_work.h, k, timestamp, 12U, msg + 88U, msg + 100U);
 
-    wg_mac1(msg + pos, wg->config.peer_public_key, msg, pos);
-    pos += 16U;
-    memset(msg + pos, 0, 16U);
-    pos += 16U;
+    wg_mac1(msg + 116U, wg->config.peer_public_key, msg, 116U);
+    memset(msg + 132U, 0, 16U);
 
-    SYN_ASSERT(pos == SYN_WG_INITIATION_SIZE);
-
-    /* Commit handshake state only after UDP transmission succeeds */
-    bool sent_ok = (dh_ok != 0U) &&
-                   (syn_port_udp_sendto(wg->udp_sock, msg, pos, &wg->config.endpoint) == (int)pos);
+    bool sent_ok = (wg->hs_work.dh_ok != 0U) &&
+                   (syn_port_udp_sendto(wg->udp_sock, msg, SYN_WG_INITIATION_SIZE,
+                                        &wg->config.endpoint) == (int)SYN_WG_INITIATION_SIZE);
     if (sent_ok) {
-        memcpy(wg->hs_ephemeral_priv, eph_priv, 32U);
-        memcpy(wg->hs_chaining_key, ck_tmp, 32U);
-        memcpy(wg->hs_hash, h_tmp, 32U);
+        memcpy(wg->hs_ephemeral_priv, wg->hs_work.eph_priv, 32U);
+        memcpy(wg->hs_chaining_key, wg->hs_work.ck, 32U);
+        memcpy(wg->hs_hash, wg->hs_work.h, 32U);
         wg->hs_sender_index = init_sender_idx;
         wg->hs_valid = true;
         if (wg->state != SYN_WG_ESTABLISHED) {
@@ -478,16 +490,26 @@ static bool wg_send_initiation(SYN_WG *wg)
         wg->last_sent_ms = syn_port_get_tick_ms();
         wg->last_handshake_ms = wg->last_sent_ms;
     } else {
-        syn_secure_zero(msg, pos);
+        syn_secure_zero(msg, SYN_WG_INITIATION_SIZE);
     }
 
-    syn_secure_zero(eph_priv, sizeof(eph_priv));
-    syn_secure_zero(eph_pub, sizeof(eph_pub));
-    syn_secure_zero(ck_tmp, sizeof(ck_tmp));
-    syn_secure_zero(h_tmp, sizeof(h_tmp));
+    syn_secure_zero(&wg->hs_work, sizeof(wg->hs_work));
     syn_secure_zero(k, sizeof(k));
     syn_secure_zero(timestamp, sizeof(timestamp));
     return sent_ok;
+}
+
+/** @brief Build and send a Noise_IKpsk2 handshake initiation message.
+ * @param wg Client context.
+ * @return true if message was built and sent.
+ */
+static bool wg_send_initiation(SYN_WG *wg)
+{
+    if (!wg_init_stage1_ephemeral(wg, false)) {
+        return false;
+    }
+    wg_init_stage2_dh_es(wg);
+    return wg_init_stage3_dh_ss_and_send(wg);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -508,24 +530,19 @@ static bool wg_verify_response_mac1(const SYN_WG *wg, const uint8_t *msg)
     return ok;
 }
 
-/** @brief Parse and validate a handshake response, deriving session keys.
+/**
+ * @brief Response Stage 1: verify mac1 and receiver index, then compute ephemeral-ephemeral DH.
  * @param wg  Client context.
- * @param msg Received message data.
- * @param len Received message length.
- * @return true if response was valid and session established.
+ * @param msg Received response buffer.
+ * @param len Received byte count.
+ * @return true if mac1 verified and Stage 1 DH completed into hs_work.
  */
-static bool wg_consume_response(SYN_WG *wg, const uint8_t *msg, size_t len)
+static bool wg_resp_stage1_verify_and_dh_ee(SYN_WG *wg, const uint8_t *msg, size_t len)
 {
-    uint8_t h_tmp[32];
-    uint8_t ck_tmp[32];
-    uint8_t k[32];
-    uint8_t buf[32];
-
     if ((len != SYN_WG_RESPONSE_SIZE) || (load32_le(msg) != SYN_WG_MSG_RESPONSE) || !wg->hs_valid) {
         return false;
     }
 
-    /* Verify receiver_index and mac1 before any X25519 DH or handshake state mutation */
     uint32_t expected_idx = wg->session.sender_index;
     if ((wg->state == SYN_WG_ESTABLISHED) && wg->rekey_in_progress) {
         expected_idx = wg->hs_sender_index;
@@ -534,38 +551,73 @@ static bool wg_consume_response(SYN_WG *wg, const uint8_t *msg, size_t len)
         return false;
     }
 
-    memcpy(h_tmp, wg->hs_hash, 32U);
-    memcpy(ck_tmp, wg->hs_chaining_key, 32U);
+    uint8_t k[32];
+    memcpy(wg->hs_work.h, wg->hs_hash, 32U);
+    memcpy(wg->hs_work.ck, wg->hs_chaining_key, 32U);
+    memcpy(wg->hs_work.eph_pub, msg + 12U, 32U);
+    memcpy(wg->hs_work.enc_static, msg + 44U, 16U);
+    wg->hs_work.expected_idx = expected_idx;
+    wg->hs_work.peer_idx = load32_le(msg + 4U);
 
-    const uint8_t *re_pub = msg + 12U;
-    wg_mix_key(ck_tmp, k, re_pub, 32U);
-    wg_mix_hash(h_tmp, re_pub, 32U);
+    wg_mix_key(wg->hs_work.ck, k, wg->hs_work.eph_pub, 32U);
+    wg_mix_hash(wg->hs_work.h, wg->hs_work.eph_pub, 32U);
+    wg->hs_work.dh_ok =
+        wg_dh_mix_key(wg->hs_work.ck, k, wg->hs_ephemeral_priv, wg->hs_work.eph_pub);
+    syn_secure_zero(k, sizeof(k));
 
-    /* DH #1 & DH #2: reject low-order responder ephemeral public key in constant time */
-    uint8_t dh_ok = wg_dh_mix_key(ck_tmp, k, wg->hs_ephemeral_priv, re_pub);
-    dh_ok &= wg_dh_mix_key(ck_tmp, k, wg->config.private_key, re_pub);
+    wg->hs_work.stage = 3U;
+    return true;
+}
 
-    wg_hkdf3(ck_tmp, buf, k, ck_tmp, wg->config.preshared_key, 32U);
-    wg_mix_hash(h_tmp, buf, 32U);
+/**
+ * @brief Response Stage 2: compute static-ephemeral DH, verify AEAD tag, and derive session keys.
+ * @param wg Client context with hs_work.stage == 3.
+ * @return true if response authenticated and session keys were committed.
+ */
+static bool wg_resp_stage2_dh_se_and_establish(SYN_WG *wg)
+{
+    uint8_t k[32];
+    uint8_t buf[32];
 
-    bool ok = (dh_ok != 0U) && wg_decrypt_and_hash(h_tmp, k, NULL, 0U, msg + 44U, NULL);
+    wg->hs_work.dh_ok &=
+        wg_dh_mix_key(wg->hs_work.ck, k, wg->config.private_key, wg->hs_work.eph_pub);
+    wg_hkdf3(wg->hs_work.ck, buf, k, wg->hs_work.ck, wg->config.preshared_key, 32U);
+    wg_mix_hash(wg->hs_work.h, buf, 32U);
+
+    bool ok = (wg->hs_work.dh_ok != 0U) &&
+              wg_decrypt_and_hash(wg->hs_work.h, k, NULL, 0U, wg->hs_work.enc_static, NULL);
     if (ok) {
-        wg->session.sender_index = expected_idx;
-        wg->session.receiver_index = load32_le(msg + 4U);
-        wg_hkdf2(wg->session.send_key, wg->session.recv_key, ck_tmp, (const uint8_t *)"", 0U);
+        wg->session.sender_index = wg->hs_work.expected_idx;
+        wg->session.receiver_index = wg->hs_work.peer_idx;
+        wg_hkdf2(wg->session.send_key, wg->session.recv_key, wg->hs_work.ck, (const uint8_t *)"",
+                 0U);
         wg->session.send_counter = 0U;
         wg->session.recv_counter = 0U;
         wg->session.recv_bitmap = 0U;
         wg->session.established_ms = syn_port_get_tick_ms();
         wg->rekey_in_progress = false;
         wg_clear_handshake_state(wg);
+    } else {
+        syn_secure_zero(&wg->hs_work, sizeof(wg->hs_work));
     }
 
-    syn_secure_zero(h_tmp, sizeof(h_tmp));
-    syn_secure_zero(ck_tmp, sizeof(ck_tmp));
     syn_secure_zero(k, sizeof(k));
     syn_secure_zero(buf, sizeof(buf));
     return ok;
+}
+
+/** @brief Parse and validate a handshake response, deriving session keys.
+ * @param wg  Client context.
+ * @param msg Received message data.
+ * @param len Received message length.
+ * @return true if response was valid and session established.
+ */
+static bool wg_consume_response(SYN_WG *wg, const uint8_t *msg, size_t len)
+{
+    if (!wg_resp_stage1_verify_and_dh_ee(wg, msg, len)) {
+        return false;
+    }
+    return wg_resp_stage2_dh_se_and_establish(wg);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -861,7 +913,8 @@ static bool wg_has_work(const SYN_WG *wg)
 {
     if (wg == NULL)
         return false;
-    if (wg->state == SYN_WG_DISCONNECTED || wg_socket_readable(wg) || wg_handshake_timed_out(wg))
+    if (wg->hs_work.stage != 0U || wg->state == SYN_WG_DISCONNECTED || wg_socket_readable(wg) ||
+        wg_handshake_timed_out(wg))
         return true;
 
     if (wg->state == SYN_WG_ESTABLISHED) {
@@ -894,9 +947,60 @@ static bool wg_task_valid(const SYN_PT *pt, const SYN_Task *task)
 }
 
 /**
+ * @brief Advance an in-progress cooperative handshake stage by one X25519 operation.
+ * @param wg Client context with hs_work.stage in [1..3].
+ * @return false if initial (non-rekey) initiation send failed and task should delay 5s.
+ */
+static bool wg_advance_hs_stage(SYN_WG *wg)
+{
+    if (wg->hs_work.stage == 1U) {
+        wg_init_stage2_dh_es(wg);
+        return true;
+    }
+    if (wg->hs_work.stage == 2U) {
+        bool is_rekey = wg->hs_work.is_rekey;
+        bool sent_ok = wg_init_stage3_dh_ss_and_send(wg);
+        if (!is_rekey) {
+            if (!sent_ok) {
+                return false;
+            }
+            wg->state = SYN_WG_HANDSHAKE_INIT;
+        }
+        return true;
+    }
+    if (wg_resp_stage2_dh_se_and_establish(wg)) {
+        SYN_METRIC_INC(wg_handshakes);
+        wg->state = SYN_WG_ESTABLISHED;
+        wg->last_recv_ms = syn_port_get_tick_ms();
+        wg_send_keepalive(wg);
+    }
+    return true;
+}
+
+/**
+ * @brief Step active handshake stage or start Stage 1 when disconnected.
+ * @param wg         Client context.
+ * @param need_delay [out] Set true if initial initiation failed and requires a 5s retry delay.
+ * @return true if a handshake stage was executed, false if no stage action was needed.
+ */
+static bool wg_step_hs_or_init(SYN_WG *wg, bool *need_delay)
+{
+    *need_delay = false;
+    if (wg->hs_work.stage != 0U) {
+        *need_delay = !wg_advance_hs_stage(wg);
+        return true;
+    }
+    if (wg->state == SYN_WG_DISCONNECTED) {
+        *need_delay = !wg_init_stage1_ephemeral(wg, false);
+        return true;
+    }
+    return false;
+}
+
+/**
  * @brief Evaluate established-session rekey/reject expiry and keepalive timers.
  * @param wg Client context.
- * @return true if session expired and transitioned to DISCONNECTED, false otherwise.
+ * @return true if session expired or rekey Stage 1 started, false otherwise.
  */
 static bool wg_step_established_timers(SYN_WG *wg)
 {
@@ -916,7 +1020,7 @@ static bool wg_step_established_timers(SYN_WG *wg)
     if (wg_rekey_due(wg, now)) {
         wg->last_handshake_ms = now;
         wg->rekey_in_progress = true;
-        (void)wg_send_initiation(wg);
+        return wg_init_stage1_ephemeral(wg, true);
     }
 
     if (wg->config.keepalive_interval_s > 0U &&
@@ -939,12 +1043,7 @@ static void wg_process_datagram(SYN_WG *wg, size_t len)
                          (wg->state == SYN_WG_ESTABLISHED && wg->rekey_in_progress));
 
     if (msg_type == SYN_WG_MSG_RESPONSE && accepting_resp) {
-        if (wg_consume_response(wg, wg->rx_buf, len)) {
-            SYN_METRIC_INC(wg_handshakes);
-            wg->state = SYN_WG_ESTABLISHED;
-            wg->last_recv_ms = syn_port_get_tick_ms();
-            wg_send_keepalive(wg);
-        }
+        (void)wg_resp_stage1_verify_and_dh_ee(wg, wg->rx_buf, len);
     } else if (msg_type == SYN_WG_MSG_TRANSPORT && wg->state == SYN_WG_ESTABLISHED) {
         (void)wg_handle_transport(wg, wg->rx_buf, len);
     }
@@ -975,12 +1074,16 @@ SYN_PT_Status syn_wg_task(SYN_PT *pt, SYN_Task *task)
             }
         }
 
-        if (wg->state == SYN_WG_DISCONNECTED) {
-            if (!wg_send_initiation(wg)) {
+        bool need_delay = false;
+        if (wg_step_hs_or_init(wg, &need_delay)) {
+            if (need_delay) {
                 PT_TASK_DELAY_MS(pt, task, 5000);
                 continue;
             }
-            wg->state = SYN_WG_HANDSHAKE_INIT;
+            if (wg->hs_work.stage != 0U || wg_socket_readable(wg)) {
+                PT_CONTINUE_IF_NEEDED(pt, task);
+                continue;
+            }
         }
 
         if (wg_handshake_timed_out(wg)) {
@@ -991,6 +1094,9 @@ SYN_PT_Status syn_wg_task(SYN_PT *pt, SYN_Task *task)
         }
 
         if (wg_step_established_timers(wg)) {
+            if (wg->hs_work.stage != 0U) {
+                PT_CONTINUE_IF_NEEDED(pt, task);
+            }
             continue;
         }
 
@@ -998,7 +1104,7 @@ SYN_PT_Status syn_wg_task(SYN_PT *pt, SYN_Task *task)
         int n = syn_port_udp_recvfrom(wg->udp_sock, wg->rx_buf, wg->rx_buf_size, &from, 0);
         if (n > 0) {
             wg_process_datagram(wg, (size_t)n);
-            if (wg_socket_readable(wg)) {
+            if (wg->hs_work.stage != 0U || wg_socket_readable(wg)) {
                 PT_CONTINUE_IF_NEEDED(pt, task);
                 continue;
             }

@@ -6,6 +6,7 @@
 
 #include "mocks/mock_port.h"
 #include "syntropic/net/syn_httpd.h"
+#include "syntropic/sched/syn_sched.h"
 #include "unity/unity.h"
 
 #include <stdio.h>
@@ -1330,6 +1331,58 @@ static void test_tier_a_httpd_ows_and_read_body_null(void)
     TEST_ASSERT_EQUAL_size_t(0U, resp.body_consumed);
 }
 
+static SYN_PT_Status httpd_peer_more_task(SYN_PT *pt, SYN_Task *task)
+{
+    uint32_t *runs = (uint32_t *)task->user_data;
+    (*runs)++;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static void test_httpd_task_cooperative_mid_request_yield(void)
+{
+    const char *req_get = "GET / HTTP/1.1\r\nHost: test\r\n\r\n";
+
+    /* 1. Contended under SYN_Sched: syn_httpd_task yields PT_MORE at SYN_HTTPD_DISPATCHING
+     *    (after reading & parsing headers, before executing route handler!) */
+    setup_server();
+    handler_called = false;
+    mock_sock_connected = true;
+    mock_sock_accept_ok = true;
+    mock_sock_set_response(req_get, strlen(req_get));
+
+    uint32_t peer_runs = 0U;
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    syn_task_create(&tasks[0], "peer", httpd_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_task_create(&tasks[1], "httpd", syn_httpd_task, SYN_PRIO_HIGH, &srv);
+    syn_sched_init(&sched, tasks, 2U);
+
+    /* Dispatch 1: peer runs and enters PT_MORE */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(1U, peer_runs);
+
+    /* Dispatch 2: httpd accepts client, reads & parses request into SYN_HTTPD_DISPATCHING,
+     * and yields PT_MORE via PT_CONTINUE_IF_NEEDED before calling route handler */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL(SYN_HTTPD_DISPATCHING, srv.state);
+    TEST_ASSERT_FALSE(handler_called);
+
+    /* Dispatch 3: peer runs immediately without waiting for route handler execution */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(2U, peer_runs);
+    TEST_ASSERT_FALSE(handler_called);
+
+    /* Dispatch 4: httpd resumes from SYN_HTTPD_DISPATCHING, executes route handler, and
+     * yields PT_IDLE with srv.state == SYN_HTTPD_IDLE */
+    syn_sched_run(&sched);
+    TEST_ASSERT_TRUE(handler_called);
+    TEST_ASSERT_EQUAL(SYN_HTTPD_IDLE, srv.state);
+}
+
 void run_httpd_tests(void)
 {
     RUN_TEST(test_httpd_get_root);
@@ -1383,4 +1436,5 @@ void run_httpd_tests(void)
     syn_httpd_header(&resp_dummy, "Key", NULL);
     syn_httpd_body(NULL, "data", 4);
     RUN_TEST(test_tier_a_httpd_ows_and_read_body_null);
+    RUN_TEST(test_httpd_task_cooperative_mid_request_yield);
 }

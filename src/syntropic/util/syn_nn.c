@@ -204,51 +204,116 @@ SYN_Status syn_nn_softmax_q7(const q7_t *inputs, q7_t *outputs, size_t num_input
     return SYN_OK;
 }
 
+/**
+ * @brief Validate Scaled Dot-Product Self-Attention dimensions and buffer pointers.
+ * @param q       Query matrix pointer [seq_len x d_k].
+ * @param k       Key matrix pointer [seq_len x d_k].
+ * @param v       Value matrix pointer [seq_len x d_v].
+ * @param out     Output matrix pointer [seq_len x d_v].
+ * @param seq_len Sequence length (1..32).
+ * @param d_k     Key/query embedding dimension (> 0).
+ * @param d_v     Value embedding dimension (> 0).
+ * @return true if all pointers are non-NULL and dimensions are within bounds.
+ */
+static bool nn_attention_params_valid(const q7_t *q, const q7_t *k, const q7_t *v, const q7_t *out,
+                                      size_t seq_len, size_t d_k, size_t d_v)
+{
+    return (q != NULL) && (k != NULL) && (v != NULL) && (out != NULL) && (seq_len > 0U) &&
+           (d_k > 0U) && (d_v > 0U) && (seq_len <= 32U);
+}
+
+/**
+ * @brief Compute Scaled Dot-Product Attention output row for a single query token.
+ * @param q_i     Query row pointer for token i [d_k].
+ * @param k       Key matrix pointer [seq_len x d_k].
+ * @param v       Value matrix pointer [seq_len x d_v].
+ * @param seq_len Sequence length (1..32).
+ * @param d_k     Key/query embedding dimension.
+ * @param d_v     Value embedding dimension.
+ * @param out_i   [out] Output row pointer for token i [d_v].
+ * @param shift   Clamped right-shift scaling factor (0..31).
+ */
+static void nn_attention_token_q7(const q7_t *q_i, const q7_t *k, const q7_t *v, size_t seq_len,
+                                  size_t d_k, size_t d_v, q7_t *out_i, uint8_t shift)
+{
+    q7_t attn_scores[32];
+
+    for (size_t j = 0U; j < seq_len; j++) {
+        const q7_t *k_j = &k[j * d_k];
+        q16_t acc = 0;
+
+        for (size_t m = 0U; m < d_k; m++) {
+            acc = q7_mac(acc, q_i[m], k_j[m]);
+        }
+
+        if (shift > 0U) {
+            acc = (q16_t)((int64_t)acc >> shift);
+        }
+
+        attn_scores[j] = q16_to_q7(acc);
+    }
+
+    q7_t attn_weights[32];
+    syn_nn_softmax_q7(attn_scores, attn_weights, seq_len);
+
+    for (size_t m = 0U; m < d_v; m++) {
+        q16_t acc = 0;
+        for (size_t j = 0U; j < seq_len; j++) {
+            acc = q7_mac(acc, attn_weights[j], v[j * d_v + m]);
+        }
+        out_i[m] = q16_to_q7(acc);
+    }
+}
+
 SYN_Status syn_nn_attention_q7(const q7_t *q, const q7_t *k, const q7_t *v, size_t seq_len,
                                size_t d_k, size_t d_v, q7_t *out, uint8_t attn_shift)
 {
-    if (!q || !k || !v || !out || seq_len == 0 || d_k == 0 || d_v == 0 || seq_len > 32) {
+    if (!nn_attention_params_valid(q, k, v, out, seq_len, d_k, d_v)) {
         return SYN_INVALID_PARAM;
     }
 
     uint8_t shift = (attn_shift > 31U) ? 31U : attn_shift;
 
-    /* Process attention for each query token */
-    for (size_t i = 0; i < seq_len; i++) {
-        const q7_t *q_i = &q[i * d_k];
-        q7_t attn_scores[32];
-
-        /* Compute dot-product Q_i * K_j^T for all key tokens */
-        for (size_t j = 0; j < seq_len; j++) {
-            const q7_t *k_j = &k[j * d_k];
-            q16_t acc = 0;
-
-            for (size_t m = 0; m < d_k; m++) {
-                acc = q7_mac(acc, q_i[m], k_j[m]);
-            }
-
-            if (shift > 0U) {
-                acc = (q16_t)((int64_t)acc >> shift);
-            }
-
-            attn_scores[j] = q16_to_q7(acc);
-        }
-
-        /* Apply Softmax over attention scores */
-        q7_t attn_weights[32];
-        syn_nn_softmax_q7(attn_scores, attn_weights, seq_len);
-
-        /* Compute weighted sum over Values V */
-        for (size_t m = 0; m < d_v; m++) {
-            q16_t acc = 0;
-            for (size_t j = 0; j < seq_len; j++) {
-                acc = q7_mac(acc, attn_weights[j], v[j * d_v + m]);
-            }
-            out[i * d_v + m] = q16_to_q7(acc);
-        }
+    for (size_t i = 0U; i < seq_len; i++) {
+        nn_attention_token_q7(&q[i * d_k], k, v, seq_len, d_k, d_v, &out[i * d_v], shift);
     }
 
     return SYN_OK;
+}
+
+SYN_PT_Status syn_nn_attention_pt(SYN_PT *pt, const q7_t *q, const q7_t *k, const q7_t *v,
+                                  size_t seq_len, size_t d_k, size_t d_v, q7_t *out,
+                                  uint8_t attn_shift, size_t *current_token, size_t chunk_size)
+{
+    if (pt == NULL) {
+        return PT_EXITED;
+    }
+    PT_BEGIN(pt);
+
+    if (!nn_attention_params_valid(q, k, v, out, seq_len, d_k, d_v) || current_token == NULL) {
+        PT_EXIT(pt);
+    }
+
+    *current_token = 0U;
+
+    while (*current_token < seq_len) {
+        size_t rem = seq_len - *current_token;
+        size_t step = (chunk_size == 0U || chunk_size > rem) ? rem : chunk_size;
+        size_t end_token = *current_token + step;
+        uint8_t shift = (attn_shift > 31U) ? 31U : attn_shift;
+
+        for (size_t i = *current_token; i < end_token; i++) {
+            nn_attention_token_q7(&q[i * d_k], k, v, seq_len, d_k, d_v, &out[i * d_v], shift);
+        }
+
+        *current_token = end_token;
+
+        if (*current_token < seq_len) {
+            PT_CONTINUE(pt);
+        }
+    }
+
+    PT_END(pt);
 }
 
 SYN_Status syn_nn_conv1d_q7(const q7_t *inputs, size_t seq_len, size_t num_channels,

@@ -4,6 +4,7 @@
  */
 
 #include "syntropic/dsp/syn_dsp.h"
+#include "syntropic/sched/syn_sched.h"
 #include "syntropic/util/syn_nn.h"
 #include "unity/unity.h"
 
@@ -688,6 +689,177 @@ static void test_r5_nn_fixed_softmax_and_large_out_shift(void)
     TEST_ASSERT_EQUAL_INT8(0, out[0]);
 }
 
+typedef struct {
+    SYN_PT child_pt;
+    size_t progress;
+    uint32_t dispatches;
+    bool wait_gate;
+    q7_t in_seq[4 * 2];
+    q7_t conv_w[2 * 2 * 2];
+    q16_t conv_b[2];
+    q7_t conv_out[3 * 2];
+    q7_t attn_out[3 * 2];
+    q7_t dense_w[4 * 6];
+    q16_t dense_b[4];
+    q7_t dense_out[4];
+} NnPipelineTaskCtx;
+
+static SYN_PT_Status nn_idle_gate_child(SYN_PT *pt, const bool *gate)
+{
+    PT_BEGIN(pt);
+    PT_WAIT_UNTIL(pt, *gate);
+    PT_END(pt);
+}
+
+static SYN_PT_Status nn_pipeline_task(SYN_PT *pt, SYN_Task *task)
+{
+    NnPipelineTaskCtx *ctx = (NnPipelineTaskCtx *)task->user_data;
+    ctx->dispatches++;
+
+    PT_BEGIN(pt);
+
+    PT_SPAWN_IF_NEEDED(pt, task, &ctx->child_pt,
+                       nn_idle_gate_child(&ctx->child_pt, &ctx->wait_gate));
+
+    PT_SPAWN_IF_NEEDED(pt, task, &ctx->child_pt,
+                       syn_nn_conv1d_pt(&ctx->child_pt, ctx->in_seq, 4U, 2U, ctx->conv_w,
+                                        ctx->conv_b, ctx->conv_out, 2U, 2U, 1U, SYN_NN_ACT_RELU, 0U,
+                                        &ctx->progress, 1U));
+
+    PT_SPAWN_IF_NEEDED(pt, task, &ctx->child_pt,
+                       syn_nn_attention_pt(&ctx->child_pt, ctx->conv_out, ctx->conv_out,
+                                           ctx->conv_out, 3U, 2U, 2U, ctx->attn_out, 0U,
+                                           &ctx->progress, 1U));
+
+    PT_SPAWN_IF_NEEDED(pt, task, &ctx->child_pt,
+                       syn_nn_dense_pt(&ctx->child_pt, ctx->attn_out, 6U, ctx->dense_w,
+                                       ctx->dense_b, ctx->dense_out, 4U, SYN_NN_ACT_NONE, 0U,
+                                       &ctx->progress, 1U));
+
+    PT_END(pt);
+}
+
+static SYN_PT_Status nn_contending_peer_task(SYN_PT *pt, SYN_Task *task)
+{
+    uint32_t *runs = (uint32_t *)task->user_data;
+    (*runs)++;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static void test_nn_attention_pt_and_sched_cooperative_pipeline(void)
+{
+    q7_t q[4 * 2] = {64, 16, -32, 48, 32, -16, 16, 64};
+    q7_t k[4 * 2] = {48, 32, -16, 64, 64, -32, 32, 32};
+    q7_t v[4 * 2] = {40, -20, 20, 60, -40, 30, 50, 10};
+    q7_t ref_out[4 * 2] = {0};
+    q7_t pt_out[4 * 2] = {0};
+    SYN_PT pt;
+    size_t cur = 0U;
+
+    /* 1. NULL and invalid parameter checks for syn_nn_attention_pt */
+    TEST_ASSERT_EQUAL(PT_EXITED,
+                      syn_nn_attention_pt(NULL, q, k, v, 4U, 2U, 2U, pt_out, 0U, &cur, 1U));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED,
+                      syn_nn_attention_pt(&pt, NULL, k, v, 4U, 2U, 2U, pt_out, 0U, &cur, 1U));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED,
+                      syn_nn_attention_pt(&pt, q, k, v, 4U, 2U, 2U, pt_out, 0U, NULL, 1U));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED,
+                      syn_nn_attention_pt(&pt, q, k, v, 33U, 2U, 2U, pt_out, 0U, &cur, 1U));
+
+    /* 2. Standalone chunked execution matches syn_nn_attention_q7 bit-for-bit */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_nn_attention_q7(q, k, v, 4U, 2U, 2U, ref_out, 1U));
+    PT_INIT(&pt);
+    size_t yields = 0U;
+    SYN_PT_Status st;
+    do {
+        st = syn_nn_attention_pt(&pt, q, k, v, 4U, 2U, 2U, pt_out, 1U, &cur, 1U);
+        if (st == PT_MORE) {
+            yields++;
+        }
+    } while (st == PT_MORE);
+    TEST_ASSERT_EQUAL(PT_ENDED, st);
+    TEST_ASSERT_EQUAL_UINT32(3U, (uint32_t)yields);
+    TEST_ASSERT_EQUAL_INT8_ARRAY(ref_out, pt_out, 8);
+
+    /* chunk_size == 0, chunk_size > rem, and shift > 31 clamping */
+    memset(pt_out, 0, sizeof(pt_out));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_MORE, syn_nn_attention_pt(&pt, q, k, v, 4U, 2U, 2U, pt_out, 1U, &cur, 1U));
+    TEST_ASSERT_EQUAL(PT_ENDED,
+                      syn_nn_attention_pt(&pt, q, k, v, 4U, 2U, 2U, pt_out, 1U, &cur, SIZE_MAX));
+    TEST_ASSERT_EQUAL_INT8_ARRAY(ref_out, pt_out, 8);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_ENDED,
+                      syn_nn_attention_pt(&pt, q, k, v, 4U, 2U, 2U, pt_out, 32U, &cur, 0U));
+    TEST_ASSERT_EQUAL_UINT32(4U, (uint32_t)cur);
+
+    /* 3. Scheduled Conv1D -> Attention -> Dense pipeline via PT_SPAWN_IF_NEEDED */
+    NnPipelineTaskCtx ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    for (size_t i = 0U; i < 8U; i++) {
+        ctx.in_seq[i] = (q7_t)(16 + (int)i * 8);
+        ctx.conv_w[i] = (q7_t)(32 - (int)i * 4);
+    }
+    for (size_t i = 0U; i < 24U; i++) {
+        ctx.dense_w[i] = (q7_t)(24 - (int)(i % 7U) * 4);
+    }
+
+    /* Compute synchronous reference */
+    q7_t ref_conv[6] = {0}, ref_attn[6] = {0}, ref_dense[4] = {0};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_nn_conv1d_q7(ctx.in_seq, 4U, 2U, ctx.conv_w, ctx.conv_b, ref_conv,
+                                               2U, 2U, 1U, SYN_NN_ACT_RELU, 0U));
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_nn_attention_q7(ref_conv, ref_conv, ref_conv, 3U, 2U, 2U, ref_attn, 0U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_nn_dense_q7(ref_attn, 6U, ctx.dense_w, ctx.dense_b, ref_dense, 4U,
+                                              SYN_NN_ACT_NONE, 0U));
+
+    /* 3a. Uncontended: first yields PT_IDLE while wait_gate == false, then completes ALL 3 layers
+     *     (3 conv steps + 3 attention tokens + 4 dense neurons) in 1 single scheduler dispatch! */
+    SYN_Task single_task[1];
+    SYN_Sched sched;
+    syn_task_create(&single_task[0], "nn_pipe", nn_pipeline_task, SYN_PRIO_NORMAL, &ctx);
+    syn_sched_init(&sched, single_task, 1U);
+
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(1U, ctx.dispatches);
+    TEST_ASSERT_EQUAL(SYN_TASK_READY, single_task[0].state);
+
+    ctx.wait_gate = true;
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(2U, ctx.dispatches);
+    TEST_ASSERT_EQUAL(SYN_TASK_DEAD, single_task[0].state);
+    TEST_ASSERT_EQUAL_INT8_ARRAY(ref_dense, ctx.dense_out, 4);
+
+    /* 3b. Contended: equal-priority PT_MORE peer forces PT_SPAWN_IF_NEEDED to yield after every
+     *     single chunk across Conv1D (3), Attention (3), and Dense (4) = 8 mid-layer yields! */
+    memset(ctx.conv_out, 0, sizeof(ctx.conv_out));
+    memset(ctx.attn_out, 0, sizeof(ctx.attn_out));
+    memset(ctx.dense_out, 0, sizeof(ctx.dense_out));
+    ctx.dispatches = 0U;
+    ctx.wait_gate = true;
+    uint32_t peer_runs = 0U;
+
+    SYN_Task pair_tasks[2];
+    syn_task_create(&pair_tasks[0], "peer", nn_contending_peer_task, SYN_PRIO_NORMAL, &peer_runs);
+    syn_task_create(&pair_tasks[1], "nn_pipe", nn_pipeline_task, SYN_PRIO_NORMAL, &ctx);
+    syn_sched_init(&sched, pair_tasks, 2U);
+
+    while (pair_tasks[1].state != SYN_TASK_DEAD) {
+        syn_sched_run(&sched);
+    }
+    /* 2 leftoverconv chunks + 2 leftover attn chunks + 3 leftover dense chunks + 1 initial = 8 */
+    TEST_ASSERT_EQUAL_UINT32(8U, ctx.dispatches);
+    TEST_ASSERT_TRUE(peer_runs >= 8U);
+    TEST_ASSERT_EQUAL_INT8_ARRAY(ref_dense, ctx.dense_out, 4);
+}
+
 void run_nn_tests(void)
 {
     RUN_TEST(test_nn_activations);
@@ -710,4 +882,5 @@ void run_nn_tests(void)
     RUN_TEST(test_nn_pt_chunk_size_overflow_and_zero_resume);
     RUN_TEST(test_r4_nn_quant_zero_point_and_shift_clamp);
     RUN_TEST(test_r5_nn_fixed_softmax_and_large_out_shift);
+    RUN_TEST(test_nn_attention_pt_and_sched_cooperative_pipeline);
 }

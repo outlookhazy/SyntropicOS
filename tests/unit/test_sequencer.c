@@ -318,10 +318,11 @@ static void test_sequencer_reinit_in_step0_and_on_complete_set_loop(void)
 {
     mock_tick_ms = 0U;
 
-    /* 1. Step 0 on run 1 calls syn_seq_init + syn_seq_start: step B[0] must NOT be skipped */
+    /* 1. Step 0 on run 1 calls syn_seq_init + syn_seq_start: all immediate steps in B execute */
     SYN_Sequencer seq;
-    SeqReinitCtx rc = {&seq, NULL, 2U, 0, 0};
-    SYN_SeqStep steps_b[2] = {
+    SeqReinitCtx rc = {&seq, NULL, 3U, 0, 0};
+    SYN_SeqStep steps_b[3] = {
+        {seq_step_b_action, &rc, 0U},
         {seq_step_b_action, &rc, 25U},
         {seq_step_b_action, &rc, 0U},
     };
@@ -334,13 +335,13 @@ static void test_sequencer_reinit_in_step0_and_on_complete_set_loop(void)
     syn_seq_start(&seq);
     TEST_ASSERT_FALSE(syn_seq_update(&seq));
     TEST_ASSERT_EQUAL_INT(1, rc.step_a_runs);
-    TEST_ASSERT_EQUAL_INT(1, rc.step_b_runs);
+    TEST_ASSERT_EQUAL_INT(2, rc.step_b_runs);
     TEST_ASSERT_EQUAL_INT(SYN_SEQ_WAITING, seq.state);
-    TEST_ASSERT_EQUAL_UINT16(0U, syn_seq_current_step(&seq));
+    TEST_ASSERT_EQUAL_UINT16(1U, syn_seq_current_step(&seq));
 
     mock_tick_advance(25U);
     TEST_ASSERT_TRUE(syn_seq_update(&seq));
-    TEST_ASSERT_EQUAL_INT(2, rc.step_b_runs);
+    TEST_ASSERT_EQUAL_INT(3, rc.step_b_runs);
     TEST_ASSERT_TRUE(syn_seq_is_done(&seq));
 
     /* 2. on_complete calling syn_seq_set_loop(seq, false) stops cleanly without extra step-0 run */

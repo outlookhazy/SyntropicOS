@@ -168,9 +168,7 @@ static bool sched_is_async_wake(const SYN_Task *peer, uint32_t now)
 
 static uint32_t sched_wakeup_base_tick(const SYN_Task *task, uint32_t now, bool sleeping)
 {
-    if (sleeping && task->delay_until != 0U && (int32_t)(now - task->delay_until) >= 0 &&
-        (task->wait_event == NULL ||
-         (syn_event_flags_get(task->wait_event) & task->wait_mask) == 0U)) {
+    if (sleeping && task->delay_until != 0U && (int32_t)(now - task->delay_until) >= 0) {
         return task->delay_until;
     }
     return now;
@@ -291,28 +289,12 @@ static bool sched_prepare_task(SYN_Sched *sched, SYN_Task *task, uint32_t now, b
     return true;
 }
 
-static void sched_resleep_event_peers(SYN_Sched *sched, const SYN_Task *winner,
-                                      const SYN_EventFlags *evt, uint32_t now)
-{
-    for (size_t i = 0U; i < sched->task_count; i++) {
-        SYN_Task *peer = &sched->tasks[i];
-        if (peer != winner && peer->wait_event == evt && peer->state != (uint8_t)SYN_TASK_DEAD &&
-            peer->state != (uint8_t)SYN_TASK_SUSPENDED &&
-            (peer->sched_flags & SYN_SCHED_FLAG_SLEEPING) == 0U &&
-            !sched_is_event_ready(peer, now)) {
-            peer->state = (uint8_t)SYN_TASK_BLOCKED;
-            peer->sched_flags = SYN_SCHED_FLAG_SLEEPING;
-        }
-    }
-}
-
-static void sched_resolve_event_wait(SYN_Sched *sched, SYN_Task *task, uint32_t now)
+static void sched_resolve_event_wait(SYN_Task *task, uint32_t now)
 {
     syn_port_enter_critical();
-    SYN_EventFlags *evt = task->wait_event;
     uint32_t matched = 0U;
     (void)syn_event_flags_wait(
-        evt, task->wait_mask,
+        task->wait_event, task->wait_mask,
         (uint32_t)SYN_EVENT_FLAGS_WAIT_ANY | (uint32_t)SYN_EVENT_FLAGS_AUTO_CLEAR, &matched);
     bool timed_out = (task->delay_until != 0U) && ((int32_t)(now - task->delay_until) >= 0);
     if (matched != 0U || timed_out) {
@@ -323,7 +305,6 @@ static void sched_resolve_event_wait(SYN_Sched *sched, SYN_Task *task, uint32_t 
             task->state = (uint8_t)SYN_TASK_READY;
         }
     }
-    sched_resleep_event_peers(sched, task, evt, now);
     syn_port_exit_critical();
 }
 
@@ -445,14 +426,20 @@ static void sched_fold_sleeping_delay(const SYN_Sched *sched, const SYN_Task *t,
     sched_fold_deadline(now + clamped, earliest_due, has_deadline);
 }
 
-static void sched_inspect_sleeping_peer(const SYN_Sched *sched, const SYN_Task *t, uint8_t run_prio,
+static void sched_inspect_sleeping_peer(const SYN_Sched *sched, SYN_Task *t, uint8_t run_prio,
                                         uint32_t now, uint32_t *earliest_due, bool *has_deadline,
                                         bool *watch_wakeups)
 {
-    if (t->state != (uint8_t)SYN_TASK_SUSPENDED && t->delay_until != 0U) {
-        sched_fold_sleeping_delay(sched, t, run_prio, now, earliest_due, has_deadline);
+    if (t->state != (uint8_t)SYN_TASK_SUSPENDED) {
+        if (t->delay_until != 0U) {
+            sched_fold_sleeping_delay(sched, t, run_prio, now, earliest_due, has_deadline);
+        }
+        if (t->state == (uint8_t)SYN_TASK_BLOCKED || t->wait_event != NULL) {
+            t->state = (uint8_t)SYN_TASK_BLOCKED;
+            t->sched_flags = SYN_SCHED_FLAG_SLEEPING;
+        }
     }
-    if (t->state != (uint8_t)SYN_TASK_READY || t->wait_event != NULL) {
+    if (t->state != (uint8_t)SYN_TASK_READY) {
         *watch_wakeups = true;
     }
 }
@@ -467,6 +454,7 @@ static void sched_update_share_state(SYN_Sched *sched, const SYN_Task *running, 
 
     for (size_t i = 0U; i < sched->task_count; i++) {
         SYN_Task *t = &sched->tasks[i];
+        t->sched = sched;
         if (t == running) {
             continue;
         }
@@ -789,7 +777,7 @@ bool syn_sched_run(SYN_Sched *sched)
     }
 
     if (best_task->wait_event != NULL) {
-        sched_resolve_event_wait(sched, best_task, now);
+        sched_resolve_event_wait(best_task, now);
     }
 
     sched_update_share_state(sched, best_task, now);

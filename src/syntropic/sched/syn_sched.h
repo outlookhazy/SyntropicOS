@@ -167,6 +167,37 @@ bool syn_task_should_share(const SYN_Task *task);
         }                                  \
     } while (0)
 
+/**
+ * @brief Spawn a child protothread, continuing across PT_MORE chunks until
+ *        another task needs the CPU or the child yields PT_IDLE / exits.
+ *
+ * When uncontended (!syn_task_should_share(task)), consecutive PT_MORE chunks
+ * from @p func execute back-to-back in a single scheduler dispatch without
+ * context-switch overhead. The moment a peer task requires CPU time, yields
+ * PT_MORE and resumes the child from its saved continuation on the next turn.
+ *
+ * @param pt    Parent protothread control block.
+ * @param task  Pointer to the owning SYN_Task.
+ * @param child Child protothread control block (SYN_PT *).
+ * @param func  Child protothread invocation expression.
+ */
+#define PT_SPAWN_IF_NEEDED(pt, task, child, func)                         \
+    do {                                                                  \
+        PT_INIT(child);                                                   \
+        (pt)->lc = __LINE__;                                              \
+        SYN_FALLTHROUGH;                                                  \
+    case __LINE__:                                                        \
+        for (;;) {                                                        \
+            SYN_PT_Status _pt_child_st = (func);                          \
+            if (_pt_child_st >= PT_EXITED) {                              \
+                break;                                                    \
+            }                                                             \
+            if (_pt_child_st == PT_IDLE || syn_task_should_share(task)) { \
+                return _pt_child_st;                                      \
+            }                                                             \
+        }                                                                 \
+    } while (0)
+
 /* ── Scheduler execution ────────────────────────────────────────────────── */
 
 /**

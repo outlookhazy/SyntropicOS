@@ -177,6 +177,14 @@ size_t syn_timer_wheel_step(SYN_TimerWheel *wheel)
         if (wheel->expired_head != NULL) {
             wheel->expired_head->prev = NULL;
         }
+    } else {
+        for (SYN_TimerWheelNode *p = barrier.prev; p != NULL;) {
+            SYN_TimerWheelNode *prev = p->prev;
+            p->next = NULL;
+            p->prev = NULL;
+            p->active = false;
+            p = prev;
+        }
     }
 
     return fired_count;

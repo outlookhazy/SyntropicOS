@@ -126,6 +126,22 @@ typedef struct {
     uint32_t established_ms; /**< Tick when session was established        */
 } SYN_WgSession;
 
+/**
+ * @brief Staged handshake crypto scratchpad for cooperative X25519 yielding.
+ */
+typedef struct {
+    uint8_t eph_priv[32];   /**< Staged ephemeral private key                 */
+    uint8_t eph_pub[32];    /**< Staged local or peer ephemeral public key    */
+    uint8_t ck[32];         /**< Staged Noise chaining key                    */
+    uint8_t h[32];          /**< Staged Noise handshake hash                  */
+    uint8_t enc_static[48]; /**< Encrypted static key (48B) or resp tag (16B) */
+    uint32_t expected_idx;  /**< Expected initiator sender index for response */
+    uint32_t peer_idx;      /**< Responder sender index from response         */
+    uint8_t dh_ok;          /**< Constant-time non-zero DH accumulator        */
+    uint8_t stage;          /**< Active cooperative stage (0 = idle, 1..3)    */
+    bool is_rekey;          /**< True when staged initiation is for rekey     */
+} SYN_WgHsWork;
+
 /* ── Client context ─────────────────────────────────────────────────────── */
 
 /**
@@ -152,6 +168,7 @@ typedef struct {
     uint8_t hs_ephemeral_priv[32]; /**< Ephemeral private key                        */
     uint8_t hs_chaining_key[32];   /**< Noise chaining key (CK)                      */
     uint8_t hs_hash[32];           /**< Noise handshake hash (H)                     */
+    SYN_WgHsWork hs_work;          /**< Cooperative per-X25519 stage scratchpad      */
     uint32_t hs_sender_index;      /**< Pending handshake initiator sender index     */
     bool hs_valid;                 /**< True when hs_* holds an in-flight initiation */
     bool rekey_in_progress;        /**< True while negotiating hitless rekey session */

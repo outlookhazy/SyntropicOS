@@ -3621,6 +3621,120 @@ static void test_self_restart_then_suspend_stays_suspended_at_pt_begin(void)
     TEST_ASSERT_EQUAL_INT(2, ctx2.top_entries);
 }
 
+typedef struct {
+    SYN_EventGroup *evt;
+    SYN_Task *peer_slot;
+    bool share_after_fast_consume;
+    bool share_after_isr_rearm;
+    bool share_after_respawn_boost;
+} FastEvtAndRespawnCtx;
+
+static SYN_PT_Status ready_fast_event_consumer_fn(SYN_PT *pt, SYN_Task *task)
+{
+    FastEvtAndRespawnCtx *ctx = (FastEvtAndRespawnCtx *)task->user_data;
+    PT_BEGIN(pt);
+    /* Step 1: Yield READY on first pass so peer_slot can block on ctx->evt */
+    PT_CONTINUE(pt);
+    /* Step 2: Fast-path consume 0x01U via PT_BLOCK_EVENT while peer_slot is blocked on ctx->evt */
+    PT_BLOCK_EVENT(pt, task, ctx->evt, 0x01U);
+    ctx->share_after_fast_consume = syn_task_should_share(task);
+    syn_event_set(ctx->evt, 0x01U);
+    ctx->share_after_isr_rearm = syn_task_should_share(task);
+    PT_END(pt);
+}
+
+static SYN_PT_Status respawn_then_refresh_then_boost_fn(SYN_PT *pt, SYN_Task *task)
+{
+    FastEvtAndRespawnCtx *ctx = (FastEvtAndRespawnCtx *)task->user_data;
+    PT_BEGIN(pt);
+    syn_task_create(ctx->peer_slot, "respawn_low", pass_task, SYN_PRIO_LOW, NULL);
+    /* Trigger mid-dispatch sched_update_share_state before boosting peer_slot */
+    syn_task_restore_priority(task);
+    syn_task_boost_priority(ctx->peer_slot, SYN_PRIO_CRITICAL);
+    ctx->share_after_respawn_boost = syn_task_should_share(task);
+    PT_END(pt);
+}
+
+static SYN_PT_Status low_evt_timeout_20ms_fn(SYN_PT *pt, SYN_Task *task)
+{
+    SYN_EventGroup *evt = (SYN_EventGroup *)task->user_data;
+    PT_BEGIN(pt);
+    PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, evt, 0x01U, 20U, NULL);
+    run_log[run_log_idx++] = 99;
+    PT_END(pt);
+}
+
+static void test_fastpath_event_autoclear_late_evt_timeout_and_respawn_boost(void)
+{
+    /* 1. Ready task fast-path consuming PT_BLOCK_EVENT auto-clears flag, refreshes share state,
+     * and resleeps speculatively-woken peer so should_share is false until ISR re-sets flag */
+    SYN_EventGroup evt;
+    syn_event_init(&evt);
+    SharedEvtResleepCtx pctx = {&evt, false, false, 0, 0};
+    FastEvtAndRespawnCtx fctx = {&evt, NULL, true, false, false};
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+
+    mock_tick_ms = 0U;
+    syn_task_create(&tasks[0], "r_fast", ready_fast_event_consumer_fn, SYN_PRIO_HIGH, &fctx);
+    syn_task_create(&tasks[1], "p_wait", shared_evt_w1_fn, SYN_PRIO_HIGH, &pctx);
+    fctx.peer_slot = &tasks[1];
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched); /* r_fast yields READY (rr advances to 1) */
+    syn_sched_run(&sched); /* p_wait blocks on evt (rr advances to 0) */
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_BLOCKED, tasks[1].state);
+
+    syn_event_set(&evt, 0x01U);
+    syn_sched_run(&sched); /* r_fast wins RR, fast-path consumes 0x01U via PT_BLOCK_EVENT */
+    TEST_ASSERT_FALSE(fctx.share_after_fast_consume);
+    TEST_ASSERT_TRUE(fctx.share_after_isr_rearm);
+
+    /* 2. Expired PT_BLOCK_EVENT_WITH_TIMEOUT anchors due_ms to delay_until even if event arrives
+     * later before task is dispatched */
+    SYN_EventGroup tevt;
+    syn_event_init(&tevt);
+    SYN_Task t_tasks[2];
+    SYN_Sched t_sched;
+    int high_id = 11;
+
+    mock_tick_ms = 0U;
+    log_reset();
+    syn_task_create(&t_tasks[0], "high_work", continue_task, SYN_PRIO_HIGH, &high_id);
+    syn_task_create(&t_tasks[1], "low_evto", low_evt_timeout_20ms_fn, SYN_PRIO_LOW, &tevt);
+    syn_sched_init(&t_sched, t_tasks, 2U);
+
+    syn_task_suspend(&t_tasks[0]);
+    syn_sched_run(&t_sched); /* low_evto blocks with delay_until = 20 */
+
+    /* At t=30 (10ms after timeout expired at t=20), event also fires; at t=70 (20+50), low_evto
+     * is OVERDUE relative to timeout tick 20 and must preempt high_work resumed at t=68 */
+    mock_tick_ms = 30U;
+    syn_event_set(&tevt, 0x01U);
+    mock_tick_ms = 68U;
+    syn_task_resume(&t_tasks[0]);
+    mock_tick_ms = 70U;
+    syn_sched_run(&t_sched);
+    TEST_ASSERT_EQUAL_INT(1, run_log_idx);
+    TEST_ASSERT_EQUAL_INT(99, run_log[0]);
+
+    /* 3. Mid-dispatch dead-slot respawn binds task->sched during share refresh so subsequent
+     * syn_task_boost_priority on the respawned task updates syn_task_should_share() */
+    SYN_Task r_tasks[2];
+    SYN_Sched r_sched;
+    FastEvtAndRespawnCtx rctx = {NULL, &r_tasks[1], false, false, false};
+
+    mock_tick_ms = 0U;
+    syn_task_create(&r_tasks[0], "spawner", respawn_then_refresh_then_boost_fn, SYN_PRIO_HIGH,
+                    &rctx);
+    syn_task_create(&r_tasks[1], "dead", pass_task, SYN_PRIO_LOW, NULL);
+    syn_sched_init(&r_sched, r_tasks, 2U);
+    r_tasks[1].state = SYN_TASK_DEAD;
+
+    syn_sched_run(&r_sched);
+    TEST_ASSERT_TRUE(rctx.share_after_respawn_boost);
+}
+
 void run_sched_tests(void)
 {
     RUN_TEST(test_scheduler);
@@ -3693,4 +3807,5 @@ void run_sched_tests(void)
     RUN_TEST(test_resleep_skips_dead_suspended_and_resumed_delay_wake_base);
     RUN_TEST(test_dead_slot_respawn_suspended_wrap_and_mid_reinit);
     RUN_TEST(test_self_restart_then_suspend_stays_suspended_at_pt_begin);
+    RUN_TEST(test_fastpath_event_autoclear_late_evt_timeout_and_respawn_boost);
 }

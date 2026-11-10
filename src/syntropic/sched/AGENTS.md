@@ -4,7 +4,7 @@ Applies to `syn_sched`, `syn_task`, `syn_mutex`, `syn_event_flags`, `syn_ao`, `s
 
 ## Cross-Directory Touchpoints
 
-- **Protothreads**: `src/syntropic/pt/syn_pt.h` (`PT_IDLE`, `PT_MORE`, `PT_YIELDED`, `PT_EXITED`, `PT_ENDED`, `PT_CONTINUE_IF_NEEDED`) and `syn_pt_sem.h`.
+- **Protothreads**: `src/syntropic/pt/syn_pt.h` (`PT_IDLE`, `PT_MORE`, `PT_YIELDED`, `PT_EXITED`, `PT_ENDED`) and `syn_pt_sem.h`; scheduler-aware cooperative yield macros `PT_CONTINUE_IF_NEEDED` and `PT_SPAWN_IF_NEEDED` in `src/syntropic/sched/syn_sched.h`.
 - **System & Port**: `src/syntropic/system/syn_sleep.h` (tickless sleep coordinator), `src/syntropic/port/syn_port_system.h` (`syn_port_enter_critical`, `syn_port_get_tick_ms`, `syn_port_sleep_until`), `src/syntropic/common/syn_barrier.h`, and `src/syntropic/util/syn_event.h`.
 - **Host Mock**: `tests/unit/mocks/mock_port.c` simulates ticks, critical-section nesting, and sleep hooks in unit tests.
 

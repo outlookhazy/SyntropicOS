@@ -424,6 +424,9 @@ static void test_timer_wheel_cross_wheel_reject_and_reinit_in_cb(void)
     TEST_ASSERT_EQUAL_INT(1, rctx.reinit_cb_runs);
     TEST_ASSERT_EQUAL_INT(0, rctx.second_cb_runs);
     TEST_ASSERT_NULL(wheel_a.expired_head);
+    TEST_ASSERT_FALSE(second_exp.active);
+    TEST_ASSERT_NULL(second_exp.next);
+    TEST_ASSERT_NULL(second_exp.prev);
 
     /* Post-reinit node added inside the callback fires cleanly on the next tick */
     TEST_ASSERT_EQUAL_size_t(1U, syn_timer_wheel_step(&wheel_a));
