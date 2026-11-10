@@ -63,6 +63,11 @@ SYN_Status syn_mutex_init(SYN_Mutex *mutex);
  * (numerically lower value) than the owner, the owner's priority is automatically
  * boosted.
  *
+ * @note Single-scheduler (AMP) scope: all scheduled tasks (`task->sched != NULL`)
+ *       acquiring or contending on a mutex must belong to the same `SYN_Sched`
+ *       instance (`SYN_INVALID_PARAM` otherwise). Use `syn_port_spinlock.h` or
+ *       SPSC `syn_mailbox` across AMP cores.
+ *
  * @param mutex Pointer to mutex structure.
  * @param task  Pointer to acquiring task (optional, NULL for standalone lock).
  * @return SYN_OK if acquired, SYN_BUSY if held by another task, or SYN_INVALID_PARAM.
@@ -75,6 +80,9 @@ SYN_Status syn_mutex_try_lock(SYN_Mutex *mutex, SYN_Task *task);
  * Acquires an unlocked or recursively-held mutex like syn_mutex_try_lock(),
  * but on contention returns SYN_BUSY without adding @p task to the waiter list
  * or boosting the current owner.
+ *
+ * @note Single-scheduler (AMP) scope: returns `SYN_INVALID_PARAM` if contended
+ *       against a different `SYN_Sched` instance.
  *
  * @param mutex Pointer to mutex structure.
  * @param task  Pointer to acquiring task (optional, NULL for standalone lock).

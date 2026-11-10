@@ -906,19 +906,25 @@ static void test_tier_a_dnssd_qtype_case_dot_and_errors(void)
     TEST_ASSERT_EQUAL_STRING("Syntropic.v1.2", disc.instance_name);
     TEST_ASSERT_EQUAL_STRING("_http._tcp", disc.service_type);
 
-    /* 3. PTR RDATA edge cases: 0-length RDATA, pointer loop (>8 hops), OOB ptr, and compressed */
-    uint8_t ptr_edges[49] = {0U};
+    /* 3. PTR RDATA edge cases: 0-length RDATA, >8 backward hops, OOB/forward ptr, header ptr */
+    uint8_t ptr_edges[80] = {0U};
     ptr_edges[2] = 0x84U;
-    ptr_edges[7] = 3U;
-    /* RR1 (offset 12): PTR rdlen=0 (p >= limit) */
+    ptr_edges[7] = 5U;
+    /* RR1 (offset 12..38): TXT record carrying 8-hop backward pointer chain at offsets 24..37 */
+    const uint8_t rr_chain[27] = {0U,    0U,    0x10U, 0U,    1U,    0U,    0U,    0U,    60U,
+                                  0U,    16U,   1U,    'x',   0xC0U, 0x0CU, 0xC0U, 0x18U, 0xC0U,
+                                  0x1AU, 0xC0U, 0x1CU, 0xC0U, 0x1EU, 0xC0U, 0x20U, 0xC0U, 0x22U};
+    /* RR2 (offset 39..49): PTR rdlen=0 (p >= stream_end) */
     const uint8_t rr_ptr0[11] = {0U, 0U, 0x0CU, 0U, 1U, 0U, 0U, 0U, 60U, 0U, 0U};
-    /* RR2 (offset 23): PTR rdlen=2 at RDATA offset 34 (0x22) self-loop 0xC0 0x22 */
-    const uint8_t rr_loop[13] = {0U, 0U, 0x0CU, 0U, 1U, 0U, 0U, 0U, 60U, 0U, 2U, 0xC0U, 0x22U};
-    /* RR3 (offset 36): PTR rdlen=2 out-of-bounds target 0xC0 0xFF (>= msg_len) */
+    /* RR3 (offset 50..62): PTR rdlen=2 jumping into 8-hop backward chain (0xC0 0x24 -> >8 hops) */
+    const uint8_t rr_loop[13] = {0U, 0U, 0x0CU, 0U, 1U, 0U, 0U, 0U, 60U, 0U, 2U, 0xC0U, 0x24U};
+    /* RR4 (offset 63..75): PTR rdlen=2 out-of-bounds/forward target 0xC0 0xFF */
     const uint8_t rr_oob[13] = {0U, 0U, 0x0CU, 0U, 1U, 0U, 0U, 0U, 60U, 0U, 2U, 0xC0U, 0xFFU};
-    memcpy(&ptr_edges[12], rr_ptr0, sizeof(rr_ptr0));
-    memcpy(&ptr_edges[23], rr_loop, sizeof(rr_loop));
-    memcpy(&ptr_edges[36], rr_oob, sizeof(rr_oob));
+    memcpy(&ptr_edges[12], rr_chain, sizeof(rr_chain));
+    memcpy(&ptr_edges[39], rr_ptr0, sizeof(rr_ptr0));
+    memcpy(&ptr_edges[50], rr_loop, sizeof(rr_loop));
+    memcpy(&ptr_edges[63], rr_oob, sizeof(rr_oob));
+    /* RR5 (offset 76..79): truncated RR header (<10B) */
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_parse_response(ptr_edges, sizeof(ptr_edges), &disc));
     TEST_ASSERT_EQUAL_STRING("", disc.instance_name);
 
@@ -956,6 +962,279 @@ static void test_tier_a_dnssd_qtype_case_dot_and_errors(void)
     mock_udp_sendto_fail = false;
 }
 
+static void test_dnssd_validation_compression_ttl_and_case_fixes(void)
+{
+    mock_port_reset();
+
+    SYN_DnsSd sd;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_init(&sd));
+
+    /* 1. Reject empty labels and malformed service_type in syn_dnssd_register & build_query */
+    SYN_DnsSd_Service base_svc = {
+        .instance_name = "ValidNode",
+        .service_type = "_http._tcp",
+        .hostname = "validhost",
+        .port = 8080U,
+        .ip = {10U, 0U, 0U, 1U},
+        .txt_count = 0U,
+    };
+    SYN_DnsSd_Service bad = base_svc;
+    bad.instance_name = "";
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_register(&sd, &bad));
+
+    bad = base_svc;
+    bad.hostname = "";
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_register(&sd, &bad));
+
+    bad = base_svc;
+    bad.hostname = "bad.host";
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_register(&sd, &bad));
+
+    const char *bad_types[] = {"", ".", "._tcp", "_http.", "_http.._tcp", "_a._b._c"};
+    uint8_t qbuf[128];
+    size_t qlen = 0U;
+    for (size_t i = 0U; i < sizeof(bad_types) / sizeof(bad_types[0]); i++) {
+        bad = base_svc;
+        bad.service_type = bad_types[i];
+        TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_register(&sd, &bad));
+        TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                              syn_dnssd_build_query(bad_types[i], qbuf, sizeof(qbuf), &qlen));
+    }
+
+    /* 2. Forward compression pointers and header pointers (<12) in PTR/SRV RDATA rejected */
+    uint8_t fwd_ptr_pkt[] = {
+        0x00U,
+        0x00U,
+        0x84U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x03U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x00U,
+        /* RR1 (offset 12): PTR with forward pointer 0xC0 0x23 into RR3 RDATA */
+        0x00U,
+        0x00U,
+        0x0CU,
+        0x00U,
+        0x01U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x3CU,
+        0x00U,
+        0x02U,
+        0xC0U,
+        0x23U,
+        /* RR2 (offset 25): PTR with header pointer 0xC0 0x04 (< 12) */
+        0x00U,
+        0x00U,
+        0x0CU,
+        0x00U,
+        0x01U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x3CU,
+        0x00U,
+        0x02U,
+        0xC0U,
+        0x04U,
+        /* RR3 (offset 38): SRV with header pointer 0xC0 0x04 in target */
+        0x00U,
+        0x00U,
+        0x21U,
+        0x80U,
+        0x01U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x3CU,
+        0x00U,
+        0x08U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x1FU,
+        0x90U,
+        0xC0U,
+        0x04U,
+    };
+    SYN_DnsSd_Discovered disc;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_dnssd_parse_response(fwd_ptr_pkt, sizeof(fwd_ptr_pkt), &disc));
+    TEST_ASSERT_EQUAL_STRING("", disc.instance_name);
+    TEST_ASSERT_EQUAL_UINT16(0U, disc.port);
+
+    /* 3. RCODE != 0 rejected; TTL == 0 (Goodbye) and CLASS != IN ignored */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_register(&sd, &base_svc));
+    uint8_t resp[512];
+    size_t rlen = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_announce(&sd, 0U, resp, sizeof(resp), &rlen));
+
+    resp[3] = 0x03U; /* RCODE = 3 (NXDOMAIN) */
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_dnssd_parse_response(resp, rlen, &disc));
+    resp[3] = 0x00U;
+
+    /* Goodbye packet (PTR TTL == 0) + non-IN SRV (CLASS == 3 CH) */
+    uint8_t goodbye_pkt[] = {
+        0x00U,
+        0x00U,
+        0x84U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x02U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x00U,
+        /* RR1: PTR with TTL = 0 */
+        0x00U,
+        0x00U,
+        0x0CU,
+        0x00U,
+        0x01U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x16U,
+        3U,
+        'B',
+        'y',
+        'e',
+        5U,
+        '_',
+        'h',
+        't',
+        't',
+        'p',
+        4U,
+        '_',
+        't',
+        'c',
+        'p',
+        5U,
+        'l',
+        'o',
+        'c',
+        'a',
+        'l',
+        0U,
+        /* RR2: A record with CLASS = 3 (CH) and TTL = 60 */
+        0x00U,
+        0x00U,
+        0x01U,
+        0x00U,
+        0x03U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x3CU,
+        0x00U,
+        0x04U,
+        9U,
+        9U,
+        9U,
+        9U,
+    };
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_dnssd_parse_response(goodbye_pkt, sizeof(goodbye_pkt), &disc));
+    TEST_ASSERT_EQUAL_STRING("", disc.instance_name);
+    TEST_ASSERT_EQUAL_UINT8(0U, disc.ip[0]);
+
+    /* 4. Case-insensitive .LOCAL suffix stripping, non-.local PTR ignore, and CI browser match */
+    uint8_t ci_ptr_pkt[] = {
+        0x00U,
+        0x00U,
+        0x84U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x02U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x00U,
+        /* RR1: PTR for "Cam._HTTP._TCP.LOCAL" */
+        0x00U,
+        0x00U,
+        0x0CU,
+        0x00U,
+        0x01U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x3CU,
+        0x00U,
+        0x16U,
+        3U,
+        'C',
+        'a',
+        'm',
+        5U,
+        '_',
+        'H',
+        'T',
+        'T',
+        'P',
+        4U,
+        '_',
+        'T',
+        'C',
+        'P',
+        5U,
+        'L',
+        'O',
+        'C',
+        'A',
+        'L',
+        0U,
+        /* RR2: Non-.local PTR "host.arpa" that must not clobber RR1 */
+        0x00U,
+        0x00U,
+        0x0CU,
+        0x00U,
+        0x01U,
+        0x00U,
+        0x00U,
+        0x00U,
+        0x3CU,
+        0x00U,
+        0x0BU,
+        4U,
+        'h',
+        'o',
+        's',
+        't',
+        4U,
+        'a',
+        'r',
+        'p',
+        'a',
+        0U,
+    };
+    SYN_DnsSd_Browser browser;
+    int discovered = 0;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dnssd_browser_init(&browser, &sd, "_http._tcp",
+                                                         on_discovered_service, &discovered, 500U));
+    SYN_SockAddr from = {.ip = {192U, 168U, 1U, 50U}, .port = 5353U};
+    mock_udp_inject_packet(ci_ptr_pkt, sizeof(ci_ptr_pkt), &from);
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = {.user_data = &browser};
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_dnssd_browse_task(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(1, discovered);
+}
+
 void run_dnssd_tests(void)
 {
     RUN_TEST(test_dnssd_init_and_registration);
@@ -969,4 +1248,5 @@ void run_dnssd_tests(void)
     RUN_TEST(test_dnssd_round4_compression_qdcount_and_rdata_bounds);
     RUN_TEST(test_r5_n13_dnssd_build_query_truncation_bounds);
     RUN_TEST(test_tier_a_dnssd_qtype_case_dot_and_errors);
+    RUN_TEST(test_dnssd_validation_compression_ttl_and_case_fixes);
 }

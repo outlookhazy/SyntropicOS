@@ -37,6 +37,86 @@ void tearDown(void)
 { /* nothing */
 }
 
+#ifdef SYN_HOST_UNIT_RUNNER
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
+
+static bool syn_contains_icase(const char *haystack, const char *needle, size_t needle_len)
+{
+    if (needle_len == 0U) {
+        return true;
+    }
+    if (haystack == NULL) {
+        return false;
+    }
+    for (const char *h = haystack; *h != '\0'; h++) {
+        size_t i = 0U;
+        while (i < needle_len && h[i] != '\0' &&
+               tolower((unsigned char)h[i]) == tolower((unsigned char)needle[i])) {
+            i++;
+        }
+        if (i == needle_len) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool syn_test_matches_filter(const char *file_name, const char *func_name)
+{
+    const char *filter = getenv("SYN_TEST_FILTER");
+    if (filter == NULL || filter[0] == '\0') {
+        return true;
+    }
+    const char *p = filter;
+    while (*p != '\0') {
+        while (*p == ',' || *p == ' ' || *p == '\t') {
+            p++;
+        }
+        const char *start = p;
+        while (*p != '\0' && *p != ',' && *p != ' ' && *p != '\t') {
+            p++;
+        }
+        size_t len = (size_t)(p - start);
+        if (len > 0U && (syn_contains_icase(file_name, start, len) ||
+                         syn_contains_icase(func_name, start, len))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void syn_unit_run_test(void (*func)(void), const char *func_name, const char *file_name,
+                       int line_num)
+{
+    if (!syn_test_matches_filter(file_name, func_name)) {
+        return;
+    }
+    UnitySetTestFile(file_name);
+    Unity.CurrentTestName = func_name;
+    Unity.CurrentTestLineNumber = (UNITY_LINE_TYPE)line_num;
+    Unity.NumberOfTests++;
+#ifndef UNITY_EXCLUDE_DETAILS
+#ifdef UNITY_DETAIL_STACK_SIZE
+    Unity.CurrentDetailStackSize = 0;
+#else
+    UNITY_CLR_DETAILS();
+#endif
+#endif
+    UNITY_EXEC_TIME_START();
+    if (TEST_PROTECT()) {
+        setUp();
+        func();
+    }
+    if (TEST_PROTECT()) {
+        tearDown();
+    }
+    UNITY_EXEC_TIME_STOP();
+    UnityConcludeTest();
+}
+#endif
+
 /* ── Per-module test declarations ───────────────────────────────────────── */
 
 /* Each test_*.c file exposes a run_*_tests() function */
@@ -940,5 +1020,14 @@ int main(void)
     RUN_TEST(test_pro08_mavlink_large_payload_and_bounds);
 
     int failures = UNITY_END();
+#ifdef SYN_HOST_UNIT_RUNNER
+    {
+        const char *filter = getenv("SYN_TEST_FILTER");
+        if (filter != NULL && filter[0] != '\0' && Unity.NumberOfTests == (UNITY_COUNTER_TYPE)0) {
+            fprintf(stderr, "ERROR: SYN_TEST_FILTER='%s' matched 0 tests\n", filter);
+            return 1;
+        }
+    }
+#endif
     return (failures == 0) ? 0 : 1;
 }

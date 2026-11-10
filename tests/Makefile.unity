@@ -1,7 +1,7 @@
 # Unity test build
 # Usage: make -f tests/Makefile.unity [test|clean]
 
-BUILD_DIR ?= build
+BUILD_DIR ?= build/tests
 CC      := gcc
 CFLAGS   = -MMD -MP -std=c99 -pthread -fPIC -pedantic -Wall -Wextra -Werror -I. -Isrc -Itests/unit -Itests/unit/mocks -I$(BUILD_DIR) -DSYN_LOG_COLOR=1 -DSYN_CLI_HISTORY_DEPTH=4 -DSYN_USE_COREDUMP=1 -DSYN_COREDUMP_FLASH_ADDR=0 -DSYN_USE_TICKLESS=1 -DSYN_USE_DMA=1 -DSYN_USE_I2C_ASYNC=1 -DSYN_USE_SPI_ASYNC=1 -DSYN_FW_USE_HMAC=1 -DSYN_FW_USE_ED25519=1 -DSYN_FW_USE_AES_GCM=1 -DSYN_USE_PORT_AES=1 -DSYN_USE_MULTICORE=1 -DUNITY_INCLUDE_DOUBLE -DSYN_USE_METRICS=1 -DSYN_USE_ROUTER=1 -DSYN_USE_LIN=1 -DSYN_USE_LINTP=1 -DSYN_USE_GBT27930=1 -DSYN_USE_CANNM=1 -DSYN_USE_IR=1 -DSYN_USE_SMBUS=1 -DSYN_USE_PMBUS=1 -DSYN_USE_MBUS=1 -DSYN_USE_DLT645=1 -DSYN_USE_AT_PARSER=1 -DSYN_USE_BACNET=1 -DSYN_USE_DEVICENET=1 -DSYN_USE_YMODEM=1 -DSYN_USE_AUDIO=1 -DSYN_USE_ADPCM=1 -DSYN_USE_SBC=1 -DSYN_USE_BLE=1 -DSYN_USE_OTA=1 -DSYN_USE_LWM2M_TASK=1 -DSYN_USE_CAN_FD=1 -DSYN_USE_RTC=1
 
@@ -219,9 +219,6 @@ UNITY_SRCS := tests/unit/unity/unity.c
 # Mock port layer
 MOCK_SRCS := tests/unit/mocks/mock_port.c
 
-# Build output directory
-BUILD_DIR := build/tests
-
 # All per-module test files
 TEST_SRCS := $(wildcard tests/unit/test_*.c)
 
@@ -230,7 +227,7 @@ OBJS     := $(patsubst %.c,$(BUILD_DIR)/%.o,$(ALL_SRCS))
 
 -include $(OBJS:.o=.d)
 
-.PHONY: all test test-cov clean
+.PHONY: all test unit test-cov clean
 
 all: test
 
@@ -252,12 +249,16 @@ wasm-fixtures: $(WASM_HDRS)
 
 $(OBJS): | wasm-fixtures
 
-$(BUILD_DIR)/%.o: %.c
+$(BUILD_DIR)/%.o: %.c tests/Makefile.unity
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/test_unity: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $@ -lm -lpthread $(LDFLAGS)
+
+unit: CFLAGS += -DUNITY_INCLUDE_CONFIG_H -DSYN_HOST_UNIT_RUNNER
+unit: $(BUILD_DIR)/test_unity
+	./$(BUILD_DIR)/test_unity
 
 .PHONY: test-cov FORCE
 

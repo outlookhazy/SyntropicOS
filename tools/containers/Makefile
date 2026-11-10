@@ -23,9 +23,9 @@ CACHE_VOL ?= syntropicos-build-cache
 
 
 .PHONY: help \
-	test format lint misra stack size complexity san tsan qemu renode fuzz \
+	test unit format lint misra stack size complexity san tsan qemu renode fuzz \
 	cov static dox pio valgrind analyzer flawfinder integration examples \
-	container-build container-volume container-test container-format \
+	container-build container-volume container-test container-unit container-format \
 	container-lint container-misra container-stack container-size \
 	container-complexity container-san container-tsan container-qemu \
 	container-renode container-fuzz container-cov container-static \
@@ -36,6 +36,7 @@ help:
 	@echo "SyntropicOS Containerized Verification & Tooling"
 	@echo "------------------------------------------------"
 	@echo "  make container-build       Build verification container image (Podman/Docker)"
+	@echo "  make container-unit        Run cached incremental Unity tests (optional FILTER=...)"
 	@echo "  make container-test        Run Unity test suite & LCOV coverage in container"
 	@echo "  make container-cov         Generate LCOV line/branch coverage report"
 	@echo "  make container-format      Check code formatting via clang-format (FIX=1 to apply)"
@@ -64,6 +65,9 @@ help:
 
 test:
 	@make -C $(ROOT_DIR) -f tests/Makefile.unity test
+
+unit:
+	@SYN_TEST_FILTER="$(FILTER)" $(MAKE) -j$(JOBS) -C $(ROOT_DIR) -f tests/Makefile.unity unit BUILD_DIR=build/unit
 
 format:
 	@bash $(ROOT_DIR)/tools/lint/run_format.sh
@@ -129,7 +133,7 @@ container-volume:
 CONTAINER_RUN := $(BASH_CMD) $(ROOT_DIR)/tools/containers/run_container.sh
 
 container-build:
-	@"$(CONTAINER_ENGINE)" build $(BUILD_FLAGS) -t syntropicos-test -f $(ROOT_DIR)/tools/containers/Containerfile $(ROOT_DIR)
+	@"$(CONTAINER_ENGINE)" build $(BUILD_FLAGS) -t syntropicos-test -f $(ROOT_DIR)/tools/containers/Containerfile $(ROOT_DIR)/tools/containers
 
 container-format: container-build
 	@$(CONTAINER_RUN) -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers format FIX=$(FIX) JOBS=$(JOBS)
@@ -165,6 +169,9 @@ container-fuzz: container-build container-volume
 	@$(CONTAINER_RUN) -v $(CACHE_VOL):/workspace/build -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers fuzz JOBS=$(JOBS)
 
 container-test: container-cov
+
+container-unit: container-build container-volume
+	@$(CONTAINER_RUN) -v $(CACHE_VOL):/workspace/build -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers unit JOBS=$(JOBS) FILTER="$(FILTER)"
 
 container-cov: container-build container-volume
 	@$(CONTAINER_RUN) -v $(CACHE_VOL):/workspace/build -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers cov JOBS=$(JOBS)

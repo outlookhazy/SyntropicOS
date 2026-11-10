@@ -3549,6 +3549,78 @@ static void test_dead_slot_respawn_suspended_wrap_and_mid_reinit(void)
     TEST_ASSERT_EQUAL_size_t(0U, m_sched.task_count);
 }
 
+typedef struct {
+    SYN_Mutex *mtx;
+    int top_entries;
+    int mid_entries;
+    bool trigger_restart_suspend;
+    bool exit_after_suspend;
+} RestartSuspendCtx;
+
+static SYN_PT_Status restart_then_suspend_fn(SYN_PT *pt, SYN_Task *task)
+{
+    RestartSuspendCtx *ctx = (RestartSuspendCtx *)task->user_data;
+    PT_BEGIN(pt);
+    ctx->top_entries++;
+    PT_PASS(pt);
+    ctx->mid_entries++;
+    if (ctx->trigger_restart_suspend) {
+        ctx->trigger_restart_suspend = false;
+        syn_task_boost_priority(task, SYN_PRIO_CRITICAL);
+        syn_task_restart(task);
+        if (ctx->mtx != NULL) {
+            (void)syn_mutex_try_lock(ctx->mtx, task);
+        }
+        syn_task_suspend(task);
+        if (ctx->exit_after_suspend) {
+            PT_EXIT(pt);
+        }
+        PT_PASS(pt);
+    }
+    PT_END(pt);
+}
+
+static void test_self_restart_then_suspend_stays_suspended_at_pt_begin(void)
+{
+    SYN_Task task;
+    SYN_Sched sched;
+    SYN_Mutex mtx;
+    PT_MUTEX_INIT(&mtx);
+
+    /* Case 1: self-restart + lock + self-suspend + PT_PASS resets to PT_BEGIN & stays SUSPENDED */
+    RestartSuspendCtx ctx1 = {&mtx, 0, 0, true, false};
+    syn_task_create(&task, "rst_susp_pass", restart_then_suspend_fn, SYN_PRIO_NORMAL, &ctx1);
+    syn_sched_init(&sched, &task, 1U);
+
+    TEST_ASSERT_TRUE(syn_sched_run(&sched)); /* enters PT_BEGIN, yields at first PT_PASS */
+    TEST_ASSERT_EQUAL_INT(1, ctx1.top_entries);
+    TEST_ASSERT_TRUE(syn_sched_run(&sched)); /* restarts + locks mtx + suspends + PT_PASS */
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_SUSPENDED, task.state);
+    TEST_ASSERT_TRUE(PT_IS_IDLE(&task.pt));
+    TEST_ASSERT_FALSE(syn_mutex_is_locked(&mtx));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_NORMAL, task.priority);
+
+    /* Must NOT run while suspended; once resumed, starts cleanly at PT_BEGIN (top_entries = 2) */
+    TEST_ASSERT_TRUE(syn_sched_run(&sched));
+    TEST_ASSERT_EQUAL_INT(1, ctx1.top_entries);
+    syn_task_resume(&task);
+    TEST_ASSERT_TRUE(syn_sched_run(&sched));
+    TEST_ASSERT_EQUAL_INT(2, ctx1.top_entries);
+
+    /* Case 2: self-restart + self-suspend + PT_EXIT stays SUSPENDED (not SYN_TASK_DEAD) */
+    RestartSuspendCtx ctx2 = {&mtx, 0, 0, true, true};
+    syn_task_create(&task, "rst_susp_exit", restart_then_suspend_fn, SYN_PRIO_NORMAL, &ctx2);
+    syn_sched_init(&sched, &task, 1U);
+
+    TEST_ASSERT_TRUE(syn_sched_run(&sched));
+    TEST_ASSERT_TRUE(syn_sched_run(&sched));
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_SUSPENDED, task.state);
+    TEST_ASSERT_TRUE(PT_IS_IDLE(&task.pt));
+    syn_task_resume(&task);
+    TEST_ASSERT_TRUE(syn_sched_run(&sched));
+    TEST_ASSERT_EQUAL_INT(2, ctx2.top_entries);
+}
+
 void run_sched_tests(void)
 {
     RUN_TEST(test_scheduler);
@@ -3620,4 +3692,5 @@ void run_sched_tests(void)
     RUN_TEST(test_boost_priority_ignores_non_higher_and_self_restart_post_ops);
     RUN_TEST(test_resleep_skips_dead_suspended_and_resumed_delay_wake_base);
     RUN_TEST(test_dead_slot_respawn_suspended_wrap_and_mid_reinit);
+    RUN_TEST(test_self_restart_then_suspend_stays_suspended_at_pt_begin);
 }

@@ -2,9 +2,9 @@
 # Forwards targets to tools/containers/Makefile
 
 .PHONY: help clean install-hooks \
-	test format lint misra stack size complexity san tsan qemu renode fuzz \
+	test unit format lint misra stack size complexity san tsan qemu renode fuzz \
 	cov static dox pio valgrind analyzer flawfinder integration examples \
-	container-build container-test container-format container-lint \
+	container-build container-test container-unit container-format container-lint \
 	container-misra container-stack container-size container-complexity \
 	container-san container-tsan container-qemu container-renode \
 	container-fuzz container-cov container-static container-dox \
@@ -29,6 +29,9 @@ help:
 
 test:
 	@$(MAKE) -C tools/containers test
+
+unit:
+	@$(MAKE) -C tools/containers unit FILTER="$(FILTER)"
 
 format:
 	@$(MAKE) -C tools/containers format
@@ -101,6 +104,9 @@ container-build:
 
 container-test:
 	@$(MAKE) -C tools/containers container-test
+
+container-unit:
+	@$(MAKE) -C tools/containers container-unit FILTER="$(FILTER)"
 
 container-format:
 	@$(MAKE) -C tools/containers container-format

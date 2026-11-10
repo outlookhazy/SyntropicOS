@@ -633,10 +633,6 @@ static void sched_boost_mutex_owners_locked(SYN_Sched *sched)
             uint8_t target = sched_effective_prio(owner);
             if (target < owner->priority) {
                 sched_apply_prio_target(owner, target);
-                if (owner->sched != NULL) {
-                    sched_boost_local_owners(owner->sched);
-                    sched_refresh_share_locked(owner->sched);
-                }
             }
         }
     }
@@ -670,15 +666,8 @@ static void sched_propagate_local_prios(SYN_Sched *sched)
 static void sched_propagate_ext_owners(const SYN_Sched *sched)
 {
     for (SYN_Mutex *m = sched->standalone_mutexes; m != NULL; m = m->next_contended) {
-        SYN_Task *owner = m->owner;
-        if (owner != NULL) {
-            if (owner->sched != NULL) {
-                sched_prune_all_mutex_waiters(owner->sched);
-                sched_propagate_local_prios(owner->sched);
-                sched_refresh_share_locked(owner->sched);
-            } else {
-                owner->priority = sched_effective_prio(owner);
-            }
+        if (m->owner != NULL) {
+            m->owner->priority = sched_effective_prio(m->owner);
         }
     }
 }
@@ -710,15 +699,21 @@ static void sched_advance_rr_if_needed(SYN_Sched *sched, size_t idx, uint8_t dis
 static void sched_apply_post_status(const SYN_Sched *sched, SYN_Task *task, SYN_PT_Status status)
 {
     if ((task->sched_flags & SYN_SCHED_FLAG_RESTARTED) != 0U) {
+        bool stay_suspended = (task->state == (uint8_t)SYN_TASK_SUSPENDED);
         PT_INIT(&task->pt);
         task->manual_priority = SYN_TASK_NO_MANUAL_PRIO;
         task->priority = task->base_priority;
-        task->state = (uint8_t)SYN_TASK_READY;
         task->delay_until = 0U;
         task->wait_event = NULL;
         task->wait_mask = 0U;
-        task->sched_flags = (uint8_t)(SYN_SCHED_FLAG_MORE | SYN_SCHED_FLAG_DUE_VALID);
-        task->due_ms = syn_port_get_tick_ms() + (uint32_t)sched->max_wait_ms[task->priority];
+        if (stay_suspended) {
+            task->due_ms = 0U;
+            task->sched_flags = SYN_SCHED_FLAG_SLEEPING;
+        } else {
+            task->state = (uint8_t)SYN_TASK_READY;
+            task->sched_flags = (uint8_t)(SYN_SCHED_FLAG_MORE | SYN_SCHED_FLAG_DUE_VALID);
+            task->due_ms = syn_port_get_tick_ms() + (uint32_t)sched->max_wait_ms[task->priority];
+        }
         return;
     }
     if (status >= PT_EXITED) {
@@ -1021,8 +1016,9 @@ void syn_task_suspend(SYN_Task *task)
     syn_port_enter_critical();
     bool had_mutex_wait = (task->sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U;
     if (task->state != (uint8_t)SYN_TASK_DEAD) {
+        uint8_t keep = (uint8_t)(task->sched_flags & SYN_SCHED_FLAG_RESTARTED);
         task->state = (uint8_t)SYN_TASK_SUSPENDED;
-        task->sched_flags = SYN_SCHED_FLAG_SLEEPING;
+        task->sched_flags = (uint8_t)(SYN_SCHED_FLAG_SLEEPING | keep);
         SYN_PT_STATE_BARRIER();
     }
     if (had_mutex_wait) {

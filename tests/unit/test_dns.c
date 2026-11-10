@@ -1526,6 +1526,30 @@ static void test_tier_a_dns_mdns_case_compression_and_rclass(void)
     PT_INIT(&pt);
     TEST_ASSERT_EQUAL(PT_ENDED, syn_dns_resolve_task(&pt, &rtask));
     TEST_ASSERT_EQUAL(SYN_ERROR, r.status);
+
+    /* 6. mDNS responder validates QCLASS == IN (1) or ANY (255) (ignoring QU bit 0x8000) */
+    uint8_t q_ch[30] = {0U};
+    q_ch[5] = 1U;
+    q_ch[12] = 6U;
+    memcpy(&q_ch[13], "mynode", 6U);
+    q_ch[19] = 5U;
+    memcpy(&q_ch[20], "local", 5U);
+    q_ch[27] = 1U; /* QTYPE = A */
+    q_ch[29] = 3U; /* QCLASS = CH (3) -> must be ignored */
+    mock_udp_tx_len = 0U;
+    mock_udp_set_response(q_ch, sizeof(q_ch), &msrc);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mtask));
+    TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
+
+    /* QCLASS = ANY (255) with QU bit (0x80FF) -> answered */
+    q_ch[28] = 0x80U;
+    q_ch[29] = 255U;
+    mock_udp_tx_len = 0U;
+    mock_udp_set_response(q_ch, sizeof(q_ch), &msrc);
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mdns_task(&pt, &mtask));
+    TEST_ASSERT_TRUE(mock_udp_tx_len > 12U);
 }
 
 void run_dns_tests(void)

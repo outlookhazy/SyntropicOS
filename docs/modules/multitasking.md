@@ -494,6 +494,7 @@ static SYN_PT_Status flash_log_task(SYN_PT *pt, SYN_Task *task)
 - **Priority Inheritance**: If a higher-priority task calls `PT_MUTEX_LOCK` while a lower-priority task holds `spi_bus_mtx`, the holder's priority is immediately boosted to the waiter's priority and promoted into `Work` rank (`MORE` set) until `PT_MUTEX_UNLOCK` releases the outer lock, preventing medium-priority tasks from preempting the holder.
 - **Recursive Locking**: The owning task may re-acquire the same `SYN_Mutex` up to `UINT16_MAX` times; ownership releases when `lock_count` returns to `0`.
 - **Non-Blocking Try-Lock**: `PT_MUTEX_TRYLOCK(&spi_bus_mtx, task)` attempts immediate acquisition and returns `true` on success or `false` if held by another task.
+- **Single-Scheduler (AMP) Scope**: All scheduled tasks acquiring or waiting on a `SYN_Mutex` must belong to the same `SYN_Sched` instance (`SYN_INVALID_PARAM` on cross-scheduler contention). For cross-core synchronization in AMP builds, use `SYN_SPINLOCK_GUARD()` or SPSC `syn_mailbox`.
 
 ### Task Delay Semantics: "At Least" Minimum Wait Guarantees
 

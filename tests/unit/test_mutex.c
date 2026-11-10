@@ -1073,7 +1073,7 @@ static void test_mutex_standalone_evicted_wake_and_unbound_owner_refresh(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_unb, &ext_owner));
 }
 
-static void test_mutex_recursive_relock_wait_keep_and_cross_sched_pi(void)
+static void test_mutex_recursive_relock_wait_keep_and_single_sched_isolation(void)
 {
     mock_tick_ms = 0U;
 
@@ -1152,71 +1152,217 @@ static void test_mutex_recursive_relock_wait_keep_and_cross_sched_pi(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_ext2, &ext_owner));
     TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_null, NULL));
 
-    /* 3. Cross-scheduler PI: sched2 waiter -> m_shared -> sched1 owner -> m_s1_chain -> s1_root */
-    SYN_Task s1_tasks[3];
-    SYN_Task s2_tasks[6];
+    /* 3. Single-scheduler AMP isolation: cross-scheduler try_lock/probe returns SYN_INVALID_PARAM
+     *    without mutating owner, waiters[], or owner priority. */
+    SYN_Task s1_tasks[2];
+    SYN_Task s2_tasks[2];
     SYN_Sched sched1;
     SYN_Sched sched2;
-    SYN_Mutex m_shared;
-    SYN_Mutex m_s1_chain;
-    SYN_Mutex m_s2_local;
-    PT_MUTEX_INIT(&m_shared);
-    PT_MUTEX_INIT(&m_s1_chain);
-    PT_MUTEX_INIT(&m_s2_local);
+    SYN_Mutex m_s1_owned;
+    SYN_Mutex m_sa_bound;
+    PT_MUTEX_INIT(&m_s1_owned);
+    PT_MUTEX_INIT(&m_sa_bound);
 
-    syn_task_create(&s1_tasks[0], "s1_root", owner_pass_fn, SYN_PRIO_LOW, NULL);
-    syn_task_create(&s1_tasks[1], "s1_mid", owner_pass_fn, SYN_PRIO_LOW, NULL);
-    syn_task_create(&s1_tasks[2], "s1_run", owner_pass_fn, SYN_PRIO_NORMAL, NULL);
-    syn_sched_init(&sched1, s1_tasks, 3U);
+    syn_task_create(&s1_tasks[0], "s1_own", owner_pass_fn, SYN_PRIO_LOW, NULL);
+    syn_task_create(&s1_tasks[1], "s1_wait", owner_pass_fn, SYN_PRIO_NORMAL, NULL);
+    syn_sched_init(&sched1, s1_tasks, 2U);
 
-    syn_task_create(&s2_tasks[0], "s2_evict", owner_pass_fn, SYN_PRIO_LOW, NULL);
-    for (int i = 1; i < 5; i++) {
-        syn_task_create(&s2_tasks[i], "s2_high", owner_pass_fn, SYN_PRIO_HIGH, NULL);
-    }
-    syn_task_create(&s2_tasks[5], "s2_lown", owner_pass_fn, SYN_PRIO_LOW, NULL);
-    syn_sched_init(&sched2, s2_tasks, 6U);
+    syn_task_create(&s2_tasks[0], "s2_crit", owner_pass_fn, SYN_PRIO_CRITICAL, NULL);
+    syn_task_create(&s2_tasks[1], "s2_high", owner_pass_fn, SYN_PRIO_HIGH, NULL);
+    syn_sched_init(&sched2, s2_tasks, 2U);
 
-    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_s1_chain, &s1_tasks[0]));
-    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_shared, &s1_tasks[1]));
-    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_s1_chain, &s1_tasks[1]));
-    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_s2_local, &s2_tasks[5]));
-
-    /* Evict s2_tasks[0] with 4 HIGH waiters from sched2; s2_tasks[1] also waits on m_s2_local */
-    s2_tasks[0].sched_flags = SYN_SCHED_FLAG_PASSED;
-    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_shared, &s2_tasks[0]));
-    for (int i = 1; i <= 4; i++) {
-        s2_tasks[i].sched_flags = SYN_SCHED_FLAG_PASSED;
-        TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_shared, &s2_tasks[i]));
-    }
-    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_s2_local, &s2_tasks[1]));
-    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, s1_tasks[1].priority);
-    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, s1_tasks[0].priority);
-
-    /* Boosting s2_tasks[1] to CRITICAL boosts s1_mid & s1_root in sched1 and refreshes sched1! */
-    sched1.running = &s1_tasks[2];
-    sched1.share_contended = false;
-    syn_task_boost_priority(&s2_tasks[1], SYN_PRIO_CRITICAL);
-    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, s1_tasks[1].priority);
-    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, s1_tasks[0].priority);
-    TEST_ASSERT_TRUE(sched1.share_contended);
-
-    /* Restoring s2_tasks[1] demotes s1_mid & s1_root back to HIGH across schedulers! */
-    syn_task_restore_priority(&s2_tasks[1]);
-    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, s1_tasks[1].priority);
-    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_HIGH, s1_tasks[0].priority);
-    sched1.running = NULL;
-
-    /* Unlocking m_shared wakes sched2 evicted s2_tasks[0] while keeping s2_tasks[1] on m_s2_local
-     */
-    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_shared, &s1_tasks[1]));
-    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, s1_tasks[1].priority);
+    /* Case 3a: Mutex owned by sched1 task rejects sched2 try_lock and probe */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_s1_owned, &s1_tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mutex_try_lock(&m_s1_owned, &s2_tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mutex_probe(&m_s1_owned, &s2_tasks[1]));
     TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_LOW, s1_tasks[0].priority);
-    TEST_ASSERT_TRUE((s2_tasks[0].sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
+    TEST_ASSERT_NULL(m_s1_owned.waiters[0]);
     TEST_ASSERT_EQUAL_UINT8(0U, s2_tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
-    TEST_ASSERT_TRUE((s2_tasks[1].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_s1_owned, &s1_tasks[0]));
 
-    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_s2_local, &s2_tasks[5]));
-    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_s1_chain, &s1_tasks[0]));
+    /* After full unlock, sched2 can legally acquire m_s1_owned */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_s1_owned, &s2_tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_s1_owned, &s2_tasks[0]));
+
+    /* Case 3b: Standalone-owned mutex with a sched1 waiter rejects sched2 try_lock and probe */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m_sa_bound, NULL));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m_sa_bound, &s1_tasks[1]));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mutex_try_lock(&m_sa_bound, &s2_tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mutex_probe(&m_sa_bound, &s2_tasks[1]));
+    TEST_ASSERT_EQUAL_PTR(&sched1, m_sa_bound.wait_sched);
+    TEST_ASSERT_NULL(sched2.standalone_mutexes);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m_sa_bound, NULL));
+}
+
+/* ── Deterministic 5,000-Step Kernel + Mutex State-Machine Invariant Oracle ── */
+
+#define SM_TASK_COUNT 5U
+#define SM_MTX_COUNT 3U
+
+static SYN_Task sm_tasks[SM_TASK_COUNT];
+static SYN_Sched sm_sched;
+static SYN_Mutex sm_mtx[SM_MTX_COUNT];
+static SYN_EventFlags sm_evt;
+static uint32_t sm_rng = 0x594E5452U;
+
+static uint32_t sm_rand(void)
+{
+    uint32_t x = sm_rng;
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    sm_rng = x;
+    return x;
+}
+
+static SYN_PT_Status sm_worker_fn(SYN_PT *pt, SYN_Task *task)
+{
+    PT_BEGIN(pt);
+    for (;;) {
+        uint32_t r = sm_rand();
+        SYN_Mutex *m = &sm_mtx[r % SM_MTX_COUNT];
+        uint32_t op = (r >> 4) % 10U;
+
+        if (op < 3U) {
+            (void)syn_mutex_try_lock(m, task);
+        } else if (op == 3U) {
+            (void)syn_mutex_probe(m, task);
+        } else if (op == 4U) {
+            (void)syn_mutex_unlock(m, task);
+        } else if (op == 5U) {
+            PT_TASK_DELAY_MS(pt, task, 1U + ((r >> 8) % 4U));
+        } else if (op == 6U) {
+            uint32_t matched = 0U;
+            PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, &sm_evt, 0x01U, 2U, &matched);
+        } else if (op == 7U) {
+            syn_task_restart(task);
+            if (((r >> 9) & 1U) != 0U) {
+                (void)syn_mutex_try_lock(m, task);
+                syn_task_suspend(task);
+            }
+            PT_PASS(pt);
+        } else if (op == 8U) {
+            PT_CONTINUE_IF_NEEDED(pt, task);
+            PT_CONTINUE(pt);
+        }
+        PT_PASS(pt);
+    }
+    PT_END(pt);
+}
+
+static void sm_assert_invariants(void)
+{
+    uint8_t exp_prio[SM_TASK_COUNT];
+
+    for (size_t i = 0U; i < SM_TASK_COUNT; i++) {
+        const SYN_Task *t = &sm_tasks[i];
+        uint8_t intrinsic =
+            (t->manual_priority < t->base_priority) ? t->manual_priority : t->base_priority;
+        exp_prio[i] = intrinsic;
+
+        if (t->state == (uint8_t)SYN_TASK_DEAD) {
+            TEST_ASSERT_NULL(t->held_mutexes);
+        }
+        if (t->state != (uint8_t)SYN_TASK_READY || t->delay_until != 0U) {
+            TEST_ASSERT_EQUAL_UINT8(0U, t->sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+        }
+
+        size_t held_cnt = 0U;
+        for (const SYN_Mutex *m = t->held_mutexes; m != NULL; m = m->next_held) {
+            held_cnt++;
+            TEST_ASSERT_LESS_OR_EQUAL_UINT32(SM_MTX_COUNT, (uint32_t)held_cnt);
+            TEST_ASSERT_EQUAL_PTR(t, m->owner);
+            TEST_ASSERT_GREATER_OR_EQUAL_UINT16(1U, m->lock_count);
+        }
+        if (held_cnt == 0U) {
+            TEST_ASSERT_EQUAL_UINT8(intrinsic, t->priority);
+        }
+    }
+
+    for (size_t m_idx = 0U; m_idx < SM_MTX_COUNT; m_idx++) {
+        const SYN_Mutex *m = &sm_mtx[m_idx];
+        if (m->owner == NULL && m->lock_count == 0U) {
+            TEST_ASSERT_NULL(m->wait_sched);
+            TEST_ASSERT_NULL(m->next_held);
+            TEST_ASSERT_NULL(m->next_contended);
+            for (size_t w = 0U; w < SYN_MUTEX_MAX_WAITERS; w++) {
+                TEST_ASSERT_NULL(m->waiters[w]);
+            }
+        }
+    }
+
+    /* Compute exact Bellman-Ford transitive PI fixed-point across all 5 tasks */
+    for (size_t pass = 0U; pass < SM_TASK_COUNT; pass++) {
+        for (size_t i = 0U; i < SM_TASK_COUNT; i++) {
+            const SYN_Task *owner = &sm_tasks[i];
+            for (const SYN_Mutex *m = owner->held_mutexes; m != NULL; m = m->next_held) {
+                for (size_t w_idx = 0U; w_idx < SYN_MUTEX_MAX_WAITERS; w_idx++) {
+                    const SYN_Task *w = m->waiters[w_idx];
+                    if (w != NULL && (w->sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U &&
+                        w->state == (uint8_t)SYN_TASK_READY && w->delay_until == 0U) {
+                        size_t k = (size_t)(w - sm_tasks);
+                        if (exp_prio[k] < exp_prio[i]) {
+                            exp_prio[i] = exp_prio[k];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for (size_t i = 0U; i < SM_TASK_COUNT; i++) {
+        TEST_ASSERT_EQUAL_UINT8(exp_prio[i], sm_tasks[i].priority);
+    }
+}
+
+static void test_sched_mutex_state_machine_invariants(void)
+{
+    sm_rng = 0x594E5452U;
+    mock_tick_ms = 0xFFFFFFE0U; /* Start near 32-bit tick wraparound boundary */
+    syn_event_flags_init(&sm_evt);
+
+    for (size_t m = 0U; m < SM_MTX_COUNT; m++) {
+        PT_MUTEX_INIT(&sm_mtx[m]);
+    }
+    for (size_t i = 0U; i < SM_TASK_COUNT; i++) {
+        syn_task_create(&sm_tasks[i], "sm", sm_worker_fn, (SYN_Prio)(i % SYN_SCHED_PRIO_LEVELS),
+                        NULL);
+    }
+    syn_sched_init(&sm_sched, sm_tasks, SM_TASK_COUNT);
+
+    for (uint32_t step = 0U; step < 5000U; step++) {
+        uint32_t r = sm_rand();
+        size_t ti = (size_t)(r % SM_TASK_COUNT);
+        size_t mi = (size_t)((r >> 3) % SM_MTX_COUNT);
+        uint32_t act = (r >> 8) % 12U;
+
+        if (act < 5U) {
+            (void)syn_sched_run(&sm_sched);
+        } else if (act == 5U) {
+            syn_task_suspend(&sm_tasks[ti]);
+        } else if (act == 6U) {
+            syn_task_resume(&sm_tasks[ti]);
+        } else if (act == 7U) {
+            syn_task_restart(&sm_tasks[ti]);
+        } else if (act == 8U) {
+            syn_task_boost_priority(&sm_tasks[ti], (SYN_Prio)((r >> 12) % SYN_SCHED_PRIO_LEVELS));
+        } else if (act == 9U) {
+            syn_task_restore_priority(&sm_tasks[ti]);
+        } else if (act == 10U) {
+            syn_task_set_base_priority(&sm_tasks[ti],
+                                       (SYN_Prio)((r >> 14) % SYN_SCHED_PRIO_LEVELS));
+        } else {
+            if (((r >> 16) & 1U) != 0U) {
+                (void)syn_mutex_try_lock(&sm_mtx[mi], &sm_tasks[ti]);
+            } else {
+                (void)syn_mutex_unlock(&sm_mtx[mi], &sm_tasks[ti]);
+            }
+            (void)syn_event_flags_set(&sm_evt, 0x01U);
+            mock_tick_ms += 1U + ((r >> 20) % 3U);
+        }
+
+        sm_assert_invariants();
+    }
 }
 
 void run_mutex_tests(void)
@@ -1239,5 +1385,6 @@ void run_mutex_tests(void)
     RUN_TEST(test_mutex_try_lock_pt_continue_and_standalone_unlock_wake);
     RUN_TEST(test_mutex_switch_and_dual_contention_pi);
     RUN_TEST(test_mutex_standalone_evicted_wake_and_unbound_owner_refresh);
-    RUN_TEST(test_mutex_recursive_relock_wait_keep_and_cross_sched_pi);
+    RUN_TEST(test_mutex_recursive_relock_wait_keep_and_single_sched_isolation);
+    RUN_TEST(test_sched_mutex_state_machine_invariants);
 }

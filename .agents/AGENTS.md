@@ -16,12 +16,19 @@
   - `src/syntropic/<category>/syn_<name>.c/.h` — portable modules; umbrella header `src/syntropic/syntropic.h`; compile-time `SYN_USE_*` config template `src/syntropic/syn_config_template.h`.
   - `src/syntropic/port/` + `src/syntropic/port_stubs/syn_port_stubs.c` — `syn_port_*.h` HAL contracts and runtime-asserting weak stubs.
   - `src/port/<platform>/` — target port implementations (`stm32f4`, `stm32_hal`, `ch32v307`, `esp32`, `rp2040`, `arduino`, `posix`).
-- **Core Verification (`Makefile` lists all `container-*` targets)**: `make container-format` (`FIX=1` to auto-fix), `make container-test` / `make container-cov`, `make container-qemu`, `make container-san`, `make container-static`, `make container-lint`, `make container-dox`, `make container-examples`.
+- **Core Verification (`Makefile` lists all `container-*` targets)**: `make container-unit` (`FILTER=<substr>` for fast cached incremental loops; fails non-zero on `0` matches), `make container-format` (`FIX=1` to auto-fix), `make container-test` / `make container-cov` (full clean coverage gate), `make container-qemu`, `make container-san`, `make container-tsan`, `make container-static`, `make container-lint`, `make container-dox`, `make container-examples`.
 - **Adding a Module / Unit Test**:
   1. Implement `src/syntropic/<category>/syn_<name>.c/.h` with full Doxygen comments; expose in `src/syntropic/syntropic.h` (and `syn_config_template.h` if feature-gated).
   2. Add `.c` to `SYN_SRCS` in `tests/Makefile.unity`, `CMakeLists.txt`, and `sources.mk`.
-  3. Create `tests/unit/test_<name>.c` (`void run_<name>_tests(void)`) and register in `tests/unit/test_runner.c` (single `test_unity` binary, no single-test CLI filter; `tests/unit/mocks/mock_port.c` resets before each test).
+  3. Create `tests/unit/test_<name>.c` (`void run_<name>_tests(void)`) and register in `tests/unit/test_runner.c` (iterate fast with `make container-unit FILTER=<name>`; `tests/unit/mocks/mock_port.c` resets before each test).
   4. Document under `docs/modules/` (`mkdocs.yml`) and run `make container-format FIX=1`.
+
+## Context, Subagent & Container Discipline
+
+- **Subsystem `AGENTS.md` Maps**: Ancestor and subsystem `AGENTS.md` files (`src/syntropic/`, `src/port/`, `tests/unit/`, and `sched/`, `crypto/`, `net/`, `proto/`, `storage/`) document cross-directory wiring and C99 invariants. Read the target tree's `AGENTS.md` before exploratory reads; when an intentional change alters a subsystem's contract, update its `AGENTS.md` in the same diff.
+- **Slice Reads on Files `>800` Lines**: Never page multi-thousand-line `tests/unit/test_*.c`, `src/port/*`, or large protocol/VM files end-to-end just to locate symbols. Run `grep -n` first and call `read_file` with targeted `StartLine..EndLine` windows so context is not diluted or evicted.
+- **Subagent Partitioning & Warm Reuse**: Assign parallel `research` subagents strictly non-overlapping `.c` scopes. Because `research` subagents do not inherit workspace `AGENTS.md`, explicitly instruct them in `Prompt` to `read_file` the relevant `AGENTS.md` maps first and use `grep -n` + slice reads on `>800` line files. Reuse warm subagents via `send_message` across multi-pass audit/fix/verify turns rather than cold-spawning duplicates.
+- **Serialized Container Execution**: Never run two `make container-*` commands concurrently across tasks or subagents (`tools/containers/run_container.sh` sweeps active `syntropicos-test` containers before each launch).
 
 ## Caveman Mode Directives
 

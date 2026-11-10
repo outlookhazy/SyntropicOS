@@ -199,6 +199,23 @@ static void mutex_contend_waiter(SYN_Mutex *mutex, SYN_Task *task)
     }
 }
 
+static bool mutex_has_sched_conflict(const SYN_Mutex *mutex, const SYN_Task *task)
+{
+#if !defined(SYN_USE_SCHED) || SYN_USE_SCHED
+    if (task == NULL || task->sched == NULL) {
+        return false;
+    }
+    struct SYN_Sched *active_sched = (mutex->owner != NULL && mutex->owner->sched != NULL)
+                                         ? mutex->owner->sched
+                                         : mutex->wait_sched;
+    return (active_sched != NULL) && (active_sched != task->sched);
+#else
+    (void)mutex;
+    (void)task;
+    return false;
+#endif
+}
+
 static SYN_Status mutex_acquire_impl(SYN_Mutex *mutex, SYN_Task *task, bool wait_on_busy)
 {
     if (mutex == NULL) {
@@ -234,6 +251,11 @@ static SYN_Status mutex_acquire_impl(SYN_Mutex *mutex, SYN_Task *task, bool wait
         mutex->lock_count++;
         syn_port_exit_critical();
         return SYN_OK;
+    }
+
+    if (mutex_has_sched_conflict(mutex, task)) {
+        syn_port_exit_critical();
+        return SYN_INVALID_PARAM;
     }
 
     /* Case 3: Contended by another task */

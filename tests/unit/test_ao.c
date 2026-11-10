@@ -8,7 +8,15 @@
 #include "unity/unity.h"
 
 enum { AO_ST_OFF, AO_ST_ON };
-enum { AO_EV_TOGGLE, AO_EV_SET_VAL, AO_EV_SUSPEND, AO_EV_RESTART, AO_EV_SELF_POST };
+enum {
+    AO_EV_TOGGLE,
+    AO_EV_SET_VAL,
+    AO_EV_SUSPEND,
+    AO_EV_RESTART,
+    AO_EV_SELF_POST,
+    AO_EV_BOUNDED_SELF_POST,
+    AO_EV_ARM_ISR_RACE
+};
 
 static int ao_action_called = 0;
 static int ao_last_val = 0;
@@ -48,6 +56,32 @@ static void ao_on_self_post(void *ctx)
     (void)syn_ao_post(ao, AO_EV_SELF_POST, NULL);
 }
 
+static SYN_ActiveObject *s_isr_race_ao = NULL;
+
+static void ao_mock_isr_post_once(void)
+{
+    mock_critical_enter_cb = NULL;
+    if (s_isr_race_ao != NULL) {
+        (void)syn_ao_post(s_isr_race_ao, AO_EV_BOUNDED_SELF_POST, NULL);
+    }
+}
+
+static void ao_on_bounded_self_post(void *ctx)
+{
+    SYN_ActiveObject *ao = (SYN_ActiveObject *)ctx;
+    ao_action_called++;
+    if (ao_action_called < 10) {
+        (void)syn_ao_post(ao, AO_EV_BOUNDED_SELF_POST, NULL);
+    }
+}
+
+static void ao_on_arm_isr_race(void *ctx)
+{
+    s_isr_race_ao = (SYN_ActiveObject *)ctx;
+    ao_action_called++;
+    mock_critical_enter_cb = ao_mock_isr_post_once;
+}
+
 static const SYN_FSM_Transition test_ao_table[] = {
     {AO_ST_OFF, AO_EV_TOGGLE, AO_ST_ON, NULL, ao_on_toggle},
     {AO_ST_ON, AO_EV_TOGGLE, AO_ST_OFF, NULL, ao_on_toggle},
@@ -56,6 +90,8 @@ static const SYN_FSM_Transition test_ao_table[] = {
     {AO_ST_OFF, AO_EV_SUSPEND, AO_ST_ON, NULL, ao_on_self_suspend},
     {AO_ST_OFF, AO_EV_RESTART, AO_ST_ON, NULL, ao_on_self_restart},
     {AO_ST_OFF, AO_EV_SELF_POST, AO_ST_OFF, NULL, ao_on_self_post},
+    {AO_ST_OFF, AO_EV_BOUNDED_SELF_POST, AO_ST_OFF, NULL, ao_on_bounded_self_post},
+    {AO_ST_OFF, AO_EV_ARM_ISR_RACE, AO_ST_OFF, NULL, ao_on_arm_isr_race},
     SYN_FSM_END};
 
 static SYN_ActiveObject test_ao_obj;
@@ -322,6 +358,28 @@ static void test_active_object_self_post_burst_cap(void)
     TEST_ASSERT_EQUAL_size_t(2U, syn_mailbox_pending(&test_ao_obj.mailbox));
 }
 
+static void test_active_object_isr_post_at_zero_budget_no_underflow(void)
+{
+    SYN_Task ao_task;
+    SYN_Sched sched;
+
+    syn_ao_init(&test_ao_obj, &ao_task, "ao_isr_race", SYN_PRIO_NORMAL, test_ao_table, AO_ST_OFF,
+                mbox_buf, 4);
+    syn_sched_init(&sched, &ao_task, 1U);
+
+    /* Queue 1 event (burst_budget = 1); its handler arms an ISR post inside PT_BLOCK_CONDITION */
+    TEST_ASSERT_TRUE(syn_ao_post(&test_ao_obj, AO_EV_ARM_ISR_RACE, NULL));
+    ao_action_called = 0;
+    TEST_ASSERT_TRUE(syn_sched_run(&sched));
+    mock_critical_enter_cb = NULL;
+    s_isr_race_ao = NULL;
+
+    /* Must yield after initial budget (1) instead of underflowing burst_budget 0 -> SIZE_MAX */
+    TEST_ASSERT_EQUAL_INT(1, ao_action_called);
+    TEST_ASSERT_EQUAL_size_t(1U, syn_mailbox_pending(&test_ao_obj.mailbox));
+    TEST_ASSERT_TRUE((ao_task.sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
+}
+
 void run_ao_tests(void)
 {
     RUN_TEST(test_active_object);
@@ -332,4 +390,5 @@ void run_ao_tests(void)
     RUN_TEST(test_active_object_burst_shares_cpu);
     RUN_TEST(test_r4_active_object_self_suspend_and_restart);
     RUN_TEST(test_active_object_self_post_burst_cap);
+    RUN_TEST(test_active_object_isr_post_at_zero_budget_no_underflow);
 }

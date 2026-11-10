@@ -66,7 +66,7 @@ static SYN_PT_Status syn_ao_pt_run(SYN_PT *pt, SYN_Task *task)
         PT_BLOCK_CONDITION(pt, task, !syn_mailbox_empty(&ao->mailbox));
 
         SYN_AO_Event ev;
-        if (syn_mailbox_receive(&ao->mailbox, &ev)) {
+        while (burst_budget > 0U && syn_mailbox_receive(&ao->mailbox, &ev)) {
             if (ao_dispatch_event(pt, ao, ev)) {
                 return PT_MORE;
             }
@@ -74,9 +74,11 @@ static SYN_PT_Status syn_ao_pt_run(SYN_PT *pt, SYN_Task *task)
             if (task->state != (uint8_t)SYN_TASK_READY) {
                 PT_PASS(pt);
             }
+            if (!syn_mailbox_empty(&ao->mailbox) && syn_task_should_share(task)) {
+                PT_CONTINUE(pt);
+            }
         }
-        if (!syn_mailbox_empty(&ao->mailbox) &&
-            (burst_budget == 0U || syn_task_should_share(task))) {
+        if (!syn_mailbox_empty(&ao->mailbox)) {
             PT_CONTINUE(pt);
         }
     }

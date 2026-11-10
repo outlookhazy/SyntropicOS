@@ -556,8 +556,9 @@ static void mdns_handle_packet(const SYN_Mdns *mdns, const uint8_t *buf, size_t 
             return;
         }
         uint16_t qtype = syn_peek_u16(buf, pos);
+        uint16_t qclass = (uint16_t)(syn_peek_u16(buf, pos + 2U) & 0x7FFFU);
         pos += 4U; /* QTYPE + QCLASS */
-        if (matched && (qtype == 1U || qtype == 255U)) {
+        if (matched && (qtype == 1U || qtype == 255U) && (qclass == 1U || qclass == 255U)) {
             mdns_send_response(mdns);
             return;
         }
