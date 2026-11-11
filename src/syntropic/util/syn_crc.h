@@ -35,9 +35,13 @@ extern "C" {
 
 /* ── Configuration ──────────────────────────────────────────────────────── */
 
-/** Set to 1 for lookup-table CRC (fast), 0 for bit-by-bit (small). */
+/** Set to 1 for lookup-table CRC (fast), 0 for bit-by-bit (small; default on AVR Harvard SRAM). */
 #ifndef SYN_CRC_USE_TABLE
+#if defined(__AVR__)
+#define SYN_CRC_USE_TABLE 0
+#else
 #define SYN_CRC_USE_TABLE 1
+#endif
 #endif
 
 /* ── CRC-8 (MAXIM / Dallas 1-Wire) ─────────────────────────────────────── */

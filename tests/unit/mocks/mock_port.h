@@ -136,6 +136,11 @@ typedef SYN_Status (*MockSpiTransferCallback)(uint8_t bus, const uint8_t *tx_buf
                                               size_t len);
 void mock_spi_set_transfer_callback(MockSpiTransferCallback cb);
 
+/** Optional I2C transfer hook — overrides default no-op when non-NULL. */
+typedef SYN_Status (*MockI2cTransferCallback)(uint8_t i2c_id, uint16_t addr, const uint8_t *tx,
+                                              size_t tx_len, uint8_t *rx, size_t rx_len);
+void mock_i2c_set_transfer_callback(MockI2cTransferCallback cb);
+
 /* ── Socket ─────────────────────────────────────────────────────────────── */
 
 #define MOCK_SOCK_BUF_SIZE 4096

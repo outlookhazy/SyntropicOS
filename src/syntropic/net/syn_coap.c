@@ -178,7 +178,11 @@ size_t syn_coap_serialize(const SYN_CoapMsg *msg, const SYN_CoapOption *options,
     uint16_t prev_num = 0U;
     for (size_t i = 0U; i < option_count; i++) {
         size_t opt_len = sorted[i].len;
-        if (opt_len > 65804U || (opt_len > 0U && sorted[i].val == NULL)) {
+        if (
+#if SIZE_MAX > 65804U
+            opt_len > 65804U ||
+#endif
+            (opt_len > 0U && sorted[i].val == NULL)) {
             return 0U;
         }
 

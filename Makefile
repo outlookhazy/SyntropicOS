@@ -3,12 +3,12 @@
 
 .PHONY: help clean install-hooks \
 	test unit format lint misra stack size complexity san tsan qemu renode fuzz \
-	cov static dox pio valgrind analyzer flawfinder integration examples \
+	cov static dox pio arduino valgrind analyzer flawfinder integration examples \
 	container-build container-test container-unit container-format container-lint \
 	container-misra container-stack container-size container-complexity \
 	container-san container-tsan container-qemu container-renode \
 	container-fuzz container-cov container-static container-dox \
-	container-pio container-valgrind container-analyzer \
+	container-pio container-arduino container-valgrind container-analyzer \
 	container-flawfinder container-integration container-examples
 
 install-hooks:
@@ -77,6 +77,9 @@ dox:
 
 pio:
 	@$(MAKE) -C tools/containers pio
+
+arduino:
+	@$(MAKE) -C tools/containers arduino SKETCH="$(SKETCH)" UPLOAD="$(UPLOAD)" ARDUINO_PORT="$(ARDUINO_PORT)" FQBN="$(FQBN)"
 
 valgrind:
 	@$(MAKE) -C tools/containers valgrind
@@ -152,6 +155,9 @@ container-dox:
 
 container-pio:
 	@$(MAKE) -C tools/containers container-pio
+
+container-arduino:
+	@$(MAKE) -C tools/containers container-arduino SKETCH="$(SKETCH)" UPLOAD="$(UPLOAD)" $(if $(ARDUINO_PORT),ARDUINO_PORT="$(ARDUINO_PORT)") $(if $(FQBN),FQBN="$(FQBN)")
 
 container-integration:
 	@$(MAKE) -C tools/containers container-integration

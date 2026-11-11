@@ -3,6 +3,8 @@
  * @brief Bare-metal startup code and vector table for WCH CH32V307VCT6 (QingKe V4F RISC-V).
  */
 
+#if (defined(CH32V307xx) || defined(CH32V307)) && !defined(ARDUINO)
+
 #include <stdint.h>
 
 /** @brief Start address of initialized data section in Flash. */
@@ -159,3 +161,5 @@ SYN_ISR_ATTR void Default_Handler(void)
     while (1) {
     }
 }
+
+#endif /* (CH32V307xx || CH32V307) && !ARDUINO */

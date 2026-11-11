@@ -19,23 +19,28 @@
 
 size_t syn_lwm2m_tlv_encode(const SYN_LwM2M_TLV *tlv, uint8_t *buf, size_t max_len)
 {
-    if (tlv == NULL || buf == NULL || tlv->len > 0xFFFFFFU) {
+    if (tlv == NULL || buf == NULL
+#if SIZE_MAX > 0xFFFFFFU
+        || tlv->len > 0xFFFFFFU
+#endif
+    ) {
         return 0U;
     }
 
+    uint32_t ulen = (uint32_t)tlv->len;
     size_t id_len = (tlv->id > 0xFFU) ? 2U : 1U;
     size_t len_bytes = 0U;
     uint8_t len_type_bits = 0U;
     uint8_t direct_len_bits = 0U;
 
-    if (tlv->len <= 7U) {
+    if (ulen <= 7UL) {
         len_bytes = 0U;
         len_type_bits = 0x00U;
-        direct_len_bits = (uint8_t)tlv->len;
-    } else if (tlv->len <= 0xFFU) {
+        direct_len_bits = (uint8_t)ulen;
+    } else if (ulen <= 0xFFUL) {
         len_bytes = 1U;
         len_type_bits = 0x08U;
-    } else if (tlv->len <= 0xFFFFU) {
+    } else if (ulen <= 0xFFFFUL) {
         len_bytes = 2U;
         len_type_bits = 0x10U;
     } else {
@@ -66,14 +71,14 @@ size_t syn_lwm2m_tlv_encode(const SYN_LwM2M_TLV *tlv, uint8_t *buf, size_t max_l
     }
 
     if (len_bytes == 1U) {
-        buf[offset++] = (uint8_t)(tlv->len & 0xFFU);
+        buf[offset++] = (uint8_t)(ulen & 0xFFUL);
     } else if (len_bytes == 2U) {
-        buf[offset++] = (uint8_t)((tlv->len >> 8U) & 0xFFU);
-        buf[offset++] = (uint8_t)(tlv->len & 0xFFU);
+        buf[offset++] = (uint8_t)((ulen >> 8U) & 0xFFUL);
+        buf[offset++] = (uint8_t)(ulen & 0xFFUL);
     } else if (len_bytes == 3U) {
-        buf[offset++] = (uint8_t)((tlv->len >> 16U) & 0xFFU);
-        buf[offset++] = (uint8_t)((tlv->len >> 8U) & 0xFFU);
-        buf[offset++] = (uint8_t)(tlv->len & 0xFFU);
+        buf[offset++] = (uint8_t)((ulen >> 16U) & 0xFFUL);
+        buf[offset++] = (uint8_t)((ulen >> 8U) & 0xFFUL);
+        buf[offset++] = (uint8_t)(ulen & 0xFFUL);
     }
 
     if (tlv->len > 0U && tlv->val != NULL) {
@@ -253,32 +258,33 @@ bool syn_lwm2m_tlv_decode(const uint8_t *buf, size_t buf_len, SYN_LwM2M_TLV *tlv
         tlv->id = (uint16_t)buf[offset++];
     }
 
-    size_t val_len = 0U;
+    uint32_t raw_len = 0U;
     if (len_type == 0U) {
-        val_len = direct_len;
+        raw_len = (uint32_t)direct_len;
     } else if (len_type == 1U) {
         if (offset + 1U > buf_len) {
             return false;
         }
-        val_len = (size_t)buf[offset++];
+        raw_len = (uint32_t)buf[offset++];
     } else if (len_type == 2U) {
         if (offset + 2U > buf_len) {
             return false;
         }
-        val_len = ((size_t)buf[offset] << 8U) | (size_t)buf[offset + 1U];
+        raw_len = ((uint32_t)buf[offset] << 8U) | (uint32_t)buf[offset + 1U];
         offset += 2U;
     } else {
         if (offset + 3U > buf_len) {
             return false;
         }
-        val_len = ((size_t)buf[offset] << 16U) | ((size_t)buf[offset + 1U] << 8U) |
-                  (size_t)buf[offset + 2U];
+        raw_len = ((uint32_t)buf[offset] << 16U) | ((uint32_t)buf[offset + 1U] << 8U) |
+                  (uint32_t)buf[offset + 2U];
         offset += 3U;
     }
 
-    if (offset + val_len > buf_len) {
+    if ((uint64_t)raw_len > (uint64_t)(buf_len - offset)) {
         return false;
     }
+    size_t val_len = (size_t)raw_len;
 
     tlv->val = buf + offset;
     tlv->len = val_len;
@@ -496,7 +502,8 @@ size_t syn_lwm2m_build_register_request(SYN_LwM2M_Client *client, uint16_t msg_i
     /* Options: Uri-Path: "rd", Uri-Query: "ep=...", Uri-Query: "lt=...", Uri-Query: "lwm2m=1.1",
      * Uri-Query: "b=U", Content-Format: 40 */
     (void)snprintf(client->query_ep, sizeof(client->query_ep), "ep=%s", client->endpoint_name);
-    (void)snprintf(client->query_lt, sizeof(client->query_lt), "lt=%u", client->lifetime_s);
+    (void)snprintf(client->query_lt, sizeof(client->query_lt), "lt=%lu",
+                   (unsigned long)client->lifetime_s);
 
     static const uint8_t fmt_link = SYN_LWM2M_FORMAT_LINK_FORMAT;
 
@@ -603,7 +610,7 @@ size_t syn_lwm2m_build_update_request(SYN_LwM2M_Client *client, uint16_t msg_id,
     req->payload_len = 0U;
 
     uint32_t lt = (lifetime_s > 0U) ? lifetime_s : client->lifetime_s;
-    (void)snprintf(client->query_lt, sizeof(client->query_lt), "lt=%u", lt);
+    (void)snprintf(client->query_lt, sizeof(client->query_lt), "lt=%lu", (unsigned long)lt);
 
     req_opts[uri_cnt].num = COAP_OPT_URI_QUERY;
     req_opts[uri_cnt].val = (const uint8_t *)client->query_lt;
@@ -1176,6 +1183,40 @@ static bool lwm2m_decode_plain_bool(const char *s, SYN_LwM2M_Value *out_val)
 }
 
 /**
+ * @brief Parse a NUL-terminated decimal integer string into `int64_t` with overflow rejection.
+ *
+ * @param s   NUL-terminated ASCII decimal string (optional leading `+` or `-`).
+ * @param out [out] Parsed signed 64-bit integer.
+ * @return true if @p s is a valid in-range `int64_t` decimal representation, false otherwise.
+ */
+static bool lwm2m_parse_i64(const char *s, int64_t *out)
+{
+    size_t i = 0U;
+    bool neg = false;
+    if (s[0] == '-' || s[0] == '+') {
+        neg = (s[0] == '-');
+        i = 1U;
+    }
+    if (s[i] == '\0') {
+        return false;
+    }
+    uint64_t limit = neg ? ((uint64_t)INT64_MAX + 1ULL) : (uint64_t)INT64_MAX;
+    uint64_t acc = 0ULL;
+    for (; s[i] != '\0'; i++) {
+        if (s[i] < '0' || s[i] > '9') {
+            return false;
+        }
+        uint64_t d = (uint64_t)(uint8_t)(s[i] - '0');
+        if (acc > (limit - d) / 10ULL) {
+            return false;
+        }
+        acc = (acc * 10ULL) + d;
+    }
+    *out = neg ? ((acc == ((uint64_t)INT64_MAX + 1ULL)) ? INT64_MIN : -(int64_t)acc) : (int64_t)acc;
+    return true;
+}
+
+/**
  * @brief Decode plain-text or opaque payload into a typed LwM2M value container.
  *
  * @param payload     Raw payload bytes (not necessarily NUL-terminated).
@@ -1213,8 +1254,8 @@ static bool lwm2m_decode_plain_payload(const uint8_t *payload, size_t payload_le
     char *endptr = NULL;
 
     if (type == SYN_LWM2M_TYPE_INT || type == SYN_LWM2M_TYPE_TIME) {
-        int64_t iv = (int64_t)strtoll(num_buf, &endptr, 10);
-        if (endptr != num_buf && *endptr == '\0') {
+        int64_t iv = 0;
+        if (lwm2m_parse_i64(num_buf, &iv)) {
             out_val->type = type;
             out_val->val.integer = iv;
             return true;

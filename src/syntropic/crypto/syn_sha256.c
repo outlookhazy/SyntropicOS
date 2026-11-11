@@ -18,6 +18,19 @@
 
 #include <string.h>
 
+#if defined(__AVR__)
+#include <avr/pgmspace.h>
+/** @brief AVR PROGMEM storage qualifier for SHA-256 round constants. */
+#define SYN_SHA256_PROGMEM PROGMEM
+/** @brief Read SHA-256 round constant K[i] from flash/RODATA. */
+#define SYN_SHA256_K(i) pgm_read_dword(&K[(i)])
+#else
+/** @brief Host/32-bit storage qualifier for SHA-256 round constants. */
+#define SYN_SHA256_PROGMEM
+/** @brief Read SHA-256 round constant K[i] from flash/RODATA. */
+#define SYN_SHA256_K(i) (K[(i)])
+#endif
+
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
 /** FIPS 180-4 initial hash values (H0–H7). */
@@ -25,7 +38,7 @@ static const uint32_t H_INIT[8] = {0x6a09e667u, 0xbb67ae85u, 0x3c6ef372u, 0xa54f
                                    0x510e527fu, 0x9b05688cu, 0x1f83d9abu, 0x5be0cd19u};
 
 /** FIPS 180-4 round constants (K0–K63). */
-static const uint32_t K[64] = {
+static const uint32_t K[64] SYN_SHA256_PROGMEM = {
     0x428a2f98u, 0x71374491u, 0xb5c0fbcfu, 0xe9b5dba5u, 0x3956c25bu, 0x59f111f1u, 0x923f82a4u,
     0xab1c5ed5u, 0xd807aa98u, 0x12835b01u, 0x243185beu, 0x550c7dc3u, 0x72be5d74u, 0x80deb1feu,
     0x9bdc06a7u, 0xc19bf174u, 0xe49b69c1u, 0xefbe4786u, 0x0fc19dc6u, 0x240ca1ccu, 0x2de92c6fu,
@@ -147,7 +160,7 @@ static void sha256_transform(uint32_t state[8], const uint8_t block[64])
 
     /* 64 rounds */
     for (i = 0; i < 64; i++) {
-        uint32_t t1 = h + sigma1(e) + ch(e, f, g) + K[i] + W[i];
+        uint32_t t1 = h + sigma1(e) + ch(e, f, g) + SYN_SHA256_K(i) + W[i];
         uint32_t t2 = sigma0(a) + maj(a, b, c);
         h = g;
         g = f;

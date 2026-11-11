@@ -58,7 +58,11 @@ extern "C" {
 
 /** Maximum length of a single command line (including null terminator). */
 #ifndef SYN_CLI_LINE_BUF_SIZE
+#if defined(__AVR__)
+#define SYN_CLI_LINE_BUF_SIZE 80
+#else
 #define SYN_CLI_LINE_BUF_SIZE 128
+#endif
 #endif
 
 /** Maximum number of arguments (including the command name). */

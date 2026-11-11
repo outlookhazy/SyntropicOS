@@ -46,8 +46,6 @@ static SYN_SCurve       sc;
 static SYN_PubSubBroker broker;
 static SYN_PubSubSub    sub_array[4];
 
-static int32_t          last_published_p = 0;
-
 /* ── PubSub Event Handlers ────────────────────────────────────────────── */
 
 static void on_motion_event(uint16_t topic, const void *payload, size_t len, void *ctx)

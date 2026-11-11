@@ -24,12 +24,12 @@ CACHE_VOL ?= syntropicos-build-cache
 
 .PHONY: help \
 	test unit format lint misra stack size complexity san tsan qemu renode fuzz \
-	cov static dox pio valgrind analyzer flawfinder integration examples \
+	cov static dox pio arduino valgrind analyzer flawfinder integration examples \
 	container-build container-volume container-test container-unit container-format \
 	container-lint container-misra container-stack container-size \
 	container-complexity container-san container-tsan container-qemu \
 	container-renode container-fuzz container-cov container-static \
-	container-dox container-pio container-valgrind container-analyzer \
+	container-dox container-pio container-arduino container-valgrind container-analyzer \
 	container-flawfinder container-integration container-examples
 
 help:
@@ -56,6 +56,7 @@ help:
 	@echo "  make container-renode      Run Renode STM32F4 board hardware emulation"
 	@echo "  make container-examples    Cross-compile all examples & lean config profiles"
 	@echo "  make container-pio         Cross-compile PlatformIO multi-MCU matrix"
+	@echo "  make container-arduino     Compile AVR sketches & run HIL check on Arduino Uno"
 	@echo "  make container-integration Run 3rd-party container integration suite"
 	@echo "  make container-dox         Verify Doxygen API documentation (0 warnings)"
 	@echo "  make clean                 Remove host build/coverage/doxygen artifacts"
@@ -113,6 +114,9 @@ dox:
 
 pio:
 	@bash $(ROOT_DIR)/tools/platformio/run_platformio.sh
+
+arduino:
+	@SKETCH="$(SKETCH)" UPLOAD="$(UPLOAD)" ARDUINO_PORT="$(ARDUINO_PORT)" FQBN="$(FQBN)" bash $(ROOT_DIR)/tools/arduino/run_arduino.sh
 
 integration:
 	@bash $(ROOT_DIR)/tests/integration/run_integration.sh
@@ -182,8 +186,22 @@ container-static: container-build container-volume
 container-dox: container-build
 	@$(CONTAINER_RUN) -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers dox JOBS=$(JOBS)
 
+ifeq ($(strip $(ARDUINO_PORT)),)
+  override ARDUINO_PORT := /dev/ttyACM0
+endif
+ARDUINO_DEV_FLAGS := $(shell if [ -c "$(ARDUINO_PORT)" ]; then \
+	if echo "$(CONTAINER_ENGINE)" | grep -q "podman"; then \
+		echo "--device=$(ARDUINO_PORT) --group-add keep-groups --security-opt label=disable"; \
+	else \
+		echo "--device=$(ARDUINO_PORT) --security-opt label=disable"; \
+	fi; \
+fi)
+
 container-pio: container-build container-volume
 	@$(CONTAINER_RUN) -v $(CACHE_VOL):/workspace/build -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers pio JOBS=$(JOBS)
+
+container-arduino: container-build container-volume
+	@$(CONTAINER_RUN) $(ARDUINO_DEV_FLAGS) -v $(CACHE_VOL):/workspace/build -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers arduino JOBS=$(JOBS) SKETCH="$(SKETCH)" UPLOAD="$(UPLOAD)" ARDUINO_PORT="$(ARDUINO_PORT)" FQBN="$(FQBN)"
 
 valgrind:
 	@bash $(ROOT_DIR)/tools/valgrind/run_valgrind.sh

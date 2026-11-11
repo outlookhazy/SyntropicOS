@@ -7,9 +7,13 @@ cd "${ROOT_DIR}"
 
 echo "=== SyntropicOS PlatformIO Package Validation & Build Audit ==="
 
-if ! command -v pio >/dev/null 2>&1; then
-    echo "Installing PlatformIO CLI..."
-    python3 -m pip install --break-system-packages platformio
+PIO_VENV="${ROOT_DIR}/build/pio-venv"
+export PATH="${PIO_VENV}/bin:${PATH}"
+
+if [ ! -x "${PIO_VENV}/bin/pio" ]; then
+    echo "Installing PlatformIO CLI into cached venv..."
+    python3 -m venv "${PIO_VENV}"
+    "${PIO_VENV}/bin/pip" install --quiet platformio
 fi
 
 echo "=== 1. Validating library.json Manifest & Packaging ==="

@@ -190,7 +190,9 @@ void syn_chacha20_xor(const uint8_t key[32], const uint8_t nonce[12], uint32_t c
         return;
     }
 
-    if (((uint64_t)(len - 1U) / 64ULL) > (uint64_t)(UINT32_MAX - counter)) {
+    uint64_t blocks = ((uint64_t)len - 1ULL) / 64ULL;
+    uint64_t max_blocks = (uint64_t)((uint32_t)0xFFFFFFFFUL - counter);
+    if (blocks > max_blocks) {
         return;
     }
 

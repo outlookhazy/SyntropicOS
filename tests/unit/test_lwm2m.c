@@ -1628,6 +1628,95 @@ static void test_pro06_lwm2m_hardening(void)
     TEST_ASSERT_EQUAL_INT(SYN_ERROR, dev_obj.write(0U, 14U, &bad_str_val, dev_obj.user_ctx));
 }
 
+static SYN_LwM2M_Value s_plain_int_last;
+
+static SYN_Status plain_int_write_cb(uint16_t instance_id, uint16_t res_id,
+                                     const SYN_LwM2M_Value *val, void *ctx)
+{
+    (void)instance_id;
+    (void)res_id;
+    (void)ctx;
+    s_plain_int_last = *val;
+    return SYN_OK;
+}
+
+static void test_lwm2m_avr16_codec_and_plain_int_bounds(void)
+{
+    /* 3-byte TLV length exceeding remaining buffer must fail cleanly without wrap */
+    const uint8_t trunc_24bit[6] = {0xD8U, 0x01U, 0x01U, 0x00U, 0x02U, 0xAAU};
+    SYN_LwM2M_TLV tlv;
+    size_t consumed = 0U;
+    TEST_ASSERT_FALSE(syn_lwm2m_tlv_decode(trunc_24bit, sizeof(trunc_24bit), &tlv, &consumed));
+
+    /* Plain-text 64-bit signed integer decode: +/-/INT64_MAX/INT64_MIN and overflow rejection */
+    static SYN_Transport tr;
+    static SYN_LwM2M_Client cli;
+    (void)memset(&tr, 0, sizeof(tr));
+    TEST_ASSERT_TRUE(syn_lwm2m_client_init(&cli, "int64-ep", 86400UL, &tr));
+
+    static const uint16_t inst_zero = 0U;
+    static const SYN_LwM2M_ResourceDesc res_desc = {
+        .id = 0U, .operations = SYN_LWM2M_OP_RW, .type = SYN_LWM2M_TYPE_INT};
+    SYN_LwM2M_Object obj = {
+        .id = 9999U,
+        .instance_count = 1U,
+        .instances = &inst_zero,
+        .resource_count = 1U,
+        .resources = &res_desc,
+        .read = NULL,
+        .write = plain_int_write_cb,
+        .exec = NULL,
+        .user_ctx = NULL,
+    };
+    TEST_ASSERT_TRUE(syn_lwm2m_register_object(&cli, &obj));
+
+    uint8_t fmt_text = SYN_LWM2M_FORMAT_TEXT;
+    SYN_CoapOption opts[4] = {
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"9999", .len = 4U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+        {.num = COAP_OPT_URI_PATH, .val = (const uint8_t *)"0", .len = 1U},
+        {.num = COAP_OPT_CONTENT_FORMAT, .val = &fmt_text, .len = 1U},
+    };
+    SYN_CoapMsg req = {.type = COAP_TYPE_CON, .code = COAP_CODE_PUT, .msg_id = 1U};
+    SYN_CoapMsg resp = {0};
+    SYN_CoapOption resp_opts[4];
+    size_t resp_opt_cnt = 0U;
+    uint8_t resp_buf[64];
+
+    req.payload = (const uint8_t *)"+42";
+    req.payload_len = 3U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_process_request(&cli, &req, opts, 4U, &resp, resp_opts,
+                                                            4U, &resp_opt_cnt, resp_buf, 64U));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_CHANGED, resp.code);
+    TEST_ASSERT_TRUE(s_plain_int_last.val.integer == 42);
+
+    req.payload = (const uint8_t *)"9223372036854775807";
+    req.payload_len = 19U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_process_request(&cli, &req, opts, 4U, &resp, resp_opts,
+                                                            4U, &resp_opt_cnt, resp_buf, 64U));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_CHANGED, resp.code);
+    TEST_ASSERT_TRUE(s_plain_int_last.val.integer == INT64_MAX);
+
+    req.payload = (const uint8_t *)"-9223372036854775808";
+    req.payload_len = 20U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_process_request(&cli, &req, opts, 4U, &resp, resp_opts,
+                                                            4U, &resp_opt_cnt, resp_buf, 64U));
+    TEST_ASSERT_EQUAL_UINT8(COAP_RESP_CHANGED, resp.code);
+    TEST_ASSERT_TRUE(s_plain_int_last.val.integer == INT64_MIN);
+
+    /* Reject sign-only, non-digits, and > INT64_MAX / < INT64_MIN overflow */
+    const char *invalid_cases[] = {
+        "-", "+", "12a", "9223372036854775808", "-9223372036854775809", "99999999999999999999"};
+    for (size_t k = 0U; k < sizeof(invalid_cases) / sizeof(invalid_cases[0]); k++) {
+        req.payload = (const uint8_t *)invalid_cases[k];
+        req.payload_len = strlen(invalid_cases[k]);
+        TEST_ASSERT_EQUAL_INT(SYN_OK,
+                              syn_lwm2m_process_request(&cli, &req, opts, 4U, &resp, resp_opts, 4U,
+                                                        &resp_opt_cnt, resp_buf, 64U));
+        TEST_ASSERT_EQUAL_UINT8(COAP_RESP_BAD_REQ, resp.code);
+    }
+}
+
 void run_lwm2m_tests(void)
 {
     RUN_TEST(test_lwm2m_tlv_integer_codec);
@@ -1641,4 +1730,5 @@ void run_lwm2m_tests(void)
     RUN_TEST(test_lwm2m_r4_p01_p05_regressions);
     RUN_TEST(test_r5_n10_lwm2m_fw_uri_observe_cancel_and_instance_notify);
     RUN_TEST(test_pro06_lwm2m_hardening);
+    RUN_TEST(test_lwm2m_avr16_codec_and_plain_int_bounds);
 }

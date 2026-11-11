@@ -26,9 +26,9 @@ float syn_pmbus_linear11_to_float(uint16_t raw)
     }
     float f_mantissa = (float)mantissa;
     if (exponent >= 0) {
-        return f_mantissa * (float)(1U << (uint8_t)exponent);
+        return f_mantissa * (float)((uint32_t)1U << (uint8_t)exponent);
     }
-    return f_mantissa / (float)(1U << (uint8_t)(-exponent));
+    return f_mantissa / (float)((uint32_t)1U << (uint8_t)(-exponent));
 }
 
 uint16_t syn_pmbus_float_to_linear11(float val)
@@ -76,9 +76,9 @@ float syn_pmbus_linear16_to_float(uint16_t raw, uint8_t vout_mode)
     }
     float f_mantissa = (float)raw;
     if (exponent >= 0) {
-        return f_mantissa * (float)(1U << (uint8_t)exponent);
+        return f_mantissa * (float)((uint32_t)1U << (uint8_t)exponent);
     }
-    return f_mantissa / (float)(1U << (uint8_t)(-exponent));
+    return f_mantissa / (float)((uint32_t)1U << (uint8_t)(-exponent));
 }
 
 uint16_t syn_pmbus_float_to_linear16(float val, uint8_t vout_mode)
@@ -92,9 +92,9 @@ uint16_t syn_pmbus_float_to_linear16(float val, uint8_t vout_mode)
     }
     float scaled = val;
     if (exponent >= 0) {
-        scaled /= (float)(1U << (uint8_t)exponent);
+        scaled /= (float)((uint32_t)1U << (uint8_t)exponent);
     } else {
-        scaled *= (float)(1U << (uint8_t)(-exponent));
+        scaled *= (float)((uint32_t)1U << (uint8_t)(-exponent));
     }
     if (scaled < 0.0f) {
         scaled = 0.0f;

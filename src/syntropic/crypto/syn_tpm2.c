@@ -158,10 +158,11 @@ static bool tpm2_read_bytes(const uint8_t *buf, size_t *pos, size_t max_len, uin
 static SYN_Status tpm2_execute_command(SYN_TPM2_Context *ctx, size_t cmd_len, size_t *out_resp_len)
 {
     /* Patch paramSize in command header (bytes 2..5) */
-    ctx->cfg.tx_buf[2] = (uint8_t)((cmd_len >> 24U) & 0xFFU);
-    ctx->cfg.tx_buf[3] = (uint8_t)((cmd_len >> 16U) & 0xFFU);
-    ctx->cfg.tx_buf[4] = (uint8_t)((cmd_len >> 8U) & 0xFFU);
-    ctx->cfg.tx_buf[5] = (uint8_t)(cmd_len & 0xFFU);
+    uint32_t ulen = (uint32_t)cmd_len;
+    ctx->cfg.tx_buf[2] = (uint8_t)((ulen >> 24U) & 0xFFU);
+    ctx->cfg.tx_buf[3] = (uint8_t)((ulen >> 16U) & 0xFFU);
+    ctx->cfg.tx_buf[4] = (uint8_t)((ulen >> 8U) & 0xFFU);
+    ctx->cfg.tx_buf[5] = (uint8_t)(ulen & 0xFFU);
 
     if (!syn_transport_send(ctx->cfg.transport, ctx->cfg.tx_buf, cmd_len)) {
         return SYN_ERROR;

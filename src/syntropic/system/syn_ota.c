@@ -142,6 +142,7 @@ static uint32_t ota_slot_hdr_offset(const SYN_FwBootManager *boot_mgr, uint8_t s
  */
 static void ota_configure_crypto(SYN_OTA_Manager *mgr)
 {
+    (void)mgr;
 #if defined(SYN_FW_USE_HMAC) && SYN_FW_USE_HMAC
     if (mgr->crypto_mode == SYN_OTA_CRYPTO_HMAC_SHA256) {
         syn_fwupdate_set_key(&mgr->fw_upd, mgr->hmac_key, mgr->hmac_key_len);
@@ -211,6 +212,8 @@ SYN_Status syn_ota_set_target_slot(SYN_OTA_Manager *mgr, uint8_t slot_idx)
 SYN_Status syn_ota_set_verification_key(SYN_OTA_Manager *mgr, SYN_OTA_CryptoMode mode,
                                         const uint8_t *key, size_t key_len)
 {
+    (void)key;
+    (void)key_len;
     if (mgr == NULL) {
         return SYN_INVALID_PARAM;
     }
@@ -260,6 +263,8 @@ SYN_Status syn_ota_set_verification_key(SYN_OTA_Manager *mgr, SYN_OTA_CryptoMode
 SYN_Status syn_ota_set_aes_gcm_params(SYN_OTA_Manager *mgr, const uint8_t *key, size_t key_len,
                                       const uint8_t *iv, size_t iv_len)
 {
+    (void)key_len;
+    (void)iv_len;
     if (mgr == NULL || key == NULL || iv == NULL) {
         return SYN_INVALID_PARAM;
     }

@@ -119,8 +119,11 @@ SYN_Status syn_hmac_drbg_reseed(SYN_HMAC_DRBG *ctx, const uint8_t *entropy, size
 SYN_Status syn_hmac_drbg_generate(SYN_HMAC_DRBG *ctx, uint8_t *out, size_t out_len,
                                   const uint8_t *add_input, size_t add_len)
 {
-    if (ctx == NULL || !ctx->initialized || out == NULL ||
-        out_len > SYN_HMAC_DRBG_MAX_REQUEST_BYTES) {
+    if (ctx == NULL || !ctx->initialized || out == NULL
+#if SIZE_MAX > SYN_HMAC_DRBG_MAX_REQUEST_BYTES
+        || out_len > SYN_HMAC_DRBG_MAX_REQUEST_BYTES
+#endif
+    ) {
         return SYN_INVALID_PARAM;
     }
 
@@ -157,9 +160,11 @@ SYN_Status syn_hmac_drbg_generate_pr(SYN_HMAC_DRBG *ctx, uint8_t *out, size_t ou
                                      const uint8_t *entropy, size_t ent_len,
                                      const uint8_t *add_input, size_t add_len)
 {
-    if (ctx == NULL || !ctx->initialized || out == NULL ||
-        out_len > SYN_HMAC_DRBG_MAX_REQUEST_BYTES || entropy == NULL ||
-        ent_len < SYN_HMAC_DRBG_MIN_ENTROPY_LEN) {
+    if (ctx == NULL || !ctx->initialized || out == NULL
+#if SIZE_MAX > SYN_HMAC_DRBG_MAX_REQUEST_BYTES
+        || out_len > SYN_HMAC_DRBG_MAX_REQUEST_BYTES
+#endif
+        || entropy == NULL || ent_len < SYN_HMAC_DRBG_MIN_ENTROPY_LEN) {
         return SYN_INVALID_PARAM;
     }
 

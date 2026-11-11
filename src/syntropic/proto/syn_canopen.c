@@ -354,14 +354,15 @@ static void canopen_sdo_upload(SYN_CANOpenNode *node, uint16_t index, uint8_t su
     node->sdo_session.total_bytes = entry->size;
     node->sdo_session.transferred_bytes = 0U;
 
+    uint32_t usize = (uint32_t)entry->size;
     uint8_t resp[8] = {0x41U,
                        data[1],
                        data[2],
                        data[3],
-                       (uint8_t)(entry->size & 0xFFU),
-                       (uint8_t)((entry->size >> 8U) & 0xFFU),
-                       (uint8_t)((entry->size >> 16U) & 0xFFU),
-                       (uint8_t)((entry->size >> 24U) & 0xFFU)};
+                       (uint8_t)(usize & 0xFFU),
+                       (uint8_t)((usize >> 8U) & 0xFFU),
+                       (uint8_t)((usize >> 16U) & 0xFFU),
+                       (uint8_t)((usize >> 24U) & 0xFFU)};
     canopen_queue_tx(node, 0x580U + node->node_id, resp, 8U);
 }
 

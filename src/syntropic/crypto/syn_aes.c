@@ -17,6 +17,27 @@
 
 #include <string.h>
 
+#if defined(__AVR__)
+#include <avr/pgmspace.h>
+/** @brief AVR PROGMEM storage qualifier for AES lookup tables. */
+#define SYN_AES_PROGMEM PROGMEM
+/** @brief Read forward S-box entry from flash/RODATA. */
+#define SYN_AES_SBOX(x) pgm_read_byte(&sbox[(x)])
+/** @brief Read inverse S-box entry from flash/RODATA. */
+#define SYN_AES_RSBOX(x) pgm_read_byte(&rsbox[(x)])
+/** @brief Read round constant entry from flash/RODATA. */
+#define SYN_AES_RCON(x) pgm_read_byte(&rcon[(x)])
+#else
+/** @brief Host/32-bit storage qualifier for AES lookup tables. */
+#define SYN_AES_PROGMEM
+/** @brief Read forward S-box entry from flash/RODATA. */
+#define SYN_AES_SBOX(x) (sbox[(x)])
+/** @brief Read inverse S-box entry from flash/RODATA. */
+#define SYN_AES_RSBOX(x) (rsbox[(x)])
+/** @brief Read round constant entry from flash/RODATA. */
+#define SYN_AES_RCON(x) (rcon[(x)])
+#endif
+
 /**
  * @brief Zeroize sensitive stack buffers without compiler dead-store elimination.
  * @param v Buffer pointer.
@@ -33,7 +54,7 @@ static void syn_secure_zero(void *v, size_t n)
 /* ── AES Forward S-Box ───────────────────────────────────────────────────── */
 
 /** Forward Substitution Box (S-Box) */
-static const uint8_t sbox[256] = {
+static const uint8_t sbox[256] SYN_AES_PROGMEM = {
     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
     0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
     0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15,
@@ -55,7 +76,7 @@ static const uint8_t sbox[256] = {
 /* ── AES Inverse S-Box ──────────────────────────────────────────────────── */
 
 /** Inverse Substitution Box (RS-Box) */
-static const uint8_t rsbox[256] = {
+static const uint8_t rsbox[256] SYN_AES_PROGMEM = {
     0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
     0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb,
     0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e,
@@ -77,7 +98,8 @@ static const uint8_t rsbox[256] = {
 /* ── AES Round Constants ─────────────────────────────────────────────────── */
 
 /** Round constants */
-static const uint8_t rcon[11] = {0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
+static const uint8_t rcon[11] SYN_AES_PROGMEM = {0x8d, 0x01, 0x02, 0x04, 0x08, 0x10,
+                                                 0x20, 0x40, 0x80, 0x1b, 0x36};
 
 /* ── Galois Field Helpers ───────────────────────────────────────────────── */
 
@@ -169,19 +191,19 @@ SYN_Status syn_aes_init(SYN_AES_Context *ctx, const uint8_t *key, size_t key_len
             temp[3] = t;
 
             /* SubWord */
-            temp[0] = sbox[temp[0]];
-            temp[1] = sbox[temp[1]];
-            temp[2] = sbox[temp[2]];
-            temp[3] = sbox[temp[3]];
+            temp[0] = SYN_AES_SBOX(temp[0]);
+            temp[1] = SYN_AES_SBOX(temp[1]);
+            temp[2] = SYN_AES_SBOX(temp[2]);
+            temp[3] = SYN_AES_SBOX(temp[3]);
 
             i++;
-            temp[0] ^= rcon[i];
+            temp[0] ^= SYN_AES_RCON(i);
         } else if ((nk == 8U) && ((k % 32U) == 16U)) {
             /* SubWord for AES-256 word 4 */
-            temp[0] = sbox[temp[0]];
-            temp[1] = sbox[temp[1]];
-            temp[2] = sbox[temp[2]];
-            temp[3] = sbox[temp[3]];
+            temp[0] = SYN_AES_SBOX(temp[0]);
+            temp[1] = SYN_AES_SBOX(temp[1]);
+            temp[2] = SYN_AES_SBOX(temp[2]);
+            temp[3] = SYN_AES_SBOX(temp[3]);
         }
 
         ctx->round_keys[k] = (uint8_t)(ctx->round_keys[k - (nk * 4U)] ^ temp[0]);
@@ -221,7 +243,7 @@ void syn_aes_encrypt_block(const SYN_AES_Context *ctx, const uint8_t in[SYN_AES_
         /* SubBytes */
         for (int r = 0; r < 4; r++) {
             for (int c = 0; c < 4; c++) {
-                state[r][c] = sbox[state[r][c]];
+                state[r][c] = SYN_AES_SBOX(state[r][c]);
             }
         }
 
@@ -323,7 +345,7 @@ void syn_aes_decrypt_block(const SYN_AES_Context *ctx, const uint8_t in[SYN_AES_
         /* InvSubBytes */
         for (int r = 0; r < 4; r++) {
             for (int c = 0; c < 4; c++) {
-                state[r][c] = rsbox[state[r][c]];
+                state[r][c] = SYN_AES_RSBOX(state[r][c]);
             }
         }
 
@@ -967,17 +989,18 @@ static SYN_Status ccm_compute_mac(const SYN_AES_Context *ctx, const uint8_t *non
     if (aad_len > 0U) {
         uint8_t hdr[10];
         size_t hdr_len = 0U;
-        if (aad_len < 65280U) {
-            hdr[0] = (uint8_t)((aad_len >> 8U) & 0xFFU);
-            hdr[1] = (uint8_t)(aad_len & 0xFFU);
+        uint32_t u_aad_len = (uint32_t)aad_len;
+        if (u_aad_len < 65280UL) {
+            hdr[0] = (uint8_t)((u_aad_len >> 8U) & 0xFFU);
+            hdr[1] = (uint8_t)(u_aad_len & 0xFFU);
             hdr_len = 2U;
         } else {
             hdr[0] = 0xFFU;
             hdr[1] = 0xFEU;
-            hdr[2] = (uint8_t)((aad_len >> 24U) & 0xFFU);
-            hdr[3] = (uint8_t)((aad_len >> 16U) & 0xFFU);
-            hdr[4] = (uint8_t)((aad_len >> 8U) & 0xFFU);
-            hdr[5] = (uint8_t)(aad_len & 0xFFU);
+            hdr[2] = (uint8_t)((u_aad_len >> 24U) & 0xFFU);
+            hdr[3] = (uint8_t)((u_aad_len >> 16U) & 0xFFU);
+            hdr[4] = (uint8_t)((u_aad_len >> 8U) & 0xFFU);
+            hdr[5] = (uint8_t)(u_aad_len & 0xFFU);
             hdr_len = 6U;
         }
         ccm_mac_feed(ctx, mac, blk, &blk_len, hdr, hdr_len);

@@ -88,11 +88,13 @@ static SYN_PT_Status blink_task(SYN_PT *pt, SYN_Task *task)
 /** Task 2: GPS Serial Receiver & Parser Task */
 static SYN_PT_Status gps_task(SYN_PT *pt, SYN_Task *task)
 {
+    char ch;
+
     PT_BEGIN(pt);
     for (;;) {
         /* Read available bytes from Serial UART */
         while (Serial.available()) {
-            char ch = (char)Serial.read();
+            ch = (char)Serial.read();
             if (syn_nmea_parser_feed(&nmea_parser, ch, sentence_buf)) {
                 process_nmea_sentence(sentence_buf);
             }

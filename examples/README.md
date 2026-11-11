@@ -27,18 +27,25 @@ This directory contains MCU HAL and bare-metal C example projects demonstrating 
 ### Automotive & Marine Fieldbus
 - **[`stm32_canopen`](stm32_canopen)** `[STM32 Bare-Metal]` — STM32 CANopen (CiA 301) Node with SDO/PDO dictionary maps.
 - **[`stm32_canopen_master`](stm32_canopen_master)** `[STM32 Bare-Metal]` — STM32 CANopen (CiA 302/301) Network Manager, SDO Client & NMT Master.
+- **[`stm32_canopen_modbus_gateway`](stm32_canopen_modbus_gateway)** `[STM32 Bare-Metal]` — CANopen (CiA 301) to RS485 Modbus RTU Industrial Gateway bridging PDO/SDO registers.
 - **[`stm32_canopen_nmea2k_gateway`](stm32_canopen_nmea2k_gateway)** `[STM32 Bare-Metal]` — CANopen to NMEA 2000 Marine CAN gateway broadcasting battery, DC status, and alerts (1500ms).
 - **[`stm32_can_isotp`](stm32_can_isotp)** `[STM32 Bare-Metal]` — STM32 ISO-TP (ISO 15765-2) CAN multi-frame transport layer.
 - **[`stm32_j1939`](stm32_j1939)** `[STM32 Bare-Metal]` — SAE J1939 Heavy-Duty Vehicle CAN protocol & DM1 diagnostics.
 - **[`stm32_lin_bus`](stm32_lin_bus)** `[STM32 Bare-Metal]` — LIN 2.1 Automotive Single-Wire Bus Master & Slave state machine.
+- **[`lintp_uds_demo`](lintp_uds_demo)** `[Arduino / Portable C]` — LIN Transport Protocol (ISO 17987-2) & ISO 14229-1 UDS diagnostic bridge demo.
 - **[`stm32_nmea2k`](stm32_nmea2k)** `[STM32 Bare-Metal]` — NMEA 2000 (IEC 61162-3) Marine CAN PGN encoder & decoder.
-
 - **[`stm32_cannm_demo`](stm32_cannm_demo)** `[STM32 Bare-Metal]` — AUTOSAR CAN Network Management (CanNm) 5-state FSM demo.
+- **[`stm32_uds_services_demo`](stm32_uds_services_demo)** `[STM32 Bare-Metal]` — ISO 14229-1 UDS diagnostic server (Session, SecurityAccess, DID R/W, RoutineControl).
 - **[`stm32_dtc_manager_demo`](stm32_dtc_manager_demo)** `[STM32 Bare-Metal]` — ISO 14229-1 UDS Application-Layer DTC Manager & Freeze-Frame Demo.
+- **[`stm32_doip_uds_demo`](stm32_doip_uds_demo)** `[STM32 Bare-Metal]` — ISO 13400 Diagnostics over IP (DoIP) vehicle announcement, routing activation, and UDS gateway.
 - **[`stm32_kwp2000_diag`](stm32_kwp2000_diag)** `[STM32 Bare-Metal]` — ISO 14230-3 KWP2000 diagnostic service stack demo.
+- **[`stm32_ccp_can`](stm32_ccp_can)** `[STM32 Bare-Metal]` — ASAM MCD-1 CCP 2.1 CAN Calibration Protocol ECU slave with DAQ lists and MTA memory access.
+- **[`stm32_xcp_can`](stm32_xcp_can)** `[STM32 Bare-Metal]` — ASAM MCD-1 XCP on CAN slave for real-time ECU memory calibration & DAQ measurement.
+- **[`stm32_xcp_usart`](stm32_xcp_usart)** `[STM32 Bare-Metal]` — ASAM MCD-1 XCP on SX (UART/SCI) calibration & telemetry slave.
 
 ### Smart Energy & Power Management
 - **[`stm32_ocpp_evse`](stm32_ocpp_evse)** `[STM32 Bare-Metal]` — OCPP 2.1 / 1.6-J EVSE Charging Station protocol controller.
+- **[`stm32_gbt27930_charger`](stm32_gbt27930_charger)** `[STM32 Bare-Metal]` — GB/T 27930 DC fast-charging CAN BMS-to-charger handshake & charging stage state machine.
 - **[`stm32_mbus_meter`](stm32_mbus_meter)** `[STM32 Bare-Metal]` — M-Bus (Meter-Bus EN 13757) Utility Meter Reader (Water, Gas, Heat).
 - **[`stm32_pmbus_power`](stm32_pmbus_power)** `[STM32 Bare-Metal]` — PMBus 1.2/1.3 Digital Power Supply Telemetry & Linear11/16 format decoding.
 - **[`stm32_smbus_battery`](stm32_smbus_battery)** `[STM32 Bare-Metal]` — SMBus 2.0 / SBS 1.1 Smart Battery System Telemetry & Alert Handler.
@@ -49,11 +56,13 @@ This directory contains MCU HAL and bare-metal C example projects demonstrating 
 - **[`stm32_ble_sensor`](stm32_ble_sensor)** `[STM32 Bare-Metal]` — BLE Host Stack (HCI H:4 UART) GAP/GATT sensor server.
 - **[`stm32_audio_player`](stm32_audio_player)** `[STM32 Bare-Metal]` — Software audio player with WAV parsing, IMA-ADPCM, and SBC decoding.
 
-### Microcontroller Peripheral HAL & CLI Shell
+### Microcontroller Peripheral HAL, USB & CLI Shell
 - **[`stm32f7_uds_bootloader`](stm32f7_uds_bootloader)** `[STM32 Bare-Metal]` — ISO 14229-1 UDS 17-step secure bootloader with A/B dual-bank swap architecture.
 - **[`stm32_ymodem_bootloader`](stm32_ymodem_bootloader)** `[STM32 Bare-Metal]` — Serial YMODEM / XMODEM-1K firmware update bootloader.
 - **[`stm32_usb_cdc_device`](stm32_usb_cdc_device)** `[STM32 Bare-Metal]` — USB 2.0 CDC ACM Virtual COM Port Device & coroutine echo task.
 - **[`stm32_usb_host_cdc`](stm32_usb_host_cdc)** `[STM32 Bare-Metal]` — USB 2.0 Host Core enumeration state machine & CDC ACM serial host driver.
+- **[`stm32_usb_hid_keyboard`](stm32_usb_hid_keyboard)** `[STM32 Bare-Metal]` — USB 2.0 HID Boot Keyboard device with keycode report descriptor & LED output handler.
+- **[`stm32_usb_hid_mouse`](stm32_usb_hid_mouse)** `[STM32 Bare-Metal]` — USB 2.0 HID 3-button optical mouse device with relative X/Y/wheel report generation.
 - **[`stm32_multitask_demo`](stm32_multitask_demo)** `[STM32 Bare-Metal]` — Integrated 4-task protothreads (`SYN_PT`) demo (LED, USART CLI, Button Gestures, Global IPC).
 - **[`stm32_cli_shell`](stm32_cli_shell)** `[STM32 Bare-Metal]` — Interactive USART CLI Shell (`led`, `status`, `temp`).
 - **[`SerialCLI`](SerialCLI)** `[Arduino / Portable C]` — Generic serial command-line interpreter over UART.
@@ -79,12 +88,16 @@ This directory contains MCU HAL and bare-metal C example projects demonstrating 
 - **[`stm32_json`](stm32_json)** `[STM32 Bare-Metal]` — Zero-malloc JSON parsing & encoding.
 - **[`stm32_ir_remote`](stm32_ir_remote)** `[STM32 Bare-Metal]` — NEC protocol Infrared Remote Control decoder.
 - **[`stm32_ppm`](stm32_ppm)** `[STM32 Bare-Metal]` — Pulse-Position Modulation (PPM) Multi-Channel RC Receiver decoder (`syn_ppm`).
+- **[`stm32_rc_receiver`](stm32_rc_receiver)** `[STM32 Bare-Metal]` — Multi-protocol RC receiver (SBUS, IBUS, CRSF) channel & failsafe processor.
+- **[`stm32`](stm32)** `[STM32 Bare-Metal]` — Shared STM32F4 startup, linker script, and common peripheral initialization support.
 - **[`PicoBlink`](PicoBlink)** `[Pico RP2040 / Arduino]` — Raspberry Pi Pico bare-metal GPIO blink.
 - **[`PicoDualCore`](PicoDualCore)** / **[`pico_dual_core`](pico_dual_core)** `[Pico RP2040 / Arduino]` — RP2040 SMP dual-core cooperative task execution.
 - **[`ch32v307_demo`](ch32v307_demo)** `[CH32V307 RISC-V]` — WCH CH32V307V-EVT-R1 RISC-V demo (GPIO LED, ADC telemetry, CAN 2.0B TX).
 - **[`esp32_ota`](esp32_ota)** `[ESP32 / Arduino]` — ESP32 Firmware Over-The-Air (OTA) update task.
 
 ### DSP & Motion Control
+- **[`stm32_foc`](stm32_foc)** `[STM32 Bare-Metal]` — Field-Oriented Control (Clarke/Park transforms, 6-sector SVPWM, and Sliding Mode Observer).
+- **[`stm32_bldc_6step`](stm32_bldc_6step)** `[STM32 Bare-Metal]` — 6-Step trapezoidal BLDC Hall-sensor & BEMF zero-crossing commutation controller.
 - **[`stm32_dshot`](stm32_dshot)** `[STM32 Bare-Metal]` — DShot150/300/600 Digital ESC command encoder & BDShot GCR motor telemetry decoder (`syn_dshot`).
 - **[`stm32_dshot_telemetry`](stm32_dshot_telemetry)** `[STM32 Bare-Metal]` — Bidirectional DShot (BDShot) 20-bit GCR motor telemetry & RPM decoder (`syn_dshot_telemetry`).
 - **[`stm32_stepper`](stm32_stepper)** `[STM32 Bare-Metal]` — Stepper motor trapezoidal speed ramp & position controller.
@@ -96,7 +109,7 @@ This directory contains MCU HAL and bare-metal C example projects demonstrating 
 - **[`FftSpectrumAnalyzer`](FftSpectrumAnalyzer)** `[Arduino / Portable C]` — Real-time FFT spectral decomposition.
 
 ### IoT & Network Protocol Stacks
-- **[`MqttClient`](MqttClient)** `[Arduino / Portable C]` — MQTT v3.1.1 network client with QoS0/QoS1 support.
+- **[`MqttClient`](MqttClient)** `[Arduino / Portable C]` — MQTT v3.1.1 / v5.0 network client with QoS0/QoS1 support.
 - **[`CoapClient`](CoapClient)** `[Arduino / Portable C]` — CoAP (RFC 7252) UDP client with Option header encoding.
 - **[`WebsocketServer`](WebsocketServer)** `[Arduino / Portable C]` — Lightweight WebSocket server handling frames & handshakes.
 - **[`EthernetWebServer`](EthernetWebServer)** `[Arduino / Portable C]` — Embedded HTTP 1.1 Web Server.

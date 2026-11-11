@@ -105,6 +105,18 @@ void test_r5_a14_pmbus_nan_inf_and_float_clamp(void)
     TEST_ASSERT_EQUAL_HEX16(0x0000U, syn_pmbus_float_to_linear16(NAN, 0x18U));
 }
 
+void test_pmbus_min_exponent_neg16(void)
+{
+    /* Linear11: 5-bit two's-complement exponent = -16 (0x10 << 11 = 0x8000), mantissa = 1 */
+    float l11_min_exp = syn_pmbus_linear11_to_float(0x8001U);
+    TEST_ASSERT_FLOAT_WITHIN(1e-7f, 1.0f / 65536.0f, l11_min_exp);
+
+    /* Linear16: VOUT_MODE = 0x10 -> exponent N = -16 (scale = 2^-16) */
+    uint16_t raw_half = syn_pmbus_float_to_linear16(0.5f, 0x10U);
+    TEST_ASSERT_EQUAL_UINT16(32768U, raw_half);
+    TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.5f, syn_pmbus_linear16_to_float(raw_half, 0x10U));
+}
+
 void run_pmbus_tests(void)
 {
     RUN_TEST(test_pmbus_linear11_roundtrip);
@@ -112,4 +124,5 @@ void run_pmbus_tests(void)
     RUN_TEST(test_pmbus_encode_read_cmd);
     RUN_TEST(test_pmbus_status_word_decoding);
     RUN_TEST(test_r5_a14_pmbus_nan_inf_and_float_clamp);
+    RUN_TEST(test_pmbus_min_exponent_neg16);
 }

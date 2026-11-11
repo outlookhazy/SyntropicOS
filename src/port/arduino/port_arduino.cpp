@@ -18,6 +18,8 @@
 #include "syntropic/util/syn_assert.h"
 
 #include <Arduino.h>
+#include <stdio.h>
+#include <string.h>
 
 #ifndef __placement_new_implicitly_defined
   inline void* operator new(size_t, void* ptr) { return ptr; }
@@ -699,16 +701,16 @@ static int8_t exti_find_slot(SYN_GPIO_Pin pin)
 
 SYN_Status syn_port_exti_configure(SYN_GPIO_Pin pin, SYN_EXTI_Edge edge)
 {
+    /* Verify the pin supports hardware interrupts before allocating a slot */
+    if ((int)digitalPinToInterrupt(pin) == (int)NOT_AN_INTERRUPT) {
+        return SYN_NOT_IMPLEMENTED;
+    }
+
     int8_t slot = exti_find_slot(pin);
     if (slot < 0) {
         if (exti_slot_count >= SYN_ARDUINO_EXTI_SLOTS) return SYN_ERROR;
         slot = (int8_t)exti_slot_count++;
         exti_pins[slot] = pin;
-    }
-
-    /* Verify the pin supports hardware interrupts */
-    if (digitalPinToInterrupt(pin) == NOT_AN_INTERRUPT) {
-        return SYN_NOT_IMPLEMENTED;
     }
 
     switch (edge) {
@@ -741,7 +743,7 @@ void syn_port_exti_enable(SYN_GPIO_Pin pin)
 
 void syn_port_exti_disable(SYN_GPIO_Pin pin)
 {
-    if (digitalPinToInterrupt(pin) == NOT_AN_INTERRUPT) return;
+    if ((int)digitalPinToInterrupt(pin) == (int)NOT_AN_INTERRUPT) return;
     detachInterrupt(digitalPinToInterrupt(pin));
 }
 
@@ -901,7 +903,7 @@ int syn_port_serial_read(uint8_t *buf, size_t max_len)
 /* ── Socket Port (Arduino Ethernet / W5500 / W5100 / ENC28J60) ───────────── */
 
 #ifndef SYN_ARDUINO_HAS_ETHERNET
-  #if __has_include(<Ethernet.h>)
+  #if __has_include(<Ethernet.h>) && __has_include(<utility/w5100.h>) && __has_include(<EthernetUdp.h>)
     #define SYN_ARDUINO_HAS_ETHERNET 1
   #else
     #define SYN_ARDUINO_HAS_ETHERNET 0
@@ -1402,6 +1404,9 @@ SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
 {
     if (!buf) return SYN_INVALID_PARAM;
 #if defined(ARDUINO_ARCH_AVR)
+    if (addr > (uint32_t)E2END || (uint32_t)len > ((uint32_t)E2END + 1UL - addr)) {
+        return SYN_INVALID_PARAM;
+    }
     eeprom_read_block(buf, (const void *)(uintptr_t)addr, len);
     return SYN_OK;
 #else
@@ -1414,6 +1419,9 @@ SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
 {
     if (!buf) return SYN_INVALID_PARAM;
 #if defined(ARDUINO_ARCH_AVR)
+    if (addr > (uint32_t)E2END || (uint32_t)len > ((uint32_t)E2END + 1UL - addr)) {
+        return SYN_INVALID_PARAM;
+    }
     eeprom_update_block(buf, (void *)(uintptr_t)addr, len);
     return SYN_OK;
 #else
@@ -1424,6 +1432,10 @@ SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
 SYN_Status syn_port_flash_erase(uint32_t addr)
 {
 #if defined(ARDUINO_ARCH_AVR)
+    if (addr > (uint32_t)E2END ||
+        (uint32_t)SYN_ARDUINO_SECTOR_SIZE > ((uint32_t)E2END + 1UL - addr)) {
+        return SYN_INVALID_PARAM;
+    }
     uint8_t erased[SYN_ARDUINO_SECTOR_SIZE];
     memset(erased, 0xFF, sizeof(erased));
     eeprom_update_block(erased, (void *)(uintptr_t)addr, SYN_ARDUINO_SECTOR_SIZE);

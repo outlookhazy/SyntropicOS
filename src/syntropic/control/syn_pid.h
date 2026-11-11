@@ -110,6 +110,8 @@ typedef struct {
         .scale = (scale_val),                                  \
         .out_min = (omin),                                     \
         .out_max = (omax),                                     \
+        .integral_max = 0,                                     \
+        .d_filter_alpha = 0U,                                  \
     })
 
 /* ── PID instance ───────────────────────────────────────────────────────── */

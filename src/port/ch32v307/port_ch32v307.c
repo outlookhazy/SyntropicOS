@@ -17,7 +17,7 @@
  *   - EXTI (External pin interrupt configuration & masking)
  */
 
-#if defined(CH32V307xx) || defined(CH32V307)
+#if (defined(CH32V307xx) || defined(CH32V307)) && !defined(ARDUINO)
 
 #include "syntropic/common/syn_compiler.h"
 #include "syntropic/common/syn_defs.h"

@@ -448,6 +448,13 @@ uint32_t syn_port_flash_sector_size(uint32_t addr)
 
 #include "syntropic/port/syn_port_i2c.h"
 bool mock_i2c_init_ok = true;
+static MockI2cTransferCallback s_i2c_transfer_cb = NULL;
+
+void mock_i2c_set_transfer_callback(MockI2cTransferCallback cb)
+{
+    s_i2c_transfer_cb = cb;
+}
+
 SYN_Status syn_port_i2c_init(uint8_t i2c_id, uint32_t clock_speed_hz, uint8_t role,
                              uint16_t own_address)
 {
@@ -465,6 +472,9 @@ SYN_Status syn_port_i2c_deinit(uint8_t i2c_id)
 SYN_Status syn_port_i2c_transfer(uint8_t i2c_id, uint16_t addr, const uint8_t *tx, size_t tx_len,
                                  uint8_t *rx, size_t rx_len)
 {
+    if (s_i2c_transfer_cb != NULL) {
+        return s_i2c_transfer_cb(i2c_id, addr, tx, tx_len, rx, rx_len);
+    }
     (void)i2c_id;
     (void)addr;
     (void)tx;
@@ -1068,6 +1078,7 @@ void mock_port_reset(void)
     mock_adc_resolution = 12;
     mock_adc_init_ok = true;
     mock_i2c_init_ok = true;
+    s_i2c_transfer_cb = NULL;
     mock_comp_output_state = false;
     memset(mock_flash, 0xFF, sizeof(mock_flash));
     mock_flash_fail_at = -1;
