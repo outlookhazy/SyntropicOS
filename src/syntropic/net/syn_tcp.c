@@ -72,21 +72,33 @@ SYN_Status syn_tcp_listen(SYN_TCP *tcp, uint16_t port)
     return SYN_ERROR;
 }
 
+/** @brief Compact control-segment header parameters for 54-byte TCP frame serialization. */
+typedef struct {
+    uint8_t dst_mac[6]; /**< Destination Ethernet MAC address. */
+    uint32_t src_ip;    /**< Source IPv4 address (host byte order). */
+    uint32_t dst_ip;    /**< Destination IPv4 address (host byte order). */
+    uint16_t src_port;  /**< Source TCP port. */
+    uint16_t dst_port;  /**< Destination TCP port. */
+    uint32_t seq_num;   /**< Sequence number. */
+    uint32_t ack_num;   /**< Acknowledgment number. */
+    uint16_t win;       /**< Advertised receive window. */
+    uint8_t flags;      /**< TCP control flags bitmask. */
+} SYN_TcpCtrlSpec;
+
 /**
- * @brief Build outbound control TCP segment frame (0-byte payload) into buffer.
+ * @brief Serialize a 54-byte 0-payload Ethernet II + IPv4 + TCP control segment.
  * @param tcp    Pointer to TCP stack.
- * @param conn   Pointer to TCP connection block.
- * @param flags  TCP control flags bitmask.
- * @param tx_out Output Ethernet frame buffer.
+ * @param spec   Control header specification.
+ * @param tx_out Output Ethernet frame buffer (>= 54 bytes).
  * @param tx_len Output Ethernet frame length pointer.
  */
-static void build_tcp_segment(SYN_TCP *tcp, SYN_TcpConn *conn, uint8_t flags, uint8_t *tx_out,
-                              size_t *tx_len)
+static void tcp_emit_ctrl_frame(const SYN_TCP *tcp, const SYN_TcpCtrlSpec *spec, uint8_t *tx_out,
+                                size_t *tx_len)
 {
     uint16_t total_ip_len = 40U;
     uint16_t total_frame_len = 54U;
 
-    memcpy(&tx_out[0], conn->remote_mac, 6U);
+    memcpy(&tx_out[0], spec->dst_mac, 6U);
     if (tcp->eth != NULL) {
         memcpy(&tx_out[6], tcp->eth->mac_addr, 6U);
     } else {
@@ -104,8 +116,8 @@ static void build_tcp_segment(SYN_TCP *tcp, SYN_TcpConn *conn, uint8_t flags, ui
     tx_out[23] = 6U;
     tx_out[24] = 0U;
     tx_out[25] = 0U;
-    syn_poke_u32(conn->local_ip, tx_out, 26U);
-    syn_poke_u32(conn->remote_ip, tx_out, 30U);
+    syn_poke_u32(spec->src_ip, tx_out, 26U);
+    syn_poke_u32(spec->dst_ip, tx_out, 30U);
 
     uint32_t ip_sum = 0U;
     for (int i = 14; i < 34; i += 2) {
@@ -116,26 +128,88 @@ static void build_tcp_segment(SYN_TCP *tcp, SYN_TcpConn *conn, uint8_t flags, ui
     }
     syn_poke_u16((uint16_t)(~ip_sum), tx_out, 24U);
 
-    syn_poke_u16(conn->local_port, tx_out, 34U);
-    syn_poke_u16(conn->remote_port, tx_out, 36U);
-    syn_poke_u32(conn->seq_nxt, tx_out, 38U);
-    syn_poke_u32(conn->ack_nxt, tx_out, 42U);
+    syn_poke_u16(spec->src_port, tx_out, 34U);
+    syn_poke_u16(spec->dst_port, tx_out, 36U);
+    syn_poke_u32(spec->seq_num, tx_out, 38U);
+    syn_poke_u32(spec->ack_num, tx_out, 42U);
     tx_out[46] = 0x50U;
-    tx_out[47] = flags;
-    uint16_t win = 0U;
-    if (conn->rx_len < (uint16_t)SYN_TCP_BUF_SIZE) {
-        win = (uint16_t)((uint16_t)SYN_TCP_BUF_SIZE - conn->rx_len);
-    }
-    syn_poke_u16(win, tx_out, 48U);
+    tx_out[47] = spec->flags;
+    syn_poke_u16(spec->win, tx_out, 48U);
     tx_out[50] = 0U;
     tx_out[51] = 0U;
     tx_out[52] = 0U;
     tx_out[53] = 0U;
 
-    uint16_t tcp_csum = syn_tcp_checksum(conn->local_ip, conn->remote_ip, &tx_out[34], 20U);
+    uint16_t tcp_csum = syn_tcp_checksum(spec->src_ip, spec->dst_ip, &tx_out[34], 20U);
     syn_poke_u16(tcp_csum, tx_out, 50U);
 
     *tx_len = total_frame_len;
+}
+
+/**
+ * @brief Build outbound control TCP segment frame (0-byte payload) into buffer.
+ * @param tcp    Pointer to TCP stack.
+ * @param conn   Pointer to TCP connection block.
+ * @param flags  TCP control flags bitmask.
+ * @param tx_out Output Ethernet frame buffer.
+ * @param tx_len Output Ethernet frame length pointer.
+ */
+static void build_tcp_segment(SYN_TCP *tcp, SYN_TcpConn *conn, uint8_t flags, uint8_t *tx_out,
+                              size_t *tx_len)
+{
+    SYN_TcpCtrlSpec spec;
+    memcpy(spec.dst_mac, conn->remote_mac, 6U);
+    spec.src_ip = conn->local_ip;
+    spec.dst_ip = conn->remote_ip;
+    spec.src_port = conn->local_port;
+    spec.dst_port = conn->remote_port;
+    spec.seq_num = conn->seq_nxt;
+    spec.ack_num = conn->ack_nxt;
+    spec.win = (conn->rx_len < (uint16_t)SYN_TCP_BUF_SIZE)
+                   ? (uint16_t)((uint16_t)SYN_TCP_BUF_SIZE - conn->rx_len)
+                   : 0U;
+    spec.flags = flags;
+    tcp_emit_ctrl_frame(tcp, &spec, tx_out, tx_len);
+}
+
+/**
+ * @brief Emit RFC 793 stateless RST reply for an unmatched inbound unicast non-RST segment.
+ * @param tcp         Pointer to TCP stack.
+ * @param frame       Inbound Ethernet II + IPv4 + TCP frame.
+ * @param tcp_off     Byte offset of TCP header inside frame.
+ * @param payload_len Validated TCP payload byte length.
+ * @param tx_out      Output Ethernet frame buffer (>= 54 bytes).
+ * @param tx_len      Output Ethernet frame length pointer.
+ */
+static void tcp_send_stateless_rst(const SYN_TCP *tcp, const uint8_t *frame, size_t tcp_off,
+                                   size_t payload_len, uint8_t *tx_out, size_t *tx_len)
+{
+    uint8_t flags = frame[tcp_off + 13U];
+    uint32_t dst_ip = syn_peek_u32(frame, 30U);
+    if ((flags & SYN_TCP_FLAG_RST) != 0U || (frame[0] & 0x01U) != 0U || dst_ip == 0xFFFFFFFFUL ||
+        (dst_ip & 0xF0000000UL) == 0xE0000000UL) {
+        return;
+    }
+
+    SYN_TcpCtrlSpec spec;
+    memcpy(spec.dst_mac, &frame[6], 6U);
+    spec.src_ip = dst_ip;
+    spec.dst_ip = syn_peek_u32(frame, 26U);
+    spec.src_port = syn_peek_u16(frame, tcp_off + 2U);
+    spec.dst_port = syn_peek_u16(frame, tcp_off);
+    spec.win = 0U;
+    if ((flags & SYN_TCP_FLAG_ACK) != 0U) {
+        spec.seq_num = syn_peek_u32(frame, tcp_off + 8U);
+        spec.ack_num = 0U;
+        spec.flags = SYN_TCP_FLAG_RST;
+    } else {
+        uint32_t seg_len = (uint32_t)payload_len + (((flags & SYN_TCP_FLAG_SYN) != 0U) ? 1U : 0U) +
+                           (((flags & SYN_TCP_FLAG_FIN) != 0U) ? 1U : 0U);
+        spec.seq_num = 0U;
+        spec.ack_num = syn_peek_u32(frame, tcp_off + 4U) + seg_len;
+        spec.flags = (uint8_t)(SYN_TCP_FLAG_RST | SYN_TCP_FLAG_ACK);
+    }
+    tcp_emit_ctrl_frame(tcp, &spec, tx_out, tx_len);
 }
 
 /**
@@ -190,16 +264,21 @@ SYN_Status syn_tcp_close(SYN_TCP *tcp, SYN_TcpConn *conn)
 }
 
 /**
- * @brief Re-arm a closed connection slot into SYN_TCP_LISTEN for multi-accept on SYN.
+ * @brief Re-arm a drained closed or expired half-open listener slot on SYN.
  * @param tcp      TCP stack container with listening == true.
  * @param dst_port Matched passive listener destination port.
- * @return Re-armed connection slot, or NULL if no closed slot exists.
+ * @return Re-armed connection slot, or NULL if no eligible slot exists.
  */
 static SYN_TcpConn *tcp_rearm_closed_listener(SYN_TCP *tcp, uint16_t dst_port)
 {
+    uint32_t now = syn_port_get_tick_ms();
     for (size_t i = 0U; i < SYN_TCP_MAX_CONNS; i++) {
         SYN_TcpConn *c = &tcp->conns[i];
-        if (c->state == SYN_TCP_CLOSED) {
+        bool reclaim_closed = (c->state == SYN_TCP_CLOSED && c->rx_len == 0U);
+        bool reclaim_syn_rcvd =
+            (c->state == SYN_TCP_SYN_RCVD && c->local_port == dst_port &&
+             (int32_t)(now - c->syn_rcvd_ms) >= (int32_t)SYN_TCP_SYN_TIMEOUT_MS);
+        if (reclaim_closed || reclaim_syn_rcvd) {
             c->state = SYN_TCP_LISTEN;
             c->local_port = dst_port;
             c->local_ip = (tcp->eth != NULL) ? tcp->eth->ip_addr : 0U;
@@ -331,6 +410,12 @@ static SYN_Status tcp_validate_frame(const uint8_t *frame, size_t len, size_t *t
         return SYN_ERROR;
     }
 
+    uint32_t src_ip = syn_peek_u32(frame, 26U);
+    uint32_t dst_ip = syn_peek_u32(frame, 30U);
+    if (syn_tcp_checksum(src_ip, dst_ip, &frame[tcp_off], (size_t)ip_len - (size_t)ip_ihl) != 0U) {
+        return SYN_ERROR;
+    }
+
     *tcp_off_out = tcp_off;
     *data_off_out = data_offset;
     *payload_len_out = (size_t)ip_len - (size_t)ip_ihl - (size_t)data_offset;
@@ -342,6 +427,8 @@ static SYN_Status tcp_validate_frame(const uint8_t *frame, size_t len, size_t *t
  *
  * @param tcp         TCP stack container.
  * @param conn        Connection slot in SYN_TCP_SYN_RCVD.
+ * @param frame       Raw Ethernet frame bytes.
+ * @param tcp_off     Byte offset of TCP header inside frame.
  * @param seq_num     Segment sequence number.
  * @param ack_num     Segment acknowledgment number.
  * @param flags       TCP flags bitmask.
@@ -350,9 +437,10 @@ static SYN_Status tcp_validate_frame(const uint8_t *frame, size_t len, size_t *t
  * @param tx_out      Outbound Ethernet frame buffer.
  * @param tx_len      [out] Outbound Ethernet frame length.
  */
-static void tcp_handle_syn_rcvd(SYN_TCP *tcp, SYN_TcpConn *conn, uint32_t seq_num, uint32_t ack_num,
-                                uint8_t flags, const uint8_t *payload, size_t payload_len,
-                                uint8_t *tx_out, size_t *tx_len)
+static void tcp_handle_syn_rcvd(SYN_TCP *tcp, SYN_TcpConn *conn, const uint8_t *frame,
+                                size_t tcp_off, uint32_t seq_num, uint32_t ack_num, uint8_t flags,
+                                const uint8_t *payload, size_t payload_len, uint8_t *tx_out,
+                                size_t *tx_len)
 {
     if (tcp_is_pure_syn(flags) && seq_num == (conn->ack_nxt - 1U)) {
         conn->seq_nxt--;
@@ -361,11 +449,17 @@ static void tcp_handle_syn_rcvd(SYN_TCP *tcp, SYN_TcpConn *conn, uint32_t seq_nu
         return;
     }
 
-    if ((flags & (uint8_t)(SYN_TCP_FLAG_ACK | SYN_TCP_FLAG_SYN)) == SYN_TCP_FLAG_ACK &&
-        seq_num == conn->ack_nxt && ack_num == conn->seq_nxt) {
-        conn->state = SYN_TCP_ESTABLISHED;
-        if (payload_len > 0U || (flags & SYN_TCP_FLAG_FIN) != 0U) {
-            tcp_handle_established(tcp, conn, seq_num, flags, payload, payload_len, tx_out, tx_len);
+    if ((flags & (uint8_t)(SYN_TCP_FLAG_ACK | SYN_TCP_FLAG_SYN)) == SYN_TCP_FLAG_ACK) {
+        if (ack_num != conn->seq_nxt) {
+            tcp_send_stateless_rst(tcp, frame, tcp_off, payload_len, tx_out, tx_len);
+            return;
+        }
+        if (seq_num == conn->ack_nxt) {
+            conn->state = SYN_TCP_ESTABLISHED;
+            if (payload_len > 0U || (flags & SYN_TCP_FLAG_FIN) != 0U) {
+                tcp_handle_established(tcp, conn, seq_num, flags, payload, payload_len, tx_out,
+                                       tx_len);
+            }
         }
     }
 }
@@ -394,6 +488,8 @@ static void tcp_dispatch_segment(SYN_TCP *tcp, SYN_TcpConn *conn, const uint8_t 
 
     if ((flags & SYN_TCP_FLAG_RST) != 0U) {
         if (conn->state != SYN_TCP_LISTEN && seq_num == conn->ack_nxt) {
+            conn->rx_len = 0U;
+            conn->tx_len = 0U;
             conn->state = SYN_TCP_CLOSED;
             tcp_wake_blocked(conn);
         }
@@ -401,19 +497,23 @@ static void tcp_dispatch_segment(SYN_TCP *tcp, SYN_TcpConn *conn, const uint8_t 
     }
 
     if (conn->state == SYN_TCP_LISTEN) {
-        if (tcp_is_pure_syn(flags)) {
+        if ((flags & SYN_TCP_FLAG_ACK) != 0U) {
+            tcp_send_stateless_rst(tcp, frame, tcp_off, payload_len, tx_out, tx_len);
+        } else if (tcp_is_pure_syn(flags)) {
+            uint32_t now = syn_port_get_tick_ms();
             conn->state = SYN_TCP_SYN_RCVD;
+            conn->syn_rcvd_ms = now;
             conn->remote_ip = src_ip;
             conn->remote_port = src_port;
             memcpy(conn->remote_mac, &frame[6], 6U);
             conn->ack_nxt = seq_num + 1U;
-            conn->seq_nxt = syn_port_get_tick_ms();
+            conn->seq_nxt = now;
             build_tcp_segment(tcp, conn, SYN_TCP_FLAG_SYN | SYN_TCP_FLAG_ACK, tx_out, tx_len);
             conn->seq_nxt++;
         }
     } else if (conn->state == SYN_TCP_SYN_RCVD) {
-        tcp_handle_syn_rcvd(tcp, conn, seq_num, ack_num, flags, payload, payload_len, tx_out,
-                            tx_len);
+        tcp_handle_syn_rcvd(tcp, conn, frame, tcp_off, seq_num, ack_num, flags, payload,
+                            payload_len, tx_out, tx_len);
     } else {
         tcp_handle_established(tcp, conn, seq_num, flags, payload, payload_len, tx_out, tx_len);
     }
@@ -442,6 +542,7 @@ SYN_Status syn_tcp_process_packet(SYN_TCP *tcp, const uint8_t *frame, size_t len
 
     SYN_TcpConn *conn = tcp_find_conn(tcp, src_ip, src_port, dst_port, flags);
     if (conn == NULL) {
+        tcp_send_stateless_rst(tcp, frame, tcp_off, payload_len, tx_out, tx_len);
         return SYN_ERROR;
     }
 

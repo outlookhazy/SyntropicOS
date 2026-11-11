@@ -8,30 +8,42 @@
 #include <string.h>
 
 /**
- * @brief Helper to pre-warp frequency and compute intermediate bilinear transform constants.
- * @param fc_hz  Cutoff frequency in Hz.
- * @param fs_hz  Sampling frequency in Hz.
- * @param Q      Quality factor.
- * @param cos_w0 Output cos(w0).
- * @param sin_w0 Output sin(w0).
- * @param alpha  Output alpha.
- * @param a0_inv Output 1/a0 scale factor.
+ * @brief Divide a 64-bit Q16.16 numerator by positive 64-bit Q16.16 a0 into Q16.16.
+ * @param num Numerator in Q16.16.
+ * @param a0  Positive denominator a0 (>= Q16_ONE) in Q16.16.
+ * @return Normalized Q16.16 coefficient.
+ */
+static inline q16_t filter_design_div_a0(int64_t num, int64_t a0)
+{
+    return (q16_t)((num * (int64_t)Q16_ONE) / a0);
+}
+
+/**
+ * @brief Pre-warp frequency and compute 64-bit intermediate bilinear transform constants.
+ * @param fc_hz   Cutoff frequency in Hz (Q16.16).
+ * @param fs_hz   Sampling frequency in Hz (Q16.16).
+ * @param Q       Quality factor (Q16.16).
+ * @param cos_w0  Output cos(w0) in Q16.16.
+ * @param alpha64 Output alpha in 64-bit Q16.16.
+ * @param a0      Output (1 + alpha) in 64-bit Q16.16.
  * @return SYN_OK on success, SYN_INVALID_PARAM if invalid limits.
  */
 static SYN_Status compute_intermediate_vars(q16_t fc_hz, q16_t fs_hz, q16_t Q, q16_t *cos_w0,
-                                            q16_t *sin_w0, q16_t *alpha, q16_t *a0_inv)
+                                            int64_t *alpha64, int64_t *a0)
 {
     if (fc_hz <= 0 || fs_hz <= 0 || Q <= 0 || fc_hz >= (fs_hz >> 1)) {
         return SYN_INVALID_PARAM;
     }
 
-    q16_t omega0 = q16_mul(Q16_2_PI, q16_div(fc_hz, fs_hz));
-    *sin_w0 = q16_sin(omega0);
+    q16_t omega0 = (q16_t)(((int64_t)Q16_2_PI * (int64_t)fc_hz) / (int64_t)fs_hz);
+    if (omega0 <= 0) {
+        omega0 = 1;
+    }
+    q16_t sin_w0 = q16_sin(omega0);
     *cos_w0 = q16_cos(omega0);
 
-    *alpha = q16_div(*sin_w0, q16_mul(Q16_FROM_INT(2), Q));
-    q16_t a0 = Q16_ONE + *alpha;
-    *a0_inv = q16_div(Q16_ONE, a0);
+    *alpha64 = ((int64_t)sin_w0 * (int64_t)Q16_ONE) / (2LL * (int64_t)Q);
+    *a0 = (int64_t)Q16_ONE + *alpha64;
 
     return SYN_OK;
 }
@@ -41,18 +53,18 @@ SYN_Status syn_filter_design_lowpass(q16_t fc_hz, q16_t fs_hz, q16_t Q, SYN_Biqu
     if (out == NULL)
         return SYN_INVALID_PARAM;
 
-    q16_t cos_w0, sin_w0, alpha, a0_inv;
-    SYN_Status status =
-        compute_intermediate_vars(fc_hz, fs_hz, Q, &cos_w0, &sin_w0, &alpha, &a0_inv);
+    q16_t cos_w0;
+    int64_t alpha64, a0;
+    SYN_Status status = compute_intermediate_vars(fc_hz, fs_hz, Q, &cos_w0, &alpha64, &a0);
     if (status != SYN_OK)
         return status;
 
-    q16_t num = Q16_ONE - cos_w0;
-    out->b0 = q16_mul(num >> 1, a0_inv);
-    out->b1 = q16_mul(num, a0_inv);
+    int64_t num = (int64_t)Q16_ONE - (int64_t)cos_w0;
+    out->b0 = filter_design_div_a0(num >> 1, a0);
+    out->b1 = filter_design_div_a0(num, a0);
     out->b2 = out->b0;
-    out->a1 = q16_mul(q16_mul(Q16_FROM_INT(-2), cos_w0), a0_inv);
-    out->a2 = q16_mul(Q16_ONE - alpha, a0_inv);
+    out->a1 = filter_design_div_a0(-2LL * (int64_t)cos_w0, a0);
+    out->a2 = filter_design_div_a0((int64_t)Q16_ONE - alpha64, a0);
 
     return SYN_OK;
 }
@@ -62,18 +74,18 @@ SYN_Status syn_filter_design_highpass(q16_t fc_hz, q16_t fs_hz, q16_t Q, SYN_Biq
     if (out == NULL)
         return SYN_INVALID_PARAM;
 
-    q16_t cos_w0, sin_w0, alpha, a0_inv;
-    SYN_Status status =
-        compute_intermediate_vars(fc_hz, fs_hz, Q, &cos_w0, &sin_w0, &alpha, &a0_inv);
+    q16_t cos_w0;
+    int64_t alpha64, a0;
+    SYN_Status status = compute_intermediate_vars(fc_hz, fs_hz, Q, &cos_w0, &alpha64, &a0);
     if (status != SYN_OK)
         return status;
 
-    q16_t num = Q16_ONE + cos_w0;
-    out->b0 = q16_mul(num >> 1, a0_inv);
-    out->b1 = -q16_mul(num, a0_inv);
+    int64_t num = (int64_t)Q16_ONE + (int64_t)cos_w0;
+    out->b0 = filter_design_div_a0(num >> 1, a0);
+    out->b1 = -filter_design_div_a0(num, a0);
     out->b2 = out->b0;
-    out->a1 = q16_mul(q16_mul(Q16_FROM_INT(-2), cos_w0), a0_inv);
-    out->a2 = q16_mul(Q16_ONE - alpha, a0_inv);
+    out->a1 = filter_design_div_a0(-2LL * (int64_t)cos_w0, a0);
+    out->a2 = filter_design_div_a0((int64_t)Q16_ONE - alpha64, a0);
 
     return SYN_OK;
 }
@@ -83,17 +95,17 @@ SYN_Status syn_filter_design_bandpass(q16_t fc_hz, q16_t fs_hz, q16_t Q, SYN_Biq
     if (out == NULL)
         return SYN_INVALID_PARAM;
 
-    q16_t cos_w0, sin_w0, alpha, a0_inv;
-    SYN_Status status =
-        compute_intermediate_vars(fc_hz, fs_hz, Q, &cos_w0, &sin_w0, &alpha, &a0_inv);
+    q16_t cos_w0;
+    int64_t alpha64, a0;
+    SYN_Status status = compute_intermediate_vars(fc_hz, fs_hz, Q, &cos_w0, &alpha64, &a0);
     if (status != SYN_OK)
         return status;
 
-    out->b0 = q16_mul(alpha, a0_inv);
+    out->b0 = filter_design_div_a0(alpha64, a0);
     out->b1 = 0;
     out->b2 = -out->b0;
-    out->a1 = q16_mul(q16_mul(Q16_FROM_INT(-2), cos_w0), a0_inv);
-    out->a2 = q16_mul(Q16_ONE - alpha, a0_inv);
+    out->a1 = filter_design_div_a0(-2LL * (int64_t)cos_w0, a0);
+    out->a2 = filter_design_div_a0((int64_t)Q16_ONE - alpha64, a0);
 
     return SYN_OK;
 }
@@ -103,17 +115,17 @@ SYN_Status syn_filter_design_notch(q16_t fc_hz, q16_t fs_hz, q16_t Q, SYN_Biquad
     if (out == NULL)
         return SYN_INVALID_PARAM;
 
-    q16_t cos_w0, sin_w0, alpha, a0_inv;
-    SYN_Status status =
-        compute_intermediate_vars(fc_hz, fs_hz, Q, &cos_w0, &sin_w0, &alpha, &a0_inv);
+    q16_t cos_w0;
+    int64_t alpha64, a0;
+    SYN_Status status = compute_intermediate_vars(fc_hz, fs_hz, Q, &cos_w0, &alpha64, &a0);
     if (status != SYN_OK)
         return status;
 
-    out->b0 = a0_inv;
-    out->b1 = q16_mul(q16_mul(Q16_FROM_INT(-2), cos_w0), a0_inv);
+    out->b0 = filter_design_div_a0((int64_t)Q16_ONE, a0);
+    out->b1 = filter_design_div_a0(-2LL * (int64_t)cos_w0, a0);
     out->b2 = out->b0;
     out->a1 = out->b1;
-    out->a2 = q16_mul(Q16_ONE - alpha, a0_inv);
+    out->a2 = filter_design_div_a0((int64_t)Q16_ONE - alpha64, a0);
 
     return SYN_OK;
 }

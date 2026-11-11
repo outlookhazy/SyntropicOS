@@ -197,10 +197,36 @@ static void test_mailbox_zero_and_single_slot_raw_capacity_guards(void)
     TEST_ASSERT_NULL(syn_mailbox_peek(&valid_mb));
 }
 
+static void test_mailbox_define_alignment_after_odd_byte(void)
+{
+    static uint8_t s_odd_pad;
+    SYN_MAILBOX_DEFINE(s_aligned_mbox, uint32_t, 1);
+
+    s_odd_pad = 0x5AU;
+    (void)s_odd_pad;
+    s_aligned_mbox.head = 0U;
+    s_aligned_mbox.tail = 0U;
+    s_aligned_mbox.overflow = 0U;
+
+    /* Declared element type must match message type for alignment & C99 strict aliasing */
+    TEST_ASSERT_EQUAL_size_t(sizeof(uint32_t), sizeof(s_aligned_mbox_buf[0]));
+
+    uint32_t tx = 0xDEADBEEFU;
+    TEST_ASSERT_TRUE(syn_mailbox_post(&s_aligned_mbox, &tx));
+
+    const void *raw = syn_mailbox_peek(&s_aligned_mbox);
+    TEST_ASSERT_NOT_NULL(raw);
+    TEST_ASSERT_EQUAL_UINT32(0U, (uint32_t)((uintptr_t)raw % sizeof(uint32_t)));
+
+    const uint32_t *peek = (const uint32_t *)raw;
+    TEST_ASSERT_EQUAL_HEX32(0xDEADBEEFU, *peek);
+}
+
 void run_mailbox_tests(void)
 {
     RUN_TEST(test_mailbox);
     RUN_TEST(test_mailbox_capacity_one);
     RUN_TEST(test_mailbox_wraparound_and_notify);
     RUN_TEST(test_mailbox_zero_and_single_slot_raw_capacity_guards);
+    RUN_TEST(test_mailbox_define_alignment_after_odd_byte);
 }

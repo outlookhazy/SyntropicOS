@@ -263,6 +263,27 @@ static void test_filter_median_sorting_patterns(void)
     TEST_ASSERT_EQUAL_INT(-60, ma_neg);
 }
 
+static void test_filter_ema_and_fir_overflow(void)
+{
+    SYN_FilterEMA ema;
+    syn_filter_ema_init(&ema, 200U);
+    TEST_ASSERT_EQUAL_INT16(-32768, syn_filter_ema_update(&ema, -32768));
+    /* Full-scale step with alpha = 200/256: -32768 + 0.78125 * 65535 = +18431 */
+    int16_t step_out = syn_filter_ema_update(&ema, 32767);
+    TEST_ASSERT_INT_WITHIN(2, 18431, step_out);
+
+    q16_t taps[2] = {Q16_FROM_INT(16), Q16_FROM_INT(16)};
+    q16_t hist[2];
+    SYN_FilterFIR fir;
+    syn_filter_fir_init(&fir, taps, hist, 2U);
+    (void)syn_filter_fir_update(&fir, Q16_FROM_INT(2048));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_filter_fir_update(&fir, Q16_FROM_INT(2048)));
+
+    syn_filter_fir_reset(&fir);
+    (void)syn_filter_fir_update(&fir, Q16_FROM_INT(-2048));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, syn_filter_fir_update(&fir, Q16_FROM_INT(-2048)));
+}
+
 void run_filter_tests(void)
 {
     RUN_TEST(test_filters);
@@ -275,4 +296,5 @@ void run_filter_tests(void)
     RUN_TEST(test_biquad_cascade_and_edge_cases);
     RUN_TEST(test_filter_biquad_bandpass_and_notch);
     RUN_TEST(test_filter_median_sorting_patterns);
+    RUN_TEST(test_filter_ema_and_fir_overflow);
 }

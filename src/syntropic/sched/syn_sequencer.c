@@ -1,6 +1,4 @@
-#if __has_include("syn_config.h")
-#include "syn_config.h"
-#endif
+#include "../common/syn_defs.h"
 
 #if !defined(SYN_USE_SEQUENCER) || SYN_USE_SEQUENCER
 
@@ -90,6 +88,7 @@ static void execute_step(SYN_Sequencer *seq)
     }
     bool untouched = seq->cb_untouched;
     seq->cb_untouched = false;
+    seq->updating = true;
 
     /* Respect init/start/stop/nested-update changes requested inside action callback */
     if (!untouched) {
@@ -109,11 +108,13 @@ static void execute_step(SYN_Sequencer *seq)
 /** @cond INTERNAL */
 static bool complete_sequence(SYN_Sequencer *seq, bool *out_done)
 {
+    uint16_t last_idx = (uint16_t)(seq->step_count - 1U);
     seq->loop_count++;
     if (seq->loop) {
         seq->current = 0;
         seq->state = SYN_SEQ_RUNNING;
     } else {
+        seq->current = last_idx;
         seq->state = SYN_SEQ_DONE;
     }
 
@@ -123,12 +124,14 @@ static bool complete_sequence(SYN_Sequencer *seq, bool *out_done)
     }
     bool untouched = seq->cb_untouched;
     seq->cb_untouched = false;
+    seq->updating = true;
 
     if (untouched) {
         if (seq->loop) {
             seq->current = 0;
             seq->state = SYN_SEQ_RUNNING;
         } else {
+            seq->current = last_idx;
             seq->state = SYN_SEQ_DONE;
         }
     }
@@ -143,47 +146,67 @@ static bool complete_sequence(SYN_Sequencer *seq, bool *out_done)
     }
     return false;
 }
+
+static bool seq_is_runnable(const SYN_Sequencer *seq)
+{
+    return seq != NULL && seq->steps != NULL && !seq->updating && seq->state != SYN_SEQ_IDLE &&
+           seq->state != SYN_SEQ_DONE;
+}
+
+static bool seq_advance_wait(SYN_Sequencer *seq)
+{
+    uint32_t raw_delay = seq->steps[seq->current].delay_ms;
+    uint32_t target_delay = (raw_delay > 0x7FFFFFFFU) ? 0x7FFFFFFFU : raw_delay;
+    uint32_t elapsed = syn_port_get_tick_ms() - seq->wait_start;
+    if (elapsed < target_delay) {
+        return false;
+    }
+    seq->current++;
+    seq->state = SYN_SEQ_RUNNING;
+    return true;
+}
 /** @endcond */
 
 bool syn_seq_update(SYN_Sequencer *seq)
 {
-    if (seq == NULL || seq->steps == NULL) {
+    if (!seq_is_runnable(seq)) {
         return false;
     }
-    SYN_ASSERT(seq != NULL);
 
-    if (seq->state == SYN_SEQ_IDLE || seq->state == SYN_SEQ_DONE) {
-        return false;
-    }
+    seq->updating = true;
+    bool done = false;
 
     if (seq->state == SYN_SEQ_WAITING) {
-        uint32_t raw_delay = seq->steps[seq->current].delay_ms;
-        uint32_t target_delay = (raw_delay > 0x7FFFFFFFU) ? 0x7FFFFFFFU : raw_delay;
-        uint32_t elapsed = syn_port_get_tick_ms() - seq->wait_start;
-        if (elapsed < target_delay) {
-            return false; /* still waiting */
+        if (!seq_advance_wait(seq)) {
+            seq->updating = false;
+            return false;
         }
-        /* Delay complete — advance */
-        seq->current++;
-        seq->state = SYN_SEQ_RUNNING;
+        if (seq->current >= seq->step_count && complete_sequence(seq, &done)) {
+            seq->updating = false;
+            return done;
+        }
     }
 
-    /* Execute steps (limit execution per tick to step_count + 1 to prevent infinite loops on
-     * 0-delay loop sequences while allowing completion check) */
-    size_t executed = 0;
+    /* Execute steps (bounded per call; 0-delay loops complete 1 pass per update) */
+    size_t executed = 0U;
     while (seq->state == SYN_SEQ_RUNNING && executed <= (size_t)seq->step_count) {
-        if (seq->current >= seq->step_count) {
-            bool done = false;
-            if (complete_sequence(seq, &done)) {
-                return done;
-            }
-        }
-
         execute_step(seq);
         executed++;
+
+        if (seq->state == SYN_SEQ_RUNNING && seq->current >= seq->step_count) {
+            if (complete_sequence(seq, &done)) {
+                seq->updating = false;
+                return done;
+            }
+            if (executed >= (size_t)seq->step_count) {
+                break;
+            }
+        }
     }
 
-    return false;
+    done = (seq->state == SYN_SEQ_DONE);
+    seq->updating = false;
+    return done;
 }
 
 #endif /* SYN_USE_SEQUENCER */

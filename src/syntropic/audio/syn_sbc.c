@@ -89,6 +89,21 @@ static uint32_t get_bits(BitReader *br, uint8_t nbits)
     return val;
 }
 
+static void sbc_alloc_group(int8_t loudness[2][8], uint8_t ch_start, uint8_t ch_end, uint8_t sbs,
+                            int32_t bitpool, int32_t bits[2][8])
+{
+    for (int level = 17; level >= -16 && bitpool > 0; level--) {
+        for (uint8_t ch = ch_start; ch < ch_end; ch++) {
+            for (uint8_t sb = 0U; sb < sbs; sb++) {
+                if ((int)loudness[ch][sb] >= level && bits[ch][sb] < 16 && bitpool > 0) {
+                    bits[ch][sb]++;
+                    bitpool--;
+                }
+            }
+        }
+    }
+}
+
 static void sbc_calculate_bits(const SYN_SBC_FrameInfo *info, int32_t scale_factors[2][8],
                                int32_t bits[2][8])
 {
@@ -118,16 +133,12 @@ static void sbc_calculate_bits(const SYN_SBC_FrameInfo *info, int32_t scale_fact
     }
 
     int32_t bitpool = (int32_t)info->bitpool;
-
-    for (int level = 16; level >= 0 && bitpool > 0; level--) {
-        for (uint8_t ch = 0; ch < chs; ch++) {
-            for (uint8_t sb = 0; sb < sbs; sb++) {
-                if (loudness[ch][sb] >= level && bitpool > 0) {
-                    bits[ch][sb]++;
-                    bitpool--;
-                }
-            }
+    if (info->mode == SYN_SBC_MODE_DUAL_CHANNEL) {
+        for (uint8_t ch = 0U; ch < chs; ch++) {
+            sbc_alloc_group(loudness, ch, (uint8_t)(ch + 1U), sbs, bitpool, bits);
         }
+    } else {
+        sbc_alloc_group(loudness, 0U, chs, sbs, bitpool, bits);
     }
 }
 static uint16_t sbc_calc_frame_len(const SYN_SBC_FrameInfo *info)
@@ -199,10 +210,11 @@ static void sbc_unpack_samples(SYN_SBC_Decoder *dec, BitReader *br, int32_t bits
     }
 }
 
-static void sbc_synthesize_channel(SYN_SBC_Decoder *dec, uint8_t blk, uint8_t ch, int16_t *pcm_out,
-                                   size_t *pcm_idx)
+static void sbc_synthesize_channel(SYN_SBC_Decoder *dec, uint8_t blk, uint8_t ch, int16_t *pcm_out)
 {
     uint8_t sbs = dec->info.subbands;
+    uint8_t chs = dec->info.channels;
+    size_t blk_base = (size_t)blk * (size_t)sbs * (size_t)chs;
 
     for (int i = (20 * (int)sbs) - 1; i >= 2 * (int)sbs; i--) {
         dec->V[ch][i] = dec->V[ch][i - 2 * (int)sbs];
@@ -225,8 +237,7 @@ static void sbc_synthesize_channel(SYN_SBC_Decoder *dec, uint8_t blk, uint8_t ch
             int32_t v_sample = dec->V[ch][idx * 2 * (int)sbs + (int)sb];
             pcm_val += (int32_t)(((int64_t)v_sample * (int64_t)coef) >> 8);
         }
-        pcm_out[*pcm_idx] = clamp_s16(pcm_val);
-        (*pcm_idx)++;
+        pcm_out[blk_base + (size_t)sb * (size_t)chs + (size_t)ch] = clamp_s16(pcm_val);
     }
 }
 
@@ -329,14 +340,13 @@ SYN_Status syn_sbc_decode_frame(SYN_SBC_Decoder *dec, const uint8_t *in, size_t 
     sbc_uncouple_joint_stereo(dec);
 
     /* 4. Synthesis filterbank matrixing and windowing */
-    size_t pcm_idx = 0U;
     for (uint8_t blk = 0U; blk < dec->info.blocks; blk++) {
         for (uint8_t ch = 0U; ch < dec->info.channels; ch++) {
-            sbc_synthesize_channel(dec, blk, ch, pcm_out, &pcm_idx);
+            sbc_synthesize_channel(dec, blk, ch, pcm_out);
         }
     }
 
-    *out_samples = pcm_idx;
+    *out_samples = req_samples;
     return SYN_OK;
 }
 

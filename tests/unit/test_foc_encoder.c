@@ -88,10 +88,58 @@ static void test_foc_encoder_absolute(void)
     syn_foc_encoder_update_absolute(NULL, 1000);
 }
 
+static void test_foc_encoder_hall_60deg_sectors_and_high_cpr(void)
+{
+    SYN_FOCEncoder enc;
+    SYN_FOCEncoderConfig hcfg = {
+        .type = SYN_FOC_ENCODER_HALL, .pole_pairs = 1, .cpr = 6, .zero_offset_rad = 0};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_foc_encoder_init(&enc, &hcfg));
+
+    /* Standard 120-deg Hall sequence 100 -> 110 -> 010 -> 011 -> 001 -> 101 must step by 60 deg */
+    const bool seq[6][3] = {
+        {true, false, false}, {true, true, false},  {false, true, false},
+        {false, true, true},  {false, false, true}, {true, false, true},
+    };
+    q16_t prev = 0;
+    for (int i = 0; i < 6; i++) {
+        syn_foc_encoder_update_hall(&enc, seq[i][0], seq[i][1], seq[i][2]);
+        q16_t ang = syn_foc_encoder_get_elec_angle(&enc);
+        q16_t expected = (q16_t)(((int64_t)(2 * i + 1) * (int64_t)Q16_PI) / 6LL);
+        TEST_ASSERT_INT_WITHIN(128, expected, ang);
+        if (i > 0) {
+            TEST_ASSERT_INT_WITHIN(128, Q16_PI / 3, ang - prev);
+        }
+        prev = ang;
+    }
+
+    /* High-resolution 16-bit QEI (cpr = 65536 >= 32768) at 40 kHz (>= 32768) must not overflow Q16
+     */
+    SYN_FOCEncoderConfig qcfg = {.type = SYN_FOC_ENCODER_QUADRATURE,
+                                 .pole_pairs = 2,
+                                 .cpr = 65536U,
+                                 .zero_offset_rad = 0,
+                                 .sample_rate_hz = 40000U};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_foc_encoder_init(&enc, &qcfg));
+    syn_foc_encoder_update_quadrature(&enc, 8192); /* 1/8 mech rev * 2 pole pairs = pi/2 elec */
+    TEST_ASSERT_INT_WITHIN(128, Q16_PI_2, syn_foc_encoder_get_elec_angle(&enc));
+
+    /* Next sample +16 counts at 40 kHz -> 16/65536 * 40000 * 2 * 2*pi = 122.718 rad/s */
+    syn_foc_encoder_update_quadrature(&enc, 8208);
+    TEST_ASSERT_INT_WITHIN(256, Q16_FROM_FLOAT(122.7185f), syn_foc_encoder_get_elec_speed(&enc));
+
+    /* Massive positive/negative delta saturates speed cleanly without 64-bit overflow */
+    enc.config.sample_rate_hz = 1000000U;
+    syn_foc_encoder_update_quadrature(&enc, INT32_MAX);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_foc_encoder_get_elec_speed(&enc));
+    syn_foc_encoder_update_quadrature(&enc, INT32_MIN);
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, syn_foc_encoder_get_elec_speed(&enc));
+}
+
 void run_foc_encoder_tests(void)
 {
     RUN_TEST(test_foc_encoder_init_invalid);
     RUN_TEST(test_foc_encoder_quadrature_and_getters);
     RUN_TEST(test_foc_encoder_hall);
     RUN_TEST(test_foc_encoder_absolute);
+    RUN_TEST(test_foc_encoder_hall_60deg_sectors_and_high_cpr);
 }

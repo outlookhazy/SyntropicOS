@@ -323,10 +323,11 @@ void test_tier_a_icmp_regressions(void)
 {
     SYN_ICMP icmp;
     SYN_ETH eth;
-    uint8_t req[60];
+    static uint8_t req[SYN_ETH_MAX_FRAME_LEN];
     size_t req_len = 0U;
-    uint8_t reply[60];
+    static uint8_t reply[SYN_ETH_MAX_FRAME_LEN];
     size_t reply_len = 0U;
+    static uint8_t mtu_payload[SYN_ETH_MAX_FRAME_LEN - 42U];
     const uint8_t bcast_mac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     const uint8_t mcast_mac[6] = {0x01, 0x00, 0x5E, 0x00, 0x00, 0x01};
 
@@ -359,4 +360,18 @@ void test_tier_a_icmp_regressions(void)
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_icmp_process_packet(&icmp, req, req_len, reply, &reply_len));
     TEST_ASSERT_EQUAL_size_t(0U, reply_len);
     TEST_ASSERT_EQUAL_UINT32(0U, icmp.echo_requests_rx);
+
+    /* Full-MTU 1472B payload (1514B Ethernet frame) Echo Request/Reply roundtrip */
+    for (size_t i = 0U; i < sizeof(mtu_payload); i++) {
+        mtu_payload[i] = (uint8_t)(i & 0xFFU);
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_icmp_build_echo_request(&icmp, &eth, MY_IP, MY_MAC, 0x4242U,
+                                                              7U, mtu_payload, sizeof(mtu_payload),
+                                                              req, &req_len));
+    TEST_ASSERT_EQUAL_size_t(SYN_ETH_MAX_FRAME_LEN, req_len);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_icmp_process_packet(&icmp, req, req_len, reply, &reply_len));
+    TEST_ASSERT_EQUAL_size_t(SYN_ETH_MAX_FRAME_LEN, reply_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_ICMP_TYPE_ECHO_REPLY, reply[34]);
+    TEST_ASSERT_EQUAL_UINT16(0U, syn_icmp_checksum(&reply[34], 8U + sizeof(mtu_payload)));
+    TEST_ASSERT_EQUAL_MEMORY(mtu_payload, &reply[42], sizeof(mtu_payload));
 }

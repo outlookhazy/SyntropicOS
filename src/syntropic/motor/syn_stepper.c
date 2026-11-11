@@ -117,21 +117,28 @@ void syn_stepper_move(SYN_Stepper *s, int32_t steps)
         return;
     }
 
-    bool forward = (steps > 0);
-    int64_t steps64 = forward ? (int64_t)steps : -(int64_t)steps;
-    int32_t abs_steps = (steps64 > (int64_t)INT32_MAX) ? INT32_MAX : (int32_t)steps64;
+    int64_t target64 = (int64_t)s->position + (int64_t)steps;
+    if (target64 > (int64_t)INT32_MAX) {
+        target64 = (int64_t)INT32_MAX;
+    } else if (target64 < (int64_t)INT32_MIN) {
+        target64 = (int64_t)INT32_MIN;
+    }
+
+    int64_t diff64 = target64 - (int64_t)s->position;
+    if (diff64 == 0) {
+        return;
+    }
+    if (diff64 < -(int64_t)INT32_MAX) {
+        diff64 = -(int64_t)INT32_MAX;
+    }
+
+    bool forward = (diff64 > 0);
+    int32_t abs_steps = (int32_t)(forward ? diff64 : -diff64);
 
     set_direction(s, forward);
 
     s->steps_to_go = abs_steps;
-    int64_t target64 = (int64_t)s->position + (int64_t)steps;
-    if (target64 > (int64_t)INT32_MAX) {
-        s->target = INT32_MAX;
-    } else if (target64 < (int64_t)INT32_MIN) {
-        s->target = INT32_MIN;
-    } else {
-        s->target = (int32_t)target64;
-    }
+    s->target = (int32_t)((int64_t)s->position + diff64);
 
     /* Compute deceleration start point:
      * For a symmetric trapezoidal profile, decel starts at half the

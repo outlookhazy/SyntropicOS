@@ -1,5 +1,7 @@
+#include "mocks/mock_port.h"
 #include "syntropic/net/syn_eth.h"
 #include "syntropic/net/syn_tcp.h"
+#include "syntropic/util/syn_pack.h"
 #include "unity/unity.h"
 
 #include <string.h>
@@ -7,6 +9,20 @@
 static SYN_ETH eth;
 static SYN_TCP tcp;
 static SYN_Task task;
+
+static void stamp_tcp_csum(uint8_t *pkt)
+{
+    uint8_t ip_ihl = (uint8_t)((pkt[14] & 0x0FU) * 4U);
+    uint16_t ip_len = syn_peek_u16(pkt, 16U);
+    size_t tcp_off = 14U + (size_t)ip_ihl;
+    size_t tcp_len = (size_t)ip_len - (size_t)ip_ihl;
+    uint32_t src_ip = syn_peek_u32(pkt, 26U);
+    uint32_t dst_ip = syn_peek_u32(pkt, 30U);
+    pkt[tcp_off + 16U] = 0U;
+    pkt[tcp_off + 17U] = 0U;
+    uint16_t csum = syn_tcp_checksum(src_ip, dst_ip, &pkt[tcp_off], tcp_len);
+    syn_poke_u16(csum, pkt, tcp_off + 16U);
+}
 
 void test_tcp_init_and_listen(void)
 {
@@ -72,6 +88,7 @@ void test_tcp_syn_ack_handshake(void)
     syn_frame[41] = 0x01;             /* Seq 1 */
     syn_frame[46] = 0x50;             /* Data Offset 5 (20 bytes) */
     syn_frame[47] = SYN_TCP_FLAG_SYN; /* SYN Flag */
+    stamp_tcp_csum(syn_frame);
 
     uint8_t tx_out[128];
     size_t tx_len = 0;
@@ -89,6 +106,7 @@ void test_tcp_syn_ack_handshake(void)
     syn_frame[44] = (uint8_t)(tcp.conns[0].seq_nxt >> 8);
     syn_frame[45] = (uint8_t)(tcp.conns[0].seq_nxt & 0xFFU);
     syn_frame[47] = SYN_TCP_FLAG_ACK;
+    stamp_tcp_csum(syn_frame);
     st = syn_tcp_process_packet(&tcp, syn_frame, sizeof(syn_frame), tx_out, &tx_len);
     TEST_ASSERT_EQUAL(SYN_OK, st);
     TEST_ASSERT_EQUAL(SYN_TCP_ESTABLISHED, tcp.conns[0].state);
@@ -134,6 +152,7 @@ void test_tcp_task_unblock_on_data(void)
     data_frame[46] = 0x50;
     data_frame[47] = SYN_TCP_FLAG_PSH | SYN_TCP_FLAG_ACK;
     memcpy(&data_frame[54], "GET /ws", 7);
+    stamp_tcp_csum(data_frame);
 
     uint8_t tx_out[128];
     size_t tx_len = 0;
@@ -194,6 +213,7 @@ void test_tcp_rx_buf_full_no_false_ack(void)
     data_frame[46] = 0x50;
     data_frame[47] = SYN_TCP_FLAG_PSH | SYN_TCP_FLAG_ACK;
     memcpy(&data_frame[54], "HELLO", 5);
+    stamp_tcp_csum(data_frame);
 
     uint8_t tx_out[128];
     size_t tx_len = 0;
@@ -251,6 +271,7 @@ static void test_tcp_fin_close_handshake(void)
     fin_frame[41] = 0x00; /* seq = 256 */
     fin_frame[46] = 0x50;
     fin_frame[47] = SYN_TCP_FLAG_FIN;
+    stamp_tcp_csum(fin_frame);
 
     uint8_t tx_out[128];
     size_t tx_len = 0;
@@ -297,6 +318,7 @@ static void test_tcp_null_params_and_non_tcp_proto(void)
     frame[23] = 6;
     frame[36] = 0x1F;
     frame[37] = 0x90; /* Dst Port 8080 */
+    stamp_tcp_csum(frame);
     TEST_ASSERT_EQUAL(SYN_ERROR,
                       syn_tcp_process_packet(&local_tcp, frame, sizeof(frame), tx_out, &tx_len));
 
@@ -316,6 +338,7 @@ static void test_tcp_null_params_and_non_tcp_proto(void)
     /* Process packet for unmanaged port / listening port without match */
     frame[36] = 0x00;
     frame[37] = 80; /* Managed port 80, but state CLOSED (no match) */
+    stamp_tcp_csum(frame);
     TEST_ASSERT_EQUAL(SYN_ERROR,
                       syn_tcp_process_packet(&full_tcp, frame, sizeof(frame), tx_out, &tx_len));
 }
@@ -409,6 +432,7 @@ static void test_tcp_pt_block_read_clears_blocked_task_and_null_guards(void)
     data_frame[46] = 0x50; /* Data offset = 5 (20B) */
     data_frame[47] = SYN_TCP_FLAG_ACK | SYN_TCP_FLAG_PSH;
     memcpy(&data_frame[54], "PING", 4);
+    stamp_tcp_csum(data_frame);
 
     uint8_t tx_out[128];
     size_t tx_len = 0;
@@ -482,16 +506,19 @@ static void test_tcp_round3_bounds_rst_and_fin_psh(void)
     pkt[37] = 80;
     pkt[46] = 0x50;
     pkt[47] = SYN_TCP_FLAG_ACK; /* Non-SYN on LISTEN */
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_LISTEN, tcp.conns[0].state);
 
     tcp.eth = NULL;
     pkt[47] = SYN_TCP_FLAG_SYN;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
     tcp.eth = &eth;
 
     pkt[47] = SYN_TCP_FLAG_PSH; /* Non-ACK in SYN_RCVD */
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
 
@@ -501,6 +528,7 @@ static void test_tcp_round3_bounds_rst_and_fin_psh(void)
     pkt[44] = (uint8_t)(tcp.conns[0].seq_nxt >> 8);
     pkt[45] = (uint8_t)(tcp.conns[0].seq_nxt & 0xFFU);
     pkt[47] = SYN_TCP_FLAG_ACK;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_ESTABLISHED, tcp.conns[0].state);
 
@@ -512,6 +540,7 @@ static void test_tcp_round3_bounds_rst_and_fin_psh(void)
     rst_task.state = SYN_TASK_BLOCKED;
     tcp.conns[0].blocked_task = &rst_task;
     pkt[47] = SYN_TCP_FLAG_RST;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_CLOSED, tcp.conns[0].state);
     TEST_ASSERT_EQUAL(SYN_TASK_READY, rst_task.state);
@@ -542,6 +571,7 @@ static void test_tcp_round3_bounds_rst_and_fin_psh(void)
     pkt[50] = 0x50; /* data_offset = 20 */
     pkt[51] = SYN_TCP_FLAG_FIN | SYN_TCP_FLAG_PSH | SYN_TCP_FLAG_ACK;
     memcpy(&pkt[58], "LAST", 4);
+    stamp_tcp_csum(pkt);
 
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 62, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_CLOSED, tcp.conns[0].state);
@@ -576,11 +606,13 @@ static void test_tcp_round4_seq_ack_rst_and_partial_fin(void)
 
     /* 1. RST on LISTEN ignored (even if SYN+RST) */
     pkt[47] = SYN_TCP_FLAG_SYN | SYN_TCP_FLAG_RST;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_LISTEN, tcp.conns[0].state);
 
     /* Open SYN_RCVD (ack_nxt = 11) */
     pkt[47] = SYN_TCP_FLAG_SYN;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
     TEST_ASSERT_EQUAL_UINT32(11U, tcp.conns[0].ack_nxt);
@@ -592,16 +624,19 @@ static void test_tcp_round4_seq_ack_rst_and_partial_fin(void)
     pkt[44] = (uint8_t)(tcp.conns[0].seq_nxt >> 8);
     pkt[45] = (uint8_t)(tcp.conns[0].seq_nxt & 0xFFU);
     pkt[47] = SYN_TCP_FLAG_ACK;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
 
     pkt[41] = 11U; /* matching seq_num, wrong ack_num */
     pkt[45] ^= 0xFFU;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
 
     pkt[41] = 99U; /* off-sequence RST ignored */
     pkt[47] = SYN_TCP_FLAG_RST;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
 
@@ -612,17 +647,20 @@ static void test_tcp_round4_seq_ack_rst_and_partial_fin(void)
     pkt[44] = (uint8_t)(tcp.conns[0].seq_nxt >> 8);
     pkt[45] = (uint8_t)(tcp.conns[0].seq_nxt & 0xFFU);
     pkt[47] = SYN_TCP_FLAG_ACK;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_ESTABLISHED, tcp.conns[0].state);
 
     /* 3. Out-of-order pure ACK, payload, FIN, and RST rejected in ESTABLISHED */
     pkt[41] = 50U;
     pkt[47] = SYN_TCP_FLAG_ACK;
+    stamp_tcp_csum(pkt);
     tx_len = 0;
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54, tx_out, &tx_len));
     TEST_ASSERT_EQUAL_size_t(0U, tx_len);
 
     pkt[47] = SYN_TCP_FLAG_FIN | SYN_TCP_FLAG_ACK;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_ESTABLISHED, tcp.conns[0].state);
     TEST_ASSERT_GREATER_THAN_size_t(0U, tx_len);
@@ -630,6 +668,7 @@ static void test_tcp_round4_seq_ack_rst_and_partial_fin(void)
     pkt[17] = 44; /* 4B out-of-order payload */
     pkt[47] = SYN_TCP_FLAG_PSH | SYN_TCP_FLAG_ACK;
     memcpy(&pkt[54], "SKIP", 4);
+    stamp_tcp_csum(pkt);
     tx_len = 0;
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 58, tx_out, &tx_len));
     TEST_ASSERT_EQUAL_UINT16(0U, tcp.conns[0].rx_len);
@@ -642,6 +681,7 @@ static void test_tcp_round4_seq_ack_rst_and_partial_fin(void)
     pkt[41] = 11U;
     pkt[47] = SYN_TCP_FLAG_FIN | SYN_TCP_FLAG_PSH | SYN_TCP_FLAG_ACK;
     memcpy(&pkt[54], "ABCDE", 5);
+    stamp_tcp_csum(pkt);
     tx_len = 0;
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 59, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_ESTABLISHED, tcp.conns[0].state);
@@ -654,6 +694,7 @@ static void test_tcp_round4_seq_ack_rst_and_partial_fin(void)
     pkt[17] = 43;
     pkt[41] = 13U;
     memcpy(&pkt[54], "CDE", 3);
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 57, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_CLOSED, tcp.conns[0].state);
     TEST_ASSERT_EQUAL_UINT16(3U, tcp.conns[0].rx_len);
@@ -718,12 +759,15 @@ static void test_r5_n07_tcp_multi_accept_close_and_waddress(void)
 
     /* Stray ACK or SYN+RST on closed listener must not re-arm */
     pkt[47] = SYN_TCP_FLAG_ACK;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
     pkt[47] = SYN_TCP_FLAG_SYN | SYN_TCP_FLAG_RST;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
 
     /* Valid Client 2 SYN re-arms closed listener into SYN_RCVD -> ESTABLISHED */
     pkt[47] = SYN_TCP_FLAG_SYN;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
     TEST_ASSERT_GREATER_THAN_size_t(0U, tx_len);
@@ -734,12 +778,14 @@ static void test_r5_n07_tcp_multi_accept_close_and_waddress(void)
     pkt[44] = (uint8_t)(tcp.conns[0].seq_nxt >> 8U);
     pkt[45] = (uint8_t)(tcp.conns[0].seq_nxt & 0xFFU);
     pkt[47] = SYN_TCP_FLAG_ACK;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_ESTABLISHED, tcp.conns[0].state);
 
     /* Client 3 SYN while Client 2 holds sole slot -> rejected cleanly */
     pkt[35] = 0x02; /* port 53250 */
     pkt[47] = SYN_TCP_FLAG_SYN;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_ERROR, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
 
     /* Stack-array PT_TCP_BLOCK_READ (-Werror=address check) */
@@ -776,6 +822,7 @@ static void test_r5_n07_tcp_multi_accept_close_and_waddress(void)
     pkt[36] = 0x01U;
     pkt[37] = 0xBBU; /* dst_port = 443 */
     pkt[47] = SYN_TCP_FLAG_SYN;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&headless_tcp, pkt, 54U, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, headless_tcp.conns[0].state);
     TEST_ASSERT_EQUAL_UINT16(443U, headless_tcp.conns[0].local_port);
@@ -803,17 +850,35 @@ static void test_tier_a_tcp_regressions(void)
     pkt[41] = 50U;
     pkt[46] = 0x50U;
 
-    /* 1. LISTEN rejects SYN+ACK and SYN+FIN */
+    /* 1. LISTEN rejects SYN+ACK (with RFC 793 RST seq=seg.ack) and ignores SYN+FIN */
+    syn_poke_u32(0x12345678UL, pkt, 42U);
     pkt[47] = SYN_TCP_FLAG_SYN | SYN_TCP_FLAG_ACK;
+    stamp_tcp_csum(pkt);
+    tx_len = 0U;
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_LISTEN, tcp.conns[0].state);
+    TEST_ASSERT_EQUAL_size_t(54U, tx_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TCP_FLAG_RST, tx_out[47]);
+    TEST_ASSERT_EQUAL_UINT32(0x12345678UL, syn_peek_u32(tx_out, 38U));
+
+    pkt[47] = SYN_TCP_FLAG_ACK;
+    stamp_tcp_csum(pkt);
+    tx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_LISTEN, tcp.conns[0].state);
+    TEST_ASSERT_EQUAL_size_t(54U, tx_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TCP_FLAG_RST, tx_out[47]);
+    TEST_ASSERT_EQUAL_UINT32(0x12345678UL, syn_peek_u32(tx_out, 38U));
+    syn_poke_u32(0UL, pkt, 42U);
 
     pkt[47] = SYN_TCP_FLAG_SYN | SYN_TCP_FLAG_FIN;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_LISTEN, tcp.conns[0].state);
 
     /* 2. Pure SYN enters SYN_RCVD; retransmitted SYN re-sends SYN|ACK without shifting seq_nxt */
     pkt[47] = SYN_TCP_FLAG_SYN;
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
     uint32_t expected_ack = tcp.conns[0].seq_nxt;
@@ -833,6 +898,7 @@ static void test_tier_a_tcp_regressions(void)
     pkt[45] = (uint8_t)(expected_ack & 0xFFU);
     pkt[47] = SYN_TCP_FLAG_ACK | SYN_TCP_FLAG_PSH;
     memcpy(&pkt[54], "DATA", 4U);
+    stamp_tcp_csum(pkt);
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 58U, tx_out, &tx_len));
     TEST_ASSERT_EQUAL(SYN_TCP_ESTABLISHED, tcp.conns[0].state);
     TEST_ASSERT_EQUAL_UINT16(4U, tcp.conns[0].rx_len);
@@ -845,6 +911,7 @@ static void test_tier_a_tcp_regressions(void)
     /* 4. Stray SYN in ESTABLISHED emits challenge ACK without mutating rx_len/ack_nxt */
     pkt[17] = 40U;
     pkt[47] = SYN_TCP_FLAG_SYN;
+    stamp_tcp_csum(pkt);
     tx_len = 0U;
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
     TEST_ASSERT_EQUAL_size_t(54U, tx_len);
@@ -856,6 +923,218 @@ static void test_tier_a_tcp_regressions(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
     TEST_ASSERT_EQUAL_UINT8(0U, tx_out[48]);
     TEST_ASSERT_EQUAL_UINT8(0U, tx_out[49]);
+}
+
+static void test_tcp_rx_checksum_rst_syn_timeout_and_fin_drain(void)
+{
+    uint8_t mac[6] = {0x02, 0x11, 0x22, 0x33, 0x44, 0x55};
+    uint8_t cli_mac[6] = {0x02, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
+    uint8_t pkt[70] = {0};
+    uint8_t tx_out[128];
+    size_t tx_len = 0U;
+
+    syn_eth_init(&eth, mac, 0xA9FE0164UL);
+    syn_tcp_init(&tcp, &eth);
+    syn_tcp_listen(&tcp, 80U);
+
+    memcpy(&pkt[0], mac, 6U);
+    memcpy(&pkt[6], cli_mac, 6U);
+    pkt[12] = 0x08U;
+    pkt[14] = 0x45U;
+    syn_poke_u16(40U, pkt, 16U);
+    pkt[23] = 6U;
+    syn_poke_u32(0x0A000001UL, pkt, 26U);
+    syn_poke_u32(0xA9FE0164UL, pkt, 30U);
+    syn_poke_u16(49152U, pkt, 34U);
+    syn_poke_u16(80U, pkt, 36U);
+    syn_poke_u32(1000UL, pkt, 38U);
+    pkt[46] = 0x50U;
+    pkt[47] = SYN_TCP_FLAG_SYN;
+    stamp_tcp_csum(pkt);
+
+    /* 1. Corrupted TCP RX checksum must be rejected */
+    pkt[50] ^= 0xFFU;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_LISTEN, tcp.conns[0].state);
+
+    /* 2. Unknown port emits RFC 793 RST|ACK for SYN and RST for ACK, never for RST or bcast */
+    stamp_tcp_csum(pkt);
+    syn_poke_u16(9999U, pkt, 36U);
+    stamp_tcp_csum(pkt);
+    tx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL_size_t(54U, tx_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TCP_FLAG_RST | SYN_TCP_FLAG_ACK, tx_out[47]);
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_peek_u32(tx_out, 38U));
+    TEST_ASSERT_EQUAL_UINT32(1001UL, syn_peek_u32(tx_out, 42U));
+    TEST_ASSERT_EQUAL_UINT16(0U, syn_tcp_checksum(0xA9FE0164UL, 0x0A000001UL, &tx_out[34], 20U));
+
+    pkt[47] = SYN_TCP_FLAG_FIN;
+    stamp_tcp_csum(pkt);
+    tx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL_size_t(54U, tx_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TCP_FLAG_RST | SYN_TCP_FLAG_ACK, tx_out[47]);
+    TEST_ASSERT_EQUAL_UINT32(1001UL, syn_peek_u32(tx_out, 42U));
+
+    pkt[47] = SYN_TCP_FLAG_ACK;
+    syn_poke_u32(7777UL, pkt, 42U);
+    stamp_tcp_csum(pkt);
+    tx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL_size_t(54U, tx_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TCP_FLAG_RST, tx_out[47]);
+    TEST_ASSERT_EQUAL_UINT32(7777UL, syn_peek_u32(tx_out, 38U));
+
+    /* Incoming RST or broadcast/multicast must NOT generate RST reply */
+    pkt[47] = SYN_TCP_FLAG_RST;
+    stamp_tcp_csum(pkt);
+    tx_len = 99U;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL_size_t(0U, tx_len);
+
+    pkt[0] = 0xFFU; /* Broadcast MAC */
+    pkt[47] = SYN_TCP_FLAG_SYN;
+    stamp_tcp_csum(pkt);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL_size_t(0U, tx_len);
+    memcpy(&pkt[0], mac, 6U);
+
+    syn_poke_u32(0xFFFFFFFFUL, pkt, 30U); /* Broadcast IPv4 */
+    stamp_tcp_csum(pkt);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL_size_t(0U, tx_len);
+    syn_poke_u32(0xE0000001UL, pkt, 30U); /* Multicast IPv4 */
+    stamp_tcp_csum(pkt);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL_size_t(0U, tx_len);
+    syn_poke_u32(0xA9FE0164UL, pkt, 30U);
+
+    /* 3. Half-open SYN_RCVD slot reclamation after timeout */
+    syn_poke_u16(80U, pkt, 36U);
+    pkt[47] = SYN_TCP_FLAG_SYN;
+    stamp_tcp_csum(pkt);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
+
+    /* Before timeout, competing SYN from Client 2 cannot hijack SYN_RCVD slot */
+    syn_poke_u16(50000U, pkt, 34U);
+    syn_poke_u32(2000UL, pkt, 38U);
+    stamp_tcp_csum(pkt);
+    mock_tick_advance(100U);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL_UINT16(49152U, tcp.conns[0].remote_port);
+
+    /* After SYN timeout, Client 2 SYN reclaims stale half-open slot and establishes */
+    mock_tick_advance(5000U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
+    TEST_ASSERT_EQUAL_UINT16(50000U, tcp.conns[0].remote_port);
+
+    syn_poke_u32(2001UL, pkt, 38U);
+    syn_poke_u32(tcp.conns[0].seq_nxt, pkt, 42U);
+    pkt[47] = SYN_TCP_FLAG_ACK;
+    stamp_tcp_csum(pkt);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_ESTABLISHED, tcp.conns[0].state);
+
+    /* 4. Unread rx_buf from FIN+PSH+ACK must not be clobbered by new SYN before drain */
+    syn_poke_u16(44U, pkt, 16U);
+    pkt[47] = SYN_TCP_FLAG_FIN | SYN_TCP_FLAG_PSH | SYN_TCP_FLAG_ACK;
+    memcpy(&pkt[54], "KEEP", 4U);
+    stamp_tcp_csum(pkt);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 58U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_CLOSED, tcp.conns[0].state);
+    TEST_ASSERT_EQUAL_UINT16(4U, tcp.conns[0].rx_len);
+
+    /* Client 3 SYN arrives before reader drains rx_buf -> rejected, "KEEP" preserved */
+    syn_poke_u16(40U, pkt, 16U);
+    syn_poke_u16(50001U, pkt, 34U);
+    syn_poke_u32(3000UL, pkt, 38U);
+    syn_poke_u32(0UL, pkt, 42U);
+    pkt[47] = SYN_TCP_FLAG_SYN;
+    stamp_tcp_csum(pkt);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL_UINT16(4U, tcp.conns[0].rx_len);
+    TEST_ASSERT_EQUAL_MEMORY("KEEP", tcp.conns[0].rx_buf, 4U);
+
+    /* Once reader drains rx_buf (rx_len == 0), Client 3 SYN re-arms listener cleanly */
+    tcp.conns[0].rx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
+    TEST_ASSERT_EQUAL_UINT16(50001U, tcp.conns[0].remote_port);
+}
+
+static void test_tcp_rst_clears_rx_buf_and_syn_rcvd_bad_ack_rst(void)
+{
+    uint8_t mac[6] = {0x02, 0x11, 0x22, 0x33, 0x44, 0x55};
+    uint8_t cli_mac[6] = {0x02, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
+    uint8_t pkt[64] = {0};
+    uint8_t tx_out[128];
+    size_t tx_len = 0U;
+
+    syn_eth_init(&eth, mac, 0xA9FE0164UL);
+    syn_tcp_init(&tcp, &eth);
+    syn_tcp_listen(&tcp, 80U);
+
+    memcpy(&pkt[0], mac, 6U);
+    memcpy(&pkt[6], cli_mac, 6U);
+    pkt[12] = 0x08U;
+    pkt[14] = 0x45U;
+    syn_poke_u16(40U, pkt, 16U);
+    pkt[23] = 6U;
+    syn_poke_u32(0x0A000001UL, pkt, 26U);
+    syn_poke_u32(0xA9FE0164UL, pkt, 30U);
+    syn_poke_u16(51000U, pkt, 34U);
+    syn_poke_u16(80U, pkt, 36U);
+    syn_poke_u32(500UL, pkt, 38U);
+    pkt[46] = 0x50U;
+    pkt[47] = SYN_TCP_FLAG_SYN;
+    stamp_tcp_csum(pkt);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
+
+    /* 1. Unacceptable ACK in SYN_RCVD must emit RFC 793 RST <SEQ=SEG.ACK> and stay SYN_RCVD */
+    uint32_t bad_ack = tcp.conns[0].seq_nxt ^ 0x12345678UL;
+    syn_poke_u32(501UL, pkt, 38U);
+    syn_poke_u32(bad_ack, pkt, 42U);
+    pkt[47] = SYN_TCP_FLAG_ACK;
+    stamp_tcp_csum(pkt);
+    tx_len = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
+    TEST_ASSERT_EQUAL_size_t(54U, tx_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TCP_FLAG_RST, tx_out[47]);
+    TEST_ASSERT_EQUAL_UINT32(bad_ack, syn_peek_u32(tx_out, 38U));
+
+    /* 2. Complete handshake + 2B payload, then abortive RST must flush rx_len so slot re-arms */
+    syn_poke_u16(42U, pkt, 16U);
+    syn_poke_u32(tcp.conns[0].seq_nxt, pkt, 42U);
+    pkt[47] = SYN_TCP_FLAG_ACK | SYN_TCP_FLAG_PSH;
+    memcpy(&pkt[54], "HI", 2U);
+    stamp_tcp_csum(pkt);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 56U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_ESTABLISHED, tcp.conns[0].state);
+    TEST_ASSERT_EQUAL_UINT16(2U, tcp.conns[0].rx_len);
+
+    syn_poke_u16(40U, pkt, 16U);
+    syn_poke_u32(503UL, pkt, 38U);
+    pkt[47] = SYN_TCP_FLAG_RST;
+    stamp_tcp_csum(pkt);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_CLOSED, tcp.conns[0].state);
+    TEST_ASSERT_EQUAL_UINT16(0U, tcp.conns[0].rx_len);
+
+    /* Next client SYN immediately re-arms the slot without needing application drain */
+    syn_poke_u16(51001U, pkt, 34U);
+    syn_poke_u32(900UL, pkt, 38U);
+    syn_poke_u32(0UL, pkt, 42U);
+    pkt[47] = SYN_TCP_FLAG_SYN;
+    stamp_tcp_csum(pkt);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_tcp_process_packet(&tcp, pkt, 54U, tx_out, &tx_len));
+    TEST_ASSERT_EQUAL(SYN_TCP_SYN_RCVD, tcp.conns[0].state);
+    TEST_ASSERT_EQUAL_UINT16(51001U, tcp.conns[0].remote_port);
 }
 
 void run_tcp_tests(void)
@@ -872,4 +1151,6 @@ void run_tcp_tests(void)
     RUN_TEST(test_tcp_round4_seq_ack_rst_and_partial_fin);
     RUN_TEST(test_r5_n07_tcp_multi_accept_close_and_waddress);
     RUN_TEST(test_tier_a_tcp_regressions);
+    RUN_TEST(test_tcp_rx_checksum_rst_syn_timeout_and_fin_drain);
+    RUN_TEST(test_tcp_rst_clears_rx_buf_and_syn_rcvd_bad_ack_rst);
 }

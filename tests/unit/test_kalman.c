@@ -404,6 +404,102 @@ static void test_tier_a_kalman_null_scratch_and_param_guards(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_kalman_update(&kf, &z));
 }
 
+static void test_kalman_coupled_velocity_and_2meas_fusion(void)
+{
+    /* 1. Coupled 2-state [pos, vel] filter estimating unmeasured velocity from position ramp */
+    SYN_Kalman kf;
+    SYN_Kalman_Config cfg;
+    SYN_MAT_DECL(x, 2, 1);
+    SYN_MAT_DECL(P, 2, 2);
+    SYN_MAT_DECL(F, 2, 2);
+    SYN_MAT_DECL(Qn, 2, 2);
+    SYN_MAT_DECL(H, 1, 2);
+    SYN_MAT_DECL(R, 1, 1);
+    SYN_MAT_DECL(z, 1, 1);
+    SYN_KALMAN_SCRATCH_DECL(s, 2, 1);
+
+    syn_matrix_zero(&x);
+    syn_matrix_identity(&P);
+    SYN_MAT_AT(&P, 0, 0) = Q16_FROM_INT(10);
+    SYN_MAT_AT(&P, 1, 1) = Q16_FROM_INT(10);
+
+    syn_matrix_identity(&F);
+    SYN_MAT_AT(&F, 0, 1) = Q16_FROM_FRAC(1, 10); /* dt = 0.1 s */
+
+    syn_matrix_zero(&Qn);
+    SYN_MAT_AT(&Qn, 0, 0) = Q16_FROM_FRAC(1, 100);
+    SYN_MAT_AT(&Qn, 1, 1) = Q16_FROM_FRAC(1, 100);
+
+    syn_matrix_zero(&H);
+    SYN_MAT_AT(&H, 0, 0) = Q16_ONE; /* Measure position only */
+
+    syn_matrix_zero(&R);
+    SYN_MAT_AT(&R, 0, 0) = Q16_FROM_FRAC(1, 20);
+
+    cfg.x = &x;
+    cfg.P = &P;
+    cfg.F = &F;
+    cfg.Q = &Qn;
+    cfg.H = &H;
+    cfg.R = &R;
+    cfg.n_state = 2;
+    cfg.n_meas = 1;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kalman_init(&kf, &cfg));
+    SYN_KALMAN_SCRATCH_ASSIGN(&kf, s);
+
+    /* Constant velocity v = 2.0 units/s -> pos(k) = 0.2 * (k + 1) */
+    for (int k = 0; k < 40; k++) {
+        syn_kalman_predict(&kf);
+        z.data[0] = Q16_FROM_FRAC(2 * (k + 1), 10);
+        TEST_ASSERT_EQUAL(SYN_OK, syn_kalman_update(&kf, &z));
+    }
+    ASSERT_Q16_NEAR(Q16_FROM_INT(8), SYN_MAT_AT(&x, 0, 0), Q16_KF_TOL);
+    ASSERT_Q16_NEAR(Q16_FROM_INT(2), SYN_MAT_AT(&x, 1, 0), Q16_KF_TOL);
+
+    /* 2. Multi-measurement (n_meas = 2) 2x2 innovation inverse path */
+    SYN_MAT_DECL(x2, 2, 1);
+    SYN_MAT_DECL(P2, 2, 2);
+    SYN_MAT_DECL(F2, 2, 2);
+    SYN_MAT_DECL(Q2, 2, 2);
+    SYN_MAT_DECL(H2, 2, 2);
+    SYN_MAT_DECL(R2, 2, 2);
+    SYN_MAT_DECL(z2, 2, 1);
+    SYN_KALMAN_SCRATCH_DECL(s2, 2, 2);
+
+    syn_matrix_zero(&x2);
+    syn_matrix_identity(&P2);
+    SYN_MAT_AT(&P2, 0, 0) = Q16_FROM_INT(10);
+    SYN_MAT_AT(&P2, 1, 1) = Q16_FROM_INT(10);
+    syn_matrix_identity(&F2);
+    syn_matrix_identity(&H2);
+    syn_matrix_zero(&Q2);
+    SYN_MAT_AT(&Q2, 0, 0) = Q16_FROM_FRAC(1, 100);
+    SYN_MAT_AT(&Q2, 1, 1) = Q16_FROM_FRAC(1, 100);
+    syn_matrix_zero(&R2);
+    SYN_MAT_AT(&R2, 0, 0) = Q16_HALF;
+    SYN_MAT_AT(&R2, 1, 1) = Q16_HALF;
+
+    cfg.x = &x2;
+    cfg.P = &P2;
+    cfg.F = &F2;
+    cfg.Q = &Q2;
+    cfg.H = &H2;
+    cfg.R = &R2;
+    cfg.n_state = 2;
+    cfg.n_meas = 2;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kalman_init(&kf, &cfg));
+    SYN_KALMAN_SCRATCH_ASSIGN(&kf, s2);
+
+    for (int k = 0; k < 25; k++) {
+        syn_kalman_predict(&kf);
+        SYN_MAT_AT(&z2, 0, 0) = Q16_FROM_INT(7);
+        SYN_MAT_AT(&z2, 1, 0) = -Q16_FROM_INT(3);
+        TEST_ASSERT_EQUAL(SYN_OK, syn_kalman_update(&kf, &z2));
+    }
+    ASSERT_Q16_NEAR(Q16_FROM_INT(7), SYN_MAT_AT(&x2, 0, 0), Q16_KF_TOL);
+    ASSERT_Q16_NEAR(-Q16_FROM_INT(3), SYN_MAT_AT(&x2, 1, 0), Q16_KF_TOL);
+}
+
 void run_kalman_tests(void)
 {
     RUN_TEST(test_kalman_init_valid);
@@ -413,4 +509,5 @@ void run_kalman_tests(void)
     RUN_TEST(test_kalman_singular_S_matrix_update_fail);
     RUN_TEST(test_kalman_2state_update);
     RUN_TEST(test_tier_a_kalman_null_scratch_and_param_guards);
+    RUN_TEST(test_kalman_coupled_velocity_and_2meas_fusion);
 }

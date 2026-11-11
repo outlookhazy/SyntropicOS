@@ -269,34 +269,48 @@ SYN_Status syn_fft_magnitude_spectrum(const q16_t *real, const q16_t *imag, q16_
     return SYN_OK;
 }
 
+/**
+ * @brief Insert a candidate spectral peak into a magnitude-sorted top-N buffer.
+ * @param peaks     Output peak array (maintained descending by magnitude).
+ * @param max_peaks Maximum capacity of peaks array.
+ * @param count     In/out current number of stored peaks.
+ * @param cand      Candidate local maximum peak.
+ */
+static void fft_insert_peak(SYN_FFTPeak *peaks, uint8_t max_peaks, uint8_t *count, SYN_FFTPeak cand)
+{
+    uint8_t pos = 0U;
+    while ((pos < *count) && (peaks[pos].magnitude >= cand.magnitude)) {
+        pos++;
+    }
+    if (pos < max_peaks) {
+        if (*count < max_peaks) {
+            (*count)++;
+        }
+        for (uint8_t j = (uint8_t)(*count - 1U); j > pos; j--) {
+            peaks[j] = peaks[j - 1U];
+        }
+        peaks[pos] = cand;
+    }
+}
+
 SYN_Status syn_fft_find_peaks(const q16_t *mag, uint16_t n_bins, q16_t sample_rate_hz,
                               SYN_FFTPeak *peaks, uint8_t max_peaks, uint8_t *num_peaks_found)
 {
-    if (mag == NULL || peaks == NULL || num_peaks_found == NULL || n_bins <= 2 || max_peaks == 0) {
+    if (mag == NULL || peaks == NULL || num_peaks_found == NULL || n_bins <= 2U ||
+        max_peaks == 0U || sample_rate_hz <= 0) {
         return SYN_INVALID_PARAM;
     }
 
     uint8_t count = 0U;
     uint32_t fft_size = ((uint32_t)n_bins - 1U) * 2U;
 
-    for (uint16_t k = 1U; (k < (uint16_t)(n_bins - 1U)) && (count < max_peaks); k++) {
+    for (uint16_t k = 1U; k < (uint16_t)(n_bins - 1U); k++) {
         if ((mag[k] > mag[k - 1U]) && (mag[k] > mag[k + 1U])) {
-            peaks[count].bin = k;
-            peaks[count].magnitude = mag[k];
-            peaks[count].freq_hz =
-                (q16_t)(((int64_t)sample_rate_hz * (int64_t)k) / (int64_t)fft_size);
-            count++;
-        }
-    }
-
-    /* Sort detected peaks descending by magnitude */
-    for (uint8_t i = 0; i < count; i++) {
-        for (uint8_t j = i + 1; j < count; j++) {
-            if (peaks[j].magnitude > peaks[i].magnitude) {
-                SYN_FFTPeak tmp = peaks[i];
-                peaks[i] = peaks[j];
-                peaks[j] = tmp;
-            }
+            SYN_FFTPeak cand;
+            cand.bin = k;
+            cand.magnitude = mag[k];
+            cand.freq_hz = (q16_t)(((int64_t)sample_rate_hz * (int64_t)k) / (int64_t)fft_size);
+            fft_insert_peak(peaks, max_peaks, &count, cand);
         }
     }
 
@@ -307,30 +321,29 @@ SYN_Status syn_fft_find_peaks(const q16_t *mag, uint16_t n_bins, q16_t sample_ra
 SYN_Status syn_fft_thd(const q16_t *mag, uint16_t n_bins, uint16_t fundamental_bin,
                        uint8_t max_harmonics, q16_t *thd_pct)
 {
-    if (mag == NULL || thd_pct == NULL || fundamental_bin == 0 || fundamental_bin >= n_bins ||
-        max_harmonics == 0) {
+    if (mag == NULL || thd_pct == NULL || fundamental_bin == 0U || fundamental_bin >= n_bins ||
+        max_harmonics == 0U) {
         return SYN_INVALID_PARAM;
     }
 
     q16_t v1 = mag[fundamental_bin];
-    if (v1 == 0)
+    if (v1 <= 0) {
         return SYN_INVALID_PARAM;
+    }
 
-    int64_t sum_h2 = 0;
+    uint64_t sum_sq_q32 = 0ULL;
     for (uint16_t h = 2U; h <= (uint16_t)max_harmonics + 1U; h++) {
         uint32_t h_bin = (uint32_t)fundamental_bin * (uint32_t)h;
-        if (h_bin < n_bins) {
-            q16_t v_h = mag[h_bin];
-            int64_t v_h_q16 = v_h;
-            sum_h2 += (v_h_q16 * v_h_q16) >> Q16_SHIFT;
+        if ((h_bin < n_bins) && (mag[h_bin] > 0)) {
+            uint64_t v_h = (uint64_t)mag[h_bin];
+            uint64_t term = v_h * v_h;
+            sum_sq_q32 = (UINT64_MAX - sum_sq_q32 < term) ? UINT64_MAX : (sum_sq_q32 + term);
         }
     }
 
-    q16_t sum_q16 = (sum_h2 > (int64_t)INT32_MAX) ? INT32_MAX : (q16_t)sum_h2;
-    q16_t harmonic_rms = q16_sqrt(sum_q16);
-    /* THD % = (V_harmonics / V_1) * 100 */
-    q16_t ratio = q16_div(harmonic_rms, v1);
-    *thd_pct = q16_mul(ratio, Q16_FROM_INT(100));
+    uint64_t harmonic_rms = syn_isqrt64(sum_sq_q32);
+    uint64_t pct_u64 = (harmonic_rms * (uint64_t)Q16_FROM_INT(100)) / (uint64_t)v1;
+    *thd_pct = (pct_u64 > (uint64_t)INT32_MAX) ? INT32_MAX : (q16_t)pct_u64;
 
     return SYN_OK;
 }

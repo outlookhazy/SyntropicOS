@@ -39,7 +39,7 @@ typedef struct {
     uint32_t phase_step;   /**< Phase increment per sample step        */
     q16_t amplitude;       /**< Q16.16 Peak Amplitude (e.g. 1.0)       */
     q16_t offset;          /**< Q16.16 DC Offset                       */
-    uint16_t duty_q16;     /**< PWM Duty cycle (0 to 65536 for 0-100%) */
+    uint32_t duty_q16;     /**< PWM Duty cycle (0 to 65536 for 0-100%) */
     uint32_t rand_state;   /**< PRNG state for noise generator         */
 } SYN_DDS;
 

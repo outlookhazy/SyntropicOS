@@ -71,6 +71,7 @@ typedef struct SYN_Watchdog {
     SYN_WDT_Entry *entries;           /**< Array of task monitoring entries */
     uint8_t capacity;                 /**< Total slots allocated in entries array */
     uint8_t count;                    /**< Current number of registered tasks */
+    bool in_update;                   /**< Active update scan guard */
     SYN_WDT_TimeoutCallback callback; /**< Function called on timeout deadline miss */
     void *ctx;                        /**< Context pointer for the callback */
     SYN_ErrLog *errlog;               /**< If set, timeouts are logged */

@@ -219,6 +219,42 @@ static void test_r5_signal_extreme_int32_overflows(void)
     TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(1000), syn_signal_rms_q16(&sig));
 }
 
+static void test_signal_fractional_mean_variance_and_large_stddev(void)
+{
+    int32_t samples[4];
+    SYN_Signal sig;
+    syn_signal_init(&sig, samples, 4U);
+    TEST_ASSERT_EQUAL_INT32(0, syn_signal_variance_q16(&sig));
+
+    /* [0, 1]: exact mean = 0.5, population variance = 0.25 (16384), std_dev = 0.5 (32768) */
+    syn_signal_push(&sig, 0);
+    TEST_ASSERT_EQUAL_INT32(0, syn_signal_variance_q16(&sig));
+    syn_signal_push(&sig, 1);
+    TEST_ASSERT_INT_WITHIN(2, 16384, syn_signal_variance_q16(&sig));
+    TEST_ASSERT_INT_WITHIN(2, 32768, syn_signal_std_dev_q16(&sig));
+
+    /* [-1, 0]: negative fractional mean remainder */
+    syn_signal_clear(&sig);
+    syn_signal_push(&sig, -1);
+    syn_signal_push(&sig, 0);
+    TEST_ASSERT_INT_WITHIN(2, 16384, syn_signal_variance_q16(&sig));
+    TEST_ASSERT_INT_WITHIN(2, 32768, syn_signal_std_dev_q16(&sig));
+
+    /* [0, 2, 3]: mean = 5/3, variance = 14/9 = 1.55555... (101944 in Q16, exercises q borrow) */
+    syn_signal_clear(&sig);
+    syn_signal_push(&sig, 0);
+    syn_signal_push(&sig, 2);
+    syn_signal_push(&sig, 3);
+    TEST_ASSERT_INT_WITHIN(2, 101944, syn_signal_variance_q16(&sig));
+
+    /* [1000, -1000]: variance = 1e6 (> 32767), std_dev must still equal exact 1000.0 in Q16 */
+    syn_signal_clear(&sig);
+    syn_signal_push(&sig, 1000);
+    syn_signal_push(&sig, -1000);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_signal_variance_q16(&sig));
+    TEST_ASSERT_EQUAL_INT32(Q16_FROM_INT(1000), syn_signal_std_dev_q16(&sig));
+}
+
 void run_signal_tests(void)
 {
     RUN_TEST(test_signal);
@@ -227,4 +263,5 @@ void run_signal_tests(void)
     RUN_TEST(test_signal_edge_cases);
     RUN_TEST(test_signal_crest_factor_and_power);
     RUN_TEST(test_r5_signal_extreme_int32_overflows);
+    RUN_TEST(test_signal_fractional_mean_variance_and_large_stddev);
 }

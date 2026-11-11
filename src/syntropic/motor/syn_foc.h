@@ -141,6 +141,8 @@ void syn_foc_inv_park_fast(const SYN_FOC_DQ *dq, q16_t theta, SYN_FOC_AB *ab);
  * @param v_max    Maximum available phase voltage magnitude (Q16).
  * @param id_cmd   [in/out] Current D-axis command (Q16). Adjusted if over-voltage occurs.
  * @return true if field weakening active, false if operating normally.
+ * @note Saturates @p *id_cmd at INT32_MIN to prevent signed wraparound under sustained
+ *       over-voltage.
  */
 bool syn_foc_field_weakening(q16_t v_d, q16_t v_q, q16_t v_max, q16_t *id_cmd);
 

@@ -36,7 +36,25 @@ static void test_scale_operations(void)
     TEST_ASSERT_FLOAT_WITHIN(0.01f, 0.0f, syn_scale_get_kg(NULL));
 }
 
+static void test_scale_signed_overflow_and_nonfinite_cal_guard(void)
+{
+    SYN_Scale scale;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_scale_init(&scale, 0, 1, SYN_SCALE_HX711));
+    syn_scale_set_calibration_factor(&scale, 1000.0f);
+
+    /* Reject NaN / Inf calibration factors */
+    syn_scale_set_calibration_factor(&scale, 0.0f / 0.0f);
+    syn_scale_set_calibration_factor(&scale, 1.0f / 0.0f);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 1000.0f, scale.scale_factor);
+
+    /* Large opposite-sign ADC and tare must not wrap int32_t */
+    syn_scale_tare(&scale, -8000000);
+    syn_scale_feed_adc(&scale, 2147000000);
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, 2155000.0f, syn_scale_get_grams(&scale));
+}
+
 void run_scale_tests(void)
 {
     RUN_TEST(test_scale_operations);
+    RUN_TEST(test_scale_signed_overflow_and_nonfinite_cal_guard);
 }

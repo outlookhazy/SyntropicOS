@@ -802,6 +802,71 @@ static void test_tier_a_settings_dual_bank_and_vfs_guards(void)
     mock_port_reset();
 }
 
+static void test_settings_import_no_save_dirty_and_dual_bank_cb(void)
+{
+    mock_port_reset();
+    syn_vfs_init();
+    TEST_ASSERT_EQUAL(SYN_OK, syn_vfs_mount("/cfg", &settings_vfs_ops, NULL));
+
+    TestSettings settings;
+    SYN_Settings store;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_init(&store, FLASH_BASE, SECTOR_COUNT, &settings,
+                                                sizeof(settings), &defaults));
+
+    change_cb_count = 0;
+    syn_settings_on_change(&store, on_change, NULL);
+
+    /* 1. Binary import with save=false must leave store dirty so subsequent save persists */
+    TestSettings staged = {.velocity = 2345, .accel = 678, .mode = 3};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_import(&store, &staged, sizeof(staged), false));
+    TEST_ASSERT_TRUE(syn_settings_changed(&store));
+    TEST_ASSERT_EQUAL_INT(0, change_cb_count);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_save(&store));
+    TEST_ASSERT_FALSE(syn_settings_changed(&store));
+    TEST_ASSERT_EQUAL_INT(1, change_cb_count);
+
+    TestSettings reloaded = {0};
+    SYN_Settings store_reload;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_init(&store_reload, FLASH_BASE, SECTOR_COUNT, &reloaded,
+                                                sizeof(reloaded), &defaults));
+    TEST_ASSERT_EQUAL_INT32(2345, reloaded.velocity);
+
+    /* 2. VFS import with save=false must also preserve dirty state until explicit save */
+    TestSettings vfs_src_data = {.velocity = 3456, .accel = 789, .mode = 4};
+    SYN_Settings vfs_src;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_init(&vfs_src, 2048U, 2U, &vfs_src_data,
+                                                sizeof(vfs_src_data), &defaults));
+    vfs_src_data.velocity = 3456;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_export_vfs(&vfs_src, "/cfg/staged.bin"));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_import_vfs(&store, "/cfg/staged.bin", false));
+    TEST_ASSERT_TRUE(syn_settings_changed(&store));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_save(&store));
+    TEST_ASSERT_FALSE(syn_settings_changed(&store));
+    TEST_ASSERT_EQUAL_INT(2, change_cb_count);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_reload(&store));
+    TEST_ASSERT_EQUAL_INT32(3456, settings.velocity);
+
+    /* 3. Dual-bank callback registered on bank_a fires on every alternating save */
+    mock_port_reset();
+    TestSettings db_data;
+    SYN_DualBankSettings db;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_init(&db, 0U, 2048U, 2U, &db_data,
+                                                          sizeof(db_data), &defaults));
+    change_cb_count = 0;
+    syn_settings_on_change(&db.bank_a, on_change, NULL);
+
+    db_data.velocity = 1111;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_save(&db));
+    TEST_ASSERT_EQUAL_INT(1, change_cb_count);
+
+    db_data.velocity = 2222;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_settings_dual_bank_save(&db));
+    TEST_ASSERT_EQUAL_INT(2, change_cb_count);
+
+    mock_port_reset();
+}
+
 void run_settings_tests(void)
 {
     RUN_TEST(test_settings_init_blank_flash);
@@ -828,4 +893,5 @@ void run_settings_tests(void)
     RUN_TEST(test_settings_init_save_fail);
     RUN_TEST(test_r5_settings_regressions);
     RUN_TEST(test_tier_a_settings_dual_bank_and_vfs_guards);
+    RUN_TEST(test_settings_import_no_save_dirty_and_dual_bank_cb);
 }

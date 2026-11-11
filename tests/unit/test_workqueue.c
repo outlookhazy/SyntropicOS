@@ -149,6 +149,39 @@ static void test_workqueue_oversized_capacity_guard(void)
     TEST_ASSERT_EQUAL_size_t(0U, syn_workqueue_process(&wq));
 }
 
+static SYN_WorkQueue *s_init_isr_wq = NULL;
+static int s_init_isr_val = 42;
+static bool s_init_isr_post_ok = false;
+
+static void wq_isr_post_during_init_hook(void)
+{
+    mock_critical_enter_cb = NULL;
+    if (s_init_isr_wq != NULL) {
+        s_init_isr_post_ok = syn_workqueue_post(s_init_isr_wq, wq_handler, &s_init_isr_val);
+    }
+}
+
+static void test_workqueue_init_critical_section(void)
+{
+    SYN_WorkItem items[4];
+    SYN_WorkQueue wq;
+    memset(&wq, 0, sizeof(wq));
+
+    mock_critical_enter_count = 0;
+    s_init_isr_wq = &wq;
+    s_init_isr_post_ok = true;
+    mock_critical_enter_cb = wq_isr_post_during_init_hook;
+
+    syn_workqueue_init(&wq, items, 4U);
+    mock_critical_enter_cb = NULL;
+    s_init_isr_wq = NULL;
+
+    TEST_ASSERT_TRUE(mock_critical_enter_count >= 1);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+    TEST_ASSERT_FALSE(s_init_isr_post_ok);
+    TEST_ASSERT_TRUE(syn_workqueue_empty(&wq));
+}
+
 void run_workqueue_tests(void)
 {
     RUN_TEST(test_workqueue);
@@ -157,4 +190,5 @@ void run_workqueue_tests(void)
     RUN_TEST(test_workqueue_null_func_popped);
     RUN_TEST(test_workqueue_self_repost_bounded_budget);
     RUN_TEST(test_workqueue_oversized_capacity_guard);
+    RUN_TEST(test_workqueue_init_critical_section);
 }

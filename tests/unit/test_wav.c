@@ -169,6 +169,30 @@ void test_tier_a_wav_undersized_fmt_odd_pad_and_adpcm_overflow(void)
     adpcm_huge_wav[43] = 0x80U;
     TEST_ASSERT_EQUAL(SYN_OK, syn_wav_parse_header(adpcm_huge_wav, sizeof(adpcm_huge_wav), &info));
     TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, info.total_samples);
+
+    /* Stereo IMA ADPCM: 200 bytes = 400 4-bit samples across 2 channels = 200 sample frames */
+    uint8_t adpcm_stereo_wav[44];
+    memset(adpcm_stereo_wav, 0, sizeof(adpcm_stereo_wav));
+    memcpy(&adpcm_stereo_wav[0], "RIFF", 4U);
+    adpcm_stereo_wav[4] = 36U;
+    memcpy(&adpcm_stereo_wav[8], "WAVEfmt ", 8U);
+    adpcm_stereo_wav[16] = 16U;
+    adpcm_stereo_wav[20] = 0x11U;
+    adpcm_stereo_wav[22] = 2U; /* Stereo */
+    adpcm_stereo_wav[24] = 0x40U;
+    adpcm_stereo_wav[25] = 0x1FU;
+    adpcm_stereo_wav[34] = 4U;
+    memcpy(&adpcm_stereo_wav[36], "data", 4U);
+    adpcm_stereo_wav[40] = 200U;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_wav_parse_header(adpcm_stereo_wav, sizeof(adpcm_stereo_wav), &info));
+    TEST_ASSERT_EQUAL_UINT32(200U, info.total_samples);
+
+    /* Zero-channel IMA ADPCM must report 0 samples */
+    adpcm_stereo_wav[22] = 0U;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_wav_parse_header(adpcm_stereo_wav, sizeof(adpcm_stereo_wav), &info));
+    TEST_ASSERT_EQUAL_UINT32(0U, info.total_samples);
 }
 
 void run_wav_tests(void)

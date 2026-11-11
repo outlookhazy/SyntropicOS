@@ -159,10 +159,65 @@ void test_r5_audio_double_buffer_flush_order(void)
     TEST_ASSERT_EQUAL_UINT8(0U, audio.active_half);
 }
 
+typedef struct {
+    SYN_Audio *audio;
+    bool fed_reentrant;
+} ReentrantAudioCtx;
+
+static void reentrant_audio_out(const int16_t *samples, size_t count, void *ctx)
+{
+    (void)samples;
+    (void)count;
+    ReentrantAudioCtx *rc = (ReentrantAudioCtx *)ctx;
+    if (rc != NULL && !rc->fed_reentrant) {
+        int16_t next[2] = {77, 88};
+        rc->fed_reentrant = true;
+        (void)syn_audio_feed(rc->audio, next, 2U);
+    }
+}
+
+void test_audio_size_overflow_and_reentrant_feed(void)
+{
+    SYN_Audio audio;
+    SYN_Audio_Config cfg;
+    memset(&cfg, 0, sizeof(cfg));
+    cfg.buf = g_pcm_buf;
+    cfg.buf_capacity = 100U;
+    cfg.half_size = (SIZE_MAX / 2U) + 10U; /* 2U * half_size wraps to 20 <= 100 */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_audio_init(&audio, &cfg));
+
+    cfg.buf_capacity = (SIZE_MAX / sizeof(int16_t)) + 1U;
+    cfg.half_size = 4U;
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_audio_init(&audio, &cfg));
+
+    /* Reentrant syn_audio_feed inside out_fn must write into opposite half */
+    int16_t dbl_buf[8] = {0};
+    ReentrantAudioCtx rctx = {&audio, false};
+    cfg.buf = dbl_buf;
+    cfg.buf_capacity = 8U;
+    cfg.half_size = 4U;
+    cfg.sample_rate_hz = 16000U;
+    cfg.channels = 1U;
+    cfg.out_fn = reentrant_audio_out;
+    cfg.ctx = &rctx;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_audio_init(&audio, &cfg));
+    rctx.fed_reentrant = true; /* Ignore initial start callback */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_audio_start(&audio));
+
+    rctx.fed_reentrant = false;
+    int16_t first_half[4] = {11, 22, 33, 44};
+    TEST_ASSERT_EQUAL_UINT32(4U, syn_audio_feed(&audio, first_half, 4U));
+    TEST_ASSERT_EQUAL_UINT8(1U, audio.active_half);
+    TEST_ASSERT_EQUAL_UINT32(2U, (uint32_t)audio.fill_pos);
+    TEST_ASSERT_EQUAL_INT16(77, dbl_buf[4]);
+    TEST_ASSERT_EQUAL_INT16(88, dbl_buf[5]);
+}
+
 void run_audio_tests(void)
 {
     RUN_TEST(test_audio_init_and_null_checks);
     RUN_TEST(test_audio_start_stop_and_feed);
     RUN_TEST(test_audio_isr_handlers);
     RUN_TEST(test_r5_audio_double_buffer_flush_order);
+    RUN_TEST(test_audio_size_overflow_and_reentrant_feed);
 }

@@ -380,6 +380,36 @@ static void test_active_object_isr_post_at_zero_budget_no_underflow(void)
     TEST_ASSERT_TRUE((ao_task.sched_flags & SYN_SCHED_FLAG_MORE) != 0U);
 }
 
+static bool s_ao_init_isr_post_ret = true;
+
+static void ao_isr_post_during_init_hook(void)
+{
+    mock_critical_enter_cb = NULL;
+    s_ao_init_isr_post_ret = syn_ao_post(&test_ao_obj, AO_EV_TOGGLE, NULL);
+}
+
+static void test_active_object_isr_post_during_init_dirty_task(void)
+{
+    SYN_Task dirty_task;
+    memset(&dirty_task, 0xA5, sizeof(dirty_task));
+    dirty_task.state = (uint8_t)SYN_TASK_BLOCKED;
+    dirty_task.wait_event = NULL;
+    dirty_task.sched = (struct SYN_Sched *)(uintptr_t)0x4U;
+
+    memset(&test_ao_obj, 0, sizeof(test_ao_obj));
+    s_ao_init_isr_post_ret = true;
+    mock_critical_enter_cb = ao_isr_post_during_init_hook;
+
+    syn_ao_init(&test_ao_obj, &dirty_task, "ao_dirty_init", SYN_PRIO_NORMAL, test_ao_table,
+                AO_ST_OFF, mbox_buf, 4U);
+    mock_critical_enter_cb = NULL;
+
+    TEST_ASSERT_FALSE(s_ao_init_isr_post_ret);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, dirty_task.state);
+    TEST_ASSERT_NULL(dirty_task.sched);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+}
+
 void run_ao_tests(void)
 {
     RUN_TEST(test_active_object);
@@ -391,4 +421,5 @@ void run_ao_tests(void)
     RUN_TEST(test_r4_active_object_self_suspend_and_restart);
     RUN_TEST(test_active_object_self_post_burst_cap);
     RUN_TEST(test_active_object_isr_post_at_zero_budget_no_underflow);
+    RUN_TEST(test_active_object_isr_post_during_init_dirty_task);
 }

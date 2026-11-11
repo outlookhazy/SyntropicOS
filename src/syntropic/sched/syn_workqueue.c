@@ -1,6 +1,4 @@
-#if __has_include("syn_config.h")
-#include "syn_config.h"
-#endif
+#include "../common/syn_defs.h"
 
 #if !defined(SYN_USE_WORKQUEUE) || SYN_USE_WORKQUEUE
 
@@ -25,13 +23,17 @@ void syn_workqueue_init(SYN_WorkQueue *wq, SYN_WorkItem *buf, size_t capacity)
         return; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
     }
 
+    syn_port_enter_critical();
     wq->overflow = 0U;
-    if (syn_spsc_queue_init(&wq->queue, buf, sizeof(SYN_WorkItem), capacity) != SYN_OK) {
+    if (capacity > (SIZE_MAX / sizeof(SYN_WorkItem))) {
         memset(&wq->queue, 0, sizeof(wq->queue));
+        syn_port_exit_critical();
         return;
     }
 
     memset(buf, 0, sizeof(SYN_WorkItem) * capacity);
+    (void)syn_spsc_queue_init(&wq->queue, buf, sizeof(SYN_WorkItem), capacity);
+    syn_port_exit_critical();
 }
 
 bool syn_workqueue_post(SYN_WorkQueue *wq, SYN_WorkFunc func, void *ctx)

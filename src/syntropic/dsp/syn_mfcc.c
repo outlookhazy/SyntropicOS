@@ -27,6 +27,92 @@ SYN_Status syn_mfcc_init(SYN_MFCC *mfcc, uint16_t sample_rate_hz, uint16_t fft_s
     return SYN_OK;
 }
 
+/**
+ * @brief Compute fixed-point base-2 logarithm log2(x) in Q16.16 for x >= 1.
+ * @param x Positive 64-bit integer input (>= 1).
+ * @return log2(x) in Q16.16 format.
+ */
+static q16_t mfcc_log2_u64_q16(uint64_t x)
+{
+    uint32_t msb = 0U;
+    uint64_t tmp = x;
+    while (tmp > 1ULL) {
+        tmp >>= 1U;
+        msb++;
+    }
+
+    uint32_t m_q16 = (msb >= 16U) ? (uint32_t)(x >> (msb - 16U)) : (uint32_t)(x << (16U - msb));
+    int64_t f = (int64_t)(m_q16 - 65536U);
+    q16_t frac = (q16_t)((f * (93238LL - ((27702LL * f) >> 16))) >> 16);
+    return Q16_FROM_INT((int32_t)msb) + frac;
+}
+
+/**
+ * @brief Compute Mel-warped FFT bin edges in Q16.16 across [0, sample_rate_hz / 2].
+ * @param sample_rate_hz Audio sample rate in Hz.
+ * @param fft_size       FFT length N.
+ * @param edges          Output array of (SYN_MFCC_NUM_MEL_FILTERS + 2) Q16.16 bin coordinates.
+ */
+static void mfcc_compute_mel_edges(uint16_t sample_rate_hz, uint16_t fft_size,
+                                   q16_t edges[SYN_MFCC_NUM_MEL_FILTERS + 2U])
+{
+    q16_t x_max = Q16_ONE + (q16_t)(((int64_t)sample_rate_hz << (Q16_SHIFT - 1)) / 700LL);
+    q16_t ln_max = q16_log(x_max);
+
+    for (uint16_t p = 0U; p < (SYN_MFCC_NUM_MEL_FILTERS + 2U); p++) {
+        q16_t ln_p =
+            (q16_t)(((int64_t)ln_max * (int64_t)p) / (int64_t)(SYN_MFCC_NUM_MEL_FILTERS + 1U));
+        q16_t exp_m1 = q16_exp(ln_p) - Q16_ONE;
+        edges[p] = (q16_t)(((int64_t)exp_m1 * 700LL * (int64_t)fft_size) / (int64_t)sample_rate_hz);
+    }
+}
+
+/**
+ * @brief Integrate triangular Mel filter energy over one filter band.
+ * @param mfcc     MFCC context containing FFT spectrum.
+ * @param num_bins Half-spectrum bin count (N / 2).
+ * @param left     Left Mel edge in Q16.16 bins.
+ * @param center   Center Mel peak in Q16.16 bins.
+ * @param right    Right Mel edge in Q16.16 bins.
+ * @return Weighted power sum in Q16.16.
+ */
+static uint64_t mfcc_integrate_band(const SYN_MFCC *mfcc, uint16_t num_bins, q16_t left,
+                                    q16_t center, q16_t right)
+{
+    uint16_t k_start = (uint16_t)Q16_TO_INT(left);
+    uint16_t k_right = (uint16_t)Q16_TO_INT(right);
+    uint16_t k_end = (k_right < num_bins) ? (uint16_t)(k_right + 1U) : num_bins;
+
+    uint64_t sum_power = 0ULL;
+    bool hit_bin = false;
+    for (uint16_t k = k_start; k < k_end; k++) {
+        q16_t k_q16 = Q16_FROM_INT((int32_t)k);
+        q16_t weight = 0;
+        if ((k_q16 > left) && (k_q16 <= center) && (center > left)) {
+            weight = (q16_t)(((int64_t)(k_q16 - left) << Q16_SHIFT) / (int64_t)(center - left));
+        } else if ((k_q16 > center) && (k_q16 < right) && (right > center)) {
+            weight = (q16_t)(((int64_t)(right - k_q16) << Q16_SHIFT) / (int64_t)(right - center));
+        }
+        if (weight > 0) {
+            int64_t re = mfcc->fft_real[k];
+            int64_t im = mfcc->fft_imag[k];
+            uint64_t power = (uint64_t)(((re * re) + (im * im)) >> Q16_SHIFT);
+            sum_power += (power * (uint64_t)weight) >> Q16_SHIFT;
+            hit_bin = true;
+        }
+    }
+
+    if (!hit_bin) {
+        uint16_t k_round = (uint16_t)Q16_TO_INT_ROUND(center);
+        uint16_t k_near = (k_round < num_bins) ? k_round : (uint16_t)(num_bins - 1U);
+        int64_t re = mfcc->fft_real[k_near];
+        int64_t im = mfcc->fft_imag[k_near];
+        sum_power = (uint64_t)(((re * re) + (im * im)) >> Q16_SHIFT);
+    }
+
+    return sum_power;
+}
+
 SYN_Status syn_mfcc_process_frame(SYN_MFCC *mfcc, const int16_t *pcm_in,
                                   q7_t mfcc_out[SYN_MFCC_NUM_COEFFS])
 {
@@ -38,8 +124,7 @@ SYN_Status syn_mfcc_process_frame(SYN_MFCC *mfcc, const int16_t *pcm_in,
 
     /* 1. Windowing and Q16 conversion */
     for (uint16_t i = 0U; i < N; i++) {
-        /* Convert int16 PCM to Q16.16 */
-        mfcc->fft_real[i] = (q16_t)pcm_in[i] * 2;
+        mfcc->fft_real[i] = (q16_t)((int32_t)pcm_in[i] * 2);
         mfcc->fft_imag[i] = 0;
     }
 
@@ -48,29 +133,20 @@ SYN_Status syn_mfcc_process_frame(SYN_MFCC *mfcc, const int16_t *pcm_in,
         return SYN_ERROR;
     }
 
-    /* 3. Power Spectrum calculation (magnitude squared) & Mel filterbank integration */
+    /* 3. Mel-warped power spectrum integration & log2 compression */
     uint16_t num_bins = N >> 1;
+    q16_t mel_edges[SYN_MFCC_NUM_MEL_FILTERS + 2U];
     q7_t mel_input_q7[SYN_MFCC_NUM_MEL_FILTERS];
+    mfcc_compute_mel_edges(mfcc->sample_rate_hz, N, mel_edges);
 
     for (uint16_t m = 0U; m < SYN_MFCC_NUM_MEL_FILTERS; m++) {
-        int64_t sum_power = 0;
-        /* Triangular filter approximation over FFT power spectrum */
-        uint16_t bin_start = (uint16_t)((m * num_bins) / (SYN_MFCC_NUM_MEL_FILTERS + 2U));
-        uint16_t bin_end = (uint16_t)(((m + 2U) * num_bins) / (SYN_MFCC_NUM_MEL_FILTERS + 2U));
+        uint64_t sum_power =
+            mfcc_integrate_band(mfcc, num_bins, mel_edges[m], mel_edges[m + 1U], mel_edges[m + 2U]);
+        q16_t log2_energy = mfcc_log2_u64_q16(1ULL + sum_power);
+        mfcc->mel_energies[m] = log2_energy;
 
-        for (uint16_t k = bin_start; k < bin_end && k < num_bins; k++) {
-            int64_t re = mfcc->fft_real[k];
-            int64_t im = mfcc->fft_imag[k];
-            int64_t power = ((re * re) + (im * im)) >> Q16_SHIFT;
-            sum_power += power;
-        }
-
-        /* Log compression to Q7 */
-        int32_t log_val = (int32_t)(sum_power >> 8);
-        if (log_val > 127) {
-            log_val = 127;
-        }
-        mel_input_q7[m] = (q7_t)log_val;
+        int32_t log_val = (int32_t)(((int64_t)log2_energy * 9LL) >> 17);
+        mel_input_q7[m] = (log_val > 127) ? (q7_t)127 : (q7_t)log_val;
     }
 
     /* 4. Discrete Cosine Transform (DCT-II) to extract 13 MFCC coefficients */

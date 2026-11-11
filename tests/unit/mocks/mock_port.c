@@ -67,17 +67,28 @@ static bool s_in_critical_cb = false;
 
 void syn_port_enter_critical(void)
 {
+#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
+    (void)__atomic_fetch_add(&mock_critical_depth, 1, __ATOMIC_RELAXED);
+    (void)__atomic_fetch_add(&mock_critical_enter_count, 1, __ATOMIC_RELAXED);
+    void (*cb)(void) = __atomic_load_n(&mock_critical_enter_cb, __ATOMIC_RELAXED);
+#else
     mock_critical_depth++;
     mock_critical_enter_count++;
-    if (mock_critical_enter_cb != NULL && !s_in_critical_cb) {
+    void (*cb)(void) = mock_critical_enter_cb;
+#endif
+    if (cb != NULL && !s_in_critical_cb) {
         s_in_critical_cb = true;
-        mock_critical_enter_cb();
+        cb();
         s_in_critical_cb = false;
     }
 }
 void syn_port_exit_critical(void)
 {
+#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
+    (void)__atomic_fetch_sub(&mock_critical_depth, 1, __ATOMIC_RELAXED);
+#else
     mock_critical_depth--;
+#endif
 }
 
 void syn_port_nvic_set_priority(uint8_t irq_num, uint8_t preempt_prio, uint8_t sub_prio)
@@ -1407,7 +1418,11 @@ uint8_t syn_port_core_id(void)
 
 void syn_port_ipc_notify(void)
 {
+#if defined(__GNUC__) || defined(__clang__)
+    (void)__atomic_fetch_add(&mock_ipc_notify_count, 1U, __ATOMIC_RELAXED);
+#else
     mock_ipc_notify_count++;
+#endif
 }
 
 #endif /* SYN_USE_MULTICORE */
@@ -1416,7 +1431,8 @@ void syn_port_memory_barrier(void)
 {
 #if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
 #if defined(__GNUC__) || defined(__clang__)
-    (void)__atomic_fetch_add(&mock_barrier_count, 1U, __ATOMIC_RELAXED);
+    (void)__atomic_fetch_add(&mock_barrier_count, 1U, __ATOMIC_SEQ_CST);
+    __atomic_thread_fence(__ATOMIC_SEQ_CST);
 #else
     mock_barrier_count++;
 #endif

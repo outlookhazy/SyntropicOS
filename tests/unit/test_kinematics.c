@@ -303,23 +303,23 @@ void test_kinematics_6dof_and_delta(void)
                                           .upper_arm_len = Q16_FROM_INT(1),
                                           .lower_arm_len = Q16_FROM_INT(2)};
     SYN_Position3D pos_a0 = {.x = 0, .y = Q16_FROM_INT(1), .z = Q16_FROM_INT(2)};
-    (void)syn_kinematics_delta_ik(&dcfg_a0, &pos_a0, &t1, &t2, &t3);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kinematics_delta_ik(&dcfg_a0, &pos_a0, &t1, &t2, &t3));
 
     /* Delta IK arm calculation where A == 0, B == 0 (unreachable boundary) */
     SYN_Position3D pos_a0_b0 = {.x = 0, .y = Q16_FROM_INT(3), .z = 0};
-    (void)syn_kinematics_delta_ik(&dcfg_a0, &pos_a0_b0, &t1, &t2, &t3);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_kinematics_delta_ik(&dcfg_a0, &pos_a0_b0, &t1, &t2, &t3));
 
     /* Delta IK where Arm 1 succeeds but Arm 2 fails */
     SYN_Position3D pos_arm2_fail = {.x = -Q16_FROM_INT(1) - Q16_FROM_FRAC(25, 100),
                                     .y = Q16_FROM_INT(2) + Q16_FROM_FRAC(165, 1000),
                                     .z = 0};
-    (void)syn_kinematics_delta_ik(&dcfg_a0, &pos_arm2_fail, &t1, &t2, &t3);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_kinematics_delta_ik(&dcfg_a0, &pos_arm2_fail, &t1, &t2, &t3));
 
     /* Delta IK where Arm 1 & 2 succeed but Arm 3 fails */
     SYN_Position3D pos_arm3_fail = {.x = -Q16_FROM_INT(1) - Q16_FROM_FRAC(25, 100),
                                     .y = -Q16_FROM_INT(2) - Q16_FROM_FRAC(165, 1000),
                                     .z = 0};
-    (void)syn_kinematics_delta_ik(&dcfg_a0, &pos_arm3_fail, &t1, &t2, &t3);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_kinematics_delta_ik(&dcfg_a0, &pos_arm3_fail, &t1, &t2, &t3));
 
     /* Delta FK zero denominator check (theta2 = theta3 = PI/2 with wb = 0) */
     SYN_Kinematics_DeltaConfig dcfg_zero_denom = {.base_radius = 0,
@@ -440,7 +440,7 @@ void test_r5_kinematics_industrial_and_6dof_roundtrip(void)
                                           .upper_arm_len = Q16_FROM_INT(1),
                                           .lower_arm_len = Q16_FROM_INT(2)};
     SYN_Position3D pos_a0_neg = {.x = 0, .y = Q16_FROM_INT(1), .z = -Q16_FROM_INT(2)};
-    (void)syn_kinematics_delta_ik(&dcfg_a0, &pos_a0_neg, &dt1, &dt2, &dt3);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kinematics_delta_ik(&dcfg_a0, &pos_a0_neg, &dt1, &dt2, &dt3));
 
     /* Exercise max_c > max_abc (y0 > 0, E > 0, z0 = 0) */
     SYN_Kinematics_DeltaConfig dcfg_maxc = {.base_radius = Q16_FROM_INT(10),
@@ -448,7 +448,127 @@ void test_r5_kinematics_industrial_and_6dof_roundtrip(void)
                                             .upper_arm_len = Q16_FROM_INT(10),
                                             .lower_arm_len = Q16_FROM_INT(5)};
     SYN_Position3D pos_maxc = {.x = 0, .y = Q16_FROM_INT(5), .z = 0};
-    (void)syn_kinematics_delta_ik(&dcfg_maxc, &pos_maxc, &dt1, &dt2, &dt3);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_kinematics_delta_ik(&dcfg_maxc, &pos_maxc, &dt1, &dt2, &dt3));
+}
+
+void test_kinematics_modified_dh_jacobian_and_large_delta_fk(void)
+{
+    /* 1. Modified DH Jacobian must match finite-difference d(FK)/dq on spatial R-R-P chain */
+    SYN_DH_Param mdh[3] = {
+        {.a = Q16_FROM_INT(5), .alpha = Q16_PI_2, .d = 0, .theta = 0, .is_prismatic = false},
+        {.a = Q16_FROM_INT(4), .alpha = 0, .d = 0, .theta = 0, .is_prismatic = false},
+        {.a = Q16_FROM_INT(2),
+         .alpha = Q16_PI_2,
+         .d = Q16_FROM_INT(3),
+         .theta = 0,
+         .is_prismatic = true},
+    };
+    q16_t q[3] = {Q16_FROM_FRAC(3, 10), -Q16_FROM_FRAC(4, 10), Q16_FROM_INT(1)};
+
+    SYN_MAT_DECL(J, 6, 3);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kinematics_jacobian(mdh, 3U, q, SYN_DH_CONVENTION_MODIFIED, &J));
+
+    SYN_Pose6D p0;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_kinematics_forward(mdh, 3U, q, SYN_DH_CONVENTION_MODIFIED, NULL, &p0));
+
+    const q16_t eps = 256; /* 1/256 rad or unit */
+    for (size_t j = 0U; j < 3U; j++) {
+        q16_t qp[3] = {q[0], q[1], q[2]};
+        qp[j] += eps;
+        SYN_Pose6D p1;
+        TEST_ASSERT_EQUAL(
+            SYN_OK, syn_kinematics_forward(mdh, 3U, qp, SYN_DH_CONVENTION_MODIFIED, NULL, &p1));
+
+        q16_t fd_vx = (q16_t)(((int64_t)(p1.position.x - p0.position.x) * (int64_t)Q16_ONE) / eps);
+        q16_t fd_vy = (q16_t)(((int64_t)(p1.position.y - p0.position.y) * (int64_t)Q16_ONE) / eps);
+        q16_t fd_vz = (q16_t)(((int64_t)(p1.position.z - p0.position.z) * (int64_t)Q16_ONE) / eps);
+
+        TEST_ASSERT_INT_WITHIN(3500, fd_vx, SYN_MAT_AT(&J, 0, j));
+        TEST_ASSERT_INT_WITHIN(3500, fd_vy, SYN_MAT_AT(&J, 1, j));
+        TEST_ASSERT_INT_WITHIN(3500, fd_vz, SYN_MAT_AT(&J, 2, j));
+    }
+
+    /* 2. Large-coordinate Delta IK -> FK roundtrip without 64-bit discriminant overflow */
+    SYN_Kinematics_DeltaConfig big_delta = {
+        .base_radius = Q16_FROM_INT(3000),
+        .effector_radius = Q16_FROM_INT(800),
+        .upper_arm_len = Q16_FROM_INT(5000),
+        .lower_arm_len = Q16_FROM_INT(12000),
+    };
+    SYN_Position3D big_target = {
+        .x = Q16_FROM_INT(600),
+        .y = -Q16_FROM_INT(500),
+        .z = -Q16_FROM_INT(9500),
+    };
+    q16_t bt1 = 0, bt2 = 0, bt3 = 0;
+    SYN_Position3D big_fk = {0, 0, 0};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kinematics_delta_ik(&big_delta, &big_target, &bt1, &bt2, &bt3));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kinematics_delta_fk(&big_delta, bt1, bt2, bt3, &big_fk));
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(25), big_target.x, big_fk.x);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(25), big_target.y, big_fk.y);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(25), big_target.z, big_fk.z);
+}
+
+void test_kinematics_forward_validation_2link_scara_and_delta_overflows(void)
+{
+    /* 1. syn_kinematics_forward must reject undersized or NULL-data out_t44 matrices */
+    SYN_DH_Param link = {.a = Q16_ONE, .alpha = 0, .d = 0, .theta = 0, .is_prismatic = false};
+    q16_t qv = 0;
+    SYN_MAT_DECL(bad_3x4, 3, 4);
+    TEST_ASSERT_EQUAL(
+        SYN_INVALID_PARAM,
+        syn_kinematics_forward(&link, 1U, &qv, SYN_DH_CONVENTION_STANDARD, &bad_3x4, NULL));
+    SYN_Matrix null_data_mat = {.data = NULL, .rows = 4U, .cols = 4U};
+    TEST_ASSERT_EQUAL(
+        SYN_INVALID_PARAM,
+        syn_kinematics_forward(&link, 1U, &qv, SYN_DH_CONVENTION_STANDARD, &null_data_mat, NULL));
+
+    /* 2. Large-link 2-link planar IK -> FK roundtrip where l1 + l2*cos(q2) > 32767 */
+    SYN_Kinematics_Planar3Config huge_cfg = {
+        .l1 = Q16_FROM_INT(20000), .l2 = Q16_FROM_INT(20000), .l3 = 0};
+    q16_t q1 = 0, q2 = 0, q3 = 0;
+    q16_t fx = 0, fy = 0, fphi = 0;
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_kinematics_planar3_ik(&huge_cfg, Q16_FROM_INT(32700), Q16_FROM_INT(20000),
+                                                0, SYN_ARM_ELBOW_UP, &q1, &q2, &q3));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_kinematics_planar3_fk(&huge_cfg, q1, q2, q3, &fx, &fy, &fphi));
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(25), Q16_FROM_INT(32700), fx);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_INT(25), Q16_FROM_INT(20000), fy);
+
+    /* 3. SCARA IK must reject z_home - target.z overflowing int32_t into [0, d_max] */
+    SYN_Kinematics_SCARAConfig scara_wrap = {.l1 = Q16_FROM_INT(200),
+                                             .l2 = Q16_FROM_INT(200),
+                                             .d_max = Q16_FROM_INT(32767),
+                                             .z_home = -Q16_FROM_INT(20000)};
+    SYN_Pose6D bad_z = {
+        .position = {.x = Q16_FROM_INT(200), .y = Q16_FROM_INT(100), .z = Q16_FROM_INT(13000)},
+        .orientation = {0, 0, 0}};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_kinematics_scara_ik(&scara_wrap, &bad_z, SYN_ARM_ELBOW_UP, &q1,
+                                                         &q2, &q3, NULL));
+
+    /* 4. Delta FK extreme arm geometry, near-singular slope, and out-of-range Z rejected */
+    SYN_Kinematics_DeltaConfig extreme_delta = {.base_radius = Q16_FROM_INT(25000),
+                                                .effector_radius = -Q16_FROM_INT(20000),
+                                                .upper_arm_len = Q16_FROM_INT(25000),
+                                                .lower_arm_len = Q16_FROM_INT(30000)};
+    SYN_Position3D d_out = {0, 0, 0};
+    TEST_ASSERT_EQUAL(SYN_ERROR,
+                      syn_kinematics_delta_fk(&extreme_delta, 0, Q16_PI_2, -Q16_PI_2, &d_out));
+
+    SYN_Kinematics_DeltaConfig sing_delta = {.base_radius = Q16_FROM_INT(100),
+                                             .effector_radius = Q16_FROM_INT(100),
+                                             .upper_arm_len = Q16_FROM_INT(100),
+                                             .lower_arm_len = Q16_FROM_INT(200)};
+    TEST_ASSERT_EQUAL(
+        SYN_ERROR, syn_kinematics_delta_fk(&sing_delta, 0, Q16_PI_2 - 4, -(Q16_PI_2 - 4), &d_out));
+
+    SYN_Kinematics_DeltaConfig deep_delta = {.base_radius = Q16_FROM_INT(10000),
+                                             .effector_radius = Q16_FROM_INT(2000),
+                                             .upper_arm_len = Q16_FROM_INT(20000),
+                                             .lower_arm_len = Q16_FROM_INT(30000)};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_kinematics_delta_fk(&deep_delta, Q16_PI / 3, Q16_PI / 3,
+                                                         Q16_PI / 3, &d_out));
 }
 
 void run_kinematics_tests(void)
@@ -459,4 +579,6 @@ void run_kinematics_tests(void)
     RUN_TEST(test_kinematics_scara);
     RUN_TEST(test_kinematics_6dof_and_delta);
     RUN_TEST(test_r5_kinematics_industrial_and_6dof_roundtrip);
+    RUN_TEST(test_kinematics_modified_dh_jacobian_and_large_delta_fk);
+    RUN_TEST(test_kinematics_forward_validation_2link_scara_and_delta_overflows);
 }

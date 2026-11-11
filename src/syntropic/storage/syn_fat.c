@@ -70,6 +70,21 @@ static SYN_FatFileCtx g_fat_files[SYN_VFS_MAX_OPEN_FILES];
 /* ── Helper Functions ───────────────────────────────────────────────────── */
 
 /**
+ * @brief Check whether any open FAT file slot currently references @p fat_name.
+ * @param fat_name 11-byte 8.3 directory name.
+ * @return true if an open file slot matches @p fat_name, false otherwise.
+ */
+static bool fat_is_name_open(const char fat_name[11])
+{
+    for (size_t i = 0U; i < (size_t)SYN_VFS_MAX_OPEN_FILES; i++) {
+        if (g_fat_files[i].used && memcmp(g_fat_files[i].name, fat_name, 11U) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * @brief Check whether an MBR partition type code corresponds to FAT16/FAT32.
  * @param type MBR partition type byte.
  * @return true if recognized FAT partition type, false otherwise.
@@ -157,15 +172,29 @@ static bool fat_compute_layout(FAT_Volume *vol, const uint8_t *bpb, uint32_t vol
 
     uint64_t clusters = ((uint64_t)total_sec - non_data_sec) / (uint64_t)vol->sectors_per_cluster;
     uint64_t fat_cap = ((uint64_t)vol->fat_sectors * 512ULL) / (vol->is_fat32 ? 4ULL : 2ULL);
+    uint64_t max_clusters = vol->is_fat32 ? 0x0FFFFFF5ULL : 0xFFF5ULL;
     if ((clusters == 0ULL) || (fat_cap <= 2ULL)) {
         return false;
     }
     if (clusters > (fat_cap - 2ULL)) {
         clusters = fat_cap - 2ULL;
     }
+    if (clusters > max_clusters) {
+        clusters = max_clusters;
+    }
 
     vol->total_clusters = (uint32_t)clusters;
     return true;
+}
+
+/**
+ * @brief Validate that @p spc is a power-of-two FAT sectors-per-cluster value in [1, 128].
+ * @param spc BPB sectors_per_cluster byte.
+ * @return true if valid power-of-two in [1, 128], false otherwise.
+ */
+static bool fat_valid_spc(uint8_t spc)
+{
+    return (spc >= 1U) && (spc <= 128U) && ((spc & (uint8_t)(spc - 1U)) == 0U);
 }
 
 /**
@@ -182,25 +211,28 @@ static bool fat_parse_bpb(FAT_Volume *vol, const uint8_t *bpb, uint32_t volume_s
     }
 
     vol->bytes_per_sector = syn_peek_u16_le(bpb, 11);
-    if (vol->bytes_per_sector != 512U) {
-        return false;
-    }
-
     vol->sectors_per_cluster = bpb[13];
-    if (vol->sectors_per_cluster == 0U) {
+    vol->reserved_sectors = syn_peek_u16_le(bpb, 14);
+    if (vol->bytes_per_sector != 512U || !fat_valid_spc(vol->sectors_per_cluster) ||
+        vol->reserved_sectors == 0U) {
         return false;
     }
 
-    vol->reserved_sectors = syn_peek_u16_le(bpb, 14);
     vol->num_fats = bpb[16];
     vol->fat16_root_entries = syn_peek_u16_le(bpb, 17);
 
     uint16_t spf16 = syn_peek_u16_le(bpb, 22);
     if (spf16 != 0U) {
+        if (vol->fat16_root_entries == 0U) {
+            return false;
+        }
         vol->fat_sectors = spf16;
         vol->is_fat32 = false;
         vol->root_cluster = 0U;
     } else {
+        if (vol->fat16_root_entries != 0U) {
+            return false;
+        }
         vol->fat_sectors = syn_peek_u32_le(bpb, 36);
         vol->root_cluster = syn_peek_u32_le(bpb, 44);
         vol->is_fat32 = true;
@@ -417,11 +449,16 @@ static int path_to_fat_name(const char *path, char fat_name[11])
     if (path[0] == '/') {
         path++;
     }
-    if (path[0] == '\0' || path[0] == '.') {
+    if (path[0] == '\0' || path[0] == '.' || (uint8_t)path[0] == 0xE5U) {
         return SYN_INVALID_PARAM;
     }
-    if (strchr(path, '/') != NULL) {
-        return SYN_NOT_FOUND;
+    for (size_t k = 0U; path[k] != '\0'; k++) {
+        if (path[k] == '/') {
+            return SYN_NOT_FOUND;
+        }
+        if ((uint8_t)path[k] <= 0x20U) {
+            return SYN_INVALID_PARAM;
+        }
     }
 
     format_83_chars(path, fat_name);
@@ -730,6 +767,41 @@ static int fat_alloc_initial_cluster(SYN_FatFileCtx *ctx)
 /* ── VFS Mappings ───────────────────────────────────────────────────────── */
 
 /**
+ * @brief Check whether open @p flags request write access.
+ * @param flags Open flags (SYN_O_*).
+ * @return true if write mode is requested, false for SYN_O_RDONLY.
+ */
+static bool fat_flags_wants_write(int flags)
+{
+    return (((uint32_t)flags & 0x03U) != (uint32_t)SYN_O_RDONLY);
+}
+
+/**
+ * @brief Validate open @p flags and check for conflicting open handles on @p fat_name.
+ * @param fat_name 11-byte 8.3 directory name.
+ * @param flags    Requested SYN_O_* open flags.
+ * @return SYN_OK if allowed, SYN_INVALID_PARAM on invalid flags, SYN_BUSY on open write conflict.
+ */
+static int fat_check_open_conflict(const char fat_name[11], int flags)
+{
+    uint32_t acc = (uint32_t)flags & 0x03U;
+    if (acc == 0x03U ||
+        (acc == (uint32_t)SYN_O_RDONLY && ((uint32_t)flags & (uint32_t)SYN_O_TRUNC) != 0U)) {
+        return SYN_INVALID_PARAM;
+    }
+
+    bool req_write = fat_flags_wants_write(flags);
+    for (size_t i = 0U; i < (size_t)SYN_VFS_MAX_OPEN_FILES; i++) {
+        if (g_fat_files[i].used && memcmp(g_fat_files[i].name, fat_name, 11U) == 0) {
+            if (req_write || fat_flags_wants_write(g_fat_files[i].flags)) {
+                return SYN_BUSY;
+            }
+        }
+    }
+    return SYN_OK;
+}
+
+/**
  * @brief Check whether @p flags are permitted for an existing directory entry's FAT attributes.
  * @param attr  FAT directory attribute byte.
  * @param flags Requested SYN_O_* open flags.
@@ -740,9 +812,7 @@ static bool fat_open_attr_allowed(uint8_t attr, int flags)
     if ((attr & 0x10U) != 0U) {
         return false;
     }
-    bool wants_write = (((uint32_t)flags & 0x03U) != (uint32_t)SYN_O_RDONLY) ||
-                       (((uint32_t)flags & (uint32_t)SYN_O_TRUNC) != 0U);
-    if (wants_write && (attr & 0x01U) != 0U) {
+    if (fat_flags_wants_write(flags) && (attr & 0x01U) != 0U) {
         return false;
     }
     return true;
@@ -767,6 +837,10 @@ static int syn_fat_vfs_open(SYN_VfsFile *file, const char *path, int flags, void
     int name_rc = path_to_fat_name(path, fat_name);
     if (name_rc != SYN_OK) {
         return name_rc;
+    }
+    int conf_rc = fat_check_open_conflict(fat_name, flags);
+    if (conf_rc != SYN_OK) {
+        return conf_rc;
     }
 
     int f_idx = alloc_file_slot();
@@ -1121,6 +1195,9 @@ static int32_t syn_fat_vfs_tell(SYN_VfsFile *file)
         return -1;
     }
     const SYN_FatFileCtx *ctx = (const SYN_FatFileCtx *)file->fs_file;
+    if (ctx->offset > (uint32_t)INT32_MAX) {
+        return -2;
+    }
     return (int32_t)ctx->offset;
 }
 
@@ -1141,6 +1218,9 @@ static int syn_fat_vfs_unlink(const char *path, void *fs_data)
     int name_rc = path_to_fat_name(path, fat_name);
     if (name_rc != SYN_OK) {
         return name_rc;
+    }
+    if (fat_is_name_open(fat_name)) {
+        return SYN_BUSY;
     }
 
     DirEntryLoc loc;
@@ -1225,6 +1305,9 @@ static int syn_fat_vfs_rename(const char *old_path, const char *new_path, void *
     }
     if (memcmp(old_name, new_name, 11U) == 0) {
         return 0;
+    }
+    if (fat_is_name_open(old_name) || fat_is_name_open(new_name)) {
+        return SYN_BUSY;
     }
 
     DirEntryLoc dst_loc;

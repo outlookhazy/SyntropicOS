@@ -164,6 +164,67 @@ static void test_sensor_fusion_9dof_magnetometer(void)
     TEST_ASSERT_INT_WITHIN(FUSION_TOL, 0, euler.yaw_rad);
 }
 
+static void test_sensor_fusion_mg_scale_9dof_yaw_and_bias_rejection(void)
+{
+    /* 1. mG-scale accelerometer (1000 mG > 181.02 Q16.16 sqrt ceiling): 30 deg pitch */
+    SYN_SensorFusion f;
+    syn_sensor_fusion_init(&f, Q16_FROM_FLOAT(5.0), 0, Q16_FROM_FLOAT(0.01));
+    for (int i = 0; i < 120; i++) {
+        TEST_ASSERT_EQUAL(
+            SYN_OK, syn_sensor_fusion_update(&f, 0, 0, 0, Q16_FROM_INT(500), 0, Q16_FROM_INT(866)));
+    }
+    SYN_EulerAngles euler;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_sensor_fusion_get_euler(&f, &euler));
+    TEST_ASSERT_INT_WITHIN(FUSION_TOL, -Q16_FROM_FLOAT(0.5236), euler.pitch_rad);
+
+    /* 2. 9-DOF with mG accel and uT magnetometer pointing +Y -> yaw converges to -pi/2 */
+    syn_sensor_fusion_init(&f, Q16_FROM_FLOAT(5.0), 0, Q16_FROM_FLOAT(0.01));
+    for (int i = 0; i < 200; i++) {
+        TEST_ASSERT_EQUAL(SYN_OK,
+                          syn_sensor_fusion_update_9dof(&f, 0, 0, 0, 0, 0, Q16_FROM_INT(1000), 0,
+                                                        Q16_FROM_INT(500), 0));
+    }
+    TEST_ASSERT_EQUAL(SYN_OK, syn_sensor_fusion_get_euler(&f, &euler));
+    TEST_ASSERT_INT_WITHIN(FUSION_TOL, -Q16_PI_2, euler.yaw_rad);
+
+    /* 3. Integral feedback rejects steady gyro bias */
+    syn_sensor_fusion_init(&f, Q16_FROM_FLOAT(2.0), Q16_ONE, Q16_FROM_FLOAT(0.01));
+    for (int i = 0; i < 400; i++) {
+        TEST_ASSERT_EQUAL(SYN_OK,
+                          syn_sensor_fusion_update(&f, Q16_FROM_FLOAT(0.2), 0, 0, 0, 0, Q16_ONE));
+    }
+    TEST_ASSERT_EQUAL(SYN_OK, syn_sensor_fusion_get_euler(&f, &euler));
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.02), 0, euler.roll_rad);
+}
+
+static void test_sensor_fusion_extreme_gyro_saturation_preserves_unit_norm(void)
+{
+    SYN_SensorFusion f;
+    syn_sensor_fusion_init(&f, 0, 0, Q16_FROM_INT(4));
+    f.q.w = Q16_HALF;
+    f.q.x = -Q16_ONE;
+    f.q.y = Q16_HALF;
+    f.q.z = Q16_HALF;
+
+    /* Extreme INT32_MIN and INT32_MAX angular rates must saturate safely and preserve unit norm */
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_sensor_fusion_update(&f, INT32_MIN, INT32_MIN, INT32_MIN, 0, 0, 0));
+    SYN_Quaternion q;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_sensor_fusion_get_quaternion(&f, &q));
+    int64_t norm_sq = (((int64_t)q.w * q.w) + ((int64_t)q.x * q.x) + ((int64_t)q.y * q.y) +
+                       ((int64_t)q.z * q.z)) >>
+                      Q16_SHIFT;
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.02), Q16_ONE, (q16_t)norm_sq);
+
+    TEST_ASSERT_EQUAL(SYN_OK,
+                      syn_sensor_fusion_update(&f, INT32_MAX, INT32_MAX, INT32_MAX, 0, 0, 0));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_sensor_fusion_get_quaternion(&f, &q));
+    norm_sq = (((int64_t)q.w * q.w) + ((int64_t)q.x * q.x) + ((int64_t)q.y * q.y) +
+               ((int64_t)q.z * q.z)) >>
+              Q16_SHIFT;
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.02), Q16_ONE, (q16_t)norm_sq);
+}
+
 void run_sensor_fusion_tests(void)
 {
     RUN_TEST(test_sensor_fusion_init);
@@ -173,4 +234,6 @@ void run_sensor_fusion_tests(void)
     RUN_TEST(test_sensor_fusion_quaternion_norm);
     RUN_TEST(test_sensor_fusion_reset_and_invalid);
     RUN_TEST(test_sensor_fusion_9dof_magnetometer);
+    RUN_TEST(test_sensor_fusion_mg_scale_9dof_yaw_and_bias_rejection);
+    RUN_TEST(test_sensor_fusion_extreme_gyro_saturation_preserves_unit_norm);
 }

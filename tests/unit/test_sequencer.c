@@ -387,6 +387,84 @@ static void test_sequencer_reinit_in_step0_and_on_complete_set_loop(void)
     TEST_ASSERT_TRUE(syn_seq_is_done(&seq));
 }
 
+typedef struct {
+    SYN_Sequencer *seq;
+    int nested_calls;
+    int action_runs;
+} SeqNestedUpdateCtx;
+
+static void seq_nested_update_action(void *ctx)
+{
+    SeqNestedUpdateCtx *nc = (SeqNestedUpdateCtx *)ctx;
+    nc->action_runs++;
+    if (nc->nested_calls < 4) {
+        nc->nested_calls++;
+        TEST_ASSERT_FALSE(syn_seq_update(nc->seq));
+    }
+}
+
+static void test_sequencer_zero_delay_loop_reinit_and_nested_update(void)
+{
+    mock_tick_ms = 0U;
+
+    /* 1. Step 0 re-inits into a 1-step 0-delay non-looping sequence -> completes on same update */
+    SYN_Sequencer seq;
+    seq_complete_count = 0;
+    SeqReinitCtx rc = {&seq, NULL, 1U, 0, 0};
+    SYN_SeqStep steps_b1[1] = {
+        {seq_step_b_action, &rc, 0U},
+    };
+    SYN_SeqStep steps_a1[1] = {
+        {seq_reinit_in_step0_action, &rc, 0U},
+    };
+    rc.next_steps = steps_b1;
+
+    syn_seq_init(&seq, steps_a1, 1U);
+    syn_seq_start(&seq);
+    /* Attach on_complete inside step_b? Attach after init or check state/return */
+    TEST_ASSERT_TRUE(syn_seq_update(&seq));
+    TEST_ASSERT_EQUAL_INT(1, rc.step_a_runs);
+    TEST_ASSERT_EQUAL_INT(1, rc.step_b_runs);
+    TEST_ASSERT_TRUE(syn_seq_is_done(&seq));
+    TEST_ASSERT_TRUE(syn_seq_current_step(&seq) < seq.step_count);
+
+    /* 2. 2-step 0-delay looping sequence never parks OOB current == step_count across ticks */
+    seq_action_count = 0;
+    seq_complete_count = 0;
+    static const SYN_SeqStep zero_loop_steps[2] = {
+        {seq_action_a, NULL, 0U},
+        {seq_action_a, NULL, 0U},
+    };
+    syn_seq_init(&seq, zero_loop_steps, 2U);
+    syn_seq_set_loop(&seq, true);
+    syn_seq_on_complete(&seq, seq_on_done, NULL);
+    syn_seq_start(&seq);
+
+    for (uint16_t pass = 1U; pass <= 4U; pass++) {
+        TEST_ASSERT_FALSE(syn_seq_update(&seq));
+        TEST_ASSERT_TRUE(syn_seq_current_step(&seq) < seq.step_count);
+        TEST_ASSERT_EQUAL_UINT16(pass, syn_seq_loops(&seq));
+        TEST_ASSERT_EQUAL_INT((int)(pass * 2U), seq_action_count);
+        TEST_ASSERT_EQUAL_INT((int)pass, seq_complete_count);
+    }
+
+    /* 3. Reentrant syn_seq_update(seq) inside step action must not recurse or double-run step */
+    SeqNestedUpdateCtx nctx = {&seq, 0, 0};
+    SYN_SeqStep nested_steps[1] = {
+        {seq_nested_update_action, &nctx, 20U},
+    };
+    syn_seq_init(&seq, nested_steps, 1U);
+    syn_seq_start(&seq);
+    TEST_ASSERT_FALSE(syn_seq_update(&seq));
+    TEST_ASSERT_EQUAL_INT(1, nctx.action_runs);
+    TEST_ASSERT_EQUAL_INT(1, nctx.nested_calls);
+    TEST_ASSERT_EQUAL_INT(SYN_SEQ_WAITING, seq.state);
+
+    mock_tick_advance(20U);
+    TEST_ASSERT_TRUE(syn_seq_update(&seq));
+    TEST_ASSERT_TRUE(syn_seq_is_done(&seq));
+}
+
 void run_sequencer_tests(void)
 {
     RUN_TEST(test_sequencer);
@@ -395,4 +473,5 @@ void run_sequencer_tests(void)
     RUN_TEST(test_sequencer_mid_step_stop_and_restart);
     RUN_TEST(test_tier_a_sequencer_step0_restart_and_delay_clamp);
     RUN_TEST(test_sequencer_reinit_in_step0_and_on_complete_set_loop);
+    RUN_TEST(test_sequencer_zero_delay_loop_reinit_and_nested_update);
 }

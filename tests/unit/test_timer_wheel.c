@@ -7,6 +7,10 @@
 #include "unity/unity.h"
 
 #include <string.h>
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+#include <pthread.h>
+#include <sched.h>
+#endif
 
 static int s_timer1_fired = 0;
 static int s_timer2_fired = 0;
@@ -433,6 +437,394 @@ static void test_timer_wheel_cross_wheel_reject_and_reinit_in_cb(void)
     TEST_ASSERT_EQUAL_INT(1, rctx.post_init_runs);
 }
 
+typedef struct {
+    SYN_TimerWheel *wheel;
+    SYN_TimerWheelNode node_a;
+    SYN_TimerWheelNode node_b;
+    SYN_TimerWheelNode node_c;
+    SYN_TimerWheelNode node_d;
+    int a_runs;
+    int b_runs;
+    int c_runs;
+    int d_runs;
+} WheelNestedReinitCtx;
+
+static void tw_count_b_cb(void *arg)
+{
+    ((WheelNestedReinitCtx *)arg)->b_runs++;
+}
+
+static void tw_count_c_cb(void *arg)
+{
+    ((WheelNestedReinitCtx *)arg)->c_runs++;
+}
+
+static void tw_reinit_and_readd_sibling_cb(void *arg)
+{
+    WheelNestedReinitCtx *ctx = (WheelNestedReinitCtx *)arg;
+    ctx->a_runs++;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(ctx->wheel));
+    /* Sibling node_b was in expired_head; re-adding it + node_c post-init must succeed and stick */
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_timer_wheel_add(ctx->wheel, &ctx->node_b, 1U, tw_count_b_cb, ctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_timer_wheel_add(ctx->wheel, &ctx->node_c, 1U, tw_count_c_cb, ctx));
+}
+
+static void tw_inner_reinit_cb(void *arg)
+{
+    WheelNestedReinitCtx *ctx = (WheelNestedReinitCtx *)arg;
+    ctx->d_runs++;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(ctx->wheel));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_timer_wheel_add(ctx->wheel, &ctx->node_c, 1U, tw_count_c_cb, ctx));
+}
+
+static void tw_outer_nested_step_cb(void *arg)
+{
+    WheelNestedReinitCtx *ctx = (WheelNestedReinitCtx *)arg;
+    ctx->a_runs++;
+    (void)syn_timer_wheel_step(ctx->wheel);
+}
+
+static void test_timer_wheel_reinit_readd_sibling_and_nested_step_reinit(void)
+{
+    SYN_TimerWheel wheel;
+    WheelNestedReinitCtx ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.wheel = &wheel;
+
+    /* 1. Single-level init in callback detaches sibling node_b + future node_d so re-adding works
+     */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&wheel));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_timer_wheel_add(&wheel, &ctx.node_d, 5U, tw_count_c_cb, &ctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_timer_wheel_add(&wheel, &ctx.node_b, 1U, tw_count_b_cb, &ctx));
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_timer_wheel_add(&wheel, &ctx.node_a, 1U, tw_reinit_and_readd_sibling_cb, &ctx));
+
+    TEST_ASSERT_EQUAL_size_t(1U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_INT(1, ctx.a_runs);
+    TEST_ASSERT_EQUAL_INT(0, ctx.b_runs);
+    TEST_ASSERT_FALSE(ctx.node_d.active);
+    TEST_ASSERT_NULL(ctx.node_d.prev);
+    TEST_ASSERT_NULL(ctx.node_d.next);
+    TEST_ASSERT_TRUE(ctx.node_b.active);
+    TEST_ASSERT_TRUE(ctx.node_c.active);
+
+    /* Next step fires both newly scheduled timers */
+    TEST_ASSERT_EQUAL_size_t(2U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_INT(1, ctx.b_runs);
+    TEST_ASSERT_EQUAL_INT(1, ctx.c_runs);
+
+    /* 2. Nested step() calling syn_timer_wheel_init() must not UAR on popped inner stack frame */
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.wheel = &wheel;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&wheel));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_timer_wheel_add(&wheel, &ctx.node_b, 1U, tw_count_b_cb, &ctx));
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_timer_wheel_add(&wheel, &ctx.node_a, 1U, tw_outer_nested_step_cb, &ctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_timer_wheel_add(&wheel, &ctx.node_d, 2U, tw_inner_reinit_cb, &ctx));
+
+    TEST_ASSERT_EQUAL_size_t(1U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_INT(1, ctx.a_runs);
+    TEST_ASSERT_EQUAL_INT(1, ctx.d_runs);
+    TEST_ASSERT_EQUAL_INT(0, ctx.b_runs);
+    TEST_ASSERT_FALSE(ctx.node_b.active);
+    TEST_ASSERT_NULL(ctx.node_b.prev);
+    TEST_ASSERT_NULL(ctx.node_b.next);
+    TEST_ASSERT_TRUE(ctx.node_c.active);
+
+    TEST_ASSERT_EQUAL_size_t(1U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_INT(1, ctx.c_runs);
+}
+
+typedef struct {
+    SYN_TimerWheel *wheel;
+    SYN_TimerWheelNode node_a;
+    SYN_TimerWheelNode node_b;
+    SYN_Status second_readd_st;
+    int b_runs;
+} WheelDoubleReinitCtx;
+
+static void tw_double_reinit_b_cb(void *arg)
+{
+    ((WheelDoubleReinitCtx *)arg)->b_runs++;
+}
+
+static void tw_double_reinit_a_cb(void *arg)
+{
+    WheelDoubleReinitCtx *ctx = (WheelDoubleReinitCtx *)arg;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(ctx->wheel));
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_timer_wheel_add(ctx->wheel, &ctx->node_b, 5U, tw_double_reinit_b_cb, ctx));
+    /* Second init inside same active step() must detach node_b from buckets[5] */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(ctx->wheel));
+    ctx->second_readd_st =
+        syn_timer_wheel_add(ctx->wheel, &ctx->node_b, 1U, tw_double_reinit_b_cb, ctx);
+}
+
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+typedef struct {
+    SYN_TimerWheel wheel_0;
+    SYN_TimerWheel wheel_1;
+    SYN_TimerWheelNode n0_a;
+    SYN_TimerWheelNode n1_a;
+    SYN_TimerWheelNode n1_b;
+    volatile int state;
+    SYN_Status cancel_st;
+    int n1_b_runs;
+} MultiWheelNonLifoCtx;
+
+static void tw_mw_wait_state(volatile int *state, int target)
+{
+    while (__atomic_load_n(state, __ATOMIC_ACQUIRE) < target) {
+        sched_yield();
+    }
+}
+
+static void tw_mw_w0_cb(void *arg)
+{
+    MultiWheelNonLifoCtx *mw = (MultiWheelNonLifoCtx *)arg;
+    __atomic_store_n(&mw->state, 1, __ATOMIC_RELEASE);
+    /* Wait until wheel_1 has pushed frame_1 on top of frame_0, then unwind frame_0 FIRST */
+    tw_mw_wait_state(&mw->state, 2);
+}
+
+static void tw_mw_w1_b_cb(void *arg)
+{
+    ((MultiWheelNonLifoCtx *)arg)->n1_b_runs++;
+}
+
+static void tw_mw_w1_a_cb(void *arg)
+{
+    MultiWheelNonLifoCtx *mw = (MultiWheelNonLifoCtx *)arg;
+    __atomic_store_n(&mw->state, 2, __ATOMIC_RELEASE);
+    /* Wait until Thread 0 has completely returned from syn_timer_wheel_step(&wheel_0) */
+    tw_mw_wait_state(&mw->state, 3);
+    mw->cancel_st = syn_timer_wheel_cancel(&mw->wheel_1, &mw->n1_b);
+}
+
+static void *tw_mw_thread0(void *arg)
+{
+    MultiWheelNonLifoCtx *mw = (MultiWheelNonLifoCtx *)arg;
+    (void)syn_timer_wheel_step(&mw->wheel_0);
+    __atomic_store_n(&mw->state, 3, __ATOMIC_RELEASE);
+    return NULL;
+}
+
+static void *tw_mw_thread1(void *arg)
+{
+    MultiWheelNonLifoCtx *mw = (MultiWheelNonLifoCtx *)arg;
+    tw_mw_wait_state(&mw->state, 1);
+    (void)syn_timer_wheel_step(&mw->wheel_1);
+    return NULL;
+}
+#endif
+
+static void test_timer_wheel_double_reinit_and_non_lifo_multi_wheel(void)
+{
+    SYN_TimerWheel wheel;
+    WheelDoubleReinitCtx dctx;
+    memset(&dctx, 0, sizeof(dctx));
+    dctx.wheel = &wheel;
+    dctx.second_readd_st = SYN_ERROR;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&wheel));
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_timer_wheel_add(&wheel, &dctx.node_a, 1U, tw_double_reinit_a_cb, &dctx));
+
+    TEST_ASSERT_EQUAL_size_t(1U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, dctx.second_readd_st);
+    TEST_ASSERT_EQUAL_size_t(1U, syn_timer_wheel_step(&wheel));
+    TEST_ASSERT_EQUAL_INT(1, dctx.b_runs);
+
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+    static MultiWheelNonLifoCtx mw;
+    memset(&mw, 0, sizeof(mw));
+    mw.cancel_st = SYN_ERROR;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&mw.wheel_0));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&mw.wheel_1));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&mw.wheel_0, &mw.n0_a, 1U, tw_mw_w0_cb, &mw));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_timer_wheel_add(&mw.wheel_1, &mw.n1_b, 1U, tw_mw_w1_b_cb, &mw));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_timer_wheel_add(&mw.wheel_1, &mw.n1_a, 1U, tw_mw_w1_a_cb, &mw));
+
+    pthread_t t0, t1;
+    TEST_ASSERT_EQUAL_INT(0, pthread_create(&t0, NULL, tw_mw_thread0, &mw));
+    TEST_ASSERT_EQUAL_INT(0, pthread_create(&t1, NULL, tw_mw_thread1, &mw));
+    TEST_ASSERT_EQUAL_INT(0, pthread_join(t0, NULL));
+    TEST_ASSERT_EQUAL_INT(0, pthread_join(t1, NULL));
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, mw.cancel_st);
+    TEST_ASSERT_EQUAL_INT(0, mw.n1_b_runs);
+    /* Post-join init walks s_step_frames and must not touch popped stack frames */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&mw.wheel_0));
+#endif
+}
+
+typedef struct {
+    SYN_TimerWheel *wheel;
+    SYN_TimerWheelNode nodes[8];
+    uint32_t rng;
+    uint8_t step_depth;
+} WheelRandFuzzCtx;
+
+static uint32_t tw_xorshift32(uint32_t *state)
+{
+    uint32_t x = *state;
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    *state = x;
+    return x;
+}
+
+static void tw_rand_cb(void *arg)
+{
+    WheelRandFuzzCtx *fc = (WheelRandFuzzCtx *)arg;
+    uint32_t r = tw_xorshift32(&fc->rng);
+    uint32_t op = r & 7U;
+    size_t idx = (size_t)((r >> 3) & 7U);
+
+    if (op == 0U) {
+        (void)syn_timer_wheel_init(fc->wheel);
+        uint32_t delay = ((r >> 8) % 20U) + 1U;
+        TEST_ASSERT_EQUAL_INT(
+            SYN_OK, syn_timer_wheel_add(fc->wheel, &fc->nodes[idx], delay, tw_rand_cb, fc));
+    } else if (op == 1U || op == 2U) {
+        uint32_t delay = ((r >> 8) % 70U) + 1U;
+        TEST_ASSERT_EQUAL_INT(
+            SYN_OK, syn_timer_wheel_add(fc->wheel, &fc->nodes[idx], delay, tw_rand_cb, fc));
+    } else if (op == 3U) {
+        (void)syn_timer_wheel_cancel(fc->wheel, &fc->nodes[idx]);
+    } else if (op == 4U && fc->step_depth < 2U) {
+        fc->step_depth++;
+        (void)syn_timer_wheel_step(fc->wheel);
+        fc->step_depth--;
+    }
+}
+
+static void tw_assert_idle_invariants(const SYN_TimerWheel *wheel,
+                                      const SYN_TimerWheelNode nodes[8])
+{
+    bool seen[8] = {false};
+    TEST_ASSERT_NULL(wheel->expired_head);
+
+    for (uint32_t b = 0U; b < SYN_TIMER_WHEEL_BUCKETS; b++) {
+        const SYN_TimerWheelNode *prev = NULL;
+        const SYN_TimerWheelNode *curr = wheel->buckets[b];
+        while (curr != NULL) {
+            TEST_ASSERT_EQUAL_PTR(prev, curr->prev);
+            TEST_ASSERT_TRUE(curr->active);
+            TEST_ASSERT_EQUAL_UINT32(b, curr->expires_tick % SYN_TIMER_WHEEL_BUCKETS);
+            ptrdiff_t idx = curr - nodes;
+            TEST_ASSERT_TRUE(idx >= 0 && idx < 8);
+            TEST_ASSERT_FALSE(seen[idx]);
+            seen[idx] = true;
+            prev = curr;
+            curr = curr->next;
+        }
+    }
+
+    for (size_t i = 0U; i < 8U; i++) {
+        if (nodes[i].active) {
+            TEST_ASSERT_TRUE(seen[i]);
+        } else {
+            TEST_ASSERT_FALSE(seen[i]);
+            TEST_ASSERT_NULL(nodes[i].prev);
+            TEST_ASSERT_NULL(nodes[i].next);
+        }
+    }
+}
+
+static void test_timer_wheel_seeded_random_transitions_invariants(void)
+{
+    static SYN_TimerWheel wheel;
+    static WheelRandFuzzCtx fc;
+    memset(&fc, 0, sizeof(fc));
+    fc.wheel = &wheel;
+    fc.rng = 0xC0FFEE42U;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&wheel));
+
+    for (uint32_t iter = 0U; iter < 160U; iter++) {
+        uint32_t r = tw_xorshift32(&fc.rng);
+        size_t idx = (size_t)(r & 7U);
+        uint32_t op = (r >> 4) & 3U;
+
+        if (op == 0U || op == 1U) {
+            uint32_t delay = ((r >> 8) % 80U) + 1U;
+            TEST_ASSERT_EQUAL_INT(
+                SYN_OK, syn_timer_wheel_add(&wheel, &fc.nodes[idx], delay, tw_rand_cb, &fc));
+        } else if (op == 2U) {
+            (void)syn_timer_wheel_cancel(&wheel, &fc.nodes[idx]);
+        } else {
+            (void)syn_timer_wheel_step(&wheel);
+        }
+        tw_assert_idle_invariants(&wheel, fc.nodes);
+    }
+}
+
+typedef struct {
+    uint32_t step_num;
+    uint32_t a_fired_at;
+    uint32_t b_fired_at;
+    uint32_t c_fired_at;
+} WheelWrapCtx;
+
+static void tw_wrap_a_cb(void *arg)
+{
+    WheelWrapCtx *w = (WheelWrapCtx *)arg;
+    w->a_fired_at = w->step_num;
+}
+
+static void tw_wrap_b_cb(void *arg)
+{
+    WheelWrapCtx *w = (WheelWrapCtx *)arg;
+    w->b_fired_at = w->step_num;
+}
+
+static void tw_wrap_c_cb(void *arg)
+{
+    WheelWrapCtx *w = (WheelWrapCtx *)arg;
+    w->c_fired_at = w->step_num;
+}
+
+static void test_timer_wheel_u32_tick_wraparound(void)
+{
+    SYN_TimerWheel wheel;
+    SYN_TimerWheelNode node_a = {0};
+    SYN_TimerWheelNode node_b = {0};
+    SYN_TimerWheelNode node_c = {0};
+    WheelWrapCtx wctx = {0U, 0U, 0U, 0U};
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_init(&wheel));
+    wheel.current_tick = UINT32_MAX - 2U; /* 0xFFFFFFFD */
+
+    /* Pre-wrap (0xFFFFFFFF), post-wrap 0-rot (0x00000002), post-wrap 1-rot (0x00000042) */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &node_a, 2U, tw_wrap_a_cb, &wctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &node_b, 5U, tw_wrap_b_cb, &wctx));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_timer_wheel_add(&wheel, &node_c, SYN_TIMER_WHEEL_BUCKETS + 5U,
+                                                      tw_wrap_c_cb, &wctx));
+
+    for (uint32_t s = 1U; s <= (SYN_TIMER_WHEEL_BUCKETS + 5U); s++) {
+        wctx.step_num = s;
+        (void)syn_timer_wheel_step(&wheel);
+    }
+
+    TEST_ASSERT_EQUAL_UINT32(2U, wctx.a_fired_at);
+    TEST_ASSERT_EQUAL_UINT32(5U, wctx.b_fired_at);
+    TEST_ASSERT_EQUAL_UINT32(SYN_TIMER_WHEEL_BUCKETS + 5U, wctx.c_fired_at);
+    TEST_ASSERT_FALSE(node_a.active);
+    TEST_ASSERT_FALSE(node_b.active);
+    TEST_ASSERT_FALSE(node_c.active);
+}
+
 void run_timer_wheel_tests(void)
 {
     RUN_TEST(test_timer_wheel_add_step_cancel);
@@ -440,4 +832,8 @@ void run_timer_wheel_tests(void)
     RUN_TEST(test_r5_timer_wheel_callback_cancel_and_readd);
     RUN_TEST(test_timer_wheel_reentrant_step_and_bucket_head_cancel);
     RUN_TEST(test_timer_wheel_cross_wheel_reject_and_reinit_in_cb);
+    RUN_TEST(test_timer_wheel_reinit_readd_sibling_and_nested_step_reinit);
+    RUN_TEST(test_timer_wheel_double_reinit_and_non_lifo_multi_wheel);
+    RUN_TEST(test_timer_wheel_seeded_random_transitions_invariants);
+    RUN_TEST(test_timer_wheel_u32_tick_wraparound);
 }

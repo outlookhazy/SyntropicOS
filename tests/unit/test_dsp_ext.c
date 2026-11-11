@@ -610,6 +610,79 @@ static void test_fft_cooperative_stage_sliced_pt(void)
     TEST_ASSERT_EQUAL_MEMORY(ref_i, pt_i, sizeof(ref_i));
 }
 
+static void test_fft_peaks_full_scan_and_thd_range(void)
+{
+    q16_t mag[11] = {0, 20, 0, 10, 0, 500, 0, 800, 0, 5, 0};
+    SYN_FFTPeak peaks[2];
+    uint8_t found = 0U;
+
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_fft_find_peaks(mag, 11U, 0, peaks, 2U, &found));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_fft_find_peaks(mag, 11U, -Q16_ONE, peaks, 2U, &found));
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_find_peaks(mag, 11U, Q16_FROM_INT(1000), peaks, 2U, &found));
+    TEST_ASSERT_EQUAL_UINT8(2U, found);
+    TEST_ASSERT_EQUAL_UINT16(7U, peaks[0].bin);
+    TEST_ASSERT_EQUAL_INT32(800, peaks[0].magnitude);
+    TEST_ASSERT_EQUAL_UINT16(5U, peaks[1].bin);
+    TEST_ASSERT_EQUAL_INT32(500, peaks[1].magnitude);
+
+    /* THD: negative fundamental rejected; high-amplitude and low-amplitude harmonics accurate */
+    q16_t thd_mag[18] = {0};
+    q16_t thd_pct = 0;
+    thd_mag[1] = -Q16_ONE;
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_fft_thd(thd_mag, 18U, 1U, 4U, &thd_pct));
+
+    thd_mag[1] = Q16_FROM_INT(1000);
+    thd_mag[2] = Q16_FROM_INT(200);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_thd(thd_mag, 18U, 1U, 4U, &thd_pct));
+    TEST_ASSERT_INT_WITHIN(16, Q16_FROM_INT(20), thd_pct);
+
+    thd_mag[1] = Q16_ONE;
+    thd_mag[2] = 655; /* ~1.0% */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_thd(thd_mag, 18U, 1U, 4U, &thd_pct));
+    TEST_ASSERT_INT_WITHIN(128, Q16_ONE, thd_pct);
+
+    /* Extreme harmonic sum saturation */
+    thd_mag[1] = 1;
+    for (uint16_t i = 2U; i < 18U; i++) {
+        thd_mag[i] = INT32_MAX;
+    }
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_thd(thd_mag, 18U, 1U, 16U, &thd_pct));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, thd_pct);
+}
+
+static void test_biquad_extreme_q_no_overflow(void)
+{
+    SYN_FilterBiquad f;
+    q16_t fc = Q16_FROM_INT(100);
+    q16_t fs = Q16_FROM_INT(1000);
+    q16_t q_huge = Q16_FROM_INT(20000);
+    q16_t q_tiny = 1;
+
+    syn_filter_biquad_bandpass(&f, fc, fs, q_huge);
+    TEST_ASSERT_TRUE(f.b0 >= 0);
+    TEST_ASSERT_TRUE(q16_abs(f.a2) <= Q16_ONE);
+
+    syn_filter_biquad_notch(&f, fc, fs, q_huge);
+    TEST_ASSERT_TRUE(f.b0 > 0);
+    TEST_ASSERT_TRUE(q16_abs(f.a2) <= Q16_ONE);
+
+    syn_filter_biquad_allpass(&f, fc, fs, q_huge);
+    TEST_ASSERT_TRUE(q16_abs(f.a2) <= Q16_ONE);
+
+    syn_filter_biquad_peaking_eq(&f, fc, fs, Q16_FROM_INT(6), q_huge);
+    TEST_ASSERT_TRUE(f.b0 > 0);
+    TEST_ASSERT_TRUE(q16_abs(f.a2) <= Q16_ONE);
+
+    syn_filter_biquad_bandpass(&f, fc, fs, q_tiny);
+    TEST_ASSERT_TRUE(f.b0 > 0);
+    TEST_ASSERT_TRUE(q16_abs(f.a2) <= Q16_ONE);
+
+    syn_filter_biquad_peaking_eq(&f, fc, fs, Q16_FROM_INT(3000), q_tiny);
+    TEST_ASSERT_TRUE(f.b0 > 0);
+    TEST_ASSERT_TRUE(q16_abs(f.a2) <= Q16_ONE);
+}
+
 void run_biquad_tests(void)
 {
     RUN_TEST(test_biquad_filter);
@@ -618,6 +691,7 @@ void run_biquad_tests(void)
     RUN_TEST(test_trig_math);
     RUN_TEST(test_r5_biquad_high_cutoff_no_overflow);
     RUN_TEST(test_tier_a_biquad_saturation_and_fc_clamping);
+    RUN_TEST(test_biquad_extreme_q_no_overflow);
 }
 
 void run_fft_tests(void)
@@ -633,4 +707,5 @@ void run_fft_tests(void)
     RUN_TEST(test_r5_fft_thd_max_harmonics_255);
     RUN_TEST(test_tier_a_fft_large_window_and_peak_bins);
     RUN_TEST(test_fft_cooperative_stage_sliced_pt);
+    RUN_TEST(test_fft_peaks_full_scan_and_thd_range);
 }

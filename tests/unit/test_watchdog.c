@@ -336,6 +336,92 @@ static void test_watchdog_max_timeout_fires_past_int32_max_elapsed(void)
     TEST_ASSERT_EQUAL_INT(2, wdt_timeout_count);
 }
 
+typedef struct {
+    SYN_Watchdog *wdt;
+    SYN_WDT_Entry new_entries[2];
+    int enter_Goal;
+    int enter_seen;
+    int cb_fires;
+    const char *observed_name;
+    bool reinit_in_cb;
+} WdtSnapReinitCtx;
+
+static WdtSnapReinitCtx *s_wdt_snap_ctx = NULL;
+
+static void wdt_isr_hijack_slot0_during_errlog(void)
+{
+    WdtSnapReinitCtx *c = s_wdt_snap_ctx;
+    if (c == NULL) {
+        return;
+    }
+    c->enter_seen++;
+    if (c->enter_seen == c->enter_Goal) {
+        mock_critical_enter_cb = NULL;
+        syn_watchdog_unregister(c->wdt, 0);
+        (void)syn_watchdog_register(c->wdt, "hijacked_comms", 2000U);
+    }
+}
+
+static void wdt_snap_reinit_cb(SYN_Watchdog *wdt, const SYN_WDT_Entry *entry, void *ctx)
+{
+    WdtSnapReinitCtx *c = (WdtSnapReinitCtx *)ctx;
+    c->cb_fires++;
+    c->observed_name = entry->name;
+    /* Reentrant syn_watchdog_update inside callback is a safe no-op */
+    syn_watchdog_update(wdt);
+    if (c->reinit_in_cb) {
+        c->reinit_in_cb = false;
+        syn_watchdog_init(wdt, c->new_entries, 2U, wdt_snap_reinit_cb, c);
+        (void)syn_watchdog_register(wdt, "new_slot0", 500U);
+        (void)syn_watchdog_register(wdt, "new_slot1", 10U);
+        mock_tick_advance(25U);
+    }
+}
+
+static void test_watchdog_snapshot_across_isr_and_reinit_in_cb(void)
+{
+    static SYN_ErrEntry err_buf[4];
+    static SYN_ErrLog errlog;
+    SYN_Watchdog wdt;
+    SYN_WDT_Entry entries[2];
+    WdtSnapReinitCtx ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.wdt = &wdt;
+    ctx.enter_Goal = 2; /* 1st critical = slot 0 check, 2nd critical = syn_errlog_record */
+
+    /* 1. ISR replacing slot 0 during syn_errlog_record must not corrupt entry passed to callback */
+    mock_tick_ms = 100U;
+    syn_errlog_init(&errlog, err_buf, 4U, 1U);
+    syn_watchdog_init(&wdt, entries, 2U, wdt_snap_reinit_cb, &ctx);
+    wdt.errlog = &errlog;
+    TEST_ASSERT_EQUAL_INT8(0, syn_watchdog_register(&wdt, "sensor_orig", 50U));
+
+    mock_tick_ms = 160U;
+    s_wdt_snap_ctx = &ctx;
+    mock_critical_enter_cb = wdt_isr_hijack_slot0_during_errlog;
+    syn_watchdog_update(&wdt);
+    mock_critical_enter_cb = NULL;
+    s_wdt_snap_ctx = NULL;
+
+    TEST_ASSERT_EQUAL_INT(1, ctx.cb_fires);
+    TEST_ASSERT_EQUAL_STRING("sensor_orig", ctx.observed_name);
+
+    /* 2. Callback calling syn_watchdog_init() aborts remaining outer loop slots cleanly */
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.wdt = &wdt;
+    ctx.reinit_in_cb = true;
+    mock_tick_ms = 200U;
+    syn_watchdog_init(&wdt, entries, 2U, wdt_snap_reinit_cb, &ctx);
+    TEST_ASSERT_EQUAL_INT8(0, syn_watchdog_register(&wdt, "old0", 20U));
+    TEST_ASSERT_EQUAL_INT8(1, syn_watchdog_register(&wdt, "old1", 20U));
+
+    mock_tick_ms = 230U;
+    syn_watchdog_update(&wdt);
+    /* Only old0's timeout fires on this update; new_slot1 must NOT be scanned in stale loop */
+    TEST_ASSERT_EQUAL_INT(1, ctx.cb_fires);
+    TEST_ASSERT_EQUAL_STRING("old0", ctx.observed_name);
+}
+
 void run_watchdog_tests(void)
 {
     RUN_TEST(test_watchdog);
@@ -346,4 +432,5 @@ void run_watchdog_tests(void)
     RUN_TEST(test_watchdog_callback_checkin_preserved_and_timeout_clamp);
     RUN_TEST(test_r4_watchdog_isr_toctou_and_zero_timeout_clamp);
     RUN_TEST(test_watchdog_max_timeout_fires_past_int32_max_elapsed);
+    RUN_TEST(test_watchdog_snapshot_across_isr_and_reinit_in_cb);
 }

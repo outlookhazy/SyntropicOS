@@ -135,16 +135,16 @@ void syn_servo_update(SYN_Servo *servo)
 
     servo->last_tick = now;
 
-    int32_t delta = (servo->rate * (int32_t)dt) / 256;
+    int64_t delta = ((int64_t)servo->rate * (int64_t)dt) / 256LL;
     if (delta == 0) {
         delta = (servo->rate > 0) ? 1 : -1;
     }
 
-    int32_t new_us = (int32_t)servo->current_us + delta;
+    int64_t new_us = (int64_t)servo->current_us + delta;
 
     /* Check if we've reached or passed the target */
-    if ((servo->rate > 0 && new_us >= (int32_t)servo->target_us) ||
-        (servo->rate < 0 && new_us <= (int32_t)servo->target_us)) {
+    if ((servo->rate > 0 && new_us >= (int64_t)servo->target_us) ||
+        (servo->rate < 0 && new_us <= (int64_t)servo->target_us)) {
         servo->current_us = servo->target_us;
         servo->rate = 0;
     } else {

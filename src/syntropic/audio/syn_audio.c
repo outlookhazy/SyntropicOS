@@ -19,7 +19,8 @@ SYN_Status syn_audio_init(SYN_Audio *audio, const SYN_Audio_Config *cfg)
     if (audio == NULL || cfg == NULL) {
         return SYN_INVALID_PARAM;
     }
-    if (cfg->buf == NULL || cfg->half_size == 0U || cfg->buf_capacity < (2U * cfg->half_size)) {
+    if (cfg->buf == NULL || cfg->half_size == 0U || cfg->half_size > (cfg->buf_capacity / 2U) ||
+        cfg->buf_capacity > (SIZE_MAX / sizeof(int16_t))) {
         return SYN_INVALID_PARAM;
     }
 
@@ -79,11 +80,11 @@ size_t syn_audio_feed(SYN_Audio *audio, const int16_t *samples, size_t count)
         written++;
 
         if (audio->fill_pos >= half_len) {
+            audio->active_half ^= 1U;
+            audio->fill_pos = 0U;
             if (audio->running && audio->cfg.out_fn != NULL) {
                 audio->cfg.out_fn(half_buf, half_len, audio->cfg.ctx);
             }
-            audio->active_half ^= 1U;
-            audio->fill_pos = 0U;
         }
     }
 

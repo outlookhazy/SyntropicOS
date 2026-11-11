@@ -792,7 +792,7 @@ The existing `syn_mailbox` is automatically upgraded with acquire/release barrie
 typedef struct { uint8_t id; int32_t value; } SensorMsg;
 
 // Place in shared SRAM accessible to both cores
-static SYN_MAILBOX_DEFINE(ipc_mbox, SensorMsg, 16);
+SYN_MAILBOX_DEFINE(ipc_mbox, SensorMsg, 16);
 
 // Optional: wake consumer core on post
 syn_mailbox_set_notify(&ipc_mbox, true);

@@ -5,14 +5,19 @@
 
 #include "syn_netbuf.h"
 
+#include "../port/syn_port_system.h"
+
 #include <string.h>
 
 SYN_Status syn_netbuf_pool_init(SYN_NetBufPool *pool, SYN_NetBuf *bufs, uint8_t *raw_mem,
                                 size_t buf_count, size_t buf_size)
 {
-    if (!pool || !bufs || !raw_mem || buf_count == 0 || buf_size == 0)
+    if (!pool || !bufs || !raw_mem || buf_count == 0U || buf_size == 0U ||
+        buf_count > (SIZE_MAX / buf_size)) {
         return SYN_INVALID_PARAM;
+    }
 
+    syn_port_enter_critical();
     memset(pool, 0, sizeof(*pool));
     pool->bufs = bufs;
     pool->raw_mem = raw_mem;
@@ -21,26 +26,33 @@ SYN_Status syn_netbuf_pool_init(SYN_NetBufPool *pool, SYN_NetBuf *bufs, uint8_t 
     pool->free_count = buf_count;
     pool->free_list = NULL;
 
-    for (size_t i = 0; i < buf_count; i++) {
+    for (size_t i = 0U; i < buf_count; i++) {
         SYN_NetBuf *b = &bufs[i];
         uint8_t *mem = raw_mem + (i * buf_size);
         b->head = mem;
         b->data = mem;
         b->tail = mem;
         b->end = mem + buf_size;
-        b->ref_count = 0;
-        b->flags = 0;
+        b->ref_count = 0U;
+        b->flags = 0U;
         b->pool = pool;
         b->next_free = pool->free_list;
         pool->free_list = b;
     }
+    syn_port_exit_critical();
 
     return SYN_OK;
 }
 
 SYN_NetBuf *syn_netbuf_alloc(SYN_NetBufPool *pool, size_t headroom)
 {
-    if (pool == NULL || pool->free_list == NULL || pool->free_count == 0U) {
+    if (pool == NULL) {
+        return NULL;
+    }
+
+    syn_port_enter_critical();
+    if (pool->free_list == NULL || pool->free_count == 0U) {
+        syn_port_exit_critical();
         return NULL;
     }
 
@@ -57,21 +69,26 @@ SYN_NetBuf *syn_netbuf_alloc(SYN_NetBufPool *pool, size_t headroom)
     b->ref_count = 1U;
     b->flags = 0U;
     pool->free_count--;
+    syn_port_exit_critical();
 
     return b;
 }
 
 void syn_netbuf_ref(SYN_NetBuf *buf)
 {
-    if (buf == NULL || buf->ref_count == UINT16_MAX) {
+    if (buf == NULL) {
         return;
     }
-    buf->ref_count++;
+    syn_port_enter_critical();
+    if (buf->ref_count < UINT16_MAX) {
+        buf->ref_count++;
+    }
+    syn_port_exit_critical();
 }
 
 void syn_netbuf_free(SYN_NetBufPool *pool, SYN_NetBuf *buf)
 {
-    if (buf == NULL || buf->ref_count == 0U) {
+    if (buf == NULL) {
         return;
     }
     SYN_NetBufPool *owner = (SYN_NetBufPool *)buf->pool;
@@ -79,15 +96,19 @@ void syn_netbuf_free(SYN_NetBufPool *pool, SYN_NetBuf *buf)
         return;
     }
 
-    buf->ref_count--;
-    if (buf->ref_count == 0U) {
-        buf->data = buf->head;
-        buf->tail = buf->head;
-        buf->flags = 0U;
-        buf->next_free = owner->free_list;
-        owner->free_list = buf;
-        owner->free_count++;
+    syn_port_enter_critical();
+    if (buf->ref_count > 0U) {
+        buf->ref_count--;
+        if (buf->ref_count == 0U) {
+            buf->data = buf->head;
+            buf->tail = buf->head;
+            buf->flags = 0U;
+            buf->next_free = owner->free_list;
+            owner->free_list = buf;
+            owner->free_count++;
+        }
     }
+    syn_port_exit_critical();
 }
 
 uint8_t *syn_netbuf_push(SYN_NetBuf *buf, size_t len)

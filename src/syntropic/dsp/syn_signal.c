@@ -199,26 +199,60 @@ static uint64_t signal_rms_q16_u64(const SYN_Signal *sig)
     return syn_isqrt64(mean_sq_q32);
 }
 
+/**
+ * @brief Compute population variance as 64-bit integer and Q0.32 fractional parts without overflow.
+ *
+ * Uses sum = q_m * N + r_m (|r_m| < N) and the identity
+ * E[(X - mu)^2] = E[(X - q_m)^2] - (r_m / N)^2 so fractional means are exact.
+ *
+ * @param sig          Signal instance (count >= 2).
+ * @param out_whole    Output integer part of variance.
+ * @param out_frac_q32 Output Q0.32 fractional part of variance in [0, 2^32 - 1].
+ */
+static void signal_variance_parts(const SYN_Signal *sig, uint64_t *out_whole,
+                                  uint64_t *out_frac_q32)
+{
+    uint64_t n = (uint64_t)sig->count;
+    int64_t q_m = sig->sum / (int64_t)sig->count;
+    int64_t r_m = sig->sum % (int64_t)sig->count;
+    uint64_t u = (r_m < 0) ? (uint64_t)(-r_m) : (uint64_t)r_m;
+    uint64_t q = 0ULL;
+    uint64_t r = 0ULL;
+    size_t start = (sig->count < sig->capacity) ? 0U : sig->head;
+
+    for (size_t i = 0U; i < sig->count; i++) {
+        size_t idx = (start + i) % sig->capacity;
+        int64_t diff = (int64_t)sig->buf[idx] - q_m;
+        uint64_t mag = (diff < 0) ? (uint64_t)(-diff) : (uint64_t)diff;
+        signal_accum_mean_sq(mag * mag, n, &q, &r);
+    }
+
+    uint64_t r_q32 = (r << 32U) / n;
+    uint64_t u_q32 = (u << 32U) / n;
+    uint64_t corr_q32 = (u_q32 * u_q32) >> 32U;
+
+    if (r_q32 < corr_q32) {
+        q--;
+        *out_frac_q32 = (1ULL << 32U) + r_q32 - corr_q32;
+    } else {
+        *out_frac_q32 = r_q32 - corr_q32;
+    }
+    *out_whole = q;
+}
+
 int32_t syn_signal_variance_q16(const SYN_Signal *sig)
 {
     if (sig->count < 2U) {
         return 0;
     }
 
-    int64_t mean = sig->sum / (int64_t)sig->count;
-    uint64_t q = 0ULL;
-    uint64_t r = 0ULL;
-    uint64_t n = (uint64_t)sig->count;
-    size_t start = (sig->count < sig->capacity) ? 0U : sig->head;
-
-    for (size_t i = 0U; i < sig->count; i++) {
-        size_t idx = (start + i) % sig->capacity;
-        int64_t diff = (int64_t)sig->buf[idx] - mean;
-        uint64_t mag = (diff < 0) ? (uint64_t)(-diff) : (uint64_t)diff;
-        signal_accum_mean_sq(mag * mag, n, &q, &r);
+    uint64_t whole = 0ULL;
+    uint64_t frac_q32 = 0ULL;
+    signal_variance_parts(sig, &whole, &frac_q32);
+    if (whole >= 32768ULL) {
+        return INT32_MAX;
     }
-
-    return signal_mean_sq_parts_to_q16(q, r, n);
+    return (int32_t)((whole << 16U) + (frac_q32 >> 16U));
 }
 
 /* ── Access helpers ─────────────────────────────────────────────────────── */
@@ -281,11 +315,17 @@ int32_t syn_signal_rms_q16(const SYN_Signal *sig)
 
 int32_t syn_signal_std_dev_q16(const SYN_Signal *sig)
 {
-    int32_t var = syn_signal_variance_q16(sig);
-    if (var <= 0) {
+    if (sig->count < 2U) {
         return 0;
     }
-    return q16_sqrt(var);
+
+    uint64_t whole = 0ULL;
+    uint64_t frac_q32 = 0ULL;
+    signal_variance_parts(sig, &whole, &frac_q32);
+    if (whole >= (1ULL << 30U)) {
+        return INT32_MAX;
+    }
+    return (int32_t)syn_isqrt64((whole << 32U) + frac_q32);
 }
 
 int32_t syn_signal_power_q16(const SYN_Signal *sig)

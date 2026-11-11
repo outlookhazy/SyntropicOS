@@ -154,6 +154,21 @@ static void test_servo_negative_rate_clamp(void)
     syn_servo_move_to(NULL, 90, 100);
 }
 
+static void test_servo_fast_rate_large_dt_no_overflow(void)
+{
+    mock_tick_ms = 0;
+    SYN_Servo servo;
+    syn_servo_init(&servo, 500, 2500, 180);
+    syn_servo_set_angle(&servo, 0); /* 500 us */
+
+    /* delta = 2000 us over 1 ms -> rate = 512000; dt = 8389 ms wraps 32-bit rate * dt to +784 us */
+    syn_servo_move_to(&servo, 180, 1);
+    mock_tick_advance(8389);
+    syn_servo_update(&servo);
+    TEST_ASSERT_TRUE(syn_servo_at_target(&servo));
+    TEST_ASSERT_EQUAL_UINT16(2500U, syn_servo_get_pulse_us(&servo));
+}
+
 void run_servo_tests(void)
 {
     RUN_TEST(test_servo);
@@ -162,4 +177,5 @@ void run_servo_tests(void)
     RUN_TEST(test_servo_edge_cases_and_nulls);
     RUN_TEST(test_servo_reverse_move_and_zero_dt);
     RUN_TEST(test_servo_negative_rate_clamp);
+    RUN_TEST(test_servo_fast_rate_large_dt_no_overflow);
 }

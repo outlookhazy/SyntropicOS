@@ -63,6 +63,7 @@ SYN_Status syn_netbuf_pool_init(SYN_NetBufPool *pool, SYN_NetBuf *bufs, uint8_t 
 
 /**
  * @brief Allocate a packet buffer from the pool.
+ * @note ISR-safe.
  * @param pool Pointer to pool descriptor.
  * @param headroom Initial headroom bytes reserved for network headers (values exceeding
  *                 pool->buf_size are clamped to 0).
@@ -72,12 +73,14 @@ SYN_NetBuf *syn_netbuf_alloc(SYN_NetBufPool *pool, size_t headroom);
 
 /**
  * @brief Increment the reference counter of a packet buffer.
+ * @note ISR-safe.
  * @param buf Pointer to packet buffer.
  */
 void syn_netbuf_ref(SYN_NetBuf *buf);
 
 /**
  * @brief Decrement reference counter and free buffer if count reaches 0.
+ * @note ISR-safe.
  * @param pool Pointer to pool descriptor.
  * @param buf Pointer to packet buffer.
  */

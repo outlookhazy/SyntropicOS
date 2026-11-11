@@ -17,6 +17,10 @@
 #include "unity/unity.h"
 
 #include <string.h>
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+#include <pthread.h>
+#include <sched.h>
+#endif
 
 /* ════════════════════════════════════════════════════════════════════════
  * SECTION 1: Memory Barrier Primitives
@@ -974,6 +978,70 @@ void test_mbox_define_macro(void)
     TEST_ASSERT_EQUAL(42, rx.seq);
 }
 
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+typedef struct {
+    SYN_Mailbox *mb;
+    uint32_t count;
+    bool ok;
+} MboxNotifyStressCtx;
+
+static void *mbox_notify_prod_thread(void *arg)
+{
+    MboxNotifyStressCtx *ctx = (MboxNotifyStressCtx *)arg;
+    for (uint32_t i = 0U; i < ctx->count; i++) {
+        TestMsg tx = {0};
+        tx.seq = i;
+        while (!syn_mailbox_post(ctx->mb, &tx)) {
+            (void)sched_yield();
+        }
+    }
+    return NULL;
+}
+
+static void *mbox_notify_cons_thread(void *arg)
+{
+    MboxNotifyStressCtx *ctx = (MboxNotifyStressCtx *)arg;
+    for (uint32_t i = 0U; i < ctx->count; i++) {
+        syn_mailbox_set_notify(ctx->mb, (i & 1U) == 0U);
+        TestMsg rx = {0};
+        while (!syn_mailbox_receive(ctx->mb, &rx)) {
+            syn_mailbox_set_notify(ctx->mb, true);
+            (void)sched_yield();
+        }
+        if (rx.seq != i) {
+            ctx->ok = false;
+            return NULL;
+        }
+    }
+    syn_mailbox_set_notify(ctx->mb, false);
+    return NULL;
+}
+#endif
+
+void test_mbox_notify_barriers_and_concurrent_toggle(void)
+{
+    TestMsg buf[16];
+    SYN_Mailbox mb;
+    syn_mailbox_init(&mb, buf, sizeof(TestMsg), 16U);
+
+    /* StoreLoad fence on syn_mailbox_set_notify prevents WFE lost wakeup */
+    mock_barrier_count = 0U;
+    syn_mailbox_set_notify(&mb, true);
+    TEST_ASSERT_TRUE(mock_barrier_count >= 1U);
+
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+    MboxNotifyStressCtx ctx = {&mb, 2000U, true};
+    pthread_t prod;
+    pthread_t cons;
+    TEST_ASSERT_EQUAL_INT(0, pthread_create(&prod, NULL, mbox_notify_prod_thread, &ctx));
+    TEST_ASSERT_EQUAL_INT(0, pthread_create(&cons, NULL, mbox_notify_cons_thread, &ctx));
+    TEST_ASSERT_EQUAL_INT(0, pthread_join(prod, NULL));
+    TEST_ASSERT_EQUAL_INT(0, pthread_join(cons, NULL));
+    TEST_ASSERT_TRUE(ctx.ok);
+    TEST_ASSERT_TRUE(syn_mailbox_empty(&mb));
+#endif
+}
+
 /* ════════════════════════════════════════════════════════════════════════
  * RUNNER
  * ════════════════════════════════════════════════════════════════════════ */
@@ -1070,4 +1138,5 @@ void run_multicore_tests(void)
     /* Cross-core mailbox: independence and macro */
     RUN_TEST(test_mbox_two_independent);
     RUN_TEST(test_mbox_define_macro);
+    RUN_TEST(test_mbox_notify_barriers_and_concurrent_toggle);
 }

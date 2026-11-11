@@ -265,6 +265,44 @@ static void test_r5_stepper_zero_accel_and_incremental_dt(void)
     syn_stepper_stop(&s);
 }
 
+static void test_stepper_rail_saturation_no_underflow_or_oscillation(void)
+{
+    mock_tick_ms = 0;
+    SYN_Stepper s;
+    syn_stepper_init(&s, 5, 6);
+    syn_stepper_set_speed(&s, 1000, 10000);
+
+    /* Move +10 from INT32_MAX - 2 must stop cleanly after 2 steps at INT32_MAX */
+    syn_stepper_set_position(&s, INT32_MAX - 2);
+    syn_stepper_move(&s, 10);
+    TEST_ASSERT_EQUAL_INT32(2, s.steps_to_go);
+    for (int i = 0; i < 50 && syn_stepper_is_moving(&s); i++) {
+        mock_tick_advance(2);
+        syn_stepper_tick(&s);
+    }
+    TEST_ASSERT_FALSE(syn_stepper_is_moving(&s));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_stepper_position(&s));
+
+    /* Move -10 from INT32_MIN + 2 must stop cleanly after 2 steps at INT32_MIN without UB */
+    syn_stepper_set_position(&s, INT32_MIN + 2);
+    syn_stepper_move(&s, -10);
+    TEST_ASSERT_EQUAL_INT32(2, s.steps_to_go);
+    for (int i = 0; i < 50 && syn_stepper_is_moving(&s); i++) {
+        mock_tick_advance(2);
+        syn_stepper_tick(&s);
+    }
+    TEST_ASSERT_FALSE(syn_stepper_is_moving(&s));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, syn_stepper_position(&s));
+
+    /* Already at INT32_MIN: further negative move is a safe no-op; INT32_MIN step from 0 clamps */
+    syn_stepper_move(&s, -5);
+    TEST_ASSERT_FALSE(syn_stepper_is_moving(&s));
+    syn_stepper_set_position(&s, 0);
+    syn_stepper_move(&s, INT32_MIN);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, s.steps_to_go);
+    syn_stepper_stop(&s);
+}
+
 void run_stepper_tests(void)
 {
     RUN_TEST(test_stepper);
@@ -276,4 +314,5 @@ void run_stepper_tests(void)
     RUN_TEST(test_stepper_reverse_move);
     RUN_TEST(test_stepper_motor_output_adapter);
     RUN_TEST(test_r5_stepper_zero_accel_and_incremental_dt);
+    RUN_TEST(test_stepper_rail_saturation_no_underflow_or_oscillation);
 }

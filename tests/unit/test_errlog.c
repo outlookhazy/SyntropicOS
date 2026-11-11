@@ -111,10 +111,22 @@ static void test_tier_a_errlog_critical_section(void)
     syn_errlog_record(NULL, 0x0010U, SYN_ERR_ERROR, 0U);
     syn_errlog_clear(NULL);
     TEST_ASSERT_FALSE(syn_errlog_read(NULL, 0U, &out));
+    TEST_ASSERT_NULL(syn_errlog_latest(NULL));
+    TEST_ASSERT_EQUAL_size_t(0U, syn_errlog_count_severity(NULL, SYN_ERR_ERROR));
 
     syn_errlog_init(&elog, entries, 2U, 1U);
     int before = mock_critical_enter_count;
     syn_errlog_record(&elog, 0x00AAU, SYN_ERR_WARNING, 7U);
+    TEST_ASSERT_EQUAL_INT(before + 1, mock_critical_enter_count);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    before = mock_critical_enter_count;
+    TEST_ASSERT_NOT_NULL(syn_errlog_latest(&elog));
+    TEST_ASSERT_EQUAL_INT(before + 1, mock_critical_enter_count);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    before = mock_critical_enter_count;
+    TEST_ASSERT_EQUAL_size_t(1U, syn_errlog_count_severity(&elog, SYN_ERR_WARNING));
     TEST_ASSERT_EQUAL_INT(before + 1, mock_critical_enter_count);
     TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
 
@@ -125,9 +137,11 @@ static void test_tier_a_errlog_critical_section(void)
     syn_errlog_clear(&elog);
     TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
 
-    /* Zero-initialized SYN_ErrLog (entries == NULL, capacity == 0) clears safely without UB */
+    /* Zero-initialized SYN_ErrLog (entries == NULL, capacity == 0) clears/queries safely */
     SYN_ErrLog zero_log = {0};
     syn_errlog_clear(&zero_log);
+    TEST_ASSERT_NULL(syn_errlog_latest(&zero_log));
+    TEST_ASSERT_EQUAL_size_t(0U, syn_errlog_count_severity(&zero_log, SYN_ERR_WARNING));
     TEST_ASSERT_EQUAL_size_t(0U, zero_log.total_count);
 }
 

@@ -70,7 +70,7 @@ static void test_filter_design_bandpass_and_notch(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_filter_design_notch(fc, fs, Q, &notch_coeffs));
 
     TEST_ASSERT_EQUAL(0, bp_coeffs.b1);
-    TEST_ASSERT_EQUAL(bp_coeffs.b1, bp_coeffs.b1);
+    TEST_ASSERT_EQUAL_INT32(bp_coeffs.b0, -bp_coeffs.b2);
 
     SYN_FilterBiquad notch_biquad;
     syn_filter_design_apply_to_biquad(&notch_coeffs, &notch_biquad);
@@ -162,6 +162,43 @@ static void test_biquad_direct_methods(void)
     syn_filter_biquad_cascade_reset(&cascade);
 }
 
+static void test_filter_design_extreme_q_and_low_fc(void)
+{
+    SYN_BiquadCoeffs coeffs;
+    q16_t fs = Q16_FROM_INT(20000);
+    q16_t q_std = Q16_FROM_FLOAT(0.7071);
+
+    /* Low fc/fs ratio (0.25 Hz / 20 kHz) retains 64-bit omega precision */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_filter_design_bandpass(Q16_FROM_FRAC(1, 4), fs, q_std, &coeffs));
+    TEST_ASSERT_TRUE(coeffs.b0 > 0);
+    TEST_ASSERT_TRUE(q16_abs(coeffs.a2) <= Q16_ONE);
+
+    /* Sub-LSB omega (fc = 1, fs = INT32_MAX) clamps safely without pole instability */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_filter_design_bandpass(1, INT32_MAX, q_std, &coeffs));
+    TEST_ASSERT_TRUE(coeffs.b0 >= 0);
+    TEST_ASSERT_TRUE(q16_abs(coeffs.a2) <= Q16_ONE);
+
+    /* High Q = 20000 (2*Q > INT32_MAX) and tiny Q = 1 (alpha > INT32_MAX/2) stay stable */
+    q16_t fc = Q16_FROM_INT(1000);
+    q16_t q_huge = Q16_FROM_INT(20000);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_filter_design_lowpass(fc, fs, q_huge, &coeffs));
+    TEST_ASSERT_TRUE(coeffs.b0 > 0);
+    TEST_ASSERT_TRUE(q16_abs(coeffs.a2) <= Q16_ONE);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_filter_design_highpass(fc, fs, q_huge, &coeffs));
+    TEST_ASSERT_TRUE(coeffs.b0 > 0);
+    TEST_ASSERT_TRUE(q16_abs(coeffs.a2) <= Q16_ONE);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_filter_design_bandpass(fc, fs, q_huge, &coeffs));
+    TEST_ASSERT_TRUE(coeffs.b0 >= 0);
+    TEST_ASSERT_TRUE(q16_abs(coeffs.a2) <= Q16_ONE);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_filter_design_notch(fc, fs, q_huge, &coeffs));
+    TEST_ASSERT_TRUE(coeffs.b0 > 0);
+    TEST_ASSERT_TRUE(q16_abs(coeffs.a2) <= Q16_ONE);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_filter_design_bandpass(fc, fs, 1, &coeffs));
+    TEST_ASSERT_TRUE(coeffs.b0 > 0);
+    TEST_ASSERT_TRUE(q16_abs(coeffs.a2) <= Q16_ONE);
+}
+
 void run_filter_design_tests(void)
 {
     RUN_TEST(test_filter_design_lowpass);
@@ -169,4 +206,5 @@ void run_filter_design_tests(void)
     RUN_TEST(test_filter_design_bandpass_and_notch);
     RUN_TEST(test_filter_design_invalid_params);
     RUN_TEST(test_biquad_direct_methods);
+    RUN_TEST(test_filter_design_extreme_q_and_low_fc);
 }

@@ -67,8 +67,44 @@ void test_mfcc_process_sine_wave(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_mfcc_process_frame(&mfcc_sat, max_pcm, coeffs));
 }
 
+static void test_mfcc_log_compression_and_mel_energies(void)
+{
+    int16_t pcm_low[128];
+    int16_t pcm_high[128];
+    q7_t coeffs_low[13] = {0};
+    q7_t coeffs_high[13] = {0};
+
+    for (int i = 0; i < 128; i++) {
+        float s = sinf(2.0f * 3.14159265f * 1000.0f * (float)i / 16000.0f);
+        pcm_low[i] = (int16_t)(1000.0f * s);
+        pcm_high[i] = (int16_t)(4000.0f * s);
+    }
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mfcc_init(&g_mfcc, 16000U, 128U));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mfcc_process_frame(&g_mfcc, pcm_low, coeffs_low));
+    q16_t peak_mel_low = 0;
+    for (uint16_t m = 0U; m < SYN_MFCC_NUM_MEL_FILTERS; m++) {
+        if (g_mfcc.mel_energies[m] > peak_mel_low) {
+            peak_mel_low = g_mfcc.mel_energies[m];
+        }
+    }
+    TEST_ASSERT_TRUE(peak_mel_low > 0);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mfcc_process_frame(&g_mfcc, pcm_high, coeffs_high));
+    q16_t peak_mel_high = 0;
+    for (uint16_t m = 0U; m < SYN_MFCC_NUM_MEL_FILTERS; m++) {
+        if (g_mfcc.mel_energies[m] > peak_mel_high) {
+            peak_mel_high = g_mfcc.mel_energies[m];
+        }
+    }
+    /* 4x amplitude = 16x power = +4.0 log2 units (262144 in Q16.16) */
+    TEST_ASSERT_INT_WITHIN(Q16_HALF, Q16_FROM_INT(4), peak_mel_high - peak_mel_low);
+    TEST_ASSERT_NOT_EQUAL(coeffs_low[0], coeffs_high[0]);
+}
+
 void run_mfcc_tests(void)
 {
     RUN_TEST(test_mfcc_init_and_null_checks);
     RUN_TEST(test_mfcc_process_sine_wave);
+    RUN_TEST(test_mfcc_log_compression_and_mel_energies);
 }

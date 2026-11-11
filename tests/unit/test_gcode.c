@@ -148,6 +148,8 @@ void test_gcode_execution_and_modal_states(void)
     TEST_ASSERT_EQUAL_INT(SYN_GCODE_PLANE_XZ, ctrl.plane);
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G19"));
     TEST_ASSERT_EQUAL_INT(SYN_GCODE_PLANE_YZ, ctrl.plane);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G17"));
+    TEST_ASSERT_EQUAL_INT(SYN_GCODE_PLANE_XY, ctrl.plane);
 
     /* 2. Modal Units: G20, G21 */
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G20"));
@@ -527,6 +529,126 @@ void test_tier_a_gcode_long_fraction_and_dwell_overflow(void)
     TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.0f, direct_ctrl.current_pos.x);
 }
 
+void test_gcode_planner_error_propagation_and_full_circle(void)
+{
+    SYN_Interpolator interp;
+    SYN_GCode_Config cfg = {
+        .interpolator = &interp,
+        .default_feedrate = 100.0f,
+        .max_acceleration = 500.0f,
+        .max_jerk = 2000.0f,
+        .step_resolution = 0.01f,
+    };
+    SYN_GCode_Controller ctrl;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_init(&ctrl, &cfg));
+
+    /* 1. Zero-radius G2 arc (I0 J0) must fail with SYN_INVALID_PARAM instead of returning SYN_OK */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_gcode_execute_line(&ctrl, "G2 X10.0 Y0.0 I0.0 J0.0"));
+    TEST_ASSERT_FALSE(ctrl.move_in_progress);
+
+    /* 2. Step-overflowing G1 and G28 moves on interpolated controller propagate SYN_INVALID_PARAM
+     */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_line(&ctrl, "G1 X50000000.0"));
+    TEST_ASSERT_FALSE(ctrl.move_in_progress);
+
+    ctrl.current_pos.x = 50000000.0f;
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_line(&ctrl, "G28 X0"));
+    TEST_ASSERT_FALSE(ctrl.move_in_progress);
+    ctrl.current_pos.x = 0.0f;
+
+    /* 3. Zero-distance linear move at current position stays idle (move_in_progress == false) */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G1 X0.0 Y0.0 Z0.0"));
+    TEST_ASSERT_FALSE(ctrl.move_in_progress);
+
+    /* 4. Full-circle G2 I5 J0 plans full 360-degree CW revolution and returns to origin */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G2 I5.0 J0.0 F600.0"));
+    TEST_ASSERT_TRUE(ctrl.move_in_progress);
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, 31.4159f, interp.total_length);
+
+    SYN_Vector3F pos = {0.0f, 0.0f, 0.0f};
+    while (syn_gcode_step(&ctrl, &pos)) {
+    }
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, 0.0f, ctrl.current_pos.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, 0.0f, ctrl.current_pos.y);
+}
+
+void test_gcode_g18_xz_g19_yz_planes_and_modal_enum_guards(void)
+{
+    SYN_Interpolator interp;
+    SYN_GCode_Config cfg = {
+        .interpolator = &interp,
+        .default_feedrate = 20.0f,
+        .max_acceleration = 2.0f,
+        .max_jerk = 0.5f,
+        .step_resolution = 0.01f,
+    };
+    SYN_GCode_Controller ctrl;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_init(&ctrl, &cfg));
+
+    /* 1. G18 (ZX right-handed plane around +Y): CW arc from (X=10, Z=0) to (X=0, Z=10) + helical Y
+     */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G0 X10.0 Y0.0 Z0.0"));
+    SYN_Vector3F pos = {0.0f, 0.0f, 0.0f};
+    while (syn_gcode_step(&ctrl, &pos)) {
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G18"));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_gcode_execute_line(&ctrl, "G2 X0.0 Y4.0 Z10.0 I-10.0 K0.0 F600.0"));
+    TEST_ASSERT_TRUE(ctrl.move_in_progress);
+
+    uint32_t mid = interp.total_steps / 2U;
+    for (uint32_t i = 0U; i < mid; i++) {
+        TEST_ASSERT_TRUE(syn_gcode_step(&ctrl, &pos));
+    }
+    TEST_ASSERT_FLOAT_WITHIN(0.15f, 7.071f, pos.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.15f, 2.0f, pos.y);
+    TEST_ASSERT_FLOAT_WITHIN(0.15f, 7.071f, pos.z);
+    while (syn_gcode_step(&ctrl, &pos)) {
+    }
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, 0.0f, ctrl.current_pos.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, 4.0f, ctrl.current_pos.y);
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, 10.0f, ctrl.current_pos.z);
+
+    /* Verify eval_at_time velocity/position mapping on G18 CCW arc back to (X=10, Z=0) */
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_gcode_execute_line(&ctrl, "G3 X10.0 Y0.0 Z0.0 I0.0 K-10.0 F600.0"));
+    SYN_Vector3F ev_pos = {0.0f, 0.0f, 0.0f};
+    SYN_Vector3F ev_vel = {0.0f, 0.0f, 0.0f};
+    TEST_ASSERT_TRUE(syn_interpolator_eval_at_time(&interp, 0.0f, &ev_pos, &ev_vel));
+    TEST_ASSERT_TRUE(ev_vel.x > 0.0f);
+
+    /* 2. G19 (YZ right-handed plane around +X): CCW arc from (Y=10, Z=0) to (Y=0, Z=10) + helical X
+     */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_init(&ctrl, &cfg));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G0 X0.0 Y10.0 Z0.0"));
+    while (syn_gcode_step(&ctrl, &pos)) {
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_gcode_execute_line(&ctrl, "G19"));
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_gcode_execute_line(&ctrl, "G3 X6.0 Y0.0 Z10.0 J-10.0 K0.0 F600.0"));
+    mid = interp.total_steps / 2U;
+    for (uint32_t i = 0U; i < mid; i++) {
+        TEST_ASSERT_TRUE(syn_gcode_step(&ctrl, &pos));
+    }
+    TEST_ASSERT_FLOAT_WITHIN(0.15f, 3.0f, pos.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.15f, 7.071f, pos.y);
+    TEST_ASSERT_FLOAT_WITHIN(0.15f, 7.071f, pos.z);
+    TEST_ASSERT_TRUE(syn_interpolator_eval_at_time(&interp, 0.0f, &ev_pos, &ev_vel));
+    TEST_ASSERT_TRUE(ev_vel.z > 0.0f);
+    TEST_ASSERT_TRUE(ev_vel.x > 0.0f);
+
+    /* 3. Hand-constructed invalid modal enum values rejected with SYN_INVALID_PARAM */
+    SYN_GCode_Block bad_motion = {.has_motion = true, .motion_mode = SYN_GCODE_MOTION_DWELL};
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_block(&ctrl, &bad_motion));
+    SYN_GCode_Block bad_plane = {.has_plane = true, .plane = (SYN_GCode_Plane)99};
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_block(&ctrl, &bad_plane));
+    SYN_GCode_Block bad_dist = {.has_dist_mode = true, .dist_mode = (SYN_GCode_DistanceMode)99};
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_block(&ctrl, &bad_dist));
+    SYN_GCode_Block bad_units = {.has_units = true, .units = (SYN_GCode_Units)99};
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_gcode_execute_block(&ctrl, &bad_units));
+}
+
 void run_gcode_tests(void)
 {
     RUN_TEST(test_gcode_init_and_validation);
@@ -536,4 +658,6 @@ void run_gcode_tests(void)
     RUN_TEST(test_gcode_r4_p13_regressions);
     RUN_TEST(test_r5_gcode_feedrate_and_strict_validation);
     RUN_TEST(test_tier_a_gcode_long_fraction_and_dwell_overflow);
+    RUN_TEST(test_gcode_planner_error_propagation_and_full_circle);
+    RUN_TEST(test_gcode_g18_xz_g19_yz_planes_and_modal_enum_guards);
 }

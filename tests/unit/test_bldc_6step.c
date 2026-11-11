@@ -192,3 +192,66 @@ void test_bldc_6step_null_params_and_edge_cases(void)
     /* 24 transitions / (6 * 4 default pole pairs) = 1 rev in 200ms -> 300 RPM */
     TEST_ASSERT_EQUAL_UINT32(300, rpm_pid);
 }
+
+void test_bldc_6step_fault_latch_high_rpm_and_pid_clamp(void)
+{
+    SYN_BLDC_6Step bldc;
+    SYN_BLDC_PhaseOutputs out;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bldc_6step_init(&bldc, NULL));
+    syn_bldc_6step_start(&bldc);
+    syn_bldc_6step_set_duty(&bldc, 600);
+
+    /* Fault state must keep gates OFF on subsequent valid Hall edges until explicit restart */
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_bldc_6step_set_hall(&bldc, 0, &out));
+    TEST_ASSERT_EQUAL_INT(SYN_BLDC_STATE_FAULT, bldc.state);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bldc_6step_set_hall(&bldc, 5, &out));
+    TEST_ASSERT_EQUAL_INT(SYN_BLDC_GATE_OFF, out.u);
+    TEST_ASSERT_EQUAL_INT(SYN_BLDC_GATE_OFF, out.v);
+    TEST_ASSERT_EQUAL_INT(SYN_BLDC_GATE_OFF, out.w);
+    TEST_ASSERT_EQUAL_UINT16(0U, out.duty);
+
+    /* Boot at tick 0 + high transition count (> 71582 overflows 32-bit transitions * 60000) */
+    syn_bldc_6step_init(&bldc, NULL);
+    syn_bldc_6step_start(&bldc);
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_bldc_6step_update_speed(&bldc, 0U, 0U));
+    bldc.hall_transitions = 100000U;
+    uint32_t rpm = syn_bldc_6step_update_speed(&bldc, 1000U, 0U);
+    /* 100000 / 24 * 60 = 250000 RPM */
+    TEST_ASSERT_EQUAL_UINT32(250000U, rpm);
+
+    /* Negative PID output must clamp duty to 0 rather than wrapping uint16_t to 1000 */
+    bldc.speed_pid.cfg.out_min = -500;
+    bldc.speed_pid_active = true;
+    bldc.hall_transitions = 480U; /* 12000 RPM > target 100 RPM -> negative PID output */
+    (void)syn_bldc_6step_update_speed(&bldc, 1100U, 100U);
+    TEST_ASSERT_EQUAL_UINT16(0U, bldc.duty);
+
+    /* current_step tracks Hall 1..6 sequence, resets on fault/stop, and huge RPM clamps to
+     * INT32_MAX */
+    syn_bldc_6step_init(&bldc, NULL);
+    syn_bldc_6step_start(&bldc);
+    const uint8_t halls[6] = {5U, 1U, 3U, 2U, 6U, 4U};
+    for (uint8_t s = 0U; s < 6U; s++) {
+        TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bldc_6step_set_hall(&bldc, halls[s], &out));
+        TEST_ASSERT_EQUAL_UINT8((uint8_t)(s + 1U), bldc.current_step);
+    }
+
+    bldc.speed_pid_active = true;
+    bldc.speed_pid.cfg.out_min = -500;
+    bldc.duty = 800U;
+    (void)syn_bldc_6step_update_speed(&bldc, 0U, 1000U);
+    bldc.hall_transitions = UINT32_MAX; /* > INT32_MAX RPM: must not wrap negative into PID */
+    (void)syn_bldc_6step_update_speed(&bldc, 100U, 1000U);
+    TEST_ASSERT_EQUAL_UINT16(0U, bldc.duty);
+
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_bldc_6step_set_hall(&bldc, 7U, &out));
+    TEST_ASSERT_EQUAL_UINT8(0U, bldc.current_step);
+    TEST_ASSERT_EQUAL_UINT32(0U, bldc.rpm);
+
+    syn_bldc_6step_start(&bldc);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bldc_6step_set_hall(&bldc, 5U, &out));
+    TEST_ASSERT_EQUAL_UINT8(1U, bldc.current_step);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_bldc_6step_stop(&bldc, &out));
+    TEST_ASSERT_EQUAL_UINT8(0U, bldc.current_step);
+    TEST_ASSERT_EQUAL_INT64(0, bldc.speed_pid.integral);
+}

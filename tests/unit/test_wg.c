@@ -20,6 +20,32 @@
 #include <stdio.h>
 #include <string.h>
 
+static bool wg_send_initiation(SYN_WG *wg)
+{
+    if (!wg_init_stage1_ephemeral(wg, false)) {
+        return false;
+    }
+    wg_init_stage2_dh_es(wg);
+    return wg_init_stage3_dh_ss_and_send(wg);
+}
+
+static bool wg_consume_response(SYN_WG *wg, const uint8_t *msg, size_t len)
+{
+    if (!wg_resp_stage1_verify_and_dh_ee(wg, msg, len)) {
+        return false;
+    }
+    return wg_resp_stage2_dh_se_and_establish(wg);
+}
+
+static bool wg_replay_check(SYN_WgSession *s, uint64_t counter)
+{
+    if (!wg_replay_test(s, counter)) {
+        return false;
+    }
+    wg_replay_commit(s, counter);
+    return true;
+}
+
 static void wg_hex2bin(const char *hex, uint8_t *out, size_t len)
 {
     syn_fmt_hex_parse(hex, out, len);

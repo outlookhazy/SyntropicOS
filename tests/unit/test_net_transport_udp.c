@@ -97,6 +97,7 @@ void test_net_transport_udp_open_io_readable_and_close(void)
     uint8_t pkt[64] = {0};
     syn_poke_u16(0x0800U, pkt, 12U);
     pkt[14] = 0x45U;
+    syn_poke_u16(20U + 8U + 6U, pkt, 16U);
     pkt[23] = 17U;
     syn_poke_u32(0x0A000009U, pkt, 26U);
     syn_poke_u32(s_ip, pkt, 30U);
@@ -109,6 +110,7 @@ void test_net_transport_udp_open_io_readable_and_close(void)
     uint8_t pkt2[64] = {0};
     syn_poke_u16(0x0800U, pkt2, 12U);
     pkt2[14] = 0x45U;
+    syn_poke_u16(20U + 8U + 4U, pkt2, 16U);
     pkt2[23] = 17U;
     syn_poke_u32(0x0A00000AU, pkt2, 26U);
     syn_poke_u32(s_ip, pkt2, 30U);

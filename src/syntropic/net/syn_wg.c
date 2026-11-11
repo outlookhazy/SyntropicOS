@@ -499,19 +499,6 @@ static bool wg_init_stage3_dh_ss_and_send(SYN_WG *wg)
     return sent_ok;
 }
 
-/** @brief Build and send a Noise_IKpsk2 handshake initiation message.
- * @param wg Client context.
- * @return true if message was built and sent.
- */
-static bool wg_send_initiation(SYN_WG *wg)
-{
-    if (!wg_init_stage1_ephemeral(wg, false)) {
-        return false;
-    }
-    wg_init_stage2_dh_es(wg);
-    return wg_init_stage3_dh_ss_and_send(wg);
-}
-
 /* ═══════════════════════════════════════════════════════════════════════════
  *  Handshake: Consume Response
  * ═══════════════════════════════════════════════════════════════════════════ */
@@ -604,20 +591,6 @@ static bool wg_resp_stage2_dh_se_and_establish(SYN_WG *wg)
     syn_secure_zero(k, sizeof(k));
     syn_secure_zero(buf, sizeof(buf));
     return ok;
-}
-
-/** @brief Parse and validate a handshake response, deriving session keys.
- * @param wg  Client context.
- * @param msg Received message data.
- * @param len Received message length.
- * @return true if response was valid and session established.
- */
-static bool wg_consume_response(SYN_WG *wg, const uint8_t *msg, size_t len)
-{
-    if (!wg_resp_stage1_verify_and_dh_ee(wg, msg, len)) {
-        return false;
-    }
-    return wg_resp_stage2_dh_se_and_establish(wg);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -721,20 +694,6 @@ static void wg_replay_commit(SYN_WgSession *s, uint64_t counter)
     if (diff < 64U) {
         s->recv_bitmap |= (1ULL << (uint32_t)diff);
     }
-}
-
-/** @brief Anti-replay check and commit in one step (convenience / test helper).
- * @param s       Active session.
- * @param counter Received counter value.
- * @return true if counter is new and within window.
- */
-SYN_UNUSED static bool wg_replay_check(SYN_WgSession *s, uint64_t counter)
-{
-    if (!wg_replay_test(s, counter)) {
-        return false;
-    }
-    wg_replay_commit(s, counter);
-    return true;
 }
 
 /** @brief Strip WireGuard 16-byte transport padding using inner IPv4/IPv6 header length.

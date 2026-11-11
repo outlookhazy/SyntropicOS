@@ -48,6 +48,9 @@ static const PhaseGatePattern s_step_table_ccw[7] = {
     {SYN_BLDC_GATE_PWM, SYN_BLDC_GATE_OFF, SYN_BLDC_GATE_LOW}, /* 6: Hall 0b110 */
 };
 
+/** 3-bit Hall state (1..6) to 6-step commutation index (1..6) lookup table. */
+static const uint8_t s_hall_to_step[7] = {0U, 2U, 4U, 3U, 6U, 1U, 5U};
+
 SYN_Status syn_bldc_6step_init(SYN_BLDC_6Step *bldc, const SYN_BLDC_Config *cfg)
 {
     if (!bldc) {
@@ -70,6 +73,7 @@ SYN_Status syn_bldc_6step_init(SYN_BLDC_6Step *bldc, const SYN_BLDC_Config *cfg)
     bldc->last_hall_tick_ms = 0;
     bldc->rpm = 0;
     bldc->speed_pid_active = false;
+    bldc->speed_tick_valid = false;
 
     /* Initialize speed PID controller defaults */
     SYN_PID_Config pid_cfg = SYN_PID_GAINS(0.5f, 0.1f, 0.01f, 100, 0, 1000);
@@ -90,6 +94,10 @@ SYN_Status syn_bldc_6step_set_hall(SYN_BLDC_6Step *bldc, uint8_t hall_state,
     /* Check for invalid Hall sensor readings (0b000 or 0b111) */
     if (state == 0U || state == 7U) {
         bldc->state = SYN_BLDC_STATE_FAULT;
+        bldc->current_step = 0U;
+        bldc->rpm = 0U;
+        bldc->speed_tick_valid = false;
+        syn_pid_reset(&bldc->speed_pid);
         if (out) {
             out->u = SYN_BLDC_GATE_OFF;
             out->v = SYN_BLDC_GATE_OFF;
@@ -100,9 +108,10 @@ SYN_Status syn_bldc_6step_set_hall(SYN_BLDC_6Step *bldc, uint8_t hall_state,
     }
 
     bldc->hall_state = state;
+    bldc->current_step = s_hall_to_step[state];
     bldc->hall_transitions++;
 
-    if (bldc->state == SYN_BLDC_STATE_STOPPED) {
+    if (bldc->state != SYN_BLDC_STATE_RUNNING) {
         if (out) {
             out->u = SYN_BLDC_GATE_OFF;
             out->v = SYN_BLDC_GATE_OFF;
@@ -166,7 +175,10 @@ SYN_Status syn_bldc_6step_stop(SYN_BLDC_6Step *bldc, SYN_BLDC_PhaseOutputs *out)
     }
 
     bldc->state = SYN_BLDC_STATE_STOPPED;
+    bldc->current_step = 0U;
     bldc->rpm = 0;
+    bldc->speed_tick_valid = false;
+    syn_pid_reset(&bldc->speed_pid);
 
     if (out) {
         out->u = SYN_BLDC_GATE_OFF;
@@ -184,8 +196,9 @@ uint32_t syn_bldc_6step_update_speed(SYN_BLDC_6Step *bldc, uint32_t now_ms, uint
         return 0;
     }
 
-    if (bldc->last_hall_tick_ms == 0) {
+    if (!bldc->speed_tick_valid) {
         bldc->last_hall_tick_ms = now_ms;
+        bldc->speed_tick_valid = true;
         bldc->hall_transitions = 0;
         return 0;
     }
@@ -206,14 +219,17 @@ uint32_t syn_bldc_6step_update_speed(SYN_BLDC_6Step *bldc, uint32_t now_ms, uint
             p = 4;
         }
 
-        uint32_t mechanical_rev_denom = 6U * p;
-        bldc->rpm = (transitions * 60000U) / (mechanical_rev_denom * dt_ms);
+        uint64_t denom = 6ULL * (uint64_t)p * (uint64_t)dt_ms;
+        uint64_t rpm64 = ((uint64_t)transitions * 60000ULL) / denom;
+        bldc->rpm = (rpm64 > (uint64_t)UINT32_MAX) ? UINT32_MAX : (uint32_t)rpm64;
 
         /* Apply closed-loop speed PID if enabled */
         if (bldc->speed_pid_active && bldc->state == SYN_BLDC_STATE_RUNNING) {
-            int32_t pid_out =
-                syn_pid_update(&bldc->speed_pid, (int32_t)target_rpm, (int32_t)bldc->rpm, dt_ms);
-            uint16_t new_duty = (uint16_t)pid_out;
+            int32_t tgt_i32 = (target_rpm > (uint32_t)INT32_MAX) ? INT32_MAX : (int32_t)target_rpm;
+            int32_t rpm_i32 = (bldc->rpm > (uint32_t)INT32_MAX) ? INT32_MAX : (int32_t)bldc->rpm;
+            int32_t pid_out = syn_pid_update(&bldc->speed_pid, tgt_i32, rpm_i32, dt_ms);
+            uint16_t new_duty =
+                (pid_out <= 0) ? 0U : ((pid_out > 1000) ? 1000U : (uint16_t)pid_out);
             syn_bldc_6step_set_duty(bldc, new_duty);
         }
     }

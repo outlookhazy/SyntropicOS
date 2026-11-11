@@ -136,12 +136,22 @@ SYN_Status syn_dh_matrix(const SYN_DH_Param *param, q16_t joint_val, SYN_DH_Conv
     return SYN_OK;
 }
 
+/**
+ * @brief Validate optional 4x4 homogeneous transform output matrix descriptor.
+ * @param mat Optional matrix descriptor (NULL permitted).
+ * @return true if NULL or valid 4x4 matrix with non-NULL backing storage.
+ */
+static bool kin_out_mat44_valid(const SYN_Matrix *mat)
+{
+    return (mat == NULL) || ((mat->data != NULL) && (mat->rows == 4U) && (mat->cols == 4U));
+}
+
 SYN_Status syn_kinematics_forward(const SYN_DH_Param *chain, size_t num_joints,
                                   const q16_t *joint_vals, SYN_DH_Convention conv,
                                   SYN_Matrix *out_t44, SYN_Pose6D *out_pose)
 {
     if (chain == NULL || joint_vals == NULL || num_joints == 0U ||
-        num_joints > SYN_KINEMATICS_MAX_JOINTS) {
+        num_joints > SYN_KINEMATICS_MAX_JOINTS || !kin_out_mat44_valid(out_t44)) {
         return SYN_INVALID_PARAM;
     }
 
@@ -159,7 +169,7 @@ SYN_Status syn_kinematics_forward(const SYN_DH_Param *chain, size_t num_joints,
         (void)memcpy(T_acc.data, T_next.data, 16U * sizeof(q16_t));
     }
 
-    if (out_t44 != NULL && out_t44->data != NULL) {
+    if (out_t44 != NULL) {
         (void)memcpy(out_t44->data, T_acc.data, 16U * sizeof(q16_t));
     }
 
@@ -219,14 +229,18 @@ SYN_Status syn_kinematics_jacobian(const SYN_DH_Param *chain, size_t num_joints,
     q16_t pe_z = SYN_MAT_AT(&mats[num_joints], 2, 3);
 
     for (size_t i = 0U; i < num_joints; i++) {
-        /* Joint i-1 position p_{i-1} and z-axis z_{i-1} */
-        q16_t pi_x = SYN_MAT_AT(&mats[i], 0, 3);
-        q16_t pi_y = SYN_MAT_AT(&mats[i], 1, 3);
-        q16_t pi_z = SYN_MAT_AT(&mats[i], 2, 3);
+        /* Standard DH actuates around frame i-1 (mats[i]); Modified DH applies Rx*Tx first so
+         * joint i's axis and axis point reside in mats[i + 1] (Rz*Tz preserves the Z axis and
+         * shifts the origin purely along Z, leaving z x (pe - pi) invariant). */
+        const SYN_Matrix *joint_tf =
+            (conv == SYN_DH_CONVENTION_MODIFIED) ? &mats[i + 1U] : &mats[i];
+        q16_t pi_x = SYN_MAT_AT(joint_tf, 0, 3);
+        q16_t pi_y = SYN_MAT_AT(joint_tf, 1, 3);
+        q16_t pi_z = SYN_MAT_AT(joint_tf, 2, 3);
 
-        q16_t zi_x = SYN_MAT_AT(&mats[i], 0, 2);
-        q16_t zi_y = SYN_MAT_AT(&mats[i], 1, 2);
-        q16_t zi_z = SYN_MAT_AT(&mats[i], 2, 2);
+        q16_t zi_x = SYN_MAT_AT(joint_tf, 0, 2);
+        q16_t zi_y = SYN_MAT_AT(joint_tf, 1, 2);
+        q16_t zi_z = SYN_MAT_AT(joint_tf, 2, 2);
 
         if (chain[i].is_prismatic) {
             /* Prismatic joint: Jv = z_{i-1}, Jw = 0 */
@@ -314,9 +328,13 @@ static SYN_Status solve_2link_planar(q16_t rx, q16_t ry, q16_t l1, q16_t l2, SYN
     }
 
     *out_q2 = q16_atan2(sin_q2, cos_q2);
-    q16_t k1 = l1 + q16_mul(l2, cos_q2);
-    q16_t k2 = q16_mul(l2, sin_q2);
-    *out_q1 = q16_atan2(ry, rx) - q16_atan2(k2, k1);
+    int64_t k1 = (int64_t)l1 + (((int64_t)l2 * (int64_t)cos_q2) >> 16);
+    int64_t k2 = ((int64_t)l2 * (int64_t)sin_q2) >> 16;
+    while ((k1 > (int64_t)INT32_MAX) || (k1 < -(int64_t)INT32_MAX)) {
+        k1 >>= 1;
+        k2 >>= 1;
+    }
+    *out_q1 = q16_sub_sat(q16_atan2(ry, rx), q16_atan2((q16_t)k2, (q16_t)k1));
     return SYN_OK;
 }
 
@@ -329,13 +347,15 @@ SYN_Status syn_kinematics_planar3_fk(const SYN_Kinematics_Planar3Config *cfg, q1
         return SYN_INVALID_PARAM;
     }
 
-    q16_t q12 = q1 + q2;
-    q16_t q123 = q12 + q3;
+    q16_t q12 = q16_add_sat(q1, q2);
+    q16_t q123 = q16_add_sat(q12, q3);
 
-    q16_t x = q16_mul(cfg->l1, q16_cos(q1)) + q16_mul(cfg->l2, q16_cos(q12)) +
-              q16_mul(cfg->l3, q16_cos(q123));
-    q16_t y = q16_mul(cfg->l1, q16_sin(q1)) + q16_mul(cfg->l2, q16_sin(q12)) +
-              q16_mul(cfg->l3, q16_sin(q123));
+    q16_t x =
+        q16_add_sat(q16_add_sat(q16_mul(cfg->l1, q16_cos(q1)), q16_mul(cfg->l2, q16_cos(q12))),
+                    q16_mul(cfg->l3, q16_cos(q123)));
+    q16_t y =
+        q16_add_sat(q16_add_sat(q16_mul(cfg->l1, q16_sin(q1)), q16_mul(cfg->l2, q16_sin(q12))),
+                    q16_mul(cfg->l3, q16_sin(q123)));
 
     if (out_x != NULL) {
         *out_x = x;
@@ -357,15 +377,15 @@ SYN_Status syn_kinematics_planar3_ik(const SYN_Kinematics_Planar3Config *cfg, q1
         return SYN_INVALID_PARAM;
     }
 
-    q16_t xw = x - q16_mul(cfg->l3, q16_cos(phi));
-    q16_t yw = y - q16_mul(cfg->l3, q16_sin(phi));
+    q16_t xw = q16_sub_sat(x, q16_mul(cfg->l3, q16_cos(phi)));
+    q16_t yw = q16_sub_sat(y, q16_mul(cfg->l3, q16_sin(phi)));
 
     q16_t q1 = 0;
     q16_t q2 = 0;
     if (solve_2link_planar(xw, yw, cfg->l1, cfg->l2, elbow, &q1, &q2) != SYN_OK) {
         return SYN_ERROR;
     }
-    q16_t q3 = phi - q1 - q2;
+    q16_t q3 = q16_sub_sat(q16_sub_sat(phi, q1), q2);
 
     if (out_q1 != NULL) {
         *out_q1 = q1;
@@ -388,14 +408,16 @@ SYN_Status syn_kinematics_scara_fk(const SYN_Kinematics_SCARAConfig *cfg, q16_t 
         return SYN_INVALID_PARAM;
     }
 
-    q16_t q12 = q1 + q2;
-    out_pose->position.x = q16_mul(cfg->l1, q16_cos(q1)) + q16_mul(cfg->l2, q16_cos(q12));
-    out_pose->position.y = q16_mul(cfg->l1, q16_sin(q1)) + q16_mul(cfg->l2, q16_sin(q12));
-    out_pose->position.z = cfg->z_home - d3;
+    q16_t q12 = q16_add_sat(q1, q2);
+    out_pose->position.x =
+        q16_add_sat(q16_mul(cfg->l1, q16_cos(q1)), q16_mul(cfg->l2, q16_cos(q12)));
+    out_pose->position.y =
+        q16_add_sat(q16_mul(cfg->l1, q16_sin(q1)), q16_mul(cfg->l2, q16_sin(q12)));
+    out_pose->position.z = q16_sub_sat(cfg->z_home, d3);
 
     out_pose->orientation.roll = 0;
     out_pose->orientation.pitch = 0;
-    out_pose->orientation.yaw = q12 + q4;
+    out_pose->orientation.yaw = q16_add_sat(q12, q4);
     return SYN_OK;
 }
 
@@ -407,7 +429,11 @@ SYN_Status syn_kinematics_scara_ik(const SYN_Kinematics_SCARAConfig *cfg, const 
         return SYN_INVALID_PARAM;
     }
 
-    q16_t d3 = cfg->z_home - target->position.z;
+    int64_t d3_64 = (int64_t)cfg->z_home - (int64_t)target->position.z;
+    if ((d3_64 < (int64_t)INT32_MIN) || (d3_64 > (int64_t)INT32_MAX)) {
+        return SYN_ERROR;
+    }
+    q16_t d3 = (q16_t)d3_64;
     if (cfg->d_max > 0 && (d3 < 0 || d3 > cfg->d_max)) {
         return SYN_ERROR;
     }
@@ -419,7 +445,7 @@ SYN_Status syn_kinematics_scara_ik(const SYN_Kinematics_SCARAConfig *cfg, const 
         return SYN_ERROR;
     }
 
-    q16_t q4 = target->orientation.yaw - q1 - q2;
+    q16_t q4 = q16_sub_sat(q16_sub_sat(target->orientation.yaw, q1), q2);
 
     if (out_q1 != NULL) {
         *out_q1 = q1;
@@ -676,6 +702,90 @@ SYN_Status syn_kinematics_delta_ik(const SYN_Kinematics_DeltaConfig *cfg,
     return SYN_OK;
 }
 
+/**
+ * @brief Check whether three 64-bit Q48.16 values fit within 32-bit signed Q16.16 range.
+ * @param u First coordinate in Q48.16.
+ * @param v Second coordinate in Q48.16.
+ * @param w Third coordinate in Q48.16.
+ * @return true if all three values lie within [INT32_MIN, INT32_MAX].
+ */
+static bool delta_q16_vec3_ok(int64_t u, int64_t v, int64_t w)
+{
+    return (u >= (int64_t)INT32_MIN) && (u <= (int64_t)INT32_MAX) && (v >= (int64_t)INT32_MIN) &&
+           (v <= (int64_t)INT32_MAX) && (w >= (int64_t)INT32_MIN) && (w <= (int64_t)INT32_MAX);
+}
+
+/**
+ * @brief Check whether radical-line coefficients fit inside 64-bit quadratic bounds.
+ * @param c1 First coefficient.
+ * @param c2 Second coefficient.
+ * @return true if both lie in [-(2^29), +(2^29)].
+ */
+static bool delta_slope_ok(int64_t c1, int64_t c2)
+{
+    return (c1 >= -(1LL << 29)) && (c1 <= (1LL << 29)) && (c2 >= -(1LL << 29)) &&
+           (c2 <= (1LL << 29));
+}
+
+/**
+ * @brief Prescale (dw21, dw31, dd_b) together so 3-term sphere products fit in int64_t.
+ * @param dw21 In/out w2 - w1 difference.
+ * @param dw31 In/out w3 - w1 difference.
+ * @param dd_b In/out denominator copy.
+ */
+static void delta_prescale_dw(int64_t *dw21, int64_t *dw31, int64_t *dd_b)
+{
+    for (;;) {
+        int64_t abs21 = (*dw21 < 0) ? -(*dw21) : *dw21;
+        int64_t abs31 = (*dw31 < 0) ? -(*dw31) : *dw31;
+        int64_t max_dw = (abs21 > abs31) ? abs21 : abs31;
+        if (max_dw <= (1LL << 28)) {
+            break;
+        }
+        *dw21 >>= 1;
+        *dw31 >>= 1;
+        *dd_b >>= 1;
+    }
+}
+
+/**
+ * @brief Solve Delta FK quadratic a*z^2 + b*z + c = 0 (lower root) without 64-bit overflow.
+ * @param a     Quadratic coefficient in Q48.16 (> 0).
+ * @param b     Linear coefficient in Q48.16.
+ * @param c     Constant coefficient in Q48.16.
+ * @param out_z Output lower Z intersection root in Q48.16.
+ * @return SYN_OK on real intersection, SYN_ERROR if discriminant < 0.
+ */
+static SYN_Status delta_fk_solve_z(int64_t a, int64_t b, int64_t c, int64_t *out_z)
+{
+    /* Substitute z = (2^k) * u -> a*u^2 + (b >> k)*u + (c >> 2k) = 0 so a keeps full precision */
+    int shift_k = 0;
+    int64_t b_s = b;
+    int64_t c_s = c;
+    int64_t c_limit = (1LL << 58) / a;
+
+    for (;;) {
+        int64_t abs_b = (b_s < 0) ? -b_s : b_s;
+        int64_t abs_c = (c_s < 0) ? -c_s : c_s;
+        if ((abs_b <= (1LL << 29)) && (abs_c <= c_limit)) {
+            break;
+        }
+        b_s >>= 1;
+        c_s >>= 2;
+        shift_k++;
+    }
+
+    int64_t disc_q32 = (b_s * b_s) - (4LL * a * c_s);
+    if (disc_q32 < 0) {
+        return SYN_ERROR;
+    }
+
+    int64_t sqrt_disc = (int64_t)syn_isqrt64((uint64_t)disc_q32);
+    int64_t u_q16 = ((-b_s - sqrt_disc) * (int64_t)Q16_ONE) / (2LL * a);
+    *out_z = u_q16 * (int64_t)(1ULL << (uint32_t)shift_k);
+    return SYN_OK;
+}
+
 SYN_Status syn_kinematics_delta_fk(const SYN_Kinematics_DeltaConfig *cfg, q16_t theta1,
                                    q16_t theta2, q16_t theta3, SYN_Position3D *out_pos)
 {
@@ -683,69 +793,75 @@ SYN_Status syn_kinematics_delta_fk(const SYN_Kinematics_DeltaConfig *cfg, q16_t 
         return SYN_INVALID_PARAM;
     }
 
-    q16_t wb = cfg->base_radius - cfg->effector_radius;
-    q16_t L = cfg->upper_arm_len;
-    q16_t l = cfg->lower_arm_len;
+    int64_t wb = (int64_t)cfg->base_radius - (int64_t)cfg->effector_radius;
+    int64_t L = (int64_t)cfg->upper_arm_len;
+    int64_t l = (int64_t)cfg->lower_arm_len;
 
-    /* 3 elbow joint positions J1, J2, J3 */
-    q16_t y1 = -(wb + q16_mul(L, q16_cos(theta1)));
-    q16_t z1 = -q16_mul(L, q16_sin(theta1));
+    /* 3 elbow joint positions J1, J2, J3 widened to 64-bit before validation */
+    int64_t y1 = -(wb + ((L * (int64_t)q16_cos(theta1)) >> 16));
+    int64_t z1 = -((L * (int64_t)q16_sin(theta1)) >> 16);
 
-    q16_t y2_p = -(wb + q16_mul(L, q16_cos(theta2)));
-    q16_t z2 = -q16_mul(L, q16_sin(theta2));
-    q16_t x2 = q16_mul(y2_p, -Q16_SIN120);
-    q16_t y2 = q16_mul(y2_p, Q16_COS120);
+    int64_t y2_p = -(wb + ((L * (int64_t)q16_cos(theta2)) >> 16));
+    int64_t z2 = -((L * (int64_t)q16_sin(theta2)) >> 16);
+    int64_t y3_p = -(wb + ((L * (int64_t)q16_cos(theta3)) >> 16));
+    int64_t z3 = -((L * (int64_t)q16_sin(theta3)) >> 16);
+    if (!delta_q16_vec3_ok(y1, y2_p, y3_p)) {
+        return SYN_ERROR;
+    }
 
-    q16_t y3_p = -(wb + q16_mul(L, q16_cos(theta3)));
-    q16_t z3 = -q16_mul(L, q16_sin(theta3));
-    q16_t x3 = q16_mul(y3_p, -Q16_SIN240);
-    q16_t y3 = q16_mul(y3_p, Q16_COS240);
+    int64_t x2 = (y2_p * -(int64_t)Q16_SIN120) >> 16;
+    int64_t y2 = (y2_p * (int64_t)Q16_COS120) >> 16;
+    int64_t x3 = (y3_p * -(int64_t)Q16_SIN240) >> 16;
+    int64_t y3 = (y3_p * (int64_t)Q16_COS240) >> 16;
 
     /* 3-Sphere intersection in 64-bit Q48.16 */
-    int64_t d_denom =
-        (((int64_t)(y2 - y1) * (int64_t)x3) - ((int64_t)(y3 - y1) * (int64_t)x2)) >> 16;
+    int64_t d_denom = (((y2 - y1) * x3) >> 16) - (((y3 - y1) * x2) >> 16);
     if (d_denom == 0) {
         return SYN_ERROR;
     }
 
-    int64_t w1 = (((int64_t)y1 * (int64_t)y1) + ((int64_t)z1 * (int64_t)z1)) >> 16;
-    int64_t w2 =
-        (((int64_t)x2 * (int64_t)x2) + ((int64_t)y2 * (int64_t)y2) + ((int64_t)z2 * (int64_t)z2)) >>
-        16;
-    int64_t w3 =
-        (((int64_t)x3 * (int64_t)x3) + ((int64_t)y3 * (int64_t)y3) + ((int64_t)z3 * (int64_t)z3)) >>
-        16;
+    int64_t w1 = ((y1 * y1) >> 16) + ((z1 * z1) >> 16);
+    int64_t w2 = ((x2 * x2) >> 16) + ((y2 * y2) >> 16) + ((z2 * z2) >> 16);
+    int64_t w3 = ((x3 * x3) >> 16) + ((y3 * y3) >> 16) + ((z3 * z3) >> 16);
 
-    int64_t a1_num =
-        (((int64_t)(z2 - z1) * (int64_t)(y3 - y1)) - ((int64_t)(z3 - z1) * (int64_t)(y2 - y1))) >>
-        16;
-    int64_t a1 = (a1_num * (int64_t)Q16_ONE) / d_denom;
+    int64_t na1 = (((z2 - z1) >> 1) * ((y3 - y1) >> 1)) - (((z3 - z1) >> 1) * ((y2 - y1) >> 1));
+    int64_t a1 = ((na1 <= (INT64_MAX / 4LL)) && (na1 >= (INT64_MIN / 4LL)))
+                     ? ((na1 * 4LL) / d_denom)
+                     : ((na1 / d_denom) * 4LL);
+    int64_t na2 = -((((z2 - z1) >> 1) * (x3 >> 1)) - (((z3 - z1) >> 1) * (x2 >> 1)));
+    int64_t a2_coeff = ((na2 <= (INT64_MAX / 4LL)) && (na2 >= (INT64_MIN / 4LL)))
+                           ? ((na2 * 4LL) / d_denom)
+                           : ((na2 / d_denom) * 4LL);
 
-    int64_t b1_num = (((w2 - w1) * (int64_t)(y3 - y1)) - ((w3 - w1) * (int64_t)(y2 - y1))) >> 16;
-    int64_t b1 = -(b1_num * (int64_t)Q16_ONE) / (2LL * d_denom);
+    int64_t dw21 = w2 - w1;
+    int64_t dw31 = w3 - w1;
+    int64_t dd_b = d_denom;
+    delta_prescale_dw(&dw21, &dw31, &dd_b);
 
-    int64_t a2_num =
-        (((int64_t)(z2 - z1) * (int64_t)x3) - ((int64_t)(z3 - z1) * (int64_t)x2)) >> 16;
-    int64_t a2_coeff = -(a2_num * (int64_t)Q16_ONE) / d_denom;
-
-    int64_t b2_num = (((w2 - w1) * (int64_t)x3) - ((w3 - w1) * (int64_t)x2)) >> 16;
-    int64_t b2_coeff = (b2_num * (int64_t)Q16_ONE) / (2LL * d_denom);
-
-    int64_t a = ((a1 * a1) >> 16) + ((a2_coeff * a2_coeff) >> 16) + (int64_t)Q16_ONE;
-    int64_t dy1 = b2_coeff - (int64_t)y1;
-    int64_t b = 2LL * (((a1 * b1) >> 16) + ((a2_coeff * dy1) >> 16) - (int64_t)z1);
-    int64_t c = ((b1 * b1) >> 16) + ((dy1 * dy1) >> 16) + (((int64_t)z1 * (int64_t)z1) >> 16) -
-                (((int64_t)l * (int64_t)l) >> 16);
-
-    int64_t disc_q32 = (b * b) - (4LL * a * c);
-    if (disc_q32 < 0) {
+    int64_t b1 = (dd_b != 0) ? (-((dw21 * (y3 - y1)) - (dw31 * (y2 - y1))) / (2LL * dd_b)) : 0;
+    int64_t b2_coeff = (dd_b != 0) ? (((dw21 * x3) - (dw31 * x2)) / (2LL * dd_b)) : 0;
+    if ((dd_b == 0) || !delta_slope_ok(a1, a2_coeff) || !delta_slope_ok(b1 >> 1, b2_coeff >> 1)) {
         return SYN_ERROR;
     }
 
-    int64_t sqrt_disc = (int64_t)syn_isqrt64((uint64_t)disc_q32);
-    int64_t z = ((-b - sqrt_disc) * (int64_t)Q16_ONE) / (2LL * a);
-    int64_t x = ((a1 * z) >> 16) + b1;
-    int64_t y = ((a2_coeff * z) >> 16) + b2_coeff;
+    int64_t a = ((a1 * a1) >> 16) + ((a2_coeff * a2_coeff) >> 16) + (int64_t)Q16_ONE;
+    int64_t dy1 = b2_coeff - y1;
+    int64_t b = 2LL * (((a1 * b1) >> 16) + ((a2_coeff * dy1) >> 16) - z1);
+    int64_t c =
+        ((b1 * b1) >> 16) + (((dy1 >> 1) * (dy1 >> 1)) >> 14) + ((z1 * z1) >> 16) - ((l * l) >> 16);
+
+    int64_t z = 0;
+    if (delta_fk_solve_z(a, b, c, &z) != SYN_OK) {
+        return SYN_ERROR;
+    }
+    int64_t z_clamped = (z < (int64_t)INT32_MIN)
+                            ? (int64_t)INT32_MIN
+                            : ((z > (int64_t)INT32_MAX) ? (int64_t)INT32_MAX : z);
+    int64_t x = ((a1 * z_clamped) >> 16) + b1;
+    int64_t y = ((a2_coeff * z_clamped) >> 16) + b2_coeff;
+    if (!delta_q16_vec3_ok(x, y, z)) {
+        return SYN_ERROR;
+    }
 
     out_pos->x = (q16_t)x;
     out_pos->y = (q16_t)y;

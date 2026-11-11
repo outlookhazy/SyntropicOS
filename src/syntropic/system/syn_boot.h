@@ -105,7 +105,9 @@ SYN_Status syn_boot_mark_healthy(SYN_Boot *boot);
 /**
  * @brief Set the reset reason for the current boot.
  *
- * Call before saving (or it gets saved on next boot_init).
+ * Updates the in-RAM reset reason and, if the boot manager is initialized and
+ * the reason changed, persists it to flash immediately so it survives resets
+ * even if the system crashes before syn_boot_mark_healthy().
  *
  * @param boot    Boot manager.
  * @param reason  Reset reason code (SYN_ResetReason or custom).

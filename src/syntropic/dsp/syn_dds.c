@@ -5,6 +5,7 @@
 
 #include "syn_dds.h"
 
+#include <math.h>
 #include <string.h>
 
 /**
@@ -28,7 +29,7 @@ static uint32_t dds_xorshift32(SYN_DDS *dds)
 SYN_Status syn_dds_init(SYN_DDS *dds, SYN_DDS_Waveform type, uint32_t freq_hz,
                         uint32_t sample_rate_hz)
 {
-    if (!dds || sample_rate_hz == 0)
+    if (!dds || sample_rate_hz == 0U || freq_hz >= sample_rate_hz)
         return SYN_INVALID_PARAM;
 
     memset(dds, 0, sizeof(*dds));
@@ -43,7 +44,7 @@ SYN_Status syn_dds_init(SYN_DDS *dds, SYN_DDS_Waveform type, uint32_t freq_hz,
 
 SYN_Status syn_dds_set_freq(SYN_DDS *dds, uint32_t freq_hz, uint32_t sample_rate_hz)
 {
-    if (!dds || sample_rate_hz == 0)
+    if (!dds || sample_rate_hz == 0U || freq_hz >= sample_rate_hz)
         return SYN_INVALID_PARAM;
 
     /* phase_step = (freq_hz * 2^32) / sample_rate_hz */
@@ -66,7 +67,7 @@ SYN_Status syn_dds_set_gain(SYN_DDS *dds, q16_t amplitude, q16_t offset)
 
 SYN_Status syn_dds_set_duty(SYN_DDS *dds, float duty_pct)
 {
-    if (!dds)
+    if (!dds || !isfinite(duty_pct))
         return SYN_INVALID_PARAM;
 
     float duty = duty_pct;
@@ -75,7 +76,7 @@ SYN_Status syn_dds_set_duty(SYN_DDS *dds, float duty_pct)
     if (duty > 100.0f)
         duty = 100.0f;
 
-    dds->duty_q16 = (uint16_t)((duty / 100.0f) * 65535.0f);
+    dds->duty_q16 = (uint32_t)((duty / 100.0f) * 65536.0f + 0.5f);
 
     return SYN_OK;
 }
@@ -115,8 +116,8 @@ q16_t syn_dds_step(SYN_DDS *dds)
         break;
     }
     case SYN_DDS_SQUARE: {
-        /* Compare top 16 bits of phase against duty threshold */
-        uint16_t top_phase = (uint16_t)(phase >> 16);
+        /* Compare top 16 bits of phase against duty threshold [0..65536] */
+        uint32_t top_phase = phase >> 16U;
         if (top_phase < dds->duty_q16) {
             raw_sample = Q16_ONE;
         } else {
@@ -136,8 +137,8 @@ q16_t syn_dds_step(SYN_DDS *dds)
 
     dds->phase += dds->phase_step;
 
-    /* Apply amplitude gain and DC offset: output = (raw_sample * amplitude) + offset */
-    return q16_mul(raw_sample, dds->amplitude) + dds->offset;
+    /* Apply amplitude gain and DC offset with saturation */
+    return q16_add_sat(q16_mul_sat(raw_sample, dds->amplitude), dds->offset);
 }
 
 SYN_Status syn_dds_fill_q16(SYN_DDS *dds, q16_t *buf, size_t count)
@@ -160,7 +161,7 @@ SYN_Status syn_dds_fill_u16(SYN_DDS *dds, uint16_t *buf, size_t count, uint16_t 
 
     for (size_t i = 0; i < count; i++) {
         q16_t sample = syn_dds_step(dds); /* normalized roughly -1.0 to +1.0 */
-        int32_t val = (int32_t)dac_center + (int32_t)Q16_TO_INT((int64_t)sample * dac_span);
+        int64_t val = (int64_t)dac_center + (((int64_t)sample * (int64_t)dac_span) >> Q16_SHIFT);
         if (val < 0)
             val = 0;
         if (val > 65535)

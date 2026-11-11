@@ -317,6 +317,53 @@ static void test_dc_motor_duty_max_and_adapter(void)
     TEST_ASSERT_EQUAL(SYN_GPIO_HIGH, mock_gpio_states[1]);
 }
 
+static void test_dc_motor_coast_brake_zero_pwm_and_16bit_ramp(void)
+{
+    duty_reset();
+    SYN_DCMotor motor;
+    syn_dc_motor_init(&motor, 1, 2, SYN_DC_MODE_PWM_DIR);
+    syn_dc_motor_set_duty_callback(&motor, duty_cb, NULL);
+
+    syn_dc_motor_set_speed(&motor, 800);
+    TEST_ASSERT_EQUAL_UINT16(800U, last_duty_val);
+
+    /* Coast and brake must zero hardware PWM duty via set_duty callback */
+    syn_dc_motor_coast(&motor);
+    TEST_ASSERT_EQUAL_UINT16(0U, last_duty_val);
+
+    syn_dc_motor_set_speed(&motor, 600);
+    TEST_ASSERT_EQUAL_UINT16(600U, last_duty_val);
+    syn_dc_motor_brake(&motor);
+    TEST_ASSERT_EQUAL_UINT16(0U, last_duty_val);
+
+    /* 16-bit PWM resolution (-65535 -> +65535 in 1ms, updated after 200ms stall) must not overflow
+     */
+    mock_tick_ms = 0;
+    syn_dc_motor_set_duty_max(&motor, 65535);
+    syn_dc_motor_set_speed(&motor, -65535);
+    syn_dc_motor_ramp_to(&motor, 65535, 1);
+    mock_tick_advance(200);
+    syn_dc_motor_update(&motor);
+    TEST_ASSERT_EQUAL_INT32(65535, syn_dc_motor_get_speed(&motor));
+
+    /* Dual-PWM coast/brake zeroes both channels; extreme 32-bit duty_max clamps rate safely */
+    SYN_DCMotor dual;
+    syn_dc_motor_init(&dual, 5, 6, SYN_DC_MODE_DUAL_PWM);
+    syn_dc_motor_set_duty_callback(&dual, duty_cb, NULL);
+    duty_reset();
+    syn_dc_motor_coast(&dual);
+    TEST_ASSERT_EQUAL_INT(2, duty_call_count);
+    TEST_ASSERT_EQUAL_UINT16(0U, last_duty_val);
+
+    syn_dc_motor_set_duty_max(&dual, 100000000);
+    syn_dc_motor_set_speed(&dual, -100000000);
+    syn_dc_motor_ramp_to(&dual, 100000000, 1);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, dual.ramp_rate);
+    syn_dc_motor_set_speed(&dual, 100000000);
+    syn_dc_motor_ramp_to(&dual, -100000000, 1);
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN + 1, dual.ramp_rate);
+}
+
 void run_dc_motor_tests(void)
 {
     RUN_TEST(test_dc_motor);
@@ -332,4 +379,5 @@ void run_dc_motor_tests(void)
     RUN_TEST(test_dc_motor_ramp_downward);
     RUN_TEST(test_dc_motor_clamp_negative);
     RUN_TEST(test_dc_motor_duty_max_and_adapter);
+    RUN_TEST(test_dc_motor_coast_brake_zero_pwm_and_16bit_ramp);
 }

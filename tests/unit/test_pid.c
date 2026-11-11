@@ -148,8 +148,54 @@ static void test_pid_edge_cases(void)
     TEST_ASSERT_EQUAL_INT32(INT32_MIN, syn_pid_update(&pid_ext, INT32_MIN, INT32_MAX, 10));
 }
 
+static void test_pid_unsaturated_derivative_and_ema_filter(void)
+{
+    /* 1. Exact unsaturated P + I + D verification on measurement ramp vs setpoint step */
+    SYN_PID pid;
+    SYN_PID_Config cfg = {
+        .kp = 100,
+        .ki = 10,
+        .kd = 50,
+        .scale = 100,
+        .out_min = -10000,
+        .out_max = 10000,
+        .integral_max = 0,
+        .d_filter_alpha = 0,
+    };
+    syn_pid_init(&pid, &cfg);
+
+    /* Step 1 (first=true): err=100 -> P=100, I=1, D=0 => 101 */
+    TEST_ASSERT_EQUAL_INT32(101, syn_pid_update(&pid, 100, 0, 100U));
+    /* Step 2 (measurement rises to 20): err=80, d_raw=-200 -> P=80, I=1, D=-100 => -19 */
+    TEST_ASSERT_EQUAL_INT32(-19, syn_pid_update(&pid, 100, 20, 100U));
+    /* Step 3 (setpoint step to 200): err=180, d_raw=+1000 -> P=180, I=3, D=+500 => 683 */
+    TEST_ASSERT_EQUAL_INT32(683, syn_pid_update(&pid, 200, 20, 100U));
+
+    /* 2. Active EMA derivative filter (alpha = 128 => 50% smoothing per sample) */
+    SYN_PID pid_ema;
+    SYN_PID_Config cfg_ema = {
+        .kp = 0,
+        .ki = 0,
+        .kd = 100,
+        .scale = 100,
+        .out_min = -10000,
+        .out_max = 10000,
+        .integral_max = 1000,
+        .d_filter_alpha = 128U,
+    };
+    syn_pid_init(&pid_ema, &cfg_ema);
+
+    TEST_ASSERT_EQUAL_INT32(0, syn_pid_update(&pid_ema, 0, 0, 100U));
+    /* Step change err 0 -> 100 over 100 ms: d_raw = 1000, EMA = 500 */
+    TEST_ASSERT_EQUAL_INT32(500, syn_pid_update(&pid_ema, 100, 0, 100U));
+    /* Held error 100 -> 100: d_raw = 0, EMA decays 500 -> 250 -> 125 */
+    TEST_ASSERT_EQUAL_INT32(250, syn_pid_update(&pid_ema, 100, 0, 100U));
+    TEST_ASSERT_EQUAL_INT32(125, syn_pid_update(&pid_ema, 100, 0, 100U));
+}
+
 void run_pid_tests(void)
 {
     RUN_TEST(test_pid);
     RUN_TEST(test_pid_edge_cases);
+    RUN_TEST(test_pid_unsaturated_derivative_and_ema_filter);
 }

@@ -170,3 +170,53 @@ void test_pro08_mavlink_large_payload_and_bounds(void)
     TEST_ASSERT_EQUAL_UINT8(255U, s_pro08_frame.payload_len);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(s_pro08_payload, s_pro08_frame.payload, 255U);
 }
+
+void test_mavlink_stream_noise_and_post_error_resync(void)
+{
+    SYN_MAVLINK_Parser parser;
+    SYN_MAVLINK_Frame frame;
+    uint8_t hb_payload[9] = {1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 9U};
+    uint8_t pkt_ok[32];
+    uint8_t pkt_bad[32];
+    size_t len_ok = 0U;
+    size_t len_bad = 0U;
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mavlink_init(&parser));
+
+    /* 1. Leading UART line noise (including MAVLink v1 0xFE magic) stays in STATE_STX */
+    const uint8_t noise[] = {0x00U, 0x55U, 0xAAU, 0xFEU, 0x7EU, 0x13U};
+    for (size_t i = 0U; i < sizeof(noise); i++) {
+        TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_mavlink_parse_byte(&parser, noise[i], &frame));
+    }
+    TEST_ASSERT_EQUAL_UINT32(0U, parser.packets_received);
+    TEST_ASSERT_EQUAL_UINT32(0U, parser.crc_errors);
+
+    /* 2. Corrupted frame in stream increments crc_errors and resets state to STATE_STX */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mavlink_encode_msg(1U, 1U, 10U, SYN_MAVLINK_MSG_HEARTBEAT,
+                                                         50U, hb_payload, 9U, pkt_bad, &len_bad));
+    pkt_bad[12] ^= 0xFFU; /* Corrupt payload byte */
+    for (size_t i = 0U; i < (len_bad - 1U); i++) {
+        TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_mavlink_parse_byte(&parser, pkt_bad[i], &frame));
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR,
+                          syn_mavlink_parse_byte(&parser, pkt_bad[len_bad - 1U], &frame));
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.crc_errors);
+    TEST_ASSERT_EQUAL_UINT32(0U, parser.packets_received);
+
+    /* 3. Inter-frame noise followed by fragmented valid frame resynchronizes cleanly */
+    for (size_t i = 0U; i < sizeof(noise); i++) {
+        TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_mavlink_parse_byte(&parser, noise[i], &frame));
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mavlink_encode_msg(2U, 3U, 99U, SYN_MAVLINK_MSG_HEARTBEAT,
+                                                         50U, hb_payload, 9U, pkt_ok, &len_ok));
+    for (size_t i = 0U; i < (len_ok - 1U); i++) {
+        TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_mavlink_parse_byte(&parser, pkt_ok[i], &frame));
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mavlink_parse_byte(&parser, pkt_ok[len_ok - 1U], &frame));
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.packets_received);
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.crc_errors);
+    TEST_ASSERT_EQUAL_UINT8(2U, frame.sys_id);
+    TEST_ASSERT_EQUAL_UINT8(3U, frame.comp_id);
+    TEST_ASSERT_EQUAL_UINT8(99U, frame.seq);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(hb_payload, frame.payload, 9U);
+}

@@ -191,6 +191,17 @@ void syn_filter_biquad_highpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs)
     syn_filter_biquad_reset(f);
 }
 
+/**
+ * @brief Divide a 64-bit Q16.16 numerator by positive 64-bit Q16.16 a0 into Q16.16.
+ * @param num Numerator in Q16.16.
+ * @param a0  Positive denominator a0 (>= Q16_ONE) in Q16.16.
+ * @return Normalized Q16.16 coefficient.
+ */
+static inline q16_t biquad_div_a0(int64_t num, int64_t a0)
+{
+    return (q16_t)((num * (int64_t)Q16_ONE) / a0);
+}
+
 void syn_filter_biquad_bandpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)
 {
     SYN_ASSERT(f != NULL);
@@ -202,21 +213,14 @@ void syn_filter_biquad_bandpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 
-    /* alpha = sin(w) / (2*Q) */
-    q16_t alpha = q16_div(sin_w, q16_mul(Q16_FROM_INT(2), q));
+    int64_t alpha = ((int64_t)sin_w * (int64_t)Q16_ONE) / (2LL * (int64_t)q);
+    int64_t a0 = (int64_t)Q16_ONE + alpha;
 
-    q16_t a0 = Q16_ONE + alpha;
-    q16_t b0 = alpha; /* Peak gain = 1.0 */
-    q16_t b1 = 0;
-    q16_t b2 = -alpha;
-    q16_t a1 = -q16_mul(Q16_FROM_INT(2), cos_w);
-    q16_t a2 = Q16_ONE - alpha;
-
-    f->b0 = q16_div(b0, a0);
-    f->b1 = q16_div(b1, a0);
-    f->b2 = q16_div(b2, a0);
-    f->a1 = q16_div(a1, a0);
-    f->a2 = q16_div(a2, a0);
+    f->b0 = biquad_div_a0(alpha, a0);
+    f->b1 = 0;
+    f->b2 = -f->b0;
+    f->a1 = biquad_div_a0(-2LL * (int64_t)cos_w, a0);
+    f->a2 = biquad_div_a0((int64_t)Q16_ONE - alpha, a0);
 
     syn_filter_biquad_reset(f);
 }
@@ -232,21 +236,14 @@ void syn_filter_biquad_notch(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 
-    /* alpha = sin(w) / (2*Q) */
-    q16_t alpha = q16_div(sin_w, q16_mul(Q16_FROM_INT(2), q));
+    int64_t alpha = ((int64_t)sin_w * (int64_t)Q16_ONE) / (2LL * (int64_t)q);
+    int64_t a0 = (int64_t)Q16_ONE + alpha;
 
-    q16_t a0 = Q16_ONE + alpha;
-    q16_t b0 = Q16_ONE;
-    q16_t b1 = -q16_mul(Q16_FROM_INT(2), cos_w);
-    q16_t b2 = Q16_ONE;
-    q16_t a1 = b1; /* Same as b1 for notch */
-    q16_t a2 = Q16_ONE - alpha;
-
-    f->b0 = q16_div(b0, a0);
-    f->b1 = q16_div(b1, a0);
-    f->b2 = q16_div(b2, a0);
-    f->a1 = q16_div(a1, a0);
-    f->a2 = q16_div(a2, a0);
+    f->b0 = biquad_div_a0((int64_t)Q16_ONE, a0);
+    f->b1 = biquad_div_a0(-2LL * (int64_t)cos_w, a0);
+    f->b2 = f->b0;
+    f->a1 = f->b1;
+    f->a2 = biquad_div_a0((int64_t)Q16_ONE - alpha, a0);
 
     syn_filter_biquad_reset(f);
 }
@@ -262,20 +259,14 @@ void syn_filter_biquad_allpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 
-    q16_t alpha = q16_div(sin_w, q16_mul(Q16_FROM_INT(2), q));
+    int64_t alpha = ((int64_t)sin_w * (int64_t)Q16_ONE) / (2LL * (int64_t)q);
+    int64_t a0 = (int64_t)Q16_ONE + alpha;
 
-    q16_t a0 = Q16_ONE + alpha;
-    q16_t b0 = Q16_ONE - alpha;
-    q16_t b1 = -q16_mul(Q16_FROM_INT(2), cos_w);
-    q16_t b2 = Q16_ONE + alpha;
-    q16_t a1 = b1;
-    q16_t a2 = Q16_ONE - alpha;
-
-    f->b0 = q16_div(b0, a0);
-    f->b1 = q16_div(b1, a0);
-    f->b2 = q16_div(b2, a0);
-    f->a1 = q16_div(a1, a0);
-    f->a2 = q16_div(a2, a0);
+    f->b0 = biquad_div_a0((int64_t)Q16_ONE - alpha, a0);
+    f->b1 = biquad_div_a0(-2LL * (int64_t)cos_w, a0);
+    f->b2 = Q16_ONE;
+    f->a1 = f->b1;
+    f->a2 = f->b0;
 
     syn_filter_biquad_reset(f);
 }
@@ -291,28 +282,25 @@ void syn_filter_biquad_peaking_eq(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t
     q16_t sin_w = q16_sin(omega);
     q16_t cos_w = q16_cos(omega);
 
-    /* A = 10^(gain_db / 40) ≈ 1 + gain_db / 35 (fixed-point linear approximation) */
-    q16_t a_gain = Q16_ONE + q16_div(gain_db, Q16_FROM_INT(35));
-    if (a_gain < Q16_FROM_FRAC(1, 10)) {
-        a_gain = Q16_FROM_FRAC(1, 10);
+    /* A = 10^(gain_db / 40) ≈ 1 + gain_db / 35 (clamped to [0.1, 64.0]) */
+    int64_t a_gain =
+        (int64_t)Q16_ONE + (((int64_t)gain_db * (int64_t)Q16_ONE) / (int64_t)Q16_FROM_INT(35));
+    if (a_gain < (int64_t)Q16_FROM_FRAC(1, 10)) {
+        a_gain = (int64_t)Q16_FROM_FRAC(1, 10);
+    } else if (a_gain > (int64_t)Q16_FROM_INT(64)) {
+        a_gain = (int64_t)Q16_FROM_INT(64);
     }
 
-    q16_t alpha = q16_div(sin_w, q16_mul(Q16_FROM_INT(2), q));
-    q16_t alpha_a = q16_mul(alpha, a_gain);
-    q16_t alpha_div_a = q16_div(alpha, a_gain);
+    int64_t alpha = ((int64_t)sin_w * (int64_t)Q16_ONE) / (2LL * (int64_t)q);
+    int64_t alpha_a = (alpha * a_gain) >> Q16_SHIFT;
+    int64_t alpha_div_a = (alpha * (int64_t)Q16_ONE) / a_gain;
+    int64_t a0 = (int64_t)Q16_ONE + alpha_div_a;
 
-    q16_t a0 = Q16_ONE + alpha_div_a;
-    q16_t b0 = Q16_ONE + alpha_a;
-    q16_t b1 = -q16_mul(Q16_FROM_INT(2), cos_w);
-    q16_t b2 = Q16_ONE - alpha_a;
-    q16_t a1 = b1;
-    q16_t a2 = Q16_ONE - alpha_div_a;
-
-    f->b0 = q16_div(b0, a0);
-    f->b1 = q16_div(b1, a0);
-    f->b2 = q16_div(b2, a0);
-    f->a1 = q16_div(a1, a0);
-    f->a2 = q16_div(a2, a0);
+    f->b0 = biquad_div_a0((int64_t)Q16_ONE + alpha_a, a0);
+    f->b1 = biquad_div_a0(-2LL * (int64_t)cos_w, a0);
+    f->b2 = biquad_div_a0((int64_t)Q16_ONE - alpha_a, a0);
+    f->a1 = f->b1;
+    f->a2 = biquad_div_a0((int64_t)Q16_ONE - alpha_div_a, a0);
 
     syn_filter_biquad_reset(f);
 }

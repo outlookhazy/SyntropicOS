@@ -60,9 +60,11 @@ typedef struct {
     /* Speed & Acceleration Profiling */
     SYN_SCurve scurve;     /**< S-Curve velocity profile generator */
     float target_feedrate; /**< Max velocity along path (units/sec) */
+    float step_res;        /**< Spatial resolution per step (units/step) */
 
     uint32_t total_steps; /**< Number of discrete steps in move */
     uint32_t step_index;  /**< Current step index (0 .. total_steps) */
+    uint8_t arc_plane;    /**< Circular arc plane: 0 = XY (G17), 1 = ZX (G18), 2 = YZ (G19) */
 } SYN_Interpolator;
 
 /**
@@ -106,6 +108,31 @@ SYN_Status syn_interpolator_plan_circular(SYN_Interpolator *interp, SYN_Vector3F
                                           SYN_Vector3F target, SYN_Vector3F center_offset,
                                           bool is_cw, float feedrate, float max_accel,
                                           float max_jerk, float step_res);
+
+/**
+ * @brief Plan a Circular or Helical arc move in a selectable right-handed plane.
+ *
+ * Plane axis mapping follows NIST RS-274 right-handed cyclic permutations:
+ * - `0` (`G17` XY): primary `(X, Y)` with offsets `(I, J)`, linear axis `Z`.
+ * - `1` (`G18` ZX): primary `(Z, X)` with offsets `(K, I)`, linear axis `Y`.
+ * - `2` (`G19` YZ): primary `(Y, Z)` with offsets `(J, K)`, linear axis `X`.
+ *
+ * @param interp        Pointer to interpolator struct.
+ * @param start         Start position (X, Y, Z).
+ * @param target        Target position (X, Y, Z).
+ * @param center_offset Center offset relative to start (I, J, K).
+ * @param plane         Working plane selector (0 = XY, 1 = ZX, 2 = YZ).
+ * @param is_cw         true for Clockwise, false for Counter-Clockwise in the selected plane.
+ * @param feedrate      Desired tangential speed (units/sec).
+ * @param max_accel     Max acceleration (units/sec^2).
+ * @param max_jerk      Max jerk (units/sec^3).
+ * @param step_res      Spatial resolution per step (units per step).
+ * @return SYN_OK on success, SYN_INVALID_PARAM on invalid arguments.
+ */
+SYN_Status syn_interpolator_plan_circular_plane(SYN_Interpolator *interp, SYN_Vector3F start,
+                                                SYN_Vector3F target, SYN_Vector3F center_offset,
+                                                uint8_t plane, bool is_cw, float feedrate,
+                                                float max_accel, float max_jerk, float step_res);
 
 /**
  * @brief Advance the interpolator by one discrete step.

@@ -94,8 +94,8 @@ void syn_foc_park(const SYN_FOC_AB *ab, q16_t theta, SYN_FOC_DQ *dq)
      * d =  α·cos(θ) + β·sin(θ)
      * q = −α·sin(θ) + β·cos(θ)
      */
-    dq->d = q16_mul(ab->alpha, cos_t) + q16_mul(ab->beta, sin_t);
-    dq->q = -q16_mul(ab->alpha, sin_t) + q16_mul(ab->beta, cos_t);
+    dq->d = foc_sat_q16((int64_t)q16_mul(ab->alpha, cos_t) + (int64_t)q16_mul(ab->beta, sin_t));
+    dq->q = foc_sat_q16(-(int64_t)q16_mul(ab->alpha, sin_t) + (int64_t)q16_mul(ab->beta, cos_t));
 }
 
 void syn_foc_inv_park(const SYN_FOC_DQ *dq, q16_t theta, SYN_FOC_AB *ab)
@@ -109,8 +109,8 @@ void syn_foc_inv_park(const SYN_FOC_DQ *dq, q16_t theta, SYN_FOC_AB *ab)
      * α = d·cos(θ) − q·sin(θ)
      * β = d·sin(θ) + q·cos(θ)
      */
-    ab->alpha = q16_mul(dq->d, cos_t) - q16_mul(dq->q, sin_t);
-    ab->beta = q16_mul(dq->d, sin_t) + q16_mul(dq->q, cos_t);
+    ab->alpha = foc_sat_q16((int64_t)q16_mul(dq->d, cos_t) - (int64_t)q16_mul(dq->q, sin_t));
+    ab->beta = foc_sat_q16((int64_t)q16_mul(dq->d, sin_t) + (int64_t)q16_mul(dq->q, cos_t));
 }
 
 void syn_foc_park_fast(const SYN_FOC_AB *ab, q16_t theta, SYN_FOC_DQ *dq)
@@ -119,8 +119,8 @@ void syn_foc_park_fast(const SYN_FOC_AB *ab, q16_t theta, SYN_FOC_DQ *dq)
     q16_t sin_t, cos_t;
     q16_sincos_fast(theta, &sin_t, &cos_t);
 
-    dq->d = q16_mul(ab->alpha, cos_t) + q16_mul(ab->beta, sin_t);
-    dq->q = -q16_mul(ab->alpha, sin_t) + q16_mul(ab->beta, cos_t);
+    dq->d = foc_sat_q16((int64_t)q16_mul(ab->alpha, cos_t) + (int64_t)q16_mul(ab->beta, sin_t));
+    dq->q = foc_sat_q16(-(int64_t)q16_mul(ab->alpha, sin_t) + (int64_t)q16_mul(ab->beta, cos_t));
 }
 
 void syn_foc_inv_park_fast(const SYN_FOC_DQ *dq, q16_t theta, SYN_FOC_AB *ab)
@@ -129,18 +129,20 @@ void syn_foc_inv_park_fast(const SYN_FOC_DQ *dq, q16_t theta, SYN_FOC_AB *ab)
     q16_t sin_t, cos_t;
     q16_sincos_fast(theta, &sin_t, &cos_t);
 
-    ab->alpha = q16_mul(dq->d, cos_t) - q16_mul(dq->q, sin_t);
-    ab->beta = q16_mul(dq->d, sin_t) + q16_mul(dq->q, cos_t);
+    ab->alpha = foc_sat_q16((int64_t)q16_mul(dq->d, cos_t) - (int64_t)q16_mul(dq->q, sin_t));
+    ab->beta = foc_sat_q16((int64_t)q16_mul(dq->d, sin_t) + (int64_t)q16_mul(dq->q, cos_t));
 }
 
 bool syn_foc_field_weakening(q16_t v_d, q16_t v_q, q16_t v_max, q16_t *id_cmd)
 {
-    SYN_ASSERT(id_cmd != NULL && v_max > 0);
+    if (id_cmd == NULL || v_max <= 0) {
+        return false;
+    }
     q16_t v_mag = q16_hypot(v_d, v_q);
     if (v_mag > v_max) {
         q16_t v_err = v_mag - v_max;
-        /* Ingest negative d-axis current proportional to voltage excess */
-        *id_cmd -= q16_mul(v_err, Q16_FROM_FRAC(1, 2));
+        /* Inject negative d-axis current proportional to voltage excess (saturated) */
+        *id_cmd = foc_sat_q16((int64_t)(*id_cmd) - (int64_t)q16_mul(v_err, Q16_FROM_FRAC(1, 2)));
         return true;
     }
     return false;
@@ -198,10 +200,10 @@ static inline q16_t dt_sign_scale(q16_t current, q16_t dt_comp)
         return dt_comp;
     }
     if (current <= -thresh) {
-        return -dt_comp;
+        return q16_sub_sat(0, dt_comp);
     }
     /* Smooth linear interpolation across zero-crossing band */
-    return q16_mul(q16_div(current, thresh), dt_comp);
+    return q16_mul_sat(q16_div(current, thresh), dt_comp);
 }
 
 void syn_foc_deadtime_comp(q16_t *duty_a, q16_t *duty_b, q16_t *duty_c, const SYN_FOC_ABC *i_abc,
@@ -212,9 +214,9 @@ void syn_foc_deadtime_comp(q16_t *duty_a, q16_t *duty_b, q16_t *duty_c, const SY
         return;
     }
 
-    *duty_a = q16_clamp(*duty_a + dt_sign_scale(i_abc->a, dt_comp), 0, Q16_ONE);
-    *duty_b = q16_clamp(*duty_b + dt_sign_scale(i_abc->b, dt_comp), 0, Q16_ONE);
-    *duty_c = q16_clamp(*duty_c + dt_sign_scale(i_abc->c, dt_comp), 0, Q16_ONE);
+    *duty_a = q16_clamp(q16_add_sat(*duty_a, dt_sign_scale(i_abc->a, dt_comp)), 0, Q16_ONE);
+    *duty_b = q16_clamp(q16_add_sat(*duty_b, dt_sign_scale(i_abc->b, dt_comp)), 0, Q16_ONE);
+    *duty_c = q16_clamp(q16_add_sat(*duty_c, dt_sign_scale(i_abc->c, dt_comp)), 0, Q16_ONE);
 }
 
 #endif /* SYN_USE_FOC */

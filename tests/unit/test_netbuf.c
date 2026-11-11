@@ -3,6 +3,7 @@
  * @brief Unit test suite for Zero-Copy Packet Buffer Pool (syn_netbuf).
  */
 
+#include "mocks/mock_port.h"
 #include "syntropic/net/syn_netbuf.h"
 #include "unity/unity.h"
 
@@ -151,6 +152,44 @@ static void test_tier_a_netbuf_regressions(void)
     TEST_ASSERT_EQUAL_size_t(1U, pool_a.free_count);
 }
 
+static void test_netbuf_critical_section_protection(void)
+{
+    SYN_NetBufPool pool;
+    SYN_NetBuf bufs[2];
+    uint8_t raw_mem[2 * 64];
+
+    /* Multiplication overflow in buf_count * buf_size must fail before touching raw_mem */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_netbuf_pool_init(&pool, bufs, raw_mem, 2U, (SIZE_MAX / 2U) + 2U));
+
+    int enters = mock_critical_enter_count;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_netbuf_pool_init(&pool, bufs, raw_mem, 2U, 64U));
+    TEST_ASSERT_EQUAL_INT(enters + 1, mock_critical_enter_count);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    enters = mock_critical_enter_count;
+    SYN_NetBuf *b = syn_netbuf_alloc(&pool, 16U);
+    TEST_ASSERT_NOT_NULL(b);
+    TEST_ASSERT_EQUAL_INT(enters + 1, mock_critical_enter_count);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    enters = mock_critical_enter_count;
+    syn_netbuf_ref(b);
+    TEST_ASSERT_EQUAL_INT(enters + 1, mock_critical_enter_count);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    enters = mock_critical_enter_count;
+    syn_netbuf_free(&pool, b);
+    TEST_ASSERT_EQUAL_INT(enters + 1, mock_critical_enter_count);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+
+    enters = mock_critical_enter_count;
+    syn_netbuf_free(&pool, b);
+    TEST_ASSERT_EQUAL_INT(enters + 1, mock_critical_enter_count);
+    TEST_ASSERT_EQUAL_INT(0, mock_critical_depth);
+    TEST_ASSERT_EQUAL_size_t(2U, pool.free_count);
+}
+
 void run_netbuf_tests(void)
 {
     RUN_TEST(test_netbuf_alloc_push_pull_free);
@@ -158,4 +197,5 @@ void run_netbuf_tests(void)
     RUN_TEST(test_netbuf_auto_pool_free_and_headroom_overflow);
     RUN_TEST(test_netbuf_null_edge_cases);
     RUN_TEST(test_tier_a_netbuf_regressions);
+    RUN_TEST(test_netbuf_critical_section_protection);
 }

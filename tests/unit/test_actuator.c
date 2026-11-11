@@ -110,9 +110,74 @@ static void test_actuator_at_target_tolerance(void)
     TEST_ASSERT_FALSE(syn_actuator_at_target(&act));
 }
 
+static void test_actuator_24bit_adc_and_real_stall_recovery(void)
+{
+    mock_tick_ms = 0;
+    static SYN_DCMotor motor;
+    syn_dc_motor_init(&motor, 12, 13, SYN_DC_MODE_PWM_DIR);
+
+    /* 1. 24-bit ADC stroke span (10,000,000 * 500 overflows int32_t without 64-bit scaling) */
+    act_mock_pos = 5000000;
+    SYN_Actuator act;
+    SYN_Actuator_Config cfg = {
+        .dc_motor = &motor,
+        .read_pos = act_read,
+        .read_ctx = NULL,
+        .stroke_min = 0,
+        .stroke_max = 10000000,
+        .update_hz = 50,
+        .pid_kp = 100,
+        .pid_scale = 4,
+        .stall_timeout_ms = 100,
+        .stall_threshold = 10,
+    };
+    syn_actuator_init(&act, &cfg);
+    TEST_ASSERT_EQUAL_INT16(500, syn_actuator_position(&act));
+
+    syn_actuator_set_position(&act, 800);
+    TEST_ASSERT_EQUAL_INT32(8000000, act.ctrl.target_position);
+
+    /* 2. Real stall detection when feedback remains jammed at 5,000,000 past stall_timeout_ms */
+    for (int i = 0; i < 8; i++) {
+        mock_tick_advance(20);
+        (void)syn_actuator_update(&act);
+    }
+    TEST_ASSERT_TRUE(syn_actuator_is_stalled(&act));
+    TEST_ASSERT_EQUAL_INT32(0, syn_dc_motor_get_speed(&motor));
+
+    /* Clear stall, unjam feedback to target, and verify actuator resumes and settles */
+    syn_actuator_clear_stall(&act);
+    TEST_ASSERT_FALSE(syn_actuator_is_stalled(&act));
+    act_mock_pos = 8000000;
+    syn_actuator_set_position(&act, 800);
+    mock_tick_advance(20);
+    TEST_ASSERT_EQUAL_INT16(800, syn_actuator_update(&act));
+    TEST_ASSERT_TRUE(syn_actuator_at_target(&act));
+
+    /* Out-of-stroke ADC clamping (< min -> 0, > max -> 1000) and degenerate/huge stroke spans */
+    act_mock_pos = -50000;
+    mock_tick_advance(20);
+    TEST_ASSERT_EQUAL_INT16(0, syn_actuator_update(&act));
+    act_mock_pos = 20000000;
+    mock_tick_advance(20);
+    TEST_ASSERT_EQUAL_INT16(1000, syn_actuator_update(&act));
+
+    cfg.stroke_min = 1000;
+    cfg.stroke_max = 1000;
+    syn_actuator_init(&act, &cfg);
+    TEST_ASSERT_EQUAL_INT16(0, syn_actuator_position(&act));
+
+    cfg.stroke_min = -1500000000;
+    cfg.stroke_max = 1500000000;
+    act_mock_pos = 0;
+    syn_actuator_init(&act, &cfg);
+    TEST_ASSERT_EQUAL_INT16(500, syn_actuator_position(&act));
+}
+
 void run_actuator_tests(void)
 {
     RUN_TEST(test_actuator);
     RUN_TEST(test_actuator_clear_stall);
     RUN_TEST(test_actuator_at_target_tolerance);
+    RUN_TEST(test_actuator_24bit_adc_and_real_stall_recovery);
 }

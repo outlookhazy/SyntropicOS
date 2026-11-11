@@ -85,6 +85,10 @@ void test_interpolator_edge_cases(void)
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
                       syn_interpolator_plan_circular(&interp, p, p, p, true, 100.0f, 100.0f, 500.0f,
                                                      0.1f)); /* center_offset 0 -> radius 0 */
+    SYN_Vector3F rad_off = {5.0f, 0.0f, 0.0f};
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM,
+                      syn_interpolator_plan_circular_plane(&interp, p, p, rad_off, 3U, true, 100.0f,
+                                                           100.0f, 500.0f, 0.1f));
 
     SYN_Vector3F out;
     TEST_ASSERT_FALSE(syn_interpolator_step(&interp, &out));
@@ -183,7 +187,8 @@ static void test_interpolator_bezier(void)
     /* Evaluate curved Bezier with non-zero tangent via eval_at_time */
     SYN_Vector3F eval_pos = {0.0f, 0.0f, 0.0f};
     SYN_Vector3F eval_vel = {0.0f, 0.0f, 0.0f};
-    (void)syn_interpolator_eval_at_time(&interp, 0.1f, &eval_pos, &eval_vel);
+    TEST_ASSERT_TRUE(syn_interpolator_eval_at_time(&interp, 0.1f, &eval_pos, &eval_vel));
+    TEST_ASSERT_TRUE((eval_vel.x * eval_vel.x + eval_vel.y * eval_vel.y) > 0.0f);
     TEST_ASSERT_EQUAL(
         SYN_OK, syn_interpolator_plan_bezier(&interp, p0, p1, p2, p3, 10.0f, 5.0f, 2.0f, 1.0f));
 
@@ -215,9 +220,12 @@ static void test_interpolator_bezier(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_interpolator_plan_bezier(&interp, p0, p0, p_tiny, p_tiny, 1.0f,
                                                            1.0f, 1.0f, 10.0f));
     TEST_ASSERT_EQUAL_UINT32(1U, interp.total_steps);
-    SYN_Vector3F vel = {0.0f, 0.0f, 0.0f};
+    SYN_Vector3F vel = {1.0f, 1.0f, 1.0f};
     /* First scurve tick at ratio=0 with p0==p1 has B'(0)=0, exercising tang_norm <= 1e-6f */
     (void)syn_interpolator_eval_at_time(&interp, 0.0f, &pos, &vel);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.0f, vel.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.0f, vel.y);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.0f, vel.z);
 }
 
 static void test_tier_a_interpolator_nan_inf_and_step_overflow(void)
@@ -281,6 +289,50 @@ static void test_tier_a_interpolator_nan_inf_and_step_overflow(void)
     TEST_ASSERT_EQUAL(SYN_INTERP_MODE_IDLE, interp.mode);
 }
 
+static void test_interpolator_full_circle_and_eval_velocity_units(void)
+{
+    SYN_Interpolator interp;
+    syn_interpolator_init(&interp);
+
+    /* 1. Full CW circle with center_offset = (+5, +0) must sweep -2*pi (length 10*pi), not 0 */
+    SYN_Vector3F origin = {0.0f, 0.0f, 0.0f};
+    SYN_Vector3F off_pos_x = {5.0f, 0.0f, 0.0f};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_interpolator_plan_circular(&interp, origin, origin, off_pos_x,
+                                                             true, 10.0f, 50.0f, 200.0f, 0.1f));
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, 31.4159f, interp.total_length);
+    TEST_ASSERT_TRUE(interp.total_steps >= 314U);
+
+    /* Full CCW circle with center_offset = (+5, +0) also sweeps +2*pi */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_interpolator_plan_circular(&interp, origin, origin, off_pos_x,
+                                                             false, 10.0f, 50.0f, 200.0f, 0.1f));
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, 31.4159f, interp.total_length);
+
+    /* 2. eval_at_time velocity vector is scaled by step_res (units/sec <= feedrate), and idles */
+    SYN_Vector3F end_pt = {10.0f, 0.0f, 0.0f};
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_interpolator_plan_linear(&interp, origin, end_pt, 10.0f, 2.0f, 1.0f, 0.01f));
+    SYN_Vector3F pos = {0.0f, 0.0f, 0.0f};
+    SYN_Vector3F vel = {0.0f, 0.0f, 0.0f};
+    TEST_ASSERT_TRUE(syn_interpolator_eval_at_time(&interp, 0.0f, &pos, &vel));
+    TEST_ASSERT_TRUE(vel.x > 0.0f && vel.x <= 10.01f);
+
+    int guard = 0;
+    while (syn_interpolator_eval_at_time(&interp, 0.0f, &pos, &vel) && ++guard < 5000) {
+        TEST_ASSERT_TRUE(fabsf(vel.x) <= 10.05f);
+    }
+    TEST_ASSERT_EQUAL(SYN_INTERP_MODE_IDLE, interp.mode);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 10.0f, pos.x);
+
+    /* Helical circular eval_at_time scales XY + Z velocity by step_res */
+    SYN_Vector3F helix_end = {0.0f, 0.0f, 4.0f};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_interpolator_plan_circular(&interp, origin, helix_end, off_pos_x,
+                                                             false, 8.0f, 2.0f, 1.0f, 0.01f));
+    TEST_ASSERT_TRUE(syn_interpolator_eval_at_time(&interp, 0.0f, &pos, &vel));
+    float xy_speed = sqrtf((vel.x * vel.x) + (vel.y * vel.y));
+    TEST_ASSERT_TRUE(xy_speed <= 8.05f);
+    TEST_ASSERT_TRUE(vel.z > 0.0f && vel.z <= 2.0f);
+}
+
 void run_interpolator_tests(void)
 {
     RUN_TEST(test_interpolator_linear_planning);
@@ -291,4 +343,5 @@ void run_interpolator_tests(void)
     RUN_TEST(test_scurve3d);
     RUN_TEST(test_interpolator_bezier);
     RUN_TEST(test_tier_a_interpolator_nan_inf_and_step_overflow);
+    RUN_TEST(test_interpolator_full_circle_and_eval_velocity_units);
 }

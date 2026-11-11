@@ -49,10 +49,13 @@ void syn_pid_init(SYN_PID *pid, const SYN_PID_Config *cfg)
      *   integral_max = out_max * scale * 1000 / ki
      * Use 64-bit to avoid overflow in the multiply. */
     if (pid->cfg.integral_max == 0) {
-        if (pid->cfg.ki > 0) {
+        if (pid->cfg.ki > 0 && pid->cfg.scale > 0) {
+            int64_t cap = ((int64_t)INT32_MAX * (int64_t)pid->cfg.ki) / (int64_t)pid->cfg.scale;
+            int64_t num = (int64_t)pid->cfg.out_max * 1000LL;
             pid->cfg.integral_max =
-                pid_clamp_i64(((int64_t)pid->cfg.out_max * (int64_t)pid->cfg.scale * 1000LL) /
-                              (int64_t)pid->cfg.ki);
+                (num >= cap)
+                    ? INT32_MAX
+                    : pid_clamp_i64((num * (int64_t)pid->cfg.scale) / (int64_t)pid->cfg.ki);
         } else {
             pid->cfg.integral_max =
                 pid_clamp_i64((int64_t)pid->cfg.out_max * (int64_t)pid->cfg.scale);

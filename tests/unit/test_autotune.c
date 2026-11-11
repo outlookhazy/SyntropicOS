@@ -854,6 +854,240 @@ static void test_r5_autotune_apply_live_pid_and_relay_math(void)
     TEST_ASSERT_EQUAL_INT32(INT32_MIN, ki);
 }
 
+static void test_autotune_settling2_window_ff_termination_and_two_phase_apply(void)
+{
+    mock_tick_ms = 1000;
+    mock_pos = 0;
+    last_mock_output = 0;
+
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg =
+        SYN_MOTOR_CTRL_DEFAULTS(((SYN_MotorOutput){.set_output = mock_set_output, .ctx = NULL}),
+                                mock_read_pos, NULL, 1000, 1000);
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+
+    /* 1. SETTLING_2 waits full 500ms after MEASURING, and FF_IDENT + FLAG_ALL terminates cleanly */
+    SYN_AutoTune at;
+    SYN_AutoTune_Config cfg = {
+        .mode = SYN_ATUNE_MODE_FF_IDENT,
+        .flags = SYN_ATUNE_FLAG_ALL,
+        .test_output = 100,
+        .measure_ms = 500,
+        .settle_ms = 1000,
+        .watchdog_ms = 5000,
+    };
+    syn_autotune_init(&at, &ctrl, &cfg);
+    at.state = SYN_ATUNE_MEASURING;
+    at.phase_start_tick = 1000;
+    at.velocity_sum = 1000;
+    at.velocity_samples = 10;
+
+    mock_tick_ms = 1600;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_SETTLING_2, at.state);
+
+    /* At +250ms (< 500ms window), must remain in SETTLING_2 even if dv == 0 */
+    mock_tick_ms = 1850;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_SETTLING_2, at.state);
+
+    /* At +500ms, transitions to MEASURING_2 */
+    mock_tick_ms = 2100;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_MEASURING_2, at.state);
+
+    /* Finish MEASURING_2: FF_IDENT must go to RAMP_DOWN, never BRAKING loop */
+    at.velocity_sum = 3000;
+    at.velocity_samples = 10;
+    mock_tick_ms = 2700;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_RAMP_DOWN, at.state);
+
+    /* 2. AUTO mode with TUNE_PID transitions to RELAY even when ff_kv == 0 */
+    cfg.mode = SYN_ATUNE_MODE_AUTO;
+    syn_autotune_init(&at, &ctrl, &cfg);
+    at.state = SYN_ATUNE_MEASURING_2;
+    at.phase_start_tick = 2700;
+    at.result.steady_velocity_1 = 0;
+    mock_tick_ms = 3300;
+    syn_autotune_update(&at); /* v1 == v2 == 0 -> ff_kv == 0, enters BRAKING */
+    TEST_ASSERT_EQUAL(SYN_ATUNE_BRAKING, at.state);
+    TEST_ASSERT_EQUAL_INT32(0, at.result.ff_kv);
+
+    mock_tick_ms = 3400;
+    syn_autotune_update(&at); /* velocity == 0 -> enters RAMP_UP */
+    TEST_ASSERT_EQUAL(SYN_ATUNE_RAMP_UP, at.state);
+
+    mock_tick_ms = 4000;
+    syn_autotune_update(&at); /* ramp done -> must enter RELAY, not loop back to SETTLING */
+    TEST_ASSERT_EQUAL(SYN_ATUNE_RELAY, at.state);
+
+    /* 3. MEASURING_2 ff_ka guards accel == 0 (no SIGFPE) and dv * 1000 overflow */
+    cfg.mode = SYN_ATUNE_MODE_FF_IDENT;
+    cfg.flags = SYN_ATUNE_FLAG_IDENT_KV | SYN_ATUNE_FLAG_IDENT_KA;
+    cfg.test_output = 500;
+    syn_autotune_init(&at, &ctrl, &cfg);
+    at.state = SYN_ATUNE_MEASURING_2;
+    at.phase_start_tick = 4000;
+    at.result.steady_velocity_1 = 10;
+    at.velocity_sum = 2000;
+    at.velocity_samples = 10;
+    at.ka_t1 = 100;
+    at.ka_t2 = 20100; /* dt_ms = 20000, dv = 15 -> (15 * 1000) / 20000 == 0 */
+    at.ka_v1 = 0;
+    at.ka_v2 = 15;
+    mock_tick_ms = 4600;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL_INT32(0, at.result.ff_ka);
+
+    syn_autotune_init(&at, &ctrl, &cfg);
+    at.state = SYN_ATUNE_MEASURING_2;
+    at.phase_start_tick = 4600;
+    at.result.steady_velocity_1 = 100;
+    at.velocity_sum = 10000;
+    at.velocity_samples = 10;
+    at.ka_t1 = 100;
+    at.ka_t2 = 200;
+    at.ka_v1 = 0;
+    at.ka_v2 = 3000000; /* dv * 1000 = 3e9 > INT32_MAX */
+    mock_tick_ms = 5200;
+    syn_autotune_update(&at);
+    TEST_ASSERT_TRUE(at.result.ff_kv > 0);
+
+    /* 4. Two-phase manual tuning preserves untuned gain group across apply() */
+    ctrl.cfg.pid_kp = 333;
+    ctrl.cfg.pid_ki = 444;
+    ctrl.cfg.pid_kd = 55;
+    cfg.mode = SYN_ATUNE_MODE_FF_IDENT;
+    syn_autotune_init(&at, &ctrl, &cfg);
+    at.state = SYN_ATUNE_DONE;
+    at.result.ff_kv = 250;
+    at.result.ff_ka = 40;
+    syn_autotune_apply(&at);
+    TEST_ASSERT_EQUAL_INT32(333, ctrl.cfg.pid_kp);
+    TEST_ASSERT_EQUAL_INT32(250, ctrl.cfg.ff_kv);
+
+    SYN_AutoTune at_relay;
+    SYN_AutoTune_Config rcfg = {
+        .mode = SYN_ATUNE_MODE_RELAY, .test_output = 100, .relay_cycles = 1};
+    syn_autotune_init(&at_relay, &ctrl, &rcfg);
+    at_relay.state = SYN_ATUNE_DONE;
+    at_relay.result.kp = 600;
+    at_relay.result.ki = 1200;
+    at_relay.result.kd = 80;
+    syn_autotune_apply(&at_relay);
+    TEST_ASSERT_EQUAL_INT32(600, ctrl.cfg.pid_kp);
+    TEST_ASSERT_EQUAL_INT32(250, ctrl.cfg.ff_kv);
+    TEST_ASSERT_EQUAL_INT32(40, ctrl.cfg.ff_ka);
+}
+
+static void test_autotune_int32_min_velocity_pid_only_auto_and_overflow_bounds(void)
+{
+    mock_tick_ms = 100;
+    mock_pos = 10000000;
+    last_mock_output = 0;
+
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg =
+        SYN_MOTOR_CTRL_DEFAULTS(((SYN_MotorOutput){.set_output = mock_set_output, .ctx = NULL}),
+                                mock_read_pos, NULL, 1000, 1000);
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+
+    /* 1. Reverse velocity clamping to INT32_MIN must trigger SYN_ATUNE_ABORT_VELOCITY (no UB) */
+    SYN_AutoTune at;
+    SYN_AutoTune_Limits lim = {
+        .position_min = 0, .position_max = 0, .max_velocity = 50000, .watchdog_ms = 5000};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_autotune_start(&at, &ctrl, &lim, SYN_ATUNE_FLAG_ALL, 100));
+    ctrl.last_position = 10000000;
+    mock_pos = -10000000; /* delta = -2e7 * 1000 Hz = -2e10 -> clamps to INT32_MIN */
+    mock_tick_ms = 110;
+    TEST_ASSERT_EQUAL(SYN_ATUNE_ABORTED, syn_autotune_update(&at));
+    TEST_ASSERT_EQUAL(SYN_ATUNE_ABORT_VELOCITY, syn_autotune_abort_reason(&at));
+
+    /* 2. SYN_ATUNE_MODE_AUTO with SYN_ATUNE_FLAG_TUNE_PID skips FF ident and preserves ff_kv/ka */
+    mock_pos = 0;
+    ctrl.measured_position = 0;
+    ctrl.last_position = 0;
+    ctrl.cfg.ff_kv = 777;
+    ctrl.cfg.ff_ka = 88;
+    ctrl.cfg.pid_scale = 28;
+    ctrl.cfg.ff_scale = 28;
+    SYN_AutoTune_Config acfg = {
+        .mode = SYN_ATUNE_MODE_AUTO,
+        .flags = SYN_ATUNE_FLAG_TUNE_PID,
+        .test_output = 50,
+        .ramp_ms = 100,
+        .relay_cycles = 1,
+        .watchdog_ms = 5000,
+    };
+    TEST_ASSERT_EQUAL(SYN_OK, syn_autotune_init(&at, &ctrl, &acfg));
+    TEST_ASSERT_TRUE(at.ff_phase_done);
+    TEST_ASSERT_EQUAL_UINT8(8U, at.result.pid_scale);
+    TEST_ASSERT_EQUAL_UINT8(8U, at.result.ff_scale);
+
+    mock_tick_ms = 250;
+    TEST_ASSERT_EQUAL(SYN_ATUNE_RELAY, syn_autotune_update(&at));
+    at.state = SYN_ATUNE_DONE;
+    at.result.kp = 400;
+    at.result.ki = 800;
+    at.result.kd = 50;
+    syn_autotune_apply(&at);
+    TEST_ASSERT_EQUAL_INT32(777, ctrl.cfg.ff_kv);
+    TEST_ASSERT_EQUAL_INT32(88, ctrl.cfg.ff_ka);
+    TEST_ASSERT_EQUAL_INT32(400, ctrl.cfg.pid_kp);
+
+    /* 3. Extreme test_output, deadband, setpoint, and scale > 24 saturate without signed UB */
+    ctrl.cfg.pid_scale = 28;
+    ctrl.cfg.ff_scale = 28;
+    ctrl.cfg.position_deadband = 1200000000;
+    SYN_AutoTune_Config xcfg = {
+        .mode = SYN_ATUNE_MODE_FF_IDENT,
+        .flags = SYN_ATUNE_FLAG_ALL,
+        .test_output = -1200000000,
+        .settle_ms = 500000000U,
+        .measure_ms = 100U,
+        .watchdog_ms = 10000U,
+    };
+    mock_tick_ms = 1000;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_autotune_init(&at, &ctrl, &xcfg));
+    at.state = SYN_ATUNE_SETTLING_2;
+    at.phase_start_tick = 1000;
+    at.last_check_tick = 1000;
+    mock_tick_ms = 1600;
+    TEST_ASSERT_EQUAL(SYN_ATUNE_MEASURING_2, syn_autotune_update(&at));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, last_mock_output);
+
+    at.result.steady_velocity_1 = 0;
+    at.velocity_sum = 1000;
+    at.velocity_samples = 10;
+    mock_tick_ms = 1800;
+    TEST_ASSERT_EQUAL(SYN_ATUNE_RAMP_DOWN, syn_autotune_update(&at));
+    TEST_ASSERT_TRUE(at.result.ff_kv > 0);
+
+    xcfg.mode = SYN_ATUNE_MODE_RELAY;
+    xcfg.test_output = INT32_MIN;
+    xcfg.setpoint = 1500000000;
+    xcfg.relay_cycles = 1;
+    mock_pos = 1500000000;
+    ctrl.measured_position = 1500000000;
+    ctrl.last_position = 1500000000;
+    mock_tick_ms = 2000;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_autotune_init(&at, &ctrl, &xcfg));
+    mock_tick_ms = 2100;
+    syn_autotune_update(&at); /* RAMP_UP with -INT32_MIN target saturates to INT32_MAX */
+    at.state = SYN_ATUNE_RELAY;
+    at.half_cycles = 1;
+    at.last_cross_tick = 2000;
+    at.above_setpoint = true;
+    at.osc_peak_pos = 1500000000;
+    at.osc_peak_neg = -1500000000;
+    mock_pos = -1500000000;
+    mock_tick_ms = 2200;
+    TEST_ASSERT_EQUAL(SYN_ATUNE_RAMP_DOWN, syn_autotune_update(&at));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, at.amplitude_sum);
+    TEST_ASSERT_TRUE(at.result.Ku > 0);
+}
+
 void run_autotune_tests(void)
 {
     RUN_TEST(test_autotune_probe_phase);
@@ -881,4 +1115,6 @@ void run_autotune_tests(void)
     RUN_TEST(test_autotune_calc_relay_gains_zero_tu_and_default_state);
     RUN_TEST(test_autotune_relay_hysteresis_and_limit_cycles);
     RUN_TEST(test_r5_autotune_apply_live_pid_and_relay_math);
+    RUN_TEST(test_autotune_settling2_window_ff_termination_and_two_phase_apply);
+    RUN_TEST(test_autotune_int32_min_velocity_pid_only_auto_and_overflow_bounds);
 }

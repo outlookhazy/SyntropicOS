@@ -96,3 +96,25 @@ void test_r5_rc_failsafe_regressions(void)
     TEST_ASSERT_TRUE(syn_failsafe_step(&mgr, 800U, out_ch));
     TEST_ASSERT_EQUAL_UINT32(1U, mgr.failsafe_events);
 }
+
+void test_rc_failsafe_future_frame_timestamp_no_false_trip(void)
+{
+    SYN_Failsafe_Config cfg = {.timeout_ms = 500U};
+    SYN_Failsafe_Manager mgr;
+    uint16_t out_ch[SYN_RC_FAILSAFE_MAX_CHANNELS];
+    uint16_t rc_frame[4] = {1500U, 1500U, 1200U, 1500U};
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_failsafe_init(&mgr, &cfg));
+
+    /* ISR feeds frame with timestamp 105 ms slightly ahead of main-loop snapshot 100 ms */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_failsafe_feed_frame(&mgr, rc_frame, 4U, 105U));
+    TEST_ASSERT_FALSE(syn_failsafe_step(&mgr, 100U, out_ch));
+    TEST_ASSERT_EQUAL_UINT32(0U, mgr.failsafe_events);
+    TEST_ASSERT_EQUAL_UINT16(1200U, out_ch[2]);
+
+    /* Wraparound across UINT32_MAX still times out accurately */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_failsafe_feed_frame(&mgr, rc_frame, 4U, 0xFFFFFF00U));
+    TEST_ASSERT_FALSE(syn_failsafe_step(&mgr, 0xFFFFFFFAU, out_ch));
+    TEST_ASSERT_TRUE(syn_failsafe_step(&mgr, 0x00000100U, out_ch));
+    TEST_ASSERT_EQUAL_UINT32(1U, mgr.failsafe_events);
+}

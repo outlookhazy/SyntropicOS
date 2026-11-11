@@ -260,12 +260,11 @@ static void udp_deliver_to_socket(SYN_UdpSocket *sock, uint32_t src_ip, uint16_t
             sock->remote_ip = src_ip;
             sock->remote_port = src_port;
         }
-    }
-
-    if (sock->blocked_task != NULL) {
-        SYN_Task *t = sock->blocked_task;
-        sock->blocked_task = NULL;
-        syn_task_resume(t);
+        if (sock->blocked_task != NULL) {
+            SYN_Task *t = sock->blocked_task;
+            sock->blocked_task = NULL;
+            syn_task_resume(t);
+        }
     }
 }
 
@@ -287,10 +286,15 @@ static bool udp_rx_header_valid(const uint8_t *ip_packet, size_t len, size_t *ud
         return false;
     }
 
+    uint16_t ip_total_len = syn_peek_u16(ip_packet, 16U);
+    if (ip_total_len < (uint16_t)(ihl + 8U) || (14U + (size_t)ip_total_len) > len) {
+        return false;
+    }
+
     size_t udp_off = 14U + ihl;
     const uint8_t *udp_head = &ip_packet[udp_off];
     uint16_t udp_len = syn_peek_u16(udp_head, 4U);
-    if (udp_len < 8U || (size_t)udp_len > (len - udp_off)) {
+    if (udp_len < 8U || (size_t)udp_len > ((size_t)ip_total_len - ihl)) {
         return false;
     }
 

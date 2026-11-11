@@ -241,7 +241,6 @@ SYN_Status syn_settings_import(SYN_Settings *s, const void *buf, size_t len, boo
         return syn_settings_save(s);
     }
 
-    s->checksum = compute_crc(s->data, s->data_size);
     return SYN_OK;
 }
 
@@ -301,7 +300,6 @@ SYN_Status syn_settings_import_vfs(SYN_Settings *s, const char *filepath, bool s
         return syn_settings_save(s);
     }
 
-    s->checksum = compute_crc(s->data, s->data_size);
     return SYN_OK;
 }
 
@@ -364,6 +362,8 @@ SYN_Status syn_settings_dual_bank_save(SYN_DualBankSettings *db)
         db->active_crc32 = new_crc32;
         if (inactive->on_change != NULL) {
             inactive->on_change(inactive->data, inactive->on_change_ctx);
+        } else if (active->on_change != NULL) {
+            active->on_change(active->data, active->on_change_ctx);
         }
     }
 

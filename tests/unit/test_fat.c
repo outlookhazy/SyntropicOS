@@ -16,6 +16,8 @@
 #define SD_RX_FIFO_MAX 600U
 
 static uint8_t s_disk[DISK_SECTORS][SECTOR_BYTES];
+static uint32_t s_sparse_lba[2];
+static uint8_t s_sparse_sec[2][SECTOR_BYTES];
 static uint8_t s_rx_fifo[SD_RX_FIFO_MAX];
 static size_t s_rx_head;
 static size_t s_rx_tail;
@@ -53,6 +55,12 @@ static SYN_Status sd_spi_emulator(uint8_t bus, const uint8_t *tx_buf, uint8_t *r
     if (s_write_pending && rx_buf == NULL && tx_buf != NULL && len == SECTOR_BYTES) {
         if (s_write_sector < DISK_SECTORS) {
             memcpy(s_disk[s_write_sector], tx_buf, SECTOR_BYTES);
+        } else {
+            for (size_t k = 0U; k < 2U; k++) {
+                if (s_sparse_lba[k] != 0U && s_write_sector == s_sparse_lba[k]) {
+                    memcpy(s_sparse_sec[k], tx_buf, SECTOR_BYTES);
+                }
+            }
         }
         s_write_pending = false;
         rx_fifo_clear();
@@ -101,6 +109,10 @@ static SYN_Status sd_spi_emulator(uint8_t bus, const uint8_t *tx_buf, uint8_t *r
                 rx_fifo_push(0xFEU);
                 if (arg < DISK_SECTORS) {
                     rx_fifo_push_buf(s_disk[arg], SECTOR_BYTES);
+                } else if (s_sparse_lba[0] != 0U && arg == s_sparse_lba[0]) {
+                    rx_fifo_push_buf(s_sparse_sec[0], SECTOR_BYTES);
+                } else if (s_sparse_lba[1] != 0U && arg == s_sparse_lba[1]) {
+                    rx_fifo_push_buf(s_sparse_sec[1], SECTOR_BYTES);
                 } else {
                     for (size_t z = 0U; z < SECTOR_BYTES; z++) {
                         rx_fifo_push(0x00U);
@@ -141,6 +153,8 @@ static void sd_emu_reset_counters(void)
     s_fail_read_at = 0U;
     s_fail_write_at = 0U;
     s_write_pending = false;
+    memset(s_sparse_lba, 0, sizeof(s_sparse_lba));
+    memset(s_sparse_sec, 0, sizeof(s_sparse_sec));
     rx_fifo_clear();
 }
 
@@ -908,6 +922,7 @@ static void test_tier_a_fat_io_and_seek_bounds(void)
 
     fd = syn_vfs_open("/sd/huge.bin", SYN_O_WRONLY | SYN_O_APPEND);
     TEST_ASSERT_GREATER_OR_EQUAL_INT(0, fd);
+    TEST_ASSERT_EQUAL_INT32(-2, syn_vfs_tell(fd));
     TEST_ASSERT_EQUAL_INT(-2, syn_vfs_write(fd, tx, 16U));
     TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd));
 
@@ -917,6 +932,159 @@ static void test_tier_a_fat_io_and_seek_bounds(void)
     TEST_ASSERT_EQUAL_INT32(100, syn_vfs_seek(fd, 100, SYN_SEEK_SET));
     TEST_ASSERT_EQUAL_INT32(-2, syn_vfs_seek(fd, 0x7FFFFFFF, SYN_SEEK_CUR));
     TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd));
+
+    syn_vfs_init();
+}
+
+static void test_fat_open_fd_guard_and_multi_fat_sector_chain(void)
+{
+    /* 1. Reject unlink and rename (both source and destination) while target file is open */
+    format_fat16_superfloppy(2U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fat_init(0U, 1U));
+
+    int fd_a = syn_vfs_open("/sd/open_a.txt", SYN_O_CREAT | SYN_O_RDWR);
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, fd_a);
+    TEST_ASSERT_EQUAL_INT(4, syn_vfs_write(fd_a, "OPEN", 4U));
+
+    int fd_b = syn_vfs_open("/sd/closed_b.txt", SYN_O_CREAT | SYN_O_RDWR);
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, fd_b);
+    TEST_ASSERT_EQUAL_INT(4, syn_vfs_write(fd_b, "DATA", 4U));
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd_b));
+
+    SYN_VfsDirEnt ent;
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_stat("/sd/open_a.txt", &ent));
+    TEST_ASSERT_EQUAL_UINT32(4U, ent.size);
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_vfs_unlink("/sd/open_a.txt"));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_vfs_rename("/sd/open_a.txt", "/sd/moved.txt"));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_vfs_rename("/sd/closed_b.txt", "/sd/open_a.txt"));
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_rename("/sd/open_a.txt", "/sd/open_a.txt"));
+
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd_a));
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_rename("/sd/closed_b.txt", "/sd/open_a.txt"));
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_unlink("/sd/open_a.txt"));
+
+    /* 2. Multi-FAT-sector cluster chain (cluster 255 in FAT sec 1 -> cluster 256 in FAT sec 2) */
+    format_fat16_superfloppy(2U);
+    memset(s_disk[2], 0,
+           SECTOR_BYTES); /* Clear FAT2-at-spf=1 markers; s_disk[2] is now FAT1 sec 2 */
+    syn_poke_u16_le(300U, s_disk[0], 19); /* total sectors = 300 */
+    syn_poke_u16_le(2U, s_disk[0], 22);   /* 2 sectors per FAT (FAT1: 1..2, FAT2: 3..4, root: 5) */
+    s_sparse_lba[0] = 6U + (255U - 2U);   /* LBA 259 = cluster 255 */
+    s_sparse_lba[1] = 6U + (256U - 2U);   /* LBA 260 = cluster 256 */
+
+    /* Mark clusters 2..254 used so allocation starts at cluster 255 and crosses to 256 */
+    for (uint32_t c = 2U; c <= 254U; c++) {
+        syn_poke_u16_le(0xFFFFU, s_disk[1], c * 2U);
+    }
+    memcpy(s_disk[3], s_disk[1], SECTOR_BYTES);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fat_init(0U, 1U));
+
+    int fd_cross = syn_vfs_open("/sd/cross.bin", SYN_O_CREAT | SYN_O_RDWR);
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, fd_cross);
+
+    uint8_t chunk[64];
+    for (uint32_t blk = 0U; blk < 11U; blk++) {
+        for (uint32_t i = 0U; i < sizeof(chunk); i++) {
+            chunk[i] = (uint8_t)((blk * 64U + i) ^ 0xA5U);
+        }
+        TEST_ASSERT_EQUAL_INT(64, syn_vfs_write(fd_cross, chunk, sizeof(chunk)));
+    }
+
+    /* Verify FAT1 (sectors 1..2) and FAT2 (sectors 3..4) link 255 -> 256 -> EOF */
+    TEST_ASSERT_EQUAL_UINT16(256U, syn_peek_u16_le(s_disk[1], 255U * 2U));
+    TEST_ASSERT_EQUAL_UINT16(0xFFFFU, syn_peek_u16_le(s_disk[2], 0U));
+    TEST_ASSERT_EQUAL_UINT16(256U, syn_peek_u16_le(s_disk[3], 255U * 2U));
+    TEST_ASSERT_EQUAL_UINT16(0xFFFFU, syn_peek_u16_le(s_disk[4], 0U));
+
+    TEST_ASSERT_EQUAL_INT32(0, syn_vfs_seek(fd_cross, 0, SYN_SEEK_SET));
+    for (uint32_t blk = 0U; blk < 11U; blk++) {
+        memset(chunk, 0, sizeof(chunk));
+        TEST_ASSERT_EQUAL_INT(64, syn_vfs_read(fd_cross, chunk, sizeof(chunk)));
+        for (uint32_t i = 0U; i < sizeof(chunk); i++) {
+            TEST_ASSERT_EQUAL_UINT8((uint8_t)((blk * 64U + i) ^ 0xA5U), chunk[i]);
+        }
+    }
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd_cross));
+
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_unlink("/sd/cross.bin"));
+    TEST_ASSERT_EQUAL_UINT16(0U, syn_peek_u16_le(s_disk[1], 255U * 2U));
+    TEST_ASSERT_EQUAL_UINT16(0U, syn_peek_u16_le(s_disk[2], 0U));
+    TEST_ASSERT_EQUAL_UINT16(0U, syn_peek_u16_le(s_disk[3], 255U * 2U));
+    TEST_ASSERT_EQUAL_UINT16(0U, syn_peek_u16_le(s_disk[4], 0U));
+
+    syn_vfs_init();
+}
+
+static void test_fat_concurrent_open_coherency_bpb_and_name_guards(void)
+{
+    /* 1. Untrusted BPB geometry: reserved_sectors == 0, bad spc, root_entries, and max clusters */
+    format_fat16_superfloppy(2U);
+    syn_poke_u16_le(0U, s_disk[0], 14U); /* reserved_sectors == 0 */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fat_init(0U, 1U));
+
+    format_fat16_superfloppy(2U);
+    s_disk[0][13] = 3U; /* non-power-of-two sectors_per_cluster */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fat_init(0U, 1U));
+
+    format_fat16_superfloppy(2U);
+    s_disk[0][13] = 255U; /* sectors_per_cluster > 128 */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fat_init(0U, 1U));
+
+    format_fat16_superfloppy(2U);
+    syn_poke_u16_le(0U, s_disk[0], 17U); /* FAT16 with fat16_root_entries == 0 */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fat_init(0U, 1U));
+
+    format_fat32_mbr(2U);
+    syn_poke_u16_le(16U, s_disk[2], 17U); /* FAT32 with fat16_root_entries != 0 */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_fat_init(0U, 1U));
+
+    /* FAT16 cluster cap at 0xFFF5 when fat_cap > 0xFFF7 and total_sec32 > 70000 */
+    format_fat16_superfloppy(2U);
+    syn_poke_u16_le(0U, s_disk[0], 19U);
+    syn_poke_u32_le(70000UL, s_disk[0], 32U);
+    syn_poke_u16_le(256U, s_disk[0], 22U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fat_init(0U, 1U));
+    syn_vfs_init();
+
+    /* 2. Filename validation: 0xE5 tombstone, spaces/control chars, and invalid open flags */
+    format_fat16_superfloppy(2U);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fat_init(0U, 1U));
+
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_vfs_open("/sd/\xE5tomb.txt", SYN_O_CREAT | SYN_O_RDWR));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_vfs_open("/sd/   ", SYN_O_CREAT | SYN_O_RDWR));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_vfs_open("/sd/bad\x01.txt", SYN_O_CREAT | SYN_O_RDWR));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_vfs_open("/sd/ok.txt", 0x03));
+
+    /* 3. Concurrent open coherency + SYN_O_RDONLY | SYN_O_TRUNC rejection on writable file */
+    int fd_w = syn_vfs_open("/sd/shared.txt", SYN_O_CREAT | SYN_O_RDWR);
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, fd_w);
+    TEST_ASSERT_EQUAL_INT(5, syn_vfs_write(fd_w, "HELLO", 5U));
+
+    /* While writer is open, any second open (reader, writer, or trunc) must return SYN_BUSY */
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_vfs_open("/sd/shared.txt", SYN_O_RDONLY));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_vfs_open("/sd/shared.txt", SYN_O_RDWR | SYN_O_TRUNC));
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd_w));
+
+    /* Writable file must reject SYN_O_RDONLY | SYN_O_TRUNC without truncating contents */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_vfs_open("/sd/shared.txt", SYN_O_RDONLY | SYN_O_TRUNC));
+
+    /* Multiple concurrent SYN_O_RDONLY handles are allowed, while concurrent write/trunc is BUSY */
+    int fd_r1 = syn_vfs_open("/sd/shared.txt", SYN_O_RDONLY);
+    int fd_r2 = syn_vfs_open("/sd/shared.txt", SYN_O_RDONLY);
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, fd_r1);
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, fd_r2);
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_vfs_open("/sd/shared.txt", SYN_O_WRONLY));
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_vfs_open("/sd/shared.txt", SYN_O_RDWR | SYN_O_TRUNC));
+
+    char rx[8] = {0};
+    TEST_ASSERT_EQUAL_INT(5, syn_vfs_read(fd_r1, rx, 5U));
+    TEST_ASSERT_EQUAL_MEMORY("HELLO", rx, 5U);
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd_r1));
+    TEST_ASSERT_EQUAL_INT(0, syn_vfs_close(fd_r2));
 
     syn_vfs_init();
 }
@@ -931,4 +1099,6 @@ void run_fat_tests(void)
     RUN_TEST(test_r5_fat_regressions);
     RUN_TEST(test_tier_a_fat_bpb_and_chain_bounds);
     RUN_TEST(test_tier_a_fat_io_and_seek_bounds);
+    RUN_TEST(test_fat_open_fd_guard_and_multi_fat_sector_chain);
+    RUN_TEST(test_fat_concurrent_open_coherency_bpb_and_name_guards);
 }

@@ -63,9 +63,10 @@ uint16_t syn_icmp_checksum(const void *buf, size_t len);
  * Automatically generates a matching Type 0 Echo Reply if a Type 8 Echo Request is received.
  *
  * @param icmp     Pointer to ICMP context.
- * @param ip_pkt   Pointer to incoming IPv4 packet (starting at IP header).
- * @param len      IP packet byte length.
- * @param frame_tx Output buffer to receive constructed Ethernet II reply frame (min 60 bytes).
+ * @param ip_pkt   Pointer to incoming Ethernet II + IPv4 frame.
+ * @param len      Ethernet frame byte length.
+ * @param frame_tx Output buffer to receive constructed Ethernet II reply frame
+ *                 (must hold at least SYN_ETH_MAX_FRAME_LEN = 1514 bytes when non-NULL).
  * @param tx_len   Pointer to receive byte length of constructed reply frame (0 if none generated).
  * @return SYN_OK on success.
  */
@@ -83,7 +84,8 @@ SYN_Status syn_icmp_process_packet(SYN_ICMP *icmp, const uint8_t *ip_pkt, size_t
  * @param seq        Sequence number.
  * @param payload    Pointer to payload data.
  * @param payload_len Payload length in bytes.
- * @param frame_out  Output frame buffer (must hold at least 60 bytes).
+ * @param frame_out  Output frame buffer (must hold at least max(SYN_ETH_MIN_FRAME_LEN,
+ *                   42 + payload_len) bytes, up to SYN_ETH_MAX_FRAME_LEN = 1514 bytes).
  * @param frame_len  Pointer to receive final Ethernet II frame length.
  * @return SYN_OK on success.
  */

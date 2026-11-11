@@ -91,11 +91,10 @@ static void wav_compute_total_samples(SYN_WAV_Info *info)
             info->total_samples = (uint32_t)((uint64_t)info->data_size / frame_bytes);
         }
     } else if (info->audio_format == SYN_WAV_FORMAT_IMA_ADPCM) {
-        /* 4 bits per sample mono = 2 samples per byte; saturate on uint32_t overflow */
-        if (info->data_size > (UINT32_MAX / 2U)) {
-            info->total_samples = UINT32_MAX;
-        } else {
-            info->total_samples = info->data_size * 2U;
+        /* 4 bits per sample = 2 samples per byte divided across channels; saturate at UINT32_MAX */
+        if (info->num_channels > 0U) {
+            uint64_t samples = ((uint64_t)info->data_size * 2ULL) / (uint64_t)info->num_channels;
+            info->total_samples = (samples > (uint64_t)UINT32_MAX) ? UINT32_MAX : (uint32_t)samples;
         }
     }
 }
@@ -128,7 +127,7 @@ SYN_Status syn_wav_parse_header(const uint8_t *buffer, size_t buffer_size, SYN_W
             }
             fmt_found = true;
         } else if (memcmp(&chunk[0], "data", 4) == 0) {
-            info->data_offset = (uint32_t)(offset + 8U);
+            info->data_offset = offset + 8U;
             info->data_size = chunk_size;
             data_found = true;
             break; /* Found data payload */

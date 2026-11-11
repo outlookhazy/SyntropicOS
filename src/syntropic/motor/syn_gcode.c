@@ -449,8 +449,9 @@ static void gcode_apply_m_code(SYN_GCode_Controller *ctrl, uint32_t m_code)
  * @brief Plan linear move on interpolator or step directly when interpolator is NULL.
  * @param ctrl   Controller instance.
  * @param target Target machine coordinate position in millimeters.
+ * @return SYN_OK on success, or interpolator planning error status.
  */
-static void gcode_plan_or_jump_linear(SYN_GCode_Controller *ctrl, SYN_Vector3F target)
+static SYN_Status gcode_plan_or_jump_linear(SYN_GCode_Controller *ctrl, SYN_Vector3F target)
 {
     ctrl->dwell_steps = 0U;
     ctrl->dwell_ms = 0U;
@@ -458,20 +459,21 @@ static void gcode_plan_or_jump_linear(SYN_GCode_Controller *ctrl, SYN_Vector3F t
         SYN_Status st = syn_interpolator_plan_linear(
             ctrl->cfg.interpolator, ctrl->current_pos, target, ctrl->feedrate,
             ctrl->cfg.max_acceleration, ctrl->cfg.max_jerk, ctrl->cfg.step_resolution);
-        if (st == SYN_OK) {
-            ctrl->move_in_progress = true;
-        }
-    } else {
-        ctrl->current_pos = target;
+        ctrl->move_in_progress =
+            (st == SYN_OK) && (ctrl->cfg.interpolator->mode != SYN_INTERP_MODE_IDLE);
+        return st;
     }
+    ctrl->current_pos = target;
+    return SYN_OK;
 }
 
 /**
  * @brief Return specified axes (or all axes when none specified) to machine home (0, 0, 0).
  * @param ctrl  Controller instance.
  * @param block Effective parsed block.
+ * @return SYN_OK on success, or interpolator planning error status.
  */
-static void gcode_execute_home(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block)
+static SYN_Status gcode_execute_home(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block)
 {
     SYN_Vector3F home = ctrl->current_pos;
     bool any_axis = block->has_x || block->has_y || block->has_z;
@@ -484,7 +486,7 @@ static void gcode_execute_home(SYN_GCode_Controller *ctrl, const SYN_GCode_Block
     if (!any_axis || block->has_z) {
         home.z = 0.0f;
     }
-    gcode_plan_or_jump_linear(ctrl, home);
+    return gcode_plan_or_jump_linear(ctrl, home);
 }
 
 /**
@@ -527,14 +529,16 @@ static void gcode_execute_dwell(SYN_GCode_Controller *ctrl, const SYN_GCode_Bloc
 
 /**
  * @brief Execute Group 0 non-modal action (G4 dwell, G28 home, G92 offset).
- * @param ctrl  Controller instance.
- * @param block Effective parsed block.
- * @param scale Active unit conversion factor to millimeters.
+ * @param ctrl       Controller instance.
+ * @param block      Effective parsed block.
+ * @param scale      Active unit conversion factor to millimeters.
+ * @param out_status Receives SYN_OK or planner error status when consumed.
  * @return true if non-modal command consumed the block's coordinate words.
  */
 static bool gcode_execute_non_modal(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block,
-                                    float scale)
+                                    float scale, SYN_Status *out_status)
 {
+    *out_status = SYN_OK;
     if (!block->has_non_modal || block->non_modal == SYN_GCODE_NONMODAL_NONE) {
         return false;
     }
@@ -548,7 +552,7 @@ static bool gcode_execute_non_modal(SYN_GCode_Controller *ctrl, const SYN_GCode_
             ctrl->offset_pos.z = oz;
         }
     } else if (block->non_modal == SYN_GCODE_NONMODAL_HOME) {
-        gcode_execute_home(ctrl, block);
+        *out_status = gcode_execute_home(ctrl, block);
     } else if (block->non_modal == SYN_GCODE_NONMODAL_DWELL) {
         gcode_execute_dwell(ctrl, block);
     }
@@ -606,28 +610,30 @@ static bool gcode_has_motion_coords(const SYN_GCode_Block *block)
  * @param ctrl  Controller instance.
  * @param block Effective parsed block.
  * @param scale Active unit conversion factor to millimeters.
+ * @return SYN_OK on success, or interpolator planning error status.
  */
-static void gcode_execute_motion(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block,
-                                 float scale)
+static SYN_Status gcode_execute_motion(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block,
+                                       float scale)
 {
     if (!gcode_has_motion_coords(block)) {
-        return;
+        return SYN_OK;
     }
 
     ctrl->dwell_steps = 0U;
     ctrl->dwell_ms = 0U;
     SYN_Vector3F target = gcode_compute_target(ctrl, block, scale);
     if (!isfinite(target.x) || !isfinite(target.y) || !isfinite(target.z)) {
-        return;
+        return SYN_OK;
     }
     if (ctrl->cfg.interpolator == NULL) {
         ctrl->current_pos = target;
-        return;
+        return SYN_OK;
     }
 
+    SYN_Status st = SYN_OK;
     if (ctrl->motion_mode == SYN_GCODE_MOTION_RAPID ||
         ctrl->motion_mode == SYN_GCODE_MOTION_LINEAR) {
-        gcode_plan_or_jump_linear(ctrl, target);
+        st = gcode_plan_or_jump_linear(ctrl, target);
     } else if (ctrl->motion_mode == SYN_GCODE_MOTION_ARC_CW ||
                ctrl->motion_mode == SYN_GCODE_MOTION_ARC_CCW) {
         SYN_Vector3F center = {
@@ -636,13 +642,14 @@ static void gcode_execute_motion(SYN_GCode_Controller *ctrl, const SYN_GCode_Blo
             .z = block->has_k ? (block->k * scale) : 0.0f,
         };
         bool is_cw = (ctrl->motion_mode == SYN_GCODE_MOTION_ARC_CW);
-        SYN_Status st = syn_interpolator_plan_circular(
-            ctrl->cfg.interpolator, ctrl->current_pos, target, center, is_cw, ctrl->feedrate,
-            ctrl->cfg.max_acceleration, ctrl->cfg.max_jerk, ctrl->cfg.step_resolution);
-        if (st == SYN_OK) {
-            ctrl->move_in_progress = true;
-        }
+        st = syn_interpolator_plan_circular_plane(ctrl->cfg.interpolator, ctrl->current_pos, target,
+                                                  center, (uint8_t)ctrl->plane, is_cw,
+                                                  ctrl->feedrate, ctrl->cfg.max_acceleration,
+                                                  ctrl->cfg.max_jerk, ctrl->cfg.step_resolution);
+        ctrl->move_in_progress =
+            (st == SYN_OK) && (ctrl->cfg.interpolator->mode != SYN_INTERP_MODE_IDLE);
     }
+    return st;
 }
 
 /**
@@ -722,6 +729,24 @@ static bool gcode_block_coords_finite(const SYN_GCode_Block *block)
            (!block->has_k || isfinite(block->k));
 }
 
+/**
+ * @brief Validate modal group enum values in a parsed or caller-constructed G-Code block.
+ * @param block Block to validate.
+ * @return true if all present modal enum fields hold valid RS-274 enumerators.
+ */
+static bool gcode_modal_enums_valid(const SYN_GCode_Block *block)
+{
+    if (block->has_motion && ((uint32_t)block->motion_mode > (uint32_t)SYN_GCODE_MOTION_ARC_CCW)) {
+        return false;
+    }
+    if (block->has_plane && ((uint32_t)block->plane > (uint32_t)SYN_GCODE_PLANE_YZ)) {
+        return false;
+    }
+    return (!block->has_dist_mode ||
+            ((uint32_t)block->dist_mode <= (uint32_t)SYN_GCODE_DIST_INCREMENTAL)) &&
+           (!block->has_units || ((uint32_t)block->units <= (uint32_t)SYN_GCODE_UNITS_INCH));
+}
+
 SYN_Status syn_gcode_execute_block(SYN_GCode_Controller *ctrl, const SYN_GCode_Block *block)
 {
     if (ctrl == NULL || block == NULL) {
@@ -729,7 +754,7 @@ SYN_Status syn_gcode_execute_block(SYN_GCode_Controller *ctrl, const SYN_GCode_B
     }
 
     SYN_GCode_Block eff = *block;
-    if (!gcode_block_coords_finite(&eff)) {
+    if (!gcode_block_coords_finite(&eff) || !gcode_modal_enums_valid(&eff)) {
         return SYN_INVALID_PARAM;
     }
     if (eff.has_g && !gcode_has_classified_group(&eff)) {
@@ -749,11 +774,12 @@ SYN_Status syn_gcode_execute_block(SYN_GCode_Controller *ctrl, const SYN_GCode_B
     gcode_apply_aux_words(ctrl, &eff, scale);
 
     /* 3. Execute Group 0 non-modal commands (G4, G28, G92) or Group 1 motion */
-    if (!gcode_execute_non_modal(ctrl, &eff, scale)) {
-        gcode_execute_motion(ctrl, &eff, scale);
+    SYN_Status exec_st = SYN_OK;
+    if (!gcode_execute_non_modal(ctrl, &eff, scale, &exec_st)) {
+        exec_st = gcode_execute_motion(ctrl, &eff, scale);
     }
 
-    return SYN_OK;
+    return exec_st;
 }
 
 SYN_Status syn_gcode_execute_line(SYN_GCode_Controller *ctrl, const char *line)

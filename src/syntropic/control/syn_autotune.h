@@ -252,6 +252,7 @@ typedef struct {
     uint32_t ka_t2;            /**< Final tick for Ka identification       */
     bool ka_p1_captured;       /**< Point 1 captured            */
     bool ka_p2_captured;       /**< Point 2 captured            */
+    bool ff_phase_done;        /**< True once FF identification phase completes */
 
     /* Oscillation tracking */
     int32_t relay_output;     /**< Current relay sign × amp   */

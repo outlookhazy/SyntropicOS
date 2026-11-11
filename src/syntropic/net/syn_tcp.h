@@ -31,6 +31,10 @@ extern "C" {
 #define SYN_TCP_BUF_SIZE 512 /**< TCP RX/TX internal payload buffer size in bytes */
 #endif
 
+#ifndef SYN_TCP_SYN_TIMEOUT_MS
+#define SYN_TCP_SYN_TIMEOUT_MS 3000U /**< Half-open SYN_RCVD slot reclamation timeout in ms */
+#endif
+
 /** TCP Header Flags */
 #define SYN_TCP_FLAG_FIN 0x01 /**< Finish flag: No more data from sender */
 #define SYN_TCP_FLAG_SYN 0x02 /**< Synchronize sequence numbers flag */
@@ -76,8 +80,9 @@ typedef struct SYN_TcpConn {
     uint16_t remote_port;  /**< Remote peer port. */
     uint8_t remote_mac[6]; /**< Remote peer Ethernet MAC address. */
 
-    uint32_t seq_nxt; /**< Next sequence number to send. */
-    uint32_t ack_nxt; /**< Expected next sequence number to receive. */
+    uint32_t seq_nxt;     /**< Next sequence number to send. */
+    uint32_t ack_nxt;     /**< Expected next sequence number to receive. */
+    uint32_t syn_rcvd_ms; /**< Tick timestamp when connection entered SYN_TCP_SYN_RCVD. */
 
     uint8_t rx_buf[SYN_TCP_BUF_SIZE]; /**< Receive data buffer. */
     uint16_t rx_len;                  /**< Length of buffered receive bytes. */
@@ -128,11 +133,11 @@ SYN_Status syn_tcp_close(SYN_TCP *tcp, SYN_TcpConn *conn);
 /**
  * @brief Process incoming TCP IPv4 segment.
  * @param tcp       Pointer to TCP stack container.
- * @param ip_packet Pointer to raw IPv4 packet.
- * @param len       IPv4 packet byte length.
- * @param tx_out    Output buffer for immediate TCP reply segment if generated.
- * @param tx_len    Pointer to receive output segment byte length.
- * @return SYN_OK on success.
+ * @param ip_packet Pointer to raw Ethernet II + IPv4 + TCP frame.
+ * @param len       Frame byte length (>= 54 bytes).
+ * @param tx_out    Output buffer for immediate TCP reply/RST frame (at least 54 bytes).
+ * @param tx_len    Pointer to receive output frame byte length (0 if none generated).
+ * @return SYN_OK on matched segment processing, SYN_ERROR on invalid/unmatched segment.
  */
 SYN_Status syn_tcp_process_packet(SYN_TCP *tcp, const uint8_t *ip_packet, size_t len,
                                   uint8_t *tx_out, size_t *tx_len);

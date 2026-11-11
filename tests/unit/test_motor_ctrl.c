@@ -1114,6 +1114,166 @@ static void test_r5_motor_ctrl_overflows_and_mode_switches(void)
     TEST_ASSERT_EQUAL_INT32(INT32_MIN, ctrl.measured_velocity);
 }
 
+static void test_motor_ctrl_open_loop_safety_settle_and_overflows(void)
+{
+    SYN_DCMotor dc;
+    syn_dc_motor_init(&dc, 6, 7, SYN_DC_MODE_PWM_DIR);
+
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config cfg;
+    memset(&cfg, 0, sizeof(cfg));
+    cfg.read_pos = mock_encoder_feedback;
+    cfg.motor = syn_dc_motor_output(&dc);
+    cfg.update_hz = 1000;
+    cfg.output_min = -100;
+    cfg.output_max = 100;
+    cfg.position_deadband = 5;
+    cfg.position_min = -50;
+    cfg.position_max = 50;
+    cfg.stall_timeout_ms = 50;
+    cfg.stall_threshold = 0;
+    cfg.pid_kp = 10;
+    cfg.pid_scale = 0;
+
+    mock_tick_ms = 100;
+    mock_ctrl_position = 0;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_motor_ctrl_init(&ctrl, &cfg));
+
+    /* 1. Open-loop enforces soft position limits */
+    syn_motor_ctrl_set_output(&ctrl, 80);
+    mock_ctrl_position = 55;
+    mock_tick_advance(10);
+    TEST_ASSERT_EQUAL(SYN_MCTRL_LIMIT, syn_motor_ctrl_update(&ctrl));
+    TEST_ASSERT_EQUAL_INT32(0, ctrl.total_output);
+
+    /* 2. Open-loop enforces stall detection */
+    mock_ctrl_position = 0;
+    syn_motor_ctrl_set_output(&ctrl, 80);
+    for (int i = 0; i < 7; i++) {
+        mock_tick_advance(10);
+        syn_motor_ctrl_update(&ctrl);
+    }
+    TEST_ASSERT_EQUAL(SYN_MCTRL_STALLED, ctrl.state);
+    syn_motor_ctrl_clear_stall(&ctrl);
+
+    /* 3. Standard position-mode arrival stamps metrics.settle_tick & last_update_tick */
+    mock_tick_ms = 1000;
+    mock_ctrl_position = 0;
+    syn_motor_ctrl_reset_metrics(&ctrl);
+    syn_motor_ctrl_set_position(&ctrl, 20);
+    mock_tick_advance(10);
+    mock_ctrl_position = 10;
+    TEST_ASSERT_EQUAL(SYN_MCTRL_RUNNING, syn_motor_ctrl_update(&ctrl));
+    TEST_ASSERT_EQUAL_UINT32(0U, ctrl.metrics.settle_tick);
+
+    mock_tick_advance(15);
+    mock_ctrl_position = 18; /* |20 - 18| = 2 <= deadband(5) */
+    TEST_ASSERT_EQUAL(SYN_MCTRL_ON_TARGET, syn_motor_ctrl_update(&ctrl));
+    TEST_ASSERT_EQUAL_UINT32(1025U, ctrl.metrics.settle_tick);
+    TEST_ASSERT_EQUAL_UINT32(25U, syn_motor_ctrl_settle_time(&ctrl));
+    TEST_ASSERT_EQUAL_UINT32(1025U, ctrl.last_update_tick);
+
+    /* 4. Stopping a ramp clears trajectory.velocity before next move_to */
+    mock_ctrl_position = 0;
+    syn_motor_ctrl_move_to(&ctrl, 40, 20000, 2000000);
+    mock_tick_advance(1);
+    syn_motor_ctrl_update(&ctrl);
+    TEST_ASSERT_TRUE(ctrl.trajectory.velocity > 0);
+    syn_motor_ctrl_stop(&ctrl);
+    syn_motor_ctrl_move_to(&ctrl, 40, 1000, 1000);
+    mock_tick_advance(1);
+    syn_motor_ctrl_update(&ctrl);
+    TEST_ASSERT_TRUE(ctrl.trajectory.acceleration >= 0);
+
+    /* 5. Wide-range 64-bit arithmetic: output_max*9, target-pos, pid+ff, anti-windup */
+    cfg.position_min = 0;
+    cfg.position_max = 0;
+    cfg.stall_timeout_ms = 0;
+    cfg.output_min = -1500000000;
+    cfg.output_max = 1500000000;
+    cfg.pid_scale = 16;
+    cfg.pid_kp = 65536;
+    cfg.pid_ki = 65536;
+    cfg.ff_kv = 100000;
+    cfg.ff_scale = 0;
+    mock_ctrl_position = -1500000000;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_motor_ctrl_init(&ctrl, &cfg));
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_motor_ctrl_settle_time(&ctrl));
+
+    SYN_MotorCtrl_Trajectory big_traj = {
+        .position = 1500000000, .velocity = 20000, .acceleration = 0};
+    syn_motor_ctrl_set_trajectory(&ctrl, &big_traj);
+    ctrl.pid.integral = 1000000000;
+    mock_tick_advance(10);
+    TEST_ASSERT_EQUAL(SYN_MCTRL_RUNNING, syn_motor_ctrl_update(&ctrl));
+    TEST_ASSERT_EQUAL_INT32(1350000000, ctrl.ff_output);
+    TEST_ASSERT_EQUAL_INT32(1500000000, ctrl.total_output);
+}
+
+static void test_motor_ctrl_set_gains_stall_outputs_and_traj_resume(void)
+{
+    SYN_DCMotor dc;
+    syn_dc_motor_init(&dc, 6, 7, SYN_DC_MODE_PWM_DIR);
+
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config cfg;
+    memset(&cfg, 0, sizeof(cfg));
+    cfg.read_pos = mock_encoder_feedback;
+    cfg.motor = syn_dc_motor_output(&dc);
+    cfg.update_hz = 1000;
+    cfg.output_min = -100;
+    cfg.output_max = 100;
+    cfg.position_deadband = 5;
+    cfg.stall_timeout_ms = 30;
+    cfg.stall_threshold = 0;
+    cfg.pid_kp = 10;
+    cfg.pid_ki = 0;
+    cfg.pid_kd = 0;
+    cfg.pid_scale = 0;
+
+    mock_tick_ms = 100;
+    mock_ctrl_position = 0;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_motor_ctrl_init(&ctrl, &cfg));
+
+    /* 1. syn_motor_ctrl_set_gains syncs ctrl.cfg.pid_* and recomputes integral_max */
+    syn_motor_ctrl_set_gains(&ctrl, 12, 200, 3);
+    TEST_ASSERT_EQUAL_INT32(12, ctrl.cfg.pid_kp);
+    TEST_ASSERT_EQUAL_INT32(200, ctrl.cfg.pid_ki);
+    TEST_ASSERT_EQUAL_INT32(3, ctrl.cfg.pid_kd);
+    TEST_ASSERT_EQUAL_INT32(500, ctrl.pid.cfg.integral_max);
+
+    /* 2. Stall trip zeroes diagnostic pid_output/ff_output/total_output and clears stall_active */
+    syn_motor_ctrl_set_position(&ctrl, 50);
+    for (int i = 0; i < 5; i++) {
+        mock_tick_advance(10);
+        (void)syn_motor_ctrl_update(&ctrl);
+    }
+    TEST_ASSERT_EQUAL(SYN_MCTRL_STALLED, ctrl.state);
+    TEST_ASSERT_EQUAL_INT32(0, ctrl.pid_output);
+    TEST_ASSERT_EQUAL_INT32(0, ctrl.ff_output);
+    TEST_ASSERT_EQUAL_INT32(0, ctrl.total_output);
+    TEST_ASSERT_FALSE(ctrl.stall_active);
+    syn_motor_ctrl_clear_stall(&ctrl);
+
+    /* 3. set_trajectory from ON_TARGET resumes RUNNING and extreme INT32_MIN FF saturates safely */
+    cfg.stall_timeout_ms = 0;
+    cfg.ff_kv = INT32_MIN;
+    cfg.ff_ka = INT32_MIN;
+    cfg.ff_scale = 31U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_motor_ctrl_init(&ctrl, &cfg));
+    syn_motor_ctrl_set_position(&ctrl, 2); /* Within deadband(5) -> ON_TARGET */
+    mock_tick_advance(10);
+    TEST_ASSERT_EQUAL(SYN_MCTRL_ON_TARGET, syn_motor_ctrl_update(&ctrl));
+
+    SYN_MotorCtrl_Trajectory traj = {
+        .position = 100, .velocity = INT32_MIN, .acceleration = INT32_MIN};
+    syn_motor_ctrl_set_trajectory(&ctrl, &traj);
+    TEST_ASSERT_EQUAL(SYN_MCTRL_RUNNING, ctrl.state);
+    mock_tick_advance(10);
+    TEST_ASSERT_EQUAL(SYN_MCTRL_RUNNING, syn_motor_ctrl_update(&ctrl));
+    TEST_ASSERT_EQUAL_INT32(90, ctrl.ff_output);
+}
+
 void run_motor_ctrl_tests(void)
 {
     RUN_TEST(test_motor_ctrl);
@@ -1136,4 +1296,6 @@ void run_motor_ctrl_tests(void)
     RUN_TEST(test_motor_ctrl_integrator_anti_windup_clamping);
     RUN_TEST(test_motor_ctrl_output_and_soft_limit_clamps);
     RUN_TEST(test_r5_motor_ctrl_overflows_and_mode_switches);
+    RUN_TEST(test_motor_ctrl_open_loop_safety_settle_and_overflows);
+    RUN_TEST(test_motor_ctrl_set_gains_stall_outputs_and_traj_resume);
 }

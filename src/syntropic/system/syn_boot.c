@@ -98,7 +98,12 @@ void syn_boot_set_reset_reason(SYN_Boot *boot, uint8_t reason)
         return;
     }
     SYN_ASSERT(boot != NULL);
-    boot->data.last_reset = reason;
+    if (boot->data.last_reset != reason) {
+        boot->data.last_reset = reason;
+        if (boot->initialized) {
+            (void)syn_param_save(boot->store, &boot->data);
+        }
+    }
 }
 
 SYN_Status syn_boot_clear_safe_mode(SYN_Boot *boot)

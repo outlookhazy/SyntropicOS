@@ -1948,6 +1948,25 @@ static void test_tier_a_http_head_bodyless_ows_and_redirect_port(void)
     TEST_ASSERT_EQUAL_UINT32(2U, (uint32_t)body_accum_len);
 }
 
+static void test_http_oversized_chunk_hex_without_ext_rejected(void)
+{
+    SYN_HttpClient client;
+    uint8_t work_buf[256];
+
+    /* 32 leading '0's followed by '5' without ';' would silently truncate at 31 '0's -> EOF (0) */
+    const char *smuggle_chunk = "HTTP/1.1 200 OK\r\n"
+                                "Transfer-Encoding: chunked\r\n\r\n"
+                                "000000000000000000000000000000005\r\n"
+                                "Hello\r\n"
+                                "0\r\n\r\n";
+    mock_port_reset();
+    reset_accum();
+    mock_sock_set_response(smuggle_chunk, strlen(smuggle_chunk));
+    syn_http_client_init(&client, "GET", "example.com", 80, "/chunk", NULL, NULL, 0, NULL, 0,
+                         body_accumulate, NULL, work_buf, sizeof(work_buf));
+    TEST_ASSERT_EQUAL(SYN_ERROR, run_client_task(&client));
+}
+
 void run_http_tests(void)
 {
     RUN_TEST(test_http_get_200);
@@ -1988,4 +2007,5 @@ void run_http_tests(void)
     RUN_TEST(test_http_round4_regressions);
     RUN_TEST(test_r5_n13_http_chunked_trailers_and_mid_trailer_eof);
     RUN_TEST(test_tier_a_http_head_bodyless_ows_and_redirect_port);
+    RUN_TEST(test_http_oversized_chunk_hex_without_ext_rejected);
 }

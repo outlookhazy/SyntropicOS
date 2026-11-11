@@ -1,6 +1,4 @@
-#if __has_include("syn_config.h")
-#include "syn_config.h"
-#endif
+#include "../common/syn_defs.h"
 
 #if !defined(SYN_USE_AO) || SYN_USE_AO
 
@@ -101,18 +99,21 @@ void syn_ao_init(SYN_ActiveObject *ao, SYN_Task *task, const char *name, SYN_Pri
     }
     /* LCOV_EXCL_STOP */
 
+    syn_port_enter_critical();
     memset(&ao->last_event, 0, sizeof(ao->last_event));
-    ao->task = task;
+    ao->task = NULL;
+    ao->mailbox.buf = NULL;
+    ao->mailbox.capacity = 0U;
 
-    /* Initialize event queue mailbox */
-    syn_mailbox_init(&ao->mailbox, mailbox_buf, sizeof(SYN_AO_Event), mailbox_cap);
-
-    /* Initialize FSM */
+    /* Initialize FSM and bound scheduler task before publishing mailbox/task */
     syn_fsm_init(&ao->fsm, transitions, initial_state, name);
     syn_fsm_set_context(&ao->fsm, ao);
-
-    /* Initialize bound scheduler task */
     syn_task_create(task, name, syn_ao_pt_run, priority, ao);
+
+    /* Publish mailbox and bound task atomically */
+    syn_mailbox_init(&ao->mailbox, mailbox_buf, sizeof(SYN_AO_Event), mailbox_cap);
+    ao->task = task;
+    syn_port_exit_critical();
 }
 
 bool syn_ao_post(SYN_ActiveObject *ao, uint16_t sig, void *data)

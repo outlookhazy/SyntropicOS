@@ -245,6 +245,53 @@ static void test_tier_a_foc_large_amplitude_and_high_vbus_svpwm(void)
     ASSERT_Q16_NEAR(Q16_FROM_FRAC(3125, 10000), duty_c, 2);
 }
 
+static void test_foc_field_weakening_closed_loop_and_saturation(void)
+{
+    /* 1. Multi-step closed-loop voltage regulation: v_q = v_q0 + omega*Ld*id_cmd */
+    q16_t id_cmd = 0;
+    q16_t v_max = Q16_FROM_INT(10);
+    q16_t v_q0 = Q16_FROM_INT(16);
+
+    for (int step = 0; step < 24; step++) {
+        TEST_ASSERT_TRUE(syn_foc_field_weakening(0, v_q0 + id_cmd, v_max, &id_cmd));
+    }
+    ASSERT_Q16_NEAR(-Q16_FROM_INT(6), id_cmd, 2);
+    ASSERT_Q16_NEAR(v_max, v_q0 + id_cmd, 2);
+    TEST_ASSERT_FALSE(syn_foc_field_weakening(0, v_max, v_max, &id_cmd));
+
+    /* 2. Sustained over-voltage near INT32_MIN saturates cleanly instead of wrapping positive */
+    q16_t id_floor = INT32_MIN + Q16_ONE;
+    TEST_ASSERT_TRUE(syn_foc_field_weakening(Q16_FROM_INT(20), 0, Q16_FROM_INT(10), &id_floor));
+    TEST_ASSERT_EQUAL_INT32(INT32_MIN, id_floor);
+
+    /* 3. Park & dead-time saturate cleanly; invalid v_max <= 0 or NULL id_cmd rejected */
+    SYN_FOC_AB ab_max = {INT32_MAX, INT32_MAX};
+    SYN_FOC_DQ dq_max = {0, 0};
+    syn_foc_park(&ab_max, Q16_PI / 4, &dq_max);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, dq_max.d);
+    syn_foc_park_fast(&ab_max, Q16_PI / 4, &dq_max);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, dq_max.d);
+
+    SYN_FOC_DQ dq_in = {INT32_MAX, INT32_MAX};
+    SYN_FOC_AB ab_sat = {0, 0};
+    syn_foc_inv_park(&dq_in, Q16_PI / 4, &ab_sat);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, ab_sat.beta);
+    syn_foc_inv_park_fast(&dq_in, Q16_PI / 4, &ab_sat);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, ab_sat.beta);
+
+    q16_t da = Q16_ONE;
+    q16_t db = 0;
+    q16_t dc = Q16_HALF;
+    SYN_FOC_ABC i_ext = {Q16_ONE, -Q16_ONE, -Q16_ONE};
+    syn_foc_deadtime_comp(&da, &db, &dc, &i_ext, INT32_MIN);
+    syn_foc_deadtime_comp(&da, &db, &dc, &i_ext, INT32_MAX);
+    TEST_ASSERT_EQUAL_INT32(Q16_ONE, da);
+    TEST_ASSERT_EQUAL_INT32(0, db);
+
+    TEST_ASSERT_FALSE(syn_foc_field_weakening(Q16_ONE, 0, Q16_ONE, NULL));
+    TEST_ASSERT_FALSE(syn_foc_field_weakening(Q16_ONE, 0, 0, &id_floor));
+}
+
 void run_foc_tests(void)
 {
     RUN_TEST(test_clarke_balanced);
@@ -256,4 +303,5 @@ void run_foc_tests(void)
     RUN_TEST(test_foc_edge_cases);
     RUN_TEST(test_foc_deadtime_compensation);
     RUN_TEST(test_tier_a_foc_large_amplitude_and_high_vbus_svpwm);
+    RUN_TEST(test_foc_field_weakening_closed_loop_and_saturation);
 }

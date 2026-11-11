@@ -73,7 +73,8 @@ bool syn_failsafe_step(SYN_Failsafe_Manager *mgr, uint32_t now_ms, uint16_t *out
     if (!mgr->ever_received) {
         mgr->in_failsafe = true;
     } else {
-        uint32_t elapsed = now_ms - mgr->last_frame_ms;
+        int32_t diff = (int32_t)(now_ms - mgr->last_frame_ms);
+        uint32_t elapsed = (diff > 0) ? (uint32_t)diff : 0U;
         if (elapsed >= mgr->config.timeout_ms && !mgr->in_failsafe) {
             mgr->in_failsafe = true;
             mgr->failsafe_events++;

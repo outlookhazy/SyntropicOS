@@ -63,10 +63,14 @@ static void test_boot(void)
     TEST_ASSERT_FALSE(syn_boot_is_safe_mode(&bsafe));
 }
 
-/** syn_boot_set_reset_reason — exercises last_reset field write */
+/** syn_boot_set_reset_reason — persists across crash before mark_healthy */
 static void test_boot_set_reset_reason(void)
 {
     memset(mock_flash, 0xFF, sizeof(mock_flash));
+
+    SYN_Boot uninit_boot = {0};
+    syn_boot_set_reset_reason(&uninit_boot, SYN_RESET_EXTERNAL);
+    TEST_ASSERT_EQUAL_UINT8(SYN_RESET_EXTERNAL, uninit_boot.data.last_reset);
 
     SYN_ParamStore store;
     syn_param_init(&store, 0, 2, sizeof(SYN_BootData));
@@ -75,7 +79,19 @@ static void test_boot_set_reset_reason(void)
     syn_boot_init(&boot, &store, 3);
 
     syn_boot_set_reset_reason(&boot, 0x5A);
+    uint16_t seq_after_first = store.next_seq;
+    /* Idempotent repeat must not waste another flash slot */
+    syn_boot_set_reset_reason(&boot, 0x5A);
+    TEST_ASSERT_EQUAL_UINT16(seq_after_first, store.next_seq);
     TEST_ASSERT_EQUAL_HEX8(0x5A, boot.data.last_reset);
+
+    /* Simulate crash before mark_healthy: next boot must still observe 0x5A */
+    SYN_ParamStore crash_store;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_param_init(&crash_store, 0, 2, sizeof(SYN_BootData)));
+    SYN_Boot crash_boot;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_boot_init(&crash_boot, &crash_store, 3));
+    TEST_ASSERT_EQUAL_HEX8(0x5A, syn_boot_reset_reason(&crash_boot));
+    TEST_ASSERT_EQUAL_UINT16(1U, syn_boot_fail_count(&crash_boot));
 }
 
 /** syn_boot_set_errlog + syn_boot_log_events (no errlog) */

@@ -639,6 +639,7 @@ int main(void)
     extern void test_bldc_6step_direction_and_stop(void);
     extern void test_bldc_6step_speed_calculation(void);
     extern void test_bldc_6step_null_params_and_edge_cases(void);
+    extern void test_bldc_6step_fault_latch_high_rpm_and_pid_clamp(void);
     extern void test_sbus_init(void);
     extern void test_sbus_decode_buffer(void);
     extern void test_sbus_streaming_parser(void);
@@ -733,6 +734,7 @@ int main(void)
     RUN_TEST(test_bldc_6step_direction_and_stop);
     RUN_TEST(test_bldc_6step_speed_calculation);
     RUN_TEST(test_bldc_6step_null_params_and_edge_cases);
+    RUN_TEST(test_bldc_6step_fault_latch_high_rpm_and_pid_clamp);
     RUN_TEST(test_sbus_init);
     RUN_TEST(test_sbus_decode_buffer);
     RUN_TEST(test_sbus_streaming_parser);
@@ -783,6 +785,8 @@ int main(void)
     RUN_TEST(test_mavlink_null_and_crc_error);
     extern void test_mavlink_msg_ids_and_invalid_state_fallback(void);
     RUN_TEST(test_mavlink_msg_ids_and_invalid_state_fallback);
+    extern void test_mavlink_stream_noise_and_post_error_resync(void);
+    RUN_TEST(test_mavlink_stream_noise_and_post_error_resync);
     RUN_TEST(test_blackbox_init);
     RUN_TEST(test_blackbox_varint);
     RUN_TEST(test_blackbox_encode_intra_and_delta);
@@ -978,6 +982,7 @@ int main(void)
     extern void test_r5_icmp_regressions(void);
     extern void test_r5_igmp_regressions(void);
     extern void test_r5_rc_failsafe_regressions(void);
+    extern void test_rc_failsafe_future_frame_timestamp_no_false_trip(void);
     extern void test_r5_usb_regressions(void);
     extern void test_r5_usb_cdc_regressions(void);
     extern void test_r5_usb_hid_regressions(void);
@@ -1004,6 +1009,7 @@ int main(void)
     RUN_TEST(test_r5_icmp_regressions);
     RUN_TEST(test_r5_igmp_regressions);
     RUN_TEST(test_r5_rc_failsafe_regressions);
+    RUN_TEST(test_rc_failsafe_future_frame_timestamp_no_false_trip);
     RUN_TEST(test_r5_usb_regressions);
     RUN_TEST(test_r5_usb_cdc_regressions);
     RUN_TEST(test_r5_usb_hid_regressions);

@@ -34,7 +34,7 @@ void syn_scale_feed_adc(SYN_Scale *scale, int32_t raw_adc24)
     if (scale == NULL)
         return;
 
-    int32_t delta = raw_adc24 - scale->tare_offset;
+    int64_t delta = (int64_t)raw_adc24 - (int64_t)scale->tare_offset;
     if (scale->scale_factor != 0.0f) {
         scale->last_weight_grams = (float)delta / scale->scale_factor;
     } else {
@@ -51,7 +51,7 @@ void syn_scale_tare(SYN_Scale *scale, int32_t tare_offset)
 
 void syn_scale_set_calibration_factor(SYN_Scale *scale, float factor)
 {
-    if (scale == NULL || factor == 0.0f)
+    if (scale == NULL || !isfinite(factor) || factor == 0.0f)
         return;
     scale->scale_factor = factor;
 }

@@ -98,8 +98,9 @@ SYN_Status syn_eth_init(SYN_ETH *eth, const uint8_t mac_addr[6], uint32_t ip_add
  * @param eth      Pointer to Ethernet instance.
  * @param frame    Pointer to raw frame bytes.
  * @param len      Frame byte length (60..1514 bytes).
- * @param tx_buf   Output buffer to receive immediate ARP reply if generated.
- * @param tx_len   Pointer to receive ARP reply byte length (0 if no reply needed).
+ * @param tx_buf   Output buffer to receive immediate ARP/ICMP/IGMP/TCP reply frame if generated
+ *                 (must hold at least SYN_ETH_MAX_FRAME_LEN = 1514 bytes when non-NULL).
+ * @param tx_len   Pointer to receive reply frame byte length (0 if no reply needed).
  * @return SYN_OK on success.
  */
 SYN_Status syn_eth_process_frame(SYN_ETH *eth, const uint8_t *frame, size_t len, uint8_t *tx_buf,

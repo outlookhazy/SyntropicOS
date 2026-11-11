@@ -102,27 +102,43 @@ void syn_errlog_clear(SYN_ErrLog *log)
 
 const SYN_ErrEntry *syn_errlog_latest(const SYN_ErrLog *log)
 {
-    if (log->total_count == 0)
-        return NULL;
+    const SYN_ErrEntry *entry = NULL;
 
-    size_t idx = (log->head == 0) ? log->capacity - 1 : log->head - 1;
-    return &log->entries[idx];
+    if (log == NULL) {
+        return NULL;
+    }
+
+    syn_port_enter_critical();
+    if ((log->entries != NULL) && (log->capacity > 0U) && (log->total_count > 0U)) {
+        size_t idx = (log->head == 0U) ? (log->capacity - 1U) : (log->head - 1U);
+        entry = &log->entries[idx];
+    }
+    syn_port_exit_critical();
+    return entry;
 }
 
 size_t syn_errlog_count_severity(const SYN_ErrLog *log, SYN_ErrSeverity severity)
 {
-    size_t avail = syn_errlog_available(log);
-    size_t count = 0;
-    size_t i;
+    size_t count = 0U;
 
-    size_t start = (log->total_count <= log->capacity) ? 0 : log->head;
+    if (log == NULL) {
+        return 0U;
+    }
 
-    for (i = 0; i < avail; i++) {
-        size_t idx = (start + i) % log->capacity;
-        if (log->entries[idx].severity == (uint8_t)severity) {
-            count++;
+    syn_port_enter_critical();
+    if ((log->entries != NULL) && (log->capacity > 0U)) {
+        size_t avail = syn_errlog_available(log);
+        size_t start = (log->total_count <= log->capacity) ? 0U : log->head;
+        size_t i;
+
+        for (i = 0U; i < avail; i++) {
+            size_t idx = (start + i) % log->capacity;
+            if (log->entries[idx].severity == (uint8_t)severity) {
+                count++;
+            }
         }
     }
+    syn_port_exit_critical();
     return count;
 }
 

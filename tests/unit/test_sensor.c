@@ -199,8 +199,41 @@ static void test_sensor_filters_and_edge_cases(void)
     TEST_ASSERT_EQUAL_INT(42, s.filtered);
 }
 
+typedef struct {
+    int32_t latest_in_cb;
+    size_t count_in_cb;
+} SensorStatsCbCapture;
+
+static void sensor_on_high_check_stats(SYN_Sensor *s, int16_t v, void *ctx)
+{
+    (void)v;
+    SensorStatsCbCapture *cap = (SensorStatsCbCapture *)ctx;
+    cap->count_in_cb = s->stats->count;
+    cap->latest_in_cb = syn_signal_latest(s->stats);
+}
+
+static void test_sensor_stats_updated_before_threshold_callback(void)
+{
+    SYN_Sensor s;
+    SYN_Signal stats;
+    int32_t stats_buf[4];
+    SensorStatsCbCapture cap = {0, 0};
+
+    syn_sensor_init(&s, "volt", mock_sensor_read, NULL);
+    syn_signal_init(&stats, stats_buf, 4);
+    syn_sensor_set_stats(&s, &stats);
+    syn_sensor_set_threshold(&s, 500, 20, sensor_on_high_check_stats, NULL, &cap);
+
+    mock_sensor_value = 625;
+    (void)syn_sensor_read_now(&s);
+
+    TEST_ASSERT_EQUAL_UINT32(1U, (uint32_t)cap.count_in_cb);
+    TEST_ASSERT_EQUAL_INT32(625, cap.latest_in_cb);
+}
+
 void run_sensor_tests(void)
 {
     RUN_TEST(test_sensor);
     RUN_TEST(test_sensor_filters_and_edge_cases);
+    RUN_TEST(test_sensor_stats_updated_before_threshold_callback);
 }

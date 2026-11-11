@@ -96,7 +96,8 @@ int16_t syn_filter_ema_update(SYN_FilterEMA *f, int16_t sample)
 
     /* EMA: out = alpha * sample + (256 - alpha) * prev, all in Q8 */
     int32_t sample_q8 = (int32_t)sample * 256;
-    f->value += ((int32_t)f->alpha * (sample_q8 - f->value)) >> 8;
+    int64_t diff = (int64_t)sample_q8 - (int64_t)f->value;
+    f->value += (int32_t)(((int64_t)f->alpha * diff) >> 8);
 
     return (int16_t)(f->value >> 8);
 }
@@ -207,7 +208,14 @@ q16_t syn_filter_fir_update(SYN_FilterFIR *f, q16_t sample)
     if (f->num_taps > 0) {
         f->head = (uint16_t)((f->head + 1) % f->num_taps);
     }
-    return (q16_t)(acc >> Q16_SHIFT);
+    int64_t shifted = acc >> Q16_SHIFT;
+    if (shifted > (int64_t)INT32_MAX) {
+        return INT32_MAX;
+    }
+    if (shifted < (int64_t)INT32_MIN) {
+        return INT32_MIN;
+    }
+    return (q16_t)shifted;
 }
 
 void syn_filter_fir_reset(SYN_FilterFIR *f)

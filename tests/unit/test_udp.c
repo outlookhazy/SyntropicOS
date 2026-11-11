@@ -196,12 +196,13 @@ void test_udp_extended_edge_cases(void)
     tcp_pkt[23] = 6;
     TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_udp_process_packet(&s_udp, tcp_pkt, sizeof(tcp_pkt)));
 
-    /* Invalid UDP header length (udp_len = 50 > pkt len) */
+    /* Invalid UDP header length (udp_len = 50 > ip_total_len - ihl) */
     uint8_t bad_udplen_pkt[64] = {0};
     syn_poke_u16(0x0800, bad_udplen_pkt, 12);
     bad_udplen_pkt[14] = 0x45;
+    syn_poke_u16(30, bad_udplen_pkt, 16);
     bad_udplen_pkt[23] = 17;
-    syn_poke_u16(50, bad_udplen_pkt, 38); /* udp_len 50 > 64 - 34 = 30 */
+    syn_poke_u16(50, bad_udplen_pkt, 38); /* udp_len 50 > 30 - 20 = 10 */
     TEST_ASSERT_EQUAL_INT(SYN_ERROR,
                           syn_udp_process_packet(&s_udp, bad_udplen_pkt, sizeof(bad_udplen_pkt)));
 
@@ -215,6 +216,7 @@ void test_udp_extended_edge_cases(void)
     uint8_t unbound_pkt[64] = {0};
     syn_poke_u16(0x0800, unbound_pkt, 12);
     unbound_pkt[14] = 0x45;
+    syn_poke_u16(20 + 16, unbound_pkt, 16);
     unbound_pkt[23] = 17;
     syn_poke_u16(9999, &unbound_pkt[34], 2); /* Dst port 9999 */
     syn_poke_u16(16, &unbound_pkt[34], 4);   /* UDP length 16 */
@@ -265,6 +267,7 @@ void test_udp_extended_edge_cases(void)
     uint8_t short_udplen_pkt[64] = {0};
     syn_poke_u16(0x0800, short_udplen_pkt, 12);
     short_udplen_pkt[14] = 0x45;
+    syn_poke_u16(28, short_udplen_pkt, 16);
     short_udplen_pkt[23] = 17;
     syn_poke_u16(4, &short_udplen_pkt[34], 4); /* udp_len 4 < 8 */
     TEST_ASSERT_EQUAL_INT(
@@ -279,6 +282,7 @@ void test_udp_extended_edge_cases(void)
     uint8_t ovf_pkt[128] = {0};
     syn_poke_u16(0x0800, ovf_pkt, 12);
     ovf_pkt[14] = 0x45;
+    syn_poke_u16(20 + 18, ovf_pkt, 16);
     ovf_pkt[23] = 17;
     syn_poke_u16(7777, &ovf_pkt[34], 2); /* dst port 7777 */
     syn_poke_u16(18, &ovf_pkt[34], 4);   /* UDP len 18 -> payload 10 > 2 remaining */
@@ -369,6 +373,7 @@ void test_udp_pt_block_read_clears_blocked_task_and_null_guards(void)
     uint8_t pkt[64] = {0};
     syn_poke_u16(0x0800, pkt, 12);      /* IPv4 */
     pkt[14] = 0x45;                     /* IHL=5 */
+    syn_poke_u16(20 + 8 + 5, pkt, 16);  /* IP total len = 33 */
     pkt[23] = 17;                       /* UDP */
     syn_poke_u32(0x0A000009U, pkt, 26); /* Src IP 10.0.0.9 */
     syn_poke_u32(s_ip, pkt, 30);        /* Dst IP */
@@ -437,6 +442,7 @@ void test_udp_round4_ihl_options_and_task_detach(void)
     memset(pkt, 0, sizeof(pkt));
     syn_poke_u16(0x0800U, pkt, 12U);
     pkt[14] = 0x47U; /* IHL = 28 bytes */
+    syn_poke_u16(28U + 8U + 4U, pkt, 16U);
     pkt[23] = 17U;
     syn_poke_u32(0x0A000005U, pkt, 26U);
     syn_poke_u32(s_ip, pkt, 30U);
@@ -477,6 +483,7 @@ static void build_test_udp_frame(uint8_t *pkt, uint32_t src_ip, uint16_t src_por
     memset(pkt, 0, 42U + payload_len);
     syn_poke_u16(0x0800U, pkt, 12U);
     pkt[14] = 0x45U;
+    syn_poke_u16((uint16_t)(28U + payload_len), pkt, 16U);
     pkt[23] = 17U;
     syn_poke_u32(src_ip, pkt, 26U);
     syn_poke_u32(s_ip, pkt, 30U);
@@ -627,6 +634,75 @@ static void test_tier_a_udp_regressions(void)
     TEST_ASSERT_EQUAL_HEX32(0x08080808UL, syn_peek_u32(tx, 30U));
 }
 
+static void test_udp_ip_total_len_padding_and_no_spurious_drop_wake(void)
+{
+    init_udp_fixture();
+    SYN_UdpSocket *sock = syn_udp_bind(&s_udp, 9500U);
+    TEST_ASSERT_NOT_NULL(sock);
+
+    /* 1. 60B Ethernet frame with ip_total_len=28 (0B payload) + 18B L2 pad, but malformed
+     *    udp_len=26 claiming L2 padding as payload -> must be rejected */
+    uint8_t pad_pkt[60];
+    memset(pad_pkt, 0xAA, sizeof(pad_pkt));
+    syn_poke_u16(0x0800U, pad_pkt, 12U);
+    pad_pkt[14] = 0x45U;
+    syn_poke_u16(28U, pad_pkt, 16U); /* ip_total_len = 20B IP + 8B UDP */
+    pad_pkt[23] = 17U;
+    syn_poke_u32(0x0A000009U, pad_pkt, 26U);
+    syn_poke_u32(s_ip, pad_pkt, 30U);
+    syn_poke_u16(4000U, &pad_pkt[34], 0U);
+    syn_poke_u16(9500U, &pad_pkt[34], 2U);
+    syn_poke_u16(26U, &pad_pkt[34], 4U); /* udp_len=26 > ip_total_len - 20 = 8 */
+    syn_poke_u16(0U, &pad_pkt[34], 6U);  /* csum = 0 */
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_udp_process_packet(&s_udp, pad_pkt, sizeof(pad_pkt)));
+    TEST_ASSERT_EQUAL_UINT8(0U, sock->dgram_count);
+
+    /* Truncated ip_total_len (< ihl + 8) and ip_total_len exceeding wire len rejected */
+    syn_poke_u16(24U, pad_pkt, 16U);
+    syn_poke_u16(8U, &pad_pkt[34], 4U);
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_udp_process_packet(&s_udp, pad_pkt, sizeof(pad_pkt)));
+
+    syn_poke_u16(80U, pad_pkt, 16U); /* 14 + 80 = 94 > 60 */
+    TEST_ASSERT_EQUAL_INT(SYN_ERROR, syn_udp_process_packet(&s_udp, pad_pkt, sizeof(pad_pkt)));
+
+    /* Valid 60B padded Ethernet frame (ip_total_len=33, udp_len=13, 13B L2 trailer pad) succeeds */
+    syn_poke_u16(33U, pad_pkt, 16U);
+    syn_poke_u16(13U, &pad_pkt[34], 4U);
+    memcpy(&pad_pkt[42], "VALID", 5U);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_udp_process_packet(&s_udp, pad_pkt, sizeof(pad_pkt)));
+    TEST_ASSERT_EQUAL_UINT8(1U, sock->dgram_count);
+    TEST_ASSERT_EQUAL_UINT16(5U, sock->rx_len);
+
+    uint8_t drain[16];
+    size_t br = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_udp_recv(sock, drain, sizeof(drain), &br, NULL, NULL));
+    TEST_ASSERT_EQUAL_size_t(5U, br);
+
+    /* 2. Dropped oversized datagram must NOT wake or detach blocked_task */
+    SYN_Task waiter = {0};
+    waiter.state = SYN_TASK_BLOCKED;
+    sock->blocked_task = &waiter;
+
+    static uint8_t big_pkt[42U + SYN_UDP_BUF_SIZE + 16U];
+    memset(big_pkt, 0, sizeof(big_pkt));
+    syn_poke_u16(0x0800U, big_pkt, 12U);
+    big_pkt[14] = 0x45U;
+    uint16_t big_udp_len = (uint16_t)(8U + SYN_UDP_BUF_SIZE + 8U);
+    syn_poke_u16((uint16_t)(20U + big_udp_len), big_pkt, 16U);
+    big_pkt[23] = 17U;
+    syn_poke_u32(0x0A000009U, big_pkt, 26U);
+    syn_poke_u32(s_ip, big_pkt, 30U);
+    syn_poke_u16(4000U, &big_pkt[34], 0U);
+    syn_poke_u16(9500U, &big_pkt[34], 2U);
+    syn_poke_u16(big_udp_len, &big_pkt[34], 4U);
+
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_udp_process_packet(&s_udp, big_pkt, 14U + 20U + (size_t)big_udp_len));
+    TEST_ASSERT_EQUAL_UINT8(0U, sock->dgram_count);
+    TEST_ASSERT_EQUAL(SYN_TASK_BLOCKED, waiter.state);
+    TEST_ASSERT_EQUAL_PTR(&waiter, sock->blocked_task);
+}
+
 void run_udp_tests(void)
 {
     RUN_TEST(test_udp_init_and_bind);
@@ -639,4 +715,5 @@ void run_udp_tests(void)
     RUN_TEST(test_udp_round4_ihl_options_and_task_detach);
     RUN_TEST(test_r5_n07_udp_datagram_boundaries_and_waddress);
     RUN_TEST(test_tier_a_udp_regressions);
+    RUN_TEST(test_udp_ip_total_len_padding_and_no_spurious_drop_wake);
 }

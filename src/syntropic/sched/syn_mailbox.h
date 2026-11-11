@@ -74,7 +74,7 @@ typedef struct {
     volatile size_t tail;       /**< Read index (consumer)               */
     volatile uint32_t overflow; /**< Messages dropped (queue full)       */
 #if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
-    bool notify; /**< Auto-notify consumer core on post?  */
+    volatile uint8_t notify; /**< Auto-notify consumer core on post?  */
 #endif
 } SYN_Mailbox;
 
@@ -87,27 +87,27 @@ typedef struct {
  * @param count     Max number of messages.
  */
 #if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
-#define SYN_MAILBOX_DEFINE(name, type, count)                 \
-    static uint8_t name##_buf[((count) + 1U) * sizeof(type)]; \
-    static SYN_Mailbox name = {                               \
-        .buf = name##_buf,                                    \
-        .msg_size = sizeof(type),                             \
-        .capacity = ((count) + 1U),                           \
-        .head = 0,                                            \
-        .tail = 0,                                            \
-        .overflow = 0,                                        \
-        .notify = false,                                      \
+#define SYN_MAILBOX_DEFINE(name, type, count) \
+    static type name##_buf[(count) + 1U];     \
+    static SYN_Mailbox name = {               \
+        .buf = (uint8_t *)name##_buf,         \
+        .msg_size = sizeof(type),             \
+        .capacity = ((count) + 1U),           \
+        .head = 0,                            \
+        .tail = 0,                            \
+        .overflow = 0,                        \
+        .notify = 0U,                         \
     }
 #else
-#define SYN_MAILBOX_DEFINE(name, type, count)                 \
-    static uint8_t name##_buf[((count) + 1U) * sizeof(type)]; \
-    static SYN_Mailbox name = {                               \
-        .buf = name##_buf,                                    \
-        .msg_size = sizeof(type),                             \
-        .capacity = ((count) + 1U),                           \
-        .head = 0,                                            \
-        .tail = 0,                                            \
-        .overflow = 0,                                        \
+#define SYN_MAILBOX_DEFINE(name, type, count) \
+    static type name##_buf[(count) + 1U];     \
+    static SYN_Mailbox name = {               \
+        .buf = (uint8_t *)name##_buf,         \
+        .msg_size = sizeof(type),             \
+        .capacity = ((count) + 1U),           \
+        .head = 0,                            \
+        .tail = 0,                            \
+        .overflow = 0,                        \
     }
 #endif
 
@@ -160,7 +160,11 @@ static inline void syn_mailbox_init(SYN_Mailbox *mb, void *buf, size_t msg_size,
     mb->tail = 0;
     syn_mailbox_set_overflow(mb, 0U);
 #if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
-    mb->notify = false;
+#if defined(SYN_BARRIER_TSAN)
+    __atomic_store_n(&mb->notify, 0U, __ATOMIC_RELAXED);
+#else
+    mb->notify = 0U;
+#endif
 #endif
 }
 
@@ -176,7 +180,16 @@ static inline void syn_mailbox_init(SYN_Mailbox *mb, void *buf, size_t msg_size,
  */
 static inline void syn_mailbox_set_notify(SYN_Mailbox *mb, bool enable)
 {
-    mb->notify = enable;
+    uint8_t val = enable ? 1U : 0U;
+#if defined(SYN_BARRIER_TSAN)
+    __atomic_store_n(&mb->notify, val, __ATOMIC_SEQ_CST);
+    __atomic_thread_fence(__ATOMIC_SEQ_CST);
+    syn_port_memory_barrier();
+#else
+    mb->notify = val;
+    SYN_COMPILER_BARRIER();
+    syn_port_memory_barrier();
+#endif
 }
 #endif
 
@@ -219,9 +232,19 @@ static inline bool syn_mailbox_post(SYN_Mailbox *mb, const void *msg)
     SYN_STORE_RELEASE(&mb->head, next);
 
 #if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
-    if (mb->notify) {
+#if defined(SYN_BARRIER_TSAN)
+    __atomic_thread_fence(__ATOMIC_SEQ_CST);
+    syn_port_memory_barrier();
+    if (__atomic_load_n(&mb->notify, __ATOMIC_SEQ_CST) != 0U) {
         syn_port_ipc_notify();
     }
+#else
+    SYN_COMPILER_BARRIER();
+    syn_port_memory_barrier();
+    if (mb->notify != 0U) {
+        syn_port_ipc_notify();
+    }
+#endif
 #endif
 
     return true;

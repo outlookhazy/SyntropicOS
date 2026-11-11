@@ -48,7 +48,8 @@ static void apply_speed(SYN_DCMotor *m)
     if (m->invert)
         forward = !forward;
 
-    uint16_t duty = (uint16_t)(spd >= 0 ? spd : -spd);
+    int64_t abs_spd = (spd >= 0) ? (int64_t)spd : -(int64_t)spd;
+    uint16_t duty = (abs_spd > 65535LL) ? 65535U : (uint16_t)abs_spd;
 
     switch ((SYN_DCMotorMode)m->mode) {
     case SYN_DC_MODE_PWM_DIR:
@@ -167,14 +168,22 @@ void syn_dc_motor_ramp_to(SYN_DCMotor *motor, int32_t speed, uint16_t duration)
         return;
     }
 
-    int32_t delta = speed - motor->speed;
+    int64_t delta = (int64_t)speed - (int64_t)motor->speed;
     /* Rate in units per ms, Q8 fixed-point */
-    motor->ramp_rate = (delta * 256) / (int32_t)duration;
+    int64_t rate64 = (delta * 256LL) / (int64_t)duration;
+    if (rate64 > (int64_t)INT32_MAX) {
+        rate64 = (int64_t)INT32_MAX;
+    } else if (rate64 < (int64_t)INT32_MIN + 1LL) {
+        rate64 = (int64_t)INT32_MIN + 1LL;
+    }
+    motor->ramp_rate = (int32_t)rate64;
     if (motor->ramp_rate == 0 && delta != 0) {
         motor->ramp_rate = (delta > 0) ? 1 : -1;
     }
 
-    int32_t step_rate = (delta >= 0 ? delta : -delta) / (int32_t)duration;
+    int64_t abs_delta = (delta >= 0) ? delta : -delta;
+    int64_t step_rate64 = abs_delta / (int64_t)duration;
+    int32_t step_rate = (step_rate64 > (int64_t)INT32_MAX) ? INT32_MAX : (int32_t)step_rate64;
     if (step_rate == 0 && delta != 0) {
         step_rate = 1;
     }
@@ -198,23 +207,37 @@ void syn_dc_motor_update(SYN_DCMotor *motor)
 
     motor->last_tick = now;
 
-    int32_t delta = (motor->ramp_rate * (int32_t)dt) / 256;
+    int64_t delta = ((int64_t)motor->ramp_rate * (int64_t)dt) / 256LL;
     if (delta == 0) {
         delta = (motor->ramp_rate > 0) ? 1 : -1;
     }
 
-    int32_t new_speed = motor->speed + delta;
+    int64_t new_speed = (int64_t)motor->speed + delta;
 
-    if ((motor->ramp_rate > 0 && new_speed >= motor->target) ||
-        (motor->ramp_rate < 0 && new_speed <= motor->target)) {
+    if ((motor->ramp_rate > 0 && new_speed >= (int64_t)motor->target) ||
+        (motor->ramp_rate < 0 && new_speed <= (int64_t)motor->target)) {
         motor->speed = motor->target;
         motor->ramp_rate = 0;
         syn_ramp_jump(&motor->ramp, motor->target);
     } else {
-        motor->speed = clamp_speed(motor, new_speed);
+        motor->speed = clamp_speed(motor, (int32_t)new_speed);
     }
 
     apply_speed(motor);
+}
+
+/**
+ * @brief Drive zero PWM duty cycle to active H-bridge output pin(s).
+ * @param motor DC motor driver instance.
+ */
+static void dc_zero_pwm(SYN_DCMotor *motor)
+{
+    if (motor->set_duty != NULL) {
+        motor->set_duty(motor->pin_a, 0U, motor->duty_ctx);
+        if ((SYN_DCMotorMode)motor->mode == SYN_DC_MODE_DUAL_PWM) {
+            motor->set_duty(motor->pin_b, 0U, motor->duty_ctx);
+        }
+    }
 }
 
 void syn_dc_motor_coast(SYN_DCMotor *motor)
@@ -223,6 +246,7 @@ void syn_dc_motor_coast(SYN_DCMotor *motor)
     motor->speed = 0;
     motor->target = 0;
     motor->ramp_rate = 0;
+    dc_zero_pwm(motor);
     syn_port_gpio_write(motor->pin_a, SYN_GPIO_LOW);
     syn_port_gpio_write(motor->pin_b, SYN_GPIO_LOW);
 }
@@ -233,6 +257,7 @@ void syn_dc_motor_brake(SYN_DCMotor *motor)
     motor->speed = 0;
     motor->target = 0;
     motor->ramp_rate = 0;
+    dc_zero_pwm(motor);
     syn_port_gpio_write(motor->pin_a, SYN_GPIO_HIGH);
     syn_port_gpio_write(motor->pin_b, SYN_GPIO_HIGH);
 }

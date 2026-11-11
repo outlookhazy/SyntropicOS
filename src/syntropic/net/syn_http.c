@@ -663,12 +663,12 @@ static bool http_parse_chunk_hex(SYN_HttpClient *c)
             c->chunk_remaining = (c->chunk_remaining << 4U) | (uint32_t)nib;
             digits++;
         } else if (hc == ';' || hc == '\r' || hc == '\n') {
-            break;
+            return (digits > 0U);
         } else {
             return false;
         }
     }
-    return (digits > 0U);
+    return false;
 }
 
 /**

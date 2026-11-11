@@ -133,6 +133,11 @@ static void do_read(SYN_Sensor *sensor)
         sensor->filtered = sensor->raw;
     }
 
+    /* Push to statistics window (if attached) before firing threshold callbacks */
+    if (sensor->stats != NULL) {
+        syn_signal_push(sensor->stats, (int32_t)sensor->filtered);
+    }
+
     /* Threshold check */
     if (sensor->threshold_enabled) {
         bool was_high = syn_hyst_state(&sensor->hyst);
@@ -147,11 +152,6 @@ static void do_read(SYN_Sensor *sensor)
                 sensor->on_low(sensor, sensor->filtered, sensor->threshold_ctx);
             }
         }
-    }
-
-    /* Push to statistics window (if attached) */
-    if (sensor->stats != NULL) {
-        syn_signal_push(sensor->stats, (int32_t)sensor->filtered);
     }
 }
 

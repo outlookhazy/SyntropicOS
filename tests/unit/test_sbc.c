@@ -245,10 +245,77 @@ void test_r5_sbc_frame_len_joint_stereo_and_window(void)
     TEST_ASSERT_EQUAL_UINT32(96U, (uint32_t)idx_pcm);
 }
 
+void test_sbc_stereo_interleaving_and_dual_channel_bitpool(void)
+{
+    SYN_SBC_Decoder dec;
+    syn_sbc_decoder_init(&dec);
+
+    /* Stereo, 4 blocks, SNR, 4 subbands (h1 = 0x0A), bitpool = 8:
+     * Ch0 scale_factors = {8, 0, 0, 0} (0x80, 0x00), Ch1 scale_factors = {0, 0, 0, 0} (0x00, 0x00).
+     * Sample bits all 1s -> Ch0 produces non-zero PCM while Ch1 is strictly 0.
+     * Interleaved output requires odd indices (Right channel) == 0 and even indices non-zero. */
+    uint8_t stereo_left_only[32];
+    memset(stereo_left_only, 0xFFU, sizeof(stereo_left_only));
+    stereo_left_only[0] = SYN_SBC_SYNCWORD;
+    stereo_left_only[1] = 0x0AU;
+    stereo_left_only[2] = 8U;
+    stereo_left_only[3] = 0x00U;
+    stereo_left_only[4] = 0x80U;
+    stereo_left_only[5] = 0x00U;
+    stereo_left_only[6] = 0x00U;
+    stereo_left_only[7] = 0x00U;
+
+    int16_t pcm_out[64] = {0};
+    size_t samples_out = 0U;
+    for (int f = 0; f < 2; f++) {
+        TEST_ASSERT_EQUAL_INT(SYN_OK,
+                              syn_sbc_decode_frame(&dec, stereo_left_only, sizeof(stereo_left_only),
+                                                   pcm_out, 64U, &samples_out));
+    }
+    TEST_ASSERT_EQUAL_UINT32(32U, (uint32_t)samples_out);
+
+    bool any_left_nonzero = false;
+    for (size_t i = 0U; i < 16U; i++) {
+        if (pcm_out[2U * i] != 0) {
+            any_left_nonzero = true;
+        }
+        TEST_ASSERT_EQUAL_INT16(0, pcm_out[2U * i + 1U]);
+    }
+    TEST_ASSERT_TRUE(any_left_nonzero);
+
+    /* Dual-channel with high bitpool (bitpool = 80, 4 subbands) must cap bits[ch][sb] <= 16
+     * (never UB shift >= 32) and allocate full bitpool independently to Ch1 even when Ch0 uses
+     * 64 bits. */
+    syn_sbc_decoder_init(&dec);
+    uint8_t dual_high_bp[96];
+    memset(dual_high_bp, 0xFFU, sizeof(dual_high_bp));
+    dual_high_bp[0] = SYN_SBC_SYNCWORD;
+    dual_high_bp[1] = 0x06U; /* 16kHz, 4 blocks, Dual Channel, SNR, 4 subbands */
+    dual_high_bp[2] = 80U;
+    dual_high_bp[3] = 0x00U;
+    dual_high_bp[4] = 0xFFU; /* Ch0 sf = 15, 15, 15, 15 */
+    dual_high_bp[5] = 0xFFU;
+    dual_high_bp[6] = 0x80U; /* Ch1 sf = 8, 0, 0, 0 -> must still receive bits in Dual Channel! */
+    dual_high_bp[7] = 0x00U;
+
+    for (int f = 0; f < 2; f++) {
+        TEST_ASSERT_EQUAL_INT(SYN_OK, syn_sbc_decode_frame(&dec, dual_high_bp, sizeof(dual_high_bp),
+                                                           pcm_out, 64U, &samples_out));
+    }
+    bool any_right_nonzero = false;
+    for (size_t i = 0U; i < 16U; i++) {
+        if (pcm_out[2U * i + 1U] != 0) {
+            any_right_nonzero = true;
+        }
+    }
+    TEST_ASSERT_TRUE(any_right_nonzero);
+}
+
 void run_sbc_tests(void)
 {
     RUN_TEST(test_sbc_init_and_null_checks);
     RUN_TEST(test_sbc_header_parsing);
     RUN_TEST(test_sbc_decode_frame);
     RUN_TEST(test_r5_sbc_frame_len_joint_stereo_and_window);
+    RUN_TEST(test_sbc_stereo_interleaving_and_dual_channel_bitpool);
 }

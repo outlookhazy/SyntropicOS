@@ -477,12 +477,29 @@ void test_eth_dispatch_icmp(void)
     frame[36] = (uint8_t)(icmp_csum >> 8);
     frame[37] = (uint8_t)(icmp_csum & 0xFF);
 
-    uint8_t tx[128];
+    static uint8_t tx[SYN_ETH_MAX_FRAME_LEN];
     size_t tx_len = 0;
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, frame, sizeof(frame), tx, &tx_len));
 
     /* ICMP engine must have counted the echo request */
     TEST_ASSERT_EQUAL_UINT32(1, g_test_icmp.echo_requests_rx);
+
+    /* Full-MTU 1514B Echo Request dispatched via syn_eth_process_frame */
+    static uint8_t mtu_req[SYN_ETH_MAX_FRAME_LEN];
+    static uint8_t mtu_payload[SYN_ETH_MAX_FRAME_LEN - 42U];
+    size_t mtu_req_len = 0U;
+    memset(mtu_payload, 0x5AU, sizeof(mtu_payload));
+    SYN_ETH peer_eth;
+    syn_eth_init(&peer_eth, PEER_MAC, PEER_IP);
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_icmp_build_echo_request(
+                                      &g_test_icmp, &peer_eth, MY_IP, MY_MAC, 9U, 1U, mtu_payload,
+                                      sizeof(mtu_payload), mtu_req, &mtu_req_len));
+    TEST_ASSERT_EQUAL_size_t(SYN_ETH_MAX_FRAME_LEN, mtu_req_len);
+    tx_len = 0U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_eth_process_frame(&eth, mtu_req, mtu_req_len, tx, &tx_len));
+    TEST_ASSERT_EQUAL_size_t(SYN_ETH_MAX_FRAME_LEN, tx_len);
+    TEST_ASSERT_EQUAL_UINT8(SYN_ICMP_TYPE_ECHO_REPLY, tx[34]);
+    TEST_ASSERT_EQUAL_MEMORY(mtu_payload, &tx[42], sizeof(mtu_payload));
 
     g_icmp_injected = false;
 }
@@ -537,6 +554,9 @@ void test_eth_dispatch_tcp(void)
     frame[41] = 1;    /* seq */
     frame[46] = 0x50; /* data offset 5 */
     frame[47] = SYN_TCP_FLAG_SYN;
+    uint16_t tcp_csum = syn_tcp_checksum(0xC0A80101UL, ip, &frame[34], 20U);
+    frame[50] = (uint8_t)(tcp_csum >> 8U);
+    frame[51] = (uint8_t)(tcp_csum & 0xFFU);
 
     uint8_t tx[128];
     size_t tx_len = 0;

@@ -73,6 +73,7 @@ typedef struct {
     uint32_t rpm;                 /**< Calculated motor speed in RPM. */
     SYN_PID speed_pid;            /**< Integrated speed PID controller instance. */
     bool speed_pid_active;        /**< True if PID closed-loop speed control is enabled. */
+    bool speed_tick_valid;        /**< True once initial speed window timestamp is latched. */
 } SYN_BLDC_6Step;
 
 /**

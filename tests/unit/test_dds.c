@@ -6,6 +6,7 @@
 #include "syntropic/dsp/syn_dds.h"
 #include "unity/unity.h"
 
+#include <math.h>
 #include <string.h>
 
 void test_dds_sine_wave(void)
@@ -126,6 +127,37 @@ static void test_r5_dds_deterministic_xorshift_noise(void)
     TEST_ASSERT_NOT_EQUAL(z1, z2);
 }
 
+static void test_dds_duty_100pct_nan_and_saturation(void)
+{
+    SYN_DDS dds;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dds_init(&dds, SYN_DDS_SQUARE, 100U, 1000U));
+
+    /* Reject NaN/Inf duty and >= Nyquist/wrap frequencies */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dds_set_duty(&dds, (float)NAN));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dds_set_duty(&dds, (float)INFINITY));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dds_set_freq(&dds, 1000U, 1000U));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dds_init(&dds, SYN_DDS_SINE, 2000U, 1000U));
+
+    /* 100% duty cycle must stay high even at top_phase == 65535 */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dds_set_duty(&dds, 100.0f));
+    dds.phase = 0xFFFF0000U;
+    TEST_ASSERT_EQUAL_INT32(Q16_ONE, syn_dds_step(&dds));
+
+    /* 0% duty cycle must stay low even at phase == 0 */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dds_set_duty(&dds, 0.0f));
+    dds.phase = 0U;
+    TEST_ASSERT_EQUAL_INT32(-Q16_ONE, syn_dds_step(&dds));
+
+    /* Saturating amplitude + offset in syn_dds_step and syn_dds_fill_u16 */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dds_set_duty(&dds, 100.0f));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dds_set_gain(&dds, Q16_FROM_INT(20000), Q16_FROM_INT(20000)));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, syn_dds_step(&dds));
+
+    uint16_t dac_out[2] = {0U, 0U};
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dds_fill_u16(&dds, dac_out, 2U, 32768U, 65535U));
+    TEST_ASSERT_EQUAL_UINT16(65535U, dac_out[0]);
+}
+
 void run_dds_tests(void)
 {
     RUN_TEST(test_dds_sine_wave);
@@ -133,4 +165,5 @@ void run_dds_tests(void)
     RUN_TEST(test_dds_square_pwm_and_noise);
     RUN_TEST(test_dds_buffer_fill);
     RUN_TEST(test_r5_dds_deterministic_xorshift_noise);
+    RUN_TEST(test_dds_duty_100pct_nan_and_saturation);
 }

@@ -25,7 +25,8 @@
  */
 static int32_t pct_to_adc(const SYN_Actuator *act, int16_t pct)
 {
-    return act->stroke_min + ((int32_t)pct * act->stroke_range) / 1000;
+    int64_t span = (int64_t)act->stroke_max - (int64_t)act->stroke_min;
+    return (int32_t)((int64_t)act->stroke_min + (((int64_t)pct * span) / 1000LL));
 }
 
 /**
@@ -36,11 +37,21 @@ static int32_t pct_to_adc(const SYN_Actuator *act, int16_t pct)
  */
 static int16_t adc_to_pct(const SYN_Actuator *act, int32_t adc)
 {
-    if (act == NULL || act->stroke_range == 0)
+    if (act == NULL)
         return 0; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
+    int64_t span = (int64_t)act->stroke_max - (int64_t)act->stroke_min;
+    if (span <= 0) {
+        return 0;
+    }
 
-    int32_t pct = ((adc - act->stroke_min) * 1000) / act->stroke_range;
-    return (int16_t)SYN_CLAMP(pct, 0, 1000);
+    int64_t pct = (((int64_t)adc - (int64_t)act->stroke_min) * 1000LL) / span;
+    if (pct < 0) {
+        return 0;
+    }
+    if (pct > 1000) {
+        return 1000;
+    }
+    return (int16_t)pct;
 }
 
 /* ── API ────────────────────────────────────────────────────────────────── */
@@ -55,7 +66,8 @@ void syn_actuator_init(SYN_Actuator *act, const SYN_Actuator_Config *cfg)
     memset(act, 0, sizeof(*act));
     act->stroke_min = cfg->stroke_min;
     act->stroke_max = cfg->stroke_max;
-    act->stroke_range = cfg->stroke_max - cfg->stroke_min;
+    int64_t span = (int64_t)cfg->stroke_max - (int64_t)cfg->stroke_min;
+    act->stroke_range = (span <= 0) ? 0 : ((span > (int64_t)INT32_MAX) ? INT32_MAX : (int32_t)span);
 
     /* Configure underlying motor controller */
     SYN_MotorCtrl_Config mc;
