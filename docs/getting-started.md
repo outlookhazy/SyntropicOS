@@ -1,43 +1,230 @@
 # Getting Started with SyntropicOS
 
-SyntropicOS is a static, zero-heap C99 cooperative operating system and driver/protocol framework for microcontrollers. It combines 2-byte stackless protothreads (`syn_pt`), a priority-ranked scheduler (`syn_sched`), and non-blocking peripheral, storage, crypto, network, and fieldbus state machines.
+SyntropicOS is a C99 cooperative multitasking operating system, driver layer, and protocol framework for microcontrollers. Tasks run on the main stack with **zero heap allocation** (`malloc` is never called) and **2 bytes of continuation state** per protothread.
+
+**Choose where to start:**
+
+- **No hardware handy?** Run a two-task demo on Linux or macOS in **[Section 1](#1-try-it-in-60-seconds-no-hardware)**.
+- **New to protothreads?** Read **[Section 2: How Tasks Work (3-Minute Tour)](#2-how-tasks-work-3-minute-tour)**.
+- **Setting up a board or IDE?** Jump to **[Section 3: Add to Your Project](#3-add-to-your-project)** and **[Section 4: First MCU Firmware](#4-first-mcu-firmware-blink-and-serial-log)**.
 
 ---
 
-## 1. Core Architecture & Rules
+## 1. Try It in 60 Seconds (No Hardware)
 
-### Stackless Protothreads (`syn_pt`)
-Preemptive RTOS tasks allocate a dedicated hardware stack per thread (typically 512 B to 4 KB RAM each). SyntropicOS executes cooperative **protothreads** on the single main system stack.
+You can run the scheduler, timed delays (`PT_TASK_DELAY_MS`), event-flag blocking (`PT_BLOCK_EVENT`), and structured logging on Linux or macOS with any C99 compiler (`gcc` or `clang`).
 
-- **RAM Cost**: **2 bytes** per standalone `SYN_PT` (`uint16_t lc` line continuation); **44 bytes** per scheduled `SYN_Task` descriptor on 32-bit targets.
-- **Explicit Yield Intent**: `PT_BEGIN(pt)` and `PT_END(pt)` wrap a `switch (pt->lc)` continuation jump table:
-  - `PT_PASS(pt)` and `PT_WAIT_UNTIL(pt, cond)` return `PT_IDLE` (no immediate work remaining this round).
-  - `PT_CONTINUE(pt)` and `PT_CONTINUE_IF_NEEDED(pt, task)` return `PT_MORE` (work chunk completed; keep task in the scheduler's active `Work` rank until another task needs CPU time).
-- **Timed Delays & True Blocking**:
-  - `PT_TASK_DELAY_MS(pt, task, ms)` arms a wrap-safe millisecond deadline on `task->delay_until`.
-  - `PT_BLOCK_EVENT(pt, task, &grp, mask)`, `PT_MUTEX_LOCK(pt, task, &mtx)`, `PT_BLOCK_STREAM(pt, task, &stream)`, and `PT_BLOCK_CONDITION(pt, task, cond)` park the task in `SYN_TASK_BLOCKED` so the scheduler skips polling it (and can enter tickless sleep) until an ISR or peer task wakes it.
+From a SyntropicOS checkout, save this file as `host_demo.c`:
 
-!!! warning "Two Mandatory Protothread Rules"
-    1. **Local Variable Lifetime**: Non-`static` local variables do **not** persist across yield points (`PT_PASS`, `PT_CONTINUE`, `PT_WAIT_*`, `PT_TASK_DELAY_MS`, `PT_BLOCK_*`). Keep persistent state in `static` variables or in a caller-owned context struct passed to `syn_task_create(..., user_data)`.
-    2. **No `switch` Inside `PT_BEGIN`..`PT_END`**: Because `PT_BEGIN(pt)` expands to `switch (pt->lc)`, placing a C `switch` statement directly inside the protothread body corrupts continuation `case` labels. Use `if` / `else if` chains or move `switch` logic into a separate helper function.
+```c
+#define _POSIX_C_SOURCE 199309L
+#include <stdio.h>
+#include <time.h>
 
-### Zero-Heap Static Allocation
-SyntropicOS never calls `malloc()`, `calloc()`, `realloc()`, or `free()`. Every task array (`SYN_Task`), scheduler (`SYN_Sched`), ring buffer (`SYN_RingBuf`), timer (`SYN_Timer`), and protocol context is allocated statically by the caller at compile time.
+#include "syntropic/syntropic.h"
 
-### Non-Blocking Drivers & Protocol Engines
-Every peripheral driver (GPIO, UART, I2C, SPI, CAN, ADC, DMA, USB) and protocol stack (Ethernet/IP, TCP/UDP, TLS 1.3, WireGuard, BLE, Modbus, CANopen, J1939, UDS, BACnet, EtherCAT, MQTT, CoAP, LwM2M) is implemented as a non-blocking state machine exposing `_poll()`, `_update()`, or `_process()` steps that perform bounded work and return immediately.
+/* ── Minimal host system port & console output ─────────────────────────── */
+void syn_port_enter_critical(void) {}
+void syn_port_exit_critical(void) {}
+
+uint32_t syn_port_get_tick_ms(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint32_t)((uint64_t)ts.tv_sec * 1000ULL + (uint64_t)ts.tv_nsec / 1000000ULL);
+}
+
+static void console_out(const char *str, size_t len) {
+    (void)fwrite(str, 1, len, stdout);
+    (void)fflush(stdout);
+}
+
+/* ── Application tasks ─────────────────────────────────────────────────── */
+#define EVT_PING (1UL << 0)
+static SYN_EventFlags s_events;
+
+static SYN_PT_Status producer_task(SYN_PT *pt, SYN_Task *task) {
+    static uint32_t sent;
+    PT_BEGIN(pt);
+    for (sent = 1; sent <= 3; sent++) {
+        PT_TASK_DELAY_MS(pt, task, 200);          /* Pause 200 ms without blocking */
+        SYN_LOG_I("PROD", "Ping #%lu", (unsigned long)sent);
+        syn_event_flags_set(&s_events, EVT_PING); /* Wake consumer_task */
+    }
+    PT_END(pt);
+}
+
+static SYN_PT_Status consumer_task(SYN_PT *pt, SYN_Task *task) {
+    static uint32_t received = 0;
+    PT_BEGIN(pt);
+    while (received < 3) {
+        PT_BLOCK_EVENT(pt, task, &s_events, EVT_PING); /* Sleep until EVT_PING */
+        received++;
+        SYN_LOG_I("CONS", "Got ping #%lu", (unsigned long)received);
+    }
+    PT_END(pt);
+}
+
+int main(void) {
+    static SYN_Task tasks[2];
+    static SYN_Sched sched;
+
+    syn_log_init(console_out, SYN_LOG_INFO);
+    syn_event_flags_init(&s_events);
+
+    syn_task_create(&tasks[0], "producer", producer_task, SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks[1], "consumer", consumer_task, SYN_PRIO_HIGH,   NULL);
+    syn_sched_init(&sched, tasks, 2);
+
+    /* Returns false once both tasks reach PT_END(pt) */
+    while (syn_sched_run(&sched)) {
+        struct timespec nap = {0, 1000000L}; /* 1 ms idle sleep */
+        nanosleep(&nap, NULL);
+    }
+    return 0;
+}
+```
+
+Compile and run:
+
+```bash
+cc -std=c99 -Wall -Wextra -Isrc host_demo.c \
+  src/syntropic/sched/syn_sched.c \
+  src/syntropic/sched/syn_mutex.c \
+  src/syntropic/sched/syn_event_flags.c \
+  src/syntropic/log/syn_log.c \
+  src/syntropic/util/syn_fmt.c \
+  src/syntropic/port_stubs/syn_port_stubs.c \
+  -o host_demo && ./host_demo
+```
+
+Expected output:
+
+```text
+[     200] I/PROD: Ping #1
+[     201] I/CONS: Got ping #1
+[     401] I/PROD: Ping #2
+[     402] I/CONS: Got ping #2
+[     602] I/PROD: Ping #3
+[     603] I/CONS: Got ping #3
+```
+
+**What happened:**
+
+1. Both tasks ran sequentially on the single main stack — no OS threads and no `malloc()`.
+2. `PT_TASK_DELAY_MS` paused `producer_task` for 200 ms while letting the rest of the program run.
+3. `PT_BLOCK_EVENT` parked `consumer_task` in `SYN_TASK_BLOCKED` (zero polling) until `syn_event_flags_set()` woke it.
 
 ---
 
-## 2. Installation & Build Integration
+## 2. How Tasks Work (3-Minute Tour)
 
-**Compiler Prerequisite**: A C99 (or newer) compiler supporting `__has_include` — GCC >= 5 (`arm-none-eabi-gcc`, `riscv-none-embed-gcc`, host `gcc`), Clang / ARM Compiler 6, or IAR EWARM >= 8.
+### Anatomy of a Task
 
-### Choose Your Setup Path
+Think of each task as an independent `for (;;)` loop that pauses cooperatively instead of calling a blocking `delay()`:
+
+```c
+static SYN_PT_Status my_task(SYN_PT *pt, SYN_Task *task) {
+    PT_BEGIN(pt);                        /* 1. Required at top of task body */
+
+    for (;;) {
+        do_some_nonblocking_work();
+        PT_TASK_DELAY_MS(pt, task, 100); /* 2. Bookmark line & return to scheduler */
+    }
+
+    PT_END(pt);                          /* 3. Required at bottom of task body */
+}
+```
+
+Preemptive RTOS threads allocate a separate 512 B–4 KB stack per task. A SyntropicOS protothread (`SYN_PT`) stores a **2-byte bookmark** (`uint16_t` line number; **44 bytes** total per scheduled `SYN_Task` on 32-bit MCUs). When a task hits a `PT_*` macro, it saves its line number and returns to `syn_sched_run()`. On its next turn, it jumps straight back to that bookmark.
+
+### Which Pause Macro Should I Use?
+
+| Goal | Macro | Behavior |
+|---|---|---|
+| Wait `ms` milliseconds | `PT_TASK_DELAY_MS(pt, task, ms)` | Pauses this task for at least `ms`; other tasks keep running. |
+| Sleep until signaled by ISR or task | `PT_BLOCK_EVENT(pt, task, &ev, mask)` | Parks task (`SYN_TASK_BLOCKED`, zero polling) until event bit is set. Related: `PT_MUTEX_LOCK`, `PT_BLOCK_STREAM`, `PT_BLOCK_CONDITION`. |
+| Wait until an expression is true | `PT_WAIT_UNTIL(pt, cond)` | Checks `cond` once per scheduler round until true. |
+| Yield for the rest of this round | `PT_PASS(pt)` | Reports no more work this round (`PT_IDLE`). |
+| Slice a long loop (DSP, crypto, I/O) | `PT_CONTINUE_IF_NEEDED(pt, task)` | Yields (`PT_MORE`) **only** when a peer task needs CPU time. |
+
+### Keeping State Across Pauses (The Two Rules)
+
+Because a task returns from the C function on every pause, keep two rules in mind:
+
+1. **Stack variables reset across pauses.** Store values that must survive across a `PT_*` yield in a **context struct passed via `user_data`** (best when running multiple instances of a task) or in **`static` variables** (fine for single-instance tasks). Re-reading `task->user_data` *above* `PT_BEGIN(pt)` is safe because the function runs from the top before jumping to its bookmark.
+2. **Do not place a C `switch` directly inside `PT_BEGIN`..`PT_END`.** (`PT_BEGIN` expands to a `switch` jump table.) Use `if` / `else if`, or put `switch` statements inside a normal helper function.
+
+```c
+typedef struct {
+    SYN_GPIO_Pin pin;
+    uint32_t period_ms;
+    uint32_t toggles;
+} BlinkCtx;
+
+static void log_milestone(uint32_t count) {
+    switch (count) { /* switch inside a helper function is always fine */
+    case 10: SYN_LOG_I("LED", "10 toggles"); break;
+    default: break;
+    }
+}
+
+static SYN_PT_Status blink_task(SYN_PT *pt, SYN_Task *task) {
+    BlinkCtx *ctx = (BlinkCtx *)task->user_data; /* Re-fetched on every wake */
+
+    PT_BEGIN(pt);
+    for (;;) {
+        syn_gpio_toggle(ctx->pin);
+        ctx->toggles++;                  /* Persists inside caller-owned BlinkCtx */
+        log_milestone(ctx->toggles);
+        PT_TASK_DELAY_MS(pt, task, ctx->period_ms);
+    }
+    PT_END(pt);
+}
+```
+
+With `user_data`, two independent tasks can share `blink_task`:
+
+```c
+static BlinkCtx fast_led = { .pin = LED_A_PIN, .period_ms = 200,  .toggles = 0 };
+static BlinkCtx slow_led = { .pin = LED_B_PIN, .period_ms = 1000, .toggles = 0 };
+
+syn_task_create(&tasks[0], "led_fast", blink_task, SYN_PRIO_NORMAL, &fast_led);
+syn_task_create(&tasks[1], "led_slow", blink_task, SYN_PRIO_LOW,    &slow_led);
+```
+
+---
+
+## 3. Add to Your Project
+
+**Compiler Requirement**: C99 or newer with `__has_include` support — GCC >= 5 (`arm-none-eabi-gcc`, `riscv-none-embed-gcc`, host `gcc`), Clang / ARM Compiler 6, IAR EWARM >= 8, or Arduino IDE.
+
+=== "Arduino IDE"
+
+    1. Open **Tools → Manage Libraries...** (`Ctrl+Shift+I`).
+    2. Search for **SyntropicOS** and click **Install**.
+    3. Open **File → Examples → SyntropicOS → Blink** and upload to your board.
+
+    See the [Arduino Compatibility Guide](arduino.md) for multi-tab sketch patterns and board notes.
+
+=== "PlatformIO"
+
+    Add `SyntropicOS` to `platformio.ini`:
+
+    ```ini
+    [env:disco_f407vg]
+    platform = ststm32
+    board = disco_f407vg
+    framework = stm32cube
+    build_flags =
+        -std=c99
+        -Iinclude
+    lib_deps =
+        https://github.com/outlookhazy/SyntropicOS.git
+    ```
 
 === "CMake (Submodule)"
 
-    Add SyntropicOS to your repository:
+    Add the submodule to your project:
 
     ```bash
     git submodule add https://github.com/outlookhazy/SyntropicOS lib/SyntropicOS
@@ -55,29 +242,33 @@ Every peripheral driver (GPIO, UART, I2C, SPI, CAN, ADC, DMA, USB) and protocol 
 
     add_executable(my_firmware
         src/main.c
-        # Add the reference port matching your MCU (or your own port_*.c):
+        # Pick the port matching your target from src/port/:
         lib/SyntropicOS/src/port/stm32_hal/port_stm32_hal.c
     )
 
-    # Put the directory containing your syn_config.h on the include path:
+    # Optional: directory holding your syn_config.h (if you use one)
     target_include_directories(my_firmware PRIVATE include)
 
-    # syntropic is an INTERFACE library compiled with your target's flags.
-    # syn_stubs provides weak fallbacks for any port functions you don't implement.
+    # Define your MCU family when using port_stm32_hal.c outside CubeIDE/PlatformIO:
+    target_compile_definitions(my_firmware PRIVATE STM32F4xx)
+
+    # syntropic = portable headers & sources; syn_stubs = weak fallbacks for unused ports
     target_link_libraries(my_firmware PRIVATE syntropic syn_stubs)
 
+    # Strip unused functions and data at link time
     target_compile_options(my_firmware PRIVATE -ffunction-sections -fdata-sections)
     target_link_options(my_firmware PRIVATE -Wl,--gc-sections)
     ```
 
 === "Makefile (Submodule)"
 
+    `sources.mk` exports `SYN_INC` (`lib/SyntropicOS/src`), `SYN_SRCS` (all portable `.c` modules), and `SYN_STUB_SRCS` (`syn_port_stubs.c`):
+
     ```makefile
     SYN_DIR := lib/SyntropicOS
     include $(SYN_DIR)/sources.mk
 
-    # SYN_INC expands to $(SYN_DIR)/src
-    CFLAGS  += -std=c99 -ffunction-sections -fdata-sections -Iinclude -I$(SYN_INC)
+    CFLAGS  += -std=c99 -ffunction-sections -fdata-sections -DSTM32F4xx -Iinclude -I$(SYN_INC)
     LDFLAGS += -Wl,--gc-sections
 
     SRCS += src/main.c
@@ -86,165 +277,50 @@ Every peripheral driver (GPIO, UART, I2C, SPI, CAN, ADC, DMA, USB) and protocol 
     SRCS += $(SYN_STUB_SRCS)
     ```
 
-    `sources.mk` exports:
+=== "STM32CubeIDE / Keil / IAR"
 
-    - `SYN_INC` — include root (`lib/SyntropicOS/src`) so `#include "syntropic/syntropic.h"` resolves
-    - `SYN_SRCS` — all portable SyntropicOS `.c` source files
-    - `SYN_STUB_SRCS` — `src/syntropic/port_stubs/syn_port_stubs.c`
+    1. Add **`SyntropicOS/src`** (not the repo root) to your compiler include paths so `#include "syntropic/syntropic.h"` resolves.
+    2. Enable **C99** mode and dead-code stripping (`-ffunction-sections -fdata-sections` and `-Wl,--gc-sections`).
+    3. Compile `src/syntropic/**.c`, your target port from `src/port/<platform>/`, and `src/syntropic/port_stubs/syn_port_stubs.c`.
 
-=== "PlatformIO"
-
-    SyntropicOS ships `library.json` for native PlatformIO integration. Add to `platformio.ini`:
-
-    ```ini
-    [env:disco_f407vg]
-    platform = ststm32
-    board = disco_f407vg
-    framework = stm32cube
-    build_flags =
-        -std=c99
-        -Iinclude
-    lib_deps =
-        https://github.com/outlookhazy/SyntropicOS.git
-    ```
-
-    See [IDE Integration & Setup Guides](ide-guides.md) for STM32CubeIDE, VS Code + Cortex-Debug, Keil MDK-ARM, and IAR configurations.
-
-=== "Arduino IDE"
-
-    1. Open **Tools → Manage Libraries...** (`Ctrl+Shift+I`).
-    2. Search for **SyntropicOS** and click **Install**.
-    3. Open **File → Examples → SyntropicOS → Blink** to verify.
-
-    See the [Arduino Compatibility Guide](arduino.md) for sketch structure and board notes.
-
-=== "Manual / Vendor IDE"
-
-    1. Add **`lib/SyntropicOS/src`** (not `lib/SyntropicOS/`) to your compiler include paths, alongside the folder containing your `syn_config.h`.
-    2. Enable C99 mode (`-std=c99`) and dead-code stripping (`-ffunction-sections -fdata-sections` and `-Wl,--gc-sections`).
-    3. Add `.c` sources from `lib/SyntropicOS/src/syntropic/` plus your platform port from `lib/SyntropicOS/src/port/<platform>/`.
-    4. Optionally add `lib/SyntropicOS/src/syntropic/port_stubs/syn_port_stubs.c`.
+    See [IDE Setup Guides](ide-guides.md) for click-by-click screenshots/paths in STM32CubeIDE, VS Code + Cortex-Debug, Keil uVision, and IAR.
 
 ### Ready-Made Hardware Ports (`src/port/`)
 
-You do not need to write a port from scratch for supported targets — include the matching port source file from `src/port/`:
+Include the port file matching your target — no custom HAL code is needed for supported boards:
 
-| Target Platform | Port Source | Notes |
+| Target Platform | Port Source | Target Notes |
 |---|---|---|
-| **STM32 (Cube HAL)** | `src/port/stm32_hal/port_stm32_hal.c` | Portable across STM32F0/F1/F4/F7/G0/H7/L4/C0/U0 |
-| **STM32F4 (Bare-Metal)** | `src/port/stm32f4/port_stm32f4.c` | Direct register access, zero HAL dependency |
-| **WCH CH32V307 (RISC-V)** | `src/port/ch32v307/port_ch32v307.c` | QingKe V4F bare-metal port (`-DCH32V307=ON` in CMake) |
-| **Raspberry Pi RP2040 / RP2350** | `src/port/rp2040/port_rp2040.c` | Pico SDK (`+ port_rp2040_multicore.c` for dual-core AMP) |
-| **ESP32** | `src/port/esp32/port_esp32.c` | ESP-IDF peripheral & tick port |
-| **Arduino** | `src/port/arduino/port_arduino.cpp` | Arduino C++ SDK (`+ port_arduino_multicore.cpp` on RP2040) |
-| **POSIX Host Sockets** | `src/port/posix/port_posix_socket.c` | Non-blocking TCP/UDP socket backend for Linux/macOS host runs |
+| **STM32 (Cube HAL)** | `src/port/stm32_hal/port_stm32_hal.c` | Supports F0/F1/F4/F7/G0/H7/L4/C0/U0. Include `port/stm32_hal/port_stm32_hal.h` for `SYN_PORT_STM32_PIN()` and `syn_port_stm32_register_uart()`. |
+| **STM32F4 (Bare-Metal)** | `src/port/stm32f4/port_stm32f4.c` | Direct CMSIS register port (zero HAL dependency; includes `startup_stm32f407.c` & `stm32f407.ld`). |
+| **Raspberry Pi RP2040 / RP2350** | `src/port/rp2040/port_rp2040.c` | Pico SDK (`-DPICO_BOARD=...`; add `port_rp2040_multicore.c` when `SYN_USE_MULTICORE=1`). |
+| **ESP32** | `src/port/esp32/port_esp32.c` | ESP-IDF GPIO, UART, SPI, I2C, ADC, flash, and system tick port. |
+| **WCH CH32V307 (RISC-V)** | `src/port/ch32v307/port_ch32v307.c` | QingKe V4F bare-metal port (`-DCH32V307=ON` in CMake). |
+| **Arduino** | `src/port/arduino/port_arduino.cpp` | Cross-board Arduino C++ core (`+ port_arduino_multicore.cpp` on Arduino-Pico). |
+| **POSIX Host Sockets** | `src/port/posix/port_posix_socket.c` | Non-blocking TCP/UDP socket backend for Linux/macOS host testing. |
 
-!!! caution "How `syn_stubs` (`syn_port_stubs.c`) Behaves at Runtime"
-    `syn_port_stubs.c` provides `SYN_WEAK` fallbacks so your firmware links even if you only implement the port headers you actually call (for example `syn_port_system.h` and `syn_port_gpio.h`, skipping SPI/CAN/Flash). **Weak stubs are not no-ops**: calling an unimplemented port function invokes `syn_assert_failed()`, which spins in `for (;;)` by default. Always link a real port implementation for every peripheral your `main()` initializes.
+For custom MCUs, see the [Porting Guide](porting-guide.md) — a minimal scheduler + GPIO bring-up only requires `syn_port_system.h` and `syn_port_gpio.h`.
+
+!!! note "What `syn_stubs` (`syn_port_stubs.c`) Does"
+    Linking `syn_port_stubs.c` provides `SYN_WEAK` defaults for every `syn_port_*` function so your project links even if your port only implements GPIO and UART (skipping CAN, SPI, or Flash). **Stubs are fail-fast traps, not silent no-ops**: calling an unimplemented port function invokes `syn_assert_failed(__FILE__, __LINE__)`.
 
 ---
 
-## 3. First Application Tutorials
+## 4. First MCU Firmware (Blink and Serial Log)
 
-=== "Host C99 Quickstart (No Hardware)"
+Two cooperative tasks — one blinking an LED every 500 ms, one logging uptime every 2 seconds:
 
-    Try the scheduler, event-flag blocking (`PT_BLOCK_EVENT`), and structured logging on Linux or macOS in under a minute from a SyntropicOS checkout:
-
-    Save as `host_demo.c` in the repository root:
+=== "STM32 (Cube HAL)"
 
     ```c
-    #define _POSIX_C_SOURCE 199309L
-    #include <stdio.h>
-    #include <time.h>
-
+    #include "main.h" /* CubeMX-generated clocks, GPIO, and UART handles */
     #include "syntropic/syntropic.h"
+    #include "port/stm32_hal/port_stm32_hal.h"
 
-    /* ── Minimal host system port & console log sink ───────────────────────── */
-    void syn_port_enter_critical(void) {}
-    void syn_port_exit_critical(void) {}
+    extern UART_HandleTypeDef huart2;
 
-    uint32_t syn_port_get_tick_ms(void) {
-        struct timespec ts;
-        clock_gettime(CLOCK_MONOTONIC, &ts);
-        return (uint32_t)((uint64_t)ts.tv_sec * 1000ULL + (uint64_t)ts.tv_nsec / 1000000ULL);
-    }
-
-    static void console_out(const char *str, size_t len) {
-        (void)fwrite(str, 1, len, stdout);
-        (void)fflush(stdout);
-    }
-
-    /* ── Application tasks ─────────────────────────────────────────────────── */
-    #define EVT_PING (1UL << 0)
-    static SYN_EventFlags s_events;
-
-    static SYN_PT_Status producer_task(SYN_PT *pt, SYN_Task *task) {
-        static uint32_t count;
-        PT_BEGIN(pt);
-        for (count = 1; count <= 3; count++) {
-            PT_TASK_DELAY_MS(pt, task, 200);
-            SYN_LOG_I("PROD", "Signaling ping #%lu", (unsigned long)count);
-            syn_event_flags_set(&s_events, EVT_PING);
-        }
-        PT_END(pt);
-    }
-
-    static SYN_PT_Status consumer_task(SYN_PT *pt, SYN_Task *task) {
-        static uint32_t received = 0;
-        PT_BEGIN(pt);
-        while (received < 3) {
-            /* Parks task in SYN_TASK_BLOCKED until EVT_PING is set */
-            PT_BLOCK_EVENT(pt, task, &s_events, EVT_PING);
-            received++;
-            SYN_LOG_I("CONS", "Woke on ping #%lu", (unsigned long)received);
-        }
-        PT_END(pt);
-    }
-
-    int main(void) {
-        static SYN_Task tasks[2];
-        static SYN_Sched sched;
-
-        syn_log_init(console_out, SYN_LOG_INFO);
-        syn_event_flags_init(&s_events);
-
-        syn_task_create(&tasks[0], "producer", producer_task, SYN_PRIO_NORMAL, NULL);
-        syn_task_create(&tasks[1], "consumer", consumer_task, SYN_PRIO_HIGH,   NULL);
-        syn_sched_init(&sched, tasks, 2);
-
-        while (syn_sched_run(&sched)) {
-            struct timespec nap = {0, 1000000L}; /* 1 ms host idle sleep */
-            nanosleep(&nap, NULL);
-        }
-        return 0;
-    }
-    ```
-
-    Compile and run:
-
-    ```bash
-    cc -std=c99 -Wall -Wextra -Isrc host_demo.c \
-      src/syntropic/sched/syn_sched.c \
-      src/syntropic/sched/syn_mutex.c \
-      src/syntropic/sched/syn_event_flags.c \
-      src/syntropic/log/syn_log.c \
-      src/syntropic/util/syn_fmt.c \
-      src/syntropic/port_stubs/syn_port_stubs.c \
-      -o host_demo && ./host_demo
-    ```
-
-=== "MCU Target (Blink + Serial Log)"
-
-    Two-task firmware blinking an LED every 500 ms and emitting periodic status logs over the console UART (shown here with STM32Cube HAL + `port_stm32_hal.c`):
-
-    ```c
-    #include "syntropic/syntropic.h"
-
-    /* Pin encoding depends on your target port:
-     * - STM32 / CH32 ports pack (port_idx, pin_num): PA5 = SYN_GPIO_PIN(0, 5)
-     * - RP2040 / ESP32 / Arduino ports use flat GPIO numbers (e.g. 25 or 13) */
-    #define LED_PIN  SYN_GPIO_PIN(0, 5)
-    #define LOG_TAG  "APP"
+    /* Works with CubeMX labels (LD2_GPIO_Port, LD2_Pin) or raw (GPIOA, GPIO_PIN_5) */
+    #define LED_PIN SYN_PORT_STM32_PIN(GPIOA, GPIO_PIN_5)
 
     static SYN_PT_Status blink_task(SYN_PT *pt, SYN_Task *task) {
         PT_BEGIN(pt);
@@ -258,7 +334,7 @@ You do not need to write a port from scratch for supported targets — include t
     static SYN_PT_Status log_task(SYN_PT *pt, SYN_Task *task) {
         PT_BEGIN(pt);
         for (;;) {
-            SYN_LOG_I(LOG_TAG, "Uptime: %lu ms", (unsigned long)syn_port_get_tick_ms());
+            SYN_LOG_I("APP", "Uptime: %lu ms", (unsigned long)syn_port_get_tick_ms());
             PT_TASK_DELAY_MS(pt, task, 2000);
         }
         PT_END(pt);
@@ -268,148 +344,180 @@ You do not need to write a port from scratch for supported targets — include t
         static SYN_Task tasks[2];
         static SYN_Sched sched;
 
-        /* 1. Initialize MCU clocks & 1 kHz SysTick so syn_port_get_tick_ms() advances */
+        /* 1. Standard CubeMX clock + UART init (1 kHz SysTick feeds syn_port_get_tick_ms) */
         HAL_Init();
         SystemClock_Config();
+        MX_USART2_UART_Init();
 
-        /* 2. Initialize GPIO and console serial before logging.
-         *    Passing NULL to syn_log_init() routes output to syn_port_serial_write();
-         *    pass a SYN_LogOutputFn callback instead for RTT, SWO/ITM, or USB CDC. */
-        syn_gpio_init(LED_PIN, SYN_GPIO_OUTPUT);
+        /* 2. Bind huart2 to UART slot 0 for console logging, and configure LED pin */
+        syn_port_stm32_register_uart(0, &huart2);
         syn_port_serial_init(115200);
-        syn_log_init(NULL, SYN_LOG_INFO);
+        syn_log_init(SYN_LOG_INFO);
+        syn_gpio_init(LED_PIN, SYN_GPIO_OUTPUT);
 
         /* 3. Register static tasks (SYN_PRIO_CRITICAL = 0 highest .. SYN_PRIO_LOW = 3) */
         syn_task_create(&tasks[0], "blink", blink_task, SYN_PRIO_NORMAL, NULL);
         syn_task_create(&tasks[1], "log",   log_task,   SYN_PRIO_LOW,    NULL);
 
-        /* 4. Bind task array and run cooperative scheduler loop */
+        /* 4. Start cooperative scheduler */
         syn_sched_init(&sched, tasks, 2);
         syn_sched_run_forever(&sched);
     }
     ```
 
+=== "Raspberry Pi Pico (Pico SDK)"
+
+    ```c
+    #include "pico/stdlib.h"
+    #include "syntropic/syntropic.h"
+
+    #define LED_PIN 25 /* On-board GP25 LED on Pico */
+
+    static SYN_PT_Status blink_task(SYN_PT *pt, SYN_Task *task) {
+        PT_BEGIN(pt);
+        for (;;) {
+            syn_gpio_toggle(LED_PIN);
+            PT_TASK_DELAY_MS(pt, task, 500);
+        }
+        PT_END(pt);
+    }
+
+    static SYN_PT_Status log_task(SYN_PT *pt, SYN_Task *task) {
+        PT_BEGIN(pt);
+        for (;;) {
+            SYN_LOG_I("PICO", "Uptime: %lu ms", (unsigned long)syn_port_get_tick_ms());
+            PT_TASK_DELAY_MS(pt, task, 2000);
+        }
+        PT_END(pt);
+    }
+
+    int main(void) {
+        static SYN_Task tasks[2];
+        static SYN_Sched sched;
+
+        stdio_init_all(); /* Initializes USB CDC / UART stdio used by port_rp2040.c */
+        syn_port_serial_init(115200);
+        syn_log_init(SYN_LOG_INFO);
+        syn_gpio_init(LED_PIN, SYN_GPIO_OUTPUT);
+
+        syn_task_create(&tasks[0], "blink", blink_task, SYN_PRIO_NORMAL, NULL);
+        syn_task_create(&tasks[1], "log",   log_task,   SYN_PRIO_LOW,    NULL);
+
+        syn_sched_init(&sched, tasks, 2);
+        syn_sched_run_forever(&sched);
+    }
+    ```
+
+=== "Arduino / ESP32 / STM32duino"
+
+    ```cpp
+    #include <SyntropicOS.h>
+
+    static SYN_Task tasks[2];
+    static SYN_Sched sched;
+
+    static SYN_PT_Status blink_task(SYN_PT *pt, SYN_Task *task) {
+        PT_BEGIN(pt);
+        for (;;) {
+            syn_gpio_toggle(LED_BUILTIN);
+            PT_TASK_DELAY_MS(pt, task, 500);
+        }
+        PT_END(pt);
+    }
+
+    static SYN_PT_Status log_task(SYN_PT *pt, SYN_Task *task) {
+        PT_BEGIN(pt);
+        for (;;) {
+            SYN_LOG_I("APP", "Uptime: %lu ms", (unsigned long)syn_port_get_tick_ms());
+            PT_TASK_DELAY_MS(pt, task, 2000);
+        }
+        PT_END(pt);
+    }
+
+    void setup() {
+        syn_port_serial_init(115200);
+        syn_log_init(SYN_LOG_INFO);
+        syn_gpio_init(LED_BUILTIN, SYN_GPIO_OUTPUT);
+
+        syn_task_create(&tasks[0], "blink", blink_task, SYN_PRIO_NORMAL, NULL);
+        syn_task_create(&tasks[1], "log",   log_task,   SYN_PRIO_LOW,    NULL);
+        syn_sched_init(&sched, tasks, 2);
+    }
+
+    void loop() {
+        syn_sched_run(&sched);
+    }
+    ```
+
 ---
 
-## 4. Configuration (`syn_config.h`) & Code Size
+## 5. Optional Configuration (`syn_config.h`)
 
-SyntropicOS headers and `.c` units auto-discover a user `syn_config.h` on the compiler include path via `#if __has_include("syn_config.h")` (or `-DSYN_CONFIG_FILE="my_config.h"` for `syn_defs.h`).
+**You do not need `syn_config.h` to get started.** All 199 standard modules are enabled by default, and compiling with `-ffunction-sections -fdata-sections` plus `-Wl,--gc-sections` strips unused code automatically.
 
-### Creating `syn_config.h`
+Create `syn_config.h` on your include path (auto-detected via `#if __has_include("syn_config.h")`) when you want to:
+
+1. **Speed up builds or save static RAM** by compiling out unused subsystems (`#define SYN_USE_BLE 0`, `#define SYN_USE_TLS 0`, etc.).
+2. **Tune static buffer sizes** (for example `SYN_LOG_BUF_SIZE` or `SYN_UART_RX_BUF_SIZE` on small-RAM MCUs).
+3. **Enable any of the 9 opt-in hardware features** (off by default because they require extra port hooks or dedicated RAM/Flash):
+   - `SYN_USE_TICKLESS` — Low-power tickless idle sleep (`syn_sched_run_tickless*`; requires `syn_port_sleep_until()`)
+   - `SYN_USE_MULTICORE` — Dual-core AMP spinlocks & cross-core mailboxes (`syn_port_spinlock.h`)
+   - `SYN_USE_DMA` — Hardware DMA & cache coherency port (`syn_port_dma.h`)
+   - `SYN_USE_I2C_ASYNC` / `SYN_USE_SPI_ASYNC` — Interrupt/DMA non-blocking bus queues
+   - `SYN_USE_CAN_FD` — 64-byte CAN FD payloads in `syn_can`
+   - `SYN_USE_PORT_AES` — Hardware AES/GHASH offload (`syn_port_aes.h`)
+   - `SYN_USE_COREDUMP` — Crash core dump to flash (`SYN_COREDUMP_FLASH_ADDR`)
+   - `SYN_USE_METRICS` — Runtime counters, gauges, and histograms
+
+Copy the documented template into your include folder:
 
 ```bash
-cp lib/SyntropicOS/src/syntropic/syn_config_template.h your_project/include/syn_config.h
+cp lib/SyntropicOS/src/syntropic/syn_config_template.h include/syn_config.h
 ```
 
-### Default-Enabled vs. Opt-In Modules
+??? info "Common `syn_config.h` Tuning Parameters & Defaults"
 
-Standard modules follow an opt-out guard in `syntropic/syntropic.h` and their `.c` translation units:
+    | Parameter | Default | Description |
+    |---|---|---|
+    | `SYN_SCHED_PRIO_LEVELS` | `4` | Priority levels (`SYN_PRIO_CRITICAL = 0` .. `SYN_PRIO_LOW = 3`, max `255`) |
+    | `SYN_SCHED_MAX_WAIT_*_MS` | `1 / 5 / 15 / 50` | Max starvation window per priority (`CRITICAL` / `HIGH` / `NORMAL` / `LOW`) |
+    | `SYN_MUTEX_MAX_WAITERS` | `4U` | Tracked contended waiters per `SYN_Mutex` for priority inheritance |
+    | `SYN_LOG_LEVEL` | `SYN_LOG_DEBUG` (`1`) | Compile-time minimum log level (`0` = TRACE .. `5` = FATAL, `6` = NONE) |
+    | `SYN_LOG_BUF_SIZE` | `192` | Stack buffer size for `syn_log()` formatting (bytes) |
+    | `SYN_LOG_TIMESTAMP` | `1` | Prefix log lines with `[tick]` millisecond timestamp |
+    | `SYN_LOG_COLOR` | `0` | Emit ANSI color codes by severity |
+    | `SYN_CLI_LINE_BUF_SIZE` | `128` | Maximum CLI command line length (bytes) |
+    | `SYN_CLI_HISTORY_DEPTH` | `0` | CLI command history ring depth (`0` = disabled) |
+    | `SYN_UART_TX_BUF_SIZE` / `RX_BUF_SIZE` | `128` | Per-instance buffered `SYN_UART` ring sizes (bytes) |
+    | `SYN_UART_MAX_INSTANCES` | `2` | Maximum simultaneous buffered `SYN_UART` instances |
+    | `SYN_CRC_USE_TABLE` | `1` | `1` = lookup-table CRC, `0` = compact bitwise CRC |
+    | `SYN_DISABLE_ASSERT` | *(undefined)* | Define to strip runtime `SYN_ASSERT()` checks in release builds |
 
-```c
-#if !defined(SYN_USE_GPIO) || SYN_USE_GPIO
-#include "drivers/syn_gpio.h"
-#endif
-```
+    See `examples/PicoBlink/syn_config.h` for a minimal bring-up configuration and `src/syntropic/syn_config_template.h` for all 208 switches.
 
-- **Standard modules (199 switches)**: Enabled (`1`) when `syn_config.h` is omitted or the macro is left undefined; set `#define SYN_USE_<MODULE> 0` to compile out both the header declarations and `.c` implementation.
-- **Opt-in hardware/system features (9 switches)**: Default to **`0` (disabled)** until explicitly enabled (`#define SYN_USE_<FEATURE> 1`) because they require extra platform port hooks or reserve dedicated RAM/Flash:
-  - `SYN_USE_TICKLESS` — Low-power tickless idle scheduler (`syn_sched_run_tickless*`; requires `syn_port_sleep_until()`)
-  - `SYN_USE_MULTICORE` — Asymmetric multiprocessor (AMP) spinlocks and cross-core mailboxes (`syn_port_spinlock.h`)
-  - `SYN_USE_COREDUMP` — Persistent crash core dump to flash (`SYN_COREDUMP_FLASH_ADDR`)
-  - `SYN_USE_CAN_FD` — 64-byte CAN FD frame payloads in `syn_can`
-  - `SYN_USE_DMA` — Hardware DMA channel & cache coherency port (`syn_port_dma.h`)
-  - `SYN_USE_I2C_ASYNC` / `SYN_USE_SPI_ASYNC` — Non-blocking interrupt/DMA bus transaction queues
-  - `SYN_USE_PORT_AES` — Hardware AES/GHASH crypto accelerator offload (`syn_port_aes.h`)
-  - `SYN_USE_METRICS` — Runtime telemetry counters, gauges, and histograms
+---
 
-!!! tip "Minimizing Flash & Compile Time"
-    `CMakeLists.txt` and `sources.mk` pass all `.c` files to the compiler so you never have to maintain file lists manually:
-    - Always pass `-ffunction-sections -fdata-sections` (compile) and `-Wl,--gc-sections` (link) so unused functions are stripped from the final binary even without `syn_config.h`.
-    - Copy `syn_config_template.h` (208 switches across all subsystems) and set unused subsystems to `0` to skip compiling unneeded modules and avoid pulling in unimplemented port symbols. See `examples/PicoBlink/syn_config.h` for a minimal bring-up profile.
+## 6. First-Boot Troubleshooting
 
-### Representative Subsystem Switches
-
-```c
-/* Multitasking & Concurrency */
-#define SYN_USE_PT           1  /* Stackless protothreads & semaphores      */
-#define SYN_USE_SCHED        1  /* Ranked cooperative scheduler             */
-#define SYN_USE_TIMER        1  /* One-shot & periodic software timers      */
-#define SYN_USE_EVENT        1  /* 32-bit event flag groups                 */
-#define SYN_USE_MUTEX        1  /* Priority-inheriting cooperative mutex    */
-#define SYN_USE_WORKQUEUE    1  /* Deferred ISR-to-task work queue          */
-#define SYN_USE_AO           1  /* Active Object (FSM + mailbox + task)     */
-#define SYN_USE_TICKLESS     0  /* Opt-in: tickless sleep coordinator       */
-
-/* Peripheral Drivers & USB */
-#define SYN_USE_GPIO         1
-#define SYN_USE_UART         1
-#define SYN_USE_I2C          1
-#define SYN_USE_SPI          1
-#define SYN_USE_CAN          0
-#define SYN_USE_ADC          0
-#define SYN_USE_PWM          0
-#define SYN_USE_USB_CDC      0  /* USB 2.0 CDC ACM, HID, MIDI, MSC, Host    */
-
-/* Core Utilities & Data Codecs */
-#define SYN_USE_FMT          1  /* Zero-heap string/number formatter        */
-#define SYN_USE_FSM          1  /* Table-driven finite state machine        */
-#define SYN_USE_POOL         1  /* Fixed-block static memory pool           */
-#define SYN_USE_PUBSUB       0  /* Topic-based publish/subscribe bus        */
-#define SYN_USE_JSON         0  /* Streaming JSON reader & writer           */
-#define SYN_USE_CBOR         0  /* RFC 8949 CBOR encoder & decoder          */
-#define SYN_USE_PROTOBUF     0  /* Protocol Buffers wire codec              */
-#define SYN_USE_LZ4          0  /* Zero-heap LZ4 block compression          */
-
-/* Services, Storage & System */
-#define SYN_USE_LOG          1  /* Structured logging (requires SYN_USE_FMT)*/
-#define SYN_USE_CLI          0  /* Interactive console shell                */
-#define SYN_USE_PARAM        0  /* Wear-leveled flash parameter store       */
-#define SYN_USE_SETTINGS     0  /* CRC-checked persistent settings          */
-#define SYN_USE_VFS          0  /* VFS + LittleFS / FAT adapters            */
-#define SYN_USE_BOOT         0  /* Boot manager & signed image verification */
-#define SYN_USE_OTA          0  /* Streaming A/B OTA update orchestrator    */
-
-/* Networking, Crypto, BLE & Fieldbus Protocols */
-#define SYN_USE_ETH          0  /* Ethernet II, ARP, IPv4, ICMP, DHCP       */
-#define SYN_USE_TLS          0  /* TLS 1.3 / DTLS 1.3 (RFC 8446 / 9147)     */
-#define SYN_USE_HTTP         0  /* HTTP client, HTTPD server, WebSocket     */
-#define SYN_USE_MQTT         0  /* MQTT 3.1.1, MQTT-SN, CoAP, LwM2M         */
-#define SYN_USE_WG           0  /* WireGuard VPN tunnel                     */
-#define SYN_USE_AES          0  /* AES-128/256, GCM, CCM, CMAC, SHA-2, ECC  */
-#define SYN_USE_BLE          0  /* BLE Host stack (HCI, L2CAP, ATT, GATT)   */
-#define SYN_USE_MODBUS       0  /* Plus CANopen, J1939, UDS, BACnet, etc.   */
-```
-
-### Key Tuning Parameters
-
-| Parameter | Default | Description |
-|---|---|---|
-| `SYN_SCHED_PRIO_LEVELS` | `4` | Scheduler priority count (`SYN_PRIO_CRITICAL = 0` .. `SYN_PRIO_LOW = 3`, max `255`) |
-| `SYN_SCHED_MAX_WAIT_CRITICAL_MS` | `1U` | Default max starvation window for `SYN_PRIO_CRITICAL` (ms) |
-| `SYN_SCHED_MAX_WAIT_HIGH_MS` | `5U` | Default max starvation window for `SYN_PRIO_HIGH` (ms) |
-| `SYN_SCHED_MAX_WAIT_NORMAL_MS` | `15U` | Default max starvation window for `SYN_PRIO_NORMAL` (ms) |
-| `SYN_SCHED_MAX_WAIT_LOW_MS` | `50U` | Default max starvation window for `SYN_PRIO_LOW` (ms) |
-| `SYN_MUTEX_MAX_WAITERS` | `4U` | Tracked contended waiters per `SYN_Mutex` for priority inheritance |
-| `SYN_LOG_LEVEL` | `1` (`SYN_LOG_DEBUG`) | Compile-time minimum log level (`0` = TRACE .. `5` = FATAL, `6` = NONE) |
-| `SYN_LOG_BUF_SIZE` | `192` | Stack formatting buffer size for `syn_log()` (bytes) |
-| `SYN_LOG_TIMESTAMP` | `1` | Prefix log lines with `[tick]` millisecond timestamp |
-| `SYN_LOG_COLOR` | `0` | Emit ANSI severity color codes |
-| `SYN_CLI_LINE_BUF_SIZE` | `128` | Maximum CLI command line length (bytes) |
-| `SYN_CLI_MAX_ARGS` | `16` | Maximum parsed CLI `argc` tokens |
-| `SYN_CLI_HISTORY_DEPTH` | `0` | CLI command history ring depth (`0` = disabled) |
-| `SYN_UART_TX_BUF_SIZE` / `RX_BUF_SIZE` | `128` | Per-instance UART ring buffer sizes (bytes) |
-| `SYN_UART_MAX_INSTANCES` | `2` | Maximum simultaneous buffered `SYN_UART` handles |
-| `SYN_FILTER_MAX_WINDOW` | `32` | Maximum sliding window length for `syn_filter` |
-| `SYN_CRC_USE_TABLE` | `1` | `1` = lookup-table CRC, `0` = compact bitwise CRC |
-| `SYN_GFX_BACKEND` | `SYN_GFX_BACKEND_CANVAS` | Framebuffer canvas renderer (`SYN_GFX_BACKEND_DIRECT` reserved) |
-| `SYN_DISABLE_ASSERT` | *(undefined)* | Define to strip all runtime `SYN_ASSERT()` checks in release builds |
+- **Firmware halts immediately in an infinite loop**: A `SYN_ASSERT()` failed or your code called an unimplemented `syn_port_*` weak stub. Set a breakpoint on `syn_assert_failed`, or define a strong handler in `main.c` to print the offending file and line:
+  ```c
+  void syn_assert_failed(const char *file, int line) {
+      /* Print over UART/SWO/RTT or inspect 'file' and 'line' in debugger */
+      (void)file;
+      (void)line;
+      for (;;) {}
+  }
+  ```
+- **`PT_TASK_DELAY_MS` pauses forever**: `syn_port_get_tick_ms()` is stuck at `0`. Verify your 1 kHz timer interrupt is enabled (for example `SysTick_Handler` calling `HAL_IncTick()` on STM32).
+- **No `SYN_LOG_*` output on STM32Cube HAL**: Call `syn_port_stm32_register_uart(0, &huartX)` before `syn_port_serial_init()`, or pass a custom sink callback (`syn_log_init(my_rtt_write, SYN_LOG_INFO)`).
+- **`syn_config.h` in an Arduino sketch folder has no effect on library `.c` files**: Arduino IDE compiles libraries without `-I<sketch_dir>`. Place `syn_config.h` in `libraries/SyntropicOS/src/` or use PlatformIO `build_flags` (see [Arduino Guide](arduino.md#disabling-unused-modules)).
 
 ---
 
 ## Next Steps
 
-- **[Browse the Module Catalog](modules/index.md)** — Complete directory of all 17 subsystem guides and 278 module headers.
-- **[Explore Runnable Examples](https://github.com/outlookhazy/SyntropicOS/tree/main/examples)** — 100+ reference projects across STM32, RP2040, ESP32, CH32V307, and Arduino.
-- **[Use or Write a Hardware Port](porting-guide.md)** — Reference ports in `src/port/` and HAL port contracts.
-- **[IDE & Toolchain Setup Guides](ide-guides.md)** — STM32CubeIDE, VS Code (PlatformIO & CMake), Keil MDK, IAR, and [Arduino IDE](arduino.md).
-- **[Contributor Verification & Test Suite](testing.md)** — Running containerized unit tests, QEMU/Renode emulation, sanitizers, and daemon integration tests inside a SyntropicOS checkout.
+- **[Module Catalog](modules/index.md)** — Browse all 17 subsystem guides (I/O, CLI, Display/IMGUI, Storage, DSP, Motor Control, Networking, Crypto, BLE, Fieldbuses).
+- **[Examples Directory](https://github.com/outlookhazy/SyntropicOS/tree/main/examples)** — 100+ complete projects across STM32, RP2040, ESP32, CH32V307, and Arduino.
+- **[IDE Setup Guides](ide-guides.md)** & **[Arduino Guide](arduino.md)** — Toolchain-specific project configurations.
+- **[Porting Guide](porting-guide.md)** — Implementing `syn_port_*` contracts on custom hardware.
+- **[Testing Guide](testing.md)** — Running containerized unit tests, QEMU/Renode emulation, and sanitizers.

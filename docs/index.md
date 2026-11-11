@@ -8,6 +8,8 @@
 
 SyntropicOS is a zero-overhead, production-grade C99 framework designed for deeply embedded systems. It provides stackless multitasking, non-blocking drivers, industrial fieldbuses, and display graphics for targets ranging from 8-bit microcontrollers to 32-bit Cortex-M and RISC-V targets.
 
+**New here?** Jump to the **[Getting Started Guide →](getting-started.md)** for a 60-second no-hardware demo, a 3-minute tour of tasks, and setup instructions for Arduino, PlatformIO, CMake, Makefile, and vendor IDEs.
+
 ---
 
 ## Why SyntropicOS? (Design Rationale & Philosophy)
@@ -120,7 +122,7 @@ Browse the **[Complete Module Catalog →](modules/index.md)** (all 17 subsystem
 
 ## Getting Started & Platform Guides
 
-- **[Getting Started Guide](getting-started.md)** — Step-by-step setup for C99 CMake & Makefile projects.
+- **[Getting Started Guide](getting-started.md)** — 60-second host demo, 3-minute task tour, and project setup across Arduino, PlatformIO, CMake, Makefile, and vendor IDEs.
 - **[IDE Integration & Setup Guides](ide-guides.md)** — Step-by-step setup for STM32CubeIDE, VS Code, Keil MDK, IAR, and Arduino.
 - **[Arduino Compatibility Guide](arduino.md)** — Installing via Library Manager and working with Multi-Tab sketch examples.
 - **[Porting & System Integration](porting-guide.md)** — Implementing custom GPIO, UART, and timer tick ports.

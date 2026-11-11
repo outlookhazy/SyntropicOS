@@ -14,8 +14,8 @@ Step-by-step setup guides for integrating SyntropicOS into standard microcontrol
    - Add `${workspace_loc:/${ProjName}/Middlewares/Third_Party/SyntropicOS/src}`.
    - Ensure `${workspace_loc:/${ProjName}/Core/Inc}` is also in the include path (where your `syn_config.h` will reside).
 3. **Add Source Folders to Build**:
-   - Right-click `Middlewares/Third_Party/SyntropicOS/src/syntropic` → **Source Actions** → **Add to Build** (or ensure it is not marked as *Exclude from build*).
-   - If using STM32 HAL porting, also include `src/port/stm32_hal/port_stm32_hal.c`.
+   - Right-click `Middlewares/Third_Party/SyntropicOS/src/syntropic` → **Source Actions** → **Add to Build** (ensure `src/syntropic/port_stubs/syn_port_stubs.c` is included).
+   - For STM32Cube HAL projects, also include `src/port/stm32_hal/port_stm32_hal.c` (and include `port/stm32_hal/port_stm32_hal.h` in `main.c` for `SYN_PORT_STM32_PIN()` and `syn_port_stm32_register_uart()`).
 4. **Set C Standard**:
    - In **MCU GCC Compiler** → **Miscellaneous**, set C Language Standard to `-std=c99`.
 5. **Configuration Header**:
@@ -54,8 +54,13 @@ lib_deps =
    set(CMAKE_C_STANDARD 99)
 
    add_subdirectory(lib/SyntropicOS)
-   add_executable(my_app src/main.c)
-   target_link_libraries(my_app PRIVATE syntropic)
+   add_executable(my_app
+       src/main.c
+       lib/SyntropicOS/src/port/stm32_hal/port_stm32_hal.c
+   )
+   target_include_directories(my_app PRIVATE include)
+   target_compile_definitions(my_app PRIVATE STM32F4xx)
+   target_link_libraries(my_app PRIVATE syntropic syn_stubs)
    ```
 
 2. **`.vscode/launch.json`** (Cortex-Debug ST-Link):
@@ -129,17 +134,30 @@ SyntropicOS is packaged as a standard Arduino Library (`library.properties`).
    - **Manual Placement**: Extract into your sketchbook `libraries/` directory (`Arduino/libraries/SyntropicOS`).
 
 2. **Header Inclusion & Sketch Usage**:
-   - Include `<syntropic/syntropic.h>` in your `.ino` sketch:
+   - Include `<SyntropicOS.h>` in your `.ino` sketch and drive the scheduler from `loop()`:
      ```cpp
-     #include <syntropic/syntropic.h>
+     #include <SyntropicOS.h>
+
+     static SYN_Task tasks[1];
+     static SYN_Sched sched;
+
+     static SYN_PT_Status blink_task(SYN_PT *pt, SYN_Task *task) {
+         PT_BEGIN(pt);
+         for (;;) {
+             syn_gpio_toggle(LED_BUILTIN);
+             PT_TASK_DELAY_MS(pt, task, 500);
+         }
+         PT_END(pt);
+     }
 
      void setup() {
          syn_gpio_init(LED_BUILTIN, SYN_GPIO_OUTPUT);
+         syn_task_create(&tasks[0], "blink", blink_task, SYN_PRIO_NORMAL, NULL);
+         syn_sched_init(&sched, tasks, 1);
      }
 
      void loop() {
-         syn_gpio_toggle(LED_BUILTIN);
-         delay(500);
+         syn_sched_run(&sched);
      }
      ```
 
