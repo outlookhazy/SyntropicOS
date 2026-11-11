@@ -63,18 +63,23 @@ static inline bool syn_rate_limit_allow(SYN_RateLimit *rl)
     uint32_t elapsed = now - rl->last_refill;
 
     /* Refill tokens based on elapsed time */
-    if (elapsed >= rl->interval_ms) {
-        uint32_t refills = elapsed / rl->interval_ms;
-        rl->tokens = rl->max_tokens; /* full refill */
-        rl->last_refill += refills * rl->interval_ms;
-    } else if (rl->interval_ms > 0) {
-        /* Partial refill: proportional token recovery */
-        uint32_t new_tokens = (rl->max_tokens * elapsed) / rl->interval_ms;
-        if (new_tokens > 0) {
-            rl->tokens += new_tokens;
-            if (rl->tokens > rl->max_tokens)
-                rl->tokens = rl->max_tokens;
-            rl->last_refill = now;
+    if (rl->interval_ms > 0U) {
+        if (elapsed >= rl->interval_ms) {
+            uint32_t refills = elapsed / rl->interval_ms;
+            rl->tokens = rl->max_tokens; /* full refill */
+            rl->last_refill += refills * rl->interval_ms;
+        } else {
+            /* Partial refill: proportional token recovery */
+            uint32_t new_tokens =
+                (uint32_t)(((uint64_t)rl->max_tokens * (uint64_t)elapsed) / rl->interval_ms);
+            if (new_tokens > 0U) {
+                if (new_tokens >= (rl->max_tokens - rl->tokens)) {
+                    rl->tokens = rl->max_tokens;
+                } else {
+                    rl->tokens += new_tokens;
+                }
+                rl->last_refill = now;
+            }
         }
     }
 

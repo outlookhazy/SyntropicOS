@@ -203,6 +203,39 @@ static void test_r5_scurve3d_large_delta_no_overflow(void)
     syn_scurve3d_plan(&sc3d, 800000000, 800000000, 800000000, -800000000, -800000000, -800000000,
                       10000000, 1000000, 100000);
     TEST_ASSERT_EQUAL_UINT32((uint32_t)INT32_MAX, sc3d.total_dist);
+
+    /* 1) Signed int32 subtraction overflow: -1e9 -> +1.7e9 (d = 2.7e9 > INT32_MAX) must move +1 */
+    SYN_SCurve sc_sub;
+    syn_scurve_init(&sc_sub, -1000000000);
+    syn_scurve_set_constraints(&sc_sub, 100000000, 100000, 1000);
+    syn_scurve_set_target(&sc_sub, 1700000000);
+    TEST_ASSERT_EQUAL_INT32(1, sc_sub.dir);
+    TEST_ASSERT_EQUAL_INT32(0, sc_sub.phase_ticks[3]);
+
+    /* 2) uint32 D_ad wrap: v_max=38,700,000, a_max=43,000, j_max=430 -> Tj=100, Ta=800,
+     * true D_ad = 38,700,000 * 1,000 = 38,700,000,000 (wraps mod 2^32 to 45,294,336).
+     * For target=100,000,000 (< 38.7B), profile cannot reach v_max: Tv must be 0 and Ta < 800. */
+    SYN_SCurve sc_wrap;
+    syn_scurve_init(&sc_wrap, 0);
+    syn_scurve_set_constraints(&sc_wrap, 38700000, 43000, 430);
+    syn_scurve_set_target(&sc_wrap, 100000000);
+    TEST_ASSERT_EQUAL_INT32(0, sc_wrap.phase_ticks[3]);
+    TEST_ASSERT_TRUE(sc_wrap.phase_ticks[1] < 800);
+
+    /* 3) Ta binary-search reduction when Tj full jerk fits (860M <= 1.5B < 38.7B) */
+    syn_scurve_init(&sc_wrap, 0);
+    syn_scurve_set_constraints(&sc_wrap, 38700000, 43000, 430);
+    syn_scurve_set_target(&sc_wrap, 1500000000);
+    TEST_ASSERT_EQUAL_INT32(100, sc_wrap.phase_ticks[0]);
+    TEST_ASSERT_TRUE(sc_wrap.phase_ticks[1] > 0 && sc_wrap.phase_ticks[1] < 800);
+    TEST_ASSERT_EQUAL_INT32(0, sc_wrap.phase_ticks[3]);
+
+    /* 4) Tv cruise ticks clamped at INT32_MAX when d / vmax_reached > INT32_MAX */
+    SYN_SCurve sc_tv;
+    syn_scurve_init(&sc_tv, -1500000000);
+    syn_scurve_set_constraints(&sc_tv, 1, 1, 1);
+    syn_scurve_set_target(&sc_tv, 1500000000);
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, sc_tv.phase_ticks[3]);
 }
 
 void run_scurve_tests(void)

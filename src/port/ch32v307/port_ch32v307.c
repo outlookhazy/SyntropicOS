@@ -148,6 +148,10 @@ typedef struct {
 #define FLASH_CTLR_STRT (1U << 6)
 #define FLASH_CTLR_LOCK (1U << 7)
 #define FLASH_STATR_BSY (1U << 0)
+#define FLASH_STATR_PGERR (1U << 2)
+#define FLASH_STATR_WRPRTERR (1U << 4)
+#define FLASH_STATR_EOP (1U << 5)
+#define FLASH_STATR_ERR_MASK (FLASH_STATR_PGERR | FLASH_STATR_WRPRTERR)
 
 /* ── SPI ────────────────────────────────────────────────────────────────── */
 
@@ -628,8 +632,19 @@ int _write(int file, char *ptr, int len)
  *  Flash Implementation
  * ═══════════════════════════════════════════════════════════════════════════ */
 
+static SYN_Status ch32_flash_wait_bsy(void)
+{
+    volatile uint32_t timeout = 1000000UL;
+    while ((FLASH_STATR & FLASH_STATR_BSY) != 0U && --timeout != 0UL) {
+    }
+    return (timeout > 0UL) ? SYN_OK : SYN_TIMEOUT;
+}
+
 SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
 {
+    if (len == 0U) {
+        return SYN_OK;
+    }
     if (buf == NULL) {
         return SYN_INVALID_PARAM;
     }
@@ -639,34 +654,45 @@ SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
 
 SYN_Status syn_port_flash_erase(uint32_t addr)
 {
-    if (FLASH_CTLR & FLASH_CTLR_LOCK) {
+    if ((FLASH_CTLR & FLASH_CTLR_LOCK) != 0U) {
         FLASH_KEYR = FLASH_KEY1;
         FLASH_KEYR = FLASH_KEY2;
     }
 
-    while (FLASH_STATR & FLASH_STATR_BSY) {
+    SYN_Status s = ch32_flash_wait_bsy();
+    if (s != SYN_OK) {
+        FLASH_CTLR |= FLASH_CTLR_LOCK;
+        return s;
     }
 
+    FLASH_STATR = FLASH_STATR_ERR_MASK | FLASH_STATR_EOP;
     FLASH_CTLR |= FLASH_CTLR_PER;
     FLASH_ADDR = addr;
     FLASH_CTLR |= FLASH_CTLR_STRT;
 
-    while (FLASH_STATR & FLASH_STATR_BSY) {
+    s = ch32_flash_wait_bsy();
+    if ((FLASH_STATR & FLASH_STATR_ERR_MASK) != 0U) {
+        FLASH_STATR = FLASH_STATR_ERR_MASK | FLASH_STATR_EOP;
+        if (s == SYN_OK) {
+            s = SYN_ERROR;
+        }
+    } else if ((FLASH_STATR & FLASH_STATR_EOP) != 0U) {
+        FLASH_STATR = FLASH_STATR_EOP;
     }
 
     FLASH_CTLR &= ~FLASH_CTLR_PER;
     FLASH_CTLR |= FLASH_CTLR_LOCK;
 
-    return SYN_OK;
+    return s;
 }
 
 SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
 {
-    if (buf == NULL || (addr & 1U) != 0U) {
-        return SYN_INVALID_PARAM;
-    }
     if (len == 0U) {
         return SYN_OK;
+    }
+    if (buf == NULL || (addr & 1U) != 0U) {
+        return SYN_INVALID_PARAM;
     }
 
     if ((FLASH_CTLR & FLASH_CTLR_LOCK) != 0U) {
@@ -674,9 +700,13 @@ SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
         FLASH_KEYR = FLASH_KEY2;
     }
 
-    while ((FLASH_STATR & FLASH_STATR_BSY) != 0U) {
+    SYN_Status s = ch32_flash_wait_bsy();
+    if (s != SYN_OK) {
+        FLASH_CTLR |= FLASH_CTLR_LOCK;
+        return s;
     }
 
+    FLASH_STATR = FLASH_STATR_ERR_MASK | FLASH_STATR_EOP;
     FLASH_CTLR |= FLASH_CTLR_PG;
 
     const uint8_t *src = (const uint8_t *)buf;
@@ -687,10 +717,16 @@ SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
         } else {
             hw |= 0xFF00U;
         }
-        while ((FLASH_STATR & FLASH_STATR_BSY) != 0U) {
-        }
         *(volatile uint16_t *)(uintptr_t)(addr + (uint32_t)i) = hw;
-        while ((FLASH_STATR & FLASH_STATR_BSY) != 0U) {
+        s = ch32_flash_wait_bsy();
+        if (s != SYN_OK || (FLASH_STATR & FLASH_STATR_ERR_MASK) != 0U) {
+            FLASH_STATR = FLASH_STATR_ERR_MASK | FLASH_STATR_EOP;
+            FLASH_CTLR &= ~FLASH_CTLR_PG;
+            FLASH_CTLR |= FLASH_CTLR_LOCK;
+            return (s != SYN_OK) ? s : SYN_ERROR;
+        }
+        if ((FLASH_STATR & FLASH_STATR_EOP) != 0U) {
+            FLASH_STATR = FLASH_STATR_EOP;
         }
     }
 

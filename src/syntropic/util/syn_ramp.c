@@ -185,9 +185,10 @@ static int32_t update_trapezoid(SYN_Ramp *ramp)
     /* Apply velocity to position.
      * In Q-mode: accumulate fractional bits, carry whole units to current. */
     if (ramp->frac_bits > 0) {
+        int32_t scale = (int32_t)((uint32_t)1U << ramp->frac_bits);
         ramp->frac_accum += ramp->velocity;
-        int32_t whole = ramp->frac_accum >> ramp->frac_bits;
-        ramp->frac_accum -= whole << ramp->frac_bits;
+        int32_t whole = ramp->frac_accum / scale;
+        ramp->frac_accum -= whole * scale;
         ramp->current += whole;
     } else {
         ramp->current += ramp->velocity;

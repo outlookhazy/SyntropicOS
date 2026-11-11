@@ -82,11 +82,11 @@ void syn_encoder_update(SYN_Encoder *enc)
         enc->delta += dir;
     } else {
         enc->sub_count += dir;
-        if (enc->sub_count >= (int8_t)enc->steps_per_detent) {
+        if (enc->sub_count >= (int16_t)enc->steps_per_detent) {
             enc->position++;
             enc->delta++;
             enc->sub_count = 0;
-        } else if (enc->sub_count <= -(int8_t)enc->steps_per_detent) {
+        } else if (enc->sub_count <= -(int16_t)enc->steps_per_detent) {
             enc->position--;
             enc->delta--;
             enc->sub_count = 0;

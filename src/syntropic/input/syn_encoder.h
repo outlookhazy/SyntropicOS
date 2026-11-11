@@ -64,7 +64,7 @@ typedef struct {
 
     /* Optional: step multiplier (for encoders with detents every N states) */
     uint8_t steps_per_detent; /**< Typically 1, 2, or 4            */
-    int8_t sub_count;         /**< Sub-step accumulator            */
+    int16_t sub_count;        /**< Sub-step accumulator            */
 
     /* Statistics (optional) */
     SYN_Signal *stats; /**< If set, delta pushed on get_delta */

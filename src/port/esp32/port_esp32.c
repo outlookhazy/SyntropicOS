@@ -269,7 +269,7 @@ SYN_WEAK SYN_Status syn_port_uart_receive(SYN_UARTInstance instance, uint8_t *da
         return SYN_OK;
     }
 
-    TickType_t wait_ticks = (timeout_ms == 0U) ? portMAX_DELAY : esp32_ms_to_ticks(timeout_ms);
+    TickType_t wait_ticks = (timeout_ms == 0U) ? 0U : esp32_ms_to_ticks(timeout_ms);
     int read = uart_read_bytes(port, data, (uint32_t)len, wait_ticks);
     if (read < 0) {
         return SYN_TIMEOUT;

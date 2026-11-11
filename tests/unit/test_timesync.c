@@ -296,6 +296,45 @@ static void test_timesync_is_pps_locked(void)
     TEST_ASSERT_TRUE(syn_timesync_is_pps_locked(&tsync));
 }
 
+static void test_timesync_uncertainty_saturation_and_skipped_pps(void)
+{
+    SYN_TimeSync tsync;
+    syn_timesync_init(&tsync);
+
+    /* Bind consecutive PPS pulses (+10 PPM), then skip 4 PPS seconds (101 -> 106):
+     * skipped PPS pulses must re-anchor UTC without poisoning drift_ppm to +4,000,000 PPM */
+    SYN_HPTimestamp pps1 = {.msb_1 = 0, .lsb = 0, .msb_2 = 0};
+    SYN_HPTimestamp pps2 = {.msb_1 = 0, .lsb = 16000160U, .msb_2 = 0};
+    SYN_HPTimestamp pps_skip = {.msb_1 = 0, .lsb = 16000160U + (5U * 16000000U), .msb_2 = 0};
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_timesync_bind_pps(&tsync, &pps1, 100ULL));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_timesync_bind_pps(&tsync, &pps2, 101ULL));
+    TEST_ASSERT_EQUAL_INT32(10, tsync.drift_ppm);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_timesync_bind_pps(&tsync, &pps_skip, 106ULL));
+    TEST_ASSERT_EQUAL_INT32(10, tsync.drift_ppm);
+
+    /* Consecutive UTC second with >2x nominal tick glitch must also be ignored for drift */
+    SYN_HPTimestamp pps_glitch = {.msb_1 = 0, .lsb = pps_skip.lsb + (3U * 16000000U), .msb_2 = 0};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_timesync_bind_pps(&tsync, &pps_glitch, 107ULL));
+    TEST_ASSERT_EQUAL_INT32(10, tsync.drift_ppm);
+
+    /* Extreme drift during holdover must saturate uncertainty_ns at UINT32_MAX, never wrap */
+    tsync.drift_ppm = INT32_MIN;
+    SYN_HPTimestamp holdover_ts = {
+        .msb_1 = 0, .lsb = pps_glitch.lsb + (5U * 16000000U), .msb_2 = 0};
+    SYN_UTCTimestamp utc;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_timesync_resolve_utc(&tsync, &holdover_ts, &utc));
+    TEST_ASSERT_EQUAL(SYN_TIME_SOURCE_GPS_HOLDOVER, utc.source);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, utc.uncertainty_ns);
+
+    /* Moderate drift + large base_jitter_ns also saturates at UINT32_MAX */
+    tsync.drift_ppm = -10;
+    tsync.base_jitter_ns = UINT32_MAX - 100U;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_timesync_resolve_utc(&tsync, &holdover_ts, &utc));
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, utc.uncertainty_ns);
+}
+
 void run_timesync_tests(void)
 {
     syn_hpclock_msb = 0;
@@ -312,4 +351,5 @@ void run_timesync_tests(void)
     RUN_TEST(test_timesync_to_epoch_ns_helper);
     RUN_TEST(test_timesync_null_params);
     RUN_TEST(test_timesync_is_pps_locked);
+    RUN_TEST(test_timesync_uncertainty_saturation_and_skipped_pps);
 }

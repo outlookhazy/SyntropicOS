@@ -39,21 +39,21 @@ SYN_Status syn_port_uart_deinit(SYN_UARTInstance instance);
  * @param instance   UART instance.
  * @param data       Pointer to data to transmit.
  * @param len        Number of bytes to transmit.
- * @param timeout_ms Timeout in milliseconds (0 = no timeout).
+ * @param timeout_ms Timeout in milliseconds (0 = block until complete).
  * @return SYN_OK on success, SYN_TIMEOUT if the timeout elapsed.
  */
 SYN_Status syn_port_uart_transmit(SYN_UARTInstance instance, const uint8_t *data, size_t len,
                                   uint32_t timeout_ms);
 
 /**
- * @brief Receive bytes into a buffer (blocking).
+ * @brief Receive bytes into a buffer.
  *
  * @param instance   UART instance.
  * @param data       Buffer to receive into.
  * @param len        Maximum number of bytes to receive.
  * @param received   [out] Actual number of bytes received.
- * @param timeout_ms Timeout in milliseconds (0 = no timeout).
- * @return SYN_OK on success, SYN_TIMEOUT if the timeout elapsed.
+ * @param timeout_ms Timeout in milliseconds (0 = non-blocking poll).
+ * @return SYN_OK on success, SYN_TIMEOUT if the timeout elapsed with 0 bytes received.
  */
 SYN_Status syn_port_uart_receive(SYN_UARTInstance instance, uint8_t *data, size_t len,
                                  size_t *received, uint32_t timeout_ms);
@@ -68,11 +68,11 @@ SYN_Status syn_port_uart_receive(SYN_UARTInstance instance, uint8_t *data, size_
 SYN_Status syn_port_uart_transmit_byte(SYN_UARTInstance instance, uint8_t byte);
 
 /**
- * @brief Receive a single byte (blocking).
+ * @brief Receive a single byte.
  *
  * @param instance   UART instance.
  * @param byte       [out] Received byte.
- * @param timeout_ms Timeout in milliseconds (0 = no timeout).
+ * @param timeout_ms Timeout in milliseconds (0 = non-blocking poll).
  * @return SYN_OK if a byte was received, SYN_TIMEOUT otherwise.
  */
 SYN_Status syn_port_uart_receive_byte(SYN_UARTInstance instance, uint8_t *byte,

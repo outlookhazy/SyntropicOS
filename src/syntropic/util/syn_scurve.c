@@ -43,6 +43,54 @@ static inline uint32_t syn_isqrt(uint32_t n)
     return syn_isqrt32(n);
 }
 
+/**
+ * @brief Compute combined acceleration + deceleration distance for given (Tj, Ta).
+ */
+static uint64_t scurve_accel_decel_dist(const SYN_SCurve *sc, uint32_t Tj, uint32_t Ta)
+{
+    uint64_t vmax_reached = (uint64_t)(uint32_t)sc->j_max * (uint64_t)Tj * (uint64_t)Tj +
+                            (uint64_t)(uint32_t)sc->a_max * (uint64_t)Ta;
+    return vmax_reached * (2ULL * (uint64_t)Tj + (uint64_t)Ta);
+}
+
+/**
+ * @brief Reduce (Tj, Ta) via binary search so accel+decel distance fits within d.
+ */
+static void scurve_reduce_short_profile(const SYN_SCurve *sc, uint64_t d, uint32_t *tj_io,
+                                        uint32_t *ta_io)
+{
+    uint32_t Tj = *tj_io;
+    uint32_t Ta = *ta_io;
+
+    if (Ta > 0U && scurve_accel_decel_dist(sc, Tj, 0U) <= d) {
+        uint32_t lo = 0U;
+        uint32_t hi = Ta;
+        while (lo < hi) {
+            uint32_t mid = lo + ((hi - lo + 1U) / 2U);
+            if (scurve_accel_decel_dist(sc, Tj, mid) <= d) {
+                lo = mid;
+            } else {
+                hi = mid - 1U;
+            }
+        }
+        *ta_io = lo;
+        return;
+    }
+
+    *ta_io = 0U;
+    uint32_t lo = 1U;
+    uint32_t hi = Tj;
+    while (lo < hi) {
+        uint32_t mid = lo + ((hi - lo + 1U) / 2U);
+        if (scurve_accel_decel_dist(sc, mid, 0U) <= d) {
+            lo = mid;
+        } else {
+            hi = mid - 1U;
+        }
+    }
+    *tj_io = lo;
+}
+
 void syn_scurve_set_target(SYN_SCurve *sc, int32_t target)
 {
     if (sc == NULL) {
@@ -58,7 +106,7 @@ void syn_scurve_set_target(SYN_SCurve *sc, int32_t target)
         sc->j_max = 1;
 
     sc->target_p = target;
-    int32_t dist = target - sc->p;
+    int64_t dist = (int64_t)target - (int64_t)sc->p;
 
     if (dist == 0) {
         sc->done = true;
@@ -66,58 +114,44 @@ void syn_scurve_set_target(SYN_SCurve *sc, int32_t target)
         return;
     }
 
-    sc->dir = SYN_SIGN(dist);
-    uint32_t d = (uint32_t)SYN_ABS(dist);
+    sc->dir = (dist > 0) ? 1 : -1;
+    uint64_t d = (dist < 0) ? (uint64_t)(-dist) : (uint64_t)dist;
 
     // We assume starting from v=0, a=0.
     // Ticks to reach a_max at j_max
     uint32_t Tj = (uint32_t)sc->a_max / (uint32_t)sc->j_max;
-    if (Tj == 0)
-        Tj = 1;
+    if (Tj == 0U)
+        Tj = 1U;
 
     // Max velocity we can reach just during jerk phases (accel up, then accel down)
     // a(t) goes to a_max in Tj ticks. v reached is j_max * Tj^2.
-    uint32_t vj = (uint32_t)sc->j_max * Tj * Tj;
+    uint64_t vj = (uint64_t)(uint32_t)sc->j_max * (uint64_t)Tj * (uint64_t)Tj;
 
-    uint32_t Ta = 0;
-    if ((uint32_t)sc->v_max > vj) {
-        Ta = ((uint32_t)sc->v_max - vj) / (uint32_t)sc->a_max;
+    uint32_t Ta = 0U;
+    if ((uint64_t)(uint32_t)sc->v_max > vj) {
+        Ta = ((uint32_t)sc->v_max - (uint32_t)vj) / (uint32_t)sc->a_max;
     } else {
         // v_max is reached during jerk!
         Tj = syn_isqrt((uint32_t)sc->v_max / (uint32_t)sc->j_max);
-        if (Tj == 0)
-            Tj = 1;
-        Ta = 0;
+        if (Tj == 0U)
+            Tj = 1U;
+        Ta = 0U;
     }
 
     // Total accel time = 2 * Tj + Ta
     // Distance covered during accel = v_max * (2*Tj + Ta) / 2
     // Decel is symmetric. So total distance without constant v phase is approx:
     // D_accel_decel = v_max * (2*Tj + Ta)
-    uint32_t vmax_reached = (uint32_t)sc->j_max * Tj * Tj + (uint32_t)sc->a_max * Ta;
-    if (vmax_reached == 0) {
-        vmax_reached = 1; /* LCOV_EXCL_LINE: Zero velocity division-by-zero guard in S-curve
-                             parameter calculation */
-    }
-    uint32_t D_ad = vmax_reached * (2u * Tj + Ta);
+    uint64_t vmax_reached = (uint64_t)(uint32_t)sc->j_max * (uint64_t)Tj * (uint64_t)Tj +
+                            (uint64_t)(uint32_t)sc->a_max * (uint64_t)Ta;
+    uint64_t D_ad = vmax_reached * (2ULL * (uint64_t)Tj + (uint64_t)Ta);
 
-    uint32_t Tv = 0;
+    uint32_t Tv = 0U;
     if (d > D_ad) {
-        Tv = (d - D_ad) / vmax_reached;
+        uint64_t tv64 = (d - D_ad) / vmax_reached;
+        Tv = (tv64 > (uint64_t)INT32_MAX) ? (uint32_t)INT32_MAX : (uint32_t)tv64;
     } else {
-        // We don't reach v_max. Profile is triangular or just jerk pulses.
-        // For simplicity in this heuristic, scale everything down.
-        // A simple trick is to divide Tj and Ta by 2 until it fits, but
-        // an exact root is better.
-        // We will just do a simple iterative reduction for the test.
-        while (D_ad > d && (Tj > 1u || Ta > 0u)) {
-            if (Ta > 0u)
-                Ta--;
-            else if (Tj > 1u)
-                Tj--;
-            vmax_reached = (uint32_t)sc->j_max * Tj * Tj + (uint32_t)sc->a_max * Ta;
-            D_ad = vmax_reached * (2u * Tj + Ta);
-        }
+        scurve_reduce_short_profile(sc, d, &Tj, &Ta);
     }
 
     sc->phase_ticks[0] = (int32_t)Tj;

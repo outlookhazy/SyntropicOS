@@ -388,12 +388,12 @@ SYN_Status syn_port_uart_receive(SYN_UARTInstance instance, uint8_t *data, size_
                                  size_t *received, uint32_t timeout_ms)
 {
     UART_HandleTypeDef *huart = get_uart_handle(instance);
-    if (!huart)
+    if (!huart || (len > 0U && !data))
         return SYN_INVALID_PARAM;
 
     size_t count = 0;
     uint32_t start_ms = syn_port_get_tick_ms();
-    uint32_t per_byte_timeout = (timeout_ms > 0) ? 1 : 1;
+    uint32_t per_byte_timeout = (timeout_ms > 0U) ? 1U : 0U;
 
     while (count < len) {
         /* Clear any overrun error before attempting receive */
@@ -404,16 +404,9 @@ SYN_Status syn_port_uart_receive(SYN_UARTInstance instance, uint8_t *data, size_
         HAL_StatusTypeDef status = HAL_UART_Receive(huart, &data[count], 1, per_byte_timeout);
         if (status == HAL_OK) {
             count++;
-        } else {
-            /* No byte available within per_byte_timeout */
-            if (timeout_ms > 0 && (syn_port_get_tick_ms() - start_ms) >= timeout_ms) {
-                break;
-            }
-            if (count > 0) {
-                /* We got at least one byte; return what we have */
-                break;
-            }
-            break; /* No data, return immediately to let scheduler run */
+        } else if (timeout_ms == 0U || (syn_port_get_tick_ms() - start_ms) >= timeout_ms ||
+                   count > 0U) {
+            break;
         }
     }
 
@@ -526,6 +519,31 @@ static uint32_t syn_stm32_addr_to_sector(uint32_t addr)
 }
 #endif
 
+static void stm32_hal_flush_flash_cache(void)
+{
+#if defined(__HAL_FLASH_INSTRUCTION_CACHE_RESET) && defined(__HAL_FLASH_INSTRUCTION_CACHE_DISABLE)
+    __HAL_FLASH_INSTRUCTION_CACHE_DISABLE();
+    __HAL_FLASH_INSTRUCTION_CACHE_RESET();
+    __HAL_FLASH_INSTRUCTION_CACHE_ENABLE();
+#endif
+#if defined(__HAL_FLASH_DATA_CACHE_RESET) && defined(__HAL_FLASH_DATA_CACHE_DISABLE)
+    __HAL_FLASH_DATA_CACHE_DISABLE();
+    __HAL_FLASH_DATA_CACHE_RESET();
+    __HAL_FLASH_DATA_CACHE_ENABLE();
+#endif
+#if defined(__HAL_FLASH_ART_RESET) && defined(__HAL_FLASH_ART_DISABLE)
+    __HAL_FLASH_ART_DISABLE();
+    __HAL_FLASH_ART_RESET();
+    __HAL_FLASH_ART_ENABLE();
+#endif
+#if defined(__ICACHE_PRESENT) && (__ICACHE_PRESENT == 1U)
+    SCB_InvalidateICache();
+#endif
+#if defined(__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
+    SCB_CleanInvalidateDCache();
+#endif
+}
+
 SYN_WEAK SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
 {
     if (buf == NULL)
@@ -557,11 +575,14 @@ SYN_WEAK SYN_Status syn_port_flash_erase(uint32_t addr)
     (void)addr;
 #endif
     HAL_FLASH_Lock();
+    stm32_hal_flush_flash_cache();
     return (status == HAL_OK) ? SYN_OK : SYN_ERROR;
 }
 
 SYN_WEAK SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
 {
+    if (len == 0U)
+        return SYN_OK;
     if (buf == NULL)
         return SYN_INVALID_PARAM;
     const uint8_t *src = (const uint8_t *)buf;
@@ -590,6 +611,7 @@ SYN_WEAK SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t 
             break;
     }
     HAL_FLASH_Lock();
+    stm32_hal_flush_flash_cache();
     return (status == HAL_OK) ? SYN_OK : SYN_ERROR;
 }
 

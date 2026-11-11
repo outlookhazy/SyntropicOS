@@ -1394,13 +1394,13 @@ extern "C" {
 
 #define SYN_ARDUINO_SECTOR_SIZE  64  /* 64-byte sector pages */
 
-uint32_t syn_port_flash_sector_size(uint32_t addr)
+SYN_WEAK uint32_t syn_port_flash_sector_size(uint32_t addr)
 {
     (void)addr;
     return SYN_ARDUINO_SECTOR_SIZE;
 }
 
-SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
+SYN_WEAK SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
 {
     if (!buf) return SYN_INVALID_PARAM;
 #if defined(ARDUINO_ARCH_AVR)
@@ -1410,12 +1410,13 @@ SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
     eeprom_read_block(buf, (const void *)(uintptr_t)addr, len);
     return SYN_OK;
 #else
-    memset(buf, 0xFF, len);
-    return SYN_OK;
+    (void)addr;
+    (void)len;
+    return SYN_NOT_IMPLEMENTED;
 #endif
 }
 
-SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
+SYN_WEAK SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
 {
     if (!buf) return SYN_INVALID_PARAM;
 #if defined(ARDUINO_ARCH_AVR)
@@ -1425,11 +1426,13 @@ SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
     eeprom_update_block(buf, (void *)(uintptr_t)addr, len);
     return SYN_OK;
 #else
-    return SYN_OK;
+    (void)addr;
+    (void)len;
+    return SYN_NOT_IMPLEMENTED;
 #endif
 }
 
-SYN_Status syn_port_flash_erase(uint32_t addr)
+SYN_WEAK SYN_Status syn_port_flash_erase(uint32_t addr)
 {
 #if defined(ARDUINO_ARCH_AVR)
     if (addr > (uint32_t)E2END ||
@@ -1441,7 +1444,8 @@ SYN_Status syn_port_flash_erase(uint32_t addr)
     eeprom_update_block(erased, (void *)(uintptr_t)addr, SYN_ARDUINO_SECTOR_SIZE);
     return SYN_OK;
 #else
-    return SYN_OK;
+    (void)addr;
+    return SYN_NOT_IMPLEMENTED;
 #endif
 }
 

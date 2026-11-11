@@ -147,9 +147,44 @@ static void test_encoder_stats(void)
     syn_encoder_update(&enc);
 }
 
+static void test_encoder_high_steps_per_detent(void)
+{
+    mock_gpio_states[10] = 0;
+    mock_gpio_states[11] = 0;
+
+    SYN_Encoder enc;
+    syn_encoder_init(&enc, 10, 11);
+    syn_encoder_set_steps_per_detent(&enc, 200U);
+
+    /* CCW quadrature sequence: 00 -> 01 -> 11 -> 10 -> 00 (4 steps per cycle) */
+    static const uint8_t ccw_states[4][2] = {{0, 1}, {1, 1}, {1, 0}, {0, 0}};
+    for (int i = 0; i < 199; i++) {
+        mock_gpio_states[10] = ccw_states[i & 3][0];
+        mock_gpio_states[11] = ccw_states[i & 3][1];
+        syn_encoder_update(&enc);
+        TEST_ASSERT_EQUAL_INT32(0, syn_encoder_position(&enc));
+    }
+    mock_gpio_states[10] = ccw_states[199 & 3][0];
+    mock_gpio_states[11] = ccw_states[199 & 3][1];
+    syn_encoder_update(&enc);
+    TEST_ASSERT_EQUAL_INT32(-1, syn_encoder_position(&enc));
+    TEST_ASSERT_EQUAL_INT32(-1, syn_encoder_get_delta(&enc));
+
+    /* CW 200 steps must reach 0 */
+    static const uint8_t cw_states[4][2] = {{1, 0}, {1, 1}, {0, 1}, {0, 0}};
+    for (int i = 0; i < 200; i++) {
+        mock_gpio_states[10] = cw_states[i & 3][0];
+        mock_gpio_states[11] = cw_states[i & 3][1];
+        syn_encoder_update(&enc);
+    }
+    TEST_ASSERT_EQUAL_INT32(0, syn_encoder_position(&enc));
+    TEST_ASSERT_EQUAL_INT32(1, syn_encoder_get_delta(&enc));
+}
+
 void run_encoder_tests(void)
 {
     RUN_TEST(test_encoder);
     RUN_TEST(test_encoder_ccw_detent);
     RUN_TEST(test_encoder_stats);
+    RUN_TEST(test_encoder_high_steps_per_detent);
 }

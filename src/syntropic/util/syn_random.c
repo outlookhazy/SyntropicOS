@@ -26,10 +26,14 @@ uint32_t syn_random_u32(void)
 
 uint32_t syn_random_range(uint32_t min, uint32_t max)
 {
-    if (min >= max)
+    if (min >= max) {
         return min;
-    uint32_t range = max - min + 1;
-    return min + (syn_random_u32() % range);
+    }
+    uint32_t span = max - min;
+    if (span == UINT32_MAX) {
+        return syn_random_u32();
+    }
+    return min + (syn_random_u32() % (span + 1U));
 }
 
 /* LCOV_EXCL_START: Weak hardware port stub overridable by platform port */

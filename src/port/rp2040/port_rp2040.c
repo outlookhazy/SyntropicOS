@@ -194,7 +194,7 @@ SYN_Status syn_port_uart_receive(SYN_UARTInstance instance, uint8_t *data, size_
         if (uart_is_readable(uart)) {
             data[count++] = uart_getc(uart);
         } else {
-            if (timeout_ms > 0U && (syn_port_get_tick_ms() - start_ms) >= timeout_ms) {
+            if (timeout_ms == 0U || (syn_port_get_tick_ms() - start_ms) >= timeout_ms) {
                 break;
             }
             // Yield CPU slightly
@@ -227,7 +227,7 @@ SYN_Status syn_port_uart_receive_byte(SYN_UARTInstance instance, uint8_t *byte, 
 
     uint32_t start_ms = syn_port_get_tick_ms();
     while (!uart_is_readable(uart)) {
-        if (timeout_ms > 0U && (syn_port_get_tick_ms() - start_ms) >= timeout_ms) {
+        if (timeout_ms == 0U || (syn_port_get_tick_ms() - start_ms) >= timeout_ms) {
             return SYN_TIMEOUT;
         }
     }

@@ -24,6 +24,14 @@ void test_random_range_edge_cases(void)
     TEST_ASSERT_EQUAL(20, syn_random_range(20, 10));
 }
 
+void test_random_range_full_u32_domain(void)
+{
+    /* Full [0, UINT32_MAX] domain must not wrap (max - min + 1) to 0 and divide by zero */
+    uint32_t v1 = syn_random_range(0U, UINT32_MAX);
+    uint32_t v2 = syn_random_range(0U, UINT32_MAX);
+    TEST_ASSERT_NOT_EQUAL(v1, v2);
+}
+
 void test_random_fill(void)
 {
     uint8_t buf1[16];
@@ -84,6 +92,7 @@ void run_random_tests(void)
     RUN_TEST(test_random_u32);
     RUN_TEST(test_random_range);
     RUN_TEST(test_random_range_edge_cases);
+    RUN_TEST(test_random_range_full_u32_domain);
     RUN_TEST(test_random_fallback);
     RUN_TEST(test_random_u32_fail);
 }

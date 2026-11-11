@@ -1032,9 +1032,7 @@ SYN_Status syn_port_flash_erase(uint32_t addr)
     }
     FLASH->CR = 0UL;
     flash_lock();
-    if (s == SYN_OK) {
-        flash_flush_art_cache();
-    }
+    flash_flush_art_cache();
 
     return s;
 }

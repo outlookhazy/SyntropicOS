@@ -84,6 +84,24 @@ static void test_rate_limit(void)
     /* Reset */
     syn_rate_limit_reset(&rl);
     TEST_ASSERT_EQUAL_INT(3, syn_rate_limit_remaining(&rl));
+
+    /* interval_ms == 0 must not divide by zero; acts as non-refilling token budget */
+    SYN_RateLimit rl_zero;
+    syn_rate_limit_init(&rl_zero, 2U, 0U);
+    mock_tick_advance(100);
+    TEST_ASSERT_TRUE(syn_rate_limit_allow(&rl_zero));
+    TEST_ASSERT_TRUE(syn_rate_limit_allow(&rl_zero));
+    TEST_ASSERT_FALSE(syn_rate_limit_allow(&rl_zero));
+
+    /* Large max_tokens * elapsed must not overflow uint32_t during partial refill */
+    SYN_RateLimit rl_big;
+    syn_rate_limit_init(&rl_big, 10000000U, 1000U);
+    (void)syn_rate_limit_allow(&rl_big);
+    (void)syn_rate_limit_allow(&rl_big);
+    mock_tick_advance(
+        500U); /* 10,000,000 * 500 = 5e9 > UINT32_MAX; exact half refill = 5,000,000 */
+    TEST_ASSERT_TRUE(syn_rate_limit_allow(&rl_big));
+    TEST_ASSERT_EQUAL_UINT32(9999999U, syn_rate_limit_remaining(&rl_big));
 }
 
 static void test_q16_rounding(void)

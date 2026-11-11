@@ -152,6 +152,31 @@ static void test_ramp_fixed_point_and_negative_rate_clamp(void)
     }
     TEST_ASSERT_TRUE(syn_ramp_done(&r));
     TEST_ASSERT_EQUAL_INT(10, syn_ramp_value(&r));
+
+    /* Negative fixed-point trapezoid must match positive step count without signed shift UB */
+    SYN_Ramp r_pos, r_neg;
+    syn_ramp_init(&r_pos, 0);
+    syn_ramp_init(&r_neg, 10);
+    syn_ramp_set_target_trapezoid_fp(&r_pos, 10, 64, 4, 8);
+    syn_ramp_set_target_trapezoid_fp(&r_neg, 0, 64, 4, 8);
+
+    /* First sub-unit tick (-4/256) must NOT jump full integer unit from 10 to 9 */
+    TEST_ASSERT_EQUAL_INT(0, syn_ramp_update(&r_pos));
+    TEST_ASSERT_EQUAL_INT(10, syn_ramp_update(&r_neg));
+
+    int pos_iters = 1;
+    int neg_iters = 1;
+    while (!syn_ramp_done(&r_pos) && pos_iters < 2000) {
+        syn_ramp_update(&r_pos);
+        pos_iters++;
+    }
+    while (!syn_ramp_done(&r_neg) && neg_iters < 2000) {
+        syn_ramp_update(&r_neg);
+        neg_iters++;
+    }
+    TEST_ASSERT_TRUE(syn_ramp_done(&r_neg));
+    TEST_ASSERT_EQUAL_INT(0, syn_ramp_value(&r_neg));
+    TEST_ASSERT_EQUAL_INT(pos_iters, neg_iters);
 }
 
 static void test_ramp_over_deceleration_clamp(void)

@@ -11,7 +11,6 @@
 
 #include "syn_timesync.h"
 
-#include <stdlib.h>
 #include <string.h>
 
 /* ── Init ───────────────────────────────────────────────────────────────── */
@@ -47,23 +46,23 @@ SYN_Status syn_timesync_bind_pps(SYN_TimeSync *tsync, const SYN_HPTimestamp *pps
     uint64_t curr_ticks = syn_hpclock_resolve(pps_ts);
     uint32_t nominal_freq = syn_port_hpclock_freq_hz();
 
-    if (tsync->has_pps_lock && tsync->pps_count > 0 && nominal_freq > 0) {
+    if (tsync->has_pps_lock && tsync->pps_count > 0U && nominal_freq > 0U &&
+        utc_sec == (tsync->last_utc_sec + 1ULL) && curr_ticks >= tsync->last_pps_ticks) {
         /*
-         * Measure actual ticks elapsed between PPS pulses.
-         * For a 1-second interval, expected ticks = nominal_freq.
+         * Measure actual ticks elapsed between consecutive 1-second PPS pulses.
          * Calculate crystal drift PPM = ((actual - expected) * 1,000,000) / expected.
          */
         uint64_t actual_ticks = curr_ticks - tsync->last_pps_ticks;
-        int64_t diff_ticks = (int64_t)actual_ticks - (int64_t)nominal_freq;
+        if (actual_ticks <= ((uint64_t)nominal_freq * 2ULL)) {
+            int64_t diff_ticks = (int64_t)actual_ticks - (int64_t)nominal_freq;
+            int32_t new_ppm = (int32_t)((diff_ticks * 1000000LL) / (int64_t)nominal_freq);
 
-        /* Convert tick difference to Parts-Per-Million */
-        int32_t new_ppm = (int32_t)((diff_ticks * 1000000LL) / (int64_t)nominal_freq);
-
-        if (tsync->pps_count == 1 || tsync->drift_ppm == 0) {
-            tsync->drift_ppm = new_ppm;
-        } else {
-            /* 8-sample Exponential Moving Average (EMA) to smooth out PPS jitter */
-            tsync->drift_ppm = (int32_t)(((int64_t)tsync->drift_ppm * 7 + new_ppm) / 8);
+            if (tsync->pps_count == 1U || tsync->drift_ppm == 0) {
+                tsync->drift_ppm = new_ppm;
+            } else {
+                /* 8-sample Exponential Moving Average (EMA) to smooth out PPS jitter */
+                tsync->drift_ppm = (int32_t)(((int64_t)tsync->drift_ppm * 7LL + new_ppm) / 8LL);
+            }
         }
     }
 
@@ -158,8 +157,15 @@ SYN_Status syn_timesync_resolve_utc(const SYN_TimeSync *tsync, const SYN_HPTimes
     } else if (elapsed_s <= tsync->max_holdover_s) {
         /* Tier 2: PPS holdover — error accumulates with drift */
         out_utc->source = SYN_TIME_SOURCE_GPS_HOLDOVER;
-        uint32_t abs_drift = (uint32_t)abs(tsync->drift_ppm);
-        out_utc->uncertainty_ns = tsync->base_jitter_ns + (abs_drift * (uint32_t)elapsed_s * 1000U);
+        uint64_t abs_drift = (tsync->drift_ppm < 0) ? (uint64_t)(-(int64_t)tsync->drift_ppm)
+                                                    : (uint64_t)tsync->drift_ppm;
+        uint64_t drift_us = abs_drift * elapsed_s;
+        if (drift_us > (uint64_t)(UINT32_MAX / 1000U)) {
+            out_utc->uncertainty_ns = UINT32_MAX;
+        } else {
+            uint64_t uncert = (uint64_t)tsync->base_jitter_ns + (drift_us * 1000ULL);
+            out_utc->uncertainty_ns = (uncert > UINT32_MAX) ? UINT32_MAX : (uint32_t)uncert;
+        }
     } else {
         /* Tier 3 or 4: Holdover expired */
 #if SYN_TIMESYNC_HAS_RTC
