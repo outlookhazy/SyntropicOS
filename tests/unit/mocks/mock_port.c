@@ -45,13 +45,28 @@ void mock_tick_advance_us(uint32_t us)
     mock_tick_ms = mock_tick_us / 1000U;
 }
 
+static MockTickHook s_tick_ms_hook = NULL;
+static MockTickHook s_tick_us_hook = NULL;
+
+void mock_port_set_tick_hooks(MockTickHook ms_hook, MockTickHook us_hook)
+{
+    s_tick_ms_hook = ms_hook;
+    s_tick_us_hook = us_hook;
+}
+
 uint32_t syn_port_get_tick_ms(void)
 {
+    if (s_tick_ms_hook != NULL) {
+        return s_tick_ms_hook();
+    }
     return mock_tick_ms;
 }
 
 uint32_t syn_port_get_tick_us(void)
 {
+    if (s_tick_us_hook != NULL) {
+        return s_tick_us_hook();
+    }
     return mock_tick_us;
 }
 
@@ -1061,6 +1076,8 @@ void mock_port_reset(void)
 {
     mock_tick_ms = 0;
     mock_tick_us = 0;
+    s_tick_ms_hook = NULL;
+    s_tick_us_hook = NULL;
     mock_hpclock_lsb = 0;
     mock_hpclock_freq_hz = 16000000UL;
     mock_random_skip = false;
@@ -1104,6 +1121,8 @@ void mock_port_reset(void)
     mock_aes_hw_enabled = false;
     mock_aes_encrypt_calls = 0;
     mock_aes_decrypt_calls = 0;
+    mock_ghash_calls = 0;
+    memset(mock_aes_last_key, 0, sizeof(mock_aes_last_key));
     mock_usb_ep_stall_count = 0U;
     mock_usb_last_stalled_ep = 0U;
 #if defined(SYN_USE_DMA) && SYN_USE_DMA
@@ -1716,6 +1735,7 @@ bool mock_aes_hw_enabled = false;
 uint32_t mock_aes_encrypt_calls = 0;
 uint32_t mock_aes_decrypt_calls = 0;
 uint32_t mock_ghash_calls = 0;
+uint8_t mock_aes_last_key[32] = {0};
 
 SYN_WEAK SYN_Status syn_port_aes_init(void)
 {
@@ -1729,8 +1749,10 @@ SYN_WEAK SYN_Status syn_port_aes_encrypt_block(const uint8_t *round_keys, uint8_
         return SYN_NOT_IMPLEMENTED;
     }
     mock_aes_encrypt_calls++;
-    (void)round_keys;
-    (void)nr;
+    if (round_keys != NULL) {
+        size_t key_len = (nr == 10U) ? 16U : ((nr == 12U) ? 24U : 32U);
+        memcpy(mock_aes_last_key, round_keys, key_len);
+    }
     for (int i = 0; i < 16; i++) {
         out[i] = (uint8_t)(in[i] ^ 0xAA);
     }
@@ -1744,8 +1766,10 @@ SYN_WEAK SYN_Status syn_port_aes_decrypt_block(const uint8_t *round_keys, uint8_
         return SYN_NOT_IMPLEMENTED;
     }
     mock_aes_decrypt_calls++;
-    (void)round_keys;
-    (void)nr;
+    if (round_keys != NULL) {
+        size_t key_len = (nr == 10U) ? 16U : ((nr == 12U) ? 24U : 32U);
+        memcpy(mock_aes_last_key, round_keys, key_len);
+    }
     for (int i = 0; i < 16; i++) {
         out[i] = (uint8_t)(in[i] ^ 0xAA);
     }

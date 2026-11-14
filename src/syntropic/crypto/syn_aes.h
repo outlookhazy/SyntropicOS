@@ -3,9 +3,11 @@
  * @brief Unified AES cipher engine (128/192/256-bit keys, ECB, CBC, CTR, and GCM AEAD).
  *
  * Zero-heap implementation supporting AES-128, AES-192, and AES-256 with configurable
- * compile-time memory footprint guardrails. Software rounds use 256-byte S-box tables
- * (constant-time on single-cycle SRAM/Flash MCUs without data caches; enable
- * SYN_USE_PORT_AES hardware acceleration on cores with D-cache).
+ * compile-time memory footprint guardrails. Software rounds use a constant-time
+ * bitsliced Boyar-Peralta S-box circuit on non-AVR targets (cache-timing immune on cores
+ * with data/flash caches). On AVR (__AVR__), single-cycle SRAM/Flash PROGMEM tables are
+ * retained to protect constrained Uno flash budgets. Optional SYN_USE_PORT_AES hardware
+ * acceleration offload supported.
  * @ingroup syn_crypto
  */
 
@@ -104,8 +106,16 @@ extern "C" {
  * @brief AES context containing expanded round keys.
  */
 typedef struct {
+#if defined(__AVR__)
     uint8_t round_keys[SYN_AES_MAX_EXPANDED_KEY]; /**< Expanded round key schedule */
     uint8_t nr;                                   /**< Number of rounds (10, 12, or 14) */
+#else
+    uint16_t rk_slice[SYN_AES_MAX_ROUNDS + 1U][8]; /**< Bitsliced round keys */
+#if defined(SYN_USE_PORT_AES) && SYN_USE_PORT_AES
+    uint8_t round_keys[SYN_AES_MAX_KEY_BITS / 8U]; /**< Raw cipher key for hardware port */
+#endif
+    uint8_t nr; /**< Number of rounds (10, 12, or 14) */
+#endif
 } SYN_AES_Context;
 
 /**
@@ -201,6 +211,10 @@ SYN_Status syn_aes_ctr(const SYN_AES_Context *ctx, const uint8_t nonce[SYN_AES_B
 typedef struct {
     SYN_AES_Context aes;           /**< Base AES cipher context */
     uint8_t h[SYN_AES_BLOCK_SIZE]; /**< GHASH subkey H = AES(K, 0) */
+    uint32_t h_rev[4];             /**< Bit-reversed GHASH subkey words for fast multiplication */
+#if defined(SYN_USE_PORT_AES) && SYN_USE_PORT_AES
+    bool hw_ghash; /**< True if port hardware GHASH offload is active */
+#endif
 #if (SYN_AES_GCM_TABLE == 4)
     uint8_t htable[16][SYN_AES_BLOCK_SIZE]; /**< Reserved 4-bit GHASH table (unused in SW) */
 #elif (SYN_AES_GCM_TABLE == 8)

@@ -32,6 +32,10 @@ void mock_tick_advance(uint32_t ms);
 /** Advance the mock system tick by @p us microseconds. */
 void mock_tick_advance_us(uint32_t us);
 
+/** Optional hardware tick override hook (e.g., Cortex-M4 SysTick in QEMU). */
+typedef uint32_t (*MockTickHook)(void);
+void mock_port_set_tick_hooks(MockTickHook ms_hook, MockTickHook us_hook);
+
 /* ── GPIO ───────────────────────────────────────────────────────────────── */
 
 extern uint8_t mock_gpio_states[32];
@@ -343,6 +347,7 @@ extern bool mock_aes_hw_enabled;
 extern uint32_t mock_aes_encrypt_calls;
 extern uint32_t mock_aes_decrypt_calls;
 extern uint32_t mock_ghash_calls;
+extern uint8_t mock_aes_last_key[32];
 
 /* ── Reset ────────────────────────────────────────────────────────────────── */
 

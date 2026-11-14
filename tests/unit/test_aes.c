@@ -8,7 +8,27 @@
 
 void test_aes_ecb_nist_vectors(void)
 {
-    /* FIPS 197 Appendix B (AES-128) */
+    /* FIPS 197 Appendix B (AES-128 example) */
+    const uint8_t key_b[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
+                               0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+    const uint8_t plain_b[16] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d,
+                                 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
+    const uint8_t exp_cipher_b[16] = {0x39, 0x25, 0x84, 0x1d, 0x02, 0xdc, 0x09, 0xfb,
+                                      0xdc, 0x11, 0x85, 0x97, 0x19, 0x6a, 0x0b, 0x32};
+
+    SYN_AES_Context ctx;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_init(&ctx, key_b, sizeof(key_b)));
+    TEST_ASSERT_EQUAL_UINT8(10, ctx.nr);
+
+    uint8_t cipher[16] = {0};
+    syn_aes_encrypt_block(&ctx, plain_b, cipher);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(exp_cipher_b, cipher, 16);
+
+    uint8_t decrypted[16] = {0};
+    syn_aes_decrypt_block(&ctx, cipher, decrypted);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(plain_b, decrypted, 16);
+
+    /* FIPS 197 Appendix C.1 (AES-128) */
     const uint8_t key128[16] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                                 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
     const uint8_t plain[16] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
@@ -16,15 +36,14 @@ void test_aes_ecb_nist_vectors(void)
     const uint8_t exp_cipher128[16] = {0x69, 0xc4, 0xe0, 0xd8, 0x6a, 0x7b, 0x04, 0x30,
                                        0xd8, 0xcd, 0xb7, 0x80, 0x70, 0xb4, 0xc5, 0x5a};
 
-    SYN_AES_Context ctx;
     TEST_ASSERT_EQUAL(SYN_OK, syn_aes_init(&ctx, key128, sizeof(key128)));
     TEST_ASSERT_EQUAL_UINT8(10, ctx.nr);
 
-    uint8_t cipher[16] = {0};
+    memset(cipher, 0, sizeof(cipher));
     syn_aes_encrypt_block(&ctx, plain, cipher);
     TEST_ASSERT_EQUAL_HEX8_ARRAY(exp_cipher128, cipher, 16);
 
-    uint8_t decrypted[16] = {0};
+    memset(decrypted, 0, sizeof(decrypted));
     syn_aes_decrypt_block(&ctx, cipher, decrypted);
     TEST_ASSERT_EQUAL_HEX8_ARRAY(plain, decrypted, 16);
 
@@ -489,7 +508,99 @@ void test_aes_port_and_ghash_functions(void)
     syn_aes_ghash_mult(in_block, h, out_block);
     TEST_ASSERT_EQUAL_UINT32(1, mock_ghash_calls);
 
+    /* Test 256-bit and 192-bit key HW offload and key propagation */
+    SYN_AES_Context ctx256;
+    uint8_t key256[32] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B,
+                          0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16,
+                          0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_init(&ctx256, key256, 32));
+    syn_aes_encrypt_block(&ctx256, in_block, out_block);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(key256, mock_aes_last_key, 32);
+    syn_aes_decrypt_block(&ctx256, in_block, out_block);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(key256, mock_aes_last_key, 32);
+
+    SYN_AES_Context ctx192;
+    uint8_t key192[24] = {0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB,
+                          0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_init(&ctx192, key192, 24));
+    syn_aes_encrypt_block(&ctx192, in_block, out_block);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(key192, mock_aes_last_key, 24);
+
+    /* Multi-block CTR and GCM with HW offload enabled */
+    uint8_t nonce[16] = {0};
+    uint8_t multi_in[48] = {0};
+    uint8_t multi_out[48] = {0};
+    uint32_t enc_before = mock_aes_encrypt_calls;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_ctr(&ctx, nonce, multi_in, sizeof(multi_in), multi_out));
+    TEST_ASSERT_TRUE(mock_aes_encrypt_calls > enc_before);
+
+    SYN_AES_GCM_Context gcm_hw;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_init(&gcm_hw, key, 16));
+    uint8_t gcm_tag[16] = {0};
+    enc_before = mock_aes_encrypt_calls;
+    uint32_t ghash_before = mock_ghash_calls;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_encrypt(&gcm_hw, nonce, 12, multi_in, 16, multi_in, 32,
+                                                  multi_out, gcm_tag));
+    TEST_ASSERT_TRUE(mock_aes_encrypt_calls > enc_before);
+    TEST_ASSERT_TRUE(mock_ghash_calls > ghash_before);
+
     mock_aes_hw_enabled = false;
+
+    /* 4. Software multi-block CTR length variations */
+    uint8_t ct_buf[48];
+    uint8_t pt_buf[48];
+    for (size_t i = 0; i < sizeof(multi_in); i++) {
+        multi_in[i] = (uint8_t)(i ^ 0x3C);
+    }
+    /* 10 bytes: single block partial */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_ctr(&ctx, nonce, multi_in, 10, ct_buf));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_ctr(&ctx, nonce, ct_buf, 10, pt_buf));
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(multi_in, pt_buf, 10);
+
+    /* 17 bytes: two blocks, second block partial (chunk1 < 16) */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_ctr(&ctx, nonce, multi_in, 17, ct_buf));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_ctr(&ctx, nonce, ct_buf, 17, pt_buf));
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(multi_in, pt_buf, 17);
+
+    /* 33 bytes: two full blocks + 1-byte tail in offset < len */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_ctr(&ctx, nonce, multi_in, 33, ct_buf));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_ctr(&ctx, nonce, ct_buf, 33, pt_buf));
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(multi_in, pt_buf, 33);
+
+    /* 5. Software multi-block GCM length variations and error branches */
+    SYN_AES_GCM_Context gcm_sw;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_init(&gcm_sw, key256, 32));
+
+    /* 33 bytes payload + 17 bytes AAD */
+    uint8_t gcm_ct[48] = {0};
+    uint8_t gcm_pt[48] = {0};
+    uint8_t tag_sw[16] = {0};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_aes_gcm_encrypt(&gcm_sw, nonce, 12, multi_in, 17, multi_in, 33,
+                                                  gcm_ct, tag_sw));
+    TEST_ASSERT_EQUAL(
+        SYN_OK, syn_aes_gcm_decrypt(&gcm_sw, nonce, 12, multi_in, 17, gcm_ct, 33, gcm_pt, tag_sw));
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(multi_in, gcm_pt, 33);
+
+    /* Tag mismatch: corrupt tag -> fails decryption */
+    uint8_t bad_tag[16];
+    memcpy(bad_tag, tag_sw, 16);
+    bad_tag[0] ^= 0x55;
+    memset(gcm_pt, 0xEE, sizeof(gcm_pt));
+    /* out != in: verifies out buffer is wiped with 0 */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_aes_gcm_decrypt(&gcm_sw, nonce, 12, multi_in, 17, gcm_ct, 33,
+                                                     gcm_pt, bad_tag));
+    uint8_t zeros[48] = {0};
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(zeros, gcm_pt, 33);
+
+    /* in-place decrypt with corrupted tag: out == in */
+    uint8_t in_place[33];
+    memcpy(in_place, gcm_ct, 33);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_aes_gcm_decrypt(&gcm_sw, nonce, 12, multi_in, 17, in_place, 33,
+                                                     in_place, bad_tag));
+
+    /* Empty payload tag mismatch (in_len == 0) */
+    TEST_ASSERT_EQUAL(SYN_ERROR,
+                      syn_aes_gcm_decrypt(&gcm_sw, nonce, 12, NULL, 0, NULL, 0, NULL, bad_tag));
 }
 
 /* ── AES CCM NIST SP 800-38C & RFC 3610 Test Vectors ────────────────────── */
