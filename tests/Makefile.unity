@@ -287,9 +287,12 @@ ARM_CFLAGS  := -MMD -MP -mcpu=cortex-m4 -mthumb -mabi=aapcs -mfloat-abi=soft -mn
                -DSYN_USE_CAN_FD=1 -DSYN_USE_RTC=1 \
                -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable -Wno-format -Wno-stringop-truncation -Wno-type-limits
 
-ARM_OBJS    := $(patsubst %.c,$(BUILD_DIR)/arm/%.o,$(ALL_SRCS))
+ARM_OBJS        := $(patsubst %.c,$(BUILD_DIR)/arm/%.o,$(ALL_SRCS))
+ARM_BUDGET_SRCS := $(MOCK_SRCS) $(SYN_SRCS) src/syntropic/net/syn_wg.c $(UNITY_SRCS) tests/emulation/test_chunk_budget.c
+ARM_BUDGET_OBJS := $(patsubst %.c,$(BUILD_DIR)/arm/%.o,$(ARM_BUDGET_SRCS))
 
 -include $(ARM_OBJS:.o=.d)
+-include $(ARM_BUDGET_OBJS:.o=.d)
 
 $(BUILD_DIR)/arm/%.o: %.c tests/Makefile.unity | wasm-fixtures
 	@mkdir -p $(dir $@)
@@ -298,9 +301,12 @@ $(BUILD_DIR)/arm/%.o: %.c tests/Makefile.unity | wasm-fixtures
 $(BUILD_DIR)/test_cortexm4.elf: tests/emulation/startup_cortexm4.c $(ARM_OBJS) tests/emulation/qemu_arm.ld tests/Makefile.unity
 	$(ARM_CC) $(ARM_CFLAGS) -T tests/emulation/qemu_arm.ld tests/emulation/startup_cortexm4.c $(ARM_OBJS) -Wl,--gc-sections -Wl,--start-group -lc -lm -lrdimon -Wl,--end-group -o $@
 
+$(BUILD_DIR)/test_chunk_budget_cortexm4.elf: tests/emulation/startup_cortexm4.c $(ARM_BUDGET_OBJS) tests/emulation/qemu_arm.ld tests/Makefile.unity
+	$(ARM_CC) $(ARM_CFLAGS) -T tests/emulation/qemu_arm.ld tests/emulation/startup_cortexm4.c $(ARM_BUDGET_OBJS) -Wl,--gc-sections -Wl,--start-group -lc -lm -lrdimon -Wl,--end-group -o $@
+
 .PHONY: qemu-build
 
-qemu-build: wasm-fixtures $(BUILD_DIR)/test_cortexm4.elf
+qemu-build: wasm-fixtures $(BUILD_DIR)/test_cortexm4.elf $(BUILD_DIR)/test_chunk_budget_cortexm4.elf
 
 
 

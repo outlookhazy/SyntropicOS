@@ -17,6 +17,8 @@ bash "${QEMU_DIR}/measure_arm_size.sh"
 echo "=== Executing in QEMU ARM Cortex-M4 (mps2-an386) ==="
 if command -v qemu-system-arm >/dev/null 2>&1; then
     stdbuf -o0 -e0 qemu-system-arm -machine mps2-an386 -nographic -monitor null -serial stdio -semihosting-config enable=on,target=native -kernel build/test_cortexm4.elf
+    echo "=== Executing Cortex-M4 Cooperative Chunk-Budget Gate (-icount shift=4) ==="
+    stdbuf -o0 -e0 qemu-system-arm -machine mps2-an386 -icount shift=4,align=off,sleep=off -nographic -monitor null -serial stdio -semihosting-config enable=on,target=native -kernel build/test_chunk_budget_cortexm4.elf
     echo "=== QEMU ARM Execution Complete ==="
 else
     echo "Notice: qemu-system-arm not found on host. Run via container: make -C tools/containers container-qemu"

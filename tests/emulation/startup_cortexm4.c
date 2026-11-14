@@ -20,6 +20,7 @@ extern int main(void);
 
 void Reset_Handler(void);
 void Default_Handler(void);
+void SysTick_Handler(void) __attribute__((weak, alias("Default_Handler")));
 
 /* Vector Table for ARM Cortex-M4 */
 __attribute__((section(".isr_vector"))) void (*const g_pfnVectors[])(void) = {
@@ -38,7 +39,7 @@ __attribute__((section(".isr_vector"))) void (*const g_pfnVectors[])(void) = {
     Default_Handler, /* Debug Monitor */
     0,               /* Reserved */
     Default_Handler, /* PendSV */
-    Default_Handler, /* SysTick */
+    SysTick_Handler, /* SysTick */
 };
 
 void semihosting_exit(int code)
