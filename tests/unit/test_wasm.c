@@ -579,16 +579,17 @@ static void test_r5_wasm_module_and_data_bounds(void)
     TEST_ASSERT_FALSE(syn_wasm_module_load(&g_wasm_mod, bad_code_sz, sizeof(bad_code_sz)));
 
     /* 4. Negative data_offset (-4 = 0x7C) in DATA section must trap OUT_OF_BOUNDS */
-    static const uint8_t neg_data_wasm[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x0B,
-                                            0x07, 0x01, 0x00, 0x41, 0x7C, 0x0B, 0x01, 0xAA};
+    static const uint8_t neg_data_wasm[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+                                            0x05, 0x03, 0x01, 0x00, 0x01, 0x0B, 0x07, 0x01,
+                                            0x00, 0x41, 0x7C, 0x0B, 0x01, 0xAA};
     TEST_ASSERT_TRUE(syn_wasm_module_load(&g_wasm_mod, neg_data_wasm, sizeof(neg_data_wasm)));
     TEST_ASSERT_FALSE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
     TEST_ASSERT_EQUAL(SYN_WASM_TRAP_OUT_OF_BOUNDS, g_wasm_ctx.status);
 
     /* 5. Positive data_offset + data_size > mem_size must trap OUT_OF_BOUNDS */
-    static const uint8_t oob_data_wasm[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00,
-                                            0x00, 0x0B, 0x09, 0x01, 0x00, 0x41, 0x06,
-                                            0x0B, 0x03, 'A',  'B',  'C'};
+    static const uint8_t oob_data_wasm[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+                                            0x05, 0x03, 0x01, 0x00, 0x01, 0x0B, 0x09, 0x01,
+                                            0x00, 0x41, 0x06, 0x0B, 0x03, 'A',  'B',  'C'};
     TEST_ASSERT_TRUE(syn_wasm_module_load(&g_wasm_mod, oob_data_wasm, sizeof(oob_data_wasm)));
     TEST_ASSERT_FALSE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, 8U));
     TEST_ASSERT_EQUAL(SYN_WASM_TRAP_OUT_OF_BOUNDS, g_wasm_ctx.status);
@@ -639,17 +640,19 @@ static void test_r5_wasm_if_else_return_and_locals(void)
         0x01, 0x0D, 0x03, 0x60, 0x00, 0x01, 0x7F, 0x60, 0x01, 0x7F, 0x01, 0x7F, 0x60, 0x00, 0x00,
         /* Function section: f0:t0, f1:t1, f2:t1, f3:t2 */
         0x03, 0x05, 0x04, 0x00, 0x01, 0x01, 0x02,
+        /* Table section: 1 funcref table, min 1 */
+        0x04, 0x04, 0x01, 0x70, 0x00, 0x01,
         /* Element section: table[0] = f1 */
         0x09, 0x07, 0x01, 0x00, 0x41, 0x00, 0x0B, 0x01, 0x01,
-        /* Code section (70 = 0x46 bytes, 4 bodies) */
-        0x0A, 0x46, 0x04,
+        /* Code section (71 = 0x47 bytes, 4 bodies) */
+        0x0A, 0x47, 0x04,
         /* f0 body (18 = 0x12 bytes): 12 locals; l10=77; f3(); f1(5); l10 + res */
         0x12, 0x01, 0x0C, 0x7F, 0x41, 0xCD, 0x00, 0x21, 0x0A, 0x10, 0x03, 0x41, 0x05, 0x10, 0x01,
         0x20, 0x0A, 0x6A, 0x0B,
-        /* f1 body (26 = 0x1A bytes): 3 locals; l2=999; block { loop { push 88; l0*10+l3; return } }
+        /* f1 body (27 = 0x1B bytes): 3 locals; l2=999; block { loop { push 88; l0*10+l3; return } }
          */
-        0x1A, 0x01, 0x03, 0x7F, 0x41, 0xE7, 0x07, 0x21, 0x02, 0x02, 0x40, 0x03, 0x40, 0x41, 0x58,
-        0x20, 0x00, 0x41, 0x0A, 0x6C, 0x20, 0x03, 0x6A, 0x0F, 0x0B, 0x0B, 0x0B,
+        0x1B, 0x01, 0x03, 0x7F, 0x41, 0xE7, 0x07, 0x21, 0x02, 0x02, 0x40, 0x03, 0x40, 0x41, 0x58,
+        0x20, 0x00, 0x41, 0x0A, 0x6C, 0x20, 0x03, 0x6A, 0x0F, 0x0B, 0x0B, 0x00, 0x0B,
         /* f2 body (16 = 0x10 bytes): 0 locals; l0; if(result i32) { 11 } else { 33; br 0; 99 } end
          */
         0x10, 0x00, 0x20, 0x00, 0x04, 0x7F, 0x41, 0x0B, 0x05, 0x41, 0x21, 0x0C, 0x00, 0x41, 0x63,
@@ -1252,9 +1255,9 @@ static void test_r5_wasm_i64_global_init(void)
     TEST_ASSERT_EQUAL_UINT64(133ULL, g_wasm_ctx.globals[0]);
     TEST_ASSERT_EQUAL_UINT16(1U, g_wasm_ctx.global_count);
 
-    static const uint8_t data_wasm[] = {0x00U, 0x61U, 0x73U, 0x6DU, 0x01U, 0x00U,
-                                        0x00U, 0x00U, 0x0BU, 0x07U, 0x01U, 0x00U,
-                                        0x41U, 0x00U, 0x0BU, 0x01U, 0xAAU};
+    static const uint8_t data_wasm[] = {0x00U, 0x61U, 0x73U, 0x6DU, 0x01U, 0x00U, 0x00U, 0x00U,
+                                        0x05U, 0x03U, 0x01U, 0x00U, 0x01U, 0x0BU, 0x07U, 0x01U,
+                                        0x00U, 0x41U, 0x00U, 0x0BU, 0x01U, 0xAAU};
     SYN_WASM_Module data_mod;
     TEST_ASSERT_TRUE(syn_wasm_module_load(&data_mod, data_wasm, (uint32_t)sizeof(data_wasm)));
     TEST_ASSERT_FALSE(syn_wasm_init(&g_wasm_ctx, &data_mod, NULL, 16U));
@@ -1262,9 +1265,12 @@ static void test_r5_wasm_i64_global_init(void)
 
     static const uint8_t i64_glob_trunc[] = {0x00U, 0x61U, 0x73U, 0x6DU, 0x01U, 0x00U, 0x00U, 0x00U,
                                              0x06U, 0x05U, 0x01U, 0x7EU, 0x01U, 0x42U, 0x85U};
-    TEST_ASSERT_TRUE(syn_wasm_module_load(&mod, i64_glob_trunc, (uint32_t)sizeof(i64_glob_trunc)));
-    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &mod, g_linear_mem, sizeof(g_linear_mem)));
-    TEST_ASSERT_EQUAL_UINT64(5ULL, g_wasm_ctx.globals[0]);
+    TEST_ASSERT_FALSE(syn_wasm_module_load(&mod, i64_glob_trunc, (uint32_t)sizeof(i64_glob_trunc)));
+    memset(&mod, 0, sizeof(mod));
+    mod.bytes = i64_glob_trunc;
+    mod.size = (uint32_t)sizeof(i64_glob_trunc);
+    TEST_ASSERT_FALSE(syn_wasm_init(&g_wasm_ctx, &mod, g_linear_mem, sizeof(g_linear_mem)));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE, g_wasm_ctx.status);
 }
 
 static uint64_t tier_a_host_add64(SYN_WASM_Context *ctx, const uint64_t *args, uint8_t argc)
@@ -1520,15 +1526,21 @@ static void test_tier_a_wasm_loader_bounds(void)
     }
     TEST_ASSERT_FALSE(syn_wasm_module_load(&mod, imp33, ipos));
 
-    /* Malformed Data sections in syn_wasm_init: empty section & passive segment (flags=1) */
+    /* Malformed Data sections rejected at load AND guarded in syn_wasm_init */
     static const uint8_t d_emp[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x0b, 0x00};
-    static const uint8_t d_pas[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00,
-                                    0x00, 0x0b, 0x04, 0x01, 0x01, 0x01, 0xAA};
-    TEST_ASSERT_TRUE(syn_wasm_module_load(&mod, d_emp, (uint32_t)sizeof(d_emp)));
+    static const uint8_t d_bad[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00,
+                                    0x00, 0x0b, 0x04, 0x01, 0x03, 0x01, 0xAA};
+    TEST_ASSERT_FALSE(syn_wasm_module_load(&mod, d_emp, (uint32_t)sizeof(d_emp)));
+    memset(&mod, 0, sizeof(mod));
+    mod.bytes = d_emp;
+    mod.size = (uint32_t)sizeof(d_emp);
     TEST_ASSERT_FALSE(syn_wasm_init(&g_wasm_ctx, &mod, g_linear_mem, 16U));
     TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE, g_wasm_ctx.status);
 
-    TEST_ASSERT_TRUE(syn_wasm_module_load(&mod, d_pas, (uint32_t)sizeof(d_pas)));
+    TEST_ASSERT_FALSE(syn_wasm_module_load(&mod, d_bad, (uint32_t)sizeof(d_bad)));
+    memset(&mod, 0, sizeof(mod));
+    mod.bytes = d_bad;
+    mod.size = (uint32_t)sizeof(d_bad);
     TEST_ASSERT_FALSE(syn_wasm_init(&g_wasm_ctx, &mod, g_linear_mem, 16U));
     TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE, g_wasm_ctx.status);
 
@@ -1678,6 +1690,1115 @@ static void test_wasm_cooperative_exec_pt_and_task(void)
     TEST_ASSERT_EQUAL(SYN_TASK_DEAD, tasks[0].state);
 }
 
+static void test_wasm_spec_profile_sign_ext_and_float_ieee754(void)
+{
+    /* 1. All 5 sign-ext opcodes (0xC0..0xC4) + empty-stack underflow */
+    static const uint8_t c_ext8_32[] = {0x41, 0xAB, 0x25, 0xC0, 0x0B};        /* 0x12AB -> -85 */
+    static const uint8_t c_ext16_32[] = {0x41, 0x80, 0x80, 0x03, 0xC1, 0x0B}; /* 0xC000 -> -16384 */
+    static const uint8_t c_ext8_64[] = {0x42, 0xFF, 0x01, 0xC2, 0x0B};        /* 0xFF -> -1LL */
+    static const uint8_t c_ext16_64[] = {0x42, 0x81, 0x80,
+                                         0x06, 0xC3, 0x0B}; /* 0x18001 -> -32767LL */
+    static const uint8_t c_ext32_64[] = {0x42, 0x80, 0x80, 0x80, 0x80, 0x18, 0xC4, 0x0B};
+    static const uint8_t c_uf32[] = {0xC0, 0x0B};
+    static const uint8_t c_uf64[] = {0xC2, 0x0B};
+
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(c_ext8_32, (uint32_t)sizeof(c_ext8_32)));
+    TEST_ASSERT_EQUAL_INT32(-85, (int32_t)(uint32_t)syn_wasm_result(&g_wasm_ctx));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(c_ext16_32, (uint32_t)sizeof(c_ext16_32)));
+    TEST_ASSERT_EQUAL_INT32(-16384, (int32_t)(uint32_t)syn_wasm_result(&g_wasm_ctx));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(c_ext8_64, (uint32_t)sizeof(c_ext8_64)));
+    TEST_ASSERT_EQUAL_INT64(-1LL, (int64_t)syn_wasm_result(&g_wasm_ctx));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(c_ext16_64, (uint32_t)sizeof(c_ext16_64)));
+    TEST_ASSERT_EQUAL_INT64(-32767LL, (int64_t)syn_wasm_result(&g_wasm_ctx));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(c_ext32_64, (uint32_t)sizeof(c_ext32_64)));
+    TEST_ASSERT_EQUAL_INT64(INT32_MIN, (int64_t)syn_wasm_result(&g_wasm_ctx));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_STACK_UNDERFLOW,
+                      run_raw_snippet(c_uf32, (uint32_t)sizeof(c_uf32)));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_STACK_UNDERFLOW,
+                      run_raw_snippet(c_uf64, (uint32_t)sizeof(c_uf64)));
+
+#if !defined(SYN_WASM_USE_FIXED) || !SYN_WASM_USE_FIXED
+    /* 2. IEEE-754 f32/f64 nearest ties-to-even, -0.0 sign preservation, sNaN, and min/max */
+    static const struct {
+        uint32_t in_bits;
+        uint32_t exp_nearest;
+    } f32_near_cases[] = {
+        {0x3F000000U, 0x00000000U}, /* +0.5 -> +0.0 */
+        {0xBF000000U, 0x80000000U}, /* -0.5 -> -0.0 */
+        {0x3FC00000U, 0x40000000U}, /* +1.5 -> +2.0 */
+        {0x40200000U, 0x40000000U}, /* +2.5 -> +2.0 */
+        {0x40600000U, 0x40800000U}, /* +3.5 -> +4.0 */
+        {0x3EFFFFFFU, 0x00000000U}, /* 0.49999997 -> +0.0 (no double-round) */
+        {0x4B000001U, 0x4B000001U}, /* >= 2^23 already integral */
+        {0x7F800000U, 0x7F800000U}, /* +Inf -> +Inf */
+    };
+    for (size_t i = 0U; i < sizeof(f32_near_cases) / sizeof(f32_near_cases[0]); i++) {
+        uint8_t code[7] = {0x43U, 0U, 0U, 0U, 0U, 0x90U, 0x0BU};
+        memcpy(&code[1], &f32_near_cases[i].in_bits, 4U);
+        TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(code, 7U));
+        TEST_ASSERT_EQUAL_HEX32(f32_near_cases[i].exp_nearest,
+                                (uint32_t)syn_wasm_result(&g_wasm_ctx));
+    }
+    /* f32 sNaN nearest/ceil/floor/trunc quiet bit, abs/neg/copysign preserve sNaN payload */
+    uint32_t snan32 = 0xFF800013U;
+    uint8_t snan_abs[7] = {0x43U, 0U, 0U, 0U, 0U, 0x8BU, 0x0BU};
+    memcpy(&snan_abs[1], &snan32, 4U);
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(snan_abs, 7U));
+    TEST_ASSERT_EQUAL_HEX32(0x7F800013U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+    snan_abs[5] = 0x90U; /* f32.nearest on sNaN sets quiet bit */
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(snan_abs, 7U));
+    TEST_ASSERT_TRUE(((uint32_t)syn_wasm_result(&g_wasm_ctx) & 0x7FC00000U) == 0x7FC00000U);
+
+    /* f32 min/max: -0.0 vs +0.0 and NaN propagation */
+    static const uint8_t f32_min_z[] = {0x43, 0x00, 0x00, 0x00, 0x00, 0x43,
+                                        0x00, 0x00, 0x00, 0x80, 0x96, 0x0B};
+    static const uint8_t f32_max_z[] = {0x43, 0x00, 0x00, 0x00, 0x80, 0x43,
+                                        0x00, 0x00, 0x00, 0x00, 0x97, 0x0B};
+    static const uint8_t f32_min_nan[] = {0x43, 0x00, 0x00, 0x80, 0x3F, 0x43,
+                                          0x01, 0x00, 0x80, 0x7F, 0x96, 0x0B};
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(f32_min_z, (uint32_t)sizeof(f32_min_z)));
+    TEST_ASSERT_EQUAL_HEX32(0x80000000U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(f32_max_z, (uint32_t)sizeof(f32_max_z)));
+    TEST_ASSERT_EQUAL_HEX32(0x00000000U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(f32_min_nan, (uint32_t)sizeof(f32_min_nan)));
+    TEST_ASSERT_TRUE(((uint32_t)syn_wasm_result(&g_wasm_ctx) & 0x7FC00000U) == 0x7FC00000U);
+
+    /* f64 nearest (-0.5 -> -0.0, 2.5 -> 2.0, 3.5 -> 4.0, >=2^52, sNaN) & min/max */
+    static const struct {
+        uint64_t in_bits;
+        uint64_t exp_nearest;
+    } f64_near_cases[] = {
+        {0xBFE0000000000000ULL, 0x8000000000000000ULL}, /* -0.5 -> -0.0 */
+        {0x4004000000000000ULL, 0x4000000000000000ULL}, /* +2.5 -> +2.0 */
+        {0x400C000000000000ULL, 0x4010000000000000ULL}, /* +3.5 -> +4.0 */
+        {0x4330000000000001ULL, 0x4330000000000001ULL}, /* >= 2^52 */
+    };
+    for (size_t i = 0U; i < sizeof(f64_near_cases) / sizeof(f64_near_cases[0]); i++) {
+        uint8_t code[11] = {0x44U};
+        memcpy(&code[1], &f64_near_cases[i].in_bits, 8U);
+        code[9] = 0x9EU;
+        code[10] = 0x0BU;
+        TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(code, 11U));
+        TEST_ASSERT_EQUAL_HEX64(f64_near_cases[i].exp_nearest, syn_wasm_result(&g_wasm_ctx));
+    }
+    uint64_t snan64 = 0xFFF0000000000005ULL;
+    uint8_t snan64_code[11] = {0x44U};
+    memcpy(&snan64_code[1], &snan64, 8U);
+    snan64_code[9] = 0x99U; /* f64.abs preserves sNaN payload */
+    snan64_code[10] = 0x0BU;
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(snan64_code, 11U));
+    TEST_ASSERT_EQUAL_HEX64(0x7FF0000000000005ULL, syn_wasm_result(&g_wasm_ctx));
+    snan64_code[9] = 0x9EU; /* f64.nearest quiets sNaN */
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(snan64_code, 11U));
+    TEST_ASSERT_TRUE((syn_wasm_result(&g_wasm_ctx) & 0x7FF8000000000000ULL) ==
+                     0x7FF8000000000000ULL);
+
+    uint8_t f64_mm[20] = {0x44U};
+    uint64_t pz64 = 0x0000000000000000ULL;
+    uint64_t nz64 = 0x8000000000000000ULL;
+    memcpy(&f64_mm[1], &pz64, 8U);
+    f64_mm[9] = 0x44U;
+    memcpy(&f64_mm[10], &nz64, 8U);
+    f64_mm[18] = 0xA4U; /* f64.min(+0.0, -0.0) -> -0.0 */
+    f64_mm[19] = 0x0BU;
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(f64_mm, 20U));
+    TEST_ASSERT_EQUAL_HEX64(nz64, syn_wasm_result(&g_wasm_ctx));
+    f64_mm[18] = 0xA5U; /* f64.max(+0.0, -0.0) -> +0.0 */
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(f64_mm, 20U));
+    TEST_ASSERT_EQUAL_HEX64(pz64, syn_wasm_result(&g_wasm_ctx));
+    memcpy(&f64_mm[1], &snan64, 8U);
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(f64_mm, 20U));
+    TEST_ASSERT_TRUE((syn_wasm_result(&g_wasm_ctx) & 0x7FF8000000000000ULL) ==
+                     0x7FF8000000000000ULL);
+
+    /* Non-zero finite f32.min/f32.max and f64.min/f64.max */
+    static const uint8_t f32_fin_min[] = {0x43, 0x00, 0x00, 0xC0, 0x3F, 0x43,
+                                          0x00, 0x00, 0x20, 0x40, 0x96, 0x0B};
+    static const uint8_t f32_fin_max[] = {0x43, 0x00, 0x00, 0xC0, 0x3F, 0x43,
+                                          0x00, 0x00, 0x20, 0x40, 0x97, 0x0B};
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(f32_fin_min, (uint32_t)sizeof(f32_fin_min)));
+    TEST_ASSERT_EQUAL_HEX32(0x3FC00000U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(f32_fin_max, (uint32_t)sizeof(f32_fin_max)));
+    TEST_ASSERT_EQUAL_HEX32(0x40200000U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    uint64_t f64_1p5 = 0x3FF8000000000000ULL;
+    uint64_t f64_2p5 = 0x4004000000000000ULL;
+    memcpy(&f64_mm[1], &f64_1p5, 8U);
+    memcpy(&f64_mm[10], &f64_2p5, 8U);
+    f64_mm[18] = 0xA4U;
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(f64_mm, 20U));
+    TEST_ASSERT_EQUAL_HEX64(f64_1p5, syn_wasm_result(&g_wasm_ctx));
+    f64_mm[18] = 0xA5U;
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, run_raw_snippet(f64_mm, 20U));
+    TEST_ASSERT_EQUAL_HEX64(f64_2p5, syn_wasm_result(&g_wasm_ctx));
+#endif
+}
+
+static void test_wasm_spec_profile_call_indirect_and_table(void)
+{
+    /* Module with 3 types: T0=(i32)->i32, T1=(i32)->i32 (distinct idx, structurally equal!),
+     * T2=()->i32 (mismatch); table min=4 with elem at slot 1 = fn0 (T0); fn1 calls call_indirect */
+    static const uint8_t ci_wasm[] = {
+        0x00,
+        0x61,
+        0x73,
+        0x6d,
+        0x01,
+        0x00,
+        0x00,
+        0x00,
+        /* Type sec: T0=(i32)->i32, T1=(i32)->i32, T2=()->i32 */
+        0x01,
+        0x0f,
+        0x03,
+        0x60,
+        0x01,
+        0x7f,
+        0x01,
+        0x7f,
+        0x60,
+        0x01,
+        0x7f,
+        0x01,
+        0x7f,
+        0x60,
+        0x00,
+        0x01,
+        0x7f,
+        /* Func sec: fn0:T0, fn1:T1 (calls T1), fn2:T0 (calls T2 mismatch) */
+        0x03,
+        0x04,
+        0x03,
+        0x00,
+        0x01,
+        0x00,
+        /* Table sec: 1 table funcref min=4 */
+        0x04,
+        0x04,
+        0x01,
+        0x70,
+        0x00,
+        0x04,
+        /* Elem sec: slot 1 = fn0 (slots 0, 2, 3 remain SYN_WASM_TABLE_NULL!) */
+        0x09,
+        0x07,
+        0x01,
+        0x00,
+        0x41,
+        0x01,
+        0x0b,
+        0x01,
+        0x00,
+        /* Code sec */
+        0x0a,
+        0x1b,
+        0x03,
+        /* fn0(x): x + 10 */
+        0x07,
+        0x00,
+        0x20,
+        0x00,
+        0x41,
+        0x0a,
+        0x6a,
+        0x0b,
+        /* fn1(slot): call_indirect T1(arg=32, idx=slot) */
+        0x09,
+        0x00,
+        0x41,
+        0x20,
+        0x20,
+        0x00,
+        0x11,
+        0x01,
+        0x00,
+        0x0b,
+        /* fn2(slot): call_indirect T2(idx=slot) -> signature mismatch when slot==1 */
+        0x07,
+        0x00,
+        0x20,
+        0x00,
+        0x11,
+        0x02,
+        0x00,
+        0x0b,
+    };
+    SYN_WASM_Module mod;
+    TEST_ASSERT_TRUE(syn_wasm_module_load(&mod, ci_wasm, (uint32_t)sizeof(ci_wasm)));
+    TEST_ASSERT_EQUAL_UINT16(SYN_WASM_TABLE_NULL, mod.table_elements[0]);
+    TEST_ASSERT_EQUAL_UINT16(0U, mod.table_elements[1]);
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &mod, g_linear_mem, sizeof(g_linear_mem)));
+
+    /* Structural equivalence: fn0 has T0, called through T1 at slot 1 -> 32 + 10 = 42 */
+    g_wasm_ctx.sp = 1U;
+    g_wasm_ctx.stack[0] = 1ULL;
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 1U));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, syn_wasm_step(&g_wasm_ctx, 64U));
+    TEST_ASSERT_EQUAL_UINT32(42U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    /* Uninitialized sparse slot 0 (SYN_WASM_TABLE_NULL) -> TRAP_OUT_OF_BOUNDS */
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &mod, g_linear_mem, sizeof(g_linear_mem)));
+    g_wasm_ctx.sp = 1U;
+    g_wasm_ctx.stack[0] = 0ULL;
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 1U));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_OUT_OF_BOUNDS, syn_wasm_step(&g_wasm_ctx, 64U));
+
+    /* Signature mismatch (fn2 expects T2 ()->i32, slot 1 holds fn0 (i32)->i32) */
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &mod, g_linear_mem, sizeof(g_linear_mem)));
+    g_wasm_ctx.sp = 1U;
+    g_wasm_ctx.stack[0] = 1ULL;
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_TYPE_MISMATCH, syn_wasm_step(&g_wasm_ctx, 64U));
+
+    /* Runtime guard: non-zero table_idx in raw bytecode traps with TRAP_INVALID_MODULE */
+    static const uint8_t bad_tbl_ci[] = {0x41, 0x00, 0x11, 0x00, 0x01, 0x0b};
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE,
+                      run_raw_snippet(bad_tbl_ci, (uint32_t)sizeof(bad_tbl_ci)));
+}
+
+static void test_wasm_spec_profile_passive_data_mem_grow_and_init_ex(void)
+{
+    /* 1. Passive data segment + DataCount (sec 12) + memory.init + data.drop + memory.grow */
+    static uint8_t two_pages[2U * 65536U];
+    static const uint8_t bulk_wasm[] = {
+        0x00,
+        0x61,
+        0x73,
+        0x6d,
+        0x01,
+        0x00,
+        0x00,
+        0x00,
+        /* Type 0: ()->i32, Type 1: (i32)->i32 */
+        0x01,
+        0x0a,
+        0x02,
+        0x60,
+        0x00,
+        0x01,
+        0x7f,
+        0x60,
+        0x01,
+        0x7f,
+        0x01,
+        0x7f,
+        /* Func 0: T0 (passive init + drop), Func 1: T1 (memory.grow + size), Func 2: T0 */
+        0x03,
+        0x04,
+        0x03,
+        0x00,
+        0x01,
+        0x00,
+        /* Memory: min=1, max=2 */
+        0x05,
+        0x04,
+        0x01,
+        0x01,
+        0x01,
+        0x02,
+        /* DataCount: 1 segment */
+        0x0c,
+        0x01,
+        0x01,
+        /* Code */
+        0x0a,
+        0x3c,
+        0x03,
+        /* fn0: memory.init 0,0(dst=4, src=1, n=3); data.drop 0; memory.init 0,0(0,0,0); load8_u(5)
+         */
+        0x1e,
+        0x00,
+        0x41,
+        0x04,
+        0x41,
+        0x01,
+        0x41,
+        0x03,
+        0xfc,
+        0x08,
+        0x00,
+        0x00,
+        0xfc,
+        0x09,
+        0x00,
+        0x41,
+        0x00,
+        0x41,
+        0x00,
+        0x41,
+        0x00,
+        0xfc,
+        0x08,
+        0x00,
+        0x00,
+        0x41,
+        0x05,
+        0x2d,
+        0x00,
+        0x00,
+        0x0b,
+        /* fn1(delta): memory.grow(delta) * 32 + memory.size() */
+        0x0c,
+        0x00,
+        0x20,
+        0x00,
+        0x40,
+        0x00,
+        0x41,
+        0x20,
+        0x6c,
+        0x3f,
+        0x00,
+        0x6a,
+        0x0b,
+        /* fn2: memory.init 0,0(dst=0, src=0, n=1) -> traps after fn0 dropped seg 0 */
+        0x0e,
+        0x00,
+        0x41,
+        0x00,
+        0x41,
+        0x00,
+        0x41,
+        0x01,
+        0xfc,
+        0x08,
+        0x00,
+        0x00,
+        0x41,
+        0x00,
+        0x0b,
+        /* Data section: 1 passive segment (flags=1) "ABCD" */
+        0x0b,
+        0x07,
+        0x01,
+        0x01,
+        0x04,
+        0x41,
+        0x42,
+        0x43,
+        0x44,
+    };
+    SYN_WASM_Module mod;
+    SYN_WASM_LoadError lerr = SYN_WASM_LOAD_ERR_MALFORMED;
+    TEST_ASSERT_TRUE(syn_wasm_module_load_ex(&mod, bulk_wasm, (uint32_t)sizeof(bulk_wasm), &lerr));
+    TEST_ASSERT_EQUAL(SYN_WASM_LOAD_OK, lerr);
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &mod, two_pages, (uint32_t)sizeof(two_pages)));
+    TEST_ASSERT_EQUAL_UINT32(65536U, g_wasm_ctx.linear_mem_size);
+
+    /* fn0 copies "BCD" to offset 4..6, drops seg 0, zero-len init ok, returns 'C' (0x43) */
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 0U));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, syn_wasm_step(&g_wasm_ctx, 64U));
+    TEST_ASSERT_EQUAL_UINT32(0x43U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    /* Non-zero memory.init on dropped seg 0 traps with TRAP_OUT_OF_BOUNDS */
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_OUT_OF_BOUNDS, syn_wasm_step(&g_wasm_ctx, 64U));
+
+    /* fn1 memory.grow: delta=0 -> 1*32+1=33; delta=1 -> 1*32+2=34; delta=1 (>max=2) -> -1*32+2 */
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &mod, two_pages, (uint32_t)sizeof(two_pages)));
+    g_wasm_ctx.sp = 1U;
+    g_wasm_ctx.stack[0] = 0ULL;
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 1U));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, syn_wasm_step(&g_wasm_ctx, 64U));
+    TEST_ASSERT_EQUAL_UINT32(33U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    g_wasm_ctx.sp = 1U;
+    g_wasm_ctx.stack[0] = 1ULL;
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 1U));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, syn_wasm_step(&g_wasm_ctx, 64U));
+    TEST_ASSERT_EQUAL_UINT32(34U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+    TEST_ASSERT_EQUAL_UINT32(131072U, g_wasm_ctx.linear_mem_size);
+
+    g_wasm_ctx.sp = 1U;
+    g_wasm_ctx.stack[0] = 1ULL;
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 1U));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, syn_wasm_step(&g_wasm_ctx, 64U));
+    TEST_ASSERT_EQUAL_INT32(-30, (int32_t)(uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    /* 2. syn_wasm_init_ex with imported globals used in Global, Element, and Data const exprs */
+    static const uint8_t imp_glob_wasm[] = {
+        0x00,
+        0x61,
+        0x73,
+        0x6d,
+        0x01,
+        0x00,
+        0x00,
+        0x00,
+        0x01,
+        0x04,
+        0x01,
+        0x60,
+        0x00,
+        0x00,
+        /* Import 2 immutable i32 globals (g0=elem_off, g1=data_off) */
+        0x02,
+        0x11,
+        0x02,
+        0x01,
+        0x65,
+        0x02,
+        0x67,
+        0x30,
+        0x03,
+        0x7f,
+        0x00,
+        0x01,
+        0x65,
+        0x02,
+        0x67,
+        0x31,
+        0x03,
+        0x7f,
+        0x00,
+        0x03,
+        0x02,
+        0x01,
+        0x00,
+        0x04,
+        0x04,
+        0x01,
+        0x70,
+        0x00,
+        0x04,
+        0x05,
+        0x03,
+        0x01,
+        0x00,
+        0x01,
+        /* Internal globals: g2 = global.get 0, g3 = f32.const 1.5, g4 = f64.const 2.5 */
+        0x06,
+        0x1a,
+        0x03,
+        0x7f,
+        0x00,
+        0x23,
+        0x00,
+        0x0b,
+        0x7d,
+        0x00,
+        0x43,
+        0x00,
+        0x00,
+        0xc0,
+        0x3f,
+        0x0b,
+        0x7c,
+        0x00,
+        0x44,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x04,
+        0x40,
+        0x0b,
+        /* Elem at global.get 0 -> fn0 */
+        0x09,
+        0x07,
+        0x01,
+        0x00,
+        0x23,
+        0x00,
+        0x0b,
+        0x01,
+        0x00,
+        0x0a,
+        0x04,
+        0x01,
+        0x02,
+        0x00,
+        0x0b,
+        /* Data at global.get 1 -> 0x5A */
+        0x0b,
+        0x07,
+        0x01,
+        0x00,
+        0x23,
+        0x01,
+        0x0b,
+        0x01,
+        0x5a,
+    };
+#if !defined(SYN_WASM_USE_FIXED) || !SYN_WASM_USE_FIXED
+    TEST_ASSERT_TRUE(syn_wasm_module_load(&mod, imp_glob_wasm, (uint32_t)sizeof(imp_glob_wasm)));
+    uint64_t imp_vals[2] = {2ULL, 8ULL};
+    TEST_ASSERT_TRUE(syn_wasm_init_ex(&g_wasm_ctx, &mod, two_pages, 65536U, imp_vals, 2U));
+    TEST_ASSERT_EQUAL_UINT64(2ULL, g_wasm_ctx.globals[2]);
+    TEST_ASSERT_EQUAL_HEX64(0x3FC00000ULL, g_wasm_ctx.globals[3]);
+    TEST_ASSERT_EQUAL_HEX64(0x4004000000000000ULL, g_wasm_ctx.globals[4]);
+    TEST_ASSERT_EQUAL_UINT16(0U, g_wasm_ctx.table_elements[2]);
+    TEST_ASSERT_EQUAL_HEX8(0x5AU, two_pages[8]);
+
+    /* OOB elem offset via imported global traps at syn_wasm_init_ex */
+    imp_vals[0] = 10ULL;
+    TEST_ASSERT_FALSE(syn_wasm_init_ex(&g_wasm_ctx, &mod, two_pages, 65536U, imp_vals, 2U));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_OUT_OF_BOUNDS, g_wasm_ctx.status);
+#else
+    (void)imp_glob_wasm;
+    (void)two_pages;
+#endif
+}
+
+static void expect_load_err(const uint8_t *wasm, uint32_t len, SYN_WASM_LoadError expected)
+{
+    SYN_WASM_Module mod;
+    SYN_WASM_LoadError err = SYN_WASM_LOAD_OK;
+    TEST_ASSERT_FALSE(syn_wasm_module_load_ex(&mod, wasm, len, &err));
+    TEST_ASSERT_EQUAL(expected, err);
+}
+
+static void test_wasm_spec_profile_module_load_ex_validation(void)
+{
+    /* 1. Error strings + NULL / header checks */
+    TEST_ASSERT_EQUAL_STRING("OK", syn_wasm_load_error_str(SYN_WASM_LOAD_OK));
+    TEST_ASSERT_NOT_NULL(syn_wasm_load_error_str(SYN_WASM_LOAD_ERR_INVALID_ARG));
+    TEST_ASSERT_NOT_NULL(syn_wasm_load_error_str(SYN_WASM_LOAD_ERR_BAD_HEADER));
+    TEST_ASSERT_NOT_NULL(syn_wasm_load_error_str(SYN_WASM_LOAD_ERR_MALFORMED));
+    TEST_ASSERT_NOT_NULL(syn_wasm_load_error_str(SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED));
+    TEST_ASSERT_NOT_NULL(syn_wasm_load_error_str(SYN_WASM_LOAD_ERR_UNSUPPORTED));
+    TEST_ASSERT_NOT_NULL(syn_wasm_load_error_str((SYN_WASM_LoadError)99));
+
+    SYN_WASM_Module mod;
+    SYN_WASM_LoadError err = SYN_WASM_LOAD_OK;
+    static const uint8_t bad_ver[] = {0x00, 0x61, 0x73, 0x6d, 0x02, 0x00, 0x00, 0x00};
+    TEST_ASSERT_FALSE(syn_wasm_module_load_ex(NULL, bad_ver, 8U, &err));
+    TEST_ASSERT_EQUAL(SYN_WASM_LOAD_ERR_INVALID_ARG, err);
+    TEST_ASSERT_FALSE(syn_wasm_module_load_ex(&mod, NULL, 8U, NULL));
+    expect_load_err(bad_ver, 4U, SYN_WASM_LOAD_ERR_INVALID_ARG);
+    expect_load_err(bad_ver, 8U, SYN_WASM_LOAD_ERR_BAD_HEADER);
+
+    /* 2. Custom section (UTF-8 valid vs invalid), duplicate section, out-of-order section */
+    static const uint8_t custom_ok[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00,
+                                        0x00, 0x00, 0x04, 0x02, 0x6f, 0x6b, 0xff};
+    static const uint8_t custom_bad_utf8[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00,
+                                              0x00, 0x00, 0x00, 0x02, 0x01, 0xC0};
+    static const uint8_t out_of_order[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00,
+                                           0x00, 0x05, 0x03, 0x01, 0x00, 0x01, 0x04,
+                                           0x04, 0x01, 0x70, 0x00, 0x01};
+    TEST_ASSERT_TRUE(syn_wasm_module_load_ex(&mod, custom_ok, (uint32_t)sizeof(custom_ok), &err));
+    expect_load_err(custom_bad_utf8, (uint32_t)sizeof(custom_bad_utf8),
+                    SYN_WASM_LOAD_ERR_MALFORMED);
+    expect_load_err(out_of_order, (uint32_t)sizeof(out_of_order), SYN_WASM_LOAD_ERR_MALFORMED);
+
+    /* 3. Excluded WebAssembly 2.0+ extensions rejected with SYN_WASM_LOAD_ERR_UNSUPPORTED */
+    /* Multi-result functype ()->(i32,i32) */
+    static const uint8_t u_multiret[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+                                         0x01, 0x06, 0x01, 0x60, 0x00, 0x02, 0x7f, 0x7f};
+    /* v128 param type (0x7B) */
+    static const uint8_t u_v128[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+                                     0x01, 0x05, 0x01, 0x60, 0x01, 0x7b, 0x00};
+    /* Shared memory flags = 3 */
+    static const uint8_t u_shared_mem[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00,
+                                           0x00, 0x05, 0x04, 0x01, 0x03, 0x01, 0x02};
+    /* Multi-memory (2 memories) */
+    static const uint8_t u_multimem[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+                                         0x05, 0x05, 0x02, 0x00, 0x01, 0x00, 0x01};
+    /* Multi-table (2 tables) */
+    static const uint8_t u_multitbl[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x04,
+                                         0x07, 0x02, 0x70, 0x00, 0x01, 0x70, 0x00, 0x01};
+    /* ref.null funcref in global const expr */
+    static const uint8_t u_refnull[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+                                        0x06, 0x06, 0x01, 0x7f, 0x00, 0xd0, 0x70, 0x0b};
+    expect_load_err(u_multiret, (uint32_t)sizeof(u_multiret), SYN_WASM_LOAD_ERR_UNSUPPORTED);
+    expect_load_err(u_v128, (uint32_t)sizeof(u_v128), SYN_WASM_LOAD_ERR_UNSUPPORTED);
+    expect_load_err(u_shared_mem, (uint32_t)sizeof(u_shared_mem), SYN_WASM_LOAD_ERR_UNSUPPORTED);
+    expect_load_err(u_multimem, (uint32_t)sizeof(u_multimem), SYN_WASM_LOAD_ERR_UNSUPPORTED);
+    expect_load_err(u_multitbl, (uint32_t)sizeof(u_multitbl), SYN_WASM_LOAD_ERR_UNSUPPORTED);
+    expect_load_err(u_refnull, (uint32_t)sizeof(u_refnull), SYN_WASM_LOAD_ERR_UNSUPPORTED);
+
+    /* Excluded opcodes inside Code body: SIMD (0xFD), Atomics (0xFE), Tail-call (0x12),
+     * multivalue s33 blocktype (0x02 0x00), table.grow (0xFC 0x0F) */
+    static const uint8_t op_cases[][4] = {
+        {0xfd, 0x00, 0x0b, 3U}, /* SIMD */
+        {0xfe, 0x00, 0x0b, 3U}, /* Threads/Atomics */
+        {0x12, 0x00, 0x0b, 3U}, /* return_call */
+        {0x02, 0x00, 0x0b, 3U}, /* s33 block type_idx 0 */
+        {0xfc, 0x0f, 0x0b, 3U}, /* table.grow */
+    };
+    for (size_t i = 0U; i < sizeof(op_cases) / sizeof(op_cases[0]); i++) {
+        uint8_t clen = op_cases[i][3];
+        uint8_t wbuf[32] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x01, 0x04,
+                            0x01, 0x60, 0x00, 0x00, 0x03, 0x02, 0x01, 0x00, 0x0a};
+        wbuf[19] = (uint8_t)(3U + clen);
+        wbuf[20] = 0x01U;
+        wbuf[21] = (uint8_t)(1U + clen);
+        wbuf[22] = 0x00U;
+        memcpy(&wbuf[23], op_cases[i], clen);
+        expect_load_err(wbuf, (uint32_t)(23U + clen), SYN_WASM_LOAD_ERR_UNSUPPORTED);
+    }
+
+    /* 4. Duplicate export name & invalid bytecode operand types rejected with MALFORMED */
+    static const uint8_t dup_exp[] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+                                      0x05, 0x03, 0x01, 0x00, 0x01, 0x07, 0x09, 0x02,
+                                      0x01, 0x6d, 0x02, 0x00, 0x01, 0x6d, 0x02, 0x00};
+    /* i32.add with only one i32 on stack */
+    static const uint8_t bad_type_code[] = {
+        0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x01, 0x05, 0x01, 0x60, 0x00, 0x01,
+        0x7f, 0x03, 0x02, 0x01, 0x00, 0x0a, 0x07, 0x01, 0x05, 0x00, 0x41, 0x01, 0x6a, 0x0b};
+    /* Polymorphic Wasm 2.0 br_table meet-bottom (block f64 (block f32 unreachable br_table 0 1)) */
+    static const uint8_t meet_bottom_ok[] = {
+        0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x01, 0x04, 0x01, 0x60,
+        0x00, 0x00, 0x03, 0x02, 0x01, 0x00, 0x0a, 0x1c, 0x01, 0x1a, 0x00, 0x02,
+        0x7c, 0x02, 0x7d, 0x00, 0x41, 0x01, 0x0e, 0x01, 0x00, 0x01, 0x0b, 0x1a,
+        0x44, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0b, 0x1a, 0x0b,
+    };
+    expect_load_err(dup_exp, (uint32_t)sizeof(dup_exp), SYN_WASM_LOAD_ERR_MALFORMED);
+    expect_load_err(bad_type_code, (uint32_t)sizeof(bad_type_code), SYN_WASM_LOAD_ERR_MALFORMED);
+#if !defined(SYN_WASM_USE_FIXED) || !SYN_WASM_USE_FIXED
+    TEST_ASSERT_TRUE(
+        syn_wasm_module_load_ex(&mod, meet_bottom_ok, (uint32_t)sizeof(meet_bottom_ok), &err));
+#else
+    expect_load_err(meet_bottom_ok, (uint32_t)sizeof(meet_bottom_ok),
+                    SYN_WASM_LOAD_ERR_UNSUPPORTED);
+#endif
+}
+
+static uint32_t write_leb_u32(uint8_t *dst, uint32_t val)
+{
+    uint32_t n = 0U;
+    do {
+        uint8_t b = (uint8_t)(val & 0x7FU);
+        val >>= 7U;
+        if (val != 0U) {
+            b |= 0x80U;
+        }
+        dst[n++] = b;
+    } while (val != 0U);
+    return n;
+}
+
+static void append_sec(uint8_t *buf, uint32_t *pos, uint8_t sec_id, const uint8_t *payload,
+                       uint32_t payload_len)
+{
+    buf[(*pos)++] = sec_id;
+    *pos += write_leb_u32(&buf[*pos], payload_len);
+    if (payload_len > 0U) {
+        memcpy(&buf[*pos], payload, payload_len);
+        *pos += payload_len;
+    }
+}
+
+#define CB_TBL 0x01U
+#define CB_MEM 0x02U
+#define CB_GLB 0x04U
+#define CB_SIG_I32_I32 0x08U
+#define CB_SIG_VOID_I32 0x10U
+
+static void expect_code_body(uint8_t flags, const uint8_t *body, uint32_t body_len,
+                             SYN_WASM_LoadError expected)
+{
+    static uint8_t wbuf[1024];
+    static const uint8_t hdr[8] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00};
+    static const uint8_t t_vv[] = {0x01, 0x60, 0x00, 0x00};
+    static const uint8_t t_ii[] = {0x01, 0x60, 0x01, 0x7f, 0x01, 0x7f};
+    static const uint8_t t_vi[] = {0x01, 0x60, 0x00, 0x01, 0x7f};
+    static const uint8_t f_sec[] = {0x01, 0x00};
+    static const uint8_t tbl_sec[] = {0x01, 0x70, 0x00, 0x02};
+    static const uint8_t mem_sec[] = {0x01, 0x00, 0x01};
+    static const uint8_t glb_sec[] = {0x01, 0x7f, 0x00, 0x41, 0x00, 0x0b};
+
+    uint32_t pos = 0U;
+    memcpy(&wbuf[pos], hdr, sizeof(hdr));
+    pos += (uint32_t)sizeof(hdr);
+
+    if ((flags & CB_SIG_I32_I32) != 0U) {
+        append_sec(wbuf, &pos, 0x01U, t_ii, (uint32_t)sizeof(t_ii));
+    } else if ((flags & CB_SIG_VOID_I32) != 0U) {
+        append_sec(wbuf, &pos, 0x01U, t_vi, (uint32_t)sizeof(t_vi));
+    } else {
+        append_sec(wbuf, &pos, 0x01U, t_vv, (uint32_t)sizeof(t_vv));
+    }
+    append_sec(wbuf, &pos, 0x03U, f_sec, (uint32_t)sizeof(f_sec));
+    if ((flags & CB_TBL) != 0U) {
+        append_sec(wbuf, &pos, 0x04U, tbl_sec, (uint32_t)sizeof(tbl_sec));
+    }
+    if ((flags & CB_MEM) != 0U) {
+        append_sec(wbuf, &pos, 0x05U, mem_sec, (uint32_t)sizeof(mem_sec));
+    }
+    if ((flags & CB_GLB) != 0U) {
+        append_sec(wbuf, &pos, 0x06U, glb_sec, (uint32_t)sizeof(glb_sec));
+    }
+
+    static uint8_t c_pay[768];
+    uint32_t cpos = 0U;
+    c_pay[cpos++] = 0x01U;
+    cpos += write_leb_u32(&c_pay[cpos], body_len);
+    memcpy(&c_pay[cpos], body, body_len);
+    cpos += body_len;
+    append_sec(wbuf, &pos, 0x0AU, c_pay, cpos);
+
+    SYN_WASM_Module mod;
+    SYN_WASM_LoadError err = SYN_WASM_LOAD_OK;
+    bool ok = syn_wasm_module_load_ex(&mod, wbuf, pos, &err);
+    TEST_ASSERT_EQUAL(expected == SYN_WASM_LOAD_OK, ok);
+    TEST_ASSERT_EQUAL(expected, err);
+}
+
+static void test_wasm_spec_profile_section_and_limit_guards(void)
+{
+    static uint8_t wbuf[1024];
+    static uint8_t pay[768];
+    static const uint8_t hdr[8] = {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00};
+
+    /* 1. Signed LEB128 truncation/overflow, valtypes, limits, section headers */
+    static const struct {
+        uint8_t bytes[28];
+        uint8_t len;
+        SYN_WASM_LoadError err;
+    } sec_cases[] = {
+        /* Global i32 LEB truncated */
+        {{0x06, 0x05, 0x01, 0x7f, 0x00, 0x41, 0x80}, 7U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* Global i32 LEB 5-byte overflow */
+        {{0x06, 0x0a, 0x01, 0x7f, 0x00, 0x41, 0x80, 0x80, 0x80, 0x80, 0x08, 0x0b},
+         12U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        /* Global i64 LEB 10-byte overflow */
+        {{0x06, 0x0f, 0x01, 0x7e, 0x00, 0x42, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
+          0x02, 0x0b},
+         17U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        /* Type bad param valtype 0x7a */
+        {{0x01, 0x05, 0x01, 0x60, 0x01, 0x7a, 0x00}, 7U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* Type unsupported result valtype v128 (0x7b) */
+        {{0x01, 0x05, 0x01, 0x60, 0x00, 0x01, 0x7b}, 7U, SYN_WASM_LOAD_ERR_UNSUPPORTED},
+        /* Memory min_pages = 65537 (> 65536) */
+        {{0x05, 0x05, 0x01, 0x00, 0x81, 0x80, 0x04}, 7U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* Table empty, truncated entry, and bad elemtype */
+        {{0x04, 0x00}, 2U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {{0x04, 0x01, 0x01}, 3U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {{0x04, 0x04, 0x01, 0x7f, 0x00, 0x01}, 6U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* Memory empty */
+        {{0x05, 0x00}, 2U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* Import global unsupported valtype (v128) & invalid mut_flag (2) */
+        {{0x02, 0x08, 0x01, 0x01, 0x61, 0x01, 0x62, 0x03, 0x7b, 0x00},
+         10U,
+         SYN_WASM_LOAD_ERR_UNSUPPORTED},
+        {{0x02, 0x08, 0x01, 0x01, 0x61, 0x01, 0x62, 0x03, 0x7f, 0x02},
+         10U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        /* Global empty, truncated header, truncated const expr, bad mut_flag */
+        {{0x06, 0x00}, 2U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {{0x06, 0x02, 0x01, 0x7f}, 4U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {{0x06, 0x03, 0x01, 0x7f, 0x00}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {{0x06, 0x06, 0x01, 0x7f, 0x02, 0x41, 0x00, 0x0b}, 8U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* Export table OK (tested below) vs missing table */
+        {{0x07, 0x05, 0x01, 0x01, 0x74, 0x01, 0x00}, 7U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* Start function with non-void signature ()->i32 */
+        {{0x01, 0x05, 0x01, 0x60, 0x00, 0x01, 0x7f, 0x03, 0x02, 0x01, 0x00, 0x08, 0x01, 0x00},
+         14U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        /* Elem truncated flags, bad const expr WITH table, truncated num_funcs, OOB fn_idx */
+        {{0x09, 0x01, 0x01}, 3U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {{0x04, 0x04, 0x01, 0x70, 0x00, 0x02, 0x09, 0x06, 0x01, 0x00, 0x42, 0x00, 0x0b, 0x00},
+         14U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        {{0x04, 0x04, 0x01, 0x70, 0x00, 0x02, 0x09, 0x05, 0x01, 0x00, 0x41, 0x00, 0x0b},
+         13U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        {{0x04, 0x04, 0x01, 0x70, 0x00, 0x02, 0x09, 0x07, 0x01, 0x00, 0x41, 0x00, 0x0b, 0x01, 0x05},
+         15U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        /* DataCount empty, Data truncated flags, active Data without mem, active Data bad expr,
+         * passive Data truncated payload */
+        {{0x0c, 0x00}, 2U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {{0x0b, 0x01, 0x01}, 3U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {{0x0b, 0x06, 0x01, 0x00, 0x41, 0x00, 0x0b, 0x00}, 8U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {{0x05, 0x03, 0x01, 0x00, 0x01, 0x0b, 0x06, 0x01, 0x00, 0x42, 0x00, 0x0b, 0x00},
+         13U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        {{0x0b, 0x03, 0x01, 0x01, 0x05}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* Unknown section ID 99 & Function section missing Code section */
+        {{0x63, 0x00}, 2U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {{0x01, 0x04, 0x01, 0x60, 0x00, 0x00, 0x03, 0x02, 0x01, 0x00},
+         10U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+    };
+    for (size_t i = 0U; i < sizeof(sec_cases) / sizeof(sec_cases[0]); i++) {
+        memcpy(wbuf, hdr, 8U);
+        memcpy(&wbuf[8], sec_cases[i].bytes, sec_cases[i].len);
+        expect_load_err(wbuf, 8U + (uint32_t)sec_cases[i].len, sec_cases[i].err);
+    }
+
+    /* 2. Resource limit checks (SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED) */
+    /* >64 types */
+    uint32_t pos = 8U;
+    memcpy(wbuf, hdr, 8U);
+    pay[0] = 65U;
+    append_sec(wbuf, &pos, 0x01U, pay, 1U);
+    expect_load_err(wbuf, pos, SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED);
+
+    /* >WASM_MAX_FUNC_PARAMS (SYN_WASM_MAX_STACK = 64) params in functype */
+    pos = 8U;
+    pay[0] = 1U;
+    pay[1] = 0x60U;
+    pay[2] = (uint8_t)(SYN_WASM_MAX_STACK + 1U);
+    memset(&pay[3], 0x7f, SYN_WASM_MAX_STACK + 1U);
+    pay[3U + SYN_WASM_MAX_STACK + 1U] = 0U;
+    append_sec(wbuf, &pos, 0x01U, pay, 4U + (uint32_t)SYN_WASM_MAX_STACK + 1U);
+    expect_load_err(wbuf, pos, SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED);
+
+    /* >16 globals */
+    pos = 8U;
+    uint32_t p = 0U;
+    pay[p++] = 17U;
+    for (uint32_t g = 0U; g < 17U; g++) {
+        static const uint8_t gdef[5] = {0x7f, 0x00, 0x41, 0x00, 0x0b};
+        memcpy(&pay[p], gdef, 5U);
+        p += 5U;
+    }
+    append_sec(wbuf, &pos, 0x06U, pay, p);
+    expect_load_err(wbuf, pos, SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED);
+
+    /* >64 functions */
+    pos = 8U;
+    static const uint8_t t1[] = {0x01, 0x60, 0x00, 0x00};
+    append_sec(wbuf, &pos, 0x01U, t1, 4U);
+    pay[0] = 65U;
+    append_sec(wbuf, &pos, 0x03U, pay, 1U);
+    expect_load_err(wbuf, pos, SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED);
+
+    /* >64 exports */
+    pos = 8U;
+    pay[0] = 65U;
+    append_sec(wbuf, &pos, 0x07U, pay, 1U);
+    expect_load_err(wbuf, pos, SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED);
+
+    /* Elem segment exceeding WASM_MAX_TABLE_ELEMS (table min=300, elem_off=256, 1 fn) */
+    pos = 8U;
+    append_sec(wbuf, &pos, 0x01U, t1, 4U);
+    static const uint8_t f1[] = {0x01, 0x00};
+    append_sec(wbuf, &pos, 0x03U, f1, 2U);
+    static const uint8_t tbl300[] = {0x01, 0x70, 0x00, 0xAC, 0x02};
+    append_sec(wbuf, &pos, 0x04U, tbl300, 5U);
+    static const uint8_t el256[] = {0x01, 0x00, 0x41, 0x80, 0x02, 0x0b, 0x01, 0x00};
+    append_sec(wbuf, &pos, 0x09U, el256, (uint32_t)sizeof(el256));
+    expect_load_err(wbuf, pos, SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED);
+
+    /* >64 passive data segments (without DataCount, and with DataCount=65) */
+    pos = 8U;
+    p = 0U;
+    pay[p++] = 65U;
+    for (uint32_t s = 0U; s < 65U; s++) {
+        pay[p++] = 0x01U;
+        pay[p++] = 0x00U;
+    }
+    append_sec(wbuf, &pos, 0x0bU, pay, p);
+    expect_load_err(wbuf, pos, SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED);
+
+    pos = 8U;
+    uint8_t dc65[1] = {65U};
+    append_sec(wbuf, &pos, 0x0cU, dc65, 1U);
+    append_sec(wbuf, &pos, 0x0bU, pay, p);
+    expect_load_err(wbuf, pos, SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED);
+}
+
+static void test_wasm_spec_profile_bytecode_validator_and_raw_guards(void)
+{
+    static const struct {
+        uint8_t flags;
+        uint8_t body[20];
+        uint8_t len;
+        SYN_WASM_LoadError err;
+    } cb_cases[] = {
+        /* Valid nop + br_if on value-returning block (hits OP_NOP and push_back) */
+        {0U,
+         {0x00, 0x01, 0x02, 0x7f, 0x41, 0x07, 0x41, 0x01, 0x0d, 0x00, 0x0b, 0x1a, 0x0b},
+         13U,
+         SYN_WASM_LOAD_OK},
+        /* Valid f32.const + drop */
+        {0U, {0x00, 0x43, 0x00, 0x00, 0x80, 0x3f, 0x1a, 0x0b}, 8U, SYN_WASM_LOAD_OK},
+        /* block (result i32) end with empty stack */
+        {0U, {0x00, 0x02, 0x7f, 0x0b, 0x0b}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* block truncated bt, truncated s33, unsupported v128 bt, if without i32 */
+        {0U, {0x00, 0x02}, 2U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x02, 0x80}, 3U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x02, 0x7b, 0x0b, 0x0b}, 5U, SYN_WASM_LOAD_ERR_UNSUPPORTED},
+        {0U, {0x00, 0x04, 0x40, 0x0b, 0x0b}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* else outside if, else stack height mismatch, if(result i32) without else, end extra */
+        {0U, {0x00, 0x05, 0x0b}, 3U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U,
+         {0x00, 0x41, 0x01, 0x04, 0x40, 0x41, 0x02, 0x05, 0x0b, 0x0b},
+         10U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U,
+         {0x00, 0x41, 0x01, 0x04, 0x7f, 0x41, 0x02, 0x0b, 0x1a, 0x0b},
+         10U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x02, 0x40, 0x41, 0x01, 0x0b, 0x0b}, 7U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* br_table: OOB list lbl, void/val mismatch, no idx, trunc list, OOB def, want_val empty */
+        {0U, {0x00, 0x41, 0x00, 0x0e, 0x01, 0x05, 0x00, 0x0b}, 8U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U,
+         {0x00, 0x02, 0x7f, 0x02, 0x40, 0x41, 0x00, 0x0e, 0x01, 0x01, 0x00, 0x0b, 0x41, 0x00, 0x0b,
+          0x1a, 0x0b},
+         17U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x0e, 0x00, 0x00, 0x0b}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x41, 0x00, 0x0e, 0x02, 0x00}, 6U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x41, 0x00, 0x0e, 0x00, 0x05, 0x0b}, 7U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U,
+         {0x00, 0x02, 0x7f, 0x41, 0x00, 0x0e, 0x00, 0x00, 0x0b, 0x1a, 0x0b},
+         11U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        /* call missing arg, br OOB, br_if empty, call OOB */
+        {CB_SIG_I32_I32, {0x00, 0x10, 0x00, 0x0b}, 4U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x0c, 0x05, 0x0b}, 4U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x0d, 0x00, 0x0b}, 4U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x10, 0x09, 0x0b}, 4U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* call_indirect: bad type, non-zero table w/ & w/o table, empty stack */
+        {CB_TBL, {0x00, 0x11, 0x09, 0x00, 0x0b}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {CB_TBL, {0x00, 0x11, 0x00, 0x01, 0x0b}, 5U, SYN_WASM_LOAD_ERR_UNSUPPORTED},
+        {0U, {0x00, 0x11, 0x00, 0x01, 0x0b}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {CB_TBL, {0x00, 0x11, 0x00, 0x00, 0x0b}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* select mismatch, select t* (0x1c), bad op 0x1d, local/global errors */
+        {0U,
+         {0x00, 0x41, 0x01, 0x42, 0x02, 0x41, 0x01, 0x1b, 0x1a, 0x0b},
+         10U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x1c, 0x01, 0x7f, 0x0b}, 5U, SYN_WASM_LOAD_ERR_UNSUPPORTED},
+        {0U, {0x00, 0x1d, 0x0b}, 3U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x20}, 2U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x20, 0x05, 0x0b}, 4U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {CB_SIG_I32_I32, {0x00, 0x21, 0x00, 0x41, 0x00, 0x0b}, 6U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x23, 0x05, 0x0b}, 4U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {CB_GLB, {0x00, 0x41, 0x01, 0x24, 0x00, 0x0b}, 6U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* memory ops: no mem, bad mem_idx, mem.grow empty, over-aligned, store/load empty */
+        {0U, {0x00, 0x41, 0x00, 0x28, 0x02, 0x00, 0x1a, 0x0b}, 8U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {CB_MEM, {0x00, 0x3f, 0x01, 0x1a, 0x0b}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {CB_MEM, {0x00, 0x40, 0x00, 0x1a, 0x0b}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {CB_MEM, {0x00, 0x41, 0x00, 0x28, 0x03, 0x00, 0x1a, 0x0b}, 8U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {CB_MEM, {0x00, 0x36, 0x02, 0x00, 0x0b}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {CB_MEM, {0x00, 0x28, 0x02, 0x00, 0x1a, 0x0b}, 6U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* f32.const truncated, i32.add empty stack, 0xFC truncated, data.drop/mem.init/fill errs */
+        {0U, {0x00, 0x43, 0x00}, 3U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x6a, 0x0b}, 3U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0xfc}, 2U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0xfc, 0x09, 0x00, 0x0b}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0xfc, 0x08, 0x00, 0x00, 0x0b}, 6U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0xfc, 0x0b, 0x00, 0x0b}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {CB_MEM, {0x00, 0xfc, 0x0b, 0x01, 0x0b}, 5U, SYN_WASM_LOAD_ERR_UNSUPPORTED},
+        {CB_MEM, {0x00, 0xfc, 0x0b, 0x80, 0x0b}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {CB_MEM, {0x00, 0xfc, 0x0b, 0x00, 0x0b}, 5U, SYN_WASM_LOAD_ERR_MALFORMED},
+        /* locals init errors & ref.null / invalid opcode / missing OP_END */
+        {0U, {0x80}, 1U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x01, 0x01}, 2U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x01, 0x01, 0x7b, 0x0b}, 4U, SYN_WASM_LOAD_ERR_UNSUPPORTED},
+        {CB_SIG_I32_I32,
+         {0x01, 0xff, 0xff, 0xff, 0xff, 0x0f, 0x7f, 0x41, 0x00, 0x0b},
+         10U,
+         SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x01, 0x81, 0x02, 0x7f, 0x0b}, 5U, SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED},
+        {0U, {0x00, 0xd0, 0x70, 0x0b}, 4U, SYN_WASM_LOAD_ERR_UNSUPPORTED},
+        {0U, {0x00, 0xc5, 0x0b}, 3U, SYN_WASM_LOAD_ERR_MALFORMED},
+        {0U, {0x00, 0x01}, 2U, SYN_WASM_LOAD_ERR_MALFORMED},
+    };
+    for (size_t i = 0U; i < sizeof(cb_cases) / sizeof(cb_cases[0]); i++) {
+        expect_code_body(cb_cases[i].flags, cb_cases[i].body, cb_cases[i].len, cb_cases[i].err);
+    }
+
+#if !defined(SYN_WASM_USE_FIXED) || !SYN_WASM_USE_FIXED
+    static const uint8_t f64_trc[] = {0x00, 0x44, 0x00};
+    static const uint8_t sat_ok[] = {0x00, 0x43, 0x00, 0x00, 0x80, 0x3f, 0xfc, 0x00, 0x1a, 0x0b};
+    static const uint8_t sat_emp[] = {0x00, 0xfc, 0x00, 0x0b};
+    expect_code_body(0U, f64_trc, (uint32_t)sizeof(f64_trc), SYN_WASM_LOAD_ERR_MALFORMED);
+    expect_code_body(0U, sat_ok, (uint32_t)sizeof(sat_ok), SYN_WASM_LOAD_OK);
+    expect_code_body(0U, sat_emp, (uint32_t)sizeof(sat_emp), SYN_WASM_LOAD_ERR_MALFORMED);
+#endif
+
+    /* Validator stack overflow (129 pushes, and 128 pushes + call ()->i32) & label overflow (65) */
+    static uint8_t big[512];
+    uint32_t bp = 0U;
+    big[bp++] = 0x00U;
+    for (uint32_t k = 0U; k < 129U; k++) {
+        big[bp++] = 0x41U;
+        big[bp++] = 0x00U;
+    }
+    big[bp++] = 0x0bU;
+    expect_code_body(0U, big, bp, SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED);
+
+    bp = 0U;
+    big[bp++] = 0x00U;
+    for (uint32_t k = 0U; k < (uint32_t)SYN_WASM_MAX_STACK; k++) {
+        big[bp++] = 0x41U;
+        big[bp++] = 0x00U;
+    }
+    big[bp++] = 0x10U;
+    big[bp++] = 0x00U;
+    big[bp++] = 0x0bU;
+    expect_code_body(CB_SIG_VOID_I32, big, bp, SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED);
+
+    bp = 0U;
+    big[bp++] = 0x00U;
+    for (uint32_t k = 0U; k < 65U; k++) {
+        big[bp++] = 0x02U;
+        big[bp++] = 0x40U;
+    }
+    for (uint32_t k = 0U; k < 66U; k++) {
+        big[bp++] = 0x0bU;
+    }
+    expect_code_body(0U, big, bp, SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED);
+
+    /* Raw unvalidated runtime & syn_wasm_init_ex defensive guards */
+    static const uint8_t r_msz1[] = {0x3f, 0x01, 0x0b};
+    static const uint8_t r_mgr1[] = {0x41, 0x00, 0x40, 0x01, 0x0b};
+    static const uint8_t r_min1[] = {0xfc, 0x08, 0x00, 0x01, 0x0b};
+    static const uint8_t r_minu[] = {0xfc, 0x08, 0x00, 0x00, 0x0b};
+    static const uint8_t r_dd64[] = {0xfc, 0x09, 0x40, 0x0b};
+    static const uint8_t r_mcp1[] = {0xfc, 0x0a, 0x00, 0x01, 0x0b};
+    static const uint8_t r_mfl1[] = {0xfc, 0x0b, 0x01, 0x0b};
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE,
+                      run_raw_snippet(r_msz1, (uint32_t)sizeof(r_msz1)));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE,
+                      run_raw_snippet(r_mgr1, (uint32_t)sizeof(r_mgr1)));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE,
+                      run_raw_snippet(r_min1, (uint32_t)sizeof(r_min1)));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_STACK_UNDERFLOW,
+                      run_raw_snippet(r_minu, (uint32_t)sizeof(r_minu)));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE,
+                      run_raw_snippet(r_dd64, (uint32_t)sizeof(r_dd64)));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE,
+                      run_raw_snippet(r_mcp1, (uint32_t)sizeof(r_mcp1)));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE,
+                      run_raw_snippet(r_mfl1, (uint32_t)sizeof(r_mfl1)));
+
+    /* Raw call_indirect with type_count == 0 */
+    static const uint8_t r_ci[] = {0x41, 0x00, 0x11, 0x00, 0x00, 0x0b};
+    memset(&g_wasm_mod, 0, sizeof(g_wasm_mod));
+    g_wasm_mod.bytes = r_ci;
+    g_wasm_mod.size = (uint32_t)sizeof(r_ci);
+    g_wasm_mod.func_count = 1U;
+    g_wasm_mod.funcs[0].code_size = (uint32_t)sizeof(r_ci);
+    g_wasm_mod.table_element_count = 1U;
+    g_wasm_mod.table_elements[0] = 0U;
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
+    g_wasm_ctx.call_depth = 1U;
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE, syn_wasm_step(&g_wasm_ctx, 16U));
+
+    /* Raw syn_wasm_init_ex malformed Global / Elem / Data sections */
+    static const uint8_t bad_inits[][18] = {
+        {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x06, 0x00, 10U},
+        {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x06, 0x03, 0x01, 0x7f, 0x00, 13U},
+        {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x09, 0x00, 10U},
+        {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x09, 0x02, 0x01, 0x01, 12U},
+        {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x09, 0x03, 0x01, 0x00, 0x42, 13U},
+        {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x09, 0x07, 0x01, 0x00, 0x41, 0x00, 0x0b,
+         0x01, 0x05, 17U},
+        {0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x0b, 0x03, 0x01, 0x01, 0x05, 13U},
+    };
+    static const uint8_t bad_lens[] = {10U, 13U, 10U, 12U, 13U, 17U, 13U};
+    for (size_t i = 0U; i < sizeof(bad_lens); i++) {
+        SYN_WASM_Module rmod;
+        memset(&rmod, 0, sizeof(rmod));
+        rmod.bytes = bad_inits[i];
+        rmod.size = bad_lens[i];
+        rmod.table_min_elems = 4U;
+        TEST_ASSERT_FALSE(syn_wasm_init(&g_wasm_ctx, &rmod, g_linear_mem, 16U));
+        TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE, g_wasm_ctx.status);
+    }
+}
+
 void run_wasm_tests(void)
 {
     RUN_TEST(test_wasm_load_null_and_invalid);
@@ -1710,5 +2831,10 @@ void run_wasm_tests(void)
     RUN_TEST(test_tier_a_wasm_select64_and_host_call);
     RUN_TEST(test_tier_a_wasm_loader_bounds);
     RUN_TEST(test_wasm_cooperative_exec_pt_and_task);
+    RUN_TEST(test_wasm_spec_profile_sign_ext_and_float_ieee754);
+    RUN_TEST(test_wasm_spec_profile_call_indirect_and_table);
+    RUN_TEST(test_wasm_spec_profile_passive_data_mem_grow_and_init_ex);
+    RUN_TEST(test_wasm_spec_profile_module_load_ex_validation);
+    RUN_TEST(test_wasm_spec_profile_section_and_limit_guards);
+    RUN_TEST(test_wasm_spec_profile_bytecode_validator_and_raw_guards);
 }
-/* touch test_wasm.c */

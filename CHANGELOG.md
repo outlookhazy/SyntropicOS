@@ -9,6 +9,19 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (`YYYY.M.
 
 ## [Unreleased]
 
+### Added
+- **WebAssembly Embedded Feature Profile, Bytecode Validator & W3C Spec Suite (`syn_wasm`)**:
+  - Defined and enforced `syn_wasm`'s supported embedded WebAssembly contract: WebAssembly 1.0 Core (MVP, single return value) + `mutable-globals` + `sign-ext` (`0xC0`–`0xC4`) + `nontrapping-fptoint` (`0xFC 0x00`–`0x07`) + single-memory `bulk-memory` (`memory.copy`, `memory.fill`, `memory.init`, `data.drop`, `DataCount`, and zero-copy Flash passive data segments).
+  - Added `syn_wasm_module_load_ex()`, `SYN_WASM_LoadError`, and `syn_wasm_load_error_str()` performing full W3C WebAssembly Appendix A.2 load-time section, UTF-8 name, operand-stack, and structured control-flow validation while deterministically rejecting excluded proposals (`threads`/atomics, `simd`, `reference-types`, `multivalue`, `tail-call`, `exception-handling`, `memory64`, `multi-memory`, `gc`) with `SYN_WASM_LOAD_ERR_UNSUPPORTED` and configurable capacity overflows with `SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED`.
+  - Added `syn_wasm_init_ex()` supporting imported global initializers (`global.get` in global, element, and active data constant expressions alongside `i32`/`i64`/`f32`/`f64.const`), zero-heap static-arena `memory.grow`, and `#ifndef`-configurable `SYN_WASM_MAX_*` limits (`SYN_WASM_MAX_TYPES`, `SYN_WASM_MAX_EXPORTS`, `SYN_WASM_MAX_TABLE_ELEMS`, `SYN_WASM_MAX_DATA_SEGS`, `SYN_WASM_DEFAULT_QUANTUM`).
+  - Integrated the official W3C `WebAssembly/spec` conformance harness (`make -C tools/containers container-wasm-spec`, 23,931 assertions + 471 excluded-extension module checks under ASan + UBSan).
+
+### Fixed
+- **WebAssembly Spec Conformance & Pinned Clang Target Flags (`syn_wasm`)**:
+  - Implemented missing `sign-ext` opcodes (`i32.extend8_s`, `i32.extend16_s`, `i64.extend8_s`, `i64.extend16_s`, `i64.extend32_s`), structural function-type equivalence checking and uninitialized sparse table slot (`SYN_WASM_TABLE_NULL`) trapping in `call_indirect`, and IEEE-754 exact `nearest` (ties-to-even without double-rounding), `min`/`max` (`-0.0 < +0.0` and `NaN` propagation), and `sNaN`-preserving bitwise `abs`/`neg`/`copysign`.
+  - Updated recommended C-to-Wasm Clang flags (`-mcpu=mvp -mmutable-globals -msign-ext -mbulk-memory -mnontrapping-fptoint`, removing unimplemented `-mmultivalue`) so Clang 19+ never emits excluded `reference-types` or `multivalue` instructions by default.
+- **Arduino ESP32 Network Port (`port_arduino`)**: Enabled lwIP BSD socket definitions (`SYN_HAS_ARDUINO_ESP32_NET`) on Arduino-ESP32 targets and fixed `sys/poll.h` inclusion on ESP-IDF.
+
 ---
 
 ## [2026.11.0] - 2026-11-11

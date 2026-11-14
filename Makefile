@@ -3,13 +3,13 @@
 
 .PHONY: help clean install-hooks \
 	test unit format lint misra stack size complexity san tsan qemu renode fuzz \
-	cov static dox pio arduino valgrind analyzer flawfinder integration examples \
+	cov static dox pio arduino valgrind analyzer flawfinder integration examples wasm-spec \
 	container-build container-test container-unit container-format container-lint \
 	container-misra container-stack container-size container-complexity \
 	container-san container-tsan container-qemu container-renode \
 	container-fuzz container-cov container-static container-dox \
 	container-pio container-arduino container-valgrind container-analyzer \
-	container-flawfinder container-integration container-examples
+	container-flawfinder container-integration container-examples container-wasm-spec
 
 install-hooks:
 	@git config core.hooksPath .githooks
@@ -167,3 +167,9 @@ examples:
 
 container-examples:
 	@$(MAKE) -C tools/containers container-examples
+
+wasm-spec:
+	@$(MAKE) -C tools/containers wasm-spec FILTER="$(FILTER)"
+
+container-wasm-spec:
+	@$(MAKE) -C tools/containers container-wasm-spec FILTER="$(FILTER)"

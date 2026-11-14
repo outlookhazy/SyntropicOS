@@ -24,13 +24,13 @@ CACHE_VOL ?= syntropicos-build-cache
 
 .PHONY: help \
 	test unit format lint misra stack size complexity san tsan qemu renode fuzz \
-	cov static dox pio arduino valgrind analyzer flawfinder integration examples \
+	cov static dox pio arduino valgrind analyzer flawfinder integration examples wasm-spec \
 	container-build container-volume container-test container-unit container-format \
 	container-lint container-misra container-stack container-size \
 	container-complexity container-san container-tsan container-qemu \
 	container-renode container-fuzz container-cov container-static \
 	container-dox container-pio container-arduino container-valgrind container-analyzer \
-	container-flawfinder container-integration container-examples
+	container-flawfinder container-integration container-examples container-wasm-spec
 
 help:
 	@echo "SyntropicOS Containerized Verification & Tooling"
@@ -52,6 +52,7 @@ help:
 	@echo "  make container-tsan        Run test suite under ThreadSanitizer (TSan)"
 	@echo "  make container-valgrind    Run test suite under Valgrind Memcheck"
 	@echo "  make container-fuzz        Run libFuzzer protocol fuzzing targets"
+	@echo "  make container-wasm-spec   Run official W3C WebAssembly spec test suite"
 	@echo "  make container-qemu        Run QEMU ARM Cortex-M4 bare-metal emulation"
 	@echo "  make container-renode      Run Renode STM32F4 board hardware emulation"
 	@echo "  make container-examples    Cross-compile all examples & lean config profiles"
@@ -249,5 +250,11 @@ examples:
 
 container-examples: container-build container-volume
 	@$(CONTAINER_RUN) -v $(CACHE_VOL):/workspace/build -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers examples JOBS=$(JOBS)
+
+wasm-spec:
+	@FILTER="$(FILTER)" bash $(ROOT_DIR)/tests/wasm_spec/run_wasm_spec.sh
+
+container-wasm-spec: container-build container-volume
+	@$(CONTAINER_RUN) -v $(CACHE_VOL):/workspace/build -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers wasm-spec FILTER="$(FILTER)"
 
 

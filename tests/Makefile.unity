@@ -232,13 +232,13 @@ OBJS     := $(patsubst %.c,$(BUILD_DIR)/%.o,$(ALL_SRCS))
 all: test
 
 WASM_CC     := clang
-WASM_CFLAGS := --target=wasm32-unknown-unknown -O2 -nostdlib \
-               -mbulk-memory -msign-ext -mmultivalue -mnontrapping-fptoint \
+WASM_CFLAGS := --target=wasm32-unknown-unknown -mcpu=mvp -O2 -nostdlib \
+               -mmutable-globals -msign-ext -mbulk-memory -mnontrapping-fptoint \
                -Wl,--no-entry -Wl,--export-all -Wl,--allow-undefined -Wl,-z,stack-size=1024
 WASM_SRCS   := $(wildcard tests/wasm/*.c)
 WASM_HDRS   := $(patsubst tests/wasm/%.c,$(BUILD_DIR)/wasm/%.wasm.h,$(WASM_SRCS))
 
-$(BUILD_DIR)/wasm/%.wasm: tests/wasm/%.c
+$(BUILD_DIR)/wasm/%.wasm: tests/wasm/%.c tests/Makefile.unity
 	@mkdir -p $(BUILD_DIR)/wasm
 	$(WASM_CC) $(WASM_CFLAGS) $< -o $@
 
