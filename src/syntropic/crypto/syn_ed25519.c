@@ -3,7 +3,8 @@
  * @brief Pure C99 Ed25519 Key Generation, Signing & Verification (RFC 8032).
  *
  * Implements Ed25519 with field arithmetic modulo 2^255 - 19, SHA-512,
- * point arithmetic on Edwards25519, and scalar reduction modulo L.
+ * point arithmetic on Edwards25519, scalar reduction modulo L, and
+ * cooperative resumable protothreads.
  */
 
 #include "syn_ed25519.h"
@@ -16,7 +17,12 @@
 
 /* ── Curve25519 Field Arithmetic (GF(2^255 - 19), 16 × 16-bit limbs) ──────── */
 
-typedef int64_t gf[16];
+typedef int32_t gf[16];
+
+typedef enum { ED_OP_PUBKEY = 1, ED_OP_SIGN = 2, ED_OP_VERIFY = 3 } EdOp;
+
+#define ED_HASH_CHUNK_BYTES 128U
+#define ED_EXP_ITERS_PER_STEP 2U
 
 static const gf gf0 = {0};
 static const gf gf1 = {1};
@@ -36,68 +42,93 @@ static const gf Y = {0x6658, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6
 static const gf I = {0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43,
                      0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83};
 
-static void car25519(gf o)
+/**
+ * @brief Zeroize sensitive buffers without compiler dead-store elimination.
+ * @param v Buffer pointer.
+ * @param n Number of bytes to zeroize.
+ */
+static void syn_secure_zero(void *v, size_t n)
 {
-    int i;
-    for (i = 0; i < 16; i++) {
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
+
+static void car25519_64(int64_t o[16])
+{
+    for (int i = 0; i < 16; i++) {
         o[i] += (1LL << 16);
         int64_t c = o[i] >> 16;
         o[(i + 1) * (i < 15)] += c - 1 + 37 * (c - 1) * (i == 15);
-        o[i] -= c * 65536LL;
+        o[i] -= (int64_t)((uint64_t)c << 16);
     }
 }
 
 static void sel25519(gf p, gf q, int b)
 {
-    int64_t t, c = ~(int64_t)(b - 1);
+    uint32_t mask = 0U - (uint32_t)(b & 1);
     for (int i = 0; i < 16; i++) {
-        t = c & (p[i] ^ q[i]);
-        p[i] ^= t;
-        q[i] ^= t;
+        uint32_t t = mask & ((uint32_t)p[i] ^ (uint32_t)q[i]);
+        p[i] = (int32_t)((uint32_t)p[i] ^ t);
+        q[i] = (int32_t)((uint32_t)q[i] ^ t);
+    }
+}
+
+static void sel25519_64(int64_t p[16], int64_t q[16], int b)
+{
+    uint64_t mask = 0ULL - (uint64_t)(b & 1);
+    for (int i = 0; i < 16; i++) {
+        uint64_t t = mask & ((uint64_t)p[i] ^ (uint64_t)q[i]);
+        p[i] = (int64_t)((uint64_t)p[i] ^ t);
+        q[i] = (int64_t)((uint64_t)q[i] ^ t);
     }
 }
 
 static void pack25519(uint8_t o[32], const gf n)
 {
-    int i, j;
-    int64_t b;
-    gf m, t;
-    for (i = 0; i < 16; i++) {
-        t[i] = n[i];
+    int64_t m[16];
+    int64_t t[16];
+    for (int i = 0; i < 16; i++) {
+        t[i] = (int64_t)n[i];
     }
-    car25519(t);
-    car25519(t);
-    car25519(t);
-    for (j = 0; j < 2; j++) {
+    car25519_64(t);
+    car25519_64(t);
+    car25519_64(t);
+    for (int j = 0; j < 2; j++) {
         m[0] = t[0] - 0xFFED;
-        for (i = 1; i < 15; i++) {
+        for (int i = 1; i < 15; i++) {
             m[i] = t[i] - 0xFFFF - ((m[i - 1] >> 16) & 1);
             m[i - 1] &= 0xFFFF;
         }
         m[15] = t[15] - 0x7FFF - ((m[14] >> 16) & 1);
-        b = (m[15] >> 16) & 1;
+        int64_t b = (m[15] >> 16) & 1;
         m[14] &= 0xFFFF;
-        sel25519(t, m, (int)(1 - b));
+        sel25519_64(t, m, (int)(1 - b));
     }
-    for (i = 0; i < 16; i++) {
+    for (int i = 0; i < 16; i++) {
         uint16_t v = (uint16_t)t[i];
         o[2 * i] = (uint8_t)(v & 0xFFU);
         o[2 * i + 1] = (uint8_t)((v >> 8) & 0xFFU);
     }
+    syn_secure_zero(m, sizeof(m));
+    syn_secure_zero(t, sizeof(t));
 }
 
 static int crypto_verify_32(const uint8_t *x, const uint8_t *y)
 {
-    uint32_t d = 0;
+    uint32_t d = 0U;
     for (int i = 0; i < 32; i++) {
         d |= (uint32_t)(x[i] ^ y[i]);
     }
-    return (int)((1U & ((d - 1U) >> 8)) - 1U);
+    uint16_t eq = (uint16_t)((d - 1U) >> 8U) & 1U;
+    return (int)eq - 1;
 }
 
 static int neq25519(const gf a, const gf b)
 {
-    uint8_t c[32], d[32];
+    uint8_t c[32];
+    uint8_t d[32];
     pack25519(c, a);
     pack25519(d, b);
     return crypto_verify_32(c, d);
@@ -113,8 +144,8 @@ static uint8_t par25519(const gf a)
 static void unpack25519(gf o, const uint8_t n[32])
 {
     for (int i = 0; i < 16; i++) {
-        uint16_t v = (uint16_t)n[2 * i] | ((uint16_t)n[2 * i + 1] << 8);
-        o[i] = (int64_t)v;
+        uint16_t v = (uint16_t)n[2 * i] | (uint16_t)((uint16_t)n[2 * i + 1] << 8);
+        o[i] = (int32_t)v;
     }
     o[15] &= 0x7FFF;
 }
@@ -135,64 +166,41 @@ static void Z(gf o, const gf a, const gf b)
 
 static void M(gf o, const gf a, const gf b)
 {
-    int64_t t[31];
-    int i, j;
-    for (i = 0; i < 31; i++) {
-        t[i] = 0;
-    }
-    for (i = 0; i < 16; i++) {
-        for (j = 0; j < 16; j++) {
-            t[i + j] += a[i] * b[j];
+    int64_t t[31] = {0};
+    for (int i = 0; i < 16; i++) {
+        int64_t ai = (int64_t)a[i];
+        for (int j = 0; j < 16; j++) {
+            t[i + j] += ai * (int64_t)b[j];
         }
     }
-    for (i = 0; i < 15; i++) {
+    for (int i = 0; i < 15; i++) {
         t[i] += 38 * t[i + 16];
     }
-    for (i = 0; i < 16; i++) {
-        o[i] = t[i];
+    car25519_64(t);
+    car25519_64(t);
+    for (int i = 0; i < 16; i++) {
+        o[i] = (int32_t)t[i];
     }
-    car25519(o);
-    car25519(o);
 }
 
 static void S(gf o, const gf a)
 {
-    M(o, a, a);
-}
-
-static void inv25519(gf o, const gf i_val)
-{
-    gf c;
-    int a;
-    for (a = 0; a < 16; a++) {
-        c[a] = i_val[a];
-    }
-    for (a = 253; a >= 0; a--) {
-        S(c, c);
-        if (a != 2 && a != 4) {
-            M(c, c, i_val);
+    int64_t t[31] = {0};
+    for (int i = 0; i < 16; i++) {
+        int64_t ai = (int64_t)a[i];
+        t[2 * i] += ai * ai;
+        int64_t ai2 = ai * 2;
+        for (int j = i + 1; j < 16; j++) {
+            t[i + j] += ai2 * (int64_t)a[j];
         }
     }
-    for (a = 0; a < 16; a++) {
-        o[a] = c[a];
+    for (int i = 0; i < 15; i++) {
+        t[i] += 38 * t[i + 16];
     }
-}
-
-static void pow2523(gf o, const gf i_val)
-{
-    gf c;
-    int a;
-    for (a = 0; a < 16; a++) {
-        c[a] = i_val[a];
-    }
-    for (a = 250; a >= 0; a--) {
-        S(c, c);
-        if (a != 1) {
-            M(c, c, i_val);
-        }
-    }
-    for (a = 0; a < 16; a++) {
-        o[a] = c[a];
+    car25519_64(t);
+    car25519_64(t);
+    for (int i = 0; i < 16; i++) {
+        o[i] = (int32_t)t[i];
     }
 }
 
@@ -207,7 +215,15 @@ static void set25519(gf r, const gf a)
 
 static void add(gf p[4], gf q[4])
 {
-    gf a, b, c, d_pt, t, e, f, g, h;
+    gf a;
+    gf b;
+    gf c;
+    gf d_pt;
+    gf t;
+    gf e;
+    gf f;
+    gf g;
+    gf h;
 
     Z(a, p[1], p[0]);
     Z(t, q[1], q[0]);
@@ -230,6 +246,16 @@ static void add(gf p[4], gf q[4])
     M(p[3], e, h);
 }
 
+static void add_base(gf p[4])
+{
+    gf b_pt[4];
+    set25519(b_pt[0], X);
+    set25519(b_pt[1], Y);
+    set25519(b_pt[2], gf1);
+    M(b_pt[3], X, Y);
+    add(p, b_pt);
+}
+
 static void cswap(gf p[4], gf q[4], uint8_t b)
 {
     for (int i = 0; i < 4; i++) {
@@ -237,59 +263,8 @@ static void cswap(gf p[4], gf q[4], uint8_t b)
     }
 }
 
-static void pack(uint8_t *r, gf p[4])
-{
-    gf tx, ty, zi;
-    inv25519(zi, p[2]);
-    M(tx, p[0], zi);
-    M(ty, p[1], zi);
-    pack25519(r, ty);
-    r[31] ^= (uint8_t)(par25519(tx) << 7);
-}
-
-static void scalarmult(gf p[4], gf q[4], const uint8_t *s)
-{
-    set25519(p[0], gf0);
-    set25519(p[1], gf1);
-    set25519(p[2], gf1);
-    set25519(p[3], gf0);
-    for (int i = 255; i >= 0; --i) {
-        uint8_t b = (uint8_t)((s[i / 8] >> (i & 7)) & 1);
-        cswap(p, q, b);
-        add(q, p);
-        add(p, p);
-        cswap(p, q, b);
-    }
-}
-
-/**
- * @brief Zeroize sensitive stack buffers without compiler dead-store elimination.
- * @param v Buffer pointer.
- * @param n Number of bytes to zeroize.
- */
-static void syn_secure_zero(void *v, size_t n)
-{
-    volatile uint8_t *p = (volatile uint8_t *)v;
-    while (n-- > 0U) {
-        *p++ = 0U;
-    }
-}
-
-static void scalarbase(gf p[4], const uint8_t *s)
-{
-    gf q[4];
-    set25519(q[0], X);
-    set25519(q[1], Y);
-    set25519(q[2], gf1);
-    M(q[3], X, Y);
-    scalarmult(p, q, s);
-    syn_secure_zero(q, sizeof(q));
-}
-
 /**
  * @brief Verify encoded Ed25519 y-coordinate is strictly less than field prime p = 2^255 - 19.
- * @param p 32-byte encoded Edwards25519 point (little-endian y with sign bit in MSB).
- * @return true if canonical (y < p), false otherwise.
  */
 static bool ed25519_y_is_canonical(const uint8_t p[32])
 {
@@ -302,56 +277,6 @@ static bool ed25519_y_is_canonical(const uint8_t p[32])
     return (((top >> 31U) & 1U) != 0U);
 }
 
-static int unpackneg(gf r[4], const uint8_t p[32])
-{
-    if (!ed25519_y_is_canonical(p)) {
-        return -1;
-    }
-
-    gf t, chk, num, den, den2, den4, den6;
-    set25519(r[2], gf1);
-    unpack25519(r[1], p);
-    S(num, r[1]);
-    M(den, num, D);
-    Z(num, num, r[2]);
-    A(den, r[2], den);
-
-    S(den2, den);
-    S(den4, den2);
-    M(den6, den4, den2);
-    M(t, den6, num);
-    M(t, t, den);
-
-    pow2523(t, t);
-    M(t, t, num);
-    M(t, t, den);
-    M(t, t, den);
-    M(r[0], t, den);
-
-    S(chk, r[0]);
-    M(chk, chk, den);
-    if (neq25519(chk, num) != 0) {
-        M(r[0], r[0], I);
-    }
-
-    S(chk, r[0]);
-    M(chk, chk, den);
-    if (neq25519(chk, num) != 0) {
-        return -1;
-    }
-
-    if (neq25519(r[0], gf0) == 0 && (p[31] & 0x80U) != 0U) {
-        return -1;
-    }
-
-    if (par25519(r[0]) == (uint8_t)(p[31] >> 7)) {
-        Z(r[0], gf0, r[0]);
-    }
-
-    M(r[3], r[0], r[1]);
-    return 0;
-}
-
 /* ── Scalar Arithmetic Modulo L (RFC 8032 Section 5.1) ───────────────────── */
 
 static const int64_t ORDER_L[32] = {
@@ -360,8 +285,6 @@ static const int64_t ORDER_L[32] = {
 
 /**
  * @brief Verify 32-byte little-endian Ed25519 scalar S is strictly less than group order L.
- * @param s 32-byte little-endian signature scalar S.
- * @return true if canonical (S < L), false otherwise.
  */
 static bool ed25519_scalar_is_canonical(const uint8_t s[32])
 {
@@ -377,7 +300,9 @@ static bool ed25519_scalar_is_canonical(const uint8_t s[32])
 
 static void modL(uint8_t *r, int64_t x[64])
 {
-    int64_t carry, i, j;
+    int64_t carry;
+    int64_t i;
+    int64_t j;
     for (i = 63; i >= 32; --i) {
         carry = 0;
         for (j = i - 32; j < i - 12; ++j) {
@@ -416,35 +341,507 @@ static void reduce(uint8_t *r)
     syn_secure_zero(x, sizeof(x));
 }
 
-/** @endcond */
+/* ── Cooperative Protothread Helpers ──────────────────────────────────────── */
 
-/* ── Public API ──────────────────────────────────────────────────────────── */
-
-bool syn_ed25519_publickey(const uint8_t secret_key[SYN_ED25519_SECRET_KEY_SIZE],
-                           uint8_t public_key[SYN_ED25519_PUBLIC_KEY_SIZE])
+static bool ed_pt_args_ok(const SYN_PT *pt, const SYN_Ed25519_Ctx *ctx, uint8_t expected_op)
 {
-    if (secret_key == NULL || public_key == NULL) {
-        return false;
-    }
+    return (pt != NULL) && (ctx != NULL) && ctx->active && (ctx->op == expected_op);
+}
 
-    uint8_t d[64];
-    gf p[4];
-
-    SYN_SHA512_Ctx hash_ctx;
+static void ed_expand_secret(const uint8_t secret_key[32], uint8_t d[64])
+{
+    SYN_SHA512 hash_ctx;
     syn_sha512_init(&hash_ctx);
     syn_sha512_update(&hash_ctx, secret_key, SYN_ED25519_SECRET_KEY_SIZE);
     syn_sha512_final(&hash_ctx, d);
+    syn_secure_zero(&hash_ctx, sizeof(hash_ctx));
 
     d[0] &= 248U;
     d[31] &= 127U;
     d[31] |= 64U;
+}
 
-    scalarbase(p, d);
-    pack(public_key, p);
+static void ed_scalarbase_setup(SYN_Ed25519_Ctx *ctx)
+{
+    set25519(ctx->p[0], gf0);
+    set25519(ctx->p[1], gf1);
+    set25519(ctx->p[2], gf1);
+    set25519(ctx->p[3], gf0);
 
-    syn_secure_zero(d, sizeof(d));
-    syn_secure_zero(p, sizeof(p));
-    syn_secure_zero(&hash_ctx, sizeof(hash_ctx));
+    set25519(ctx->q[0], X);
+    set25519(ctx->q[1], Y);
+    set25519(ctx->q[2], gf1);
+    M(ctx->q[3], X, Y);
+}
+
+static uint8_t ed_scalar_bit(const uint8_t s[32], uint16_t idx)
+{
+    uint16_t bit_pos = (uint16_t)(255U - idx);
+    return (uint8_t)((s[bit_pos >> 3U] >> (bit_pos & 7U)) & 1U);
+}
+
+static SYN_PT_Status ed_ladder_pt(SYN_PT *pt, SYN_Ed25519_Ctx *ctx, const uint8_t s[32])
+{
+    PT_BEGIN(pt);
+    ed_scalarbase_setup(ctx);
+    PT_CONTINUE(pt);
+
+    for (ctx->idx = 0U; ctx->idx < 256U; ctx->idx++) {
+        cswap(ctx->p, ctx->q, ed_scalar_bit(s, ctx->idx));
+        add(ctx->q, ctx->p);
+        PT_CONTINUE(pt);
+
+        add(ctx->p, ctx->p);
+        cswap(ctx->p, ctx->q, ed_scalar_bit(s, ctx->idx));
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static void ed_pack_from_inv(const SYN_Ed25519_Ctx *ctx, uint8_t out[32])
+{
+    gf tx;
+    gf ty;
+    M(tx, ctx->p[0], ctx->u.aux[0]);
+    M(ty, ctx->p[1], ctx->u.aux[0]);
+    pack25519(out, ty);
+    out[31] ^= (uint8_t)(par25519(tx) << 7U);
+    syn_secure_zero(tx, sizeof(tx));
+    syn_secure_zero(ty, sizeof(ty));
+}
+
+static SYN_PT_Status ed_pack_inv_pt(SYN_PT *pt, SYN_Ed25519_Ctx *ctx, uint8_t out[32])
+{
+    PT_BEGIN(pt);
+    set25519(ctx->u.aux[0], ctx->p[2]);
+    ctx->idx = 0U;
+    while (ctx->idx < 254U) {
+        for (uint16_t k = 0U; k < ED_EXP_ITERS_PER_STEP && ctx->idx < 254U; k++) {
+            uint16_t a = (uint16_t)(253U - ctx->idx);
+            S(ctx->u.aux[0], ctx->u.aux[0]);
+            if (a != 2U && a != 4U) {
+                M(ctx->u.aux[0], ctx->u.aux[0], ctx->p[2]);
+            }
+            ctx->idx++;
+        }
+        PT_CONTINUE(pt);
+    }
+
+    ed_pack_from_inv(ctx, out);
+    PT_CONTINUE(pt);
+    PT_END(pt);
+}
+
+static SYN_PT_Status ed_base_mul_pack_pt(SYN_PT *pt, SYN_Ed25519_Ctx *ctx, const uint8_t scalar[32],
+                                         uint8_t out[32])
+{
+    PT_BEGIN(pt);
+    PT_SPAWN(pt, &ctx->sub2_pt, ed_ladder_pt(&ctx->sub2_pt, ctx, scalar));
+    PT_SPAWN(pt, &ctx->sub2_pt, ed_pack_inv_pt(&ctx->sub2_pt, ctx, out));
+    PT_END(pt);
+}
+
+static SYN_PT_Status ed_hash_msg_pt(SYN_PT *pt, SYN_Ed25519_Ctx *ctx)
+{
+    PT_BEGIN(pt);
+    ctx->msg_off = 0U;
+    while (ctx->msg_off < ctx->msg_len) {
+        size_t rem = ctx->msg_len - ctx->msg_off;
+        size_t chunk = (rem > ED_HASH_CHUNK_BYTES) ? ED_HASH_CHUNK_BYTES : rem;
+        syn_sha512_update(&ctx->u.sha, ctx->msg + ctx->msg_off, chunk);
+        ctx->msg_off += chunk;
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static void ed_start_nonce_hash(SYN_Ed25519_Ctx *ctx)
+{
+    syn_sha512_init(&ctx->u.sha);
+    syn_sha512_update(&ctx->u.sha, ctx->d + 32, 32U);
+}
+
+static void ed_finalize_nonce_hash(SYN_Ed25519_Ctx *ctx)
+{
+    uint8_t r_full[64];
+    syn_sha512_final(&ctx->u.sha, r_full);
+    reduce(r_full);
+    (void)memcpy(ctx->scalar, r_full, 32U);
+    syn_secure_zero(r_full, sizeof(r_full));
+}
+
+static void ed_start_challenge_hash(SYN_Ed25519_Ctx *ctx)
+{
+    syn_sha512_init(&ctx->u.sha);
+    syn_sha512_update(&ctx->u.sha, ctx->r_pt, 32U);
+    syn_sha512_update(&ctx->u.sha, ctx->pk, 32U);
+}
+
+static void ed_finish_challenge_hash(SYN_Ed25519_Ctx *ctx)
+{
+    uint8_t h[64];
+    syn_sha512_final(&ctx->u.sha, h);
+    reduce(h);
+    (void)memcpy(ctx->pk, h, 32U);
+    syn_secure_zero(h, sizeof(h));
+}
+
+static void ed_finish_sign_scalar(SYN_Ed25519_Ctx *ctx, uint8_t sig[64])
+{
+    int64_t x[64];
+    for (int i = 0; i < 64; i++) {
+        x[i] = 0;
+    }
+    for (int i = 0; i < 32; i++) {
+        x[i] = (int64_t)ctx->scalar[i];
+    }
+    for (int i = 0; i < 32; i++) {
+        for (int j = 0; j < 32; j++) {
+            x[i + j] += (int64_t)ctx->pk[i] * (int64_t)ctx->d[j];
+        }
+    }
+    (void)memcpy(sig, ctx->r_pt, 32U);
+    modL(sig + 32, x);
+
+    syn_secure_zero(x, sizeof(x));
+    syn_ed25519_wipe(ctx);
+}
+
+static void ed_finalize_verify_hash(SYN_Ed25519_Ctx *ctx)
+{
+    uint8_t h_full[64];
+    syn_sha512_final(&ctx->u.sha, h_full);
+    reduce(h_full);
+    (void)memcpy(ctx->d, h_full, 32U);
+    syn_secure_zero(h_full, sizeof(h_full));
+}
+
+static void ed_unpackneg_start(SYN_Ed25519_Ctx *ctx)
+{
+    gf den2;
+    gf den4;
+    gf den6;
+
+    set25519(ctx->q[2], gf1);
+    unpack25519(ctx->q[1], ctx->pk);
+    S(ctx->u.aux[0], ctx->q[1]);
+    M(ctx->u.aux[1], ctx->u.aux[0], D);
+    Z(ctx->u.aux[0], ctx->u.aux[0], ctx->q[2]);
+    A(ctx->u.aux[1], ctx->q[2], ctx->u.aux[1]);
+
+    S(den2, ctx->u.aux[1]);
+    S(den4, den2);
+    M(den6, den4, den2);
+    M(ctx->u.aux[2], den6, ctx->u.aux[0]);
+    M(ctx->u.aux[2], ctx->u.aux[2], ctx->u.aux[1]);
+    set25519(ctx->q[0], ctx->u.aux[2]);
+}
+
+static SYN_PT_Status ed_pow2523_pt(SYN_PT *pt, SYN_Ed25519_Ctx *ctx)
+{
+    PT_BEGIN(pt);
+    ctx->idx = 0U;
+    while (ctx->idx < 251U) {
+        for (uint16_t k = 0U; k < ED_EXP_ITERS_PER_STEP && ctx->idx < 251U; k++) {
+            uint16_t a = (uint16_t)(250U - ctx->idx);
+            S(ctx->q[0], ctx->q[0]);
+            if (a != 1U) {
+                M(ctx->q[0], ctx->q[0], ctx->u.aux[2]);
+            }
+            ctx->idx++;
+        }
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static void ed_unpackneg_root(SYN_Ed25519_Ctx *ctx)
+{
+    gf t;
+    gf chk;
+
+    M(t, ctx->q[0], ctx->u.aux[0]);
+    M(t, t, ctx->u.aux[1]);
+    M(t, t, ctx->u.aux[1]);
+    M(ctx->q[0], t, ctx->u.aux[1]);
+
+    S(chk, ctx->q[0]);
+    M(chk, chk, ctx->u.aux[1]);
+    if (neq25519(chk, ctx->u.aux[0]) != 0) {
+        M(ctx->q[0], ctx->q[0], I);
+    }
+}
+
+static bool ed_unpackneg_finish(SYN_Ed25519_Ctx *ctx)
+{
+    gf chk;
+
+    S(chk, ctx->q[0]);
+    M(chk, chk, ctx->u.aux[1]);
+    if (neq25519(chk, ctx->u.aux[0]) != 0) {
+        return false;
+    }
+
+    if (neq25519(ctx->q[0], gf0) == 0 && (ctx->pk[31] & 0x80U) != 0U) {
+        return false;
+    }
+
+    if (par25519(ctx->q[0]) == (uint8_t)(ctx->pk[31] >> 7U)) {
+        Z(ctx->q[0], gf0, ctx->q[0]);
+    }
+    M(ctx->q[3], ctx->q[0], ctx->q[1]);
+    return true;
+}
+
+static void ed_shamir_setup(SYN_Ed25519_Ctx *ctx)
+{
+    set25519(ctx->p[0], gf0);
+    set25519(ctx->p[1], gf1);
+    set25519(ctx->p[2], gf1);
+    set25519(ctx->p[3], gf0);
+
+    memcpy(ctx->u.aux, ctx->q, sizeof(ctx->u.aux));
+    add_base(ctx->u.aux);
+}
+
+static void ed_shamir_add_bit(SYN_Ed25519_Ctx *ctx)
+{
+    uint16_t bit_pos = (uint16_t)(255U - ctx->idx);
+    uint8_t bs = (uint8_t)((ctx->scalar[bit_pos >> 3U] >> (bit_pos & 7U)) & 1U);
+    uint8_t bh = (uint8_t)((ctx->d[bit_pos >> 3U] >> (bit_pos & 7U)) & 1U);
+    if (bs != 0U && bh != 0U) {
+        add(ctx->p, ctx->u.aux);
+    } else if (bs != 0U) {
+        add_base(ctx->p);
+    } else if (bh != 0U) {
+        add(ctx->p, ctx->q);
+    }
+}
+
+static SYN_PT_Status ed_shamir_pt(SYN_PT *pt, SYN_Ed25519_Ctx *ctx)
+{
+    PT_BEGIN(pt);
+    for (ctx->idx = 0U; ctx->idx < 256U; ctx->idx++) {
+        add(ctx->p, ctx->p);
+        PT_CONTINUE(pt);
+
+        ed_shamir_add_bit(ctx);
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+/** @endcond */
+
+/* ── Public API ──────────────────────────────────────────────────────────── */
+
+void syn_ed25519_wipe(SYN_Ed25519_Ctx *ctx)
+{
+    if (ctx != NULL) {
+        syn_secure_zero(ctx, sizeof(*ctx));
+    }
+}
+
+bool syn_ed25519_publickey_init(SYN_Ed25519_Ctx *ctx,
+                                const uint8_t secret_key[SYN_ED25519_SECRET_KEY_SIZE])
+{
+    if (ctx == NULL || secret_key == NULL) {
+        return false;
+    }
+    syn_ed25519_wipe(ctx);
+    ed_expand_secret(secret_key, ctx->d);
+    ctx->op = (uint8_t)ED_OP_PUBKEY;
+    ctx->active = true;
+    return true;
+}
+
+SYN_PT_Status syn_ed25519_publickey_pt(SYN_PT *pt, SYN_Ed25519_Ctx *ctx,
+                                       uint8_t public_key[SYN_ED25519_PUBLIC_KEY_SIZE])
+{
+    if (!ed_pt_args_ok(pt, ctx, (uint8_t)ED_OP_PUBKEY) || public_key == NULL) {
+        if (ctx != NULL) {
+            syn_ed25519_wipe(ctx);
+        }
+        return PT_EXITED;
+    }
+
+    PT_BEGIN(pt);
+    PT_SPAWN(pt, &ctx->sub_pt, ed_base_mul_pack_pt(&ctx->sub_pt, ctx, ctx->d, public_key));
+    syn_ed25519_wipe(ctx);
+    PT_END(pt);
+}
+
+bool syn_ed25519_sign_init(SYN_Ed25519_Ctx *ctx, const uint8_t *msg, size_t msg_len,
+                           const uint8_t secret_key[SYN_ED25519_SECRET_KEY_SIZE],
+                           const uint8_t public_key[SYN_ED25519_PUBLIC_KEY_SIZE])
+{
+    if (ctx == NULL || (msg == NULL && msg_len > 0U) || secret_key == NULL) {
+        return false;
+    }
+    syn_ed25519_wipe(ctx);
+    ed_expand_secret(secret_key, ctx->d);
+    ctx->msg = msg;
+    ctx->msg_len = msg_len;
+    ctx->op = (uint8_t)ED_OP_SIGN;
+    ctx->active = true;
+
+    if (public_key != NULL) {
+        (void)memcpy(ctx->pk, public_key, SYN_ED25519_PUBLIC_KEY_SIZE);
+        ctx->has_pk = true;
+    } else {
+        ctx->has_pk = false;
+    }
+    return true;
+}
+
+SYN_PT_Status syn_ed25519_sign_pt(SYN_PT *pt, SYN_Ed25519_Ctx *ctx,
+                                  uint8_t sig[SYN_ED25519_SIGNATURE_SIZE])
+{
+    if (!ed_pt_args_ok(pt, ctx, (uint8_t)ED_OP_SIGN) || sig == NULL) {
+        if (ctx != NULL) {
+            syn_ed25519_wipe(ctx);
+        }
+        return PT_EXITED;
+    }
+
+    PT_BEGIN(pt);
+
+    if (!ctx->has_pk) {
+        PT_SPAWN(pt, &ctx->sub_pt, ed_base_mul_pack_pt(&ctx->sub_pt, ctx, ctx->d, ctx->pk));
+    }
+
+    ed_start_nonce_hash(ctx);
+    PT_SPAWN(pt, &ctx->sub_pt, ed_hash_msg_pt(&ctx->sub_pt, ctx));
+    ed_finalize_nonce_hash(ctx);
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, ed_base_mul_pack_pt(&ctx->sub_pt, ctx, ctx->scalar, ctx->r_pt));
+
+    ed_start_challenge_hash(ctx);
+    PT_SPAWN(pt, &ctx->sub_pt, ed_hash_msg_pt(&ctx->sub_pt, ctx));
+    ed_finish_challenge_hash(ctx);
+    PT_CONTINUE(pt);
+    ed_finish_sign_scalar(ctx, sig);
+
+    PT_END(pt);
+}
+
+bool syn_ed25519_verify_init(SYN_Ed25519_Ctx *ctx, const uint8_t sig[SYN_ED25519_SIGNATURE_SIZE],
+                             const uint8_t *msg, size_t msg_len,
+                             const uint8_t public_key[SYN_ED25519_PUBLIC_KEY_SIZE])
+{
+    if (ctx == NULL || sig == NULL || (msg == NULL && msg_len > 0U) || public_key == NULL) {
+        return false;
+    }
+    if (!ed25519_scalar_is_canonical(sig + 32) || !ed25519_y_is_canonical(public_key)) {
+        return false;
+    }
+
+    syn_ed25519_wipe(ctx);
+    (void)memcpy(ctx->r_pt, sig, 32U);
+    (void)memcpy(ctx->scalar, sig + 32, 32U);
+    (void)memcpy(ctx->pk, public_key, 32U);
+    ctx->msg = msg;
+    ctx->msg_len = msg_len;
+
+    syn_sha512_init(&ctx->u.sha);
+    syn_sha512_update(&ctx->u.sha, ctx->r_pt, 32U);
+    syn_sha512_update(&ctx->u.sha, ctx->pk, 32U);
+
+    ctx->op = (uint8_t)ED_OP_VERIFY;
+    ctx->prehashed = false;
+    ctx->active = true;
+    return true;
+}
+
+bool syn_ed25519_verify_hash_init(SYN_Ed25519_Ctx *ctx,
+                                  const uint8_t sig[SYN_ED25519_SIGNATURE_SIZE],
+                                  const uint8_t h[64],
+                                  const uint8_t public_key[SYN_ED25519_PUBLIC_KEY_SIZE])
+{
+    if (ctx == NULL || sig == NULL || h == NULL || public_key == NULL) {
+        return false;
+    }
+    if (!ed25519_scalar_is_canonical(sig + 32) || !ed25519_y_is_canonical(public_key)) {
+        return false;
+    }
+
+    syn_ed25519_wipe(ctx);
+    (void)memcpy(ctx->r_pt, sig, 32U);
+    (void)memcpy(ctx->scalar, sig + 32, 32U);
+    (void)memcpy(ctx->pk, public_key, 32U);
+
+    uint8_t h_full[64];
+    (void)memcpy(h_full, h, 64U);
+    reduce(h_full);
+    (void)memcpy(ctx->d, h_full, 32U);
+    syn_secure_zero(h_full, sizeof(h_full));
+
+    ctx->op = (uint8_t)ED_OP_VERIFY;
+    ctx->prehashed = true;
+    ctx->active = true;
+    return true;
+}
+
+SYN_PT_Status syn_ed25519_verify_pt(SYN_PT *pt, SYN_Ed25519_Ctx *ctx, bool *out_valid)
+{
+    if (out_valid != NULL) {
+        *out_valid = false;
+    }
+    if (!ed_pt_args_ok(pt, ctx, (uint8_t)ED_OP_VERIFY) || out_valid == NULL) {
+        if (ctx != NULL) {
+            syn_ed25519_wipe(ctx);
+        }
+        return PT_EXITED;
+    }
+
+    PT_BEGIN(pt);
+
+    if (!ctx->prehashed) {
+        PT_SPAWN(pt, &ctx->sub_pt, ed_hash_msg_pt(&ctx->sub_pt, ctx));
+        ed_finalize_verify_hash(ctx);
+        PT_CONTINUE(pt);
+    }
+
+    ed_unpackneg_start(ctx);
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, ed_pow2523_pt(&ctx->sub_pt, ctx));
+
+    ed_unpackneg_root(ctx);
+    PT_CONTINUE(pt);
+
+    if (!ed_unpackneg_finish(ctx)) {
+        *out_valid = false;
+    } else {
+        PT_CONTINUE(pt);
+
+        ed_shamir_setup(ctx);
+        PT_CONTINUE(pt);
+
+        PT_SPAWN(pt, &ctx->sub_pt, ed_shamir_pt(&ctx->sub_pt, ctx));
+        PT_SPAWN(pt, &ctx->sub_pt, ed_pack_inv_pt(&ctx->sub_pt, ctx, ctx->pk));
+        *out_valid = (crypto_verify_32(ctx->r_pt, ctx->pk) == 0);
+    }
+    syn_ed25519_wipe(ctx);
+
+    PT_END(pt);
+}
+
+bool syn_ed25519_publickey(const uint8_t secret_key[SYN_ED25519_SECRET_KEY_SIZE],
+                           uint8_t public_key[SYN_ED25519_PUBLIC_KEY_SIZE])
+{
+    if (public_key == NULL) {
+        return false;
+    }
+    SYN_Ed25519_Ctx ctx;
+    SYN_PT pt;
+    if (!syn_ed25519_publickey_init(&ctx, secret_key)) {
+        return false;
+    }
+    PT_INIT(&pt);
+    while (syn_ed25519_publickey_pt(&pt, &ctx, public_key) == PT_MORE) {
+    }
     return true;
 }
 
@@ -465,129 +862,48 @@ bool syn_ed25519_sign(const uint8_t *msg, size_t msg_len,
                       const uint8_t public_key[SYN_ED25519_PUBLIC_KEY_SIZE],
                       uint8_t sig[SYN_ED25519_SIGNATURE_SIZE])
 {
-    if ((msg == NULL && msg_len > 0U) || secret_key == NULL || sig == NULL) {
+    if (sig == NULL) {
         return false;
     }
-
-    uint8_t pk_buf[SYN_ED25519_PUBLIC_KEY_SIZE];
-    const uint8_t *pk = public_key;
-    if (pk == NULL) {
-        (void)syn_ed25519_publickey(secret_key, pk_buf);
-        pk = pk_buf;
+    SYN_Ed25519_Ctx ctx;
+    SYN_PT pt;
+    if (!syn_ed25519_sign_init(&ctx, msg, msg_len, secret_key, public_key)) {
+        return false;
     }
-
-    uint8_t d[64], r[64];
-    int64_t x[64];
-    gf p[4];
-
-    SYN_SHA512_Ctx hash_ctx;
-    syn_sha512_init(&hash_ctx);
-    syn_sha512_update(&hash_ctx, secret_key, SYN_ED25519_SECRET_KEY_SIZE);
-    syn_sha512_final(&hash_ctx, d);
-
-    d[0] &= 248U;
-    d[31] &= 127U;
-    d[31] |= 64U;
-
-    /* Nonce r = SHA-512(d[32..63] || msg) */
-    syn_sha512_init(&hash_ctx);
-    syn_sha512_update(&hash_ctx, d + 32, 32U);
-    if (msg != NULL && msg_len > 0U) {
-        syn_sha512_update(&hash_ctx, msg, msg_len);
+    PT_INIT(&pt);
+    while (syn_ed25519_sign_pt(&pt, &ctx, sig) == PT_MORE) {
     }
-    syn_sha512_final(&hash_ctx, r);
-    reduce(r);
-
-    /* R = r * B */
-    scalarbase(p, r);
-    pack(sig, p);
-
-    /* Challenge h = SHA-512(R || pk || msg) */
-    syn_sha512_init(&hash_ctx);
-    syn_sha512_update(&hash_ctx, sig, 32U);
-    syn_sha512_update(&hash_ctx, pk, 32U);
-    if (msg != NULL && msg_len > 0U) {
-        syn_sha512_update(&hash_ctx, msg, msg_len);
-    }
-    uint8_t h[64];
-    syn_sha512_final(&hash_ctx, h);
-    reduce(h);
-
-    /* S = (r + h * d) mod L */
-    for (int i = 0; i < 64; i++) {
-        x[i] = 0;
-    }
-    for (int i = 0; i < 32; i++) {
-        x[i] = (int64_t)r[i];
-    }
-    for (int i = 0; i < 32; i++) {
-        for (int j = 0; j < 32; j++) {
-            x[i + j] += (int64_t)h[i] * (int64_t)d[j];
-        }
-    }
-    modL(sig + 32, x);
-
-    syn_secure_zero(d, sizeof(d));
-    syn_secure_zero(r, sizeof(r));
-    syn_secure_zero(h, sizeof(h));
-    syn_secure_zero(x, sizeof(x));
-    syn_secure_zero(p, sizeof(p));
-    syn_secure_zero(pk_buf, sizeof(pk_buf));
-    syn_secure_zero(&hash_ctx, sizeof(hash_ctx));
     return true;
 }
 
 bool syn_ed25519_verify_hash(const uint8_t sig[SYN_ED25519_SIGNATURE_SIZE], const uint8_t h[64],
                              const uint8_t public_key[SYN_ED25519_PUBLIC_KEY_SIZE])
 {
-    if (sig == NULL || h == NULL || public_key == NULL) {
+    SYN_Ed25519_Ctx ctx;
+    SYN_PT pt;
+    bool valid = false;
+    if (!syn_ed25519_verify_hash_init(&ctx, sig, h, public_key)) {
         return false;
     }
-
-    if (!ed25519_scalar_is_canonical(sig + 32)) {
-        return false;
+    PT_INIT(&pt);
+    while (syn_ed25519_verify_pt(&pt, &ctx, &valid) == PT_MORE) {
     }
-
-    gf p[4], q[4];
-    if (unpackneg(q, public_key) != 0) {
-        return false;
-    }
-
-    uint8_t h_reduced[64];
-    for (size_t i = 0; i < 64U; i++) {
-        h_reduced[i] = h[i];
-    }
-    reduce(h_reduced);
-
-    scalarmult(p, q, h_reduced);
-    scalarbase(q, sig + 32);
-    add(p, q);
-
-    uint8_t t[32];
-    pack(t, p);
-
-    return (crypto_verify_32(sig, t) == 0);
+    return valid;
 }
 
 bool syn_ed25519_verify(const uint8_t sig[SYN_ED25519_SIGNATURE_SIZE], const uint8_t *msg,
                         size_t msg_len, const uint8_t public_key[SYN_ED25519_PUBLIC_KEY_SIZE])
 {
-    if (sig == NULL || (msg == NULL && msg_len > 0U) || public_key == NULL) {
+    SYN_Ed25519_Ctx ctx;
+    SYN_PT pt;
+    bool valid = false;
+    if (!syn_ed25519_verify_init(&ctx, sig, msg, msg_len, public_key)) {
         return false;
     }
-
-    /* Challenge h = SHA-512(R || pk || msg) */
-    SYN_SHA512_Ctx hash_ctx;
-    syn_sha512_init(&hash_ctx);
-    syn_sha512_update(&hash_ctx, sig, 32U);
-    syn_sha512_update(&hash_ctx, public_key, 32U);
-    if (msg != NULL && msg_len > 0U) {
-        syn_sha512_update(&hash_ctx, msg, msg_len);
+    PT_INIT(&pt);
+    while (syn_ed25519_verify_pt(&pt, &ctx, &valid) == PT_MORE) {
     }
-    uint8_t h[64];
-    syn_sha512_final(&hash_ctx, h);
-
-    return syn_ed25519_verify_hash(sig, h, public_key);
+    return valid;
 }
 
 #endif /* SYN_ED25519_ENABLED */

@@ -22,6 +22,7 @@
 
 #if SYN_X509_ENABLED
 
+#include "../pt/syn_pt.h"
 #include "syntropic/crypto/syn_asn1.h"
 
 #include <stdbool.h>
@@ -104,6 +105,75 @@ bool syn_x509_verify_signature(const SYN_X509_Cert *cert, const uint8_t *issuer_
  */
 bool syn_x509_validate_chain(const SYN_X509_Cert *cert, const SYN_X509_Cert *root_ca,
                              const char *expected_cn);
+
+/* ── Cooperative Resumable API ──────────────────────────────────────────── */
+
+/**
+ * @brief Resumable X.509 signature / chain verification working context (caller-owned, zero-heap).
+ */
+typedef struct {
+    SYN_PT sub_pt;      /**< Child protothread continuation for underlying curve verifier */
+    SYN_X509_Algo algo; /**< Active signature verification algorithm */
+    bool active;        /**< True while initialized and awaiting completion */
+    union {
+        SYN_P256_Ctx p256;       /**< Resumable ECDSA-P256 verify state */
+        SYN_Ed25519_Ctx ed25519; /**< Resumable Ed25519 verify state */
+    } op;                        /**< Underlying curve verification state */
+} SYN_X509_VerifyCtx;
+
+/**
+ * @brief Securely zeroize a resumable X.509 verification context (for cancellation / abort).
+ * @param ctx Context to wipe (safe if NULL).
+ */
+void syn_x509_verify_wipe(SYN_X509_VerifyCtx *ctx);
+
+/**
+ * @brief Initialize resumable X.509 certificate signature verification.
+ *
+ * Performs synchronous OID/key-length/DER-signature checks upfront. @p cert does not
+ * need to remain allocated after initialization returns true, though the underlying
+ * DER certificate buffer referenced by `cert->tbs_bytes` must remain valid until
+ * Ed25519 verification completes.
+ *
+ * @param ctx               Caller-owned X.509 verification context.
+ * @param cert              Parsed child certificate to verify.
+ * @param issuer_pubkey     Issuer's public key bytes.
+ * @param issuer_pubkey_len Issuer's public key length in bytes.
+ * @param algo              Algorithm of issuer's public key and expected certificate signature.
+ * @return true if structural checks pass and verification state is initialized; false otherwise.
+ */
+bool syn_x509_verify_signature_init(SYN_X509_VerifyCtx *ctx, const SYN_X509_Cert *cert,
+                                    const uint8_t *issuer_pubkey, size_t issuer_pubkey_len,
+                                    SYN_X509_Algo algo);
+
+/**
+ * @brief Initialize resumable X.509 chain validation against a trusted Root CA certificate.
+ *
+ * Performs synchronous CA, issuer/subject CN, SNI, and OID checks upfront before
+ * initializing signature verification. Neither @p cert nor @p root_ca needs to remain
+ * allocated after initialization returns true (only the DER bytes backing `cert->tbs_bytes`
+ * for Ed25519).
+ *
+ * @param ctx         Caller-owned X.509 verification context.
+ * @param cert        Parsed leaf certificate.
+ * @param root_ca     Parsed trusted Root CA certificate.
+ * @param expected_cn Expected Server Name (SNI) to match against leaf CN, or NULL.
+ * @return true if chain metadata is valid and signature verification is initialized.
+ */
+bool syn_x509_validate_chain_init(SYN_X509_VerifyCtx *ctx, const SYN_X509_Cert *cert,
+                                  const SYN_X509_Cert *root_ca, const char *expected_cn);
+
+/**
+ * @brief Cooperative child protothread for sliced X.509 signature/chain verification.
+ *
+ * Automatically wipes @p ctx via syn_secure_zero() before returning PT_ENDED.
+ *
+ * @param pt        Child protothread control block.
+ * @param ctx       Initialized X.509 verification context.
+ * @param out_valid [out] Receives true if signature is valid on PT_ENDED.
+ * @return PT_MORE while in progress, PT_ENDED on completion, or PT_EXITED on invalid args.
+ */
+SYN_PT_Status syn_x509_verify_pt(SYN_PT *pt, SYN_X509_VerifyCtx *ctx, bool *out_valid);
 
 #ifdef __cplusplus
 }

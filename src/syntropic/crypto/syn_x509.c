@@ -610,15 +610,46 @@ bool syn_x509_parse(const uint8_t *der, size_t der_len, SYN_X509_Cert *cert_out)
     return parse_outer_sig_fields(cert_cur, cert_len, tbs_sig_algo, cert_out);
 }
 
-/**
- * @brief Verify an ECDSA-P256 SHA-256 certificate signature against raw or 0x04-prefixed key.
- * @param cert              Parsed child certificate.
- * @param issuer_pubkey     64-byte raw (X||Y) or 65-byte uncompressed (0x04||X||Y) public key.
- * @param issuer_pubkey_len Length of @p issuer_pubkey in bytes.
- * @return true if ECDSA-P256 signature verifies over `cert->tbs_bytes`.
- */
-static bool verify_ecdsa_p256_cert(const SYN_X509_Cert *cert, const uint8_t *issuer_pubkey,
-                                   size_t issuer_pubkey_len)
+/** @cond INTERNAL */
+
+static void syn_secure_zero(void *v, size_t n)
+{
+    volatile uint8_t *p = (volatile uint8_t *)v;
+    while (n-- > 0U) {
+        *p++ = 0U;
+    }
+}
+
+static bool x509_init_ed25519_sig(SYN_X509_VerifyCtx *ctx, const SYN_X509_Cert *cert,
+                                  const uint8_t *issuer_pubkey, size_t issuer_pubkey_len)
+{
+    if (issuer_pubkey_len != SYN_ED25519_PUBLIC_KEY_SIZE ||
+        cert->signature_len != SYN_ED25519_SIGNATURE_SIZE) {
+        syn_x509_verify_wipe(ctx);
+        return false;
+    }
+    const uint8_t *tbs = cert->tbs_bytes;
+    size_t tbs_len = cert->tbs_len;
+    uint8_t sig64[SYN_ED25519_SIGNATURE_SIZE];
+    uint8_t pub32[SYN_ED25519_PUBLIC_KEY_SIZE];
+    (void)memcpy(sig64, cert->signature, sizeof(sig64));
+    (void)memcpy(pub32, issuer_pubkey, sizeof(pub32));
+    syn_x509_verify_wipe(ctx);
+    bool ok = syn_ed25519_verify_init(&ctx->op.ed25519, sig64, tbs, tbs_len, pub32);
+    syn_secure_zero(sig64, sizeof(sig64));
+    syn_secure_zero(pub32, sizeof(pub32));
+    if (!ok) {
+        return false;
+    }
+    ctx->algo = SYN_X509_ALGO_ED25519;
+    ctx->active = true;
+    return true;
+}
+
+static bool x509_prep_ecdsa_p256(const SYN_X509_Cert *cert, const uint8_t *issuer_pubkey,
+                                 size_t issuer_pubkey_len, const uint8_t **px_out,
+                                 const uint8_t **py_out, uint8_t r32[32], uint8_t s32[32],
+                                 uint8_t hash[SYN_SHA256_DIGEST_SIZE])
 {
     const uint8_t *px = issuer_pubkey;
     const uint8_t *py = issuer_pubkey + 32;
@@ -629,16 +660,126 @@ static bool verify_ecdsa_p256_cert(const SYN_X509_Cert *cert, const uint8_t *iss
         return false;
     }
 
-    uint8_t r32[32];
-    uint8_t s32[32];
     if (!decode_ecdsa_sig(cert->signature, cert->signature_len, r32, s32)) {
         return false;
     }
 
-    uint8_t hash[SYN_SHA256_DIGEST_SIZE];
     syn_sha256(cert->tbs_bytes, cert->tbs_len, hash);
+    *px_out = px;
+    *py_out = py;
+    return true;
+}
 
-    return syn_p256_verify_ecdsa(hash, r32, s32, px, py);
+static bool x509_init_p256_sig(SYN_X509_VerifyCtx *ctx, const SYN_X509_Cert *cert,
+                               const uint8_t *issuer_pubkey, size_t issuer_pubkey_len)
+{
+    const uint8_t *px = NULL;
+    const uint8_t *py = NULL;
+    uint8_t r32[32];
+    uint8_t s32[32];
+    uint8_t hash[SYN_SHA256_DIGEST_SIZE];
+    if (!x509_prep_ecdsa_p256(cert, issuer_pubkey, issuer_pubkey_len, &px, &py, r32, s32, hash)) {
+        syn_x509_verify_wipe(ctx);
+        return false;
+    }
+
+    uint8_t px32[32];
+    uint8_t py32[32];
+    (void)memcpy(px32, px, sizeof(px32));
+    (void)memcpy(py32, py, sizeof(py32));
+    syn_x509_verify_wipe(ctx);
+    bool ok = syn_p256_verify_init(&ctx->op.p256, hash, r32, s32, px32, py32);
+    syn_secure_zero(px32, sizeof(px32));
+    syn_secure_zero(py32, sizeof(py32));
+    if (!ok) {
+        return false;
+    }
+    ctx->algo = SYN_X509_ALGO_ECDSA_P256;
+    ctx->active = true;
+    return true;
+}
+
+static bool x509_check_chain_meta(const SYN_X509_Cert *cert, const SYN_X509_Cert *root_ca,
+                                  const char *expected_cn)
+{
+    if (cert == NULL || root_ca == NULL) {
+        return false;
+    }
+
+    if (!root_ca->is_ca || root_ca->subject_cn[0] == '\0' ||
+        strcmp(cert->issuer_cn, root_ca->subject_cn) != 0 ||
+        cert->sig_algo == SYN_X509_ALGO_UNKNOWN || cert->sig_algo != root_ca->pubkey_algo) {
+        return false;
+    }
+
+    return (expected_cn == NULL || strcmp(cert->subject_cn, expected_cn) == 0);
+}
+
+/** @endcond */
+
+void syn_x509_verify_wipe(SYN_X509_VerifyCtx *ctx)
+{
+    if (ctx != NULL) {
+        syn_secure_zero(ctx, sizeof(*ctx));
+    }
+}
+
+bool syn_x509_verify_signature_init(SYN_X509_VerifyCtx *ctx, const SYN_X509_Cert *cert,
+                                    const uint8_t *issuer_pubkey, size_t issuer_pubkey_len,
+                                    SYN_X509_Algo algo)
+{
+    if (ctx == NULL || cert == NULL || issuer_pubkey == NULL || cert->tbs_bytes == NULL ||
+        cert->tbs_len == 0U || cert->sig_algo != algo) {
+        return false;
+    }
+
+    if (algo == SYN_X509_ALGO_ED25519) {
+        return x509_init_ed25519_sig(ctx, cert, issuer_pubkey, issuer_pubkey_len);
+    }
+
+    if (algo == SYN_X509_ALGO_ECDSA_P256) {
+        return x509_init_p256_sig(ctx, cert, issuer_pubkey, issuer_pubkey_len);
+    }
+
+    syn_x509_verify_wipe(ctx);
+    return false;
+}
+
+bool syn_x509_validate_chain_init(SYN_X509_VerifyCtx *ctx, const SYN_X509_Cert *cert,
+                                  const SYN_X509_Cert *root_ca, const char *expected_cn)
+{
+    if (!x509_check_chain_meta(cert, root_ca, expected_cn)) {
+        return false;
+    }
+    return syn_x509_verify_signature_init(ctx, cert, root_ca->pubkey, root_ca->pubkey_len,
+                                          root_ca->pubkey_algo);
+}
+
+SYN_PT_Status syn_x509_verify_pt(SYN_PT *pt, SYN_X509_VerifyCtx *ctx, bool *out_valid)
+{
+    if (pt == NULL || ctx == NULL || out_valid == NULL || !ctx->active) {
+        return PT_EXITED;
+    }
+
+    *out_valid = false;
+    SYN_PT_Status child_st = PT_ENDED;
+
+    PT_BEGIN(pt);
+
+    if (ctx->algo == SYN_X509_ALGO_ED25519) {
+        PT_SPAWN(pt, &ctx->sub_pt,
+                 (child_st = syn_ed25519_verify_pt(&ctx->sub_pt, &ctx->op.ed25519, out_valid)));
+    } else {
+        PT_SPAWN(pt, &ctx->sub_pt,
+                 (child_st = syn_p256_verify_pt(&ctx->sub_pt, &ctx->op.p256, out_valid)));
+    }
+    syn_x509_verify_wipe(ctx);
+    if (child_st != PT_ENDED) {
+        *out_valid = false;
+        PT_EXIT(pt);
+    }
+
+    PT_END(pt);
 }
 
 bool syn_x509_verify_signature(const SYN_X509_Cert *cert, const uint8_t *issuer_pubkey,
@@ -658,7 +799,14 @@ bool syn_x509_verify_signature(const SYN_X509_Cert *cert, const uint8_t *issuer_
     }
 
     if (algo == SYN_X509_ALGO_ECDSA_P256) {
-        return verify_ecdsa_p256_cert(cert, issuer_pubkey, issuer_pubkey_len);
+        const uint8_t *px = NULL;
+        const uint8_t *py = NULL;
+        uint8_t r32[32];
+        uint8_t s32[32];
+        uint8_t hash[SYN_SHA256_DIGEST_SIZE];
+        return x509_prep_ecdsa_p256(cert, issuer_pubkey, issuer_pubkey_len, &px, &py, r32, s32,
+                                    hash) &&
+               syn_p256_verify_ecdsa(hash, r32, s32, px, py);
     }
 
     return false;
@@ -667,20 +815,9 @@ bool syn_x509_verify_signature(const SYN_X509_Cert *cert, const uint8_t *issuer_
 bool syn_x509_validate_chain(const SYN_X509_Cert *cert, const SYN_X509_Cert *root_ca,
                              const char *expected_cn)
 {
-    if (cert == NULL || root_ca == NULL) {
+    if (!x509_check_chain_meta(cert, root_ca, expected_cn)) {
         return false;
     }
-
-    if (!root_ca->is_ca || root_ca->subject_cn[0] == '\0' ||
-        strcmp(cert->issuer_cn, root_ca->subject_cn) != 0 ||
-        cert->sig_algo == SYN_X509_ALGO_UNKNOWN || cert->sig_algo != root_ca->pubkey_algo) {
-        return false;
-    }
-
-    if (expected_cn != NULL && strcmp(cert->subject_cn, expected_cn) != 0) {
-        return false;
-    }
-
     return syn_x509_verify_signature(cert, root_ca->pubkey, root_ca->pubkey_len,
                                      root_ca->pubkey_algo);
 }

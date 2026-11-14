@@ -43,24 +43,18 @@
 extern "C" {
 #endif
 
-/** @brief Total cooperative steps in an X25519 scalar multiplication (255 ladder + 254 inversion).
- */
-#define SYN_X25519_TOTAL_STEPS 509U
-
-/** @brief Default step count per cooperative protothread slice. */
-#define SYN_X25519_DEFAULT_CHUNK 16U
-
 /**
  * @brief Resumable X25519 scalar multiplication working state (caller-owned, zero-heap).
  */
 typedef struct {
     uint8_t z[32]; /**< Clamped private scalar bytes */
-    int64_t x[16]; /**< Unpacked base point */
-    int64_t a[16]; /**< Montgomery ladder X_2 / final numerator */
-    int64_t b[16]; /**< Montgomery ladder X_3 */
-    int64_t c[16]; /**< Montgomery ladder Z_2 / field inversion accumulator */
-    int64_t d[16]; /**< Montgomery ladder Z_3 / field inversion base Z_2 */
-    uint16_t step; /**< Next step index in [0, SYN_X25519_TOTAL_STEPS] */
+    int32_t x[16]; /**< Unpacked base point */
+    int32_t a[16]; /**< Montgomery ladder X_2 / final numerator */
+    int32_t b[16]; /**< Montgomery ladder X_3 */
+    int32_t c[16]; /**< Montgomery ladder Z_2 / field inversion accumulator */
+    int32_t d[16]; /**< Montgomery ladder Z_3 / field inversion base Z_2 */
+    SYN_PT sub_pt; /**< Child protothread continuation for ladder and inversion loops */
+    uint16_t idx;  /**< Loop step index within active child protothread */
     bool active;   /**< true while initialized and awaiting completion */
 } SYN_X25519_Ctx;
 
@@ -98,9 +92,27 @@ void syn_x25519_pubkey(uint8_t public_out[32], const uint8_t private_key[32]);
  */
 static inline void syn_x25519_clamp(uint8_t key[32])
 {
-    key[0] &= 248;  /* Clear low 3 bits (multiple of 8) */
-    key[31] &= 127; /* Clear high bit */
-    key[31] |= 64;  /* Set second-highest bit */
+    key[0] &= 248U;  /* Clear low 3 bits (multiple of 8) */
+    key[31] &= 127U; /* Clear high bit */
+    key[31] |= 64U;  /* Set second-highest bit */
+}
+
+/**
+ * @brief Constant-time check that a 32-byte X25519 shared secret is non-zero (RFC 7748 §6.1).
+ *
+ * Diffie-Hellman protocol consumers must verify that the scalar multiplication
+ * output is not the all-zero value to reject low-order points.
+ *
+ * @param secret 32-byte shared secret buffer.
+ * @return true if at least one byte is non-zero, false if all-zero.
+ */
+static inline bool syn_x25519_is_nonzero(const uint8_t secret[32])
+{
+    uint8_t acc = 0U;
+    for (size_t i = 0U; i < 32U; i++) {
+        acc |= secret[i];
+    }
+    return acc != 0U;
 }
 
 /**
@@ -121,32 +133,25 @@ bool syn_x25519_init(SYN_X25519_Ctx *ctx, const uint8_t scalar[32], const uint8_
 bool syn_x25519_pubkey_init(SYN_X25519_Ctx *ctx, const uint8_t private_key[32]);
 
 /**
- * @brief Advance an initialized X25519 context by up to @p max_steps iterations.
- *
- * Automatically wipes @p ctx via syn_secure_zero() upon completing step 509.
- *
- * @param ctx        Active X25519 context.
- * @param max_steps  Maximum ladder/inversion steps to execute (> 0).
- * @param shared_out [out] 32-byte output buffer populated when SYN_OK is returned.
- * @return SYN_BUSY while steps remain, SYN_OK on completion, or SYN_INVALID_PARAM.
+ * @brief Securely zeroize an X25519 working context (for cancellation / abort).
+ * @param ctx Context to wipe (safe if NULL).
  */
-SYN_Status syn_x25519_step(SYN_X25519_Ctx *ctx, uint16_t max_steps, uint8_t shared_out[32]);
+void syn_x25519_wipe(SYN_X25519_Ctx *ctx);
 
 /**
- * @brief Cooperative child protothread for sliced X25519 scalar multiplication.
+ * @brief Cooperative protothread for sliced X25519 scalar multiplication.
  *
- * Executes @p steps_per_chunk steps per invocation (defaults to SYN_X25519_DEFAULT_CHUNK
- * when 0) and yields PT_MORE via PT_CONTINUE(pt) while SYN_BUSY. Composes with
- * PT_SPAWN_IF_NEEDED(pt, task, child, syn_x25519_pt(...)) for demand-driven yielding.
+ * Executes one Montgomery ladder or field inversion step per slice and yields
+ * PT_MORE via PT_CONTINUE(pt). Automatically wipes @p ctx before completing
+ * with PT_ENDED. Composes with PT_SPAWN_IF_NEEDED(pt, task, child, syn_x25519_pt(...))
+ * for demand-driven yielding.
  *
- * @param pt              Child protothread control block.
- * @param ctx             Initialized X25519 context.
- * @param steps_per_chunk Steps per slice (0 uses SYN_X25519_DEFAULT_CHUNK).
- * @param shared_out      [out] 32-byte output buffer populated on PT_ENDED.
+ * @param pt         Protothread control block.
+ * @param ctx        Initialized X25519 context.
+ * @param shared_out [out] 32-byte output buffer populated on PT_ENDED.
  * @return PT_MORE while in progress, PT_ENDED on completion, or PT_EXITED on invalid args.
  */
-SYN_PT_Status syn_x25519_pt(SYN_PT *pt, SYN_X25519_Ctx *ctx, uint16_t steps_per_chunk,
-                            uint8_t shared_out[32]);
+SYN_PT_Status syn_x25519_pt(SYN_PT *pt, SYN_X25519_Ctx *ctx, uint8_t shared_out[32]);
 
 #ifdef __cplusplus
 }

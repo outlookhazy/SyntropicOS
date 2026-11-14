@@ -34,8 +34,8 @@ static void syn_secure_zero(void *v, size_t n)
     }
 }
 
-/** @brief Field element (GF(2^255 - 19)) represented by 16 × 16-bit limbs. */
-typedef int64_t gf[16];
+/** @brief Field element (GF(2^255 - 19)) represented by 16 × 16-bit normalized limbs. */
+typedef int32_t gf[16];
 
 /** @brief Field element 0. */
 static const gf gf0 = {0};
@@ -46,10 +46,10 @@ static const gf _121665 = {0xDB41, 1};
 
 /* ── Field Arithmetic (GF(2^255 - 19), 16 × 16-bit limbs) ──────────── */
 
-/** @brief Carry-propagate across 16 limbs of a GF(2^255-19) element.
- * @param o Element to normalize.
+/** @brief Carry-propagate across 16 wide accumulator limbs of a GF(2^255-19) element.
+ * @param o Wide 64-bit limb array to normalize.
  */
-static void car25519(gf o)
+static void car25519_64(int64_t o[16])
 {
     int64_t c;
     int i;
@@ -68,12 +68,26 @@ static void car25519(gf o)
  */
 static void sel25519(gf p, gf q, int b)
 {
-    int64_t t, c = ~(int64_t)(b - 1);
-    int i;
-    for (i = 0; i < 16; i++) {
-        t = c & (p[i] ^ q[i]);
-        p[i] ^= t;
-        q[i] ^= t;
+    uint32_t mask = 0U - (uint32_t)(b & 1);
+    for (int i = 0; i < 16; i++) {
+        uint32_t t = mask & ((uint32_t)p[i] ^ (uint32_t)q[i]);
+        p[i] = (int32_t)((uint32_t)p[i] ^ t);
+        q[i] = (int32_t)((uint32_t)q[i] ^ t);
+    }
+}
+
+/** @brief Constant-time conditional swap on 64-bit limb arrays during canonical reduction.
+ * @param p First wide element.
+ * @param q Second wide element.
+ * @param b Condition (1 to swap, 0 to keep).
+ */
+static void sel25519_64(int64_t p[16], int64_t q[16], int b)
+{
+    uint64_t mask = 0ULL - (uint64_t)(b & 1);
+    for (int i = 0; i < 16; i++) {
+        uint64_t t = mask & ((uint64_t)p[i] ^ (uint64_t)q[i]);
+        p[i] = (int64_t)((uint64_t)p[i] ^ t);
+        q[i] = (int64_t)((uint64_t)q[i] ^ t);
     }
 }
 
@@ -83,13 +97,17 @@ static void sel25519(gf p, gf q, int b)
  */
 static void pack25519(uint8_t o[32], const gf n)
 {
-    int i, j;
+    int i;
+    int j;
     int64_t b;
-    gf m, t;
-    memcpy(t, n, sizeof(gf));
-    car25519(t);
-    car25519(t);
-    car25519(t);
+    int64_t m[16];
+    int64_t t[16];
+    for (i = 0; i < 16; i++) {
+        t[i] = (int64_t)n[i];
+    }
+    car25519_64(t);
+    car25519_64(t);
+    car25519_64(t);
     for (j = 0; j < 2; j++) {
         m[0] = t[0] - 0xFFED;
         for (i = 1; i < 15; i++) {
@@ -99,7 +117,7 @@ static void pack25519(uint8_t o[32], const gf n)
         m[15] = t[15] - 0x7FFF - ((m[14] >> 16) & 1);
         b = (m[15] >> 16) & 1;
         m[14] &= 0xFFFF;
-        sel25519(t, m, (int)(1 - b));
+        sel25519_64(t, m, (int)(1 - b));
     }
     for (i = 0; i < 16; i++) {
         syn_poke_u16_le((uint16_t)t[i], o, 2 * i);
@@ -116,7 +134,7 @@ static void unpack25519(gf o, const uint8_t n[32])
 {
     int i;
     for (i = 0; i < 16; i++) {
-        o[i] = (int64_t)syn_peek_u16_le(n, 2 * i);
+        o[i] = (int32_t)syn_peek_u16_le(n, 2 * i);
     }
     o[15] &= 0x7FFF;
 }
@@ -129,8 +147,9 @@ static void unpack25519(gf o, const uint8_t n[32])
 static void A(gf o, const gf a, const gf b)
 {
     int i;
-    for (i = 0; i < 16; i++)
+    for (i = 0; i < 16; i++) {
         o[i] = a[i] + b[i];
+    }
 }
 
 /** @brief Field subtraction: o = a - b.
@@ -141,49 +160,73 @@ static void A(gf o, const gf a, const gf b)
 static void Z(gf o, const gf a, const gf b)
 {
     int i;
-    for (i = 0; i < 16; i++)
+    for (i = 0; i < 16; i++) {
         o[i] = a[i] - b[i];
+    }
 }
 
-/** @brief Field multiplication: o = a * b mod p.
+/** @brief Field multiplication: o = a * b mod p (32x32->64 widening multiply).
  * @param o Output element.
  * @param a Multiplicand.
  * @param b Multiplier.
  */
 static void M(gf o, const gf a, const gf b)
 {
-    int64_t t[31];
-    int i, j;
-    for (i = 0; i < 31; i++)
-        t[i] = 0;
-    for (i = 0; i < 16; i++)
-        for (j = 0; j < 16; j++)
-            t[i + j] += a[i] * b[j];
-    for (i = 0; i < 15; i++)
-        t[i] += 38 * t[i + 16];
-    memcpy(o, t, 16 * sizeof(int64_t));
-    car25519(o);
-    car25519(o);
+    int64_t t[31] = {0};
+    int i;
+    int j;
+    for (i = 0; i < 16; i++) {
+        int64_t ai = (int64_t)a[i];
+        for (j = 0; j < 16; j++) {
+            t[i + j] += ai * (int64_t)b[j];
+        }
+    }
+    for (i = 0; i < 15; i++) {
+        t[i] += 38LL * t[i + 16];
+    }
+    car25519_64(t);
+    car25519_64(t);
+    for (i = 0; i < 16; i++) {
+        o[i] = (int32_t)t[i];
+    }
 }
 
-/** @brief Field squaring: o = a^2 mod p.
+/** @brief Symmetric field squaring: o = a^2 mod p (136 multiplies instead of 256).
  * @param o Output element.
  * @param a Element to square.
  */
 static void S(gf o, const gf a)
 {
-    M(o, a, a);
+    int64_t t[31] = {0};
+    int i;
+    int j;
+    for (i = 0; i < 16; i++) {
+        int64_t ai = (int64_t)a[i];
+        t[2 * i] += ai * ai;
+        int64_t ai2 = ai * 2;
+        for (j = i + 1; j < 16; j++) {
+            t[i + j] += ai2 * (int64_t)a[j];
+        }
+    }
+    for (i = 0; i < 15; i++) {
+        t[i] += 38LL * t[i + 16];
+    }
+    car25519_64(t);
+    car25519_64(t);
+    for (i = 0; i < 16; i++) {
+        o[i] = (int32_t)t[i];
+    }
 }
 
 /**
  * @brief Execute one constant-time Montgomery ladder bit step on an X25519 context.
- * @param ctx Active X25519 context with step < 255.
+ * @param ctx Active X25519 context with idx < 255.
  */
 static void x25519_ladder_step(SYN_X25519_Ctx *ctx)
 {
     gf e;
     gf f;
-    uint16_t bit = (uint16_t)(254U - ctx->step);
+    uint16_t bit = (uint16_t)(254U - ctx->idx);
     int r = (int)((ctx->z[bit >> 3U] >> (bit & 7U)) & 1U);
 
     sel25519(ctx->a, ctx->b, r);
@@ -213,6 +256,42 @@ static void x25519_ladder_step(SYN_X25519_Ctx *ctx)
     syn_secure_zero(f, sizeof(f));
 }
 
+/**
+ * @brief Cooperative child protothread for the 255-bit Montgomery ladder.
+ * @param pt  Child protothread control block.
+ * @param ctx Active X25519 context.
+ * @return PT_MORE while ladder bits remain, PT_ENDED when all 255 bits complete.
+ */
+static SYN_PT_Status x25519_ladder_pt(SYN_PT *pt, SYN_X25519_Ctx *ctx)
+{
+    PT_BEGIN(pt);
+    for (ctx->idx = 0U; ctx->idx < 255U; ctx->idx++) {
+        x25519_ladder_step(ctx);
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+/**
+ * @brief Cooperative child protothread for GF(2^255-19) Fermat inversion (z^(p-2)).
+ * @param pt  Child protothread control block.
+ * @param ctx Active X25519 context with inversion base in ctx->d and accumulator in ctx->c.
+ * @return PT_MORE while inversion steps remain, PT_ENDED when all 254 steps complete.
+ */
+static SYN_PT_Status x25519_inv_pt(SYN_PT *pt, SYN_X25519_Ctx *ctx)
+{
+    PT_BEGIN(pt);
+    for (ctx->idx = 0U; ctx->idx < 254U; ctx->idx++) {
+        uint16_t inv_i = (uint16_t)(253U - ctx->idx);
+        S(ctx->c, ctx->c);
+        if (inv_i != 2U && inv_i != 4U) {
+            M(ctx->c, ctx->c, ctx->d);
+        }
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
 /* ── X25519 scalar multiplication (Montgomery ladder) ───────────────── */
 
 bool syn_x25519_init(SYN_X25519_Ctx *ctx, const uint8_t scalar[32], const uint8_t point[32])
@@ -221,6 +300,7 @@ bool syn_x25519_init(SYN_X25519_Ctx *ctx, const uint8_t scalar[32], const uint8_
         return false;
     }
 
+    syn_secure_zero(ctx, sizeof(*ctx));
     memcpy(ctx->z, scalar, 32U);
     ctx->z[31] = (uint8_t)((ctx->z[31] & 127U) | 64U);
     ctx->z[0] &= 248U;
@@ -231,7 +311,6 @@ bool syn_x25519_init(SYN_X25519_Ctx *ctx, const uint8_t scalar[32], const uint8_
     memcpy(ctx->a, gf1, sizeof(gf));
     memcpy(ctx->d, gf1, sizeof(gf));
     memcpy(ctx->c, gf0, sizeof(gf));
-    ctx->step = 0U;
     ctx->active = true;
     return true;
 }
@@ -242,55 +321,31 @@ bool syn_x25519_pubkey_init(SYN_X25519_Ctx *ctx, const uint8_t private_key[32])
     return syn_x25519_init(ctx, private_key, basepoint);
 }
 
-SYN_Status syn_x25519_step(SYN_X25519_Ctx *ctx, uint16_t max_steps, uint8_t shared_out[32])
+void syn_x25519_wipe(SYN_X25519_Ctx *ctx)
 {
-    if (ctx == NULL || shared_out == NULL || !ctx->active || max_steps == 0U) {
-        return SYN_INVALID_PARAM;
+    if (ctx != NULL) {
+        syn_secure_zero(ctx, sizeof(*ctx));
     }
-
-    uint16_t executed = 0U;
-    while (executed < max_steps && ctx->step < SYN_X25519_TOTAL_STEPS) {
-        if (ctx->step < 255U) {
-            x25519_ladder_step(ctx);
-            ctx->step++;
-            if (ctx->step == 255U) {
-                memcpy(ctx->d, ctx->c, sizeof(gf));
-            }
-        } else {
-            uint16_t inv_i = (uint16_t)(508U - ctx->step);
-            S(ctx->c, ctx->c);
-            if (inv_i != 2U && inv_i != 4U) {
-                M(ctx->c, ctx->c, ctx->d);
-            }
-            ctx->step++;
-        }
-        executed++;
-    }
-
-    if (ctx->step < SYN_X25519_TOTAL_STEPS) {
-        return SYN_BUSY;
-    }
-
-    M(ctx->a, ctx->a, ctx->c);
-    pack25519(shared_out, ctx->a);
-    syn_secure_zero(ctx, sizeof(*ctx));
-    return SYN_OK;
 }
 
-SYN_PT_Status syn_x25519_pt(SYN_PT *pt, SYN_X25519_Ctx *ctx, uint16_t steps_per_chunk,
-                            uint8_t shared_out[32])
+SYN_PT_Status syn_x25519_pt(SYN_PT *pt, SYN_X25519_Ctx *ctx, uint8_t shared_out[32])
 {
     if (pt == NULL || ctx == NULL || shared_out == NULL || !ctx->active) {
+        if (ctx != NULL) {
+            syn_x25519_wipe(ctx);
+        }
         return PT_EXITED;
     }
 
-    uint16_t chunk = (steps_per_chunk == 0U) ? SYN_X25519_DEFAULT_CHUNK : steps_per_chunk;
-
     PT_BEGIN(pt);
 
-    while (syn_x25519_step(ctx, chunk, shared_out) == SYN_BUSY) {
-        PT_CONTINUE(pt);
-    }
+    PT_SPAWN(pt, &ctx->sub_pt, x25519_ladder_pt(&ctx->sub_pt, ctx));
+    memcpy(ctx->d, ctx->c, sizeof(gf));
+    PT_SPAWN(pt, &ctx->sub_pt, x25519_inv_pt(&ctx->sub_pt, ctx));
+
+    M(ctx->a, ctx->a, ctx->c);
+    pack25519(shared_out, ctx->a);
+    syn_x25519_wipe(ctx);
 
     PT_END(pt);
 }
@@ -298,10 +353,13 @@ SYN_PT_Status syn_x25519_pt(SYN_PT *pt, SYN_X25519_Ctx *ctx, uint16_t steps_per_
 void syn_x25519(uint8_t shared_out[32], const uint8_t scalar[32], const uint8_t point[32])
 {
     SYN_X25519_Ctx ctx;
+    SYN_PT pt;
     if (shared_out == NULL || !syn_x25519_init(&ctx, scalar, point)) {
         return;
     }
-    (void)syn_x25519_step(&ctx, SYN_X25519_TOTAL_STEPS, shared_out);
+    PT_INIT(&pt);
+    while (syn_x25519_pt(&pt, &ctx, shared_out) == PT_MORE) {
+    }
 }
 
 void syn_x25519_pubkey(uint8_t public_out[32], const uint8_t private_key[32])

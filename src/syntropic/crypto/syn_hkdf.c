@@ -152,7 +152,7 @@ bool syn_hkdf_expand_label(const uint8_t *secret, size_t secret_len, const char 
     }
 
     bool ok = syn_hkdf_expand(secret, secret_len, hkdf_label, offset, out, out_len);
-    syn_secure_zero(hkdf_label, sizeof(hkdf_label));
+    syn_secure_zero(hkdf_label, offset);
     return ok;
 }
 
@@ -286,7 +286,7 @@ bool syn_hkdf_sha384_expand_label(const uint8_t *secret, size_t secret_len, cons
     }
 
     bool ok = syn_hkdf_sha384_expand(secret, secret_len, hkdf_label, offset, out, out_len);
-    syn_secure_zero(hkdf_label, sizeof(hkdf_label));
+    syn_secure_zero(hkdf_label, offset);
     return ok;
 }
 
@@ -418,7 +418,7 @@ bool syn_hkdf_sha512_expand_label(const uint8_t *secret, size_t secret_len, cons
     }
 
     bool ok = syn_hkdf_sha512_expand(secret, secret_len, hkdf_label, offset, out, out_len);
-    syn_secure_zero(hkdf_label, sizeof(hkdf_label));
+    syn_secure_zero(hkdf_label, offset);
     return ok;
 }
 

@@ -169,7 +169,7 @@ void measure_stage2_firmware(const uint8_t *fw_sha256) {
 
 | Module | Guard | Primary API | Summary |
 |---|---|---|---|
-| `crypto/syn_aes.h` | `SYN_USE_AES` | `syn_aes_init`, `syn_aes_cbc_encrypt/decrypt`, `syn_aes_ctr`, `syn_aes_gcm_encrypt/decrypt`, `syn_aes_ccm_encrypt/decrypt` | AES-128/192/256 ECB, PKCS#7 CBC, CTR, AES-GCM AEAD, and AES-CCM AEAD (optional `SYN_USE_PORT_AES` hardware offload) |
+| `crypto/syn_aes.h` | `SYN_USE_AES` | `syn_aes_init`, `syn_aes_cbc_encrypt/decrypt`, `syn_aes_ctr`, `syn_aes_gcm_encrypt/decrypt`, `syn_aes_ccm_encrypt/decrypt` | Constant-time AES-128/192/256 ECB, PKCS#7 CBC, CTR, AES-GCM AEAD, and AES-CCM AEAD via bitsliced Boyar–Peralta circuit on non-AVR (AVR retains single-cycle PROGMEM tables); optional `SYN_USE_PORT_AES` hardware offload |
 | `crypto/syn_aes_cmac.h` | `SYN_USE_AES_CMAC` | `syn_aes_cmac`, `syn_aes_cmac_verify` | Constant-time 128-bit AES-CMAC (RFC 4493 / NIST SP 800-38B) |
 | `crypto/syn_hmac.h` | `SYN_USE_SHA256` | `syn_hmac_sha256_init/update/final`, `syn_hmac_sha256` | Streaming and single-shot HMAC-SHA256 with stack state zeroization |
 | `crypto/syn_sha512.h` | `SYN_USE_SHA512` | `syn_sha512`, `syn_sha384`, `syn_hmac_sha512`, `syn_hmac_sha384` | FIPS 180-4 SHA-512 / SHA-384 digests and RFC 4231 HMACs |
@@ -179,5 +179,48 @@ void measure_stage2_firmware(const uint8_t *fw_sha256) {
 | `crypto/syn_asn1.h` | `SYN_USE_ASN1` | `syn_asn1_parse_element`, `syn_asn1_step`, `syn_asn1_enter_container`, `syn_asn1_match_oid` | Zero-copy ASN.1 DER TLV container, OID, integer, and bit-string parser |
 | `crypto/syn_x509.h` | `SYN_USE_X509` | `syn_x509_parse`, `syn_x509_verify_signature`, `syn_x509_validate_chain` | DER X.509 v3 certificate parser and Ed25519 / ECDSA-P256 chain validator |
 
+---
 
+## 8. Cooperative Protothread Crypto API (`*_init` / `*_pt` / `*_wipe`)
+
+Asymmetric scalar multiplication, signing, and certificate verification expose caller-owned, zero-heap contexts that run as `SYN_PT` child protothreads. Each slice executes bounded field, ladder, or hash steps and yields `PT_MORE` until returning `PT_ENDED`.
+
+| Module | Context | Initializers | Child Protothreads | Cancellation Wipe |
+|---|---|---|---|---|
+| `crypto/syn_x25519.h` | `SYN_X25519_Ctx` | `syn_x25519_init`, `syn_x25519_pubkey_init` | `syn_x25519_pt` | `syn_x25519_wipe` |
+| `crypto/syn_p256.h` | `SYN_P256_Ctx` | `syn_p256_base_mul_init`, `syn_p256_point_mul_init`, `syn_p256_sign_init`, `syn_p256_sign_deterministic_init`, `syn_p256_verify_init` | `syn_p256_mul_pt`, `syn_p256_sign_pt`, `syn_p256_verify_pt` | `syn_p256_wipe` |
+| `crypto/syn_ed25519.h` | `SYN_Ed25519_Ctx` | `syn_ed25519_publickey_init`, `syn_ed25519_sign_init`, `syn_ed25519_verify_init`, `syn_ed25519_verify_hash_init` | `syn_ed25519_publickey_pt`, `syn_ed25519_sign_pt`, `syn_ed25519_verify_pt` | `syn_ed25519_wipe` |
+| `crypto/syn_x509.h` | `SYN_X509_VerifyCtx` | `syn_x509_verify_signature_init`, `syn_x509_validate_chain_init` | `syn_x509_verify_pt` | `syn_x509_verify_wipe` |
+
+Compose child protothreads inside scheduler tasks with `PT_SPAWN_IF_NEEDED` (`sched/syn_sched.h`). Uncontended dispatches run consecutive `PT_MORE` slices in one turn; contended dispatches (`syn_task_should_share(task)`) yield `PT_MORE` between slices:
+
+```c
+#include <syntropic/crypto/syn_x25519.h>
+#include <syntropic/sched/syn_sched.h>
+
+typedef struct {
+    SYN_PT child_pt;
+    SYN_X25519_Ctx x25519;
+    uint8_t priv[32];
+    uint8_t peer_pub[32];
+    uint8_t shared[32];
+} KeyExState;
+
+SYN_PT_Status key_exchange_task(SYN_PT *pt, SYN_Task *task)
+{
+    KeyExState *st = (KeyExState *)task->user_data;
+
+    PT_BEGIN(pt);
+
+    if (!syn_x25519_init(&st->x25519, st->priv, st->peer_pub)) {
+        PT_EXIT(pt);
+    }
+    PT_SPAWN_IF_NEEDED(pt, task, &st->child_pt,
+                       syn_x25519_pt(&st->child_pt, &st->x25519, st->shared));
+
+    PT_END(pt);
+}
+```
+
+**Zeroization & Cancellation Cleanup**: Every `*_pt` function scrubs its working context via `volatile` `syn_secure_zero` before returning `PT_ENDED`. If a caller aborts, times out, or resets a task before `PT_ENDED`, call the matching `*_wipe` function (`syn_x25519_wipe`, `syn_p256_wipe`, `syn_ed25519_wipe`, `syn_x509_verify_wipe`) so `syn_secure_zero` clears clamped scalars, nonces, and intermediate field state.
 

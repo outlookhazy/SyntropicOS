@@ -30,6 +30,10 @@ static void syn_secure_zero(void *v, size_t n)
 static const uint32_t P256_P[8] = {0xFFFFFFFFU, 0xFFFFFFFFU, 0xFFFFFFFFU, 0x00000000U,
                                    0x00000000U, 0x00000000U, 0x00000001U, 0xFFFFFFFFU};
 
+/** @brief Field prime p - 2 for constant-time Fermat modular inversion */
+static const uint32_t P256_P_MINUS_2[8] = {0xFFFFFFFDU, 0xFFFFFFFFU, 0xFFFFFFFFU, 0x00000000U,
+                                           0x00000000U, 0x00000000U, 0x00000001U, 0xFFFFFFFFU};
+
 /** @brief Group order n */
 static const uint32_t P256_N[8] = {0xFC632551U, 0xF3B9CAC2U, 0xA7179E84U, 0xBCE6FAADU,
                                    0xFFFFFFFFU, 0xFFFFFFFFU, 0x00000000U, 0xFFFFFFFFU};
@@ -37,6 +41,13 @@ static const uint32_t P256_N[8] = {0xFC632551U, 0xF3B9CAC2U, 0xA7179E84U, 0xBCE6
 /** @brief Group order n - 2 for constant-time Fermat modular inversion */
 static const uint32_t P256_N_MINUS_2[8] = {0xFC63254FU, 0xF3B9CAC2U, 0xA7179E84U, 0xBCE6FAADU,
                                            0xFFFFFFFFU, 0xFFFFFFFFU, 0x00000000U, 0xFFFFFFFFU};
+
+/** @brief Montgomery constant -n[0]^-1 mod 2^32 for CIOS reduction modulo n */
+#define P256_N0_INV 0xEE00BC4FU
+
+/** @brief R^2 mod n (R = 2^256) for converting into Montgomery domain modulo n */
+static const uint32_t P256_R2_MOD_N[8] = {0xBE79EEA2U, 0x83244C95U, 0x49BD6FA6U, 0x4699799CU,
+                                          0x2B6BEC59U, 0x2845B239U, 0xF3D95620U, 0x66E12D94U};
 
 /** @brief Curve coefficient b */
 static const uint32_t P256_B[8] = {0x27D2604BU, 0x3BCE3C3EU, 0xCC53B0F6U, 0x651D06B0U,
@@ -97,10 +108,12 @@ static void bn_to_bytes(uint8_t bytes[32], const bignum256 a)
 static int bn_cmp(const bignum256 a, const bignum256 b)
 {
     for (int i = 7; i >= 0; i--) {
-        if (a[i] > b[i])
+        if (a[i] > b[i]) {
             return 1;
-        if (a[i] < b[i])
+        }
+        if (a[i] < b[i]) {
             return -1;
+        }
     }
     return 0;
 }
@@ -293,44 +306,23 @@ static void p256_mod_p_sqr(bignum256 r, const bignum256 a)
 }
 
 /**
- * @brief Field inversion modulo p via Fermat's Little Theorem: a^(p-2) mod p.
- * @param[out] r Inverted value.
- * @param[in] a Base to invert.
+ * @brief Process one 4-bit slice of Fermat inversion modulo p: a^(p-2) mod p.
+ * @param[in,out] res    Running product modulo p.
+ * @param[in,out] base   Running square base modulo p.
+ * @param[in]     nib_ix Exponent nibble index in [0, 63].
  */
-static void p256_mod_p_inv(bignum256 r, const bignum256 a)
+static void p256_inv_p_nibble(bignum256 res, bignum256 base, uint16_t nib_ix)
 {
-    /* LCOV_EXCL_START: Identity shortcut */
-    if (bn_cmp(a, BN_ONE) == 0) {
-        bn_copy(r, BN_ONE);
-        return;
-    }
-    /* LCOV_EXCL_STOP */
-
-    bignum256 res;
-    memset(res, 0, sizeof(res));
-    res[0] = 1U;
-
-    bignum256 base;
-    bn_copy(base, a);
-
-    /* p - 2 exponent */
-    bignum256 exp;
-    bn_copy(exp, P256_P);
-    exp[0] -= 2U;
-
-    for (int i = 0; i < 8; i++) {
-        uint32_t w = exp[i];
-        for (int b = 0; b < 32; b++) {
-            if (w & 1U) {
-                p256_mod_p_mul(res, res, base);
-            }
-            p256_mod_p_sqr(base, base);
-            w >>= 1U;
+    uint32_t limb = (uint32_t)nib_ix >> 3U;
+    uint32_t shift = ((uint32_t)nib_ix & 7U) * 4U;
+    uint32_t w = (P256_P_MINUS_2[limb] >> shift) & 0xFU;
+    for (uint32_t b = 0U; b < 4U; b++) {
+        if ((w & 1U) != 0U) {
+            p256_mod_p_mul(res, res, base);
         }
+        p256_mod_p_sqr(base, base);
+        w >>= 1U;
     }
-    bn_copy(r, res);
-    syn_secure_zero(res, sizeof(res));
-    syn_secure_zero(base, sizeof(base));
 }
 
 /* ── Group Order Arithmetic Modulo n ────────────────────────────────────── */
@@ -352,69 +344,95 @@ static void p256_reduce_once_mod_n(bignum256 a)
 }
 
 /**
- * @brief Group order multiplication modulo n.
- * @param[out] r Product modulo n.
- * @param[in] a First factor.
- * @param[in] b Second factor.
+ * @brief Constant-time 8-limb Montgomery multiplication modulo n: r = a * b * R^-1 mod n.
+ * @param[out] r Montgomery product modulo n.
+ * @param[in]  a First operand (< n).
+ * @param[in]  b Second operand (< n).
  */
-static void p256_mod_n_mul(bignum256 r, const bignum256 a, const bignum256 b)
+static void p256_mont_mul_n(bignum256 r, const bignum256 a, const bignum256 b)
 {
-    uint32_t t[16];
+    uint32_t t[17];
+    memset(t, 0, sizeof(t));
     bn_mul_raw(t, a, b);
 
-    bignum256 rem = {0};
-    bignum256 diff;
-    for (int bit = 511; bit >= 0; bit--) {
-        uint32_t carry_bit = (t[bit / 32] >> ((uint32_t)bit % 32U)) & 1U;
-        for (int i = 0; i < 8; i++) {
-            uint32_t next_carry = rem[i] >> 31U;
-            rem[i] = (rem[i] << 1U) | carry_bit;
-            carry_bit = next_carry;
+    for (int i = 0; i < 8; i++) {
+        uint32_t m = t[i] * P256_N0_INV;
+        uint64_t carry = 0ULL;
+        for (int j = 0; j < 8; j++) {
+            uint64_t prod = (uint64_t)m * (uint64_t)P256_N[j] + (uint64_t)t[i + j] + carry;
+            t[i + j] = (uint32_t)prod;
+            carry = prod >> 32U;
         }
-        uint32_t borrow = bn_sub_raw(diff, rem, P256_N);
-        bn_cmov(rem, diff, carry_bit | (1U ^ borrow));
+        for (int k = i + 8; carry > 0ULL && k < 17; k++) {
+            uint64_t sum = (uint64_t)t[k] + carry;
+            t[k] = (uint32_t)sum;
+            carry = sum >> 32U;
+        }
     }
-    bn_copy(r, rem);
+
+    bignum256 cand;
+    bignum256 diff;
+    for (int i = 0; i < 8; i++) {
+        cand[i] = t[i + 8];
+    }
+    uint32_t borrow = bn_sub_raw(diff, cand, P256_N);
+    bn_cmov(cand, diff, t[16] | (1U ^ borrow));
+    bn_copy(r, cand);
     syn_secure_zero(t, sizeof(t));
-    syn_secure_zero(rem, sizeof(rem));
+    syn_secure_zero(cand, sizeof(cand));
     syn_secure_zero(diff, sizeof(diff));
 }
 
 /**
- * @brief Constant-time group order inversion modulo n via Fermat: a^(n-2) mod n.
- * @param[out] r Inverted value (0 when a == 0).
- * @param[in] a Base to invert.
+ * @brief Group order multiplication modulo n: r = a * b mod n.
+ * @param[out] r Product modulo n.
+ * @param[in]  a First factor (< n).
+ * @param[in]  b Second factor (< n).
  */
-static void p256_mod_n_inv(bignum256 r, const bignum256 a)
+static void p256_mod_n_mul(bignum256 r, const bignum256 a, const bignum256 b)
 {
-    bignum256 res = {1U, 0U, 0U, 0U, 0U, 0U, 0U, 0U};
-    bignum256 base;
-    bn_copy(base, a);
+    bignum256 a_mont;
+    p256_mont_mul_n(a_mont, a, P256_R2_MOD_N);
+    p256_mont_mul_n(r, a_mont, b);
+    syn_secure_zero(a_mont, sizeof(a_mont));
+}
 
-    for (uint32_t i = 0U; i < 8U; i++) {
-        uint32_t w = P256_N_MINUS_2[i];
-        for (uint32_t b = 0U; b < 32U; b++) {
-            if ((w & 1U) != 0U) {
-                p256_mod_n_mul(res, res, base);
-            }
-            p256_mod_n_mul(base, base, base);
-            w >>= 1U;
+/**
+ * @brief Initialize Montgomery-domain Fermat inversion state for a^(n-2) mod n.
+ * @param[out] res  Initialized to R mod n.
+ * @param[out] base Initialized to a * R mod n.
+ * @param[in]  a    Input value to invert (< n).
+ */
+static void p256_inv_n_start(bignum256 res, bignum256 base, const bignum256 a)
+{
+    p256_mont_mul_n(res, BN_ONE, P256_R2_MOD_N);
+    p256_mont_mul_n(base, a, P256_R2_MOD_N);
+}
+
+/**
+ * @brief Process one 4-bit slice of Montgomery-domain Fermat inversion modulo n.
+ * @param[in,out] res    Running Montgomery product.
+ * @param[in,out] base   Running Montgomery square base.
+ * @param[in]     nib_ix Exponent nibble index in [0, 63].
+ */
+static void p256_inv_n_nibble(bignum256 res, bignum256 base, uint16_t nib_ix)
+{
+    uint32_t limb = (uint32_t)nib_ix >> 3U;
+    uint32_t shift = ((uint32_t)nib_ix & 7U) * 4U;
+    uint32_t w = (P256_N_MINUS_2[limb] >> shift) & 0xFU;
+    for (uint32_t b = 0U; b < 4U; b++) {
+        if ((w & 1U) != 0U) {
+            p256_mont_mul_n(res, res, base);
         }
+        p256_mont_mul_n(base, base, base);
+        w >>= 1U;
     }
-    bn_copy(r, res);
-    syn_secure_zero(res, sizeof(res));
-    syn_secure_zero(base, sizeof(base));
 }
 
 /* ── Jacobian Point Operations ───────────────────────────────────────────── */
 
-/** @brief Point representation in Jacobian projective coordinates (X, Y, Z). */
-typedef struct {
-    bignum256 x;   /**< Projective coordinate X */
-    bignum256 y;   /**< Projective coordinate Y */
-    bignum256 z;   /**< Projective coordinate Z */
-    bool infinity; /**< True if point is at infinity */
-} P256_Point;
+/** @brief Internal alias for Jacobian projective point type. */
+typedef SYN_P256_Point P256_Point;
 
 /**
  * @brief Set Jacobian point to infinity.
@@ -440,40 +458,6 @@ static void point_cmov(P256_Point *dst, const P256_Point *src, uint32_t mask)
         dst->z[i] = (dst->z[i] & ~mask) | (src->z[i] & mask);
     }
     dst->infinity = (((uint32_t)dst->infinity & ~mask) | ((uint32_t)src->infinity & mask)) != 0U;
-}
-
-/**
- * @brief Convert Jacobian coordinates (X, Y, Z) to Affine coordinates (x, y).
- * @param[in] p Input Jacobian point.
- * @param[out] x_out Output affine X coordinate.
- * @param[out] y_out Output affine Y coordinate.
- */
-static void point_to_affine(const P256_Point *p, bignum256 x_out, bignum256 y_out)
-{
-    /* LCOV_EXCL_START: Point at infinity / zero guard */
-    if (p->infinity || bn_is_zero(p->z)) {
-        memset(x_out, 0, sizeof(bignum256));
-        memset(y_out, 0, sizeof(bignum256));
-        return;
-    }
-    /* LCOV_EXCL_STOP */
-    if (bn_cmp(p->z, BN_ONE) == 0) {
-        bn_copy(x_out, p->x);
-        bn_copy(y_out, p->y);
-        return;
-    }
-
-    bignum256 z_inv;
-    bignum256 z_inv2;
-    bignum256 z_inv3;
-    p256_mod_p_inv(z_inv, p->z);
-    p256_mod_p_sqr(z_inv2, z_inv);
-    p256_mod_p_mul(z_inv3, z_inv2, z_inv);
-    p256_mod_p_mul(x_out, p->x, z_inv2);
-    p256_mod_p_mul(y_out, p->y, z_inv3);
-    syn_secure_zero(z_inv, sizeof(z_inv));
-    syn_secure_zero(z_inv2, sizeof(z_inv2));
-    syn_secure_zero(z_inv3, sizeof(z_inv3));
 }
 
 /**
@@ -555,7 +539,12 @@ __attribute__((noinline))
 static void
 point_add_mixed(P256_Point *r, const P256_Point *p, const bignum256 qx, const bignum256 qy)
 {
-    bignum256 z1_sqr, u2, z1_cube, s2, h, rr;
+    bignum256 z1_sqr;
+    bignum256 u2;
+    bignum256 z1_cube;
+    bignum256 s2;
+    bignum256 h;
+    bignum256 rr;
     p256_mod_p_sqr(z1_sqr, p->z);
     p256_mod_p_mul(u2, qx, z1_sqr);
 
@@ -577,7 +566,9 @@ point_add_mixed(P256_Point *r, const P256_Point *p, const bignum256 qx, const bi
     /* LCOV_EXCL_STOP */
 
     P256_Point out;
-    bignum256 h2, h3, u1_h2;
+    bignum256 h2;
+    bignum256 h3;
+    bignum256 u1_h2;
     p256_mod_p_sqr(h2, h);
     p256_mod_p_mul(h3, h2, h);
     p256_mod_p_mul(u1_h2, p->x, h2);
@@ -589,7 +580,8 @@ point_add_mixed(P256_Point *r, const P256_Point *p, const bignum256 qx, const bi
     p256_mod_p_sub(out.x, out.x, u1_h2);
 
     /* Y' = R * (U1 * H^2 - X') - S1 * H^3 */
-    bignum256 t, s1_h3;
+    bignum256 t;
+    bignum256 s1_h3;
     p256_mod_p_sub(t, u1_h2, out.x);
     p256_mod_p_mul(out.y, rr, t);
     p256_mod_p_mul(s1_h3, p->y, h3);
@@ -689,55 +681,278 @@ point_add(P256_Point *r, const P256_Point *p, const P256_Point *q)
     *r = out;
 }
 
-/**
- * @brief Constant-time Windowed Scalar Multiplication: k * P (where P is affine (px, py)).
- * @param[out] r Output Jacobian point.
- * @param[in] k Scalar factor.
- * @param[in] px Affine base point X coordinate.
- * @param[in] py Affine base point Y coordinate.
- */
-static void point_scalar_mul_affine(P256_Point *r, const bignum256 k, const bignum256 px,
-                                    const bignum256 py)
+/* ── Resumable Cooperative Engine ────────────────────────────────────────── */
+
+/** @cond INTERNAL */
+typedef enum { P256_OP_MUL = 1U, P256_OP_SIGN = 2U, P256_OP_VERIFY = 3U } P256_OpKind;
+
+static bool p256_pt_args_ok(const SYN_PT *pt, const SYN_P256_Ctx *ctx, uint8_t expected_op)
 {
-    point_set_infinity(r);
-
-    /* Precompute table: table[0] = 1*P, ..., table[14] = 15*P (nibble 0 uses Infinity directly) */
-    P256_Point table[15];
-
-    bn_copy(table[0].x, px);
-    bn_copy(table[0].y, py);
-    memset(table[0].z, 0, sizeof(table[0].z));
-    table[0].z[0] = 1U;
-    table[0].infinity = false;
-
-    for (int i = 1; i < 15; i++) {
-        point_add_mixed(&table[i], &table[i - 1], px, py);
-    }
-
-    /* Process all 64 4-bit nibbles in constant time without secret-dependent branching */
-    for (int n = 63; n >= 0; n--) {
-        point_double(r, r);
-        point_double(r, r);
-        point_double(r, r);
-        point_double(r, r);
-
-        uint32_t nibble = (k[n / 8] >> ((n % 8) * 4)) & 0x0FU;
-
-        /* Constant-time select from Infinity (0) or table[0..14] (1..15) based on nibble */
-        P256_Point term;
-        point_set_infinity(&term);
-        for (uint32_t v = 1U; v < 16U; v++) {
-            uint32_t match = (uint32_t)(nibble == v);
-            uint32_t mask = 0U - match;
-            point_cmov(&term, &table[v - 1U], mask);
-        }
-        point_add(r, r, &term);
-        syn_secure_zero(&term, sizeof(term));
-    }
-    syn_secure_zero(table, sizeof(table));
+    return (pt != NULL) && (ctx != NULL) && ctx->active && (ctx->op == expected_op);
 }
 
+static bool p256_scalar_in_range(const bignum256 k)
+{
+    return !bn_is_zero(k) && (bn_cmp(k, P256_N) < 0);
+}
+
+static SYN_PT_Status p256_precomp_w2_pt(SYN_PT *pt, SYN_P256_Ctx *ctx)
+{
+    PT_BEGIN(pt);
+
+    bn_copy(ctx->table[0].x, ctx->px);
+    bn_copy(ctx->table[0].y, ctx->py);
+    bn_copy(ctx->table[0].z, BN_ONE);
+    ctx->table[0].infinity = false;
+    point_double(&ctx->table[1], &ctx->table[0]);
+    PT_CONTINUE(pt);
+
+    point_add_mixed(&ctx->table[2], &ctx->table[1], ctx->px, ctx->py);
+    point_set_infinity(&ctx->acc);
+    PT_CONTINUE(pt);
+
+    PT_END(pt);
+}
+
+static void p256_scalar_w2_add(SYN_P256_Ctx *ctx)
+{
+    uint32_t win = 127U - (uint32_t)ctx->idx;
+    uint32_t bits = (ctx->k1[win / 16U] >> ((win % 16U) * 2U)) & 0x03U;
+    P256_Point term;
+    point_set_infinity(&term);
+    for (uint32_t v = 1U; v <= 3U; v++) {
+        uint32_t mask = 0U - (uint32_t)(bits == v);
+        point_cmov(&term, &ctx->table[v - 1U], mask);
+    }
+    point_add(&ctx->acc, &ctx->acc, &term);
+    syn_secure_zero(&term, sizeof(term));
+}
+
+static SYN_PT_Status p256_scalar_w2_pt(SYN_PT *pt, SYN_P256_Ctx *ctx)
+{
+    PT_BEGIN(pt);
+    for (ctx->idx = 0U; ctx->idx < 128U; ctx->idx++) {
+        point_double(&ctx->acc, &ctx->acc);
+        point_double(&ctx->acc, &ctx->acc);
+        PT_CONTINUE(pt);
+
+        p256_scalar_w2_add(ctx);
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static SYN_PT_Status p256_inv_z_pt(SYN_PT *pt, SYN_P256_Ctx *ctx)
+{
+    PT_BEGIN(pt);
+    bn_copy(ctx->inv_res, BN_ONE);
+    bn_copy(ctx->inv_base, ctx->acc.z);
+    for (ctx->idx = 0U; ctx->idx < 64U; ctx->idx++) {
+        p256_inv_p_nibble(ctx->inv_res, ctx->inv_base, ctx->idx);
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static SYN_PT_Status p256_inv_n_pt(SYN_PT *pt, SYN_P256_Ctx *ctx)
+{
+    PT_BEGIN(pt);
+    for (ctx->idx = 0U; ctx->idx < 64U; ctx->idx++) {
+        p256_inv_n_nibble(ctx->inv_res, ctx->inv_base, ctx->idx);
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static void p256_affine_from_inv_z(const SYN_P256_Ctx *ctx, bignum256 out_x, bignum256 out_y)
+{
+    bignum256 z_inv2;
+    bignum256 z_inv3;
+    p256_mod_p_sqr(z_inv2, ctx->inv_res);
+    p256_mod_p_mul(z_inv3, z_inv2, ctx->inv_res);
+    p256_mod_p_mul(out_x, ctx->acc.x, z_inv2);
+    p256_mod_p_mul(out_y, ctx->acc.y, z_inv3);
+    syn_secure_zero(z_inv2, sizeof(z_inv2));
+    syn_secure_zero(z_inv3, sizeof(z_inv3));
+}
+
+static void p256_mul_finish(const SYN_P256_Ctx *ctx, uint8_t rx[SYN_P256_BYTE_LEN],
+                            uint8_t ry[SYN_P256_BYTE_LEN])
+{
+    bignum256 out_x;
+    bignum256 out_y;
+    p256_affine_from_inv_z(ctx, out_x, out_y);
+    bn_to_bytes(rx, out_x);
+    if (ry != NULL) {
+        bn_to_bytes(ry, out_y);
+    }
+    syn_secure_zero(out_x, sizeof(out_x));
+    syn_secure_zero(out_y, sizeof(out_y));
+}
+
+static void p256_drbg_rfc6979_round(SYN_P256_Ctx *ctx, uint8_t sep)
+{
+#if SYN_HMAC_DRBG_ENABLED
+    uint8_t priv_bytes[SYN_P256_BYTE_LEN];
+    uint8_t h1_reduced[SYN_P256_BYTE_LEN];
+    SYN_HMAC_SHA256 hmac;
+
+    bn_to_bytes(priv_bytes, ctx->k2);
+    bn_to_bytes(h1_reduced, ctx->aux);
+
+    if (sep == 0x00U) {
+        (void)memset(ctx->drbg.k, 0x00, sizeof(ctx->drbg.k));
+        (void)memset(ctx->drbg.v, 0x01, sizeof(ctx->drbg.v));
+        ctx->drbg.reseed_interval = SYN_HMAC_DRBG_DEFAULT_RESEED_INTERVAL;
+    }
+
+    syn_hmac_sha256_init(&hmac, ctx->drbg.k, sizeof(ctx->drbg.k));
+    syn_hmac_sha256_update(&hmac, ctx->drbg.v, sizeof(ctx->drbg.v));
+    syn_hmac_sha256_update(&hmac, &sep, 1U);
+    syn_hmac_sha256_update(&hmac, priv_bytes, SYN_P256_BYTE_LEN);
+    syn_hmac_sha256_update(&hmac, h1_reduced, SYN_P256_BYTE_LEN);
+    syn_hmac_sha256_final(&hmac, ctx->drbg.k);
+    syn_secure_zero(&hmac, sizeof(hmac));
+    syn_secure_zero(priv_bytes, sizeof(priv_bytes));
+    syn_secure_zero(h1_reduced, sizeof(h1_reduced));
+
+    syn_hmac_sha256(ctx->drbg.k, sizeof(ctx->drbg.k), ctx->drbg.v, sizeof(ctx->drbg.v),
+                    ctx->drbg.v);
+
+    if (sep == 0x01U) {
+        ctx->drbg.reseed_counter = 1U;
+        ctx->drbg.initialized = true;
+    }
+#else
+    (void)ctx;
+    (void)sep;
+#endif
+}
+
+static void p256_sign_drbg_draw(SYN_P256_Ctx *ctx)
+{
+#if SYN_HMAC_DRBG_ENABLED
+    uint8_t nonce_bytes[SYN_P256_BYTE_LEN];
+    (void)syn_hmac_drbg_generate(&ctx->drbg, nonce_bytes, sizeof(nonce_bytes), NULL, 0U);
+    bn_from_bytes(ctx->k1, nonce_bytes);
+    syn_secure_zero(nonce_bytes, sizeof(nonce_bytes));
+#else
+    (void)ctx;
+#endif
+}
+
+static void p256_sign_prep_inv_n(SYN_P256_Ctx *ctx)
+{
+    bignum256 rx;
+    bignum256 ry;
+    p256_affine_from_inv_z(ctx, rx, ry);
+    p256_reduce_once_mod_n(rx);
+    bn_copy(ctx->py, rx);
+    p256_inv_n_start(ctx->inv_res, ctx->inv_base, ctx->k1);
+    syn_secure_zero(rx, sizeof(rx));
+    syn_secure_zero(ry, sizeof(ry));
+}
+
+static void p256_sign_rs_num(SYN_P256_Ctx *ctx)
+{
+    bignum256 xr;
+    bignum256 num_sub;
+    p256_mod_n_mul(xr, ctx->k2, ctx->py);
+    uint32_t carry = bn_add_raw(ctx->inv_base, ctx->aux, xr);
+    uint32_t borrow = bn_sub_raw(num_sub, ctx->inv_base, P256_N);
+    bn_cmov(ctx->inv_base, num_sub, carry | (1U ^ borrow));
+    syn_secure_zero(xr, sizeof(xr));
+    syn_secure_zero(num_sub, sizeof(num_sub));
+}
+
+static bool p256_sign_rs_fin(const SYN_P256_Ctx *ctx, uint8_t r_out[SYN_P256_BYTE_LEN],
+                             uint8_t s_out[SYN_P256_BYTE_LEN])
+{
+    bignum256 k_inv;
+    bignum256 s;
+    p256_mont_mul_n(k_inv, ctx->inv_res, BN_ONE);
+    p256_mod_n_mul(s, k_inv, ctx->inv_base);
+
+    bool ok = (((uint32_t)bn_is_zero(ctx->py) | (uint32_t)bn_is_zero(s)) == 0U);
+    if (ok) {
+        bn_to_bytes(r_out, ctx->py);
+        bn_to_bytes(s_out, s);
+    }
+    syn_secure_zero(k_inv, sizeof(k_inv));
+    syn_secure_zero(s, sizeof(s));
+    return ok;
+}
+
+static void p256_verify_shamir_scalars(SYN_P256_Ctx *ctx)
+{
+    bignum256 w;
+    p256_mont_mul_n(w, ctx->inv_res, BN_ONE);
+    p256_mod_n_mul(ctx->k1, ctx->k1, w);
+    p256_mod_n_mul(ctx->k2, ctx->aux, w);
+    syn_secure_zero(w, sizeof(w));
+}
+
+static void p256_verify_shamir_table(SYN_P256_Ctx *ctx)
+{
+    bn_copy(ctx->table[0].x, P256_GX);
+    bn_copy(ctx->table[0].y, P256_GY);
+    bn_copy(ctx->table[0].z, BN_ONE);
+    ctx->table[0].infinity = false;
+
+    bn_copy(ctx->table[1].x, ctx->px);
+    bn_copy(ctx->table[1].y, ctx->py);
+    bn_copy(ctx->table[1].z, BN_ONE);
+    ctx->table[1].infinity = false;
+
+    point_add(&ctx->table[2], &ctx->table[0], &ctx->table[1]);
+    point_set_infinity(&ctx->acc);
+}
+
+static void p256_verify_shamir_add(SYN_P256_Ctx *ctx)
+{
+    uint32_t bit = 255U - (uint32_t)ctx->idx;
+    uint32_t b1 = (ctx->k1[bit / 32U] >> (bit % 32U)) & 1U;
+    uint32_t b2 = (ctx->k2[bit / 32U] >> (bit % 32U)) & 1U;
+    uint32_t sel = b1 | (b2 << 1U);
+    if (sel != 0U) {
+        point_add(&ctx->acc, &ctx->acc, &ctx->table[sel - 1U]);
+    }
+}
+
+static SYN_PT_Status p256_verify_shamir_pt(SYN_PT *pt, SYN_P256_Ctx *ctx)
+{
+    PT_BEGIN(pt);
+    for (ctx->idx = 0U; ctx->idx < 256U; ctx->idx++) {
+        point_double(&ctx->acc, &ctx->acc);
+        PT_CONTINUE(pt);
+
+        p256_verify_shamir_add(ctx);
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+static bool p256_verify_check_r(const SYN_P256_Ctx *ctx)
+{
+    bignum256 rx;
+    bignum256 ry;
+    p256_affine_from_inv_z(ctx, rx, ry);
+    p256_reduce_once_mod_n(rx);
+    bool valid = (bn_cmp(rx, ctx->aux) == 0);
+    syn_secure_zero(rx, sizeof(rx));
+    syn_secure_zero(ry, sizeof(ry));
+    return valid;
+}
+/** @endcond */
+
 /* ── Public API Implementation ───────────────────────────────────────────── */
+
+void syn_p256_wipe(SYN_P256_Ctx *ctx)
+{
+    if (ctx != NULL) {
+        syn_secure_zero(ctx, sizeof(*ctx));
+    }
+}
 
 bool syn_p256_is_on_curve(const uint8_t px[SYN_P256_BYTE_LEN], const uint8_t py[SYN_P256_BYTE_LEN])
 {
@@ -745,7 +960,8 @@ bool syn_p256_is_on_curve(const uint8_t px[SYN_P256_BYTE_LEN], const uint8_t py[
         return false;
     }
 
-    bignum256 x, y;
+    bignum256 x;
+    bignum256 y;
     bn_from_bytes(x, px);
     bn_from_bytes(y, py);
 
@@ -758,7 +974,9 @@ bool syn_p256_is_on_curve(const uint8_t px[SYN_P256_BYTE_LEN], const uint8_t py[
     p256_mod_p_sqr(lhs, y);
 
     /* Right hand side: x^3 - 3x + b mod p */
-    bignum256 rhs, x3, three_x;
+    bignum256 rhs;
+    bignum256 x3;
+    bignum256 three_x;
     p256_mod_p_sqr(x3, x);
     p256_mod_p_mul(x3, x3, x);
 
@@ -771,33 +989,262 @@ bool syn_p256_is_on_curve(const uint8_t px[SYN_P256_BYTE_LEN], const uint8_t py[
     return (bn_cmp(lhs, rhs) == 0);
 }
 
+bool syn_p256_base_mul_init(SYN_P256_Ctx *ctx, const uint8_t scalar[SYN_P256_BYTE_LEN])
+{
+    if (ctx == NULL || scalar == NULL) {
+        return false;
+    }
+    syn_p256_wipe(ctx);
+    bn_from_bytes(ctx->k1, scalar);
+    if (!p256_scalar_in_range(ctx->k1)) {
+        syn_p256_wipe(ctx);
+        return false;
+    }
+    bn_copy(ctx->px, P256_GX);
+    bn_copy(ctx->py, P256_GY);
+    ctx->op = (uint8_t)P256_OP_MUL;
+    ctx->active = true;
+    return true;
+}
+
+bool syn_p256_point_mul_init(SYN_P256_Ctx *ctx, const uint8_t scalar[SYN_P256_BYTE_LEN],
+                             const uint8_t px[SYN_P256_BYTE_LEN],
+                             const uint8_t py[SYN_P256_BYTE_LEN])
+{
+    if (ctx == NULL || scalar == NULL || px == NULL || py == NULL ||
+        !syn_p256_is_on_curve(px, py)) {
+        return false;
+    }
+    syn_p256_wipe(ctx);
+    bn_from_bytes(ctx->k1, scalar);
+    if (!p256_scalar_in_range(ctx->k1)) {
+        syn_p256_wipe(ctx);
+        return false;
+    }
+    bn_from_bytes(ctx->px, px);
+    bn_from_bytes(ctx->py, py);
+    ctx->op = (uint8_t)P256_OP_MUL;
+    ctx->active = true;
+    return true;
+}
+
+SYN_PT_Status syn_p256_mul_pt(SYN_PT *pt, SYN_P256_Ctx *ctx, uint8_t rx[SYN_P256_BYTE_LEN],
+                              uint8_t ry[SYN_P256_BYTE_LEN])
+{
+    if (!p256_pt_args_ok(pt, ctx, (uint8_t)P256_OP_MUL) || rx == NULL) {
+        if (ctx != NULL) {
+            syn_p256_wipe(ctx);
+        }
+        return PT_EXITED;
+    }
+
+    PT_BEGIN(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, p256_precomp_w2_pt(&ctx->sub_pt, ctx));
+    PT_SPAWN(pt, &ctx->sub_pt, p256_scalar_w2_pt(&ctx->sub_pt, ctx));
+    PT_SPAWN(pt, &ctx->sub_pt, p256_inv_z_pt(&ctx->sub_pt, ctx));
+    p256_mul_finish(ctx, rx, ry);
+    syn_p256_wipe(ctx);
+
+    PT_END(pt);
+}
+
+bool syn_p256_sign_init(SYN_P256_Ctx *ctx, const uint8_t priv_key[SYN_P256_BYTE_LEN],
+                        const uint8_t nonce_k[SYN_P256_BYTE_LEN],
+                        const uint8_t hash[SYN_P256_BYTE_LEN])
+{
+    if (ctx == NULL || priv_key == NULL || nonce_k == NULL || hash == NULL) {
+        return false;
+    }
+    syn_p256_wipe(ctx);
+    bn_from_bytes(ctx->k2, priv_key);
+    if (!p256_scalar_in_range(ctx->k2)) {
+        syn_p256_wipe(ctx);
+        return false;
+    }
+    bn_from_bytes(ctx->k1, nonce_k);
+    if (!p256_scalar_in_range(ctx->k1)) {
+        syn_p256_wipe(ctx);
+        return false;
+    }
+    bn_from_bytes(ctx->aux, hash);
+    p256_reduce_once_mod_n(ctx->aux);
+    ctx->op = (uint8_t)P256_OP_SIGN;
+    ctx->max_attempts = 1U;
+    ctx->use_drbg = false;
+    ctx->active = true;
+    return true;
+}
+
+bool syn_p256_sign_deterministic_init(SYN_P256_Ctx *ctx, const uint8_t priv_key[SYN_P256_BYTE_LEN],
+                                      const uint8_t hash[SYN_P256_BYTE_LEN])
+{
+#if SYN_HMAC_DRBG_ENABLED
+    if (ctx == NULL || priv_key == NULL || hash == NULL) {
+        return false;
+    }
+    syn_p256_wipe(ctx);
+    bn_from_bytes(ctx->k2, priv_key);
+    if (!p256_scalar_in_range(ctx->k2)) {
+        syn_p256_wipe(ctx);
+        return false;
+    }
+
+    bn_from_bytes(ctx->aux, hash);
+    p256_reduce_once_mod_n(ctx->aux);
+
+    ctx->op = (uint8_t)P256_OP_SIGN;
+    ctx->max_attempts = 100U;
+    ctx->use_drbg = true;
+    ctx->active = true;
+    return true;
+#else
+    (void)ctx;
+    (void)priv_key;
+    (void)hash;
+    return false;
+#endif
+}
+
+SYN_PT_Status syn_p256_sign_pt(SYN_PT *pt, SYN_P256_Ctx *ctx, uint8_t r_out[SYN_P256_BYTE_LEN],
+                               uint8_t s_out[SYN_P256_BYTE_LEN], bool *out_ok)
+{
+    if (out_ok != NULL) {
+        *out_ok = false;
+    }
+    if (!p256_pt_args_ok(pt, ctx, (uint8_t)P256_OP_SIGN) || r_out == NULL || s_out == NULL ||
+        out_ok == NULL) {
+        if (ctx != NULL) {
+            syn_p256_wipe(ctx);
+        }
+        return PT_EXITED;
+    }
+
+    PT_BEGIN(pt);
+
+    if (ctx->use_drbg) {
+        p256_drbg_rfc6979_round(ctx, 0x00U);
+        PT_CONTINUE(pt);
+        p256_drbg_rfc6979_round(ctx, 0x01U);
+        PT_CONTINUE(pt);
+    }
+
+    while (ctx->attempts < ctx->max_attempts) {
+        ctx->attempts++;
+        if (ctx->use_drbg) {
+            p256_sign_drbg_draw(ctx);
+            PT_CONTINUE(pt);
+        }
+        if (!p256_scalar_in_range(ctx->k1)) {
+            continue;
+        }
+
+        bn_copy(ctx->px, P256_GX);
+        bn_copy(ctx->py, P256_GY);
+        PT_SPAWN(pt, &ctx->sub_pt, p256_precomp_w2_pt(&ctx->sub_pt, ctx));
+        PT_SPAWN(pt, &ctx->sub_pt, p256_scalar_w2_pt(&ctx->sub_pt, ctx));
+        PT_SPAWN(pt, &ctx->sub_pt, p256_inv_z_pt(&ctx->sub_pt, ctx));
+
+        p256_sign_prep_inv_n(ctx);
+        PT_CONTINUE(pt);
+
+        PT_SPAWN(pt, &ctx->sub_pt, p256_inv_n_pt(&ctx->sub_pt, ctx));
+        p256_sign_rs_num(ctx);
+        PT_CONTINUE(pt);
+        if (p256_sign_rs_fin(ctx, r_out, s_out)) {
+            ctx->ok = true;
+            break;
+        }
+    }
+
+    if (out_ok != NULL) {
+        *out_ok = ctx->ok;
+    }
+    syn_p256_wipe(ctx);
+
+    PT_END(pt);
+}
+
+bool syn_p256_verify_init(SYN_P256_Ctx *ctx, const uint8_t hash[SYN_P256_BYTE_LEN],
+                          const uint8_t r[SYN_P256_BYTE_LEN], const uint8_t s[SYN_P256_BYTE_LEN],
+                          const uint8_t pub_x[SYN_P256_BYTE_LEN],
+                          const uint8_t pub_y[SYN_P256_BYTE_LEN])
+{
+    if (ctx == NULL || hash == NULL || r == NULL || s == NULL || pub_x == NULL || pub_y == NULL ||
+        !syn_p256_is_on_curve(pub_x, pub_y)) {
+        return false;
+    }
+    syn_p256_wipe(ctx);
+    bignum256 bn_s;
+    bn_from_bytes(ctx->aux, r);
+    bn_from_bytes(bn_s, s);
+    if (!p256_scalar_in_range(ctx->aux) || !p256_scalar_in_range(bn_s)) {
+        syn_secure_zero(bn_s, sizeof(bn_s));
+        syn_p256_wipe(ctx);
+        return false;
+    }
+
+    bn_from_bytes(ctx->k1, hash);
+    p256_reduce_once_mod_n(ctx->k1);
+    bn_from_bytes(ctx->px, pub_x);
+    bn_from_bytes(ctx->py, pub_y);
+    p256_inv_n_start(ctx->inv_res, ctx->inv_base, bn_s);
+    syn_secure_zero(bn_s, sizeof(bn_s));
+
+    ctx->op = (uint8_t)P256_OP_VERIFY;
+    ctx->active = true;
+    return true;
+}
+
+SYN_PT_Status syn_p256_verify_pt(SYN_PT *pt, SYN_P256_Ctx *ctx, bool *out_valid)
+{
+    if (out_valid != NULL) {
+        *out_valid = false;
+    }
+    if (!p256_pt_args_ok(pt, ctx, (uint8_t)P256_OP_VERIFY) || out_valid == NULL) {
+        if (ctx != NULL) {
+            syn_p256_wipe(ctx);
+        }
+        return PT_EXITED;
+    }
+
+    PT_BEGIN(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, p256_inv_n_pt(&ctx->sub_pt, ctx));
+
+    p256_verify_shamir_scalars(ctx);
+    PT_CONTINUE(pt);
+
+    p256_verify_shamir_table(ctx);
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, p256_verify_shamir_pt(&ctx->sub_pt, ctx));
+
+    if (ctx->acc.infinity) {
+        *out_valid = false;
+    } else {
+        PT_SPAWN(pt, &ctx->sub_pt, p256_inv_z_pt(&ctx->sub_pt, ctx));
+        *out_valid = p256_verify_check_r(ctx);
+    }
+    syn_p256_wipe(ctx);
+
+    PT_END(pt);
+}
+
 bool syn_p256_base_mul(const uint8_t scalar[SYN_P256_BYTE_LEN], uint8_t pub_x[SYN_P256_BYTE_LEN],
                        uint8_t pub_y[SYN_P256_BYTE_LEN])
 {
-    if (scalar == NULL || pub_x == NULL || pub_y == NULL) {
+    if (pub_x == NULL || pub_y == NULL) {
         return false;
     }
-
-    bignum256 k;
-    bn_from_bytes(k, scalar);
-
-    if (bn_is_zero(k) || bn_cmp(k, P256_N) >= 0) {
-        syn_secure_zero(k, sizeof(k));
+    SYN_P256_Ctx ctx;
+    SYN_PT pt;
+    if (!syn_p256_base_mul_init(&ctx, scalar)) {
         return false;
     }
-
-    P256_Point res;
-    point_scalar_mul_affine(&res, k, P256_GX, P256_GY);
-
-    bignum256 rx, ry;
-    point_to_affine(&res, rx, ry);
-
-    bn_to_bytes(pub_x, rx);
-    bn_to_bytes(pub_y, ry);
-    syn_secure_zero(k, sizeof(k));
-    syn_secure_zero(&res, sizeof(res));
-    syn_secure_zero(rx, sizeof(rx));
-    syn_secure_zero(ry, sizeof(ry));
+    PT_INIT(&pt);
+    while (syn_p256_mul_pt(&pt, &ctx, pub_x, pub_y) == PT_MORE) {
+    }
     return true;
 }
 
@@ -805,42 +1252,17 @@ bool syn_p256_point_mul(const uint8_t scalar[SYN_P256_BYTE_LEN],
                         const uint8_t px[SYN_P256_BYTE_LEN], const uint8_t py[SYN_P256_BYTE_LEN],
                         uint8_t rx[SYN_P256_BYTE_LEN], uint8_t ry[SYN_P256_BYTE_LEN])
 {
-    if (scalar == NULL || px == NULL || py == NULL || rx == NULL || ry == NULL) {
+    if (rx == NULL || ry == NULL) {
         return false;
     }
-
-    if (!syn_p256_is_on_curve(px, py)) {
+    SYN_P256_Ctx ctx;
+    SYN_PT pt;
+    if (!syn_p256_point_mul_init(&ctx, scalar, px, py)) {
         return false;
     }
-
-    bignum256 k;
-    bn_from_bytes(k, scalar);
-
-    if (bn_is_zero(k) || bn_cmp(k, P256_N) >= 0) {
-        syn_secure_zero(k, sizeof(k));
-        return false;
+    PT_INIT(&pt);
+    while (syn_p256_mul_pt(&pt, &ctx, rx, ry) == PT_MORE) {
     }
-
-    bignum256 ax;
-    bignum256 ay;
-    bn_from_bytes(ax, px);
-    bn_from_bytes(ay, py);
-
-    P256_Point res;
-    point_scalar_mul_affine(&res, k, ax, ay);
-
-    bignum256 out_x;
-    bignum256 out_y;
-    point_to_affine(&res, out_x, out_y);
-
-    bn_to_bytes(rx, out_x);
-    bn_to_bytes(ry, out_y);
-    syn_secure_zero(k, sizeof(k));
-    syn_secure_zero(ax, sizeof(ax));
-    syn_secure_zero(ay, sizeof(ay));
-    syn_secure_zero(&res, sizeof(res));
-    syn_secure_zero(out_x, sizeof(out_x));
-    syn_secure_zero(out_y, sizeof(out_y));
     return true;
 }
 
@@ -849,13 +1271,19 @@ bool syn_p256_ecdh(const uint8_t priv_key[SYN_P256_BYTE_LEN],
                    const uint8_t peer_pub_y[SYN_P256_BYTE_LEN],
                    uint8_t shared_secret[SYN_P256_BYTE_LEN])
 {
-    uint8_t dummy_y[SYN_P256_BYTE_LEN];
-    bool ok = syn_p256_point_mul(priv_key, peer_pub_x, peer_pub_y, shared_secret, dummy_y);
-    if (!ok && shared_secret != NULL) {
-        syn_secure_zero(shared_secret, SYN_P256_BYTE_LEN);
+    if (shared_secret == NULL) {
+        return false;
     }
-    syn_secure_zero(dummy_y, sizeof(dummy_y));
-    return ok;
+    SYN_P256_Ctx ctx;
+    SYN_PT pt;
+    if (!syn_p256_point_mul_init(&ctx, priv_key, peer_pub_x, peer_pub_y)) {
+        syn_secure_zero(shared_secret, SYN_P256_BYTE_LEN);
+        return false;
+    }
+    PT_INIT(&pt);
+    while (syn_p256_mul_pt(&pt, &ctx, shared_secret, NULL) == PT_MORE) {
+    }
+    return true;
 }
 
 bool syn_p256_sign_ecdsa(const uint8_t priv_key[SYN_P256_BYTE_LEN],
@@ -863,68 +1291,18 @@ bool syn_p256_sign_ecdsa(const uint8_t priv_key[SYN_P256_BYTE_LEN],
                          const uint8_t hash[SYN_P256_BYTE_LEN], uint8_t r_out[SYN_P256_BYTE_LEN],
                          uint8_t s_out[SYN_P256_BYTE_LEN])
 {
-    if (priv_key == NULL || nonce_k == NULL || hash == NULL || r_out == NULL || s_out == NULL) {
+    if (r_out == NULL || s_out == NULL) {
         return false;
     }
-
-    bignum256 d;
-    bn_from_bytes(d, priv_key);
-    if (bn_is_zero(d) || bn_cmp(d, P256_N) >= 0) {
-        syn_secure_zero(d, sizeof(d));
+    SYN_P256_Ctx ctx;
+    SYN_PT pt;
+    bool ok = false;
+    if (!syn_p256_sign_init(&ctx, priv_key, nonce_k, hash)) {
         return false;
     }
-
-    /* 1. R = k * G, r = R.x mod n */
-    uint8_t rx[SYN_P256_BYTE_LEN];
-    uint8_t ry[SYN_P256_BYTE_LEN];
-    if (!syn_p256_base_mul(nonce_k, rx, ry)) {
-        syn_secure_zero(d, sizeof(d));
-        return false;
+    PT_INIT(&pt);
+    while (syn_p256_sign_pt(&pt, &ctx, r_out, s_out, &ok) == PT_MORE) {
     }
-
-    bignum256 bn_r;
-    bn_from_bytes(bn_r, rx);
-    p256_reduce_once_mod_n(bn_r);
-
-    /* 2. s = k^-1 * (e + d * r) mod n */
-    bignum256 k;
-    bignum256 k_inv;
-    bignum256 e;
-    bignum256 xr;
-    bignum256 num;
-    bignum256 num_sub;
-    bignum256 s;
-    bn_from_bytes(k, nonce_k);
-    p256_mod_n_inv(k_inv, k);
-
-    bn_from_bytes(e, hash);
-    p256_reduce_once_mod_n(e);
-
-    p256_mod_n_mul(xr, d, bn_r);
-
-    /* num = (e + d * r) mod n */
-    uint32_t carry = bn_add_raw(num, e, xr);
-    uint32_t borrow = bn_sub_raw(num_sub, num, P256_N);
-    bn_cmov(num, num_sub, carry | (1U ^ borrow));
-
-    p256_mod_n_mul(s, k_inv, num);
-    bool ok = (((uint32_t)bn_is_zero(bn_r) | (uint32_t)bn_is_zero(s)) == 0U);
-    if (ok) {
-        bn_to_bytes(r_out, bn_r);
-        bn_to_bytes(s_out, s);
-    }
-
-    syn_secure_zero(rx, sizeof(rx));
-    syn_secure_zero(ry, sizeof(ry));
-    syn_secure_zero(bn_r, sizeof(bn_r));
-    syn_secure_zero(d, sizeof(d));
-    syn_secure_zero(k, sizeof(k));
-    syn_secure_zero(k_inv, sizeof(k_inv));
-    syn_secure_zero(e, sizeof(e));
-    syn_secure_zero(xr, sizeof(xr));
-    syn_secure_zero(num, sizeof(num));
-    syn_secure_zero(num_sub, sizeof(num_sub));
-    syn_secure_zero(s, sizeof(s));
     return ok;
 }
 
@@ -933,54 +1311,19 @@ bool syn_p256_sign_ecdsa_deterministic(const uint8_t priv_key[SYN_P256_BYTE_LEN]
                                        uint8_t r_out[SYN_P256_BYTE_LEN],
                                        uint8_t s_out[SYN_P256_BYTE_LEN])
 {
-#if SYN_HMAC_DRBG_ENABLED
-    if (priv_key == NULL || hash == NULL || r_out == NULL || s_out == NULL) {
+    if (r_out == NULL || s_out == NULL) {
         return false;
     }
-
-    bignum256 d;
-    bn_from_bytes(d, priv_key);
-    if (bn_is_zero(d) || bn_cmp(d, P256_N) >= 0) {
-        syn_secure_zero(d, sizeof(d));
+    SYN_P256_Ctx ctx;
+    SYN_PT pt;
+    bool ok = false;
+    if (!syn_p256_sign_deterministic_init(&ctx, priv_key, hash)) {
         return false;
     }
-    syn_secure_zero(d, sizeof(d));
-
-    /* RFC 6979 Section 2.3.4 bits2octets(h1): reduce hash modulo n before HMAC-DRBG init */
-    bignum256 h1;
-    uint8_t h1_reduced[SYN_P256_BYTE_LEN];
-    bn_from_bytes(h1, hash);
-    p256_reduce_once_mod_n(h1);
-    bn_to_bytes(h1_reduced, h1);
-    syn_secure_zero(h1, sizeof(h1));
-
-    SYN_HMAC_DRBG drbg;
-    (void)syn_hmac_drbg_init(&drbg, priv_key, SYN_P256_BYTE_LEN, h1_reduced, SYN_P256_BYTE_LEN,
-                             NULL, 0U);
-
-    uint8_t nonce_k[SYN_P256_BYTE_LEN];
-    bool success = false;
-
-    for (uint32_t attempts = 0U; attempts < 100U; attempts++) {
-        (void)syn_hmac_drbg_generate(&drbg, nonce_k, sizeof(nonce_k), NULL, 0U);
-
-        if (syn_p256_sign_ecdsa(priv_key, nonce_k, h1_reduced, r_out, s_out)) {
-            success = true;
-            break;
-        }
+    PT_INIT(&pt);
+    while (syn_p256_sign_pt(&pt, &ctx, r_out, s_out, &ok) == PT_MORE) {
     }
-
-    syn_hmac_drbg_wipe(&drbg);
-    syn_secure_zero(h1_reduced, sizeof(h1_reduced));
-    syn_secure_zero(nonce_k, sizeof(nonce_k));
-    return success;
-#else
-    (void)priv_key;
-    (void)hash;
-    (void)r_out;
-    (void)s_out;
-    return false;
-#endif
+    return ok;
 }
 
 bool syn_p256_verify_ecdsa(const uint8_t hash[SYN_P256_BYTE_LEN],
@@ -988,60 +1331,16 @@ bool syn_p256_verify_ecdsa(const uint8_t hash[SYN_P256_BYTE_LEN],
                            const uint8_t pub_x[SYN_P256_BYTE_LEN],
                            const uint8_t pub_y[SYN_P256_BYTE_LEN])
 {
-    if (hash == NULL || r == NULL || s == NULL || pub_x == NULL || pub_y == NULL) {
+    SYN_P256_Ctx ctx;
+    SYN_PT pt;
+    bool valid = false;
+    if (!syn_p256_verify_init(&ctx, hash, r, s, pub_x, pub_y)) {
         return false;
     }
-
-    if (!syn_p256_is_on_curve(pub_x, pub_y)) {
-        return false;
+    PT_INIT(&pt);
+    while (syn_p256_verify_pt(&pt, &ctx, &valid) == PT_MORE) {
     }
-
-    bignum256 bn_r, bn_s;
-    bn_from_bytes(bn_r, r);
-    bn_from_bytes(bn_s, s);
-
-    /* FIPS 186-4: Verify that r and s are in [1, n-1] */
-    if (bn_is_zero(bn_r) || bn_cmp(bn_r, P256_N) >= 0 || bn_is_zero(bn_s) ||
-        bn_cmp(bn_s, P256_N) >= 0) {
-        return false;
-    }
-
-    bignum256 e;
-    bn_from_bytes(e, hash);
-    p256_reduce_once_mod_n(e);
-
-    /* w = s^-1 mod n */
-    bignum256 w;
-    p256_mod_n_inv(w, bn_s);
-
-    /* u1 = e * w mod n */
-    bignum256 u1;
-    p256_mod_n_mul(u1, e, w);
-
-    /* u2 = r * w mod n */
-    bignum256 u2;
-    p256_mod_n_mul(u2, bn_r, w);
-
-    /* Compute R = u1 * G + u2 * Q */
-    bignum256 qx, qy;
-    bn_from_bytes(qx, pub_x);
-    bn_from_bytes(qy, pub_y);
-
-    P256_Point p1, p2, res_pt;
-    point_scalar_mul_affine(&p1, u1, P256_GX, P256_GY);
-    point_scalar_mul_affine(&p2, u2, qx, qy);
-    point_add(&res_pt, &p1, &p2);
-
-    if (res_pt.infinity) {
-        return false;
-    }
-
-    bignum256 rx;
-    bignum256 ry;
-    point_to_affine(&res_pt, rx, ry);
-    p256_reduce_once_mod_n(rx);
-
-    return (bn_cmp(rx, bn_r) == 0);
+    return valid;
 }
 
 #endif /* SYN_P256_ENABLED */

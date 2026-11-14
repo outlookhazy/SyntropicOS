@@ -8,6 +8,7 @@
 #include "syntropic/crypto/syn_p256.h"
 #include "syntropic/crypto/syn_sha256.h"
 #include "syntropic/crypto/syn_x509.h"
+#include "syntropic/sched/syn_sched.h"
 #include "unity/unity.h"
 
 #include <string.h>
@@ -1398,6 +1399,181 @@ void test_tier_a_asn1_x509_strict_checks(void)
     TEST_ASSERT_FALSE(syn_x509_parse(der, dlen, &cert));
 }
 
+typedef struct {
+    SYN_PT child_pt;
+    SYN_X509_VerifyCtx vctx;
+    bool valid;
+    uint32_t completed;
+} X509VerifyTaskCtx;
+
+static SYN_PT_Status x509_verify_parent_task(SYN_PT *pt, SYN_Task *task)
+{
+    X509VerifyTaskCtx *t = (X509VerifyTaskCtx *)task->user_data;
+    PT_BEGIN(pt);
+    PT_SPAWN_IF_NEEDED(pt, task, &t->child_pt,
+                       syn_x509_verify_pt(&t->child_pt, &t->vctx, &t->valid));
+    t->completed++;
+    PT_END(pt);
+}
+
+static SYN_PT_Status x509_peer_more_task(SYN_PT *pt, SYN_Task *task)
+{
+    uint32_t *runs = (uint32_t *)task->user_data;
+    (*runs)++;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+void test_x509_resumable_verify_and_chain(void)
+{
+    static const uint8_t tbs_payload[] = "SyntropicOS Resumable X509 TBS Payload";
+    uint8_t ed_seed[32] = {0x11, 0x22, 0x33, 0x44};
+    uint8_t ed_pub[32];
+    uint8_t ed_sec[32];
+    uint8_t ed_sig[64];
+    TEST_ASSERT_TRUE(syn_ed25519_create_keypair(ed_pub, ed_sec, ed_seed));
+    TEST_ASSERT_TRUE(
+        syn_ed25519_sign(tbs_payload, sizeof(tbs_payload) - 1U, ed_sec, ed_pub, ed_sig));
+
+    SYN_X509_Cert ed_leaf;
+    SYN_X509_Cert ed_ca;
+    memset(&ed_leaf, 0, sizeof(ed_leaf));
+    memset(&ed_ca, 0, sizeof(ed_ca));
+    ed_leaf.tbs_bytes = tbs_payload;
+    ed_leaf.tbs_len = sizeof(tbs_payload) - 1U;
+    ed_leaf.sig_algo = SYN_X509_ALGO_ED25519;
+    ed_leaf.signature_len = 64U;
+    memcpy(ed_leaf.signature, ed_sig, 64U);
+    strncpy(ed_leaf.subject_cn, "leaf.local", sizeof(ed_leaf.subject_cn) - 1U);
+    strncpy(ed_leaf.issuer_cn, "Root CA", sizeof(ed_leaf.issuer_cn) - 1U);
+
+    ed_ca.is_ca = true;
+    ed_ca.pubkey_algo = SYN_X509_ALGO_ED25519;
+    ed_ca.pubkey_len = 32U;
+    memcpy(ed_ca.pubkey, ed_pub, 32U);
+    strncpy(ed_ca.subject_cn, "Root CA", sizeof(ed_ca.subject_cn) - 1U);
+
+    SYN_X509_VerifyCtx vctx;
+    SYN_PT pt;
+    bool valid = false;
+
+    syn_x509_verify_wipe(NULL);
+    memset(&vctx, 0, sizeof(vctx));
+
+    /* Parameter and metadata failure guards */
+    TEST_ASSERT_FALSE(
+        syn_x509_verify_signature_init(NULL, &ed_leaf, ed_pub, 32U, SYN_X509_ALGO_ED25519));
+    TEST_ASSERT_FALSE(
+        syn_x509_verify_signature_init(&vctx, NULL, ed_pub, 32U, SYN_X509_ALGO_ED25519));
+    TEST_ASSERT_FALSE(
+        syn_x509_verify_signature_init(&vctx, &ed_leaf, NULL, 32U, SYN_X509_ALGO_ED25519));
+    TEST_ASSERT_FALSE(
+        syn_x509_verify_signature_init(&vctx, &ed_leaf, ed_pub, 16U, SYN_X509_ALGO_ED25519));
+    ed_leaf.sig_algo = SYN_X509_ALGO_RSA_PSS;
+    TEST_ASSERT_FALSE(
+        syn_x509_verify_signature_init(&vctx, &ed_leaf, ed_pub, 32U, SYN_X509_ALGO_RSA_PSS));
+    ed_leaf.sig_algo = SYN_X509_ALGO_ED25519;
+
+    ed_leaf.signature[63] = 0xE0U; /* non-canonical S >= L */
+    TEST_ASSERT_FALSE(
+        syn_x509_verify_signature_init(&vctx, &ed_leaf, ed_pub, 32U, SYN_X509_ALGO_ED25519));
+    memcpy(ed_leaf.signature, ed_sig, 64U);
+
+    TEST_ASSERT_FALSE(syn_x509_validate_chain_init(&vctx, &ed_leaf, &ed_ca, "wrong.local"));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_x509_verify_pt(&pt, &vctx, &valid));
+
+    /* Ed25519 chain validation via PT after zeroing parsed cert structs */
+    SYN_X509_Cert tmp_leaf = ed_leaf;
+    SYN_X509_Cert tmp_ca = ed_ca;
+    TEST_ASSERT_TRUE(syn_x509_validate_chain_init(&vctx, &tmp_leaf, &tmp_ca, "leaf.local"));
+    memset(&tmp_leaf, 0, sizeof(tmp_leaf));
+    memset(&tmp_ca, 0, sizeof(tmp_ca));
+
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_x509_verify_pt(NULL, &vctx, &valid));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_x509_verify_pt(&pt, NULL, &valid));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_x509_verify_pt(&pt, &vctx, NULL));
+
+    PT_INIT(&pt);
+    while (syn_x509_verify_pt(&pt, &vctx, &valid) == PT_MORE) {
+    }
+    TEST_ASSERT_TRUE(valid);
+    TEST_ASSERT_FALSE(vctx.active);
+
+    /* Regression (Item 1): child Ed25519 verify aborts -> syn_x509_verify_pt must return PT_EXITED
+     * and out_valid false */
+    TEST_ASSERT_TRUE(syn_x509_validate_chain_init(&vctx, &ed_leaf, &ed_ca, "leaf.local"));
+    vctx.op.ed25519.active = false; /* force child abort */
+    valid = true;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_x509_verify_pt(&pt, &vctx, &valid));
+    TEST_ASSERT_FALSE(valid);
+
+    /* ECDSA-P256 signature verification via PT */
+    static const uint8_t p256_priv[32] = {0xC9, 0xAF, 0xA9, 0xD8, 0x45, 0xBA, 0x75, 0x16,
+                                          0x6B, 0x5C, 0x21, 0x57, 0x67, 0xB1, 0xD6, 0x93,
+                                          0x4E, 0x50, 0xC3, 0xDB, 0x36, 0xE8, 0x9B, 0x12,
+                                          0x7B, 0x8A, 0x62, 0x2B, 0x12, 0x0F, 0x67, 0x21};
+    uint8_t p256_pub[65];
+    uint8_t tbs_hash[32];
+    uint8_t sig_r[32];
+    uint8_t sig_s[32];
+    p256_pub[0] = 0x04U;
+    TEST_ASSERT_TRUE(syn_p256_base_mul(p256_priv, &p256_pub[1], &p256_pub[33]));
+    syn_sha256(tbs_payload, sizeof(tbs_payload) - 1U, tbs_hash);
+    TEST_ASSERT_TRUE(syn_p256_sign_ecdsa_deterministic(p256_priv, tbs_hash, sig_r, sig_s));
+
+    SYN_X509_Cert ec_leaf;
+    memset(&ec_leaf, 0, sizeof(ec_leaf));
+    ec_leaf.tbs_bytes = tbs_payload;
+    ec_leaf.tbs_len = sizeof(tbs_payload) - 1U;
+    ec_leaf.sig_algo = SYN_X509_ALGO_ECDSA_P256;
+    ec_leaf.signature_len = encode_der_ecdsa_sig(sig_r, sig_s, ec_leaf.signature);
+
+    TEST_ASSERT_FALSE(
+        syn_x509_verify_signature_init(&vctx, &ec_leaf, p256_pub, 32U, SYN_X509_ALGO_ECDSA_P256));
+
+    uint8_t zero_sig[64] = {0};
+    SYN_X509_Cert bad_ec = ec_leaf;
+    memcpy(bad_ec.signature, zero_sig, 64U);
+    bad_ec.signature_len = 64U;
+    TEST_ASSERT_FALSE(
+        syn_x509_verify_signature_init(&vctx, &bad_ec, p256_pub, 65U, SYN_X509_ALGO_ECDSA_P256));
+
+    TEST_ASSERT_TRUE(
+        syn_x509_verify_signature_init(&vctx, &ec_leaf, p256_pub, 65U, SYN_X509_ALGO_ECDSA_P256));
+    valid = false;
+    PT_INIT(&pt);
+    while (syn_x509_verify_pt(&pt, &vctx, &valid) == PT_MORE) {
+    }
+    TEST_ASSERT_TRUE(valid);
+
+    /* PT_SPAWN_IF_NEEDED under SYN_Sched with contended peer */
+    X509VerifyTaskCtx tctx;
+    memset(&tctx, 0, sizeof(tctx));
+    TEST_ASSERT_TRUE(syn_x509_verify_signature_init(&tctx.vctx, &ec_leaf, p256_pub, 65U,
+                                                    SYN_X509_ALGO_ECDSA_P256));
+
+    uint32_t peer_runs = 0U;
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    syn_task_create(&tasks[0], "x509v", x509_verify_parent_task, SYN_PRIO_HIGH, &tctx);
+    syn_task_create(&tasks[1], "peer", x509_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(0U, tctx.completed);
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&tctx.child_pt));
+    while (tctx.completed == 0U) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_GREATER_THAN_UINT32(500U, peer_runs);
+    TEST_ASSERT_TRUE(tctx.valid);
+}
+
 void run_asn1_x509_tests(void)
 {
     RUN_TEST(test_asn1_basic_tlv_parse);
@@ -1410,4 +1586,5 @@ void run_asn1_x509_tests(void)
     RUN_TEST(test_x509_edge_cases_and_corrupt_structures);
     RUN_TEST(test_r5_n03_n04_asn1_der_and_x509_constraints_ecdsa_der);
     RUN_TEST(test_tier_a_asn1_x509_strict_checks);
+    RUN_TEST(test_x509_resumable_verify_and_chain);
 }

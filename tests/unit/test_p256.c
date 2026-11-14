@@ -4,6 +4,7 @@
  */
 
 #include "syntropic/crypto/syn_p256.h"
+#include "syntropic/sched/syn_sched.h"
 #include "unity/unity.h"
 
 #include <string.h>
@@ -346,10 +347,195 @@ void test_tier_a_p256_ct_and_rfc6979_bounds(void)
     TEST_ASSERT_EQUAL_HEX8_ARRAY(zero_key, secret, 32);
 }
 
+typedef struct {
+    SYN_PT child_pt;
+    SYN_P256_Ctx p_ctx;
+    bool valid;
+    uint32_t completed;
+} P256VerifyTaskCtx;
+
+static SYN_PT_Status p256_verify_parent_task(SYN_PT *pt, SYN_Task *task)
+{
+    P256VerifyTaskCtx *t = (P256VerifyTaskCtx *)task->user_data;
+    PT_BEGIN(pt);
+    PT_SPAWN_IF_NEEDED(pt, task, &t->child_pt,
+                       syn_p256_verify_pt(&t->child_pt, &t->p_ctx, &t->valid));
+    t->completed++;
+    PT_END(pt);
+}
+
+static SYN_PT_Status p256_peer_more_task(SYN_PT *pt, SYN_Task *task)
+{
+    uint32_t *runs = (uint32_t *)task->user_data;
+    (*runs)++;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+void test_p256_resumable_steps_and_pt(void)
+{
+    static const uint8_t PRIV[32] = {0xC9, 0xAF, 0xA9, 0xD8, 0x45, 0xBA, 0x75, 0x16,
+                                     0x6B, 0x5C, 0x21, 0x57, 0x67, 0xB1, 0xD6, 0x93,
+                                     0x4E, 0x50, 0xC3, 0xDB, 0x36, 0xE8, 0x9B, 0x12,
+                                     0x7B, 0x8A, 0x62, 0x2B, 0x12, 0x0F, 0x67, 0x21};
+    static const uint8_t HASH[32] = {0xAF, 0x2B, 0xDB, 0xE1, 0xAA, 0x9B, 0x6E, 0xC1,
+                                     0xE2, 0xAD, 0xE1, 0xD6, 0x94, 0xF4, 0x1F, 0xC7,
+                                     0x1A, 0x83, 0x1D, 0x02, 0x68, 0xE9, 0x89, 0x15,
+                                     0x62, 0x11, 0x3D, 0x8A, 0x62, 0xAD, 0xD1, 0xBF};
+    uint8_t zero[32] = {0};
+    uint8_t exp_x[32];
+    uint8_t exp_y[32];
+    uint8_t out_x[32];
+    uint8_t out_y[32];
+    uint8_t r_exp[32];
+    uint8_t s_exp[32];
+    uint8_t r_out[32];
+    uint8_t s_out[32];
+    SYN_P256_Ctx ctx;
+    SYN_PT pt;
+
+    TEST_ASSERT_TRUE(syn_p256_base_mul(PRIV, exp_x, exp_y));
+    TEST_ASSERT_TRUE(syn_p256_sign_ecdsa_deterministic(PRIV, HASH, r_exp, s_exp));
+
+    syn_p256_wipe(NULL);
+    memset(&ctx, 0, sizeof(ctx));
+
+    /* Parameter guards */
+    TEST_ASSERT_FALSE(syn_p256_base_mul_init(NULL, PRIV));
+    TEST_ASSERT_FALSE(syn_p256_point_mul_init(NULL, PRIV, exp_x, exp_y));
+
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_mul_pt(&pt, &ctx, out_x, out_y));
+
+    TEST_ASSERT_TRUE(syn_p256_base_mul_init(&ctx, PRIV));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_mul_pt(NULL, &ctx, out_x, out_y));
+    TEST_ASSERT_FALSE(ctx.active);
+    TEST_ASSERT_TRUE(syn_p256_base_mul_init(&ctx, PRIV));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_mul_pt(&pt, NULL, out_x, out_y));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_mul_pt(&pt, &ctx, NULL, out_y));
+    TEST_ASSERT_FALSE(ctx.active);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_sign_pt(&pt, &ctx, r_out, s_out, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_verify_pt(&pt, &ctx, NULL));
+
+    /* Step-by-step protothread base_mul */
+    TEST_ASSERT_TRUE(syn_p256_base_mul_init(&ctx, PRIV));
+    PT_INIT(&pt);
+    uint32_t yields = 0U;
+    while (syn_p256_mul_pt(&pt, &ctx, out_x, out_y) == PT_MORE) {
+        yields++;
+    }
+    TEST_ASSERT_EQUAL_UINT32(322U, yields); /* 2 precomp + 256 scalar + 64 inv_z */
+    TEST_ASSERT_FALSE(ctx.active);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(exp_x, out_x, 32);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(exp_y, out_y, 32);
+
+    /* Point mul via PT with NULL ry (ECDH mode) */
+    uint8_t exp_ecdh[32];
+    TEST_ASSERT_TRUE(syn_p256_ecdh(PRIV, exp_x, exp_y, exp_ecdh));
+    TEST_ASSERT_TRUE(syn_p256_point_mul_init(&ctx, PRIV, exp_x, exp_y));
+    PT_INIT(&pt);
+    while (syn_p256_mul_pt(&pt, &ctx, out_x, NULL) == PT_MORE) {
+    }
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(exp_ecdh, out_x, 32);
+
+    /* Deterministic sign via PT */
+    TEST_ASSERT_FALSE(syn_p256_sign_init(NULL, PRIV, PRIV, HASH));
+    TEST_ASSERT_FALSE(syn_p256_sign_deterministic_init(NULL, PRIV, HASH));
+
+    TEST_ASSERT_TRUE(syn_p256_sign_deterministic_init(&ctx, PRIV, HASH));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_mul_pt(&pt, &ctx, out_x, out_y));
+
+    bool sign_ok = false;
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_sign_pt(NULL, &ctx, r_out, s_out, &sign_ok));
+    TEST_ASSERT_FALSE(ctx.active);
+    TEST_ASSERT_TRUE(syn_p256_sign_deterministic_init(&ctx, PRIV, HASH));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_sign_pt(&pt, NULL, r_out, s_out, &sign_ok));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_sign_pt(&pt, &ctx, NULL, s_out, &sign_ok));
+    TEST_ASSERT_FALSE(ctx.active);
+    TEST_ASSERT_TRUE(syn_p256_sign_deterministic_init(&ctx, PRIV, HASH));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_sign_pt(&pt, &ctx, r_out, NULL, &sign_ok));
+    TEST_ASSERT_FALSE(ctx.active);
+    TEST_ASSERT_TRUE(syn_p256_sign_deterministic_init(&ctx, PRIV, HASH));
+    PT_INIT(&pt);
+    while (syn_p256_sign_pt(&pt, &ctx, r_out, s_out, &sign_ok) == PT_MORE) {
+    }
+    TEST_ASSERT_TRUE(sign_ok);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(r_exp, r_out, 32);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(s_exp, s_out, 32);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_sign_pt(&pt, &ctx, r_out, s_out, NULL));
+
+    /* RFC 6979 DRBG out-of-range candidate retry branch (line 1139) */
+    TEST_ASSERT_TRUE(syn_p256_sign_deterministic_init(&ctx, PRIV, HASH));
+    ctx.max_attempts = 2U;
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_MORE, syn_p256_sign_pt(&pt, &ctx, r_out, s_out, &sign_ok));
+    TEST_ASSERT_EQUAL(PT_MORE, syn_p256_sign_pt(&pt, &ctx, r_out, s_out, &sign_ok));
+    TEST_ASSERT_EQUAL(PT_MORE, syn_p256_sign_pt(&pt, &ctx, r_out, s_out, &sign_ok));
+    memset(ctx.k1, 0, sizeof(ctx.k1));
+    while (syn_p256_sign_pt(&pt, &ctx, r_out, s_out, &sign_ok) == PT_MORE) {
+    }
+    TEST_ASSERT_TRUE(sign_ok);
+
+    /* Validation: syn_p256_sign_init rejects invalid nonce_k (zero or >= n) */
+    TEST_ASSERT_FALSE(syn_p256_sign_init(&ctx, PRIV, zero, HASH));
+    TEST_ASSERT_FALSE(ctx.active);
+    uint8_t bad_k[32];
+    memset(bad_k, 0xFF, sizeof(bad_k));
+    TEST_ASSERT_FALSE(syn_p256_sign_init(&ctx, PRIV, bad_k, HASH));
+    TEST_ASSERT_FALSE(ctx.active);
+
+    /* Verify via PT */
+    bool valid = false;
+    TEST_ASSERT_FALSE(syn_p256_verify_init(NULL, HASH, r_exp, s_exp, exp_x, exp_y));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_verify_pt(&pt, &ctx, &valid));
+
+    TEST_ASSERT_TRUE(syn_p256_verify_init(&ctx, HASH, r_exp, s_exp, exp_x, exp_y));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_verify_pt(NULL, &ctx, &valid));
+    TEST_ASSERT_FALSE(ctx.active);
+    TEST_ASSERT_TRUE(syn_p256_verify_init(&ctx, HASH, r_exp, s_exp, exp_x, exp_y));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_verify_pt(&pt, NULL, &valid));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_p256_verify_pt(&pt, &ctx, NULL));
+    TEST_ASSERT_FALSE(ctx.active);
+
+    TEST_ASSERT_TRUE(syn_p256_verify_init(&ctx, HASH, r_exp, s_exp, exp_x, exp_y));
+    PT_INIT(&pt);
+    yields = 0U;
+    while (syn_p256_verify_pt(&pt, &ctx, &valid) == PT_MORE) {
+        yields++;
+    }
+    TEST_ASSERT_GREATER_THAN_UINT32(500U, yields);
+    TEST_ASSERT_TRUE(valid);
+
+    /* PT_SPAWN_IF_NEEDED under SYN_Sched with contended peer */
+    P256VerifyTaskCtx tctx;
+    memset(&tctx, 0, sizeof(tctx));
+    TEST_ASSERT_TRUE(syn_p256_verify_init(&tctx.p_ctx, HASH, r_exp, s_exp, exp_x, exp_y));
+
+    uint32_t peer_runs = 0U;
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    syn_task_create(&tasks[0], "p256v", p256_verify_parent_task, SYN_PRIO_HIGH, &tctx);
+    syn_task_create(&tasks[1], "peer", p256_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(0U, tctx.completed);
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&tctx.child_pt));
+    while (tctx.completed == 0U) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_GREATER_THAN_UINT32(500U, peer_runs);
+    TEST_ASSERT_TRUE(tctx.valid);
+}
+
 void run_p256_tests(void)
 {
     RUN_TEST(test_p256_base_mul_and_curve_validation);
     RUN_TEST(test_p256_ecdh_rfc5903_test_vector);
     RUN_TEST(test_p256_ecdsa_verify_rfc6979_test_vectors);
     RUN_TEST(test_tier_a_p256_ct_and_rfc6979_bounds);
+    RUN_TEST(test_p256_resumable_steps_and_pt);
 }

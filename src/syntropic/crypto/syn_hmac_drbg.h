@@ -62,7 +62,7 @@ extern "C" {
 #define SYN_HMAC_DRBG_MIN_ENTROPY_LEN 32U
 
 /** @brief Maximum output bytes allowed per generate request (2^19 bits = 64 KiB). */
-#define SYN_HMAC_DRBG_MAX_REQUEST_BYTES 65536U
+#define SYN_HMAC_DRBG_MAX_REQUEST_BYTES 65536UL
 
 /** @brief Default maximum number of generate requests before a reseed is required. */
 #define SYN_HMAC_DRBG_DEFAULT_RESEED_INTERVAL 10000U

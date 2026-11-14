@@ -4,6 +4,7 @@
  */
 
 #include "syntropic/crypto/syn_ed25519.h"
+#include "syntropic/sched/syn_sched.h"
 #include "unity/unity.h"
 
 #include <string.h>
@@ -249,6 +250,179 @@ void test_tier_a_ed25519_rfc8032_canonical_checks(void)
     TEST_ASSERT_FALSE(syn_ed25519_verify(sig, NULL, 0U, pos_zero_pk));
 }
 
+typedef struct {
+    SYN_PT child_pt;
+    SYN_Ed25519_Ctx ed_ctx;
+    bool valid;
+    uint32_t completed;
+} Ed25519VerifyTaskCtx;
+
+static SYN_PT_Status ed25519_verify_parent_task(SYN_PT *pt, SYN_Task *task)
+{
+    Ed25519VerifyTaskCtx *t = (Ed25519VerifyTaskCtx *)task->user_data;
+    PT_BEGIN(pt);
+    PT_SPAWN_IF_NEEDED(pt, task, &t->child_pt,
+                       syn_ed25519_verify_pt(&t->child_pt, &t->ed_ctx, &t->valid));
+    t->completed++;
+    PT_END(pt);
+}
+
+static SYN_PT_Status ed25519_peer_more_task(SYN_PT *pt, SYN_Task *task)
+{
+    uint32_t *runs = (uint32_t *)task->user_data;
+    (*runs)++;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_CONTINUE(pt);
+    }
+    PT_END(pt);
+}
+
+void test_ed25519_resumable_steps_and_pt(void)
+{
+    static const uint8_t SK[32] = {0x9d, 0x61, 0xb1, 0x9d, 0xef, 0xfd, 0x5a, 0x60, 0xba, 0x84, 0x4a,
+                                   0xf4, 0x92, 0xec, 0x2c, 0xc4, 0x44, 0x49, 0xc5, 0x69, 0x7b, 0x32,
+                                   0x69, 0x19, 0x70, 0x3b, 0xac, 0x03, 0x1c, 0xae, 0x7f, 0x60};
+    uint8_t msg[600];
+    for (size_t i = 0U; i < sizeof(msg); i++) {
+        msg[i] = (uint8_t)(i & 0xFFU);
+    }
+
+    uint8_t exp_pk[32];
+    uint8_t out_pk[32];
+    uint8_t exp_sig[64];
+    uint8_t out_sig[64];
+    SYN_Ed25519_Ctx ctx;
+    SYN_PT pt;
+
+    TEST_ASSERT_TRUE(syn_ed25519_publickey(SK, exp_pk));
+    TEST_ASSERT_TRUE(syn_ed25519_sign(msg, sizeof(msg), SK, exp_pk, exp_sig));
+
+    syn_ed25519_wipe(NULL);
+    memset(&ctx, 0, sizeof(ctx));
+
+    /* Public key guards + PT */
+    TEST_ASSERT_FALSE(syn_ed25519_publickey_init(NULL, SK));
+    TEST_ASSERT_FALSE(syn_ed25519_publickey_init(&ctx, NULL));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_publickey_pt(&pt, &ctx, out_pk));
+
+    TEST_ASSERT_TRUE(syn_ed25519_publickey_init(&ctx, SK));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_publickey_pt(NULL, &ctx, out_pk));
+    TEST_ASSERT_FALSE(ctx.active);
+    TEST_ASSERT_TRUE(syn_ed25519_publickey_init(&ctx, SK));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_publickey_pt(&pt, NULL, out_pk));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_publickey_pt(&pt, &ctx, NULL));
+    TEST_ASSERT_FALSE(ctx.active);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_sign_pt(&pt, &ctx, out_sig));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_verify_pt(&pt, &ctx, NULL));
+
+    TEST_ASSERT_TRUE(syn_ed25519_publickey_init(&ctx, SK));
+    PT_INIT(&pt);
+    uint32_t yields = 0U;
+    while (syn_ed25519_publickey_pt(&pt, &ctx, out_pk) == PT_MORE) {
+        yields++;
+    }
+    TEST_ASSERT_EQUAL_UINT32(641U, yields); /* 1 setup + 512 ladder + 127 inv + 1 pack */
+    TEST_ASSERT_FALSE(ctx.active);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(exp_pk, out_pk, 32);
+
+    /* Sign guards + PT (with NULL public_key and explicit public_key) */
+    TEST_ASSERT_FALSE(syn_ed25519_sign_init(NULL, msg, sizeof(msg), SK, exp_pk));
+    TEST_ASSERT_FALSE(syn_ed25519_sign_init(&ctx, NULL, 1U, SK, exp_pk));
+    TEST_ASSERT_FALSE(syn_ed25519_sign_init(&ctx, msg, sizeof(msg), NULL, exp_pk));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_sign_pt(&pt, &ctx, out_sig));
+
+    TEST_ASSERT_TRUE(syn_ed25519_sign_init(&ctx, msg, sizeof(msg), SK, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_publickey_pt(&pt, &ctx, out_pk));
+    TEST_ASSERT_FALSE(ctx.active);
+    TEST_ASSERT_TRUE(syn_ed25519_sign_init(&ctx, msg, sizeof(msg), SK, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_sign_pt(NULL, &ctx, out_sig));
+    TEST_ASSERT_FALSE(ctx.active);
+    TEST_ASSERT_TRUE(syn_ed25519_sign_init(&ctx, msg, sizeof(msg), SK, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_sign_pt(&pt, NULL, out_sig));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_sign_pt(&pt, &ctx, NULL));
+    TEST_ASSERT_FALSE(ctx.active);
+
+    TEST_ASSERT_TRUE(syn_ed25519_sign_init(&ctx, msg, sizeof(msg), SK, NULL));
+    PT_INIT(&pt);
+    while (syn_ed25519_sign_pt(&pt, &ctx, out_sig) == PT_MORE) {
+    }
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(exp_sig, out_sig, 64);
+
+    memset(out_sig, 0, sizeof(out_sig));
+    TEST_ASSERT_TRUE(syn_ed25519_sign_init(&ctx, msg, sizeof(msg), SK, exp_pk));
+    PT_INIT(&pt);
+    while (syn_ed25519_sign_pt(&pt, &ctx, out_sig) == PT_MORE) {
+    }
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(exp_sig, out_sig, 64);
+
+    /* Verify & verify_hash guards + PT */
+    bool valid = false;
+    uint8_t h_digest[64];
+    SYN_SHA512 sha;
+    syn_sha512_init(&sha);
+    syn_sha512_update(&sha, exp_sig, 32U);
+    syn_sha512_update(&sha, exp_pk, 32U);
+    syn_sha512_update(&sha, msg, sizeof(msg));
+    syn_sha512_final(&sha, h_digest);
+    TEST_ASSERT_TRUE(syn_ed25519_verify_hash(exp_sig, h_digest, exp_pk));
+
+    uint8_t bad_sig[64];
+    memcpy(bad_sig, exp_sig, sizeof(bad_sig));
+    bad_sig[63] = 0xE0U;
+    uint8_t bad_pk[32];
+    memset(bad_pk, 0xFFU, sizeof(bad_pk));
+
+    TEST_ASSERT_FALSE(syn_ed25519_verify_init(NULL, exp_sig, msg, sizeof(msg), exp_pk));
+    TEST_ASSERT_FALSE(syn_ed25519_verify_hash_init(NULL, exp_sig, h_digest, exp_pk));
+    TEST_ASSERT_FALSE(syn_ed25519_verify_hash_init(&ctx, bad_sig, h_digest, exp_pk));
+    TEST_ASSERT_FALSE(syn_ed25519_verify_hash_init(&ctx, exp_sig, h_digest, bad_pk));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_verify_pt(&pt, &ctx, &valid));
+
+    TEST_ASSERT_TRUE(syn_ed25519_verify_init(&ctx, exp_sig, msg, sizeof(msg), exp_pk));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_verify_pt(NULL, &ctx, &valid));
+    TEST_ASSERT_FALSE(ctx.active);
+    TEST_ASSERT_TRUE(syn_ed25519_verify_init(&ctx, exp_sig, msg, sizeof(msg), exp_pk));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_verify_pt(&pt, NULL, &valid));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_ed25519_verify_pt(&pt, &ctx, NULL));
+    TEST_ASSERT_FALSE(ctx.active);
+
+    TEST_ASSERT_TRUE(syn_ed25519_verify_init(&ctx, exp_sig, msg, sizeof(msg), exp_pk));
+    PT_INIT(&pt);
+    while (syn_ed25519_verify_pt(&pt, &ctx, &valid) == PT_MORE) {
+    }
+    TEST_ASSERT_TRUE(valid);
+
+    valid = false;
+    TEST_ASSERT_TRUE(syn_ed25519_verify_hash_init(&ctx, exp_sig, h_digest, exp_pk));
+    PT_INIT(&pt);
+    while (syn_ed25519_verify_pt(&pt, &ctx, &valid) == PT_MORE) {
+    }
+    TEST_ASSERT_TRUE(valid);
+
+    /* PT_SPAWN_IF_NEEDED under SYN_Sched with contended peer */
+    Ed25519VerifyTaskCtx tctx;
+    memset(&tctx, 0, sizeof(tctx));
+    TEST_ASSERT_TRUE(syn_ed25519_verify_init(&tctx.ed_ctx, exp_sig, msg, sizeof(msg), exp_pk));
+
+    uint32_t peer_runs = 0U;
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    syn_task_create(&tasks[0], "ed25519v", ed25519_verify_parent_task, SYN_PRIO_HIGH, &tctx);
+    syn_task_create(&tasks[1], "peer", ed25519_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(0U, tctx.completed);
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&tctx.child_pt));
+    while (tctx.completed == 0U) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_GREATER_THAN_UINT32(600U, peer_runs);
+    TEST_ASSERT_TRUE(tctx.valid);
+}
+
 void run_ed25519_tests(void)
 {
     RUN_TEST(test_ed25519_rfc8032_test_vector_1);
@@ -257,4 +431,5 @@ void run_ed25519_tests(void)
     RUN_TEST(test_ed25519_create_keypair_and_roundtrip);
     RUN_TEST(test_ed25519_null_and_bounds_checks);
     RUN_TEST(test_tier_a_ed25519_rfc8032_canonical_checks);
+    RUN_TEST(test_ed25519_resumable_steps_and_pt);
 }
