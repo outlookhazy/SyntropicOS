@@ -29,6 +29,8 @@
 #include <avr/eeprom.h>
 #elif defined(ARDUINO_ARCH_ESP32)
 #include <pgmspace.h>
+#include <esp_netif.h>
+#include <syntropic/port/syn_port_socket.h>
 #include <syntropic/util/syn_random.h>
 #include <syntropic/crypto/syn_p256.h>
 #include <syntropic/crypto/syn_ed25519.h>
@@ -835,65 +837,6 @@ static uint8_t s_cli_sec[32];
 static uint8_t s_app_tx[512];
 static uint8_t s_app_rx[512];
 
-/* Lightweight in-memory UDP loopback hooks for syn_wg_task */
-static uint8_t s_wg_udp_tx_buf[256];
-static size_t s_wg_udp_tx_len = 0U;
-static uint8_t s_wg_udp_rx_buf[256];
-static size_t s_wg_udp_rx_len = 0U;
-static SYN_SockAddr s_wg_udp_rx_from;
-
-extern "C" {
-
-SYN_Socket syn_port_udp_open(uint16_t port)
-{
-    (void)port;
-    s_wg_udp_tx_len = 0U;
-    s_wg_udp_rx_len = 0U;
-    return 1;
-}
-
-int syn_port_udp_sendto(SYN_Socket sock, const void *data, size_t len, const SYN_SockAddr *to)
-{
-    (void)sock;
-    (void)to;
-    if (data == NULL || len > sizeof(s_wg_udp_tx_buf)) {
-        return -1;
-    }
-    memcpy(s_wg_udp_tx_buf, data, len);
-    s_wg_udp_tx_len = len;
-    return (int)len;
-}
-
-bool syn_port_udp_readable(SYN_Socket sock)
-{
-    (void)sock;
-    return (s_wg_udp_rx_len > 0U);
-}
-
-int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len, SYN_SockAddr *from,
-                          uint32_t timeout_ms)
-{
-    (void)sock;
-    (void)timeout_ms;
-    if (s_wg_udp_rx_len == 0U || buf == NULL) {
-        return 0;
-    }
-    size_t n = (s_wg_udp_rx_len < max_len) ? s_wg_udp_rx_len : max_len;
-    memcpy(buf, s_wg_udp_rx_buf, n);
-    s_wg_udp_rx_len = 0U;
-    if (from != NULL) {
-        *from = s_wg_udp_rx_from;
-    }
-    return (int)n;
-}
-
-void syn_port_sock_close(SYN_Socket sock)
-{
-    (void)sock;
-}
-
-} /* extern "C" */
-
 static bool hil_mem_send_stream(const uint8_t *data, size_t len, void *ctx)
 {
     HilEndpointPair *ep = (HilEndpointPair *)ctx;
@@ -1396,11 +1339,19 @@ static bool test_esp32_coop_protocol_budgets(uint32_t *out_tls_us, uint32_t *out
     syn_sched_set_profiler(&g_sched, NULL);
     bool ok_dtls = hil_check_budget(&prof, &g_sched, out_dtls_us);
 
-    /* 4. Cooperative WireGuard Noise_IKpsk2 Handshake + Tunnel Packet */
+    /* 4. Cooperative WireGuard Noise_IKpsk2 Handshake + Tunnel Packet over real lwIP UDP */
+    (void)esp_netif_init();
+    SYN_Socket wg_peer = syn_port_udp_open(15182U);
+    if (wg_peer == SYN_SOCKET_INVALID) {
+        return false;
+    }
+
     SYN_SNTP wg_sntp;
     SYN_WgConfig wg_cfg;
     uint8_t wg_srv_priv[32];
+    uint8_t wg_rx_pkt[256];
     uint8_t wg_resp[92];
+    SYN_SockAddr wg_cli_addr;
     memset(&wg_sntp, 0, sizeof(wg_sntp));
     wg_sntp.synced = true;
     wg_sntp.epoch_s = 1700001000U;
@@ -1413,17 +1364,18 @@ static bool test_esp32_coop_protocol_budgets(uint32_t *out_tls_us, uint32_t *out
     syn_x25519_clamp(wg_cfg.private_key);
     syn_x25519_pubkey(wg_cfg.peer_public_key, wg_srv_priv);
     memset(wg_cfg.preshared_key, 0x29, 32U);
-    wg_cfg.endpoint.ip[0] = 10U;
+    wg_cfg.endpoint.ip[0] = 127U;
     wg_cfg.endpoint.ip[3] = 1U;
-    wg_cfg.endpoint.port = 51820U;
+    wg_cfg.endpoint.port = 15182U;
 
     memset(&s_proto, 0, sizeof(s_proto));
     syn_wg_init(&s_proto.wg, &wg_cfg, &wg_sntp, s_c_rx, 512U, s_c_tx, 512U);
 
     (void)syn_task_profile_init(&prof);
-    syn_task_create(&g_tasks[0], "crit_ctrl", hil_crit_sentinel_task, SYN_PRIO_CRITICAL, NULL);
-    syn_task_create(&g_tasks[1], "wg_vpn", syn_wg_task, SYN_PRIO_HIGH, &s_proto.wg);
-    syn_task_create(&g_tasks[2], "contend_peer", hil_contend_peer_task, SYN_PRIO_HIGH, NULL);
+    /* Real lwIP UDP sockets preempt into ESP-IDF's prio-18 tcpip_thread (SYN_PRIO_HIGH = 5ms I/O budget) */
+    syn_task_create(&g_tasks[0], "io_ctrl", hil_crit_sentinel_task, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&g_tasks[1], "wg_vpn", syn_wg_task, SYN_PRIO_NORMAL, &s_proto.wg);
+    syn_task_create(&g_tasks[2], "contend_peer", hil_contend_peer_task, SYN_PRIO_NORMAL, NULL);
     syn_sched_init(&g_sched, g_tasks, 3U);
     syn_sched_set_profiler(&g_sched, &prof);
 
@@ -1431,28 +1383,44 @@ static bool test_esp32_coop_protocol_budgets(uint32_t *out_tls_us, uint32_t *out
     t0_ms = millis();
     while ((uint32_t)(millis() - t0_ms) < 6000UL && s_proto.wg.state != SYN_WG_ESTABLISHED) {
         (void)syn_sched_run(&g_sched);
-        if (s_proto.wg.state == SYN_WG_HANDSHAKE_INIT && !resp_injected &&
-            s_wg_udp_tx_len == 148U) {
-            if (!hil_wg_build_server_response(&wg_cfg, wg_srv_priv, s_wg_udp_tx_buf, wg_resp)) {
-                syn_sched_set_profiler(&g_sched, NULL);
-                return false;
+        if (s_proto.wg.state == SYN_WG_HANDSHAKE_INIT && !resp_injected) {
+            int got = syn_port_udp_recvfrom(wg_peer, wg_rx_pkt, sizeof(wg_rx_pkt), &wg_cli_addr, 0U);
+            if (got == 148) {
+                if (!hil_wg_build_server_response(&wg_cfg, wg_srv_priv, wg_rx_pkt, wg_resp) ||
+                    syn_port_udp_sendto(wg_peer, wg_resp, sizeof(wg_resp), &wg_cli_addr) !=
+                        (int)sizeof(wg_resp)) {
+                    syn_sched_set_profiler(&g_sched, NULL);
+                    syn_wg_disconnect(&s_proto.wg);
+                    syn_port_sock_close(wg_peer);
+                    return false;
+                }
+                resp_injected = true;
             }
-            memcpy(s_wg_udp_rx_buf, wg_resp, sizeof(wg_resp));
-            s_wg_udp_rx_len = sizeof(wg_resp);
-            s_wg_udp_rx_from = wg_cfg.endpoint;
-            resp_injected = true;
         }
     }
     syn_sched_set_profiler(&g_sched, NULL);
     if (s_proto.wg.state != SYN_WG_ESTABLISHED) {
+        syn_wg_disconnect(&s_proto.wg);
+        syn_port_sock_close(wg_peer);
         return false;
     }
-    s_wg_udp_tx_len = 0U;
-    if (syn_wg_send(&s_proto.wg, s_app_tx, 64U) != SYN_OK ||
-        s_wg_udp_tx_len != (64U + SYN_WG_TRANSPORT_OVERHEAD) ||
-        s_wg_udp_tx_buf[0] != SYN_WG_MSG_TRANSPORT) {
+    if (syn_wg_send(&s_proto.wg, s_app_tx, 64U) != SYN_OK) {
+        syn_wg_disconnect(&s_proto.wg);
+        syn_port_sock_close(wg_peer);
         return false;
     }
+    int tp_got = syn_port_udp_recvfrom(wg_peer, wg_rx_pkt, sizeof(wg_rx_pkt), &wg_cli_addr, 50U);
+    if (tp_got == (int)SYN_WG_TRANSPORT_OVERHEAD && wg_rx_pkt[0] == SYN_WG_MSG_TRANSPORT) {
+        /* Drain RFC keepalive datagram queued ahead of the 64B tunnel packet */
+        tp_got = syn_port_udp_recvfrom(wg_peer, wg_rx_pkt, sizeof(wg_rx_pkt), &wg_cli_addr, 50U);
+    }
+    if (tp_got != (int)(64U + SYN_WG_TRANSPORT_OVERHEAD) || wg_rx_pkt[0] != SYN_WG_MSG_TRANSPORT) {
+        syn_wg_disconnect(&s_proto.wg);
+        syn_port_sock_close(wg_peer);
+        return false;
+    }
+    syn_wg_disconnect(&s_proto.wg);
+    syn_port_sock_close(wg_peer);
 
     bool ok_wg = hil_check_budget(&prof, &g_sched, out_wg_us);
     return ok_dtls && ok_wg;

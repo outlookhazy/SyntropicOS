@@ -987,7 +987,9 @@ int syn_port_serial_read(uint8_t *buf, size_t max_len)
 /* ── Socket Port (Arduino Ethernet / W5500 / W5100 / ENC28J60) ───────────── */
 
 #ifndef SYN_ARDUINO_HAS_ETHERNET
-  #if __has_include(<Ethernet.h>) && __has_include(<utility/w5100.h>) && __has_include(<EthernetUdp.h>)
+  #if defined(ARDUINO_ARCH_ESP32)
+    #define SYN_ARDUINO_HAS_ETHERNET 0
+  #elif __has_include(<Ethernet.h>) && __has_include(<utility/w5100.h>) && __has_include(<EthernetUdp.h>)
     #define SYN_ARDUINO_HAS_ETHERNET 1
   #else
     #define SYN_ARDUINO_HAS_ETHERNET 0

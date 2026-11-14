@@ -10,9 +10,10 @@
  * (e.g. port_esp32.c for GPIO/timer/UART) to get full networking support.
  */
 
-#if !defined(ARDUINO)
-#if defined(__unix__) || defined(__APPLE__) || defined(ESP_PLATFORM) || defined(__ZEPHYR__) || \
-    defined(_POSIX_VERSION)
+#if !defined(ARDUINO) || (defined(ARDUINO_ARCH_ESP32) && \
+                          (!defined(SYN_ARDUINO_HAS_ETHERNET) || (SYN_ARDUINO_HAS_ETHERNET == 0)))
+#if defined(__unix__) || defined(__APPLE__) || defined(ESP_PLATFORM) || \
+    defined(ARDUINO_ARCH_ESP32) || defined(__ZEPHYR__) || defined(_POSIX_VERSION)
 
 #include "syntropic/port/syn_port_socket.h"
 
@@ -21,7 +22,11 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#if defined(ESP_PLATFORM) || defined(ARDUINO_ARCH_ESP32)
+#include <sys/poll.h>
+#else
 #include <poll.h>
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -394,4 +399,4 @@ SYN_Socket syn_port_sock_accept(SYN_Socket listener, uint32_t timeout_ms)
 }
 
 #endif /* POSIX platform guard */
-#endif /* !ARDUINO */
+#endif /* !ARDUINO || (ARDUINO_ARCH_ESP32 && !SYN_ARDUINO_HAS_ETHERNET) */
