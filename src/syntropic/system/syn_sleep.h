@@ -124,7 +124,7 @@ static inline void syn_sleep_init(SYN_Sleep *s, SYN_SleepMode max_depth)
 static inline void syn_sleep_lock(SYN_Sleep *s, uint32_t lock_id)
 {
     syn_port_enter_critical();
-    s->lock_mask |= lock_id;
+    s->lock_mask = s->lock_mask | lock_id;
     syn_port_exit_critical();
 }
 
@@ -139,7 +139,7 @@ static inline void syn_sleep_lock(SYN_Sleep *s, uint32_t lock_id)
 static inline void syn_sleep_unlock(SYN_Sleep *s, uint32_t lock_id)
 {
     syn_port_enter_critical();
-    s->lock_mask &= ~lock_id;
+    s->lock_mask = s->lock_mask & ~lock_id;
     syn_port_exit_critical();
 }
 

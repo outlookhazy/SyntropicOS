@@ -21,7 +21,11 @@
 #include <syntropic/output/syn_led.h>
 
 #define STATUS_LED_PIN 7
+#ifdef A15
 #define ADC_PIN        A15
+#else
+#define ADC_PIN        A0
+#endif
 
 /* ── Message Payload Structure ─────────────────────────────────────────── */
 

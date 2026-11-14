@@ -21,7 +21,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifndef __placement_new_implicitly_defined
+#if defined(__has_include) && __has_include(<new>)
+#include <new>
+#elif !defined(__placement_new_implicitly_defined)
   inline void* operator new(size_t, void* ptr) { return ptr; }
 #endif
 
@@ -34,6 +36,11 @@
 #elif defined(ARDUINO_ARCH_ESP32)
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_idf_version.h"
+#include "esp_random.h"
+#include "esp_task_wdt.h"
+#include "nvs.h"
+#include "nvs_flash.h"
 #endif
 
 /* ── System Port ────────────────────────────────────────────────────────── */
@@ -71,14 +78,14 @@ void syn_port_enter_critical(void)
     if (s_crit_depth[core] == 0U) {
         s_saved_irq[core] = status;
     }
-    s_crit_depth[core]++;
+    s_crit_depth[core] = s_crit_depth[core] + 1U;
 #elif defined(ARDUINO_ARCH_AVR) || defined(__AVR__)
     uint8_t sreg = SREG;
     noInterrupts();
     if (s_crit_depth == 0U) {
         s_saved_irq = sreg;
     }
-    s_crit_depth++;
+    s_crit_depth = s_crit_depth + 1U;
 #elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_SAM) || defined(CORE_TEENSY) || \
     defined(ARDUINO_ARCH_STM32) || defined(ARDUINO_ARCH_NRF52) || defined(ARDUINO_ARCH_MBED) || \
     defined(ARDUINO_ARCH_RENESAS) || defined(__ARM_ARCH_ISA_THUMB) || defined(__arm__) || \
@@ -89,23 +96,23 @@ void syn_port_enter_critical(void)
     if (s_crit_depth == 0U) {
         s_saved_irq = primask;
     }
-    s_crit_depth++;
+    s_crit_depth = s_crit_depth + 1U;
 #elif defined(__riscv)
     uint32_t mstatus = 0U;
     __asm__ volatile("csrrci %0, mstatus, 8" : "=r"(mstatus) :: "memory");
     if (s_crit_depth == 0U) {
         s_saved_irq = mstatus;
     }
-    s_crit_depth++;
+    s_crit_depth = s_crit_depth + 1U;
 #elif defined(ARDUINO_ARCH_ESP8266) || defined(__XTENSA__)
     uint32_t ps = xt_rsil(15);
     if (s_crit_depth == 0U) {
         s_saved_irq = ps;
     }
-    s_crit_depth++;
+    s_crit_depth = s_crit_depth + 1U;
 #else
     noInterrupts();
-    s_crit_depth++;
+    s_crit_depth = s_crit_depth + 1U;
 #endif
 }
 
@@ -117,14 +124,14 @@ void syn_port_exit_critical(void)
 #elif defined(ARDUINO_ARCH_RP2040)
     uint32_t core = get_core_num();
     if (s_crit_depth[core] > 0U) {
-        s_crit_depth[core]--;
+        s_crit_depth[core] = s_crit_depth[core] - 1U;
         if (s_crit_depth[core] == 0U) {
             restore_interrupts(s_saved_irq[core]);
         }
     }
 #elif defined(ARDUINO_ARCH_AVR) || defined(__AVR__)
     if (s_crit_depth > 0U) {
-        s_crit_depth--;
+        s_crit_depth = s_crit_depth - 1U;
         if (s_crit_depth == 0U && (s_saved_irq & 0x80U) != 0U) {
             interrupts();
         }
@@ -134,7 +141,7 @@ void syn_port_exit_critical(void)
     defined(ARDUINO_ARCH_RENESAS) || defined(__ARM_ARCH_ISA_THUMB) || defined(__arm__) || \
     defined(__thumb__)
     if (s_crit_depth > 0U) {
-        s_crit_depth--;
+        s_crit_depth = s_crit_depth - 1U;
         if (s_crit_depth == 0U && (s_saved_irq & 1U) == 0U) {
             __asm__ volatile("cpsie i" ::: "memory");
         }
@@ -142,14 +149,14 @@ void syn_port_exit_critical(void)
 #elif defined(__riscv)
     __asm__ volatile("" ::: "memory");
     if (s_crit_depth > 0U) {
-        s_crit_depth--;
+        s_crit_depth = s_crit_depth - 1U;
         if (s_crit_depth == 0U && (s_saved_irq & 0x8U) != 0U) {
             __asm__ volatile("csrsi mstatus, 8" ::: "memory");
         }
     }
 #elif defined(ARDUINO_ARCH_ESP8266) || defined(__XTENSA__)
     if (s_crit_depth > 0U) {
-        s_crit_depth--;
+        s_crit_depth = s_crit_depth - 1U;
         if (s_crit_depth == 0U) {
             xt_wsr_ps(s_saved_irq);
         }
@@ -157,7 +164,7 @@ void syn_port_exit_critical(void)
 #else
     (void)s_saved_irq;
     if (s_crit_depth > 0U) {
-        s_crit_depth--;
+        s_crit_depth = s_crit_depth - 1U;
         if (s_crit_depth == 0U) {
             interrupts();
         }
@@ -209,6 +216,17 @@ SYN_NORETURN void syn_port_system_reset(void)
 #endif
 }
 
+#if defined(ARDUINO_ARCH_ESP32)
+SYN_Status syn_port_random_fill(void *buf, size_t len)
+{
+    if (buf == NULL || len == 0U) {
+        return SYN_OK;
+    }
+    esp_fill_random(buf, len);
+    return SYN_OK;
+}
+#endif
+
 /* ── GPIO Port ──────────────────────────────────────────────────────────── */
 
 SYN_Status syn_port_gpio_init(SYN_GPIO_Pin pin, SYN_GPIO_Mode mode)
@@ -218,7 +236,12 @@ SYN_Status syn_port_gpio_init(SYN_GPIO_Pin pin, SYN_GPIO_Mode mode)
             pinMode(pin, INPUT);
             break;
         case SYN_GPIO_OUTPUT:
+#if defined(ARDUINO_ARCH_ESP32)
+            /* Keep IO_MUX input buffer enabled alongside output driver for readback/toggle */
+            pinMode(pin, INPUT | OUTPUT);
+#else
             pinMode(pin, OUTPUT);
+#endif
             break;
         case SYN_GPIO_INPUT_PULLUP:
             pinMode(pin, INPUT_PULLUP);
@@ -226,6 +249,15 @@ SYN_Status syn_port_gpio_init(SYN_GPIO_Pin pin, SYN_GPIO_Mode mode)
 #if defined(INPUT_PULLDOWN)
         case SYN_GPIO_INPUT_PULLDOWN:
             pinMode(pin, INPUT_PULLDOWN);
+            break;
+#endif
+#if defined(ARDUINO_ARCH_ESP32)
+        case SYN_GPIO_OUTPUT_OD:
+            pinMode(pin, INPUT | OUTPUT_OPEN_DRAIN);
+            break;
+#elif defined(OUTPUT_OPEN_DRAIN)
+        case SYN_GPIO_OUTPUT_OD:
+            pinMode(pin, OUTPUT_OPEN_DRAIN);
             break;
 #endif
         default:
@@ -866,6 +898,44 @@ void syn_port_wdt_feed(void)
     watchdog_update();
 }
 
+#elif defined(ARDUINO_ARCH_ESP32)
+
+SYN_Status syn_port_wdt_init(uint32_t timeout_ms)
+{
+    if (timeout_ms == 0U) {
+        timeout_ms = 1U;
+    }
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+    esp_task_wdt_config_t cfg = {
+        .timeout_ms = timeout_ms,
+        .idle_core_mask = 0U,
+        .trigger_panic = true,
+    };
+    if (esp_task_wdt_reconfigure(&cfg) != ESP_OK) {
+        if (esp_task_wdt_init(&cfg) != ESP_OK) {
+            return SYN_ERROR;
+        }
+    }
+#else
+    uint32_t timeout_s = (timeout_ms + 999U) / 1000U;
+    if (esp_task_wdt_init(timeout_s, true) != ESP_OK) {
+        return SYN_ERROR;
+    }
+#endif
+    if (esp_task_wdt_status(NULL) != ESP_OK) {
+        if (esp_task_wdt_add(NULL) != ESP_OK) {
+            return SYN_ERROR;
+        }
+    }
+    (void)esp_task_wdt_reset();
+    return SYN_OK;
+}
+
+void syn_port_wdt_feed(void)
+{
+    (void)esp_task_wdt_reset();
+}
+
 #else
 
 SYN_Status syn_port_wdt_init(uint32_t timeout_ms)
@@ -1353,11 +1423,13 @@ SYN_WEAK bool syn_port_sock_readable(SYN_Socket sock)
     return false;
 }
 
+#if defined(SYN_USE_TRANSPORT_UDP) && !SYN_USE_TRANSPORT_UDP
 SYN_WEAK bool syn_port_udp_readable(SYN_Socket sock)
 {
     (void)sock;
     return false;
 }
+#endif
 
 } /* extern "C" */
 
@@ -1408,6 +1480,54 @@ extern "C" {
 
 #define SYN_ARDUINO_SECTOR_SIZE  64  /* 64-byte sector pages */
 
+#if defined(ARDUINO_ARCH_ESP32)
+#ifndef SYN_ESP32_FLASH_SIZE
+#define SYN_ESP32_FLASH_SIZE     1024U
+#endif
+
+static uint8_t s_esp32_flash_cache[SYN_ESP32_FLASH_SIZE];
+static nvs_handle_t s_esp32_nvs_handle = 0U;
+static bool s_esp32_nvs_ready = false;
+
+static SYN_Status esp32_flash_ensure_init(void)
+{
+    if (s_esp32_nvs_ready) {
+        return SYN_OK;
+    }
+    esp_err_t err = nvs_flash_init();
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        (void)nvs_flash_erase();
+        err = nvs_flash_init();
+    }
+    if (err != ESP_OK) {
+        return SYN_ERROR;
+    }
+    if (nvs_open("syn_flash", NVS_READWRITE, &s_esp32_nvs_handle) != ESP_OK) {
+        return SYN_ERROR;
+    }
+    memset(s_esp32_flash_cache, 0xFF, sizeof(s_esp32_flash_cache));
+    size_t blob_len = sizeof(s_esp32_flash_cache);
+    err = nvs_get_blob(s_esp32_nvs_handle, "img", s_esp32_flash_cache, &blob_len);
+    if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND) {
+        return SYN_ERROR;
+    }
+    s_esp32_nvs_ready = true;
+    return SYN_OK;
+}
+
+static SYN_Status esp32_flash_commit(void)
+{
+    if (nvs_set_blob(s_esp32_nvs_handle, "img", s_esp32_flash_cache,
+                     sizeof(s_esp32_flash_cache)) != ESP_OK) {
+        return SYN_ERROR;
+    }
+    if (nvs_commit(s_esp32_nvs_handle) != ESP_OK) {
+        return SYN_ERROR;
+    }
+    return SYN_OK;
+}
+#endif
+
 SYN_WEAK uint32_t syn_port_flash_sector_size(uint32_t addr)
 {
     (void)addr;
@@ -1422,6 +1542,16 @@ SYN_WEAK SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
         return SYN_INVALID_PARAM;
     }
     eeprom_read_block(buf, (const void *)(uintptr_t)addr, len);
+    return SYN_OK;
+#elif defined(ARDUINO_ARCH_ESP32)
+    if (addr >= SYN_ESP32_FLASH_SIZE || len > (size_t)(SYN_ESP32_FLASH_SIZE - addr)) {
+        return SYN_INVALID_PARAM;
+    }
+    SYN_Status st = esp32_flash_ensure_init();
+    if (st != SYN_OK) {
+        return st;
+    }
+    memcpy(buf, &s_esp32_flash_cache[addr], len);
     return SYN_OK;
 #else
     (void)addr;
@@ -1439,6 +1569,19 @@ SYN_WEAK SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t 
     }
     eeprom_update_block(buf, (void *)(uintptr_t)addr, len);
     return SYN_OK;
+#elif defined(ARDUINO_ARCH_ESP32)
+    if (addr >= SYN_ESP32_FLASH_SIZE || len > (size_t)(SYN_ESP32_FLASH_SIZE - addr)) {
+        return SYN_INVALID_PARAM;
+    }
+    SYN_Status st = esp32_flash_ensure_init();
+    if (st != SYN_OK) {
+        return st;
+    }
+    if (memcmp(&s_esp32_flash_cache[addr], buf, len) == 0) {
+        return SYN_OK;
+    }
+    memcpy(&s_esp32_flash_cache[addr], buf, len);
+    return esp32_flash_commit();
 #else
     (void)addr;
     (void)len;
@@ -1457,6 +1600,17 @@ SYN_WEAK SYN_Status syn_port_flash_erase(uint32_t addr)
     memset(erased, 0xFF, sizeof(erased));
     eeprom_update_block(erased, (void *)(uintptr_t)addr, SYN_ARDUINO_SECTOR_SIZE);
     return SYN_OK;
+#elif defined(ARDUINO_ARCH_ESP32)
+    if (addr >= SYN_ESP32_FLASH_SIZE ||
+        (uint32_t)SYN_ARDUINO_SECTOR_SIZE > (SYN_ESP32_FLASH_SIZE - addr)) {
+        return SYN_INVALID_PARAM;
+    }
+    SYN_Status st = esp32_flash_ensure_init();
+    if (st != SYN_OK) {
+        return st;
+    }
+    memset(&s_esp32_flash_cache[addr], 0xFF, SYN_ARDUINO_SECTOR_SIZE);
+    return esp32_flash_commit();
 #else
     (void)addr;
     return SYN_NOT_IMPLEMENTED;

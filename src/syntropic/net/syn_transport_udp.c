@@ -118,6 +118,13 @@ void syn_transport_udp_close(SYN_Socket sock_handle)
 }
 
 /* LCOV_EXCL_START: 1-line weak hardware port wrappers overridden by mock_port in unit tests */
+SYN_WEAK SYN_Status syn_port_eth_tx(const void *frame, size_t len)
+{
+    (void)frame;
+    (void)len;
+    return SYN_NOT_IMPLEMENTED;
+}
+
 SYN_WEAK SYN_Socket syn_port_udp_open(uint16_t port)
 {
     return syn_transport_udp_open(port);

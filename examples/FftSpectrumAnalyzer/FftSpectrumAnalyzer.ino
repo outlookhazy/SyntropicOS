@@ -22,7 +22,11 @@
 
 #define FFT_SIZE 32
 #define SAMPLING_FREQ_HZ 1000  /* 1000 Hz sampling rate -> 31.25 Hz resolution per bin */
+#ifdef A15
 #define ADC_PIN A15
+#else
+#define ADC_PIN A0
+#endif
 
 static q16_t real_buf[FFT_SIZE];
 static q16_t imag_buf[FFT_SIZE];

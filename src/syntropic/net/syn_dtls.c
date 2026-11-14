@@ -1231,22 +1231,33 @@ static void dtls_write_epoch0_hdr(uint8_t *tx, size_t body_len)
 }
 
 /**
- * @brief Generate client ephemeral X25519 private key + random and initialize pubkey derivation.
- * @param ctx DTLS client context.
- * @return true on success, false on CSPRNG failure.
+ * @brief Cooperatively sample 32-byte ECDHE private key and 32-byte Hello random across 2 slices.
+ *
+ * Splits the 64-byte CSPRNG draw into two 32-byte slices so rate-limited hardware TRNGs stay
+ * strictly within the 1,000 us cooperative scheduler step budget.
+ *
+ * @param pt        Sub-protothread control block (`&ctx->sub_pt`).
+ * @param ctx       DTLS context pointer (`hs_work.crypto_ok` set true on success).
+ * @param hello_rnd Destination 32-byte `client_random` or `server_random` buffer.
+ * @return Protothread status (`PT_MORE`, `PT_EXITED`, or `PT_ENDED`).
  */
-static bool dtls_client_init_ecdhe(SYN_DTLS_Context *ctx)
+static SYN_PT_Status dtls_gen_ephemeral_pt(SYN_PT *pt, SYN_DTLS_Context *ctx, uint8_t hello_rnd[32])
 {
-    uint8_t rnd[64];
-    if (syn_random_fill(rnd, sizeof(rnd)) != SYN_OK) {
-        return dtls_fail_handshake(ctx);
+    PT_BEGIN(pt);
+
+    ctx->hs_work.crypto_ok = (syn_random_fill(ctx->ecdhe_priv, 32U) == SYN_OK);
+    if (ctx->hs_work.crypto_ok) {
+        PT_CONTINUE(pt);
+        ctx->hs_work.crypto_ok = (syn_random_fill(hello_rnd, 32U) == SYN_OK);
     }
-    memcpy(ctx->ecdhe_priv, rnd, 32U);
-    memcpy(ctx->client_random, rnd + 32U, 32U);
-    syn_secure_zero(rnd, sizeof(rnd));
+    if (!ctx->hs_work.crypto_ok) {
+        (void)dtls_fail_handshake(ctx);
+        PT_EXIT(pt);
+    }
     syn_x25519_clamp(ctx->ecdhe_priv);
     (void)syn_x25519_pubkey_init(&ctx->crypto_scratch.x25519, ctx->ecdhe_priv);
-    return true;
+
+    PT_END(pt);
 }
 
 /**
@@ -1291,7 +1302,8 @@ static SYN_PT_Status dtls_client_stage0_send_ch_pt(SYN_PT *pt, SYN_DTLS_Context 
         PT_EXIT(pt);
     }
 
-    if (!dtls_client_init_ecdhe(ctx)) {
+    PT_SPAWN(pt, spt, dtls_gen_ephemeral_pt(spt, ctx, ctx->client_random));
+    if (ctx->state == SYN_DTLS_STATE_ERROR) {
         PT_EXIT(pt);
     }
     PT_CONTINUE(pt);
@@ -1402,9 +1414,9 @@ static SYN_PT_Status dtls_server_send_flight2_pt(SYN_PT *pt, SYN_DTLS_Context *c
 }
 
 /**
- * @brief Poll for an 80-byte ClientHello datagram and initialize server ephemeral X25519 pubkey.
+ * @brief Poll for an 80-byte ClientHello datagram and capture client random and peer key share.
  * @param ctx DTLS server context in `SYN_DTLS_STATE_UNINITIALIZED`.
- * @return true if valid ClientHello arrived and X25519 pubkey derivation was initialized.
+ * @return true if valid ClientHello arrived and fields were copied into @p ctx.
  */
 static bool dtls_server_poll_ch(SYN_DTLS_Context *ctx)
 {
@@ -1435,17 +1447,8 @@ static bool dtls_server_poll_ch(SYN_DTLS_Context *ctx)
         return false;
     }
 
-    uint8_t rnd[64];
-    if (syn_random_fill(rnd, sizeof(rnd)) != SYN_OK) {
-        return dtls_fail_handshake(ctx);
-    }
     memcpy(ctx->client_random, rx + 16U, 32U);
     memcpy(ctx->peer_ecdhe_pub, rx + 48U, 32U);
-    memcpy(ctx->ecdhe_priv, rnd, 32U);
-    memcpy(ctx->server_random, rnd + 32U, 32U);
-    syn_secure_zero(rnd, sizeof(rnd));
-    syn_x25519_clamp(ctx->ecdhe_priv);
-    (void)syn_x25519_pubkey_init(&ctx->crypto_scratch.x25519, ctx->ecdhe_priv);
     return true;
 }
 
@@ -1469,10 +1472,11 @@ static SYN_PT_Status dtls_server_stage1_recv_ch_pt(SYN_PT *pt, SYN_DTLS_Context 
     }
 
     if (!dtls_server_poll_ch(ctx)) {
-        if (ctx->state == SYN_DTLS_STATE_ERROR) {
-            PT_EXIT(pt);
-        }
         PT_RESTART(pt);
+    }
+    PT_SPAWN(pt, spt, dtls_gen_ephemeral_pt(spt, ctx, ctx->server_random));
+    if (ctx->state == SYN_DTLS_STATE_ERROR) {
+        PT_EXIT(pt);
     }
     PT_CONTINUE(pt);
 

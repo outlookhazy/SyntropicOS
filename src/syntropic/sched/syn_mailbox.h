@@ -138,7 +138,7 @@ static inline void syn_mailbox_inc_overflow(SYN_Mailbox *mb)
     uint32_t cur = __atomic_load_n(&mb->overflow, __ATOMIC_RELAXED);
     __atomic_store_n(&mb->overflow, cur + 1U, __ATOMIC_RELAXED);
 #else
-    mb->overflow++;
+    mb->overflow = mb->overflow + 1U;
 #endif
 }
 /** @endcond */

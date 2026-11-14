@@ -128,7 +128,7 @@ static inline int pt_sem_trywait(SYN_PT_Sem *sem)
 
     syn_port_enter_critical();
     if (sem->count > 0) {
-        sem->count--;
+        sem->count = (int16_t)(sem->count - 1);
         acquired = 1;
     }
     syn_port_exit_critical();

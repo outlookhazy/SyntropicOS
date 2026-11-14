@@ -352,7 +352,7 @@ static inline bool syn_button_consume_event(SYN_Button *btn, uint8_t mask)
     bool matched = false;
     syn_port_enter_critical();
     if ((btn->events & mask) != 0U) {
-        btn->events &= (uint8_t)~mask;
+        btn->events = (uint8_t)(btn->events & (uint8_t)~mask);
         matched = true;
     }
     syn_port_exit_critical();

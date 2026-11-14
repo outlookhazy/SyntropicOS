@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Validate SyntropicOS Arduino library packaging with official arduino-cli
-# and optionally flash + verify live serial execution on connected AVR hardware.
+# and optionally flash + verify live serial execution on connected AVR / ESP32 hardware.
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${ROOT_DIR}"
@@ -12,10 +12,28 @@ BIN_DIR="${CACHE_ROOT}/bin"
 export ARDUINO_DIRECTORIES_DATA="${CACHE_ROOT}/data"
 export ARDUINO_DIRECTORIES_DOWNLOADS="${CACHE_ROOT}/staging"
 export ARDUINO_DIRECTORIES_USER="${CACHE_ROOT}/user"
+export XDG_CACHE_HOME="${CACHE_ROOT}/cache"
 export PATH="${BIN_DIR}:${PATH}"
 
+ESP32_INDEX_URL="https://espressif.github.io/arduino-esp32/package_esp32_index.json"
+
+ensure_core_installed() {
+    local core="$1"
+    if arduino-cli core list | grep -q "^${core} "; then
+        return 0
+    fi
+    echo "=== Installing ${core} core ==="
+    if [ "${core}" = "esp32:esp32" ]; then
+        arduino-cli --additional-urls "${ESP32_INDEX_URL}" core update-index
+        arduino-cli --additional-urls "${ESP32_INDEX_URL}" core install "${core}"
+    else
+        arduino-cli core update-index
+        arduino-cli core install "${core}"
+    fi
+}
+
 mkdir -p "${BIN_DIR}" "${ARDUINO_DIRECTORIES_DATA}" "${ARDUINO_DIRECTORIES_DOWNLOADS}" \
-         "${ARDUINO_DIRECTORIES_USER}/libraries"
+         "${ARDUINO_DIRECTORIES_USER}/libraries" "${XDG_CACHE_HOME}"
 
 if [ ! -x "${BIN_DIR}/arduino-cli" ]; then
     echo "=== Installing arduino-cli into build cache ==="
@@ -34,22 +52,19 @@ fi
 
 ln -sfn "${ROOT_DIR}" "${ARDUINO_DIRECTORIES_USER}/libraries/SyntropicOS"
 
-if ! arduino-cli core list | grep -q "arduino:avr"; then
-    echo "=== Installing arduino:avr core ==="
-    arduino-cli core update-index
-    arduino-cli core install arduino:avr
-fi
-
-if ! arduino-cli lib list | grep -q "^Ethernet "; then
-    echo "=== Installing Arduino Ethernet library for network sketch verification ==="
-    arduino-cli lib install Ethernet
-fi
-
 FQBN_EXPLICIT="${FQBN:-}"
 FQBN="${FQBN:-arduino:avr:uno}"
 PORT="${ARDUINO_PORT:-/dev/ttyACM0}"
 if [ -z "${FQBN}" ]; then FQBN="arduino:avr:uno"; fi
 if [ -z "${PORT}" ]; then PORT="/dev/ttyACM0"; fi
+
+PRIMARY_CORE="$(echo "${FQBN}" | cut -d: -f1-2)"
+ensure_core_installed "${PRIMARY_CORE}"
+
+if ! arduino-cli lib list | grep -q "^Ethernet "; then
+    echo "=== Installing Arduino Ethernet library for network sketch verification ==="
+    arduino-cli lib install Ethernet
+fi
 
 echo "=== 1. Compiling Arduino Sketches (${FQBN}) ==="
 if [ -n "${SKETCH:-}" ]; then
@@ -95,7 +110,7 @@ done
 if [ "${FAIL}" -ne 0 ]; then
     exit 1
 fi
-echo "=== ALL ${#SKETCHES[@]} AVR ARDUINO SKETCHES COMPILED CLEANLY ==="
+echo "=== ALL ${#SKETCHES[@]} ARDUINO SKETCHES COMPILED CLEANLY (${FQBN}) ==="
 
 if [ "${UPLOAD:-auto}" != "0" ] && [ -c "${PORT}" ]; then
     HIL_FQBN="${FQBN}"
@@ -116,15 +131,28 @@ if [ "${UPLOAD:-auto}" != "0" ] && [ -c "${PORT}" ]; then
             2341:0042|2341:0010|2a03:0042)
                 HIL_FQBN="arduino:avr:mega"
                 ;;
+            303a:*)
+                ensure_core_installed "esp32:esp32"
+                ESPTOOL_BIN="$(find "${ARDUINO_DIRECTORIES_DATA}/packages/esp32/tools/esptool_py" -maxdepth 2 -type f -name "esptool" 2>/dev/null | head -n 1 || true)"
+                CHIP_INFO=""
+                if [ -n "${ESPTOOL_BIN}" ] && [ -x "${ESPTOOL_BIN}" ]; then
+                    CHIP_INFO="$(timeout 8s "${ESPTOOL_BIN}" --port "${PORT}" chip-id 2>&1 || true)"
+                fi
+                if echo "${CHIP_INFO}" | grep -qi "ESP32-S3"; then
+                    HIL_FQBN="esp32:esp32:esp32s3:CDCOnBoot=cdc"
+                elif echo "${CHIP_INFO}" | grep -qi "ESP32-C3"; then
+                    HIL_FQBN="esp32:esp32:esp32c3:CDCOnBoot=cdc"
+                elif echo "${CHIP_INFO}" | grep -qi "ESP32-H2"; then
+                    HIL_FQBN="esp32:esp32:esp32h2:CDCOnBoot=cdc"
+                else
+                    HIL_FQBN="esp32:esp32:esp32c6:CDCOnBoot=cdc"
+                fi
+                ;;
         esac
     fi
 
     HIL_CORE="$(echo "${HIL_FQBN}" | cut -d: -f1-2)"
-    if ! arduino-cli core list | grep -q "^${HIL_CORE} "; then
-        echo "=== Installing ${HIL_CORE} core for connected HIL board ==="
-        arduino-cli core update-index
-        arduino-cli core install "${HIL_CORE}"
-    fi
+    ensure_core_installed "${HIL_CORE}"
 
     echo "=== 2. Hardware-in-the-Loop Verification on ${PORT} (${HIL_FQBN}, usb=${ARDUINO_USB_ID:-auto}) ==="
     if ! python3 -c "import serial" >/dev/null 2>&1; then
@@ -133,11 +161,13 @@ if [ "${UPLOAD:-auto}" != "0" ] && [ -c "${PORT}" ]; then
 
     upload_with_timeout() {
         local sketch="$1"
-        python3 -c '
+        if [[ "${HIL_FQBN}" != esp32:* ]]; then
+            python3 -c '
 import serial, time
 with serial.Serial("'"${PORT}"'", 115200, timeout=0.1) as s:
     s.dtr = False; time.sleep(0.05); s.dtr = True; s.reset_input_buffer()
 ' 2>/dev/null || true
+        fi
         if ! timeout -k 5 90s arduino-cli upload -p "${PORT}" --fqbn "${HIL_FQBN}" "${sketch}"; then
             sleep 2
             timeout -k 5 90s arduino-cli upload -p "${PORT}" --fqbn "${HIL_FQBN}" "${sketch}"
@@ -149,17 +179,19 @@ with serial.Serial("'"${PORT}"'", 115200, timeout=0.1) as s:
     arduino-cli compile --fqbn "${HIL_FQBN}" --warnings all "${HIL_SKETCH}"
     upload_with_timeout "${HIL_SKETCH}"
 
-    echo "--- Running 5-stage AVR Hardware-in-the-Loop Suite on ${PORT} (${HIL_FQBN}) ---"
+    echo "--- Running Hardware-in-the-Loop Suite on ${PORT} (${HIL_FQBN}) ---"
     python3 - "${PORT}" "${HIL_FQBN}" <<'PY'
-import serial, sys, time
+import os, serial, sys, time
 
 port = sys.argv[1]
 fqbn = sys.argv[2]
-with serial.Serial(port, 115200, timeout=0.2) as ser:
-    # Wait for DTR-triggered Optiboot reset (~1.6s) if applicable
-    time.sleep(1.8)
+is_esp32 = fqbn.startswith("esp32:")
+
+ser = serial.Serial(port, 115200, timeout=0.2)
+try:
+    time.sleep(0.4 if is_esp32 else 1.8)
     boot_out = b""
-    deadline = time.monotonic() + 2.0
+    deadline = time.monotonic() + (1.0 if is_esp32 else 2.0)
     while time.monotonic() < deadline:
         chunk = ser.read(512)
         if chunk:
@@ -167,8 +199,6 @@ with serial.Serial(port, 115200, timeout=0.2) as ser:
             if b"Free SRAM at boot:" in boot_out and b"bytes" in boot_out:
                 break
 
-    # Non-DTR-reset bridges (e.g. Nano Every SAMD11 MuxTO) boot right after UPDI upload
-    # before pyserial opens the port; request banner explicitly if missed.
     if b"HIL Test Suite Ready" not in boot_out:
         ser.write(b"banner\r\n")
         ser.flush()
@@ -189,31 +219,76 @@ with serial.Serial(port, 115200, timeout=0.2) as ser:
     ser.flush()
 
     hil_out = b""
-    t_end = time.monotonic() + 25.0
+    wdt_armed_at = None
+    wdt_queried = False
+    t_end = time.monotonic() + 30.0
     while time.monotonic() < t_end:
-        chunk = ser.read(512)
+        try:
+            chunk = ser.read(512)
+        except (serial.SerialException, OSError):
+            try:
+                ser.close()
+            except Exception:
+                pass
+            reopen_end = time.monotonic() + 3.0
+            while time.monotonic() < reopen_end:
+                if os.path.exists(port):
+                    try:
+                        ser = serial.Serial(port, 115200, timeout=0.2)
+                        break
+                    except (serial.SerialException, OSError):
+                        pass
+                time.sleep(0.05)
+            continue
+
         if chunk:
             hil_out += chunk
             print(chunk.decode("utf-8", errors="replace"), end="", flush=True)
+            if wdt_armed_at is None and b"[HIL-5/5] Arming Hardware Watchdog" in hil_out:
+                wdt_armed_at = time.monotonic()
             if b"=== ALL 5 AVR HIL SUBSYSTEM TESTS PASSED ===" in hil_out:
                 break
             if b"FAILURE:" in hil_out or b": FAIL" in hil_out:
                 break
 
+        if (
+            is_esp32
+            and wdt_armed_at is not None
+            and not wdt_queried
+            and (time.monotonic() - wdt_armed_at) > 1.2
+            and b"WDT_REBOOT_RECOVERY: PASS" not in hil_out
+        ):
+            try:
+                ser.write(b"wdt_check\r\n")
+                ser.flush()
+                wdt_queried = True
+            except (serial.SerialException, OSError):
+                pass
+
     exp_slices = "0" if fqbn == "arduino:avr:uno" else "510"
     txt = hil_out.decode("utf-8", errors="replace")
-    for required in [
+    required_checks = [
         "[HIL-1/5] SREG_CRITICAL_NESTING: PASS",
         "[HIL-2/5] TIMER1_ISR_AND_MUTEX_PI: PASS",
         "[HIL-3/5] EXTI_INT0_SELF_TRIGGER: PASS",
         f"[HIL-4/5] AVR16_CRYPTO_PROTO_KATS: PASS (crc16=0x29B1 x25519_slices={exp_slices}",
         "[HIL-4b]  EEPROM_DUAL_BANK_FAILOVER: PASS",
+    ]
+    if is_esp32:
+        required_checks.append("[HIL-4c]  RISCV_COOP_PROTOCOL_BUDGET: PASS (")
+    required_checks.extend([
         "[HIL-5/5] WDT_REBOOT_RECOVERY: PASS (seq=42 crc=0x29B1",
         "=== ALL 5 AVR HIL SUBSYSTEM TESTS PASSED ===",
-    ]:
+    ])
+    for required in required_checks:
         if required not in txt:
             print(f"\nFAILURE: Missing expected HIL result: {required}", file=sys.stderr)
             sys.exit(1)
+finally:
+    try:
+        ser.close()
+    except Exception:
+        pass
 PY
 
     HW_SKETCH="${HW_SKETCH:-examples/PID_TempControl}"
@@ -224,13 +299,15 @@ PY
     upload_with_timeout "${HW_SKETCH}"
 
     echo "--- Verifying live Serial CLI & cooperative scheduler on ${PORT} (${HIL_FQBN}) ---"
-    python3 - "${PORT}" <<'PY'
+    python3 - "${PORT}" "${HIL_FQBN}" <<'PY'
 import re, serial, sys, time
 
 port = sys.argv[1]
+fqbn = sys.argv[2]
+is_esp32 = fqbn.startswith("esp32:")
+
 with serial.Serial(port, 115200, timeout=0.2) as ser:
-    # Opening serial port toggles DTR and resets Optiboot (~1.6s) if applicable
-    time.sleep(1.8)
+    time.sleep(0.4 if is_esp32 else 1.8)
     boot_out = b""
     deadline = time.monotonic() + 3.5
     while time.monotonic() < deadline:
@@ -243,7 +320,7 @@ with serial.Serial(port, 115200, timeout=0.2) as ser:
     boot_text = boot_out.decode("utf-8", errors="replace")
     print(boot_text, end="", flush=True)
     if "SyntropicOS PID Temp Controller" not in boot_text and "SP=" not in boot_text:
-        print("\nFAILURE: Did not observe live scheduler/PID boot output from AVR board", file=sys.stderr)
+        print("\nFAILURE: Did not observe live scheduler/PID boot output from board", file=sys.stderr)
         sys.exit(1)
 
     all_output = boot_text
@@ -335,6 +412,6 @@ with serial.Serial(port, 115200, timeout=0.2) as ser:
             print(f"\nFAILURE: Periodic OUT={out_f} out of sane range [0, 100]", file=sys.stderr)
             sys.exit(1)
 
-print("\n=== AVR HARDWARE-IN-THE-LOOP TEST PASS ===")
+print("\n=== ARDUINO HARDWARE-IN-THE-LOOP TEST PASS ===")
 PY
 fi
