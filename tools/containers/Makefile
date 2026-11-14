@@ -40,7 +40,7 @@ help:
 	@echo "  make container-test        Run Unity test suite & LCOV coverage in container"
 	@echo "  make container-cov         Generate LCOV line/branch coverage report"
 	@echo "  make container-format      Check code formatting via clang-format (FIX=1 to apply)"
-	@echo "  make container-lint        Run AST linter (clang-tidy + protothread switch check)"
+	@echo "  make container-lint        Run AST linter (clang-tidy + protothread switch & local checks)"
 	@echo "  make container-misra       Run MISRA C:2023 compliance scan"
 	@echo "  make container-static      Run Cppcheck & Clang scan-build static analysis"
 	@echo "  make container-analyzer    Run GCC -fanalyzer deep interprocedural analysis"

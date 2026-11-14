@@ -33,8 +33,8 @@ SyntropicOS aims to support a broad catalog of embedded, industrial, automotive,
 
 Protothreads (`src/syntropic/pt/syn_pt.h`) implement 2-byte stackless coroutines via a `switch (pt->lc)` continuation jump table:
 
-- **No `switch` inside `PT_BEGIN` .. `PT_END`**: Placing a bare `switch` statement inside a protothread body corrupts Duff's-device continuation cases (enforced by the Protothread Switch Linter in `make container-lint`). Use `if` / `else if` chains or move the `switch` into a helper function called between yields.
-- **No stack-local persistence across yields**: Local non-`static` variables inside a protothread function lose their values across any yield/wait macro (`PT_PASS`, `PT_CONTINUE`, `PT_WAIT_UNTIL`, `PT_TASK_DELAY_MS`, `PT_BLOCK_*`). Store persistent task state in the caller-owned struct passed via `task->user_data`.
+- **No `switch` inside `PT_BEGIN` .. `PT_END`**: Placing a bare `switch` statement inside a protothread body corrupts Duff's-device continuation cases (enforced by `tools/lint/check_pt_switch.py` in `make container-lint`). Use `if` / `else if` chains or move the `switch` into a helper function called between yields.
+- **No stack-local persistence across yields**: Local non-`static` variables inside a protothread function lose their values across any yield/wait macro (`PT_PASS`, `PT_CONTINUE`, `PT_WAIT_UNTIL`, `PT_SPAWN`, `PT_TASK_DELAY_MS`, `PT_BLOCK_*`), and prologue-initialized locals re-run their initializer on resume (enforced via Clang AST/CFG dataflow by `tools/lint/check_pt_locals.py` in `make container-lint`). Store persistent task state in `static` variables or the caller-owned struct passed via `task->user_data`.
 - **Explicit yield intent**:
   - Use `PT_PASS(pt)` / `PT_WAIT_UNTIL(pt, cond)` / `PT_TASK_DELAY_MS(pt, task, ms)` when the task has no immediate work remaining this round (`PT_IDLE`).
   - Use `PT_CONTINUE(pt)` or `PT_CONTINUE_IF_NEEDED(pt, task)` when slicing long work across cooperative steps while more work remains queued (`PT_MORE`).
@@ -76,7 +76,7 @@ make container-test         # Build & run Unity unit test suite + LCOV coverage 
 make container-qemu         # Cross-compile & run full Unity suite on bare-metal Cortex-M4 QEMU
 make container-san          # Run unit test suite under AddressSanitizer + UBSan
 make container-static       # Run Cppcheck + Clang scan-build static analysis
-make container-lint         # Run clang-tidy AST checks + Protothread Switch Linter
+make container-lint         # Run clang-tidy AST checks + Protothread Switch & Local Linters
 make container-stack        # Verify ARM static stack frames (<= 1024B) and 0 VLAs
 make container-complexity   # Verify cyclomatic complexity V(G) <= 15
 make container-dox          # Verify Doxygen API documentation (0 warnings)

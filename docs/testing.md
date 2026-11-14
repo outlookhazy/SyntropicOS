@@ -10,9 +10,9 @@ All verification targets are invoked from the root of a SyntropicOS repository c
 | :--- | :--- | :--- |
 | `make container-test` | `make test` | Runs Unity unit test suite & LCOV coverage |
 | `make container-format` | `make format` | Checks C99 formatting via `clang-format` (`FIX=1` to apply) |
-| `make container-lint` | `make lint` | Runs `clang-tidy` AST linter & protothread `switch` check |
+| `make container-lint` | `make lint` | Runs `clang-tidy` AST linter & protothread `switch` / cross-yield local checks |
 | `make container-san` | `make san` | Executes unit tests under AddressSanitizer (ASan) & UBSan |
-| `make container-qemu` | `make qemu` | Bare-metal QEMU ARM Cortex-M4 startup & test verification |
+| `make container-qemu` | `make qemu` | Bare-metal QEMU ARM Cortex-M4 test suite & deterministic `-icount` chunk-budget gate |
 | `make container-renode` | `make renode` | Renode STM32F4 board-level peripheral emulation |
 | `make container-examples` | `make examples` | Cross-compiles all examples & lean `syn_config.h` profiles |
 | `make container-fuzz` | `make fuzz` | Runs LLVM `libFuzzer` protocol targets |
@@ -92,10 +92,11 @@ Uses LLVM `libFuzzer` to mutate protocol packet buffers at high speed:
 make container-fuzz
 ```
 
-### 4. Static Analysis, MISRA, Stack & Complexity Bounds
-Runs Cppcheck, Clang `scan-build`, GCC `-fanalyzer`, MISRA C:2023 checks, static stack-frame verification, and cyclomatic complexity gates over `src/syntropic/`:
+### 4. AST Linting, Static Analysis, MISRA, Stack & Complexity Bounds
+Runs `clang-tidy`, protothread continuation linters (`check_pt_switch.py` for nested `switch` statements and `check_pt_locals.py` Clang AST/CFG dataflow check for non-`static` locals live across yields), Cppcheck, Clang `scan-build`, GCC `-fanalyzer`, MISRA C:2023 checks, static stack-frame verification, and cyclomatic complexity gates:
 
 ```bash
+make container-lint
 make container-static
 make container-analyzer
 make container-misra

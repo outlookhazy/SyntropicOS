@@ -176,6 +176,29 @@ static inline bool syn_tcp_pt_args_valid(SYN_PT *pt, const SYN_Task *task, const
 }
 
 /**
+ * @brief Drain up to @p max_len received payload bytes from a woken TCP connection.
+ * @param conn       TCP connection pointer.
+ * @param buf        Destination read buffer pointer.
+ * @param max_len    Maximum bytes to copy into @p buf.
+ * @param bytes_read Output byte count pointer (set to 0 if connection closed or empty).
+ */
+static inline void syn_tcp_pt_recv(SYN_TcpConn *conn, void *buf, size_t max_len, size_t *bytes_read)
+{
+    conn->blocked_task = NULL;
+    if (conn->rx_len > 0U) {
+        size_t n = (conn->rx_len < max_len) ? conn->rx_len : max_len;
+        if (n > 0U) {
+            memcpy(buf, conn->rx_buf, n);
+            memmove(conn->rx_buf, conn->rx_buf + n, conn->rx_len - n);
+            conn->rx_len -= (uint16_t)n;
+        }
+        *bytes_read = n;
+    } else {
+        *bytes_read = 0U;
+    }
+}
+
+/**
  * @brief Protothread helper macro to block task until TCP data is available.
  * @param pt         Protothread state.
  * @param task       Task instance.
@@ -207,18 +230,7 @@ static inline bool syn_tcp_pt_args_valid(SYN_PT *pt, const SYN_Task *task, const
             }                                                                        \
             PT_PASS(pt);                                                             \
         }                                                                            \
-        (conn)->blocked_task = NULL;                                                 \
-        if ((conn)->rx_len > 0U) {                                                   \
-            size_t _n = ((conn)->rx_len < (max_len)) ? (conn)->rx_len : (max_len);   \
-            if (_n > 0U) {                                                           \
-                memcpy((buf), (conn)->rx_buf, _n);                                   \
-                memmove((conn)->rx_buf, (conn)->rx_buf + _n, (conn)->rx_len - _n);   \
-                (conn)->rx_len -= (uint16_t)_n;                                      \
-            }                                                                        \
-            *(bytes_read) = _n;                                                      \
-        } else {                                                                     \
-            *(bytes_read) = 0U;                                                      \
-        }                                                                            \
+        syn_tcp_pt_recv((conn), (buf), (max_len), (bytes_read));                     \
     } while (0)
 
 #ifdef __cplusplus

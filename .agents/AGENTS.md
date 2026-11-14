@@ -11,7 +11,7 @@
 ## Architecture & Repository Conventions
 
 - **Language & Enforced Limits**: Pure C99 (`-std=c99 -pedantic -Wall -Wextra -Werror`), **zero dynamic allocation** (`malloc`/`calloc`/`realloc`/`free` forbidden across `src/`; all state static or caller-owned), static stack frames `<= 1024B` (`<= 1920B` ECC bignum, `0` VLAs via `make container-stack`), cyclomatic complexity `V(G) <= 15` (`make container-complexity`), and `0` Doxygen warnings (`make container-dox`).
-- **Cooperative Kernel (`src/syntropic/pt/`, `src/syntropic/sched/`)**: Non-blocking state machines and 2-byte stackless protothreads (`SYN_PT_Status fn(SYN_PT *pt, SYN_Task *task)`). Never block inside tasks; never place `switch` statements inside `PT_BEGIN`..`PT_END` (enforced by `make container-lint`).
+- **Cooperative Kernel (`src/syntropic/pt/`, `src/syntropic/sched/`)**: Non-blocking state machines and 2-byte stackless protothreads (`SYN_PT_Status fn(SYN_PT *pt, SYN_Task *task)`). Never block inside tasks; never place bare `switch` statements inside `PT_BEGIN`..`PT_END` or read non-`static` stack locals across yields (`check_pt_switch.py` and `check_pt_locals.py` in `make container-lint`).
 - **Layering**:
   - `src/syntropic/<category>/syn_<name>.c/.h` — portable modules; umbrella header `src/syntropic/syntropic.h`; compile-time `SYN_USE_*` config template `src/syntropic/syn_config_template.h`.
   - `src/syntropic/port/` + `src/syntropic/port_stubs/syn_port_stubs.c` — `syn_port_*.h` HAL contracts and runtime-asserting weak stubs.

@@ -172,7 +172,7 @@ SyntropicOS includes over 50 complete hardware and SDK examples across bare-meta
 ```bash
 make container-test         # Run Unity unit test suite & LCOV coverage
 make container-format       # Check C99 formatting via clang-format (FIX=1 to apply)
-make container-lint         # Run clang-tidy AST linter & protothread switch check
+make container-lint         # Run clang-tidy AST linter & protothread switch/local checks
 make container-static       # Run Cppcheck and Clang scan-build static analysis
 make container-san          # Execute AddressSanitizer & UBSan memory safety suite
 make container-qemu         # Bare-metal ARM Cortex-M4 boot & test emulation

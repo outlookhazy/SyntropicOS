@@ -31,4 +31,7 @@ printf "%s\n" ${FILES} | xargs -n 1 -P "${JOBS}" -I {} clang-tidy {} -- ${CFLAGS
 echo "=== Running Protothread Switch Linter ==="
 python3 tools/lint/check_pt_switch.py
 
+echo "=== Running Protothread Local Variable Linter ==="
+python3 tools/lint/check_pt_locals.py --self-test -j "${JOBS}"
+
 echo "=== Clang-Tidy Complete ==="
