@@ -1,6 +1,6 @@
 # WebAssembly (WASM) Virtual Machine Module
 
-The `syn_wasm` module provides a 100% zero-heap, non-blocking 32-bit WebAssembly cooperative interpreter designed for embedded microcontrollers. It supports static linear memory arenas (including zero-heap `memory.grow`), zero-copy module and passive data segment loading from Flash memory, full load-time W3C Appendix A.2 bytecode validation, host function registration, and instruction-sliced execution with protothread (`syn_pt`) scheduling.
+The `syn_wasm` module provides a 100% zero-heap, non-blocking 32-bit WebAssembly cooperative interpreter designed for embedded microcontrollers. It supports static linear memory arenas (including zero-heap `memory.grow`), zero-copy module and passive data segment loading from Flash memory, full load-time W3C Appendix A.2 bytecode validation, protothread (`SYN_PT`) coroutine host functions, and instruction-sliced execution with cooperative scheduler integration.
 
 ---
 
@@ -66,6 +66,7 @@ All VM resource bounds are `#ifndef`-guarded in `syn_wasm.h` and can be overridd
 #define SYN_WASM_MAX_CALL_DEPTH   32   /* Maximum function call frame depth */
 #define SYN_WASM_MAX_FUNCTIONS    32   /* Max imported + internal functions per module */
 #define SYN_WASM_MAX_HOST_FUNCS   16   /* Max registered C host callbacks */
+#define SYN_WASM_MAX_HOST_ARGS    16   /* Max parameters on an imported host function */
 #define SYN_WASM_MAX_GLOBALS      16   /* Max imported + module-defined globals */
 #define SYN_WASM_MAX_LABELS       16   /* Max nested structured control-flow blocks */
 #define SYN_WASM_MAX_TYPES        64   /* Max function type signatures per module */
@@ -85,67 +86,115 @@ Modules exceeding any configured table capacity fail closed during `syn_wasm_mod
 
 ---
 
+## Coroutine Host Functions & Scheduler Integration
+
+Imported host functions are `SYN_PT` protothread coroutines rather than blocking C callbacks. Guest WebAssembly code invokes blocking-style imports (`sleep_ms(100)`, `uart_read(buf, len)`, mutex locks) with normal `call` / `call_indirect` instructions while cooperatively yielding to `SYN_Sched`.
+
+### Signatures & Registration
+
+```c
+typedef SYN_PT_Status (*SYN_WASM_HostFunc)(SYN_PT *pt, SYN_WASM_Context *ctx,
+                                           const uint64_t *args, uint8_t argc,
+                                           uint64_t *ret);
+typedef void (*SYN_WASM_HostCancelFunc)(SYN_WASM_Context *ctx, void *user);
+
+bool syn_wasm_register_host(SYN_WASM_Context *ctx, uint16_t import_index,
+                            SYN_WASM_HostFunc func);
+bool syn_wasm_register_host_ex(SYN_WASM_Context *ctx, uint16_t import_index,
+                               SYN_WASM_HostFunc func,
+                               SYN_WASM_HostCancelFunc cancel, void *user);
+void *syn_wasm_host_user(const SYN_WASM_Context *ctx);
+```
+
+- **Argument Lifetime & Scratch State**: Before the first poll of an imported call, `syn_wasm` pops `argc` operands into `ctx->host_args[]` (`argc <= SYN_WASM_MAX_HOST_ARGS`, enforced at module load time with `SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED`), zeroes `ctx->host_scratch` (`u32[4]` / `u64[2]` / `ptr` / `child_pt`), and initializes `ctx->host_pt`. Never keep non-`static` C stack locals live across `PT_*` yield points; store cross-yield state in `ctx->host_scratch` or per-import `user` state (`syn_wasm_host_user(ctx)`).
+- **Synchronous Convenience Macros**: Non-yielding host callbacks use `SYN_WASM_HOST_SYNC(name, ctx_var, args_var, argc_var) { ... }` or `SYN_WASM_HOST_RETURN(pt, ret_ptr, val_expr)`.
+- **Poll Status Mapping**:
+  - `PT_ENDED`: Clears `ctx->host_pending`, pushes `*ret` if the import declares a return value, and **continues executing guest WebAssembly instructions in the same `syn_wasm_step()` slice** (or transitions `ctx->status = SYN_WASM_HALTED` when invoked directly at `call_depth == 0`).
+  - `PT_IDLE`: Keeps `ctx->host_pending = true` and `ctx->status = SYN_WASM_OK`; `syn_wasm_step()` returns `SYN_WASM_WAITING`, and `syn_wasm_task()` / `syn_wasm_exec_pt()` yield `PT_PASS(pt)` (`PT_IDLE`).
+  - `PT_MORE`: Keeps `ctx->host_pending = true` and `ctx->status = SYN_WASM_OK`; `syn_wasm_step()` returns `SYN_WASM_YIELDED`, `syn_wasm_task()` yields via `PT_CONTINUE_IF_NEEDED(pt, task)` (bursting uncontended or sharing when peers are ready), and `syn_wasm_exec_pt()` yields `PT_CONTINUE(pt)`.
+  - `PT_EXITED`: Clears `ctx->host_pending` and sets `ctx->status = SYN_WASM_TRAP_HOST` if no specific `SYN_WASM_TRAP_*` code was already assigned by the callback.
+
+### Owning `SYN_Task *` Propagation (`ctx->active_task`)
+
+`syn_wasm_task()` and `syn_wasm_exec_pt(pt, task, ctx, quantum_instructions)` record the owning `SYN_Task *` in `ctx->active_task` (`NULL` when stepped standalone):
+- **True Tickless Sleep**: Use `PT_TASK_DELAY_MS(pt, ctx->active_task, ms)` when `ctx->active_task != NULL` (falling back to `PT_DELAY_MS(pt, &ctx->host_scratch.u32[0], ms)` when `NULL`) so `task->delay_until` is armed and the scheduler skips polling the task until wakeup.
+- **Priority-Inheriting Mutexes**: Use `PT_MUTEX_LOCK(pt, ctx->active_task, &mutex)` and `PT_MUTEX_UNLOCK(&mutex, ctx->active_task)` so contended locks boost lower-priority owners.
+
+### Bounds-Checked Guest Memory, Cancellation & Built-In Host Coroutines
+
+- **Linear Memory Accessors**: `syn_wasm_mem_ptr(ctx, offset, size)` and `syn_wasm_mem_cptr(ctx, offset, size)` perform `uint64_t` overflow-safe bounds checks against `ctx->linear_mem_size` and return `NULL` on invalid ranges. Because `ctx->linear_mem` is a fixed static arena (`memory.grow` expands `linear_mem_size` in place without reallocation), validated pointers remain stable across yields.
+- **Pending Call Cancellation**: `syn_wasm_call()` returns `false` while `ctx->host_pending` is `true`. Call `syn_wasm_abort(ctx)` to invoke any registered `SYN_WASM_HostCancelFunc`, clear pending host state and `active_task->delay_until`, unwind the VM stack, and set `ctx->status = SYN_WASM_HALTED`.
+- **Built-In Standard Host Coroutines**: `syn_wasm_host_millis`, `syn_wasm_host_micros`, `syn_wasm_host_sleep_ms`, and `syn_wasm_host_yield` are provided out of the box for direct registration via `syn_wasm_register_host()`.
+
+---
+
 ## Code Example
 
 ```c
+#include <syntropic/sched/syn_sched.h>
 #include <syntropic/vm/syn_wasm.h>
 #include <stdio.h>
+#include <string.h>
 
 static uint8_t wasm_ram[65536]; /* 1 WebAssembly page (64 KiB) static arena */
 static SYN_WASM_Module mod;
 static SYN_WASM_Context ctx;
 
-/* Host function callback signature */
-static uint64_t host_log_cb(SYN_WASM_Context *c, const uint64_t *args, uint8_t argc) {
+/* Synchronous host function using SYN_WASM_HOST_SYNC */
+SYN_WASM_HOST_SYNC(host_log_cb, c, args, argc) {
     (void)c;
     (void)argc;
     printf("[WASM LOG] Code=%u, Val=%u\n", (uint32_t)args[0], (uint32_t)args[1]);
     return args[0] + args[1];
 }
 
-void run_wasm_app(const uint8_t *wasm_bytes, size_t wasm_size) {
-    /* 1. Parse and validate module header, sections, feature profile, and bytecode */
+/* Yielding host coroutine writing into bounds-checked guest linear memory */
+static SYN_PT_Status host_read_sensor_cb(SYN_PT *pt, SYN_WASM_Context *c,
+                                         const uint64_t *args, uint8_t argc, uint64_t *ret) {
+    if ((argc < 2U) || (syn_wasm_mem_ptr(c, (uint32_t)args[0], (uint32_t)args[1]) == NULL)) {
+        c->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+        return PT_EXITED;
+    }
+
+    PT_BEGIN(pt);
+    /* Non-spinning scheduler delay while sensor conversion completes */
+    if (c->active_task != NULL) {
+        PT_TASK_DELAY_MS(pt, c->active_task, 10U);
+    } else {
+        PT_DELAY_MS(pt, &c->host_scratch.u32[0], 10U);
+    }
+    {
+        uint8_t *dst = (uint8_t *)syn_wasm_mem_ptr(c, (uint32_t)args[0], (uint32_t)args[1]);
+        memset(dst, 0x42, (size_t)args[1]);
+    }
+    *ret = args[1];
+    PT_END(pt);
+}
+
+bool start_wasm_task(SYN_Sched *sched, SYN_Task *wasm_task,
+                     const uint8_t *wasm_bytes, size_t wasm_size) {
     SYN_WASM_LoadError load_err = SYN_WASM_LOAD_OK;
     if (!syn_wasm_module_load_ex(&mod, wasm_bytes, (uint32_t)wasm_size, &load_err)) {
         printf("WASM load rejected: %s\n", syn_wasm_load_error_str(load_err));
-        return;
+        return false;
     }
 
-    /* 2. Instantiate execution context with static RAM arena */
     if (!syn_wasm_init(&ctx, &mod, wasm_ram, sizeof(wasm_ram))) {
-        printf("Error: WASM instantiation failed (trap=%d)\n", ctx.status);
-        return;
+        return false;
     }
 
-    /* 3. Register native host callback at import index 0 */
-    syn_wasm_register_host(&ctx, 0, host_log_cb);
+    syn_wasm_register_host(&ctx, 0U, host_log_cb);
+    syn_wasm_register_host(&ctx, 1U, syn_wasm_host_sleep_ms);
+    syn_wasm_register_host(&ctx, 2U, host_read_sensor_cb);
 
-    /* 4. Find exported function "run_tests" */
-    int32_t fn_idx = syn_wasm_find_export(&mod, "run_tests");
-    if (fn_idx < 0) {
-        printf("Error: Exported function 'run_tests' not found\n");
-        return;
+    int32_t fn_idx = syn_wasm_find_export(&mod, "run_app");
+    if ((fn_idx < 0) || !syn_wasm_call(&ctx, (uint16_t)fn_idx)) {
+        return false;
     }
 
-    /* 5. Set up call frame and execute with instruction slicing
-     *    (Inside a SyntropicOS task, prefer PT_SPAWN_IF_NEEDED with syn_wasm_exec_pt()
-     *    or run syn_wasm_task directly on the cooperative scheduler.) */
-    if (!syn_wasm_call(&ctx, (uint16_t)fn_idx)) {
-        printf("Error: WASM call setup failed (trap=%d)\n", ctx.status);
-        return;
-    }
-
-    SYN_WASM_Status st;
-    do {
-        st = syn_wasm_step(&ctx, 100);
-    } while (st == SYN_WASM_YIELDED);
-
-    if (st == SYN_WASM_HALTED) {
-        uint32_t result = (uint32_t)syn_wasm_result(&ctx);
-        printf("WASM execution completed. Result: %u\n", result);
-    } else {
-        printf("WASM execution trapped! Trap code: %d\n", st);
-    }
+    syn_task_create(wasm_task, "wasm_app", syn_wasm_task, SYN_PRIO_NORMAL, &ctx);
+    syn_sched_init(sched, wasm_task, 1U);
+    return true;
 }
 ```
 

@@ -69,6 +69,14 @@ extern "C" {
 #define SYN_WASM_MAX_HOST_FUNCS 16 /**< Maximum registered host functions */
 #endif
 
+#ifndef SYN_WASM_MAX_HOST_ARGS
+#define SYN_WASM_MAX_HOST_ARGS 16 /**< Maximum argument count for imported host functions */
+#endif
+
+#if (SYN_WASM_MAX_HOST_ARGS < 1) || (SYN_WASM_MAX_HOST_ARGS > 255)
+#error "SYN_WASM_MAX_HOST_ARGS must be between 1 and 255"
+#endif
+
 #ifndef SYN_WASM_MAX_GLOBALS
 #define SYN_WASM_MAX_GLOBALS 16 /**< Maximum global variables */
 #endif
@@ -103,7 +111,8 @@ extern "C" {
 /** @brief WebAssembly VM execution status codes and traps */
 typedef enum {
     SYN_WASM_OK = 0,                   /**< Execution completed normally */
-    SYN_WASM_YIELDED,                  /**< Execution yielded after instruction quota */
+    SYN_WASM_YIELDED,                  /**< Execution yielded after instruction quota or PT_MORE */
+    SYN_WASM_WAITING,                  /**< Execution parked waiting on async host coroutine */
     SYN_WASM_HALTED,                   /**< VM halted */
     SYN_WASM_TRAP_STACK_OVERFLOW,      /**< Operand stack overflow trap */
     SYN_WASM_TRAP_STACK_UNDERFLOW,     /**< Operand stack underflow trap */
@@ -114,7 +123,8 @@ typedef enum {
     SYN_WASM_TRAP_CALL_STACK_OVERFLOW, /**< Call stack overflow trap */
     SYN_WASM_TRAP_TYPE_MISMATCH,       /**< Type mismatch trap */
     SYN_WASM_TRAP_INVALID_MODULE,      /**< Invalid Wasm module header/binary */
-    SYN_WASM_TRAP_UNREGISTERED_HOST    /**< Unregistered host function trap */
+    SYN_WASM_TRAP_UNREGISTERED_HOST,   /**< Unregistered host function trap */
+    SYN_WASM_TRAP_HOST                 /**< Host coroutine aborted via PT_EXIT */
 } SYN_WASM_Status;
 
 /** @brief Sentinel value for an uninitialized indirect function table slot */
@@ -134,13 +144,90 @@ typedef enum {
 typedef struct SYN_WASM_Context_s SYN_WASM_Context;
 
 /**
- * @brief Host function signature callable from Wasm bytecode.
- * @param ctx Pointer to Wasm execution context.
- * @param args Array of 64-bit operand stack slots passed as arguments (32-bit types in low bits).
- * @param argc Number of arguments.
- * @return 64-bit return value pushed onto Wasm stack when result_count > 0 (ignored if void).
+ * @brief Protothread coroutine host function signature callable from Wasm bytecode.
+ *
+ * Polled with `ctx->host_pt` until returning `PT_ENDED` (normal completion) or
+ * `PT_EXITED` (host trap). Yielding `PT_IDLE` suspends the guest call with
+ * `SYN_WASM_WAITING`, while yielding `PT_MORE` yields a cooperative chunk with
+ * `SYN_WASM_YIELDED`. Arguments in @p args are copied into `ctx->host_args` and
+ * remain valid across yields. @p ret is always non-NULL and zero-initialized when
+ * invoked by the VM.
+ *
+ * @param pt   Host coroutine protothread control block (`&ctx->host_pt`).
+ * @param ctx  Pointer to Wasm execution context.
+ * @param args Copied array of 64-bit argument slots (`NULL` when `argc == 0`).
+ * @param argc Number of arguments (`<= SYN_WASM_MAX_HOST_ARGS`).
+ * @param ret  Output slot for 64-bit return value when `result_count > 0`.
+ * @return `PT_ENDED` on completion, `PT_IDLE` / `PT_MORE` while suspended, or `PT_EXITED` on trap.
  */
-typedef uint64_t (*SYN_WASM_HostFunc)(SYN_WASM_Context *ctx, const uint64_t *args, uint8_t argc);
+typedef SYN_PT_Status (*SYN_WASM_HostFunc)(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args,
+                                           uint8_t argc, uint64_t *ret);
+
+/**
+ * @brief Optional cleanup callback invoked by syn_wasm_abort() when a pending host call is
+ * cancelled.
+ *
+ * @param ctx  Pointer to Wasm execution context.
+ * @param user Per-import user pointer registered via syn_wasm_register_host_ex().
+ */
+typedef void (*SYN_WASM_HostCancelFunc)(SYN_WASM_Context *ctx, void *user);
+
+/**
+ * @brief Complete a synchronous Wasm host coroutine with a 64-bit return value.
+ *
+ * Resets @p pt, writes @p val_expr to `*(ret_ptr)` when non-NULL, and returns `PT_ENDED`.
+ *
+ * @param pt       Host protothread control block (`SYN_PT *`).
+ * @param ret_ptr  Output return slot pointer (`uint64_t *`).
+ * @param val_expr Return value expression convertible to `uint64_t`.
+ */
+#define SYN_WASM_HOST_RETURN(pt, ret_ptr, val_expr)    \
+    do {                                               \
+        uint64_t syn_wasm_ret_ = (uint64_t)(val_expr); \
+        if ((pt) != NULL) {                            \
+            PT_INIT(pt);                               \
+        }                                              \
+        if ((ret_ptr) != NULL) {                       \
+            *(ret_ptr) = syn_wasm_ret_;                \
+        }                                              \
+        return PT_ENDED;                               \
+    } while (0)
+
+/**
+ * @brief Define a `static` non-yielding Wasm host function returning `uint64_t`.
+ *
+ * Generates a `SYN_WASM_HostFunc`-compatible `static` wrapper named @p name around a
+ * synchronous C function body so one-shot host callbacks remain concise.
+ *
+ * @param name     Identifier of the generated `static` `SYN_WASM_HostFunc`.
+ * @param ctx_var  Parameter name for `SYN_WASM_Context *`.
+ * @param args_var Parameter name for `const uint64_t *`.
+ * @param argc_var Parameter name for `uint8_t`.
+ */
+#define SYN_WASM_HOST_SYNC(name, ctx_var, args_var, argc_var)                                     \
+    static inline uint64_t name##_sync_impl_(SYN_WASM_Context *ctx_var, const uint64_t *args_var, \
+                                             uint8_t argc_var);                                   \
+    static SYN_PT_Status name(SYN_PT *syn_wasm_pt_, SYN_WASM_Context *syn_wasm_ctx_,              \
+                              const uint64_t *syn_wasm_args_, uint8_t syn_wasm_argc_,             \
+                              uint64_t *syn_wasm_ret_ptr_)                                        \
+    {                                                                                             \
+        SYN_WASM_HOST_RETURN(syn_wasm_pt_, syn_wasm_ret_ptr_,                                     \
+                             name##_sync_impl_(syn_wasm_ctx_, syn_wasm_args_, syn_wasm_argc_));   \
+    }                                                                                             \
+    static inline uint64_t name##_sync_impl_(SYN_WASM_Context *ctx_var, const uint64_t *args_var, \
+                                             uint8_t argc_var)
+
+/** @brief Per-call scratch storage preserved across host coroutine yields */
+typedef union {
+    uint64_t u64[2]; /**< 64-bit scratch slots */
+    uint32_t u32[4]; /**< 32-bit scratch slots (e.g., standalone PT_DELAY_MS target) */
+    uint8_t u8[16];  /**< Byte scratch buffer */
+    struct {
+        SYN_PT child_pt; /**< Child protothread control block for nested PT_SPAWN */
+        uint16_t u16[7]; /**< Auxiliary 16-bit counters alongside child_pt */
+    } pt;                /**< Nested protothread + counter layout */
+    SYN_PT child_pt;     /**< Direct child protothread control block */
+} SYN_WASM_HostScratch;
 
 /** @brief WebAssembly function signature descriptor (points into module bytes) */
 typedef struct {
@@ -254,8 +341,19 @@ struct SYN_WASM_Context_s {
     uint32_t linear_mem_size; /**< Active linear RAM memory size in bytes */
     uint32_t linear_mem_cap;  /**< Total backing capacity of linear_mem buffer in bytes */
 
-    SYN_WASM_HostFunc host_funcs[SYN_WASM_MAX_HOST_FUNCS]; /**< Host function table */
-    uint16_t host_func_count;                              /**< Registered host function count */
+    SYN_WASM_HostFunc host_funcs[SYN_WASM_MAX_HOST_FUNCS];         /**< Host coroutine table */
+    SYN_WASM_HostCancelFunc host_cancels[SYN_WASM_MAX_HOST_FUNCS]; /**< Host cancel callbacks */
+    void *host_users[SYN_WASM_MAX_HOST_FUNCS];                     /**< Per-import user pointers */
+    uint16_t host_func_count; /**< Registered host function bound */
+
+    uint64_t host_args[SYN_WASM_MAX_HOST_ARGS]; /**< Copied arguments for active host call */
+    SYN_WASM_HostScratch host_scratch;          /**< Per-call cross-yield scratch union */
+    SYN_Task *active_task;                      /**< Owning scheduler task (or NULL standalone) */
+    SYN_PT host_pt;                             /**< Active host coroutine control block */
+    uint16_t host_import_idx;                   /**< Active/pending imported function index */
+    uint8_t host_argc;                          /**< Active host call argument count */
+    bool host_pending;                          /**< True while a host coroutine is in flight */
+    bool host_waiting;                          /**< True when pending host yielded PT_IDLE */
 
     void *user_ctx;         /**< Custom user context pointer */
     SYN_WASM_Status status; /**< VM status and trap code */
@@ -316,13 +414,57 @@ bool syn_wasm_init_ex(SYN_WASM_Context *ctx, const SYN_WASM_Module *mod, uint8_t
                       uint16_t import_global_count);
 
 /**
- * @brief Register C host function for imported Wasm functions.
+ * @brief Register a protothread host coroutine for an imported Wasm function slot.
  * @param ctx Pointer to context.
  * @param import_index Index of import function slot (0 .. import_func_count - 1).
- * @param func Function pointer to host C handler.
+ * @param func Host coroutine callback.
  * @return true if registered successfully.
  */
 bool syn_wasm_register_host(SYN_WASM_Context *ctx, uint16_t import_index, SYN_WASM_HostFunc func);
+
+/**
+ * @brief Register a protothread host coroutine with optional cancellation hook and user state.
+ * @param ctx Pointer to context.
+ * @param import_index Index of import function slot (0 .. import_func_count - 1).
+ * @param func Host coroutine callback.
+ * @param cancel Optional cleanup callback invoked by syn_wasm_abort() while pending (or NULL).
+ * @param user Optional per-import user pointer retrievable via syn_wasm_host_user() (or NULL).
+ * @return true if registered successfully (fails if @p import_index is currently pending).
+ */
+bool syn_wasm_register_host_ex(SYN_WASM_Context *ctx, uint16_t import_index, SYN_WASM_HostFunc func,
+                               SYN_WASM_HostCancelFunc cancel, void *user);
+
+/**
+ * @brief Return the per-import user pointer for the currently executing or pending host call.
+ * @param ctx Pointer to context.
+ * @return Registered `user` pointer for `ctx->host_import_idx`, or NULL when no host call is
+ * active.
+ */
+void *syn_wasm_host_user(const SYN_WASM_Context *ctx);
+
+/**
+ * @brief Obtain a mutable bounds-checked pointer into guest linear memory.
+ *
+ * Guest linear memory is backed by a fixed static arena (`memory.grow` only increases
+ * `linear_mem_size` in place without reallocation), so a non-NULL pointer returned here
+ * remains valid across cooperative coroutine yields.
+ *
+ * @param ctx    Pointer to Wasm execution context.
+ * @param offset Byte offset into guest linear memory.
+ * @param size   Required accessible byte span (0 still validates `offset <= linear_mem_size`).
+ * @return Mutable host pointer to `linear_mem + offset`, or NULL on out-of-bounds/overflow/NULL.
+ */
+void *syn_wasm_mem_ptr(SYN_WASM_Context *ctx, uint32_t offset, uint32_t size);
+
+/**
+ * @brief Obtain a read-only bounds-checked pointer into guest linear memory.
+ *
+ * @param ctx    Pointer to Wasm execution context.
+ * @param offset Byte offset into guest linear memory.
+ * @param size   Required accessible byte span (0 still validates `offset <= linear_mem_size`).
+ * @return Const host pointer to `linear_mem + offset`, or NULL on out-of-bounds/overflow/NULL.
+ */
+const void *syn_wasm_mem_cptr(const SYN_WASM_Context *ctx, uint32_t offset, uint32_t size);
 
 /**
  * @brief Find exported function index by name.
@@ -334,18 +476,33 @@ int32_t syn_wasm_find_export(const SYN_WASM_Module *mod, const char *name);
 
 /**
  * @brief Prepare context to call a function index.
+ *
+ * Rejects the call and returns `false` if a previous host coroutine is still in flight
+ * (`ctx->host_pending == true`); let the pending call finish or call syn_wasm_abort() first.
+ *
  * @param ctx Pointer to context.
  * @param func_index Function index to invoke.
- * @return true if call frame initialized successfully.
+ * @return true if call frame or pending host coroutine initialized (or completed synchronously).
  */
 bool syn_wasm_call(SYN_WASM_Context *ctx, uint16_t func_index);
+
+/**
+ * @brief Abort any active Wasm execution and cancel any in-flight host coroutine.
+ *
+ * If `ctx->host_pending` is true and the active import has a registered `cancel` hook,
+ * clears VM/coroutine state and `active_task->delay_until` (if owned), sets `ctx->status`
+ * to `SYN_WASM_HALTED`, and invokes `cancel(ctx, user)`.
+ *
+ * @param ctx Pointer to context.
+ */
+void syn_wasm_abort(SYN_WASM_Context *ctx);
 
 /**
  * @brief Execute instruction slice non-blockingly.
  * @param ctx Pointer to context.
  * @param max_instructions Maximum opcodes to process before yielding.
- * @return SYN_WASM_OK (completed), SYN_WASM_YIELDED (time slice expired), SYN_WASM_HALTED
- * (finished), or TRAP.
+ * @return SYN_WASM_YIELDED (instruction quota or PT_MORE), SYN_WASM_WAITING (host PT_IDLE),
+ *         SYN_WASM_HALTED (finished), SYN_WASM_OK, or a SYN_WASM_TRAP_* code.
  */
 SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions);
 
@@ -359,32 +516,98 @@ uint64_t syn_wasm_result(const SYN_WASM_Context *ctx);
 /**
  * @brief Child protothread that executes a Wasm function call in instruction quanta.
  *
- * Steps @p ctx by @p quantum_instructions opcodes per slice (defaults to
- * SYN_WASM_DEFAULT_QUANTUM when 0) and yields PT_MORE via PT_CONTINUE(pt) whenever
- * the slice expires with SYN_WASM_YIELDED. Composes directly with PT_SPAWN and
- * PT_SPAWN_IF_NEEDED(pt, task, child, syn_wasm_exec_pt(...)).
+ * Propagates @p task to `ctx->active_task` (may be NULL outside a scheduler), steps @p ctx
+ * by @p quantum_instructions opcodes per slice (defaults to SYN_WASM_DEFAULT_QUANTUM when 0),
+ * yields PT_IDLE via PT_PASS(pt) on SYN_WASM_WAITING, and yields PT_MORE via PT_CONTINUE(pt)
+ * on SYN_WASM_YIELDED. Composes directly with PT_SPAWN and
+ * PT_SPAWN_IF_NEEDED(pt, task, child, syn_wasm_exec_pt(child, task, ctx, quantum)).
  *
  * @param pt                   Child protothread control block.
+ * @param task                 Owning scheduler task (or NULL for standalone polling).
  * @param ctx                  Initialized Wasm context with an active syn_wasm_call() frame.
  * @param quantum_instructions Opcodes per slice (0 uses SYN_WASM_DEFAULT_QUANTUM).
- * @return PT_MORE while executing, PT_ENDED on SYN_WASM_HALTED, or PT_EXITED on NULL/trap.
+ * @return PT_IDLE while waiting on async host I/O/timer, PT_MORE while executing quanta,
+ *         PT_ENDED on SYN_WASM_HALTED, or PT_EXITED on NULL/trap.
  */
-SYN_PT_Status syn_wasm_exec_pt(SYN_PT *pt, SYN_WASM_Context *ctx, uint16_t quantum_instructions);
+SYN_PT_Status syn_wasm_exec_pt(SYN_PT *pt, SYN_Task *task, SYN_WASM_Context *ctx,
+                               uint16_t quantum_instructions);
 
 /**
  * @brief Cooperative scheduler task entry point for a WebAssembly VM context.
  *
- * Expects `task->user_data` to point to an initialized `SYN_WASM_Context`.
- * Executes active calls in SYN_WASM_DEFAULT_QUANTUM slices and defers via
- * PT_CONTINUE_IF_NEEDED(pt, task) when a peer task requires CPU time, yields
- * PT_IDLE via PT_PASS(pt) when halted or waiting for a new call, and terminates
- * with PT_ENDED if the VM enters a fault trap state.
+ * Expects `task->user_data` to point to an initialized `SYN_WASM_Context`. Binds
+ * `ctx->active_task = task`, executes active calls in SYN_WASM_DEFAULT_QUANTUM slices,
+ * yields PT_IDLE via PT_PASS(pt) when halted or parked on an async host call
+ * (`SYN_WASM_WAITING`), defers via PT_CONTINUE_IF_NEEDED(pt, task) on `SYN_WASM_YIELDED`
+ * when a peer task requires CPU time, and terminates with PT_ENDED on a VM fault trap.
  *
  * @param pt   Protothread state.
  * @param task Scheduler task (`task->user_data` is `SYN_WASM_Context *`).
  * @return Protothread status.
  */
 SYN_PT_Status syn_wasm_task(SYN_PT *pt, SYN_Task *task);
+
+/** @name Built-In Standard Host Coroutines */
+/**@{*/
+
+/**
+ * @brief Standard host coroutine returning `syn_port_get_tick_ms()` (`() -> i32` or `() -> i64`).
+ * @param pt   Host protothread control block.
+ * @param ctx  Wasm execution context.
+ * @param args Argument array (unused).
+ * @param argc Argument count (unused).
+ * @param ret  Receives current millisecond system tick.
+ * @return `PT_ENDED` on success, or `PT_EXITED` if @p pt or @p ret is NULL.
+ */
+SYN_PT_Status syn_wasm_host_millis(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args,
+                                   uint8_t argc, uint64_t *ret);
+
+/**
+ * @brief Standard host coroutine returning `syn_port_get_tick_us()` (`() -> i32` or `() -> i64`).
+ * @param pt   Host protothread control block.
+ * @param ctx  Wasm execution context.
+ * @param args Argument array (unused).
+ * @param argc Argument count (unused).
+ * @param ret  Receives current microsecond system tick.
+ * @return `PT_ENDED` on success, or `PT_EXITED` if @p pt or @p ret is NULL.
+ */
+SYN_PT_Status syn_wasm_host_micros(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args,
+                                   uint8_t argc, uint64_t *ret);
+
+/**
+ * @brief Standard non-spinning sleep host coroutine (`(i32 ms) -> ()` or `(i32 ms) -> i32`).
+ *
+ * Uses `PT_TASK_DELAY_MS(pt, ctx->active_task, ms)` when bound to a scheduler task
+ * (enabling true zero-polling sleep and tickless idle), and falls back to standalone
+ * `PT_DELAY_MS(pt, &ctx->host_scratch.u32[0], ms)` when `ctx->active_task == NULL`.
+ *
+ * @param pt   Host protothread control block.
+ * @param ctx  Wasm execution context.
+ * @param args Argument array (`args[0]` is delay duration in milliseconds).
+ * @param argc Argument count (must be `>= 1`).
+ * @param ret  Receives `0` on completion.
+ * @return `PT_IDLE` while sleeping, `PT_ENDED` when elapsed, or `PT_EXITED` on invalid args.
+ */
+SYN_PT_Status syn_wasm_host_sleep_ms(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args,
+                                     uint8_t argc, uint64_t *ret);
+
+/**
+ * @brief Standard cooperative round-pass host coroutine (`() -> ()` or `() -> i32`).
+ *
+ * Yields `PT_IDLE` once via `PT_PASS(pt)` so equal- and lower-priority tasks can run
+ * during the current scheduler round, then completes with `PT_ENDED` on the next poll.
+ *
+ * @param pt   Host protothread control block.
+ * @param ctx  Wasm execution context (unused).
+ * @param args Argument array (unused).
+ * @param argc Argument count (unused).
+ * @param ret  Receives `0` on completion.
+ * @return `PT_IDLE` on first poll, `PT_ENDED` on resume, or `PT_EXITED` if @p pt or @p ret is NULL.
+ */
+SYN_PT_Status syn_wasm_host_yield(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args,
+                                  uint8_t argc, uint64_t *ret);
+
+/**@}*/
 
 #ifdef __cplusplus
 }

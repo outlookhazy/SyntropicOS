@@ -66,7 +66,17 @@ bool syn_task_should_share(const SYN_Task *task)
     return false;
 }
 
-static uint64_t spectest_noop_cb(SYN_WASM_Context *ctx, const uint64_t *args, uint8_t argc)
+uint32_t syn_port_get_tick_ms(void)
+{
+    return 0U;
+}
+
+uint32_t syn_port_get_tick_us(void)
+{
+    return 0U;
+}
+
+SYN_WASM_HOST_SYNC(spectest_noop_cb, ctx, args, argc)
 {
     (void)ctx;
     (void)args;
@@ -74,21 +84,11 @@ static uint64_t spectest_noop_cb(SYN_WASM_Context *ctx, const uint64_t *args, ui
     return 0ULL;
 }
 
-static uint64_t spec_bridge_cb(SYN_WASM_Context *caller_ctx, const uint64_t *args, uint8_t argc)
-{
-    (void)argc;
-    /* Identify which import slot invoked us? Wait: SYN_WASM_HostFunc receives caller_ctx,
-     * not import_index! So we create per-import-index thunks below! */
-    (void)caller_ctx;
-    (void)args;
-    return 0ULL;
-}
-
 static SYN_WASM_Status run_to_completion(SYN_WASM_Context *ctx)
 {
     uint32_t total = 0U;
     SYN_WASM_Status st = ctx->status;
-    while ((st == SYN_WASM_OK) || (st == SYN_WASM_YIELDED)) {
+    while ((st == SYN_WASM_OK) || (st == SYN_WASM_YIELDED) || (st == SYN_WASM_WAITING)) {
         if (total >= SPEC_STEP_BUDGET) {
             ctx->status = SYN_WASM_TRAP_UNREACHABLE;
             return SYN_WASM_TRAP_UNREACHABLE;
@@ -138,6 +138,8 @@ static uint64_t spec_invoke_bridge_slot(SYN_WASM_Context *caller_ctx, uint16_t i
         return 0ULL;
     }
     *saved = target->ctx;
+    target->ctx.host_pending = false;
+    target->ctx.host_waiting = false;
     target->ctx.sp = 0U;
     for (uint8_t i = 0U; i < argc; i++) {
         target->ctx.stack[target->ctx.sp++] = args[i];
@@ -163,7 +165,9 @@ static uint64_t spec_invoke_bridge_slot(SYN_WASM_Context *caller_ctx, uint16_t i
             target->ctx.linear_mem_size = tmp_mem_size;
             memcpy(target->ctx.data_dropped, tmp_dropped, sizeof(tmp_dropped));
             sync_shared_mem_size(target->mem_buf, tmp_mem_size);
-            caller_ctx->status = (st == SYN_WASM_YIELDED) ? SYN_WASM_TRAP_UNREACHABLE : st;
+            caller_ctx->status = ((st == SYN_WASM_YIELDED) || (st == SYN_WASM_WAITING))
+                                     ? SYN_WASM_TRAP_UNREACHABLE
+                                     : st;
             return 0ULL;
         }
     }
@@ -182,55 +186,17 @@ static uint64_t spec_invoke_bridge_slot(SYN_WASM_Context *caller_ctx, uint16_t i
     return res;
 }
 
-#define DEFINE_BRIDGE_THUNK(N)                                                               \
-    static uint64_t spec_bridge_thunk_##N(SYN_WASM_Context *c, const uint64_t *a, uint8_t n) \
-    {                                                                                        \
-        return spec_invoke_bridge_slot(c, (N), a, n);                                        \
+static SYN_PT_Status spec_bridge_cb(SYN_PT *pt, SYN_WASM_Context *caller_ctx, const uint64_t *args,
+                                    uint8_t argc, uint64_t *ret)
+{
+    uint16_t imp_idx = (uint16_t)(uintptr_t)syn_wasm_host_user(caller_ctx);
+    uint64_t res = spec_invoke_bridge_slot(caller_ctx, imp_idx, args, argc);
+    if (caller_ctx->status != SYN_WASM_OK) {
+        PT_INIT(pt);
+        return PT_EXITED;
     }
-
-DEFINE_BRIDGE_THUNK(0)
-DEFINE_BRIDGE_THUNK(1)
-DEFINE_BRIDGE_THUNK(2)
-DEFINE_BRIDGE_THUNK(3)
-DEFINE_BRIDGE_THUNK(4)
-DEFINE_BRIDGE_THUNK(5)
-DEFINE_BRIDGE_THUNK(6)
-DEFINE_BRIDGE_THUNK(7)
-DEFINE_BRIDGE_THUNK(8)
-DEFINE_BRIDGE_THUNK(9)
-DEFINE_BRIDGE_THUNK(10)
-DEFINE_BRIDGE_THUNK(11)
-DEFINE_BRIDGE_THUNK(12)
-DEFINE_BRIDGE_THUNK(13)
-DEFINE_BRIDGE_THUNK(14)
-DEFINE_BRIDGE_THUNK(15)
-DEFINE_BRIDGE_THUNK(16)
-DEFINE_BRIDGE_THUNK(17)
-DEFINE_BRIDGE_THUNK(18)
-DEFINE_BRIDGE_THUNK(19)
-DEFINE_BRIDGE_THUNK(20)
-DEFINE_BRIDGE_THUNK(21)
-DEFINE_BRIDGE_THUNK(22)
-DEFINE_BRIDGE_THUNK(23)
-DEFINE_BRIDGE_THUNK(24)
-DEFINE_BRIDGE_THUNK(25)
-DEFINE_BRIDGE_THUNK(26)
-DEFINE_BRIDGE_THUNK(27)
-DEFINE_BRIDGE_THUNK(28)
-DEFINE_BRIDGE_THUNK(29)
-DEFINE_BRIDGE_THUNK(30)
-DEFINE_BRIDGE_THUNK(31)
-
-static const SYN_WASM_HostFunc g_bridge_thunks[32] = {
-    spec_bridge_thunk_0,  spec_bridge_thunk_1,  spec_bridge_thunk_2,  spec_bridge_thunk_3,
-    spec_bridge_thunk_4,  spec_bridge_thunk_5,  spec_bridge_thunk_6,  spec_bridge_thunk_7,
-    spec_bridge_thunk_8,  spec_bridge_thunk_9,  spec_bridge_thunk_10, spec_bridge_thunk_11,
-    spec_bridge_thunk_12, spec_bridge_thunk_13, spec_bridge_thunk_14, spec_bridge_thunk_15,
-    spec_bridge_thunk_16, spec_bridge_thunk_17, spec_bridge_thunk_18, spec_bridge_thunk_19,
-    spec_bridge_thunk_20, spec_bridge_thunk_21, spec_bridge_thunk_22, spec_bridge_thunk_23,
-    spec_bridge_thunk_24, spec_bridge_thunk_25, spec_bridge_thunk_26, spec_bridge_thunk_27,
-    spec_bridge_thunk_28, spec_bridge_thunk_29, spec_bridge_thunk_30, spec_bridge_thunk_31,
-};
+    SYN_WASM_HOST_RETURN(pt, ret, res);
+}
 
 static bool leb_read_u32(const uint8_t *b, uint32_t end, uint32_t *off, uint32_t *out)
 {
@@ -293,7 +259,6 @@ static void reset_all(void)
     memset(g_reg, 0, sizeof(g_reg));
     memset(g_spectest_mem, 0, sizeof(g_spectest_mem));
     g_last_slot = NULL;
-    (void)spec_bridge_cb;
 }
 
 static SpecSlot *find_slot(const char *name)
@@ -457,13 +422,13 @@ static int link_slot_imports(SpecSlot *slot, uint64_t *import_globals, uint16_t 
                                     want->result_count) != 0)) {
                             return -1;
                         }
-                        if ((imp_i >= 32U) || (got->result_count > 1U)) {
+                        if ((imp_i >= SYN_WASM_MAX_HOST_FUNCS) || (got->result_count > 1U)) {
                             *out_unsupported_link = true;
                             return -2;
                         }
                         slot->bridges[imp_i].target_slot = prov;
                         slot->bridges[imp_i].target_func_idx = (uint16_t)exp_fn;
-                        host_fns[imp_i] = g_bridge_thunks[imp_i];
+                        host_fns[imp_i] = spec_bridge_cb;
                     }
                 } else if (kind == 1U) { /* table */
                     uint8_t et = b[off++];
@@ -783,7 +748,7 @@ static void handle_load(const char *slot_name, const char *wasm_path)
 
     slot->ctx.user_ctx = slot;
     for (uint16_t h = 0U; h < host_cnt; h++) {
-        (void)syn_wasm_register_host(&slot->ctx, h, host_fns[h]);
+        (void)syn_wasm_register_host_ex(&slot->ctx, h, host_fns[h], NULL, (void *)(uintptr_t)h);
     }
 
     slot->active = true;

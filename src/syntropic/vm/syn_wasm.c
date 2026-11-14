@@ -1102,7 +1102,8 @@ static SYN_WASM_LoadError wasm_parse_import_desc(SYN_WASM_Module *mod, const uin
             return SYN_WASM_LOAD_ERR_MALFORMED;
         }
         if ((mod->func_count >= SYN_WASM_MAX_FUNCTIONS) ||
-            (mod->import_func_count >= SYN_WASM_MAX_HOST_FUNCS)) {
+            (mod->import_func_count >= SYN_WASM_MAX_HOST_FUNCS) ||
+            (mod->types[type_idx].param_count > SYN_WASM_MAX_HOST_ARGS)) {
             return SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED;
         }
         mod->funcs[mod->func_count].type_idx = type_idx;
@@ -2558,17 +2559,52 @@ bool syn_wasm_init(SYN_WASM_Context *ctx, const SYN_WASM_Module *mod, uint8_t *l
     return syn_wasm_init_ex(ctx, mod, linear_mem, mem_size, NULL, 0U);
 }
 
-bool syn_wasm_register_host(SYN_WASM_Context *ctx, uint16_t import_index, SYN_WASM_HostFunc func)
+bool syn_wasm_register_host_ex(SYN_WASM_Context *ctx, uint16_t import_index, SYN_WASM_HostFunc func,
+                               SYN_WASM_HostCancelFunc cancel, void *user)
 {
-    if (!ctx || import_index >= SYN_WASM_MAX_HOST_FUNCS) {
+    if ((ctx == NULL) || (import_index >= SYN_WASM_MAX_HOST_FUNCS) ||
+        (ctx->host_pending && (ctx->host_import_idx == import_index))) {
         return false;
     }
 
     ctx->host_funcs[import_index] = func;
+    ctx->host_cancels[import_index] = cancel;
+    ctx->host_users[import_index] = user;
     if (import_index >= ctx->host_func_count) {
-        ctx->host_func_count = import_index + 1;
+        ctx->host_func_count = (uint16_t)(import_index + 1U);
     }
     return true;
+}
+
+bool syn_wasm_register_host(SYN_WASM_Context *ctx, uint16_t import_index, SYN_WASM_HostFunc func)
+{
+    return syn_wasm_register_host_ex(ctx, import_index, func, NULL, NULL);
+}
+
+void *syn_wasm_host_user(const SYN_WASM_Context *ctx)
+{
+    if ((ctx == NULL) || !ctx->host_pending || (ctx->host_import_idx >= SYN_WASM_MAX_HOST_FUNCS)) {
+        return NULL;
+    }
+    return ctx->host_users[ctx->host_import_idx];
+}
+
+void *syn_wasm_mem_ptr(SYN_WASM_Context *ctx, uint32_t offset, uint32_t size)
+{
+    if ((ctx == NULL) || (ctx->linear_mem == NULL) ||
+        (((uint64_t)offset + (uint64_t)size) > (uint64_t)ctx->linear_mem_size)) {
+        return NULL;
+    }
+    return (void *)(ctx->linear_mem + offset);
+}
+
+const void *syn_wasm_mem_cptr(const SYN_WASM_Context *ctx, uint32_t offset, uint32_t size)
+{
+    if ((ctx == NULL) || (ctx->linear_mem == NULL) ||
+        (((uint64_t)offset + (uint64_t)size) > (uint64_t)ctx->linear_mem_size)) {
+        return NULL;
+    }
+    return (const void *)(ctx->linear_mem + offset);
 }
 
 int32_t syn_wasm_find_export(const SYN_WASM_Module *mod, const char *name)
@@ -2687,6 +2723,43 @@ static bool wasm_push_frame(SYN_WASM_Context *ctx, uint16_t target_idx, bool all
     return true;
 }
 
+static void wasm_poll_host(SYN_WASM_Context *ctx)
+{
+    uint16_t imp_idx = ctx->host_import_idx;
+    const SYN_WASM_Module *mod = ctx->module;
+    uint64_t ret_val = 0ULL;
+    const uint64_t *args_ptr = (ctx->host_argc > 0U) ? ctx->host_args : NULL;
+
+    SYN_PT_Status pst =
+        ctx->host_funcs[imp_idx](&ctx->host_pt, ctx, args_ptr, ctx->host_argc, &ret_val);
+    if (!ctx->host_pending) {
+        return;
+    }
+    if ((ctx->status == SYN_WASM_OK) && (pst < PT_EXITED)) {
+        ctx->host_waiting = (pst == PT_IDLE);
+        return;
+    }
+
+    ctx->host_pending = false;
+    ctx->host_waiting = false;
+    PT_INIT(&ctx->host_pt);
+
+    if (pst == PT_EXITED) {
+        if (ctx->status == SYN_WASM_OK) {
+            ctx->status = SYN_WASM_TRAP_HOST;
+        }
+        return;
+    }
+    if (ctx->status == SYN_WASM_OK) {
+        if (mod->funcs[imp_idx].result_count > 0U) {
+            (void)push_stack64(ctx, ret_val);
+        }
+        if ((ctx->status == SYN_WASM_OK) && (ctx->call_depth == 0U)) {
+            ctx->status = SYN_WASM_HALTED;
+        }
+    }
+}
+
 static void wasm_invoke_func(SYN_WASM_Context *ctx, uint32_t target_idx)
 {
     const SYN_WASM_Module *mod = ctx->module;
@@ -2695,21 +2768,30 @@ static void wasm_invoke_func(SYN_WASM_Context *ctx, uint32_t target_idx)
         return;
     }
     if (target_idx < mod->import_func_count) {
-        if (target_idx >= ctx->host_func_count || ctx->host_funcs[target_idx] == NULL) {
+        if ((target_idx >= ctx->host_func_count) || (ctx->host_funcs[target_idx] == NULL)) {
             ctx->status = SYN_WASM_TRAP_UNREGISTERED_HOST;
             return;
         }
         uint8_t argc = mod->funcs[target_idx].param_count;
+        if (argc > SYN_WASM_MAX_HOST_ARGS) {
+            ctx->status = SYN_WASM_TRAP_INVALID_MODULE;
+            return;
+        }
         if (ctx->sp < (uint32_t)argc) {
             ctx->status = SYN_WASM_TRAP_STACK_UNDERFLOW;
             return;
         }
         ctx->sp -= (uint32_t)argc;
-        const uint64_t *args_ptr = (argc > 0U) ? &ctx->stack[ctx->sp] : NULL;
-        uint64_t ret = ctx->host_funcs[target_idx](ctx, args_ptr, argc);
-        if (ctx->status == SYN_WASM_OK && mod->funcs[target_idx].result_count > 0U) {
-            (void)push_stack64(ctx, ret);
+        if (argc > 0U) {
+            memcpy(ctx->host_args, &ctx->stack[ctx->sp], (size_t)argc * sizeof(uint64_t));
         }
+        PT_INIT(&ctx->host_pt);
+        memset(&ctx->host_scratch, 0, sizeof(ctx->host_scratch));
+        ctx->host_import_idx = (uint16_t)target_idx;
+        ctx->host_argc = argc;
+        ctx->host_waiting = false;
+        ctx->host_pending = true;
+        wasm_poll_host(ctx);
         return;
     }
     (void)wasm_push_frame(ctx, (uint16_t)target_idx, false);
@@ -2750,7 +2832,8 @@ static void wasm_do_return(SYN_WASM_Context *ctx)
 
 bool syn_wasm_call(SYN_WASM_Context *ctx, uint16_t func_index)
 {
-    if (ctx == NULL || ctx->module == NULL || func_index >= ctx->module->func_count) {
+    if ((ctx == NULL) || (ctx->module == NULL) || ctx->host_pending ||
+        (func_index >= ctx->module->func_count)) {
         return false;
     }
 
@@ -2761,14 +2844,43 @@ bool syn_wasm_call(SYN_WASM_Context *ctx, uint16_t func_index)
 
     if (func_index < ctx->module->import_func_count) {
         wasm_invoke_func(ctx, (uint32_t)func_index);
-        if (ctx->status != SYN_WASM_OK) {
-            return false;
-        }
-        ctx->status = SYN_WASM_HALTED;
-        return true;
+        return (ctx->status == SYN_WASM_OK) || (ctx->status == SYN_WASM_HALTED);
     }
 
     return wasm_push_frame(ctx, func_index, true);
+}
+
+void syn_wasm_abort(SYN_WASM_Context *ctx)
+{
+    if (ctx == NULL) {
+        return;
+    }
+
+    SYN_WASM_HostCancelFunc cancel_fn = NULL;
+    void *cancel_user = NULL;
+    if (ctx->host_pending && (ctx->host_import_idx < SYN_WASM_MAX_HOST_FUNCS)) {
+        cancel_fn = ctx->host_cancels[ctx->host_import_idx];
+        cancel_user = ctx->host_users[ctx->host_import_idx];
+    }
+
+    ctx->host_pending = false;
+    ctx->host_waiting = false;
+    ctx->host_argc = 0U;
+    PT_INIT(&ctx->host_pt);
+    memset(&ctx->host_scratch, 0, sizeof(ctx->host_scratch));
+
+    ctx->call_depth = 0U;
+    ctx->label_depth = 0U;
+    ctx->local_count = 0U;
+    ctx->sp = 0U;
+    if (ctx->active_task != NULL) {
+        ctx->active_task->delay_until = 0U;
+    }
+    ctx->status = SYN_WASM_HALTED;
+
+    if (cancel_fn != NULL) {
+        cancel_fn(ctx, cancel_user);
+    }
 }
 
 uint64_t syn_wasm_result(const SYN_WASM_Context *ctx)
@@ -3478,6 +3590,11 @@ static void wasm_exec_f32_fixed(SYN_WASM_Context *ctx, uint8_t opcode)
 }
 #endif
 
+static SYN_WASM_Status wasm_pending_status(const SYN_WASM_Context *ctx)
+{
+    return ctx->host_waiting ? SYN_WASM_WAITING : SYN_WASM_YIELDED;
+}
+
 SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
 {
     if (!ctx || !ctx->module) {
@@ -3490,10 +3607,20 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
     }
     /* LCOV_EXCL_STOP */
 
+    if (ctx->host_pending) {
+        wasm_poll_host(ctx);
+        if (ctx->host_pending) {
+            return wasm_pending_status(ctx);
+        }
+        if (ctx->status != SYN_WASM_OK) {
+            return ctx->status;
+        }
+    }
+
     const SYN_WASM_Module *mod = ctx->module;
     uint16_t executed = 0;
 
-    while (executed < max_instructions && ctx->status == SYN_WASM_OK) {
+    while ((executed < max_instructions) && (ctx->status == SYN_WASM_OK) && !ctx->host_pending) {
         /* LCOV_EXCL_START: Wasm call depth zero halt check */
         if (ctx->call_depth == 0) {
             ctx->status = SYN_WASM_HALTED;
@@ -4680,6 +4807,10 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
         }
     }
 
+    if (ctx->host_pending) {
+        return wasm_pending_status(ctx);
+    }
+
     if (executed >= max_instructions && ctx->status == SYN_WASM_OK) {
         return SYN_WASM_YIELDED;
     }
@@ -4687,20 +4818,24 @@ SYN_WASM_Status syn_wasm_step(SYN_WASM_Context *ctx, uint16_t max_instructions)
     return ctx->status;
 }
 
-SYN_PT_Status syn_wasm_exec_pt(SYN_PT *pt, SYN_WASM_Context *ctx, uint16_t quantum_instructions)
+SYN_PT_Status syn_wasm_exec_pt(SYN_PT *pt, SYN_Task *task, SYN_WASM_Context *ctx,
+                               uint16_t quantum_instructions)
 {
-    if (pt == NULL || ctx == NULL || ctx->module == NULL) {
+    if ((pt == NULL) || (ctx == NULL) || (ctx->module == NULL)) {
         return PT_EXITED;
     }
 
+    ctx->active_task = task;
     uint16_t step_limit =
         (quantum_instructions == 0U) ? SYN_WASM_DEFAULT_QUANTUM : quantum_instructions;
 
     PT_BEGIN(pt);
 
-    while (ctx->status == SYN_WASM_OK && ctx->call_depth > 0U) {
+    while ((ctx->status == SYN_WASM_OK) && ((ctx->call_depth > 0U) || ctx->host_pending)) {
         SYN_WASM_Status st = syn_wasm_step(ctx, step_limit);
-        if (st == SYN_WASM_YIELDED) {
+        if (st == SYN_WASM_WAITING) {
+            PT_PASS(pt);
+        } else if (st == SYN_WASM_YIELDED) {
             PT_CONTINUE(pt);
         }
     }
@@ -4714,17 +4849,21 @@ SYN_PT_Status syn_wasm_exec_pt(SYN_PT *pt, SYN_WASM_Context *ctx, uint16_t quant
 
 SYN_PT_Status syn_wasm_task(SYN_PT *pt, SYN_Task *task)
 {
-    if (pt == NULL || task == NULL || task->user_data == NULL) {
+    if ((pt == NULL) || (task == NULL) || (task->user_data == NULL)) {
         return PT_EXITED;
     }
 
     SYN_WASM_Context *ctx = (SYN_WASM_Context *)task->user_data;
+    ctx->active_task = task;
 
     PT_BEGIN(pt);
 
     while (ctx->status <= SYN_WASM_HALTED) {
-        if (ctx->status == SYN_WASM_OK && ctx->call_depth > 0U) {
-            if (syn_wasm_step(ctx, SYN_WASM_DEFAULT_QUANTUM) == SYN_WASM_YIELDED) {
+        if ((ctx->status == SYN_WASM_OK) && ((ctx->call_depth > 0U) || ctx->host_pending)) {
+            SYN_WASM_Status st = syn_wasm_step(ctx, SYN_WASM_DEFAULT_QUANTUM);
+            if (st == SYN_WASM_WAITING) {
+                PT_PASS(pt);
+            } else if (st == SYN_WASM_YIELDED) {
                 PT_CONTINUE_IF_NEEDED(pt, task);
             }
         } else {
@@ -4732,6 +4871,69 @@ SYN_PT_Status syn_wasm_task(SYN_PT *pt, SYN_Task *task)
         }
     }
 
+    PT_END(pt);
+}
+
+SYN_PT_Status syn_wasm_host_millis(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args,
+                                   uint8_t argc, uint64_t *ret)
+{
+    (void)ctx;
+    (void)args;
+    (void)argc;
+    if ((pt == NULL) || (ret == NULL)) {
+        return PT_EXITED;
+    }
+    PT_INIT(pt);
+    *ret = (uint64_t)syn_port_get_tick_ms();
+    return PT_ENDED;
+}
+
+SYN_PT_Status syn_wasm_host_micros(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args,
+                                   uint8_t argc, uint64_t *ret)
+{
+    (void)ctx;
+    (void)args;
+    (void)argc;
+    if ((pt == NULL) || (ret == NULL)) {
+        return PT_EXITED;
+    }
+    PT_INIT(pt);
+    *ret = (uint64_t)syn_port_get_tick_us();
+    return PT_ENDED;
+}
+
+SYN_PT_Status syn_wasm_host_sleep_ms(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args,
+                                     uint8_t argc, uint64_t *ret)
+{
+    if ((pt == NULL) || (ctx == NULL) || (argc < 1U) || (args == NULL) || (ret == NULL)) {
+        return PT_EXITED;
+    }
+
+    PT_BEGIN(pt);
+
+    if (ctx->active_task != NULL) {
+        PT_TASK_DELAY_MS(pt, ctx->active_task, (uint32_t)args[0]);
+    } else {
+        PT_DELAY_MS(pt, &ctx->host_scratch.u32[0], (uint32_t)args[0]);
+    }
+
+    *ret = 0ULL;
+    PT_END(pt);
+}
+
+SYN_PT_Status syn_wasm_host_yield(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args,
+                                  uint8_t argc, uint64_t *ret)
+{
+    (void)ctx;
+    (void)args;
+    (void)argc;
+    if ((pt == NULL) || (ret == NULL)) {
+        return PT_EXITED;
+    }
+
+    PT_BEGIN(pt);
+    PT_PASS(pt);
+    *ret = 0ULL;
     PT_END(pt);
 }
 

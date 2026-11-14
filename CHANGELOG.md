@@ -10,11 +10,21 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (`YYYY.M.
 ## [Unreleased]
 
 ### Added
+- **WebAssembly Coroutine Host Functions & Guest Helpers (`syn_wasm`)**:
+  - Added `syn_wasm_register_host_ex()`, `SYN_WASM_HostCancelFunc`, `syn_wasm_host_user()`, `SYN_WASM_HOST_SYNC`, `SYN_WASM_HOST_RETURN`, `SYN_WASM_HostScratch`, `SYN_WASM_MAX_HOST_ARGS` (enforced on imported function signatures at load time with `SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED`), `SYN_WASM_WAITING`, and `SYN_WASM_TRAP_HOST`.
+  - Added `syn_wasm_abort()` to cancel in-flight host coroutines (`cancel(ctx, user)`), clear `active_task->delay_until`, and unwind VM state, plus `uint64_t` overflow-safe linear memory accessors `syn_wasm_mem_ptr()` and `syn_wasm_mem_cptr()`.
+  - Added built-in standard host coroutines `syn_wasm_host_millis()`, `syn_wasm_host_micros()`, `syn_wasm_host_sleep_ms()`, and `syn_wasm_host_yield()`.
 - **WebAssembly Embedded Feature Profile, Bytecode Validator & W3C Spec Suite (`syn_wasm`)**:
   - Defined and enforced `syn_wasm`'s supported embedded WebAssembly contract: WebAssembly 1.0 Core (MVP, single return value) + `mutable-globals` + `sign-ext` (`0xC0`–`0xC4`) + `nontrapping-fptoint` (`0xFC 0x00`–`0x07`) + single-memory `bulk-memory` (`memory.copy`, `memory.fill`, `memory.init`, `data.drop`, `DataCount`, and zero-copy Flash passive data segments).
   - Added `syn_wasm_module_load_ex()`, `SYN_WASM_LoadError`, and `syn_wasm_load_error_str()` performing full W3C WebAssembly Appendix A.2 load-time section, UTF-8 name, operand-stack, and structured control-flow validation while deterministically rejecting excluded proposals (`threads`/atomics, `simd`, `reference-types`, `multivalue`, `tail-call`, `exception-handling`, `memory64`, `multi-memory`, `gc`) with `SYN_WASM_LOAD_ERR_UNSUPPORTED` and configurable capacity overflows with `SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED`.
   - Added `syn_wasm_init_ex()` supporting imported global initializers (`global.get` in global, element, and active data constant expressions alongside `i32`/`i64`/`f32`/`f64.const`), zero-heap static-arena `memory.grow`, and `#ifndef`-configurable `SYN_WASM_MAX_*` limits (`SYN_WASM_MAX_TYPES`, `SYN_WASM_MAX_EXPORTS`, `SYN_WASM_MAX_TABLE_ELEMS`, `SYN_WASM_MAX_DATA_SEGS`, `SYN_WASM_DEFAULT_QUANTUM`).
   - Integrated the official W3C `WebAssembly/spec` conformance harness (`make -C tools/containers container-wasm-spec`, 23,931 assertions + 471 excluded-extension module checks under ASan + UBSan).
+
+### Changed (Breaking)
+- **Protothread Coroutine Host Signatures (`syn_wasm`)**:
+  - Replaced synchronous `SYN_WASM_HostFunc` with protothread coroutine signature `SYN_PT_Status (*SYN_WASM_HostFunc)(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args, uint8_t argc, uint64_t *ret)` so WebAssembly guests can invoke yielding APIs (`PT_TASK_DELAY_MS`, `PT_MUTEX_LOCK`, chunked async I/O) without blocking the cooperative scheduler.
+  - Updated `syn_wasm_exec_pt()` to accept owning `SYN_Task *task` (`syn_wasm_exec_pt(pt, task, ctx, quantum_instructions)`) and propagated `ctx->active_task` from `syn_wasm_task()` and `syn_wasm_exec_pt()`.
+  - Rejected `syn_wasm_call()` while `ctx->host_pending` is true unless completed or cancelled via `syn_wasm_abort()`.
 
 ### Fixed
 - **WebAssembly Spec Conformance & Pinned Clang Target Flags (`syn_wasm`)**:

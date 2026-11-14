@@ -4,6 +4,7 @@
  */
 
 #include "mocks/mock_port.h"
+#include "syntropic/sched/syn_mutex.h"
 #include "syntropic/vm/syn_wasm.h"
 #include "unity/unity.h"
 
@@ -62,13 +63,13 @@ static const uint8_t g_wasm_loop_binary[] = {
 
 /* Host function callback counter */
 static uint32_t g_host_call_count = 0;
-static uint64_t mock_host_func(SYN_WASM_Context *ctx, const uint64_t *args, uint8_t argc)
+SYN_WASM_HOST_SYNC(mock_host_func, ctx, args, argc)
 {
     (void)ctx;
     (void)args;
     (void)argc;
     g_host_call_count++;
-    return 42;
+    return 42ULL;
 }
 
 static void test_wasm_load_null_and_invalid(void)
@@ -137,8 +138,11 @@ static void test_wasm_host_function_registration(void)
     TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 0, mock_host_func));
 
     /* Manually invoke host func registration slot 0 */
-    uint32_t ret = g_wasm_ctx.host_funcs[0](&g_wasm_ctx, NULL, 0);
-    TEST_ASSERT_EQUAL_UINT32(42, ret);
+    SYN_PT hpt;
+    PT_INIT(&hpt);
+    uint64_t ret = 0ULL;
+    TEST_ASSERT_EQUAL(PT_ENDED, g_wasm_ctx.host_funcs[0](&hpt, &g_wasm_ctx, NULL, 0U, &ret));
+    TEST_ASSERT_EQUAL_UINT64(42ULL, ret);
     TEST_ASSERT_EQUAL_UINT32(1, g_host_call_count);
 }
 
@@ -223,14 +227,14 @@ static uint32_t g_host_log_called = 0;
 static uint32_t g_host_log_code = 0;
 static uint32_t g_host_log_val = 0;
 
-static uint64_t mock_host_log(SYN_WASM_Context *ctx, const uint64_t *args, uint8_t argc)
+SYN_WASM_HOST_SYNC(mock_host_log, ctx, args, argc)
 {
     (void)ctx;
     (void)argc;
     g_host_log_called++;
     g_host_log_code = (uint32_t)args[0];
     g_host_log_val = (uint32_t)args[1];
-    return g_host_log_code + g_host_log_val;
+    return (uint64_t)(g_host_log_code + g_host_log_val);
 }
 
 static uint32_t run_wasm_fixture(const uint8_t *bytes, uint32_t size)
@@ -1273,7 +1277,7 @@ static void test_r5_wasm_i64_global_init(void)
     TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE, g_wasm_ctx.status);
 }
 
-static uint64_t tier_a_host_add64(SYN_WASM_Context *ctx, const uint64_t *args, uint8_t argc)
+SYN_WASM_HOST_SYNC(tier_a_host_add64, ctx, args, argc)
 {
     (void)ctx;
     if (args == NULL || argc != 2U) {
@@ -1563,7 +1567,8 @@ static SYN_PT_Status wasm_spawn_parent_task(SYN_PT *pt, SYN_Task *task)
 {
     WasmSpawnTaskCtx *w = (WasmSpawnTaskCtx *)task->user_data;
     PT_BEGIN(pt);
-    PT_SPAWN_IF_NEEDED(pt, task, &w->child_pt, syn_wasm_exec_pt(&w->child_pt, w->ctx, w->quantum));
+    PT_SPAWN_IF_NEEDED(pt, task, &w->child_pt,
+                       syn_wasm_exec_pt(&w->child_pt, task, w->ctx, w->quantum));
     w->completed++;
     PT_END(pt);
 }
@@ -1585,10 +1590,10 @@ static void test_wasm_cooperative_exec_pt_and_task(void)
     PT_INIT(&pt);
 
     /* 1. Parameter & trap guards */
-    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_exec_pt(NULL, &g_wasm_ctx, 8U));
-    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_exec_pt(&pt, NULL, 8U));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_exec_pt(NULL, NULL, &g_wasm_ctx, 8U));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_exec_pt(&pt, NULL, NULL, 8U));
     memset(&g_wasm_ctx, 0, sizeof(g_wasm_ctx));
-    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_exec_pt(&pt, &g_wasm_ctx, 8U));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_exec_pt(&pt, NULL, &g_wasm_ctx, 8U));
 
     SYN_Task dummy_task;
     memset(&dummy_task, 0, sizeof(dummy_task));
@@ -1602,13 +1607,13 @@ static void test_wasm_cooperative_exec_pt_and_task(void)
 
     /* Calling syn_wasm_exec_pt when not HALTED and call_depth == 0 exits with PT_EXITED */
     PT_INIT(&pt);
-    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_exec_pt(&pt, &g_wasm_ctx, 0U));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_exec_pt(&pt, NULL, &g_wasm_ctx, 0U));
 
     /* 2. Standalone syn_wasm_exec_pt with default quantum (0U) and small quantum (5U) */
     TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 0U));
     g_wasm_ctx.locals[0] = 3U;
     PT_INIT(&pt);
-    TEST_ASSERT_EQUAL(PT_ENDED, syn_wasm_exec_pt(&pt, &g_wasm_ctx, 0U));
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_wasm_exec_pt(&pt, NULL, &g_wasm_ctx, 0U));
     TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
 
     /* 3. PT_SPAWN_IF_NEEDED: uncontended (1 turn) vs contended (interleaved quanta) */
@@ -2799,6 +2804,780 @@ static void test_wasm_spec_profile_bytecode_validator_and_raw_guards(void)
     }
 }
 
+/* ── Coroutine Host Function Tests ──────────────────────────────────────── */
+
+static uint32_t g_sync_bias_calls = 0U;
+SYN_WASM_HOST_SYNC(coro_sync_add_bias_host, ctx, args, argc)
+{
+    const uint32_t *bias = (const uint32_t *)syn_wasm_host_user(ctx);
+    g_sync_bias_calls++;
+    uint64_t addend = (bias != NULL) ? (uint64_t)(*bias) : 0ULL;
+    uint64_t base = (argc > 0U && args != NULL) ? args[0] : 0ULL;
+    return base + addend;
+}
+
+SYN_WASM_HOST_SYNC(coro_sync_void_host, ctx, args, argc)
+{
+    (void)ctx;
+    (void)args;
+    (void)argc;
+    g_sync_bias_calls++;
+    return 999ULL;
+}
+
+static void test_wasm_host_sync_multi_call_single_quantum(void)
+{
+    /* Module with:
+     *   import 0: (i32) -> i32
+     *   import 1: () -> ()
+     *   func 2 (export "run4"):
+     *     call 1
+     *     i32.const 10
+     *     call 0
+     *     call 0
+     *     call 0
+     *     call 0
+     *     end
+     */
+    static const uint8_t sync_multi_wasm[] = {
+        0x00U, 0x61U, 0x73U, 0x6DU, 0x01U, 0x00U, 0x00U, 0x00U, 0x01U, 0x09U, 0x02U,
+        0x60U, 0x01U, 0x7FU, 0x01U, 0x7FU, 0x60U, 0x00U, 0x00U, 0x02U, 0x0DU, 0x02U,
+        0x01U, 0x65U, 0x01U, 0x61U, 0x00U, 0x00U, 0x01U, 0x65U, 0x01U, 0x76U, 0x00U,
+        0x01U, 0x03U, 0x02U, 0x01U, 0x00U, 0x07U, 0x08U, 0x01U, 0x04U, 0x72U, 0x75U,
+        0x6EU, 0x34U, 0x00U, 0x02U, 0x0AU, 0x10U, 0x01U, 0x0EU, 0x00U, 0x10U, 0x01U,
+        0x41U, 0x0AU, 0x10U, 0x00U, 0x10U, 0x00U, 0x10U, 0x00U, 0x10U, 0x00U, 0x0BU,
+    };
+
+    uint32_t bias = 7U;
+    g_sync_bias_calls = 0U;
+    TEST_ASSERT_TRUE(
+        syn_wasm_module_load(&g_wasm_mod, sync_multi_wasm, (uint32_t)sizeof(sync_multi_wasm)));
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
+    TEST_ASSERT_TRUE(
+        syn_wasm_register_host_ex(&g_wasm_ctx, 0U, coro_sync_add_bias_host, NULL, &bias));
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 1U, coro_sync_void_host));
+    /* Re-registering existing index < host_func_count preserves host_func_count */
+    TEST_ASSERT_TRUE(
+        syn_wasm_register_host_ex(&g_wasm_ctx, 0U, coro_sync_add_bias_host, NULL, &bias));
+    TEST_ASSERT_EQUAL_UINT16(2U, g_wasm_ctx.host_func_count);
+
+    int32_t fn = syn_wasm_find_export(&g_wasm_mod, "run4");
+    TEST_ASSERT_EQUAL_INT32(2, fn);
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, (uint16_t)fn));
+
+    /* All 5 synchronous host calls execute inside a single syn_wasm_step() quantum */
+    SYN_WASM_Status st = syn_wasm_step(&g_wasm_ctx, 32U);
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, st);
+    TEST_ASSERT_FALSE(g_wasm_ctx.host_pending);
+    TEST_ASSERT_EQUAL_UINT32(5U, g_sync_bias_calls);
+    TEST_ASSERT_EQUAL_UINT32(38U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    /* Stack overflow when pushing host return value onto a full operand stack */
+    g_wasm_ctx.sp = SYN_WASM_MAX_STACK;
+    g_wasm_ctx.stack[SYN_WASM_MAX_STACK - 1U] = 5ULL;
+    g_wasm_mod.funcs[0].param_count = 0U;
+    g_wasm_mod.funcs[0].result_count = 1U;
+    TEST_ASSERT_FALSE(syn_wasm_call(&g_wasm_ctx, 0U));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_STACK_OVERFLOW, g_wasm_ctx.status);
+}
+
+static const uint8_t g_coro_uart_feed[8] = {'S', 'Y', 'N', '_', 'C', 'O', 'R', 'O'};
+static uint32_t g_coro_sleep_polls = 0U;
+
+static SYN_PT_Status coro_uart_read_host(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args,
+                                         uint8_t argc, uint64_t *ret)
+{
+    if ((pt == NULL) || (ctx == NULL) || (args == NULL) || (argc < 2U) || (ret == NULL)) {
+        return PT_EXITED;
+    }
+    if (syn_wasm_mem_ptr(ctx, (uint32_t)args[0], (uint32_t)args[1]) == NULL) {
+        ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+        return PT_EXITED;
+    }
+
+    PT_BEGIN(pt);
+    while (ctx->host_scratch.u32[0] < (uint32_t)args[1]) {
+        {
+            uint8_t *dst = (uint8_t *)syn_wasm_mem_ptr(ctx, (uint32_t)args[0], (uint32_t)args[1]);
+            uint32_t idx = ctx->host_scratch.u32[0];
+            uint32_t rem = (uint32_t)args[1] - idx;
+            uint32_t chunk = (rem > 2U) ? 2U : rem;
+            for (uint32_t i = 0U; i < chunk; i++) {
+                dst[idx + i] = g_coro_uart_feed[(idx + i) & 7U];
+            }
+            ctx->host_scratch.u32[0] = idx + chunk;
+        }
+        if (ctx->host_scratch.u32[0] < (uint32_t)args[1]) {
+            PT_PASS(pt);
+        }
+    }
+    *ret = args[1];
+    PT_END(pt);
+}
+
+static SYN_PT_Status coro_counted_sleep_host(SYN_PT *pt, SYN_WASM_Context *ctx,
+                                             const uint64_t *args, uint8_t argc, uint64_t *ret)
+{
+    g_coro_sleep_polls++;
+    return syn_wasm_host_sleep_ms(pt, ctx, args, argc, ret);
+}
+
+static SYN_PT_Status wasm_peer_idle_counter_task(SYN_PT *pt, SYN_Task *task)
+{
+    uint32_t *runs = (uint32_t *)task->user_data;
+    (*runs)++;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_PASS(pt);
+    }
+    PT_END(pt);
+}
+
+static void test_wasm_host_sleep_scheduler_and_builtins(void)
+{
+    /* 1. Built-in host coroutine NULL / invalid-argument guards */
+    SYN_PT bpt;
+    PT_INIT(&bpt);
+    uint64_t bret = 0ULL;
+    uint64_t barg = 10ULL;
+
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_host_millis(NULL, &g_wasm_ctx, NULL, 0U, &bret));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_host_millis(&bpt, &g_wasm_ctx, NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_host_micros(NULL, &g_wasm_ctx, NULL, 0U, &bret));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_host_micros(&bpt, &g_wasm_ctx, NULL, 0U, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_host_sleep_ms(NULL, &g_wasm_ctx, &barg, 1U, &bret));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_host_sleep_ms(&bpt, NULL, &barg, 1U, &bret));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_host_sleep_ms(&bpt, &g_wasm_ctx, &barg, 0U, &bret));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_host_sleep_ms(&bpt, &g_wasm_ctx, NULL, 1U, &bret));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_host_sleep_ms(&bpt, &g_wasm_ctx, &barg, 1U, NULL));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_host_yield(NULL, &g_wasm_ctx, NULL, 0U, &bret));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_host_yield(&bpt, &g_wasm_ctx, NULL, 0U, NULL));
+
+    mock_tick_ms = 0U;
+    mock_tick_us = 0U;
+    mock_tick_advance(123U);
+    PT_INIT(&bpt);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_wasm_host_micros(&bpt, &g_wasm_ctx, NULL, 0U, &bret));
+    TEST_ASSERT_EQUAL_UINT64(123000ULL, bret);
+
+    /* 2. Standalone syn_wasm_host_sleep_ms (active_task == NULL -> uses host_scratch.u32[0]) */
+    memset(&g_wasm_ctx, 0, sizeof(g_wasm_ctx));
+    PT_INIT(&bpt);
+    barg = 0ULL;
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_wasm_host_sleep_ms(&bpt, &g_wasm_ctx, &barg, 1U, &bret));
+    PT_INIT(&bpt);
+    barg = 20ULL;
+    mock_tick_ms = 500U;
+    mock_tick_us = 500000U;
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_wasm_host_sleep_ms(&bpt, &g_wasm_ctx, &barg, 1U, &bret));
+    mock_tick_advance(19U);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_wasm_host_sleep_ms(&bpt, &g_wasm_ctx, &barg, 1U, &bret));
+    mock_tick_advance(1U);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_wasm_host_sleep_ms(&bpt, &g_wasm_ctx, &barg, 1U, &bret));
+
+    /* 3. Multi-tick sleeping host call inside syn_wasm_task alongside high-priority peer task */
+    static const uint8_t sleep_guest_wasm[] = {
+        0x00U, 0x61U, 0x73U, 0x6DU, 0x01U, 0x00U, 0x00U, 0x00U, 0x01U, 0x09U, 0x02U, 0x60U, 0x01U,
+        0x7FU, 0x00U, 0x60U, 0x00U, 0x01U, 0x7FU, 0x02U, 0x0DU, 0x02U, 0x01U, 0x65U, 0x01U, 0x73U,
+        0x00U, 0x00U, 0x01U, 0x65U, 0x01U, 0x6DU, 0x00U, 0x01U, 0x03U, 0x02U, 0x01U, 0x01U, 0x07U,
+        0x07U, 0x01U, 0x03U, 0x72U, 0x75U, 0x6EU, 0x00U, 0x02U, 0x0AU, 0x0DU, 0x01U, 0x0BU, 0x00U,
+        0x41U, 0x32U, 0x10U, 0x00U, 0x10U, 0x01U, 0x41U, 0x07U, 0x6AU, 0x0BU,
+    };
+
+    g_coro_sleep_polls = 0U;
+    mock_tick_ms = 1000U;
+    mock_tick_us = 1000000U;
+    TEST_ASSERT_TRUE(
+        syn_wasm_module_load(&g_wasm_mod, sleep_guest_wasm, (uint32_t)sizeof(sleep_guest_wasm)));
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 0U, coro_counted_sleep_host));
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 1U, syn_wasm_host_millis));
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+
+    uint32_t hi_peer_runs = 0U;
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    syn_task_create(&tasks[0], "hi_peer", wasm_peer_idle_counter_task, SYN_PRIO_HIGH,
+                    &hi_peer_runs);
+    syn_task_create(&tasks[1], "wasm_t", syn_wasm_task, SYN_PRIO_NORMAL, &g_wasm_ctx);
+    syn_sched_init(&sched, tasks, 2U);
+
+    /* Dispatch 1: hi_peer runs & yields PT_IDLE; Dispatch 2: wasm_t arms sleep_ms(50) */
+    syn_sched_run(&sched);
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(1U, hi_peer_runs);
+    TEST_ASSERT_EQUAL_UINT32(1U, g_coro_sleep_polls);
+    TEST_ASSERT_TRUE(g_wasm_ctx.host_pending);
+    TEST_ASSERT_EQUAL(SYN_WASM_OK, g_wasm_ctx.status);
+    TEST_ASSERT_EQUAL_UINT32(1050U, tasks[1].delay_until);
+    TEST_ASSERT_TRUE((tasks[1].sched_flags & SYN_SCHED_FLAG_SLEEPING) != 0U);
+
+    /* Verify tickless wakeup deadline when peer is suspended */
+    syn_task_suspend(&tasks[0]);
+    TEST_ASSERT_EQUAL_UINT32(1050U, syn_sched_next_wakeup(&sched));
+    syn_task_resume(&tasks[0]);
+
+    /* Advance 49 ms across 7 ticks (2 dispatches/tick): hi_peer runs, wasm_t NEVER busy-polls */
+    for (uint32_t i = 0U; i < 7U; i++) {
+        mock_tick_advance(7U);
+        syn_sched_run(&sched);
+        syn_sched_run(&sched);
+        TEST_ASSERT_EQUAL_UINT32(1U, g_coro_sleep_polls);
+        TEST_ASSERT_TRUE(g_wasm_ctx.host_pending);
+    }
+    TEST_ASSERT_TRUE(hi_peer_runs >= 8U);
+
+    /* Advance final 1 ms to 1050 ms: hi_peer passes, wasm_t wakes, calls millis() + 7 */
+    mock_tick_advance(1U);
+    syn_sched_run(&sched);
+    if (g_wasm_ctx.status == SYN_WASM_OK) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_EQUAL_UINT32(2U, g_coro_sleep_polls);
+    TEST_ASSERT_FALSE(g_wasm_ctx.host_pending);
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+    TEST_ASSERT_EQUAL_UINT32(1057U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    /* 4. Compiled C guest pipeline (test_host_api.c: run_coro_pipeline) */
+    mock_tick_ms = 200U;
+    mock_tick_us = 200000U;
+    TEST_ASSERT_TRUE(syn_wasm_module_load(&g_wasm_mod, test_host_api_wasm, test_host_api_wasm_len));
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 0U, mock_host_log));
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 1U, syn_wasm_host_millis));
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 2U, syn_wasm_host_sleep_ms));
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 3U, coro_uart_read_host));
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 4U, syn_wasm_host_yield));
+
+    int32_t pipe_fn = syn_wasm_find_export(&g_wasm_mod, "run_coro_pipeline");
+    TEST_ASSERT_TRUE(pipe_fn >= 0);
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, (uint16_t)pipe_fn));
+
+    syn_task_create(&tasks[0], "wasm_pipe", syn_wasm_task, SYN_PRIO_NORMAL, &g_wasm_ctx);
+    syn_sched_init(&sched, tasks, 1U);
+
+    for (uint32_t step = 0U; (step < 32U) && (g_wasm_ctx.status == SYN_WASM_OK); step++) {
+        syn_sched_run(&sched);
+        if (tasks[0].delay_until != 0U) {
+            mock_tick_advance(25U);
+        } else {
+            mock_tick_advance(1U);
+        }
+    }
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+
+    uint32_t expected_acc = 0U;
+    for (uint32_t i = 0U; i < 8U; i++) {
+        expected_acc = (expected_acc * 31U) + (uint32_t)g_coro_uart_feed[i];
+    }
+    TEST_ASSERT_EQUAL_UINT32(expected_acc + 25U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+}
+
+static uint32_t g_chunk_polls = 0U;
+static SYN_PT_Status coro_chunk_xor_host(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args,
+                                         uint8_t argc, uint64_t *ret)
+{
+    if ((pt == NULL) || (ctx == NULL) || (args == NULL) || (argc < 3U) || (ret == NULL)) {
+        return PT_EXITED;
+    }
+    if ((syn_wasm_mem_ptr(ctx, (uint32_t)args[0], (uint32_t)args[2]) == NULL) ||
+        (syn_wasm_mem_cptr(ctx, (uint32_t)args[1], (uint32_t)args[2]) == NULL)) {
+        ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+        return PT_EXITED;
+    }
+
+    g_chunk_polls++;
+    PT_BEGIN(pt);
+    while (ctx->host_scratch.u32[0] < (uint32_t)args[2]) {
+        {
+            uint8_t *dst = (uint8_t *)syn_wasm_mem_ptr(ctx, (uint32_t)args[0], (uint32_t)args[2]);
+            const uint8_t *src =
+                (const uint8_t *)syn_wasm_mem_cptr(ctx, (uint32_t)args[1], (uint32_t)args[2]);
+            uint32_t idx = ctx->host_scratch.u32[0];
+            uint32_t rem = (uint32_t)args[2] - idx;
+            uint32_t chunk = (rem > 4U) ? 4U : rem;
+            uint32_t sum = ctx->host_scratch.u32[1];
+            for (uint32_t i = 0U; i < chunk; i++) {
+                uint8_t v = (uint8_t)(src[idx + i] ^ 0x5AU);
+                dst[idx + i] = v;
+                sum += (uint32_t)v;
+            }
+            ctx->host_scratch.u32[0] = idx + chunk;
+            ctx->host_scratch.u32[1] = sum;
+        }
+        if (ctx->host_scratch.u32[0] < (uint32_t)args[2]) {
+            PT_CONTINUE(pt);
+        }
+    }
+    *ret = (uint64_t)ctx->host_scratch.u32[1];
+    PT_END(pt);
+}
+
+static void test_wasm_host_chunked_pt_more_contended_and_spawn(void)
+{
+    /* Module with:
+     *   type 0: (i32, i32, i32) -> i32
+     *   import 0: type 0 (coro_chunk_xor_host)
+     *   table 0: funcref min 1 (elem[0] = func 0)
+     *   memory 0: min 1 page
+     *   func 1 (export "direct"): i32.const 64, i32.const 0, i32.const 16, call 0, i32.const 1, add
+     *   func 2 (export "indir"):  i32.const 64, i32.const 0, i32.const 16, i32.const 0,
+     *                             call_indirect 0 0
+     */
+    static uint8_t page_mem[65536];
+    static const uint8_t chunk_wasm[] = {
+        0x00U, 0x61U, 0x73U, 0x6DU, 0x01U, 0x00U, 0x00U, 0x00U, 0x01U, 0x08U, 0x01U, 0x60U,
+        0x03U, 0x7FU, 0x7FU, 0x7FU, 0x01U, 0x7FU, 0x02U, 0x07U, 0x01U, 0x01U, 0x65U, 0x01U,
+        0x78U, 0x00U, 0x00U, 0x03U, 0x03U, 0x02U, 0x00U, 0x00U, 0x04U, 0x04U, 0x01U, 0x70U,
+        0x00U, 0x01U, 0x05U, 0x03U, 0x01U, 0x00U, 0x01U, 0x07U, 0x12U, 0x02U, 0x06U, 0x64U,
+        0x69U, 0x72U, 0x65U, 0x63U, 0x74U, 0x00U, 0x01U, 0x05U, 0x69U, 0x6EU, 0x64U, 0x69U,
+        0x72U, 0x00U, 0x02U, 0x09U, 0x07U, 0x01U, 0x00U, 0x41U, 0x00U, 0x0BU, 0x01U, 0x00U,
+        0x0AU, 0x1FU, 0x02U, 0x0EU, 0x00U, 0x41U, 0xC0U, 0x00U, 0x41U, 0x00U, 0x41U, 0x10U,
+        0x10U, 0x00U, 0x41U, 0x01U, 0x6AU, 0x0BU, 0x0EU, 0x00U, 0x41U, 0xC0U, 0x00U, 0x41U,
+        0x00U, 0x41U, 0x10U, 0x41U, 0x00U, 0x11U, 0x00U, 0x00U, 0x0BU,
+    };
+
+    TEST_ASSERT_TRUE(syn_wasm_module_load(&g_wasm_mod, chunk_wasm, (uint32_t)sizeof(chunk_wasm)));
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, page_mem, sizeof(page_mem)));
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 0U, coro_chunk_xor_host));
+
+    uint32_t exp_sum = 0U;
+    for (uint32_t i = 0U; i < 16U; i++) {
+        page_mem[i] = (uint8_t)(i + 1U);
+        exp_sum += (uint32_t)((uint8_t)((i + 1U) ^ 0x5AU));
+    }
+
+    /* 1. Uncontended syn_wasm_task: all 4 PT_MORE chunks burst in a SINGLE scheduler dispatch */
+    uint32_t peer_runs = 0U;
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    g_chunk_polls = 0U;
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 1U));
+    syn_task_create(&tasks[0], "wasm_t", syn_wasm_task, SYN_PRIO_HIGH, &g_wasm_ctx);
+    syn_task_create(&tasks[1], "peer", wasm_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_task_suspend(&tasks[1]);
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(4U, g_chunk_polls);
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+    TEST_ASSERT_EQUAL_UINT32(exp_sum + 1U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    /* 2. Contended syn_wasm_task via call_indirect: yields after each chunk so peer runs */
+    g_chunk_polls = 0U;
+    peer_runs = 0U;
+    memset(&page_mem[64], 0, 16U);
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    syn_task_create(&tasks[0], "wasm_t", syn_wasm_task, SYN_PRIO_HIGH, &g_wasm_ctx);
+    syn_task_create(&tasks[1], "peer", wasm_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched); /* Chunk 1 -> PT_MORE -> yields because peer is ready */
+    TEST_ASSERT_EQUAL_UINT32(1U, g_chunk_polls);
+    TEST_ASSERT_TRUE(g_wasm_ctx.host_pending);
+    TEST_ASSERT_EQUAL(SYN_WASM_OK, g_wasm_ctx.status);
+    syn_sched_run(&sched); /* Peer runs */
+    TEST_ASSERT_EQUAL_UINT32(1U, peer_runs);
+
+    while (g_wasm_ctx.status == SYN_WASM_OK) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_EQUAL_UINT32(4U, g_chunk_polls);
+    TEST_ASSERT_TRUE(peer_runs >= 3U);
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+    TEST_ASSERT_EQUAL_UINT32(exp_sum, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    /* 3. PT_SPAWN_IF_NEEDED(..., syn_wasm_exec_pt(...)): uncontended burst vs contended */
+    WasmSpawnTaskCtx wctx = {.ctx = &g_wasm_ctx, .quantum = 32U, .completed = 0U};
+    g_chunk_polls = 0U;
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 1U));
+    syn_task_create(&tasks[0], "wasm_sp", wasm_spawn_parent_task, SYN_PRIO_HIGH, &wctx);
+    syn_task_create(&tasks[1], "peer", wasm_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_task_suspend(&tasks[1]);
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(1U, wctx.completed);
+    TEST_ASSERT_EQUAL_UINT32(4U, g_chunk_polls);
+    TEST_ASSERT_EQUAL_UINT32(exp_sum + 1U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    g_chunk_polls = 0U;
+    peer_runs = 0U;
+    wctx.completed = 0U;
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 1U));
+    syn_task_create(&tasks[0], "wasm_sp", wasm_spawn_parent_task, SYN_PRIO_HIGH, &wctx);
+    syn_task_create(&tasks[1], "peer", wasm_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
+    syn_sched_init(&sched, tasks, 2U);
+
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(0U, wctx.completed);
+    TEST_ASSERT_EQUAL_UINT32(1U, g_chunk_polls);
+    while (wctx.completed == 0U) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_EQUAL_UINT32(4U, g_chunk_polls);
+    TEST_ASSERT_TRUE(peer_runs >= 3U);
+
+    /* 4. Direct syn_wasm_call() on yielding imported functions (call_depth == 0) */
+    g_chunk_polls = 0U;
+    g_wasm_ctx.sp = 0U;
+    g_wasm_ctx.stack[g_wasm_ctx.sp++] = 64ULL;
+    g_wasm_ctx.stack[g_wasm_ctx.sp++] = 0ULL;
+    g_wasm_ctx.stack[g_wasm_ctx.sp++] = 16ULL;
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 0U));
+    TEST_ASSERT_TRUE(g_wasm_ctx.host_pending);
+    TEST_ASSERT_EQUAL(SYN_WASM_OK, g_wasm_ctx.status);
+    TEST_ASSERT_EQUAL(SYN_WASM_YIELDED, syn_wasm_step(&g_wasm_ctx, 16U));
+    TEST_ASSERT_EQUAL(SYN_WASM_YIELDED, syn_wasm_step(&g_wasm_ctx, 16U));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, syn_wasm_step(&g_wasm_ctx, 16U));
+    TEST_ASSERT_FALSE(g_wasm_ctx.host_pending);
+    TEST_ASSERT_EQUAL_UINT32(exp_sum, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    /* Direct syn_wasm_call() on PT_IDLE host coroutine driven by syn_wasm_exec_pt & syn_wasm_task
+     */
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 0U, syn_wasm_host_yield));
+    g_wasm_mod.funcs[0].param_count = 0U;
+    g_wasm_mod.funcs[0].result_count = 0U;
+    g_wasm_ctx.sp = 0U;
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 0U));
+    TEST_ASSERT_TRUE(g_wasm_ctx.host_pending);
+    SYN_PT ept;
+    PT_INIT(&ept);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_wasm_exec_pt(&ept, NULL, &g_wasm_ctx, 8U));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+
+    /* Also exercise syn_wasm_exec_pt yielding PT_IDLE when pending host coroutine stays waiting */
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 0U, syn_wasm_host_sleep_ms));
+    g_wasm_mod.funcs[0].param_count = 1U;
+    mock_tick_ms = 10U;
+    mock_tick_us = 10000U;
+    g_wasm_ctx.sp = 0U;
+    g_wasm_ctx.stack[g_wasm_ctx.sp++] = 30ULL;
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 0U));
+    PT_INIT(&ept);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_wasm_exec_pt(&ept, NULL, &g_wasm_ctx, 8U));
+    mock_tick_advance(30U);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_wasm_exec_pt(&ept, NULL, &g_wasm_ctx, 8U));
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+}
+
+#if !defined(SYN_USE_MUTEX) || SYN_USE_MUTEX
+typedef struct {
+    SYN_Mutex mtx;
+    uint32_t shared_val;
+    uint32_t seq;
+    uint32_t low_unlock_seq;
+    uint32_t med_first_seq;
+    uint8_t boosted_prio_observed;
+} WasmMutexTestState;
+
+static WasmMutexTestState g_wasm_mtx_state;
+
+static SYN_PT_Status coro_mutex_inc_host(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args,
+                                         uint8_t argc, uint64_t *ret)
+{
+    (void)args;
+    (void)argc;
+    PT_BEGIN(pt);
+    PT_MUTEX_LOCK(pt, ctx->active_task, &g_wasm_mtx_state.mtx);
+    g_wasm_mtx_state.shared_val += 15U;
+    *ret = (uint64_t)g_wasm_mtx_state.shared_val;
+    (void)PT_MUTEX_UNLOCK(&g_wasm_mtx_state.mtx, ctx->active_task);
+    PT_END(pt);
+}
+
+static SYN_PT_Status wasm_mtx_low_owner_task(SYN_PT *pt, SYN_Task *task)
+{
+    PT_BEGIN(pt);
+    PT_MUTEX_LOCK(pt, task, &g_wasm_mtx_state.mtx);
+    PT_PASS(pt);
+    g_wasm_mtx_state.boosted_prio_observed = task->priority;
+    g_wasm_mtx_state.shared_val = 10U;
+    g_wasm_mtx_state.low_unlock_seq = ++g_wasm_mtx_state.seq;
+    (void)PT_MUTEX_UNLOCK(&g_wasm_mtx_state.mtx, task);
+    PT_END(pt);
+}
+
+static SYN_PT_Status wasm_mtx_med_peer_task(SYN_PT *pt, SYN_Task *task)
+{
+    (void)task;
+    PT_BEGIN(pt);
+    if (g_wasm_mtx_state.med_first_seq == 0U) {
+        g_wasm_mtx_state.med_first_seq = ++g_wasm_mtx_state.seq;
+    }
+    PT_PASS(pt);
+    PT_END(pt);
+}
+
+static void test_wasm_host_mutex_priority_inheritance(void)
+{
+    /* Module: import 0: () -> i32; func 1 (export "run"): call 0, i32.const 100, i32.add, end */
+    static const uint8_t mtx_wasm[] = {
+        0x00U, 0x61U, 0x73U, 0x6DU, 0x01U, 0x00U, 0x00U, 0x00U, 0x01U, 0x05U, 0x01U, 0x60U, 0x00U,
+        0x01U, 0x7FU, 0x02U, 0x07U, 0x01U, 0x01U, 0x65U, 0x01U, 0x6DU, 0x00U, 0x00U, 0x03U, 0x02U,
+        0x01U, 0x00U, 0x07U, 0x07U, 0x01U, 0x03U, 0x72U, 0x75U, 0x6EU, 0x00U, 0x01U, 0x0AU, 0x0AU,
+        0x01U, 0x08U, 0x00U, 0x10U, 0x00U, 0x41U, 0xE4U, 0x00U, 0x6AU, 0x0BU,
+    };
+
+    memset(&g_wasm_mtx_state, 0, sizeof(g_wasm_mtx_state));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_init(&g_wasm_mtx_state.mtx));
+
+    TEST_ASSERT_TRUE(syn_wasm_module_load(&g_wasm_mod, mtx_wasm, (uint32_t)sizeof(mtx_wasm)));
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 0U, coro_mutex_inc_host));
+
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+    syn_task_create(&tasks[0], "wasm_hi", syn_wasm_task, SYN_PRIO_HIGH, &g_wasm_ctx);
+    syn_task_create(&tasks[1], "med_peer", wasm_mtx_med_peer_task, SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks[2], "low_own", wasm_mtx_low_owner_task, SYN_PRIO_LOW, NULL);
+    syn_task_suspend(&tasks[0]);
+    syn_task_suspend(&tasks[1]);
+    syn_sched_init(&sched, tasks, 3U);
+
+    /* Step 1: low_own acquires mutex and yields PT_PASS */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_PTR(&tasks[2], syn_mutex_get_owner(&g_wasm_mtx_state.mtx));
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_LOW, tasks[2].priority);
+
+    /* Step 2: wake both high-priority Wasm task and medium-priority peer task */
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 1U));
+    syn_task_resume(&tasks[0]);
+    syn_task_resume(&tasks[1]);
+
+    /* Dispatch 1: wasm_hi (SYN_PRIO_HIGH) runs, blocks on PT_MUTEX_LOCK, boosts low_own -> HIGH */
+    syn_sched_run(&sched);
+    TEST_ASSERT_TRUE(g_wasm_ctx.host_pending);
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_HIGH, tasks[2].priority);
+    TEST_ASSERT_EQUAL_UINT32(0U, g_wasm_mtx_state.med_first_seq);
+
+    /* Dispatch 2: low_own (boosted to SYN_PRIO_HIGH) preempts med_peer, sets shared_val = 10,
+     * and unlocks mutex (demoting itself back to SYN_PRIO_LOW) */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_HIGH, g_wasm_mtx_state.boosted_prio_observed);
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_LOW, tasks[2].priority);
+    TEST_ASSERT_EQUAL_UINT32(1U, g_wasm_mtx_state.low_unlock_seq);
+    TEST_ASSERT_EQUAL_UINT32(0U, g_wasm_mtx_state.med_first_seq);
+
+    /* Dispatch 3: wasm_hi acquires unlocked mutex, adds 15 -> 25, guest adds 100 -> 125 */
+    syn_sched_run(&sched);
+    TEST_ASSERT_FALSE(g_wasm_ctx.host_pending);
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+    TEST_ASSERT_EQUAL_UINT32(125U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    /* Dispatch 4: med_peer runs after both high-priority critical sections complete */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT32(2U, g_wasm_mtx_state.med_first_seq);
+    TEST_ASSERT_TRUE(g_wasm_mtx_state.low_unlock_seq < g_wasm_mtx_state.med_first_seq);
+}
+#endif
+
+typedef struct {
+    SYN_WASM_Context *observed_ctx;
+    void *observed_user;
+    uint32_t cancel_calls;
+} WasmCancelTrack;
+
+static WasmCancelTrack g_cancel_track;
+
+static void mock_host_cancel(SYN_WASM_Context *ctx, void *user)
+{
+    g_cancel_track.observed_ctx = ctx;
+    g_cancel_track.observed_user = user;
+    g_cancel_track.cancel_calls++;
+}
+
+static SYN_PT_Status coro_trap_mode_host(SYN_PT *pt, SYN_WASM_Context *ctx, const uint64_t *args,
+                                         uint8_t argc, uint64_t *ret)
+{
+    (void)argc;
+    PT_BEGIN(pt);
+    if ((args[0] & 2ULL) != 0ULL) {
+        PT_PASS(pt);
+    }
+    if ((args[0] & 4ULL) != 0ULL) {
+        syn_wasm_abort(ctx);
+        return PT_EXITED;
+    }
+    if ((args[0] & 1ULL) != 0ULL) {
+        ctx->status = SYN_WASM_TRAP_OUT_OF_BOUNDS;
+    }
+    if ((args[0] & 8ULL) != 0ULL) {
+        ctx->status = SYN_WASM_TRAP_DIV_ZERO;
+        SYN_WASM_HOST_RETURN(pt, ret, 0ULL);
+    }
+    PT_EXIT(pt);
+    PT_END(pt);
+}
+
+static void test_wasm_host_traps_abort_bounds_and_limits(void)
+{
+    /* Module: import 0: (i32) -> i32; import 1: () -> (); func 2: local.get 0, call 0, end */
+    static const uint8_t trap_wasm[] = {
+        0x00U, 0x61U, 0x73U, 0x6DU, 0x01U, 0x00U, 0x00U, 0x00U, 0x01U, 0x09U, 0x02U, 0x60U,
+        0x01U, 0x7FU, 0x01U, 0x7FU, 0x60U, 0x00U, 0x00U, 0x02U, 0x0DU, 0x02U, 0x01U, 0x65U,
+        0x01U, 0x74U, 0x00U, 0x00U, 0x01U, 0x65U, 0x01U, 0x75U, 0x00U, 0x01U, 0x03U, 0x02U,
+        0x01U, 0x00U, 0x0AU, 0x08U, 0x01U, 0x06U, 0x00U, 0x20U, 0x00U, 0x10U, 0x00U, 0x0BU,
+    };
+
+    TEST_ASSERT_TRUE(syn_wasm_module_load(&g_wasm_mod, trap_wasm, (uint32_t)sizeof(trap_wasm)));
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &g_wasm_mod, g_linear_mem, sizeof(g_linear_mem)));
+    int user_cookie = 0x55AA;
+    TEST_ASSERT_TRUE(syn_wasm_register_host_ex(&g_wasm_ctx, 0U, coro_trap_mode_host,
+                                               mock_host_cancel, &user_cookie));
+
+    /* 1. PT_EXITED on poll 1 with status == OK -> SYN_WASM_TRAP_HOST */
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    g_wasm_ctx.locals[0] = 0ULL;
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_HOST, syn_wasm_step(&g_wasm_ctx, 16U));
+    TEST_ASSERT_FALSE(g_wasm_ctx.host_pending);
+
+    /* 2. PT_EXITED on poll 1 with custom trap -> preserves SYN_WASM_TRAP_OUT_OF_BOUNDS */
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    g_wasm_ctx.locals[0] = 1ULL;
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_OUT_OF_BOUNDS, syn_wasm_step(&g_wasm_ctx, 16U));
+
+    /* 3. PT_ENDED with custom trap -> preserves SYN_WASM_TRAP_DIV_ZERO */
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    g_wasm_ctx.locals[0] = 8ULL;
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_DIV_ZERO, syn_wasm_step(&g_wasm_ctx, 16U));
+
+    /* 4. PT_EXITED on poll 2 (after PT_PASS) + syn_wasm_exec_pt returning PT_EXITED on trap */
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    g_wasm_ctx.locals[0] = 2ULL;
+    TEST_ASSERT_EQUAL(SYN_WASM_WAITING, syn_wasm_step(&g_wasm_ctx, 16U));
+    TEST_ASSERT_TRUE(g_wasm_ctx.host_pending);
+
+    /* syn_wasm_call() MUST fail while host_pending is true */
+    TEST_ASSERT_FALSE(syn_wasm_call(&g_wasm_ctx, 2U));
+    /* syn_wasm_register_host_ex() rejects mutating active slot 0, allows slot 1 */
+    TEST_ASSERT_FALSE(syn_wasm_register_host(&g_wasm_ctx, 0U, mock_host_func));
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 1U, mock_host_func));
+    TEST_ASSERT_EQUAL_PTR(&user_cookie, syn_wasm_host_user(&g_wasm_ctx));
+
+    SYN_PT ept;
+    PT_INIT(&ept);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_wasm_exec_pt(&ept, NULL, &g_wasm_ctx, 16U));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_HOST, g_wasm_ctx.status);
+    TEST_ASSERT_NULL(syn_wasm_host_user(&g_wasm_ctx));
+    TEST_ASSERT_NULL(syn_wasm_host_user(NULL));
+
+    /* 5. syn_wasm_abort() invokes cancel(ctx, user), clears task sleep, and allows fresh call */
+    SYN_Task abort_task;
+    SYN_Sched abort_sched;
+    mock_tick_ms = 500U;
+    mock_tick_us = 500000U;
+    memset(&g_cancel_track, 0, sizeof(g_cancel_track));
+    TEST_ASSERT_TRUE(syn_wasm_register_host_ex(&g_wasm_ctx, 0U, syn_wasm_host_sleep_ms,
+                                               mock_host_cancel, &user_cookie));
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    g_wasm_ctx.locals[0] = 5000ULL;
+    syn_task_create(&abort_task, "wasm_ab", syn_wasm_task, SYN_PRIO_NORMAL, &g_wasm_ctx);
+    syn_sched_init(&abort_sched, &abort_task, 1U);
+
+    /* Arm 5000 ms task sleep via syn_wasm_task */
+    syn_sched_run(&abort_sched);
+    TEST_ASSERT_TRUE(g_wasm_ctx.host_pending);
+    TEST_ASSERT_EQUAL_UINT32(5500U, abort_task.delay_until);
+
+    syn_wasm_abort(NULL); /* Safe NULL no-op */
+    syn_wasm_abort(&g_wasm_ctx);
+    TEST_ASSERT_EQUAL_UINT32(1U, g_cancel_track.cancel_calls);
+    TEST_ASSERT_EQUAL_PTR(&g_wasm_ctx, g_cancel_track.observed_ctx);
+    TEST_ASSERT_EQUAL_PTR(&user_cookie, g_cancel_track.observed_user);
+    TEST_ASSERT_FALSE(g_wasm_ctx.host_pending);
+    TEST_ASSERT_EQUAL_UINT16(0U, g_wasm_ctx.call_depth);
+    TEST_ASSERT_EQUAL_UINT32(0U, g_wasm_ctx.sp);
+    TEST_ASSERT_EQUAL_UINT32(0U, abort_task.delay_until);
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+
+    /* Without advancing clock (still 500 ms < 5500 ms), fresh call executes immediately! */
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 0U, mock_host_func));
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    g_wasm_ctx.locals[0] = 1ULL;
+    syn_sched_run(&abort_sched);
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+    TEST_ASSERT_EQUAL_UINT32(42U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
+
+    /* Abort when not pending or when cancel == NULL */
+    g_wasm_ctx.active_task = NULL;
+    syn_wasm_abort(&g_wasm_ctx);
+    TEST_ASSERT_EQUAL_UINT32(1U, g_cancel_track.cancel_calls);
+
+    /* Self-aborting host coroutine (calls syn_wasm_abort(ctx) from inside wasm_poll_host) */
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 0U, coro_trap_mode_host));
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    g_wasm_ctx.locals[0] = 4ULL;
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, syn_wasm_step(&g_wasm_ctx, 16U));
+    TEST_ASSERT_FALSE(g_wasm_ctx.host_pending);
+
+    /* Out-of-bounds synthetic host_import_idx guards in syn_wasm_host_user & syn_wasm_abort */
+    g_wasm_ctx.host_pending = true;
+    g_wasm_ctx.host_import_idx = SYN_WASM_MAX_HOST_FUNCS;
+    TEST_ASSERT_NULL(syn_wasm_host_user(&g_wasm_ctx));
+    syn_wasm_abort(&g_wasm_ctx);
+
+    /* 6. Load-time & runtime SYN_WASM_MAX_HOST_ARGS enforcement */
+    uint8_t big_imp_wasm[64];
+    uint32_t p = 0U;
+    static const uint8_t hdr8[8] = {0x00U, 0x61U, 0x73U, 0x6DU, 0x01U, 0x00U, 0x00U, 0x00U};
+    memcpy(&big_imp_wasm[p], hdr8, 8U);
+    p += 8U;
+    uint8_t nparams = (uint8_t)(SYN_WASM_MAX_HOST_ARGS + 1U);
+    big_imp_wasm[p++] = 0x01U;                   /* Type section */
+    big_imp_wasm[p++] = (uint8_t)(4U + nparams); /* section size */
+    big_imp_wasm[p++] = 0x01U;                   /* 1 type */
+    big_imp_wasm[p++] = 0x60U;                   /* func */
+    big_imp_wasm[p++] = nparams;                 /* 17 params */
+    memset(&big_imp_wasm[p], 0x7FU, nparams);    /* all i32 */
+    p += nparams;
+    big_imp_wasm[p++] = 0x00U; /* 0 results */
+    static const uint8_t imp_sec[9] = {0x02U, 0x07U, 0x01U, 0x01U, 0x65U,
+                                       0x01U, 0x66U, 0x00U, 0x00U};
+    memcpy(&big_imp_wasm[p], imp_sec, sizeof(imp_sec));
+    p += (uint32_t)sizeof(imp_sec);
+
+    SYN_WASM_Module bmod;
+    SYN_WASM_LoadError lerr = SYN_WASM_LOAD_OK;
+    TEST_ASSERT_FALSE(syn_wasm_module_load_ex(&bmod, big_imp_wasm, p, &lerr));
+    TEST_ASSERT_EQUAL(SYN_WASM_LOAD_ERR_LIMIT_EXCEEDED, lerr);
+
+    /* Runtime defence-in-depth guard in wasm_invoke_func on synthetic module */
+    memset(&bmod, 0, sizeof(bmod));
+    bmod.func_count = 1U;
+    bmod.import_func_count = 1U;
+    bmod.funcs[0].param_count = (uint8_t)(SYN_WASM_MAX_HOST_ARGS + 1U);
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &bmod, g_linear_mem, sizeof(g_linear_mem)));
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 0U, mock_host_func));
+    TEST_ASSERT_FALSE(syn_wasm_call(&g_wasm_ctx, 0U));
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_INVALID_MODULE, g_wasm_ctx.status);
+
+    /* 7. syn_wasm_mem_ptr / syn_wasm_mem_cptr bounds & uint64_t overflow checks */
+    TEST_ASSERT_NULL(syn_wasm_mem_ptr(NULL, 0U, 1U));
+    TEST_ASSERT_NULL(syn_wasm_mem_cptr(NULL, 0U, 1U));
+
+    SYN_WASM_Context no_mem_ctx;
+    TEST_ASSERT_TRUE(syn_wasm_init(&no_mem_ctx, &bmod, NULL, 0U));
+    TEST_ASSERT_NULL(syn_wasm_mem_ptr(&no_mem_ctx, 0U, 0U));
+    TEST_ASSERT_NULL(syn_wasm_mem_cptr(&no_mem_ctx, 0U, 0U));
+
+    TEST_ASSERT_TRUE(syn_wasm_init(&g_wasm_ctx, &bmod, g_linear_mem, 256U));
+    TEST_ASSERT_EQUAL_PTR(&g_linear_mem[0], syn_wasm_mem_ptr(&g_wasm_ctx, 0U, 256U));
+    TEST_ASSERT_EQUAL_PTR(&g_linear_mem[128], syn_wasm_mem_cptr(&g_wasm_ctx, 128U, 128U));
+    /* Zero-length slice at exact end of linear memory is valid; 1 byte past end is NULL */
+    TEST_ASSERT_EQUAL_PTR(&g_linear_mem[256], syn_wasm_mem_ptr(&g_wasm_ctx, 256U, 0U));
+    TEST_ASSERT_EQUAL_PTR(&g_linear_mem[256], syn_wasm_mem_cptr(&g_wasm_ctx, 256U, 0U));
+    TEST_ASSERT_NULL(syn_wasm_mem_ptr(&g_wasm_ctx, 257U, 0U));
+    TEST_ASSERT_NULL(syn_wasm_mem_cptr(&g_wasm_ctx, 257U, 0U));
+    TEST_ASSERT_NULL(syn_wasm_mem_ptr(&g_wasm_ctx, 256U, 1U));
+    TEST_ASSERT_NULL(syn_wasm_mem_cptr(&g_wasm_ctx, 256U, 1U));
+    /* 32-bit wraparound overflow (0xFFFFFFFF + 4 wraps to 3 in 32-bit math!) MUST return NULL */
+    TEST_ASSERT_NULL(syn_wasm_mem_ptr(&g_wasm_ctx, 0xFFFFFFFFU, 4U));
+    TEST_ASSERT_NULL(syn_wasm_mem_cptr(&g_wasm_ctx, 0xFFFFFFFFU, 4U));
+    TEST_ASSERT_NULL(syn_wasm_mem_ptr(&g_wasm_ctx, 0xFFFFFF00U, 0x200U));
+    TEST_ASSERT_NULL(syn_wasm_mem_cptr(&g_wasm_ctx, 0xFFFFFF00U, 0x200U));
+}
+
 void run_wasm_tests(void)
 {
     RUN_TEST(test_wasm_load_null_and_invalid);
@@ -2837,4 +3616,11 @@ void run_wasm_tests(void)
     RUN_TEST(test_wasm_spec_profile_module_load_ex_validation);
     RUN_TEST(test_wasm_spec_profile_section_and_limit_guards);
     RUN_TEST(test_wasm_spec_profile_bytecode_validator_and_raw_guards);
+    RUN_TEST(test_wasm_host_sync_multi_call_single_quantum);
+    RUN_TEST(test_wasm_host_sleep_scheduler_and_builtins);
+    RUN_TEST(test_wasm_host_chunked_pt_more_contended_and_spawn);
+#if !defined(SYN_USE_MUTEX) || SYN_USE_MUTEX
+    RUN_TEST(test_wasm_host_mutex_priority_inheritance);
+#endif
+    RUN_TEST(test_wasm_host_traps_abort_bounds_and_limits);
 }
