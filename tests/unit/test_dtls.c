@@ -417,6 +417,7 @@ void test_dtls_null_and_bounds_checks(void)
     syn_dtls_replay_update(NULL, 0);
 
     TEST_ASSERT_FALSE(syn_dtls_init(NULL, NULL, NULL, NULL, 0, NULL, 0));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dtls_handshake_pt(NULL, NULL));
     TEST_ASSERT_FALSE(syn_dtls_handshake(NULL));
     TEST_ASSERT_FALSE(syn_dtls_send(NULL, buf, 10));
     TEST_ASSERT_FALSE(syn_dtls_recv(NULL, buf, sizeof(buf), &out_len));
@@ -425,7 +426,9 @@ void test_dtls_null_and_bounds_checks(void)
     TEST_ASSERT_EQUAL(PT_EXITED, syn_dtls_task(NULL, NULL));
     SYN_PT pt_dummy;
     PT_INIT(&pt_dummy);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dtls_handshake_pt(&pt_dummy, NULL));
     SYN_Task null_task = {.user_data = NULL};
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dtls_task(NULL, &null_task));
     TEST_ASSERT_EQUAL(PT_EXITED, syn_dtls_task(&pt_dummy, &null_task));
 
     DuplexDatagramWire dw;
@@ -515,6 +518,8 @@ void test_dtls_null_and_bounds_checks(void)
     SYN_Task task_fail = {.user_data = &fail_dtls};
     TEST_ASSERT_EQUAL(PT_EXITED, syn_dtls_task(&pt_fail, &task_fail));
     TEST_ASSERT_EQUAL(SYN_DTLS_STATE_ERROR, fail_dtls.state);
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_dtls_handshake_pt(&fail_dtls.hs_pt, &fail_dtls));
+    TEST_ASSERT_FALSE(syn_dtls_handshake(&fail_dtls));
 
     /* Task waits via PT_WAIT_UNTIL while ESTABLISHED and exits on state change */
     SYN_PT pt_loop;
@@ -805,6 +810,15 @@ void test_dtls_round4_seq_wrap_cid_epoch_spill_and_auth(void)
                                    g_dc_tx_buf, sizeof(g_dc_tx_buf)));
     TEST_ASSERT_FALSE(syn_dtls_handshake(&x509_ctx));
 
+    uint8_t bad_sig_cert[184];
+    memcpy(bad_sig_cert, cert_der, sizeof(cert_der));
+    bad_sig_cert[152] ^= 0x01U;
+    x509_cfg.server_name = "Test Server";
+    x509_cfg.peer_cert_der = bad_sig_cert;
+    TEST_ASSERT_TRUE(syn_dtls_init(&x509_ctx, &x509_cfg, &c_tr, g_dc_rx_buf, sizeof(g_dc_rx_buf),
+                                   g_dc_tx_buf, sizeof(g_dc_tx_buf)));
+    TEST_ASSERT_FALSE(syn_dtls_handshake(&x509_ctx));
+
     /* Server X509_SERVER missing local cert or key & MTLS missing client_cert_der */
     SYN_DTLS_Config srv_no_cert = {.mode = SYN_DTLS_AUTH_MODE_X509_SERVER, .is_server = true};
     TEST_ASSERT_TRUE(syn_dtls_init(&x509_ctx, &srv_no_cert, &s_tr, g_ds_rx_buf, sizeof(g_ds_rx_buf),
@@ -1019,11 +1033,11 @@ void test_dtls_round4_seq_wrap_cid_epoch_spill_and_auth(void)
     size_t saved_f2_len = dw.s2c.len;
     memcpy(saved_f2, dw.s2c.buf, saved_f2_len);
 
-    /* Forged server CV header, sig len, scheme, and sig are silently dropped on client */
-    size_t cv_offs[4] = {80U, 87U, 84U, 88U};
-    for (size_t k = 0U; k < 4U; k++) {
+    /* Forged server CV header, sig len, scheme, R point, and S scalar dropped on client */
+    size_t cv_offs[5] = {80U, 87U, 84U, 88U, 120U};
+    for (size_t k = 0U; k < 5U; k++) {
         memcpy(dw.s2c.buf, saved_f2, saved_f2_len);
-        dw.s2c.buf[cv_offs[k]] ^= 0xFFU;
+        dw.s2c.buf[cv_offs[k]] ^= 0x01U;
         dw.s2c.len = saved_f2_len;
         TEST_ASSERT_TRUE(syn_dtls_handshake(&x509_ctx));
         TEST_ASSERT_EQUAL(SYN_DTLS_STATE_CLIENT_HELLO_SENT, x509_ctx.state);
@@ -1331,6 +1345,14 @@ static void test_dtls_cooperative_staged_handshake_and_forged_recovery(void)
     TEST_ASSERT_TRUE(syn_dtls_init(&server, &s_mtls, &s_tr, g_ds_rx_buf, sizeof(g_ds_rx_buf),
                                    g_ds_tx_buf, sizeof(g_ds_tx_buf)));
 
+    /* Direct syn_dtls_handshake_pt slice advances sub-coroutines and preserves continuation */
+    TEST_ASSERT_EQUAL(PT_MORE, syn_dtls_handshake_pt(&client.hs_pt, &client));
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&client.hs_pt));
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&client.flight_pt));
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&client.sub_pt));
+    TEST_ASSERT_TRUE(syn_dtls_init(&client, &c_mtls, &c_tr, g_dc_rx_buf, sizeof(g_dc_rx_buf),
+                                   g_dc_tx_buf, sizeof(g_dc_tx_buf)));
+
     uint32_t peer_runs = 0U;
     SYN_Task tasks[3];
     SYN_Sched sched;
@@ -1339,76 +1361,229 @@ static void test_dtls_cooperative_staged_handshake_and_forged_recovery(void)
     syn_task_create(&tasks[2], "peer", dtls_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
     syn_sched_init(&sched, tasks, 3U);
 
-    /* Turn 1 (dtls_c): Stage 1 verifies server X.509 cert + sends ClientHello -> yields PT_MORE */
-    syn_sched_run(&sched);
+    /* Client Stage 0 steps server X.509 verify + X25519 pubkey 1 step/slice -> CLIENT_HELLO_SENT */
+    uint32_t prev_peer = peer_runs;
+    uint32_t guard = 0U;
+    bool saw_flight_running = false;
+    while (client.state == SYN_DTLS_STATE_UNINITIALIZED && guard++ < 8192U) {
+        syn_sched_run(&sched);
+        if (PT_IS_RUNNING(&client.flight_pt)) {
+            saw_flight_running = true;
+        }
+    }
+    TEST_ASSERT_TRUE(saw_flight_running);
     TEST_ASSERT_EQUAL(SYN_DTLS_STATE_CLIENT_HELLO_SENT, client.state);
     TEST_ASSERT_EQUAL_size_t(80U, dw.c2s.len);
+    TEST_ASSERT_GREATER_THAN_UINT32(500U, peer_runs - prev_peer);
 
-    /* Turn 2 (dtls_s): Stage 1 verifies client X.509 cert + parses CH + derives HS keys -> PT_MORE
-     */
-    syn_sched_run(&sched);
+    /* Wake server from PT_PASS after client transmitted 80B ClientHello; step 2x X25519 */
+    mock_tick_advance(10U);
+    prev_peer = peer_runs;
+    guard = 0U;
+    while (server.state == SYN_DTLS_STATE_UNINITIALIZED && guard++ < 8192U) {
+        syn_sched_run(&sched);
+    }
     TEST_ASSERT_EQUAL(SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED, server.state);
+    TEST_ASSERT_GREATER_THAN_UINT32(500U, peer_runs - prev_peer);
 
-    /* Turn 3 (peer): peer runs */
-    syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL_UINT32(1U, peer_runs);
-
-    /* Turn 4 (dtls_c): ServerHello not sent yet -> yields PT_IDLE via PT_PASS */
-    syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_CLIENT_HELLO_SENT, client.state);
-
-    /* Turn 5 (dtls_s): Stage 2 signs Server CV + sends Flight 2 -> FINISHED_SENT, yields PT_MORE */
-    syn_sched_run(&sched);
+    /* Server Stage 2 signs Server CV 1 step/slice + sends Flight 2 -> FINISHED_SENT */
+    prev_peer = peer_runs;
+    guard = 0U;
+    while (server.state == SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED && guard++ < 8192U) {
+        syn_sched_run(&sched);
+    }
     TEST_ASSERT_EQUAL(SYN_DTLS_STATE_FINISHED_SENT, server.state);
     TEST_ASSERT_TRUE(dw.s2c.len > 0U);
+    TEST_ASSERT_GREATER_THAN_UINT32(250U, peer_runs - prev_peer);
 
     uint8_t valid_f2[256];
     size_t valid_f2_len = dw.s2c.len;
     memcpy(valid_f2, dw.s2c.buf, valid_f2_len);
 
-    /* Corrupt Server CV signature in Flight 2 to test mid-stage forged UDP recovery! */
-    dw.s2c.buf[90] ^= 0xFFU;
-
-    syn_sched_run(&sched); /* peer (2) */
-    syn_sched_run(&sched); /* dtls_s polls empty wire -> PT_IDLE */
+    /* Corrupt Server CV S scalar in Flight 2 to test multi-step forged UDP recovery! */
+    dw.s2c.buf[120] ^= 0x01U;
 
     mock_tick_advance(10U);
-    syn_sched_run(&sched); /* peer (overdue) */
-    syn_sched_run(&sched); /* dtls_c Stage 2 on forged packet -> HANDSHAKE_KEYS_DERIVED! */
+    prev_peer = peer_runs;
+    guard = 0U;
+    while (client.state == SYN_DTLS_STATE_CLIENT_HELLO_SENT && guard++ < 8192U) {
+        syn_sched_run(&sched);
+    }
     TEST_ASSERT_EQUAL(SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED, client.state);
-    syn_sched_run(&sched); /* dtls_s (overdue) -> PT_IDLE */
-    syn_sched_run(&sched); /* peer */
-    syn_sched_run(&sched); /* dtls_c Stage 3 detects forged CV -> resets to CLIENT_HELLO_SENT! */
-    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_CLIENT_HELLO_SENT, client.state);
+    TEST_ASSERT_GREATER_THAN_UINT32(250U, peer_runs - prev_peer);
 
-    /* Now deliver authentic Server Flight 2 and step dtls_c through Stages 2 -> 3 -> 4 -> 5 */
+    prev_peer = peer_runs;
+    guard = 0U;
+    saw_flight_running = false;
+    while (client.state == SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED && guard++ < 8192U) {
+        syn_sched_run(&sched);
+        if (PT_IS_RUNNING(&client.flight_pt)) {
+            saw_flight_running = true;
+        }
+    }
+    static const uint8_t zero32[32] = {0};
+    TEST_ASSERT_TRUE(saw_flight_running);
+    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_CLIENT_HELLO_SENT, client.state);
+    TEST_ASSERT_FALSE(PT_IS_RUNNING(&client.flight_pt));
+    TEST_ASSERT_EQUAL_MEMORY(zero32, client.server_random, sizeof(zero32));
+    TEST_ASSERT_EQUAL_MEMORY(zero32, client.peer_ecdhe_pub, sizeof(zero32));
+    TEST_ASSERT_GREATER_THAN_UINT32(250U, peer_runs - prev_peer);
+
+    /* Deliver authentic Server Flight 2 and step dtls_c through Stages 2 -> 3 -> 4 -> 5 */
     memcpy(dw.s2c.buf, valid_f2, valid_f2_len);
     dw.s2c.len = valid_f2_len;
 
     mock_tick_advance(10U);
-    syn_sched_run(&sched); /* dtls_s (overdue, rr=1) -> PT_IDLE */
-    syn_sched_run(&sched); /* peer (overdue, rr=2) -> PT_MORE */
-    syn_sched_run(&sched); /* dtls_c Stage 2 (overdue, rr=0): recv SH + X25519 -> KEYS_DERIVED */
+    prev_peer = peer_runs;
+    guard = 0U;
+    while (client.state == SYN_DTLS_STATE_CLIENT_HELLO_SENT && guard++ < 8192U) {
+        syn_sched_run(&sched);
+    }
     TEST_ASSERT_EQUAL(SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED, client.state);
+    TEST_ASSERT_GREATER_THAN_UINT32(250U, peer_runs - prev_peer);
 
-    syn_sched_run(&sched); /* peer */
-    syn_sched_run(&sched); /* dtls_c Stage 3: verify Server CV -> CERTIFICATE_VERIFIED */
+    prev_peer = peer_runs;
+    guard = 0U;
+    while (client.state == SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED && guard++ < 8192U) {
+        syn_sched_run(&sched);
+    }
     TEST_ASSERT_EQUAL(SYN_DTLS_STATE_CERTIFICATE_VERIFIED, client.state);
+    TEST_ASSERT_GREATER_THAN_UINT32(250U, peer_runs - prev_peer);
 
-    syn_sched_run(&sched); /* peer */
-    syn_sched_run(&sched); /* dtls_c Stage 4: verify Server Finished -> SERVER_HELLO_RECEIVED */
+    guard = 0U;
+    while (client.state == SYN_DTLS_STATE_CERTIFICATE_VERIFIED && guard++ < 8192U) {
+        syn_sched_run(&sched);
+    }
     TEST_ASSERT_EQUAL(SYN_DTLS_STATE_SERVER_HELLO_RECEIVED, client.state);
 
-    syn_sched_run(&sched); /* peer */
-    syn_sched_run(&sched); /* dtls_c Stage 5: sign Client CV + send Flight 3 -> ESTABLISHED */
+    prev_peer = peer_runs;
+    guard = 0U;
+    while (client.state == SYN_DTLS_STATE_SERVER_HELLO_RECEIVED && guard++ < 8192U) {
+        syn_sched_run(&sched);
+    }
     TEST_ASSERT_EQUAL(SYN_DTLS_STATE_ESTABLISHED, client.state);
+    TEST_ASSERT_FALSE(PT_IS_RUNNING(&client.hs_pt));
+    TEST_ASSERT_FALSE(PT_IS_RUNNING(&client.flight_pt));
     TEST_ASSERT_TRUE(dw.c2s.len > 0U);
+    TEST_ASSERT_GREATER_THAN_UINT32(250U, peer_runs - prev_peer);
 
     mock_tick_advance(10U);
-    while (server.state != SYN_DTLS_STATE_ESTABLISHED) {
+    prev_peer = peer_runs;
+    guard = 0U;
+    while (server.state != SYN_DTLS_STATE_ESTABLISHED && guard++ < 8192U) {
         syn_sched_run(&sched);
     }
     TEST_ASSERT_EQUAL(SYN_DTLS_STATE_ESTABLISHED, server.state);
+    TEST_ASSERT_FALSE(PT_IS_RUNNING(&server.hs_pt));
+    TEST_ASSERT_FALSE(PT_IS_RUNNING(&server.flight_pt));
+    TEST_ASSERT_GREATER_THAN_UINT32(250U, peer_runs - prev_peer);
+}
+
+static void test_dtls_ed25519_cv_sign_abort_fails_handshake(void)
+{
+    ensure_dtls_rpk_keys();
+    DuplexDatagramWire dw;
+    DtlsEndpointIo c_io, s_io;
+    SYN_Transport c_tr, s_tr;
+    dtls_duplex_init(&dw, &c_io, &s_io, &c_tr, &s_tr, false);
+
+    SYN_DTLS_Config c_rpk = {.mode = SYN_DTLS_AUTH_MODE_RAW_PUBKEY,
+                             .peer_pubkey = g_dtls_srv_pub,
+                             .peer_pubkey_len = sizeof(g_dtls_srv_pub)};
+    SYN_DTLS_Config s_rpk = {
+        .mode = SYN_DTLS_AUTH_MODE_RAW_PUBKEY, .is_server = true, .client_privkey = g_dtls_srv_sec};
+
+    SYN_DTLS_Context client, server;
+    TEST_ASSERT_TRUE(syn_dtls_init(&client, &c_rpk, &c_tr, g_dc_rx_buf, sizeof(g_dc_rx_buf),
+                                   g_dc_tx_buf, sizeof(g_dc_tx_buf)));
+    TEST_ASSERT_TRUE(syn_dtls_init(&server, &s_rpk, &s_tr, g_ds_rx_buf, sizeof(g_ds_rx_buf),
+                                   g_ds_tx_buf, sizeof(g_ds_tx_buf)));
+
+    /* Flight 1: Client sends ClientHello */
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&client));
+    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_CLIENT_HELLO_SENT, client.state);
+
+    /* Step server until Ed25519 sign context is active (op == ED_OP_SIGN) */
+    while ((server.crypto_scratch.ed25519.op != 2U) &&
+           (syn_dtls_handshake_pt(&server.hs_pt, &server) == PT_MORE)) {
+    }
+    TEST_ASSERT_EQUAL_UINT8(2U, server.crypto_scratch.ed25519.op);
+    TEST_ASSERT_TRUE(server.crypto_scratch.ed25519.active);
+
+    /* Force child Ed25519 sign abort */
+    server.crypto_scratch.ed25519.active = false;
+
+    /* Advance server: must fail handshake, NOT succeed */
+    while (syn_dtls_handshake_pt(&server.hs_pt, &server) == PT_MORE) {
+    }
+    TEST_ASSERT_FALSE(server.hs_work.crypto_ok);
+    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_ERROR, server.state);
+}
+
+static void test_dtls_low_order_point_fails_handshake(void)
+{
+    ensure_dtls_rpk_keys();
+    DuplexDatagramWire dw;
+    DtlsEndpointIo c_io, s_io;
+    SYN_Transport c_tr, s_tr;
+    dtls_duplex_init(&dw, &c_io, &s_io, &c_tr, &s_tr, false);
+
+    SYN_DTLS_Config c_rpk = {.mode = SYN_DTLS_AUTH_MODE_RAW_PUBKEY,
+                             .peer_pubkey = g_dtls_srv_pub,
+                             .peer_pubkey_len = sizeof(g_dtls_srv_pub)};
+    SYN_DTLS_Config s_rpk = {
+        .mode = SYN_DTLS_AUTH_MODE_RAW_PUBKEY, .is_server = true, .client_privkey = g_dtls_srv_sec};
+
+    /* 1. ClientHello with low-order u=0 or u=1 point rejected on server (silently dropped) */
+    SYN_DTLS_Context client, server;
+    TEST_ASSERT_TRUE(syn_dtls_init(&client, &c_rpk, &c_tr, g_dc_rx_buf, sizeof(g_dc_rx_buf),
+                                   g_dc_tx_buf, sizeof(g_dc_tx_buf)));
+    TEST_ASSERT_TRUE(syn_dtls_init(&server, &s_rpk, &s_tr, g_ds_rx_buf, sizeof(g_ds_rx_buf),
+                                   g_ds_tx_buf, sizeof(g_ds_tx_buf)));
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&client));
+    memset(dw.c2s.buf + 48U, 0, 32U); /* u = 0 */
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&server));
+    TEST_ASSERT_NOT_EQUAL(SYN_DTLS_STATE_ESTABLISHED, server.state);
+    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_UNINITIALIZED, server.state);
+
+    /* u = 1 */
+    dtls_duplex_init(&dw, &c_io, &s_io, &c_tr, &s_tr, false);
+    TEST_ASSERT_TRUE(syn_dtls_init(&client, &c_rpk, &c_tr, g_dc_rx_buf, sizeof(g_dc_rx_buf),
+                                   g_dc_tx_buf, sizeof(g_dc_tx_buf)));
+    TEST_ASSERT_TRUE(syn_dtls_init(&server, &s_rpk, &s_tr, g_ds_rx_buf, sizeof(g_ds_rx_buf),
+                                   g_ds_tx_buf, sizeof(g_ds_tx_buf)));
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&client));
+    memset(dw.c2s.buf + 48U, 0, 32U);
+    dw.c2s.buf[48U] = 0x01U; /* u = 1 */
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&server));
+    TEST_ASSERT_NOT_EQUAL(SYN_DTLS_STATE_ESTABLISHED, server.state);
+    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_UNINITIALIZED, server.state);
+
+    /* 2. ServerHello with low-order u=0 or u=1 point rejected on client (rolled back) */
+    dtls_duplex_init(&dw, &c_io, &s_io, &c_tr, &s_tr, false);
+    TEST_ASSERT_TRUE(syn_dtls_init(&client, &c_rpk, &c_tr, g_dc_rx_buf, sizeof(g_dc_rx_buf),
+                                   g_dc_tx_buf, sizeof(g_dc_tx_buf)));
+    TEST_ASSERT_TRUE(syn_dtls_init(&server, &s_rpk, &s_tr, g_ds_rx_buf, sizeof(g_ds_rx_buf),
+                                   g_ds_tx_buf, sizeof(g_ds_tx_buf)));
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&client));
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&server));
+    memset(dw.s2c.buf + 48U, 0, 32U); /* u = 0 */
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&client));
+    TEST_ASSERT_NOT_EQUAL(SYN_DTLS_STATE_ESTABLISHED, client.state);
+    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_CLIENT_HELLO_SENT, client.state);
+
+    dtls_duplex_init(&dw, &c_io, &s_io, &c_tr, &s_tr, false);
+    TEST_ASSERT_TRUE(syn_dtls_init(&client, &c_rpk, &c_tr, g_dc_rx_buf, sizeof(g_dc_rx_buf),
+                                   g_dc_tx_buf, sizeof(g_dc_tx_buf)));
+    TEST_ASSERT_TRUE(syn_dtls_init(&server, &s_rpk, &s_tr, g_ds_rx_buf, sizeof(g_ds_rx_buf),
+                                   g_ds_tx_buf, sizeof(g_ds_tx_buf)));
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&client));
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&server));
+    memset(dw.s2c.buf + 48U, 0, 32U);
+    dw.s2c.buf[48U] = 0x01U; /* u = 1 */
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&client));
+    TEST_ASSERT_NOT_EQUAL(SYN_DTLS_STATE_ESTABLISHED, client.state);
+    TEST_ASSERT_EQUAL(SYN_DTLS_STATE_CLIENT_HELLO_SENT, client.state);
 }
 
 void run_dtls_tests(void)
@@ -1422,4 +1597,6 @@ void run_dtls_tests(void)
     RUN_TEST(test_r5_n05_dtls_handshake_and_reflection_rejection);
     RUN_TEST(test_tier_a_dtls_psk_seq_and_secret_scrub);
     RUN_TEST(test_dtls_cooperative_staged_handshake_and_forged_recovery);
+    RUN_TEST(test_dtls_ed25519_cv_sign_abort_fails_handshake);
+    RUN_TEST(test_dtls_low_order_point_fails_handshake);
 }

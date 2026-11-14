@@ -500,6 +500,8 @@ void test_tls_null_and_bounds_checks(void)
     TEST_ASSERT_EQUAL(PT_EXITED, syn_tls_task(NULL, &null_task));
     TEST_ASSERT_EQUAL(PT_EXITED, syn_tls_task(&pt_null, NULL));
     TEST_ASSERT_EQUAL(PT_EXITED, syn_tls_task(&pt_null, &null_task));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_tls_handshake_pt(NULL, &tls));
+    TEST_ASSERT_EQUAL(PT_EXITED, syn_tls_handshake_pt(&pt_null, NULL));
 
     TEST_ASSERT_FALSE(syn_tls_is_established(NULL));
     TEST_ASSERT_EQUAL(SYN_TLS_STATE_UNINITIALIZED, syn_tls_get_state(NULL));
@@ -634,12 +636,22 @@ void test_tls_x509_mode_handshake(void)
     TEST_ASSERT_FALSE(syn_tls_handshake(&bad_tls));
     TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, bad_tls.state);
 
-    /* 3. CN mismatch */
+    /* 3. CN mismatch & forged CA signature on peer certificate */
     SYN_TLS_Config mismatch_cfg = {.mode = SYN_TLS_AUTH_MODE_X509_SERVER,
                                    .server_name = "mismatch.server.com",
                                    .root_ca = &valid_root_ca,
                                    .peer_cert_der = live_cert_der,
                                    .peer_cert_len = sizeof(live_cert_der)};
+    TEST_ASSERT_TRUE(syn_tls_init(&bad_tls, &mismatch_cfg, &c_tr, g_c_rx_buf, sizeof(g_c_rx_buf),
+                                  g_c_tx_buf, sizeof(g_c_tx_buf)));
+    TEST_ASSERT_FALSE(syn_tls_handshake(&bad_tls));
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, bad_tls.state);
+
+    uint8_t bad_sig_cert[184];
+    memcpy(bad_sig_cert, live_cert_der, sizeof(live_cert_der));
+    bad_sig_cert[152] ^= 0x01U;
+    mismatch_cfg.server_name = "Test Server";
+    mismatch_cfg.peer_cert_der = bad_sig_cert;
     TEST_ASSERT_TRUE(syn_tls_init(&bad_tls, &mismatch_cfg, &c_tr, g_c_rx_buf, sizeof(g_c_rx_buf),
                                   g_c_tx_buf, sizeof(g_c_tx_buf)));
     TEST_ASSERT_FALSE(syn_tls_handshake(&bad_tls));
@@ -826,6 +838,18 @@ void test_tls_x509_mode_handshake(void)
     TEST_ASSERT_FALSE(syn_tls_handshake(&c_ctx));
     TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, c_ctx.state);
 
+    /* Client mTLS Flight 3 transport send failure */
+    duplex_init(&dw, &c_io, &s_io, &c_tr, &s_tr, false);
+    TEST_ASSERT_TRUE(syn_tls_init(&c_ctx, &c_mtls, &c_tr, g_c_rx_buf, sizeof(g_c_rx_buf),
+                                  g_c_tx_buf, sizeof(g_c_tx_buf)));
+    TEST_ASSERT_TRUE(syn_tls_init(&s_ctx, &s_mtls, &s_tr, g_s_rx_buf, sizeof(g_s_rx_buf),
+                                  g_s_tx_buf, sizeof(g_s_tx_buf)));
+    TEST_ASSERT_TRUE(syn_tls_handshake(&c_ctx));
+    TEST_ASSERT_TRUE(syn_tls_handshake(&s_ctx));
+    dw.c2s.fail_send = true;
+    TEST_ASSERT_FALSE(syn_tls_handshake(&c_ctx));
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, c_ctx.state);
+
     /* Valid mTLS Flight 2 + Flight 3 saved -> test CV header/scheme/sig & ClientFinished tamper */
     duplex_init(&dw, &c_io, &s_io, &c_tr, &s_tr, false);
     TEST_ASSERT_TRUE(syn_tls_init(&c_ctx, &c_mtls, &c_tr, g_c_rx_buf, sizeof(g_c_rx_buf),
@@ -839,20 +863,45 @@ void test_tls_x509_mode_handshake(void)
     size_t saved_f2_len = dw.s2c.len;
     memcpy(saved_f2, dw.s2c.buf, saved_f2_len);
 
-    /* Tamper server CV header, sig length, scheme, and MITM signature */
-    size_t cv_offsets[4] = {85U, 92U, 89U, 93U};
-    for (size_t k = 0U; k < 4U; k++) {
+    /* Tamper server CV header, sig length, scheme, R point, and S scalar */
+    size_t cv_offsets[5] = {85U, 92U, 89U, 93U, 125U};
+    for (size_t k = 0U; k < 5U; k++) {
         c_ctx.state = SYN_TLS_STATE_CLIENT_HELLO_SENT;
         syn_sha256_init(&c_ctx.transcript_hash);
         syn_sha384_init(&c_ctx.transcript_sha384);
         syn_sha256_update(&c_ctx.transcript_hash, g_c_tx_buf + 5U, 83U);
         syn_sha512_update(&c_ctx.transcript_sha384, g_c_tx_buf + 5U, 83U);
         memcpy(dw.s2c.buf, saved_f2, saved_f2_len);
-        dw.s2c.buf[cv_offsets[k]] ^= 0xFFU;
+        dw.s2c.buf[cv_offsets[k]] ^= 0x01U;
         dw.s2c.len = saved_f2_len;
         TEST_ASSERT_FALSE(syn_tls_handshake(&c_ctx));
         TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, c_ctx.state);
     }
+
+    /* Known low-order point (u = 0, u = 1) peer ECDHE key rejects in constant time and fails
+     * handshake */
+    c_ctx.state = SYN_TLS_STATE_CLIENT_HELLO_SENT;
+    syn_sha256_init(&c_ctx.transcript_hash);
+    syn_sha384_init(&c_ctx.transcript_sha384);
+    syn_sha256_update(&c_ctx.transcript_hash, g_c_tx_buf + 5U, 83U);
+    syn_sha512_update(&c_ctx.transcript_sha384, g_c_tx_buf + 5U, 83U);
+    memcpy(dw.s2c.buf, saved_f2, saved_f2_len);
+    memset(dw.s2c.buf + 53U, 0, 32U); /* u = 0 */
+    dw.s2c.len = saved_f2_len;
+    TEST_ASSERT_FALSE(syn_tls_handshake(&c_ctx));
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, c_ctx.state);
+
+    c_ctx.state = SYN_TLS_STATE_CLIENT_HELLO_SENT;
+    syn_sha256_init(&c_ctx.transcript_hash);
+    syn_sha384_init(&c_ctx.transcript_sha384);
+    syn_sha256_update(&c_ctx.transcript_hash, g_c_tx_buf + 5U, 83U);
+    syn_sha512_update(&c_ctx.transcript_sha384, g_c_tx_buf + 5U, 83U);
+    memcpy(dw.s2c.buf, saved_f2, saved_f2_len);
+    memset(dw.s2c.buf + 53U, 0, 32U);
+    dw.s2c.buf[53U] = 0x01U; /* u = 1 */
+    dw.s2c.len = saved_f2_len;
+    TEST_ASSERT_FALSE(syn_tls_handshake(&c_ctx));
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, c_ctx.state);
 
     /* Restore valid Flight 2 -> produce valid Flight 3, then tamper Flight 3 on server */
     c_ctx.state = SYN_TLS_STATE_CLIENT_HELLO_SENT;
@@ -1019,6 +1068,9 @@ void test_tls_aes_ccm_cipher_suites(void)
     TEST_ASSERT_TRUE(syn_tls_init(&s_fb, &scfg8, &s_tr, g_s_rx_buf, sizeof(g_s_rx_buf), g_s_tx_buf,
                                   sizeof(g_s_tx_buf)));
     mock_random_skip = true;
+    TEST_ASSERT_FALSE(syn_tls_handshake(&c_fb));
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, c_fb.state);
+    c_fb.state = SYN_TLS_STATE_UNINITIALIZED;
     TEST_ASSERT_FALSE(syn_tls_handshake(&c_fb));
     TEST_ASSERT_EQUAL(SYN_TLS_STATE_ERROR, c_fb.state);
     mock_random_skip = false;
@@ -1472,7 +1524,7 @@ static void test_tls_cooperative_staged_handshake_yielding(void)
     TEST_ASSERT_TRUE(syn_tls_init(&server, &s_mtls, &s_tr, g_s_rx_buf, sizeof(g_s_rx_buf),
                                   g_s_tx_buf, sizeof(g_s_tx_buf)));
 
-    /* Contended SYN_Sched execution: both client and server yield between asymmetric stages */
+    /* Contended SYN_Sched execution: both client and server yield after every single crypto step */
     uint32_t peer_runs = 0U;
     SYN_Task tasks[3];
     SYN_Sched sched;
@@ -1481,70 +1533,91 @@ static void test_tls_cooperative_staged_handshake_yielding(void)
     syn_task_create(&tasks[2], "peer", tls_peer_more_task, SYN_PRIO_HIGH, &peer_runs);
     syn_sched_init(&sched, tasks, 3U);
 
-    /* Turn 1 (c_task): Stage 1 verifies server X.509 cert + sends ClientHello -> yields PT_MORE */
+    /* Turn 1 (c_task): starts sliced X.509 verify (1 step), still UNINITIALIZED */
     syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL(SYN_TLS_STATE_CLIENT_HELLO_SENT, client.state);
-    TEST_ASSERT_EQUAL_size_t(88U, dw.c2s.len);
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_UNINITIALIZED, client.state);
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&client.flight_pt));
+    TEST_ASSERT_EQUAL_size_t(0U, dw.c2s.len);
 
-    /* Turn 2 (s_task): Stage 1 verifies client X.509 cert + parses CH + derives HS keys -> PT_MORE
-     */
+    /* Turn 2 (s_task): starts sliced X.509 verify (1 step), still UNINITIALIZED */
     syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL(SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED, server.state);
-    TEST_ASSERT_EQUAL_size_t(0U, dw.s2c.len);
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_UNINITIALIZED, server.state);
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&server.flight_pt));
 
-    /* Turn 3 (peer_task): peer runs */
+    /* Turn 3 (peer_task): peer runs immediately after 1 step of each TLS task */
     syn_sched_run(&sched);
     TEST_ASSERT_EQUAL_UINT32(1U, peer_runs);
 
-    /* Turn 4 (c_task): ServerHello not sent yet -> yields PT_IDLE via PT_PASS */
-    syn_sched_run(&sched);
+    /* Advance until ClientHello is transmitted (requires >= 250 Ed25519 verify steps) */
+    uint32_t p_start = peer_runs;
+    while (client.state == SYN_TLS_STATE_UNINITIALIZED) {
+        syn_sched_run(&sched);
+    }
     TEST_ASSERT_EQUAL(SYN_TLS_STATE_CLIENT_HELLO_SENT, client.state);
+    TEST_ASSERT_EQUAL_size_t(88U, dw.c2s.len);
+    /* Client Flight 1: Ed25519 cert verify (760) + X25519 keygen (509) + task turns */
+    TEST_ASSERT_EQUAL_UINT32(1283U, peer_runs - p_start);
 
-    /* Turn 5 (s_task): Stage 2 signs Server CV + sends Flight 2 -> FINISHED_SENT, yields PT_MORE */
-    syn_sched_run(&sched);
+    /* Advance until Server finishes ClientHello ECDHE -> HANDSHAKE_KEYS_DERIVED */
+    p_start = peer_runs;
+    while (server.state == SYN_TLS_STATE_UNINITIALIZED) {
+        mock_tick_advance(1U);
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_EQUAL(SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED, server.state);
+    /* Server Flight 2 stage 1: X25519 ECDHE (509) + HKDF handshake keys (9) */
+    TEST_ASSERT_EQUAL_UINT32(518U, peer_runs - p_start);
+
+    /* Advance until Server signs CV and sends Flight 2 -> FINISHED_SENT */
+    p_start = peer_runs;
+    while (server.state == SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED) {
+        syn_sched_run(&sched);
+    }
     TEST_ASSERT_EQUAL(SYN_TLS_STATE_FINISHED_SENT, server.state);
     TEST_ASSERT_TRUE(dw.s2c.len > 0U);
+    /* Server Flight 2 stage 2: Ed25519 CV sign (650) + Finished MAC (11) + send (2) */
+    TEST_ASSERT_EQUAL_UINT32(663U, peer_runs - p_start);
 
-    /* Turn 6 (peer_task): peer runs */
-    syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL_UINT32(2U, peer_runs);
-
-    /* Turn 7 (s_task): waiting for Client Flight 3 -> yields PT_IDLE via PT_PASS */
-    syn_sched_run(&sched);
-    TEST_ASSERT_EQUAL(SYN_TLS_STATE_FINISHED_SENT, server.state);
-
-    /* Advance tick so c_task (polling after PT_PASS) is overdue and runs its 4 cooperative stages
-     */
-    mock_tick_advance(10U);
-    syn_sched_run(&sched); /* peer_task (overdue) */
-    syn_sched_run(
-        &sched); /* c_task Stage 2 (overdue): recv SH + X25519 -> HANDSHAKE_KEYS_DERIVED */
+    /* Advance through Client Stage 2 (ECDHE), Stage 3 (Server CV verify), Stage 4, Stage 5 */
+    p_start = peer_runs;
+    while (client.state != SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED) {
+        mock_tick_advance(1U);
+        syn_sched_run(&sched);
+    }
     TEST_ASSERT_EQUAL(SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED, client.state);
-    syn_sched_run(&sched); /* s_task (overdue): polls empty wire -> PT_IDLE (has_more = false) */
-    TEST_ASSERT_EQUAL(SYN_TLS_STATE_FINISHED_SENT, server.state);
 
-    uint32_t runs_before = peer_runs;
-    syn_sched_run(&sched); /* peer_task runs between Stage 2 and Stage 3 */
-    TEST_ASSERT_EQUAL_UINT32(runs_before + 1U, peer_runs);
-
-    syn_sched_run(&sched); /* c_task Stage 3: verify Server CV -> CERTIFICATE_VERIFIED */
+    while (client.state != SYN_TLS_STATE_CERTIFICATE_VERIFIED) {
+        mock_tick_advance(1U);
+        syn_sched_run(&sched);
+    }
     TEST_ASSERT_EQUAL(SYN_TLS_STATE_CERTIFICATE_VERIFIED, client.state);
 
-    syn_sched_run(&sched); /* peer_task runs between Stage 3 and Stage 4 */
-    syn_sched_run(&sched); /* c_task Stage 4: verify Server Finished -> SERVER_HELLO_RECEIVED */
+    while (client.state != SYN_TLS_STATE_SERVER_HELLO_RECEIVED) {
+        mock_tick_advance(1U);
+        syn_sched_run(&sched);
+    }
     TEST_ASSERT_EQUAL(SYN_TLS_STATE_SERVER_HELLO_RECEIVED, client.state);
 
-    syn_sched_run(&sched); /* peer_task runs between Stage 4 and Stage 5 */
-    syn_sched_run(&sched); /* c_task Stage 5: sign Client CV + send Flight 3 -> ESTABLISHED */
+    while (client.state != SYN_TLS_STATE_ESTABLISHED) {
+        mock_tick_advance(1U);
+        syn_sched_run(&sched);
+    }
     TEST_ASSERT_EQUAL(SYN_TLS_STATE_ESTABLISHED, client.state);
     TEST_ASSERT_TRUE(dw.c2s.len > 0U);
+    /* Client Flights 2+3: X25519 ECDHE (509) + Ed25519 CV verify (760) + Ed25519 CV sign (650) +
+     * MACs/framing (45) */
+    TEST_ASSERT_EQUAL_UINT32(1964U, peer_runs - p_start);
 
-    /* Advance tick so s_task processes Client Flight 3 -> ESTABLISHED */
-    mock_tick_advance(10U);
+    /* Advance until Server verifies Client Flight 3 -> ESTABLISHED */
+    p_start = peer_runs;
     while (server.state != SYN_TLS_STATE_ESTABLISHED) {
+        mock_tick_advance(1U);
         syn_sched_run(&sched);
     }
     TEST_ASSERT_EQUAL(SYN_TLS_STATE_ESTABLISHED, server.state);
+    /* Server Flight 3 verification: Ed25519 CV verify (760) + Finished MAC (11) + app key
+     * derivation (9) + 2 */
+    TEST_ASSERT_EQUAL_UINT32(782U, peer_runs - p_start);
 }
 
 void run_tls_tests(void)

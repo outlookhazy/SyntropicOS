@@ -128,6 +128,8 @@ static inline void syn_secure_zero(void *v, size_t n)
     }
 }
 
+static bool dtls_fail_handshake(SYN_DTLS_Context *ctx);
+
 /**
  * @brief Constant-time check that a 32-byte X25519 shared secret is non-zero.
  * @param b 32-byte shared point.
@@ -135,11 +137,7 @@ static inline void syn_secure_zero(void *v, size_t n)
  */
 static bool dtls_is_nonzero_32(const uint8_t b[32])
 {
-    uint8_t acc = 0U;
-    for (size_t i = 0U; i < 32U; i++) {
-        acc |= b[i];
-    }
-    return acc != 0U;
+    return syn_x25519_is_nonzero(b);
 }
 
 /**
@@ -257,67 +255,182 @@ static void dtls_chain_transcript(SYN_DTLS_Context *ctx, uint8_t tr_digest[SYN_D
 }
 
 /**
- * @brief Derive DTLS 1.3 handshake secrets and master secret after ServerHello.
- * @param ctx DTLS context pointer.
- * @return true if X25519 shared secret is non-zero and handshake secrets were derived.
+ * @brief Cipher-suite-aware HKDF-Extract (SHA-256 or SHA-384) for DTLS 1.3.
+ * @param ctx      DTLS context pointer.
+ * @param salt     Salt bytes.
+ * @param salt_len Salt byte length.
+ * @param ikm      Input keying material.
+ * @param ikm_len  IKM byte length.
+ * @param prk      [out] Pseudorandom key output buffer.
  */
-static bool dtls_derive_hs_secrets(SYN_DTLS_Context *ctx)
+static void dtls_hkdf_extract_cs(const SYN_DTLS_Context *ctx, const uint8_t *salt, size_t salt_len,
+                                 const uint8_t *ikm, size_t ikm_len, uint8_t *prk)
 {
-    static const uint8_t zero_salt[SYN_DTLS_SECRET_LEN] = {0};
-    bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
-    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-
-    uint8_t buf1[SYN_DTLS_SECRET_LEN];
-    uint8_t buf2[SYN_DTLS_SECRET_LEN];
-    uint8_t ecdhe_shared[32];
-
-    memset(buf1, 0, sizeof(buf1));
-    size_t copy_len = hash_len;
-    if (ctx->config.mode == SYN_DTLS_AUTH_MODE_PSK) {
-        copy_len =
-            (ctx->config.psk_secret_len > sizeof(buf1)) ? sizeof(buf1) : ctx->config.psk_secret_len;
-        memcpy(buf1, ctx->config.psk_secret, copy_len);
+    if (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384) {
+        syn_hkdf_sha384_extract(salt, salt_len, ikm, ikm_len, prk);
+    } else {
+        syn_hkdf_extract(salt, salt_len, ikm, ikm_len, prk);
     }
+}
 
-    syn_x25519(ecdhe_shared, ctx->ecdhe_priv, ctx->peer_ecdhe_pub);
-    if (!dtls_is_nonzero_32(ecdhe_shared)) {
-        syn_secure_zero(buf1, sizeof(buf1));
-        syn_secure_zero(ecdhe_shared, sizeof(ecdhe_shared));
+/**
+ * @brief Cipher-suite-aware HKDF-Expand-Label (SHA-256 or SHA-384) for DTLS 1.3.
+ * @param ctx         DTLS context pointer.
+ * @param secret      Base secret (32 or 48 bytes).
+ * @param label       TLS 1.3 label string without "tls13 " prefix.
+ * @param label_len   Label byte length.
+ * @param context     Transcript hash context bytes.
+ * @param context_len Context byte length.
+ * @param out         [out] Derived key material output buffer.
+ * @param out_len     Desired output byte length.
+ */
+static void dtls_hkdf_expand_cs(const SYN_DTLS_Context *ctx, const uint8_t *secret,
+                                const char *label, size_t label_len, const uint8_t *context,
+                                size_t context_len, uint8_t *out, size_t out_len)
+{
+    if (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384) {
+        syn_hkdf_sha384_expand_label(secret, SYN_SHA384_DIGEST_SIZE, label, label_len, context,
+                                     context_len, out, out_len);
+    } else {
+        syn_hkdf_expand_label(secret, SYN_SHA256_DIGEST_SIZE, label, label_len, context,
+                              context_len, out, out_len);
+    }
+}
+
+/**
+ * @brief Validate ECDHE shared secret and compute ClientHello..ServerHello transcript digest.
+ * @param ctx DTLS context pointer.
+ * @return true if ECDHE shared secret is non-zero.
+ */
+static bool dtls_hs_secrets_prep(SYN_DTLS_Context *ctx)
+{
+    bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
+    if (!dtls_is_nonzero_32(ctx->hs_work.ecdhe_secret)) {
+        syn_secure_zero(ctx->hs_work.ecdhe_secret, sizeof(ctx->hs_work.ecdhe_secret));
         return false;
     }
-
     dtls_compute_transcript(ctx, is_sha384, ctx->transcript_digest);
-
-    if (is_sha384) {
-        syn_hkdf_sha384_extract(zero_salt, hash_len, buf1, copy_len, buf2);
-        syn_hkdf_sha384_expand_label(buf2, hash_len, "derived", 7, DTLS_EMPTY_SHA384, hash_len,
-                                     buf1, hash_len);
-        syn_hkdf_sha384_extract(buf1, hash_len, ecdhe_shared, 32U, buf2);
-        syn_hkdf_sha384_expand_label(buf2, hash_len, "c hs traffic", 12, ctx->transcript_digest,
-                                     hash_len, ctx->client_handshake_secret, hash_len);
-        syn_hkdf_sha384_expand_label(buf2, hash_len, "s hs traffic", 12, ctx->transcript_digest,
-                                     hash_len, ctx->server_handshake_secret, hash_len);
-        syn_hkdf_sha384_expand_label(buf2, hash_len, "derived", 7, DTLS_EMPTY_SHA384, hash_len,
-                                     buf1, hash_len);
-        syn_hkdf_sha384_extract(buf1, hash_len, zero_salt, hash_len, ctx->master_secret);
-    } else {
-        syn_hkdf_extract(zero_salt, hash_len, buf1, copy_len, buf2);
-        syn_hkdf_expand_label(buf2, hash_len, "derived", 7, DTLS_EMPTY_SHA256, hash_len, buf1,
-                              hash_len);
-        syn_hkdf_extract(buf1, hash_len, ecdhe_shared, 32U, buf2);
-        syn_hkdf_expand_label(buf2, hash_len, "c hs traffic", 12, ctx->transcript_digest, hash_len,
-                              ctx->client_handshake_secret, hash_len);
-        syn_hkdf_expand_label(buf2, hash_len, "s hs traffic", 12, ctx->transcript_digest, hash_len,
-                              ctx->server_handshake_secret, hash_len);
-        syn_hkdf_expand_label(buf2, hash_len, "derived", 7, DTLS_EMPTY_SHA256, hash_len, buf1,
-                              hash_len);
-        syn_hkdf_extract(buf1, hash_len, zero_salt, hash_len, ctx->master_secret);
-    }
-
-    syn_secure_zero(buf1, sizeof(buf1));
-    syn_secure_zero(buf2, sizeof(buf2));
-    syn_secure_zero(ecdhe_shared, sizeof(ecdhe_shared));
     return true;
+}
+
+/**
+ * @brief Extract DTLS 1.3 Early Secret into hs_work.ks_prk.
+ * @param ctx DTLS context pointer.
+ */
+static void dtls_hs_extract_early(SYN_DTLS_Context *ctx)
+{
+    static const uint8_t zero_salt[SYN_DTLS_SECRET_LEN] = {0};
+    size_t hash_len = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384)
+                          ? SYN_SHA384_DIGEST_SIZE
+                          : SYN_SHA256_DIGEST_SIZE;
+    uint8_t ikm[SYN_DTLS_SECRET_LEN];
+    memset(ikm, 0, sizeof(ikm));
+    size_t ikm_len = hash_len;
+    if (ctx->config.mode == SYN_DTLS_AUTH_MODE_PSK) {
+        ikm_len =
+            (ctx->config.psk_secret_len > sizeof(ikm)) ? sizeof(ikm) : ctx->config.psk_secret_len;
+        memcpy(ikm, ctx->config.psk_secret, ikm_len);
+    }
+    dtls_hkdf_extract_cs(ctx, zero_salt, hash_len, ikm, ikm_len, ctx->hs_work.ks_prk);
+    syn_secure_zero(ikm, sizeof(ikm));
+}
+
+/**
+ * @brief Expand "derived" salt from hs_work.ks_prk over empty transcript hash into hs_work.ks_salt.
+ * @param ctx DTLS context pointer.
+ */
+static void dtls_hs_expand_derived(SYN_DTLS_Context *ctx)
+{
+    bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
+    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
+    const uint8_t *empty_h = is_sha384 ? DTLS_EMPTY_SHA384 : DTLS_EMPTY_SHA256;
+    dtls_hkdf_expand_cs(ctx, ctx->hs_work.ks_prk, "derived", 7U, empty_h, hash_len,
+                        ctx->hs_work.ks_salt, hash_len);
+}
+
+/**
+ * @brief Extract DTLS Handshake Secret from ks_salt and ecdhe_secret into hs_work.ks_prk.
+ * @param ctx DTLS context pointer.
+ */
+static void dtls_hs_extract_hs(SYN_DTLS_Context *ctx)
+{
+    size_t hash_len = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384)
+                          ? SYN_SHA384_DIGEST_SIZE
+                          : SYN_SHA256_DIGEST_SIZE;
+    dtls_hkdf_extract_cs(ctx, ctx->hs_work.ks_salt, hash_len, ctx->hs_work.ecdhe_secret, 32U,
+                         ctx->hs_work.ks_prk);
+    syn_secure_zero(ctx->hs_work.ecdhe_secret, sizeof(ctx->hs_work.ecdhe_secret));
+}
+
+/**
+ * @brief Expand a DTLS handshake traffic secret ("c hs traffic" or "s hs traffic").
+ * @param ctx   DTLS context pointer.
+ * @param label 12-byte label ("c hs traffic" or "s hs traffic").
+ * @param out   [out] Destination secret buffer.
+ */
+static void dtls_hs_expand_traffic(SYN_DTLS_Context *ctx, const char *label, uint8_t *out)
+{
+    size_t hash_len = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384)
+                          ? SYN_SHA384_DIGEST_SIZE
+                          : SYN_SHA256_DIGEST_SIZE;
+    dtls_hkdf_expand_cs(ctx, ctx->hs_work.ks_prk, label, 12U, ctx->transcript_digest, hash_len, out,
+                        hash_len);
+}
+
+/**
+ * @brief Extract master_secret from ks_salt and scrub HKDF staging buffers.
+ * @param ctx DTLS context pointer.
+ */
+static void dtls_hs_extract_master(SYN_DTLS_Context *ctx)
+{
+    static const uint8_t zero_salt[SYN_DTLS_SECRET_LEN] = {0};
+    size_t hash_len = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384)
+                          ? SYN_SHA384_DIGEST_SIZE
+                          : SYN_SHA256_DIGEST_SIZE;
+    dtls_hkdf_extract_cs(ctx, ctx->hs_work.ks_salt, hash_len, zero_salt, hash_len,
+                         ctx->master_secret);
+    syn_secure_zero(ctx->hs_work.ks_salt, sizeof(ctx->hs_work.ks_salt));
+    syn_secure_zero(ctx->hs_work.ks_prk, sizeof(ctx->hs_work.ks_prk));
+}
+
+/**
+ * @brief Cooperative child protothread deriving DTLS 1.3 handshake secrets (1 HKDF per slice).
+ * @param pt  Sub-protothread control block (`&ctx->sub_pt`).
+ * @param ctx DTLS context pointer (`hs_work.crypto_ok` set true on success).
+ * @return Protothread status.
+ */
+static SYN_PT_Status dtls_derive_hs_secrets_pt(SYN_PT *pt, SYN_DTLS_Context *ctx)
+{
+    PT_BEGIN(pt);
+
+    ctx->hs_work.crypto_ok = false;
+    if (!dtls_hs_secrets_prep(ctx)) {
+        PT_EXIT(pt);
+    }
+    PT_CONTINUE(pt);
+
+    dtls_hs_extract_early(ctx);
+    PT_CONTINUE(pt);
+
+    dtls_hs_expand_derived(ctx);
+    PT_CONTINUE(pt);
+
+    dtls_hs_extract_hs(ctx);
+    PT_CONTINUE(pt);
+
+    dtls_hs_expand_traffic(ctx, "c hs traffic", ctx->client_handshake_secret);
+    PT_CONTINUE(pt);
+
+    dtls_hs_expand_traffic(ctx, "s hs traffic", ctx->server_handshake_secret);
+    PT_CONTINUE(pt);
+
+    dtls_hs_expand_derived(ctx);
+    PT_CONTINUE(pt);
+
+    dtls_hs_extract_master(ctx);
+    ctx->hs_work.crypto_ok = true;
+
+    PT_END(pt);
 }
 
 /**
@@ -326,72 +439,161 @@ static bool dtls_derive_hs_secrets(SYN_DTLS_Context *ctx)
  */
 static void dtls_scrub_handshake_secrets(SYN_DTLS_Context *ctx)
 {
+    PT_INIT(&ctx->sub_pt);
+    PT_INIT(&ctx->crypto_pt);
     syn_secure_zero(ctx->ecdhe_priv, sizeof(ctx->ecdhe_priv));
     syn_secure_zero(ctx->client_handshake_secret, sizeof(ctx->client_handshake_secret));
     syn_secure_zero(ctx->server_handshake_secret, sizeof(ctx->server_handshake_secret));
     syn_secure_zero(ctx->master_secret, sizeof(ctx->master_secret));
+    syn_secure_zero(&ctx->hs_work, sizeof(ctx->hs_work));
+    syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
 }
 
 /**
- * @brief Derive DTLS 1.3 application traffic secrets, keys, and IVs after ServerFinished.
+ * @brief Scrub transient handshake state and transition context to SYN_DTLS_STATE_ERROR.
  * @param ctx DTLS context pointer.
+ * @return Always false.
  */
-static void dtls_derive_app_keys(SYN_DTLS_Context *ctx)
+static bool dtls_fail_handshake(SYN_DTLS_Context *ctx)
 {
-    bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
-    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-
-    if (is_sha384) {
-        syn_hkdf_sha384_expand_label(ctx->master_secret, hash_len, "c ap traffic", 12,
-                                     ctx->transcript_digest, hash_len, ctx->client_app_secret,
-                                     hash_len);
-        syn_hkdf_sha384_expand_label(ctx->master_secret, hash_len, "s ap traffic", 12,
-                                     ctx->transcript_digest, hash_len, ctx->server_app_secret,
-                                     hash_len);
-    } else {
-        syn_hkdf_expand_label(ctx->master_secret, hash_len, "c ap traffic", 12,
-                              ctx->transcript_digest, hash_len, ctx->client_app_secret, hash_len);
-        syn_hkdf_expand_label(ctx->master_secret, hash_len, "s ap traffic", 12,
-                              ctx->transcript_digest, hash_len, ctx->server_app_secret, hash_len);
-    }
-
-    size_t key_len = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_128_GCM_SHA256 ||
-                      ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_128_CCM_SHA256 ||
-                      ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_128_CCM_8_SHA256)
-                         ? 16U
-                         : 32U;
-
-    dtls_derive_traffic_key_or_iv(ctx, ctx->client_app_secret, "key", ctx->client_app_key, key_len);
-    dtls_derive_traffic_key_or_iv(ctx, ctx->client_app_secret, "iv", ctx->client_app_iv, 12);
-    dtls_derive_traffic_key_or_iv(ctx, ctx->server_app_secret, "key", ctx->server_app_key, key_len);
-    dtls_derive_traffic_key_or_iv(ctx, ctx->server_app_secret, "iv", ctx->server_app_iv, 12);
+    PT_INIT(&ctx->hs_pt);
+    PT_INIT(&ctx->flight_pt);
+    PT_INIT(&ctx->sub_pt);
+    PT_INIT(&ctx->crypto_pt);
+    syn_secure_zero(ctx->client_handshake_secret, sizeof(ctx->client_handshake_secret));
+    syn_secure_zero(ctx->server_handshake_secret, sizeof(ctx->server_handshake_secret));
+    syn_secure_zero(ctx->master_secret, sizeof(ctx->master_secret));
+    syn_secure_zero(ctx->client_app_secret, sizeof(ctx->client_app_secret));
+    syn_secure_zero(ctx->server_app_secret, sizeof(ctx->server_app_secret));
+    syn_secure_zero(ctx->client_app_key, sizeof(ctx->client_app_key));
+    syn_secure_zero(ctx->client_app_iv, sizeof(ctx->client_app_iv));
+    syn_secure_zero(ctx->server_app_key, sizeof(ctx->server_app_key));
+    syn_secure_zero(ctx->server_app_iv, sizeof(ctx->server_app_iv));
+    syn_secure_zero(ctx->hs_work.cv_msg, sizeof(ctx->hs_work.cv_msg));
+    syn_secure_zero(ctx->hs_work.pub_cache, sizeof(ctx->hs_work.pub_cache));
+    syn_secure_zero(ctx->hs_work.tr_cand, sizeof(ctx->hs_work.tr_cand));
+    syn_secure_zero(ctx->hs_work.ks_salt, sizeof(ctx->hs_work.ks_salt));
+    syn_secure_zero(ctx->hs_work.ks_prk, sizeof(ctx->hs_work.ks_prk));
+    syn_secure_zero(ctx->hs_work.ecdhe_secret, sizeof(ctx->hs_work.ecdhe_secret));
+    syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
+    ctx->hs_work.crypto_ok = false;
+    ctx->state = SYN_DTLS_STATE_ERROR;
+    return false;
 }
 
 /**
- * @brief Compute DTLS 1.3 Finished verify_data MAC over a transcript digest.
- * @param ctx       DTLS context pointer.
+ * @brief Scrub unauthenticated ServerHello candidate state and return to CLIENT_HELLO_SENT.
+ * @param ctx DTLS client context after a forged/corrupted UDP ServerHello flight.
+ */
+static void dtls_rollback_forged_sh(SYN_DTLS_Context *ctx)
+{
+    PT_INIT(&ctx->flight_pt);
+    PT_INIT(&ctx->sub_pt);
+    PT_INIT(&ctx->crypto_pt);
+    syn_secure_zero(ctx->server_random, sizeof(ctx->server_random));
+    syn_secure_zero(ctx->peer_ecdhe_pub, sizeof(ctx->peer_ecdhe_pub));
+    syn_secure_zero(ctx->client_handshake_secret, sizeof(ctx->client_handshake_secret));
+    syn_secure_zero(ctx->server_handshake_secret, sizeof(ctx->server_handshake_secret));
+    syn_secure_zero(ctx->master_secret, sizeof(ctx->master_secret));
+    syn_secure_zero(ctx->transcript_digest, sizeof(ctx->transcript_digest));
+    syn_secure_zero(ctx->hs_work.cv_msg, sizeof(ctx->hs_work.cv_msg));
+    syn_secure_zero(ctx->hs_work.pub_cache, sizeof(ctx->hs_work.pub_cache));
+    syn_secure_zero(ctx->hs_work.ks_salt, sizeof(ctx->hs_work.ks_salt));
+    syn_secure_zero(ctx->hs_work.ks_prk, sizeof(ctx->hs_work.ks_prk));
+    syn_secure_zero(ctx->hs_work.ecdhe_secret, sizeof(ctx->hs_work.ecdhe_secret));
+    syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
+    ctx->hs_work.crypto_ok = false;
+    ctx->state = SYN_DTLS_STATE_CLIENT_HELLO_SENT;
+}
+
+/**
+ * @brief Return AEAD key byte length (16 or 32) for the configured DTLS 1.3 cipher suite.
+ * @param ctx DTLS context pointer.
+ * @return AEAD key size in bytes.
+ */
+static size_t dtls_aead_key_len(const SYN_DTLS_Context *ctx)
+{
+    return (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_128_GCM_SHA256 ||
+            ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_128_CCM_SHA256 ||
+            ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_128_CCM_8_SHA256)
+               ? 16U
+               : 32U;
+}
+
+/**
+ * @brief Expand a DTLS application traffic secret ("c ap traffic" or "s ap traffic").
+ * @param ctx   DTLS context pointer.
+ * @param label 12-byte label ("c ap traffic" or "s ap traffic").
+ * @param out   [out] Destination secret buffer.
+ */
+static void dtls_app_expand_secret(SYN_DTLS_Context *ctx, const char *label, uint8_t *out)
+{
+    size_t hash_len = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384)
+                          ? SYN_SHA384_DIGEST_SIZE
+                          : SYN_SHA256_DIGEST_SIZE;
+    dtls_hkdf_expand_cs(ctx, ctx->master_secret, label, 12U, ctx->transcript_digest, hash_len, out,
+                        hash_len);
+}
+
+/**
+ * @brief Cooperative child protothread deriving DTLS 1.3 application traffic keys (1 HKDF/slice).
+ * @param pt  Sub-protothread control block (`&ctx->sub_pt`).
+ * @param ctx DTLS context pointer.
+ * @return Protothread status.
+ */
+static SYN_PT_Status dtls_derive_app_keys_pt(SYN_PT *pt, SYN_DTLS_Context *ctx)
+{
+    PT_BEGIN(pt);
+
+    dtls_app_expand_secret(ctx, "c ap traffic", ctx->client_app_secret);
+    PT_CONTINUE(pt);
+
+    dtls_app_expand_secret(ctx, "s ap traffic", ctx->server_app_secret);
+    PT_CONTINUE(pt);
+
+    dtls_derive_traffic_key_or_iv(ctx, ctx->client_app_secret, "key", ctx->client_app_key,
+                                  dtls_aead_key_len(ctx));
+    PT_CONTINUE(pt);
+
+    dtls_derive_traffic_key_or_iv(ctx, ctx->client_app_secret, "iv", ctx->client_app_iv, 12U);
+    PT_CONTINUE(pt);
+
+    dtls_derive_traffic_key_or_iv(ctx, ctx->server_app_secret, "key", ctx->server_app_key,
+                                  dtls_aead_key_len(ctx));
+    PT_CONTINUE(pt);
+
+    dtls_derive_traffic_key_or_iv(ctx, ctx->server_app_secret, "iv", ctx->server_app_iv, 12U);
+    PT_CONTINUE(pt);
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Cooperative child protothread computing DTLS 1.3 Finished MAC into hs_work.ks_salt.
+ * @param pt        Sub-protothread control block (`&ctx->sub_pt`).
+ * @param ctx       DTLS context pointer (output MAC staged in `ctx->hs_work.ks_salt`).
  * @param hs_secret Base handshake secret (server or client).
  * @param tr_digest Transcript digest bytes.
- * @param out_mac   [out] Verify data output buffer (32 or 48 bytes).
+ * @return Protothread status.
  */
-static void dtls_compute_finished(const SYN_DTLS_Context *ctx, const uint8_t *hs_secret,
-                                  const uint8_t tr_digest[SYN_DTLS_SECRET_LEN],
-                                  uint8_t out_mac[SYN_DTLS_SECRET_LEN])
+static SYN_PT_Status dtls_compute_finished_pt(SYN_PT *pt, SYN_DTLS_Context *ctx,
+                                              const uint8_t *hs_secret,
+                                              const uint8_t tr_digest[SYN_DTLS_SECRET_LEN])
 {
-    bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
-    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-    uint8_t fin_key[SYN_DTLS_SECRET_LEN];
+    size_t hash_len = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384)
+                          ? SYN_SHA384_DIGEST_SIZE
+                          : SYN_SHA256_DIGEST_SIZE;
 
-    if (is_sha384) {
-        syn_hkdf_sha384_expand_label(hs_secret, hash_len, "finished", 8U, NULL, 0U, fin_key,
-                                     hash_len);
-        syn_hkdf_sha384_extract(fin_key, hash_len, tr_digest, hash_len, out_mac);
-    } else {
-        syn_hkdf_expand_label(hs_secret, hash_len, "finished", 8U, NULL, 0U, fin_key, hash_len);
-        syn_hkdf_extract(fin_key, hash_len, tr_digest, hash_len, out_mac);
-    }
+    PT_BEGIN(pt);
 
-    syn_secure_zero(fin_key, sizeof(fin_key));
+    dtls_hkdf_expand_cs(ctx, hs_secret, "finished", 8U, NULL, 0U, ctx->hs_work.ks_prk, hash_len);
+    PT_CONTINUE(pt);
+
+    dtls_hkdf_extract_cs(ctx, ctx->hs_work.ks_prk, hash_len, tr_digest, hash_len,
+                         ctx->hs_work.ks_salt);
+    syn_secure_zero(ctx->hs_work.ks_prk, sizeof(ctx->hs_work.ks_prk));
+
+    PT_END(pt);
 }
 
 /**
@@ -414,22 +616,25 @@ static void dtls_record_encrypt(SYN_DTLS_Context *ctx, const uint8_t *key, const
         (void)syn_aes_gcm_init(&ctx->crypto_scratch.gcm, key, 16U);
         (void)syn_aes_gcm_encrypt(&ctx->crypto_scratch.gcm, nonce, 12U, aad, aad_len, in, in_len,
                                   out_ct, out_tag);
+        syn_secure_zero(&ctx->crypto_scratch.gcm, sizeof(ctx->crypto_scratch.gcm));
     } else if (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384) {
         (void)syn_aes_gcm_init(&ctx->crypto_scratch.gcm, key, 32U);
         (void)syn_aes_gcm_encrypt(&ctx->crypto_scratch.gcm, nonce, 12U, aad, aad_len, in, in_len,
                                   out_ct, out_tag);
+        syn_secure_zero(&ctx->crypto_scratch.gcm, sizeof(ctx->crypto_scratch.gcm));
     } else if (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_128_CCM_SHA256) {
         (void)syn_aes_init(&ctx->crypto_scratch.aes, key, 16U);
         (void)syn_aes_ccm_encrypt(&ctx->crypto_scratch.aes, nonce, 12U, aad, aad_len, in, in_len,
                                   out_ct, out_tag, 16U);
+        syn_secure_zero(&ctx->crypto_scratch.aes, sizeof(ctx->crypto_scratch.aes));
     } else if (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_128_CCM_8_SHA256) {
         (void)syn_aes_init(&ctx->crypto_scratch.aes, key, 16U);
         (void)syn_aes_ccm_encrypt(&ctx->crypto_scratch.aes, nonce, 12U, aad, aad_len, in, in_len,
                                   out_ct, out_tag, 8U);
+        syn_secure_zero(&ctx->crypto_scratch.aes, sizeof(ctx->crypto_scratch.aes));
     } else {
         syn_aead_encrypt(key, nonce, aad, aad_len, in, in_len, out_ct, out_tag);
     }
-    syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
 }
 
 /**
@@ -454,22 +659,25 @@ static bool dtls_record_decrypt(SYN_DTLS_Context *ctx, const uint8_t *key, const
         (void)syn_aes_gcm_init(&ctx->crypto_scratch.gcm, key, 16U);
         ok = (syn_aes_gcm_decrypt(&ctx->crypto_scratch.gcm, nonce, 12U, aad, aad_len, ct, ct_len,
                                   out_pt, tag) == SYN_OK);
+        syn_secure_zero(&ctx->crypto_scratch.gcm, sizeof(ctx->crypto_scratch.gcm));
     } else if (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384) {
         (void)syn_aes_gcm_init(&ctx->crypto_scratch.gcm, key, 32U);
         ok = (syn_aes_gcm_decrypt(&ctx->crypto_scratch.gcm, nonce, 12U, aad, aad_len, ct, ct_len,
                                   out_pt, tag) == SYN_OK);
+        syn_secure_zero(&ctx->crypto_scratch.gcm, sizeof(ctx->crypto_scratch.gcm));
     } else if (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_128_CCM_SHA256) {
         (void)syn_aes_init(&ctx->crypto_scratch.aes, key, 16U);
         ok = (syn_aes_ccm_decrypt(&ctx->crypto_scratch.aes, nonce, 12U, aad, aad_len, ct, ct_len,
                                   tag, 16U, out_pt) == SYN_OK);
+        syn_secure_zero(&ctx->crypto_scratch.aes, sizeof(ctx->crypto_scratch.aes));
     } else if (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_128_CCM_8_SHA256) {
         (void)syn_aes_init(&ctx->crypto_scratch.aes, key, 16U);
         ok = (syn_aes_ccm_decrypt(&ctx->crypto_scratch.aes, nonce, 12U, aad, aad_len, ct, ct_len,
                                   tag, 8U, out_pt) == SYN_OK);
+        syn_secure_zero(&ctx->crypto_scratch.aes, sizeof(ctx->crypto_scratch.aes));
     } else {
         ok = syn_aead_decrypt(key, nonce, aad, aad_len, ct, ct_len, tag, out_pt);
     }
-    syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
     return ok;
 }
 
@@ -653,22 +861,19 @@ static size_t dtls_format_cv_input(bool is_server_cv, const uint8_t *tr_digest, 
 }
 
 /**
- * @brief Build and sign a 72-byte DTLS 1.3 CertificateVerify message.
- * @param ctx          DTLS context pointer.
+ * @brief Format CertificateVerify header/payload and initialize cooperative P-256 or Ed25519 sign.
+ * @param ctx          DTLS context pointer with hs_work.cv_algo populated.
  * @param is_server_cv true for server CertificateVerify, false for client.
- * @param algo         Local signing key algorithm (Ed25519 or ECDSA-P256).
- * @param tr_digest    Transcript digest bytes.
- * @param out_cv       [out] 72-byte CertificateVerify message buffer.
- * @return true if signature succeeded.
+ * @param out_cv       [out] 72-byte CertificateVerify message buffer (8B header written).
+ * @return true if signing context initialized successfully.
  */
-static bool dtls_sign_cert_verify(const SYN_DTLS_Context *ctx, bool is_server_cv,
-                                  SYN_X509_Algo algo, const uint8_t tr_digest[SYN_DTLS_SECRET_LEN],
-                                  uint8_t out_cv[DTLS_CERT_VERIFY_LEN])
+static bool dtls_init_cv_sign(SYN_DTLS_Context *ctx, bool is_server_cv,
+                              uint8_t out_cv[DTLS_CERT_VERIFY_LEN])
 {
     bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-    uint8_t cv_msg[146];
-    size_t cv_len = dtls_format_cv_input(is_server_cv, tr_digest, hash_len, cv_msg);
+    size_t cv_len =
+        dtls_format_cv_input(is_server_cv, ctx->transcript_digest, hash_len, ctx->hs_work.cv_msg);
 
     out_cv[0] = DTLS_HS_CERT_VERIFY;
     out_cv[1] = 0x00U;
@@ -677,155 +882,246 @@ static bool dtls_sign_cert_verify(const SYN_DTLS_Context *ctx, bool is_server_cv
     out_cv[6] = 0x00U;
     out_cv[7] = 64U;
 
-    bool ok = false;
-    if (algo == SYN_X509_ALGO_ECDSA_P256) {
+    if (ctx->hs_work.cv_algo == SYN_X509_ALGO_ECDSA_P256) {
         uint8_t digest[32];
         out_cv[4] = 0x04U;
         out_cv[5] = 0x03U;
-        syn_sha256(cv_msg, cv_len, digest);
-        ok = syn_p256_sign_ecdsa_deterministic(ctx->config.client_privkey, digest, out_cv + 8U,
-                                               out_cv + 40U);
+        syn_sha256(ctx->hs_work.cv_msg, cv_len, digest);
+        bool ok = syn_p256_sign_deterministic_init(&ctx->crypto_scratch.p256,
+                                                   ctx->config.client_privkey, digest);
         syn_secure_zero(digest, sizeof(digest));
-    } else {
-        out_cv[4] = 0x08U;
-        out_cv[5] = 0x07U;
-        ok = syn_ed25519_sign(cv_msg, cv_len, ctx->config.client_privkey, NULL, out_cv + 8U);
+        return ok;
     }
 
-    syn_secure_zero(cv_msg, sizeof(cv_msg));
-    return ok;
+    out_cv[4] = 0x08U;
+    out_cv[5] = 0x07U;
+    (void)syn_ed25519_sign_init(&ctx->crypto_scratch.ed25519, ctx->hs_work.cv_msg, cv_len,
+                                ctx->config.client_privkey, ctx->hs_work.pub_cache);
+    return true;
 }
 
 /**
- * @brief Verify a 64-byte ECDSA-P256 signature over SHA-256(cv_msg).
- * @param pubkey     Peer P-256 public key (65-byte 0x04||X||Y or 64-byte X||Y).
- * @param pubkey_len Public key byte length.
- * @param cv_msg     Formatted CertificateVerify signing content.
- * @param cv_len     Byte length of cv_msg.
- * @param sig64      64-byte raw (r || s) signature.
- * @return true if ECDSA signature is valid.
+ * @brief Parse local X.509 leaf certificate in an isolated stack frame without union aliasing.
+ * @param ctx DTLS context pointer.
+ * @return true if certificate parsed with an Ed25519 or ECDSA-P256 subject public key.
  */
-static bool dtls_verify_p256_cv(const uint8_t *pubkey, size_t pubkey_len, const uint8_t *cv_msg,
-                                size_t cv_len, const uint8_t sig64[64])
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((noinline))
+#endif
+static bool
+dtls_parse_local_cert(SYN_DTLS_Context *ctx)
 {
+    SYN_X509_Cert own;
+    if (!syn_x509_parse(ctx->config.client_cert_der, ctx->config.client_cert_len, &own) ||
+        ((own.pubkey_algo != SYN_X509_ALGO_ED25519) &&
+         (own.pubkey_algo != SYN_X509_ALGO_ECDSA_P256))) {
+        syn_secure_zero(&own, sizeof(own));
+        return false;
+    }
+    ctx->hs_work.cv_algo = own.pubkey_algo;
+    if (own.pubkey_algo == SYN_X509_ALGO_ED25519) {
+        memcpy(ctx->hs_work.pub_cache, own.pubkey, 32U);
+    }
+    syn_secure_zero(&own, sizeof(own));
+    return true;
+}
+
+/**
+ * @brief Cooperative wrapper for P-256 or Ed25519 CertificateVerify signing.
+ * @param ctx    DTLS context pointer.
+ * @param out_cv 72-byte CertificateVerify wire buffer.
+ * @return Child protothread status.
+ */
+static SYN_PT_Status dtls_cv_sign_crypto_pt(SYN_DTLS_Context *ctx, uint8_t *out_cv)
+{
+    if (ctx->hs_work.cv_algo == SYN_X509_ALGO_ECDSA_P256) {
+        return syn_p256_sign_pt(&ctx->crypto_pt, &ctx->crypto_scratch.p256, out_cv + 8U,
+                                out_cv + 40U, &ctx->hs_work.crypto_ok);
+    }
+    SYN_PT_Status st =
+        syn_ed25519_sign_pt(&ctx->crypto_pt, &ctx->crypto_scratch.ed25519, out_cv + 8U);
+    if (st == PT_ENDED) {
+        ctx->hs_work.crypto_ok = true;
+    }
+    return st;
+}
+
+/**
+ * @brief Cooperatively bind local credential into transcript and sign CertificateVerify.
+ * @param pt           Sub-protothread control block (`&ctx->sub_pt`).
+ * @param ctx          DTLS context pointer (`hs_work.crypto_ok` set true on success).
+ * @param is_server_cv true for server CertificateVerify, false for client.
+ * @param out_cv       [out] 72-byte CertificateVerify message buffer.
+ * @return Protothread status (`PT_MORE`, `PT_EXITED`, or `PT_ENDED`).
+ */
+static SYN_PT_Status dtls_build_local_cv_pt(SYN_PT *pt, SYN_DTLS_Context *ctx, bool is_server_cv,
+                                            uint8_t out_cv[DTLS_CERT_VERIFY_LEN])
+{
+    SYN_PT *cpt = &ctx->crypto_pt;
+    SYN_Ed25519_Ctx *ed = &ctx->crypto_scratch.ed25519;
+    bool *ok = &ctx->hs_work.crypto_ok;
+
+    PT_BEGIN(pt);
+
+    *ok = false;
+    if (ctx->config.mode == SYN_DTLS_AUTH_MODE_RAW_PUBKEY) {
+        ctx->hs_work.cv_algo = SYN_X509_ALGO_ED25519;
+        (void)syn_ed25519_publickey_init(ed, ctx->config.client_privkey);
+        PT_CONTINUE(pt);
+        PT_SPAWN(pt, cpt, syn_ed25519_publickey_pt(cpt, ed, ctx->hs_work.pub_cache));
+        PT_CONTINUE(pt);
+        dtls_chain_transcript(ctx, ctx->transcript_digest, ctx->hs_work.pub_cache, 32U);
+        (void)dtls_init_cv_sign(ctx, is_server_cv, out_cv);
+        PT_CONTINUE(pt);
+    } else {
+        if (!dtls_parse_local_cert(ctx)) {
+            PT_EXIT(pt);
+        }
+        dtls_chain_transcript(ctx, ctx->transcript_digest, ctx->config.client_cert_der,
+                              ctx->config.client_cert_len);
+        PT_CONTINUE(pt);
+        if (!dtls_init_cv_sign(ctx, is_server_cv, out_cv)) {
+            PT_EXIT(pt);
+        }
+        PT_CONTINUE(pt);
+    }
+
+    PT_SPAWN(pt, cpt, dtls_cv_sign_crypto_pt(ctx, out_cv));
+    PT_CONTINUE(pt);
+
+    syn_secure_zero(ctx->hs_work.cv_msg, sizeof(ctx->hs_work.cv_msg));
+    syn_secure_zero(ctx->hs_work.pub_cache, sizeof(ctx->hs_work.pub_cache));
+    if (!(*ok)) {
+        (void)dtls_fail_handshake(ctx);
+        PT_EXIT(pt);
+    }
+    dtls_chain_transcript(ctx, ctx->transcript_digest, out_cv, DTLS_CERT_VERIFY_LEN);
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Initialize cooperative ECDSA-P256 verification over SHA-256(hs_work.cv_msg).
+ * @param ctx    DTLS context pointer with hs_work.pub_cache and hs_work.cv_msg populated.
+ * @param cv_len Byte length of hs_work.cv_msg.
+ * @param sig64  64-byte raw (r || s) signature.
+ * @return true if public key and signature scalars passed initial checks.
+ */
+static bool dtls_init_p256_cv_verify(SYN_DTLS_Context *ctx, size_t cv_len, const uint8_t sig64[64])
+{
+    const uint8_t *pubkey = ctx->hs_work.pub_cache;
+    size_t pubkey_len = ctx->hs_work.pub_cache_len;
     const uint8_t *px = pubkey;
-    if (pubkey_len == 65U && pubkey[0] == 0x04U) {
+    if ((pubkey_len == 65U) && (pubkey[0] == 0x04U)) {
         px = pubkey + 1U;
     } else if (pubkey_len != 64U) {
         return false;
     }
     uint8_t digest[32];
-    syn_sha256(cv_msg, cv_len, digest);
-    return syn_p256_verify_ecdsa(digest, sig64, sig64 + 32U, px, px + 32U);
+    syn_sha256(ctx->hs_work.cv_msg, cv_len, digest);
+    bool ok =
+        syn_p256_verify_init(&ctx->crypto_scratch.p256, digest, sig64, sig64 + 32U, px, px + 32U);
+    syn_secure_zero(digest, sizeof(digest));
+    return ok;
 }
 
 /**
- * @brief Verify a 72-byte inbound DTLS 1.3 CertificateVerify message.
- * @param ctx          DTLS context pointer.
- * @param is_server_cv true for server CertificateVerify, false for client.
- * @param algo         Expected peer public key algorithm.
- * @param pubkey       Authenticated peer public key bytes.
- * @param pubkey_len   Public key byte length.
- * @param tr_digest    Transcript digest bytes.
- * @param in_cv        72-byte wire CertificateVerify message.
- * @return true if header, SignatureScheme, and cryptographic signature are valid.
+ * @brief Bind peer raw public key or X.509 DER certificate into the DTLS transcript digest.
+ * @param ctx       DTLS context pointer.
+ * @param tr_digest [in,out] Transcript digest buffer.
  */
-static bool dtls_verify_cert_verify(const SYN_DTLS_Context *ctx, bool is_server_cv,
-                                    SYN_X509_Algo algo, const uint8_t *pubkey, size_t pubkey_len,
-                                    const uint8_t tr_digest[SYN_DTLS_SECRET_LEN],
-                                    const uint8_t in_cv[DTLS_CERT_VERIFY_LEN])
+static void dtls_bind_peer_cv_cred(SYN_DTLS_Context *ctx, uint8_t tr_digest[SYN_DTLS_SECRET_LEN])
+{
+    if (ctx->config.mode == SYN_DTLS_AUTH_MODE_RAW_PUBKEY) {
+        ctx->hs_work.cv_algo = SYN_X509_ALGO_ED25519;
+        memcpy(ctx->hs_work.pub_cache, ctx->config.peer_pubkey, 32U);
+        ctx->hs_work.pub_cache_len = 32U;
+        dtls_chain_transcript(ctx, tr_digest, ctx->config.peer_pubkey, 32U);
+    } else {
+        ctx->hs_work.cv_algo = ctx->hs_work.peer_algo;
+        ctx->hs_work.pub_cache_len = ctx->hs_work.peer_pub_len;
+        memcpy(ctx->hs_work.pub_cache, ctx->hs_work.peer_pub, ctx->hs_work.peer_pub_len);
+        dtls_chain_transcript(ctx, tr_digest, ctx->config.peer_cert_der, ctx->config.peer_cert_len);
+    }
+}
+
+/**
+ * @brief Validate CertificateVerify framing and initialize signature verification context.
+ * @param ctx          DTLS context pointer with peer credential already bound into tr_digest.
+ * @param is_server_cv true for server CertificateVerify, false for client.
+ * @param tr_digest    Transcript digest buffer.
+ * @param in_cv        72-byte wire CertificateVerify message.
+ * @return true if header, SignatureScheme, and initial curve checks succeeded.
+ */
+static bool dtls_init_peer_cv_verify(SYN_DTLS_Context *ctx, bool is_server_cv,
+                                     const uint8_t tr_digest[SYN_DTLS_SECRET_LEN],
+                                     const uint8_t in_cv[DTLS_CERT_VERIFY_LEN])
 {
     static const uint8_t cv_hdr[4] = {DTLS_HS_CERT_VERIFY, 0x00U, 0x00U, 68U};
-    if (memcmp(in_cv, cv_hdr, 4U) != 0 || in_cv[6] != 0x00U || in_cv[7] != 64U) {
+    if ((memcmp(in_cv, cv_hdr, 4U) != 0) || (in_cv[6] != 0x00U) || (in_cv[7] != 64U)) {
         return false;
     }
 
     bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-    uint8_t cv_msg[146];
-    size_t cv_len = dtls_format_cv_input(is_server_cv, tr_digest, hash_len, cv_msg);
+    size_t cv_len = dtls_format_cv_input(is_server_cv, tr_digest, hash_len, ctx->hs_work.cv_msg);
     uint16_t scheme = ((uint16_t)in_cv[4] << 8U) | (uint16_t)in_cv[5];
 
-    bool ok = false;
-    if (algo == SYN_X509_ALGO_ED25519 && scheme == 0x0807U && pubkey_len == 32U) {
-        ok = syn_ed25519_verify(in_cv + 8U, cv_msg, cv_len, pubkey);
-    } else if (algo == SYN_X509_ALGO_ECDSA_P256 && scheme == 0x0403U) {
-        ok = dtls_verify_p256_cv(pubkey, pubkey_len, cv_msg, cv_len, in_cv + 8U);
+    if ((ctx->hs_work.cv_algo == SYN_X509_ALGO_ED25519) && (scheme == 0x0807U) &&
+        (ctx->hs_work.pub_cache_len == 32U)) {
+        return syn_ed25519_verify_init(&ctx->crypto_scratch.ed25519, in_cv + 8U,
+                                       ctx->hs_work.cv_msg, cv_len, ctx->hs_work.pub_cache);
     }
-
-    syn_secure_zero(cv_msg, sizeof(cv_msg));
-    return ok;
+    if ((ctx->hs_work.cv_algo == SYN_X509_ALGO_ECDSA_P256) && (scheme == 0x0403U)) {
+        return dtls_init_p256_cv_verify(ctx, cv_len, in_cv + 8U);
+    }
+    return false;
 }
 
 /**
- * @brief Bind local certificate or RPK into transcript and sign CertificateVerify.
- * @param ctx          DTLS context pointer.
- * @param is_server_cv true for server CertificateVerify, false for client.
- * @param out_cv       [out] 72-byte CertificateVerify message buffer.
- * @return true if local credential parsed and signature succeeded.
- */
-static bool dtls_build_local_cv(SYN_DTLS_Context *ctx, bool is_server_cv,
-                                uint8_t out_cv[DTLS_CERT_VERIFY_LEN])
-{
-    SYN_X509_Algo algo = SYN_X509_ALGO_ED25519;
-    if (ctx->config.mode == SYN_DTLS_AUTH_MODE_RAW_PUBKEY) {
-        uint8_t pub[32];
-        (void)syn_ed25519_publickey(ctx->config.client_privkey, pub);
-        dtls_chain_transcript(ctx, ctx->transcript_digest, pub, 32U);
-    } else {
-        SYN_X509_Cert *own = &ctx->crypto_scratch.cert;
-        if (!syn_x509_parse(ctx->config.client_cert_der, ctx->config.client_cert_len, own) ||
-            (own->pubkey_algo != SYN_X509_ALGO_ED25519 &&
-             own->pubkey_algo != SYN_X509_ALGO_ECDSA_P256)) {
-            syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
-            return false;
-        }
-        algo = own->pubkey_algo;
-        syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
-        dtls_chain_transcript(ctx, ctx->transcript_digest, ctx->config.client_cert_der,
-                              ctx->config.client_cert_len);
-    }
-    if (!dtls_sign_cert_verify(ctx, is_server_cv, algo, ctx->transcript_digest, out_cv)) {
-        return false;
-    }
-    dtls_chain_transcript(ctx, ctx->transcript_digest, out_cv, DTLS_CERT_VERIFY_LEN);
-    return true;
-}
-
-/**
- * @brief Bind peer certificate or RPK into a transcript copy and verify CertificateVerify.
- * @param ctx          DTLS context pointer.
+ * @brief Cooperatively bind peer credential into transcript and verify CertificateVerify.
+ * @param pt           Sub-protothread control block (`&ctx->sub_pt`).
+ * @param ctx          DTLS context pointer (`hs_work.crypto_ok` set true when authentic).
  * @param is_server_cv true for server CertificateVerify, false for client.
  * @param tr_digest    [in,out] Transcript digest buffer.
  * @param in_cv        72-byte inbound CertificateVerify message.
- * @return true if peer CertificateVerify signature matches authenticated peer key.
+ * @return Protothread status (`PT_MORE`, `PT_EXITED`, or `PT_ENDED`).
  */
-static bool dtls_check_peer_cv(SYN_DTLS_Context *ctx, bool is_server_cv,
-                               uint8_t tr_digest[SYN_DTLS_SECRET_LEN],
-                               const uint8_t in_cv[DTLS_CERT_VERIFY_LEN])
+static SYN_PT_Status dtls_check_peer_cv_pt(SYN_PT *pt, SYN_DTLS_Context *ctx, bool is_server_cv,
+                                           uint8_t tr_digest[SYN_DTLS_SECRET_LEN],
+                                           const uint8_t in_cv[DTLS_CERT_VERIFY_LEN])
 {
-    bool ok = false;
-    if (ctx->config.mode == SYN_DTLS_AUTH_MODE_RAW_PUBKEY) {
-        dtls_chain_transcript(ctx, tr_digest, ctx->config.peer_pubkey, 32U);
-        ok = dtls_verify_cert_verify(ctx, is_server_cv, SYN_X509_ALGO_ED25519,
-                                     ctx->config.peer_pubkey, 32U, tr_digest, in_cv);
-    } else {
-        uint8_t peer_pub[SYN_X509_PUBKEY_MAX_LEN];
-        SYN_X509_Cert *peer = &ctx->crypto_scratch.cert;
-        (void)syn_x509_parse(ctx->config.peer_cert_der, ctx->config.peer_cert_len, peer);
-        SYN_X509_Algo peer_algo = peer->pubkey_algo;
-        size_t peer_pub_len = peer->pubkey_len;
-        memcpy(peer_pub, peer->pubkey, peer_pub_len);
-        syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
+    SYN_PT *cpt = &ctx->crypto_pt;
+    bool *ok = &ctx->hs_work.crypto_ok;
 
-        dtls_chain_transcript(ctx, tr_digest, ctx->config.peer_cert_der, ctx->config.peer_cert_len);
-        ok = dtls_verify_cert_verify(ctx, is_server_cv, peer_algo, peer_pub, peer_pub_len,
-                                     tr_digest, in_cv);
+    PT_BEGIN(pt);
+
+    *ok = false;
+    dtls_bind_peer_cv_cred(ctx, tr_digest);
+    PT_CONTINUE(pt);
+
+    if (!dtls_init_peer_cv_verify(ctx, is_server_cv, tr_digest, in_cv)) {
+        syn_secure_zero(ctx->hs_work.cv_msg, sizeof(ctx->hs_work.cv_msg));
+        syn_secure_zero(ctx->hs_work.pub_cache, sizeof(ctx->hs_work.pub_cache));
+        PT_EXIT(pt);
     }
-    if (ok) {
-        dtls_chain_transcript(ctx, tr_digest, in_cv, DTLS_CERT_VERIFY_LEN);
+    PT_CONTINUE(pt);
+
+    if (ctx->hs_work.cv_algo == SYN_X509_ALGO_ECDSA_P256) {
+        PT_SPAWN(pt, cpt, syn_p256_verify_pt(cpt, &ctx->crypto_scratch.p256, ok));
+    } else {
+        PT_SPAWN(pt, cpt, syn_ed25519_verify_pt(cpt, &ctx->crypto_scratch.ed25519, ok));
     }
-    return ok;
+    PT_CONTINUE(pt);
+
+    syn_secure_zero(ctx->hs_work.cv_msg, sizeof(ctx->hs_work.cv_msg));
+    syn_secure_zero(ctx->hs_work.pub_cache, sizeof(ctx->hs_work.pub_cache));
+    if (!(*ok)) {
+        PT_EXIT(pt);
+    }
+    dtls_chain_transcript(ctx, tr_digest, in_cv, DTLS_CERT_VERIFY_LEN);
+
+    PT_END(pt);
 }
 
 /**
@@ -845,40 +1141,78 @@ static bool dtls_verify_mac_ct(const uint8_t *expected, const uint8_t *actual, s
 }
 
 /**
- * @brief Verify peer credentials according to configured DTLS 1.3 authentication mode.
+ * @brief Parse peer X.509 certificate in an isolated stack frame and initialize chain validation.
  * @param ctx DTLS context pointer.
- * @return true if peer credentials pass validation.
+ * @return true if certificate parsed and chain verification context initialized.
  */
-static bool dtls_verify_peer_auth(SYN_DTLS_Context *ctx)
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((noinline))
+#endif
+static bool
+dtls_init_peer_x509(SYN_DTLS_Context *ctx)
 {
-    if (!dtls_verify_local_auth(ctx)) {
-        ctx->state = SYN_DTLS_STATE_ERROR;
-        return false;
-    }
-
-    bool need_peer_x509 =
-        (ctx->config.mode == SYN_DTLS_AUTH_MODE_MTLS) ||
-        (ctx->config.mode == SYN_DTLS_AUTH_MODE_X509_SERVER && !ctx->config.is_server);
-    if (!need_peer_x509) {
-        return true;
-    }
-
-    if (ctx->config.root_ca == NULL || ctx->config.peer_cert_der == NULL ||
-        ctx->config.peer_cert_len == 0U) {
-        ctx->state = SYN_DTLS_STATE_ERROR;
-        return false;
-    }
-
-    SYN_X509_Cert *peer_cert = &ctx->crypto_scratch.cert;
+    SYN_X509_Cert peer_cert;
     const char *expected_cn = ctx->config.is_server ? NULL : ctx->config.server_name;
-    if (!syn_x509_parse(ctx->config.peer_cert_der, ctx->config.peer_cert_len, peer_cert) ||
-        !syn_x509_validate_chain(peer_cert, ctx->config.root_ca, expected_cn)) {
-        syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
-        ctx->state = SYN_DTLS_STATE_ERROR;
+    if (!syn_x509_parse(ctx->config.peer_cert_der, ctx->config.peer_cert_len, &peer_cert) ||
+        !syn_x509_validate_chain_init(&ctx->crypto_scratch.x509, &peer_cert, ctx->config.root_ca,
+                                      expected_cn)) {
+        syn_secure_zero(&peer_cert, sizeof(peer_cert));
         return false;
     }
-    syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
+    ctx->hs_work.peer_algo = peer_cert.pubkey_algo;
+    ctx->hs_work.peer_pub_len = (uint8_t)peer_cert.pubkey_len;
+    memcpy(ctx->hs_work.peer_pub, peer_cert.pubkey, peer_cert.pubkey_len);
+    syn_secure_zero(&peer_cert, sizeof(peer_cert));
     return true;
+}
+
+/**
+ * @brief Return true if configured DTLS endpoint must verify a peer X.509 certificate chain.
+ * @param ctx DTLS context pointer.
+ * @return true for mTLS endpoints and X.509 clients, false otherwise.
+ */
+static bool dtls_needs_peer_x509(const SYN_DTLS_Context *ctx)
+{
+    return (ctx->config.mode == SYN_DTLS_AUTH_MODE_MTLS) ||
+           ((ctx->config.mode == SYN_DTLS_AUTH_MODE_X509_SERVER) && !ctx->config.is_server);
+}
+
+/**
+ * @brief Validate local credentials and cooperatively verify peer X.509 certificate chain.
+ * @param pt  Sub-protothread control block (`&ctx->sub_pt`).
+ * @param ctx DTLS context pointer (`hs_work.peer_auth_verified` set true on success).
+ * @return Protothread status (`PT_MORE`, `PT_EXITED`, or `PT_ENDED`).
+ */
+static SYN_PT_Status dtls_peer_auth_pt(SYN_PT *pt, SYN_DTLS_Context *ctx)
+{
+    SYN_PT *cpt = &ctx->crypto_pt;
+    bool *ok = &ctx->hs_work.crypto_ok;
+
+    PT_BEGIN(pt);
+
+    if (!ctx->hs_work.peer_auth_verified) {
+        if (!dtls_verify_local_auth(ctx)) {
+            (void)dtls_fail_handshake(ctx);
+            PT_EXIT(pt);
+        }
+        if (dtls_needs_peer_x509(ctx)) {
+            if (!dtls_init_peer_x509(ctx)) {
+                (void)dtls_fail_handshake(ctx);
+                PT_EXIT(pt);
+            }
+            *ok = false;
+            PT_CONTINUE(pt);
+            PT_SPAWN(pt, cpt, syn_x509_verify_pt(cpt, &ctx->crypto_scratch.x509, ok));
+            if (!(*ok)) {
+                (void)dtls_fail_handshake(ctx);
+                PT_EXIT(pt);
+            }
+            PT_CONTINUE(pt);
+        }
+        ctx->hs_work.peer_auth_verified = true;
+    }
+
+    PT_END(pt);
 }
 
 /**
@@ -897,20 +1231,31 @@ static void dtls_write_epoch0_hdr(uint8_t *tx, size_t body_len)
 }
 
 /**
- * @brief Build and send an 80-byte DTLS 1.3 ClientHello datagram.
+ * @brief Generate client ephemeral X25519 private key + random and initialize pubkey derivation.
  * @param ctx DTLS client context.
- * @return true if ClientHello datagram was sent.
+ * @return true on success, false on CSPRNG failure.
  */
-static bool dtls_send_client_hello(SYN_DTLS_Context *ctx)
+static bool dtls_client_init_ecdhe(SYN_DTLS_Context *ctx)
 {
-    if (syn_random_fill(ctx->ecdhe_priv, 32U) != SYN_OK ||
-        syn_random_fill(ctx->client_random, 32U) != SYN_OK) {
-        ctx->state = SYN_DTLS_STATE_ERROR;
-        return false;
+    uint8_t rnd[64];
+    if (syn_random_fill(rnd, sizeof(rnd)) != SYN_OK) {
+        return dtls_fail_handshake(ctx);
     }
+    memcpy(ctx->ecdhe_priv, rnd, 32U);
+    memcpy(ctx->client_random, rnd + 32U, 32U);
+    syn_secure_zero(rnd, sizeof(rnd));
     syn_x25519_clamp(ctx->ecdhe_priv);
-    syn_x25519_pubkey(ctx->ecdhe_pub, ctx->ecdhe_priv);
+    (void)syn_x25519_pubkey_init(&ctx->crypto_scratch.x25519, ctx->ecdhe_priv);
+    return true;
+}
 
+/**
+ * @brief Format and transmit 80-byte DTLS ClientHello datagram.
+ * @param ctx DTLS client context with `ecdhe_pub` computed.
+ * @return true if transmitted, false on transport error.
+ */
+static bool dtls_client_send_ch_record(SYN_DTLS_Context *ctx)
+{
     uint8_t *tx = ctx->tx_buf;
     uint16_t suite_id = dtls_cipher_wire_id(ctx->config.cipher_suite);
     dtls_write_epoch0_hdr(tx, 67U);
@@ -921,55 +1266,130 @@ static bool dtls_send_client_hello(SYN_DTLS_Context *ctx)
     memcpy(tx + 48U, ctx->ecdhe_pub, 32U);
 
     if (!syn_transport_send(ctx->underlying_transport, tx, 80U)) {
-        ctx->state = SYN_DTLS_STATE_ERROR;
-        return false;
+        return dtls_fail_handshake(ctx);
     }
     ctx->state = SYN_DTLS_STATE_CLIENT_HELLO_SENT;
     return true;
 }
 
 /**
- * @brief Build and transmit server Flight 2 (ServerHello [+ CertificateVerify] + Finished).
- * @param ctx       DTLS server context.
- * @param exp_suite Negotiated 16-bit cipher suite wire identifier.
- * @return true if Flight 2 signed and transmitted.
+ * @brief Client Stage 0 protothread: verify peer X.509, compute X25519 pubkey, send ClientHello.
+ * @param pt  Flight protothread control block (`&ctx->flight_pt`).
+ * @param ctx DTLS client context in `SYN_DTLS_STATE_UNINITIALIZED`.
+ * @return Protothread status.
  */
-static bool dtls_server_send_flight2(SYN_DTLS_Context *ctx, uint16_t exp_suite)
+static SYN_PT_Status dtls_client_stage0_send_ch_pt(SYN_PT *pt, SYN_DTLS_Context *ctx)
+{
+    SYN_PT *spt = &ctx->sub_pt;
+    SYN_PT *cpt = &ctx->crypto_pt;
+    SYN_X25519_Ctx *x25519 = &ctx->crypto_scratch.x25519;
+
+    PT_BEGIN(pt);
+
+    PT_SPAWN(pt, spt, dtls_peer_auth_pt(spt, ctx));
+    if (ctx->state == SYN_DTLS_STATE_ERROR) {
+        PT_EXIT(pt);
+    }
+
+    if (!dtls_client_init_ecdhe(ctx)) {
+        PT_EXIT(pt);
+    }
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, cpt, syn_x25519_pt(cpt, x25519, ctx->ecdhe_pub));
+    PT_CONTINUE(pt);
+
+    if (!dtls_client_send_ch_record(ctx)) {
+        PT_EXIT(pt);
+    }
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Write ServerHello record header and payload into tx_buf prior to optional CV signing.
+ * @param ctx DTLS server context in `SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED`.
+ * @return true if `tx_buf_size` is sufficient and ServerHello header was written.
+ */
+static bool dtls_server_prep_flight2(SYN_DTLS_Context *ctx)
 {
     bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-    bool has_cv = (ctx->config.mode != SYN_DTLS_AUTH_MODE_PSK);
-    size_t cv_len = has_cv ? DTLS_CERT_VERIFY_LEN : 0U;
+    size_t cv_len = (ctx->config.mode != SYN_DTLS_AUTH_MODE_PSK) ? DTLS_CERT_VERIFY_LEN : 0U;
     size_t body_len = 67U + cv_len + hash_len;
-    uint8_t *tx = ctx->tx_buf;
-
-    if (ctx->tx_buf_size < DTLS_EPOCH0_HDR_LEN + body_len) {
-        ctx->state = SYN_DTLS_STATE_ERROR;
-        return false;
+    if (ctx->tx_buf_size < (DTLS_EPOCH0_HDR_LEN + body_len)) {
+        return dtls_fail_handshake(ctx);
     }
 
+    uint16_t exp_suite = dtls_cipher_wire_id(ctx->config.cipher_suite);
+    uint8_t *tx = ctx->tx_buf;
     dtls_write_epoch0_hdr(tx, body_len);
     tx[13] = DTLS_HS_SERVER_HELLO;
     tx[14] = (uint8_t)(exp_suite >> 8U);
     tx[15] = (uint8_t)(exp_suite & 0xFFU);
     memcpy(tx + 16U, ctx->server_random, 32U);
     memcpy(tx + 48U, ctx->ecdhe_pub, 32U);
+    return true;
+}
 
-    if (has_cv && !dtls_build_local_cv(ctx, true, tx + 80U)) {
-        ctx->state = SYN_DTLS_STATE_ERROR;
-        return false;
-    }
+/**
+ * @brief Append staged ServerFinished MAC (`hs_work.ks_salt`) to Flight 2 buffer and transmit.
+ * @param ctx DTLS server context.
+ * @return true if Flight 2 datagram transmitted, false on transport failure.
+ */
+static bool dtls_server_finish_and_send_flight2(SYN_DTLS_Context *ctx)
+{
+    bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
+    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
+    size_t cv_len = (ctx->config.mode != SYN_DTLS_AUTH_MODE_PSK) ? DTLS_CERT_VERIFY_LEN : 0U;
+    size_t body_len = 67U + cv_len + hash_len;
+    uint8_t *fin = ctx->tx_buf + 80U + cv_len;
 
-    uint8_t *fin = tx + 80U + cv_len;
-    dtls_compute_finished(ctx, ctx->server_handshake_secret, ctx->transcript_digest, fin);
+    memcpy(fin, ctx->hs_work.ks_salt, hash_len);
+    syn_secure_zero(ctx->hs_work.ks_salt, sizeof(ctx->hs_work.ks_salt));
     dtls_chain_transcript(ctx, ctx->transcript_digest, fin, hash_len);
-    dtls_derive_app_keys(ctx);
+    if (!syn_transport_send(ctx->underlying_transport, ctx->tx_buf,
+                            DTLS_EPOCH0_HDR_LEN + body_len)) {
+        return dtls_fail_handshake(ctx);
+    }
+    return true;
+}
 
-    if (!syn_transport_send(ctx->underlying_transport, tx, DTLS_EPOCH0_HDR_LEN + body_len)) {
-        ctx->state = SYN_DTLS_STATE_ERROR;
-        return false;
+/**
+ * @brief Server Flight 2 protothread: sign optional CV, send ServerHello flight, derive app keys.
+ * @param pt  Flight protothread control block (`&ctx->flight_pt`).
+ * @param ctx DTLS server context in `SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED`.
+ * @return Protothread status.
+ */
+static SYN_PT_Status dtls_server_send_flight2_pt(SYN_PT *pt, SYN_DTLS_Context *ctx)
+{
+    SYN_PT *spt = &ctx->sub_pt;
+
+    PT_BEGIN(pt);
+
+    if (!dtls_server_prep_flight2(ctx)) {
+        PT_EXIT(pt);
     }
 
+    if (ctx->config.mode != SYN_DTLS_AUTH_MODE_PSK) {
+        PT_SPAWN(pt, spt, dtls_build_local_cv_pt(spt, ctx, true, ctx->tx_buf + 80U));
+        if (!ctx->hs_work.crypto_ok) {
+            (void)dtls_fail_handshake(ctx);
+            PT_EXIT(pt);
+        }
+    }
+
+    PT_SPAWN(
+        pt, spt,
+        dtls_compute_finished_pt(spt, ctx, ctx->server_handshake_secret, ctx->transcript_digest));
+    PT_CONTINUE(pt);
+
+    if (!dtls_server_finish_and_send_flight2(ctx)) {
+        PT_EXIT(pt);
+    }
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, spt, dtls_derive_app_keys_pt(spt, ctx));
     if (ctx->config.mode == SYN_DTLS_AUTH_MODE_MTLS) {
         ctx->state = SYN_DTLS_STATE_FINISHED_SENT;
     } else {
@@ -977,24 +1397,20 @@ static bool dtls_server_send_flight2(SYN_DTLS_Context *ctx, uint16_t exp_suite)
         ctx->state = SYN_DTLS_STATE_ESTABLISHED;
     }
     ctx->epoch = SYN_DTLS_EPOCH_APP_DATA;
-    return true;
+
+    PT_END(pt);
 }
 
 /**
- * @brief Server Stage 1: parse ClientHello datagram and derive DTLS 1.3 handshake secrets.
- * @param ctx        DTLS server context in SYN_DTLS_STATE_UNINITIALIZED.
- * @param progressed [out] Set true if valid ClientHello processed and HS secrets derived.
- * @return true if valid ClientHello processed or stray packet discarded; false on local error.
+ * @brief Poll for an 80-byte ClientHello datagram and initialize server ephemeral X25519 pubkey.
+ * @param ctx DTLS server context in `SYN_DTLS_STATE_UNINITIALIZED`.
+ * @return true if valid ClientHello arrived and X25519 pubkey derivation was initialized.
  */
-static bool dtls_server_stage1_recv_ch(SYN_DTLS_Context *ctx, bool *progressed)
+static bool dtls_server_poll_ch(SYN_DTLS_Context *ctx)
 {
-    if (!dtls_verify_peer_auth(ctx)) {
-        return false;
-    }
-
     size_t rx_len = 0U;
     if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
-        return true;
+        return false;
     }
 
     static const uint8_t ch_hdr[14] = {DTLS_CONTENT_TYPE_HANDSHAKE,
@@ -1014,48 +1430,79 @@ static bool dtls_server_stage1_recv_ch(SYN_DTLS_Context *ctx, bool *progressed)
     const uint8_t *rx = ctx->rx_buf;
     uint16_t exp_suite = dtls_cipher_wire_id(ctx->config.cipher_suite);
 
-    if (rx_len != 80U || memcmp(rx, ch_hdr, sizeof(ch_hdr)) != 0 ||
-        (((uint16_t)rx[14] << 8U) | (uint16_t)rx[15]) != exp_suite) {
-        return true;
-    }
-
-    memcpy(ctx->client_random, rx + 16U, 32U);
-    memcpy(ctx->peer_ecdhe_pub, rx + 48U, 32U);
-
-    if (syn_random_fill(ctx->ecdhe_priv, 32U) != SYN_OK ||
-        syn_random_fill(ctx->server_random, 32U) != SYN_OK) {
-        ctx->state = SYN_DTLS_STATE_ERROR;
+    if ((rx_len != 80U) || (memcmp(rx, ch_hdr, sizeof(ch_hdr)) != 0) ||
+        ((((uint16_t)rx[14] << 8U) | (uint16_t)rx[15]) != exp_suite)) {
         return false;
     }
-    syn_x25519_clamp(ctx->ecdhe_priv);
-    syn_x25519_pubkey(ctx->ecdhe_pub, ctx->ecdhe_priv);
 
-    if (!dtls_derive_hs_secrets(ctx)) {
-        return true;
+    uint8_t rnd[64];
+    if (syn_random_fill(rnd, sizeof(rnd)) != SYN_OK) {
+        return dtls_fail_handshake(ctx);
     }
-
-    ctx->state = SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED;
-    *progressed = true;
+    memcpy(ctx->client_random, rx + 16U, 32U);
+    memcpy(ctx->peer_ecdhe_pub, rx + 48U, 32U);
+    memcpy(ctx->ecdhe_priv, rnd, 32U);
+    memcpy(ctx->server_random, rnd + 32U, 32U);
+    syn_secure_zero(rnd, sizeof(rnd));
+    syn_x25519_clamp(ctx->ecdhe_priv);
+    (void)syn_x25519_pubkey_init(&ctx->crypto_scratch.x25519, ctx->ecdhe_priv);
     return true;
 }
 
 /**
- * @brief Build and transmit mTLS Flight 3 (Client CertificateVerify + Client Finished).
- * @param ctx DTLS client context.
- * @return true if signed and transmitted, false on local error.
+ * @brief Server Stage 1 protothread: verify peer X.509, await ClientHello, run 2x X25519 + HKDF.
+ * @param pt  Flight protothread control block (`&ctx->flight_pt`).
+ * @param ctx DTLS server context in `SYN_DTLS_STATE_UNINITIALIZED`.
+ * @return Protothread status (PT_IDLE awaiting RX, PT_EXITED, PT_MORE, or PT_ENDED).
  */
-static bool dtls_send_client_mtls_flight(SYN_DTLS_Context *ctx)
+static SYN_PT_Status dtls_server_stage1_recv_ch_pt(SYN_PT *pt, SYN_DTLS_Context *ctx)
+{
+    SYN_PT *spt = &ctx->sub_pt;
+    SYN_PT *cpt = &ctx->crypto_pt;
+    SYN_X25519_Ctx *x25519 = &ctx->crypto_scratch.x25519;
+
+    PT_BEGIN(pt);
+
+    PT_SPAWN(pt, spt, dtls_peer_auth_pt(spt, ctx));
+    if (ctx->state == SYN_DTLS_STATE_ERROR) {
+        PT_EXIT(pt);
+    }
+
+    if (!dtls_server_poll_ch(ctx)) {
+        if (ctx->state == SYN_DTLS_STATE_ERROR) {
+            PT_EXIT(pt);
+        }
+        PT_RESTART(pt);
+    }
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, cpt, syn_x25519_pt(cpt, x25519, ctx->ecdhe_pub));
+    PT_CONTINUE(pt);
+
+    (void)syn_x25519_init(x25519, ctx->ecdhe_priv, ctx->peer_ecdhe_pub);
+    PT_SPAWN(pt, cpt, syn_x25519_pt(cpt, x25519, ctx->hs_work.ecdhe_secret));
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, spt, dtls_derive_hs_secrets_pt(spt, ctx));
+    if (!ctx->hs_work.crypto_ok) {
+        PT_RESTART(pt);
+    }
+    ctx->state = SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED;
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Append staged ClientFinished MAC (`hs_work.ks_salt`) and transmit DTLS Flight 3.
+ * @param ctx DTLS client context.
+ * @return true if Flight 3 datagram transmitted, false on transport failure.
+ */
+static bool dtls_finish_and_send_client_mtls(SYN_DTLS_Context *ctx)
 {
     bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
     size_t body_len = DTLS_CERT_VERIFY_LEN + 4U + hash_len;
     uint8_t *tx = ctx->tx_buf;
-
-    if (ctx->tx_buf_size < DTLS_EPOCH0_HDR_LEN + body_len ||
-        !dtls_build_local_cv(ctx, false, tx + DTLS_EPOCH0_HDR_LEN)) {
-        ctx->state = SYN_DTLS_STATE_ERROR;
-        return false;
-    }
 
     dtls_write_epoch0_hdr(tx, body_len);
     uint8_t *fin = tx + DTLS_EPOCH0_HDR_LEN + DTLS_CERT_VERIFY_LEN;
@@ -1063,23 +1510,26 @@ static bool dtls_send_client_mtls_flight(SYN_DTLS_Context *ctx)
     fin[1] = 0x00U;
     fin[2] = 0x00U;
     fin[3] = (uint8_t)hash_len;
-    dtls_compute_finished(ctx, ctx->client_handshake_secret, ctx->transcript_digest, fin + 4U);
-
+    memcpy(fin + 4U, ctx->hs_work.ks_salt, hash_len);
+    syn_secure_zero(ctx->hs_work.ks_salt, sizeof(ctx->hs_work.ks_salt));
     if (!syn_transport_send(ctx->underlying_transport, tx, DTLS_EPOCH0_HDR_LEN + body_len)) {
-        ctx->state = SYN_DTLS_STATE_ERROR;
-        return false;
+        return dtls_fail_handshake(ctx);
     }
     return true;
 }
 
 /**
- * @brief Process mTLS Flight 3 on server; silently drop forged/stray UDP packets per RFC 9147.
- * @param ctx    DTLS server context in SYN_DTLS_STATE_FINISHED_SENT.
- * @param rx_len Received datagram length.
- * @return true (session transitions to ESTABLISHED only on authentic client flight).
+ * @brief Poll transport for a structurally valid mTLS Flight 3 datagram and snapshot transcript.
+ * @param ctx DTLS server context in `SYN_DTLS_STATE_FINISHED_SENT`.
+ * @return true if a candidate Flight 3 datagram arrived in `rx_buf`.
  */
-static bool dtls_server_process_client_mtls_flight(SYN_DTLS_Context *ctx, size_t rx_len)
+static bool dtls_server_poll_mtls_flight3(SYN_DTLS_Context *ctx)
 {
+    size_t rx_len = 0U;
+    if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
+        return false;
+    }
+
     bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
     size_t body_len = DTLS_CERT_VERIFY_LEN + 4U + hash_len;
@@ -1099,40 +1549,84 @@ static bool dtls_server_process_client_mtls_flight(SYN_DTLS_Context *ctx, size_t
     uint8_t fin_hdr[4] = {DTLS_HS_CLIENT_FINISHED, 0x00U, 0x00U, (uint8_t)hash_len};
     const uint8_t *rx = ctx->rx_buf;
 
-    if (rx_len != DTLS_EPOCH0_HDR_LEN + body_len || memcmp(rx, exp_hdr, sizeof(exp_hdr)) != 0 ||
-        memcmp(rx + DTLS_EPOCH0_HDR_LEN + DTLS_CERT_VERIFY_LEN, fin_hdr, 4U) != 0) {
-        return true;
+    if ((rx_len != (DTLS_EPOCH0_HDR_LEN + body_len)) ||
+        (memcmp(rx, exp_hdr, sizeof(exp_hdr)) != 0) ||
+        (memcmp(rx + DTLS_EPOCH0_HDR_LEN + DTLS_CERT_VERIFY_LEN, fin_hdr, 4U) != 0)) {
+        return false;
     }
 
-    uint8_t tr[SYN_DTLS_SECRET_LEN];
-    memcpy(tr, ctx->transcript_digest, sizeof(tr));
-    if (!dtls_check_peer_cv(ctx, false, tr, rx + DTLS_EPOCH0_HDR_LEN)) {
-        return true;
-    }
-
-    uint8_t expected_mac[SYN_DTLS_SECRET_LEN];
-    dtls_compute_finished(ctx, ctx->client_handshake_secret, tr, expected_mac);
-    bool ok = dtls_verify_mac_ct(expected_mac, rx + DTLS_EPOCH0_HDR_LEN + DTLS_CERT_VERIFY_LEN + 4U,
-                                 hash_len);
-    syn_secure_zero(expected_mac, sizeof(expected_mac));
-    if (ok) {
-        memcpy(ctx->transcript_digest, tr, sizeof(tr));
-        dtls_scrub_handshake_secrets(ctx);
-        ctx->state = SYN_DTLS_STATE_ESTABLISHED;
-    }
+    memcpy(ctx->hs_work.tr_cand, ctx->transcript_digest, SYN_DTLS_SECRET_LEN);
     return true;
 }
 
 /**
- * @brief Client Stage 2: receive ServerHello datagram and derive DTLS 1.3 handshake secrets.
- * @param ctx        DTLS client context in SYN_DTLS_STATE_CLIENT_HELLO_SENT.
- * @param progressed [out] Set true if valid ServerHello header received and HS secrets derived.
+ * @brief Verify staged ClientFinished MAC (`hs_work.ks_salt`) and establish session on match.
+ * @param ctx DTLS server context in `SYN_DTLS_STATE_FINISHED_SENT`.
+ * @return true if ClientFinished MAC matched and session reached `SYN_DTLS_STATE_ESTABLISHED`.
  */
-static void dtls_client_stage2_recv_sh(SYN_DTLS_Context *ctx, bool *progressed)
+static bool dtls_server_verify_client_fin(SYN_DTLS_Context *ctx)
+{
+    bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
+    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
+    const uint8_t *mac = ctx->rx_buf + DTLS_EPOCH0_HDR_LEN + DTLS_CERT_VERIFY_LEN + 4U;
+
+    bool ok = dtls_verify_mac_ct(ctx->hs_work.ks_salt, mac, hash_len);
+    syn_secure_zero(ctx->hs_work.ks_salt, sizeof(ctx->hs_work.ks_salt));
+    if (!ok) {
+        return false;
+    }
+
+    memcpy(ctx->transcript_digest, ctx->hs_work.tr_cand, SYN_DTLS_SECRET_LEN);
+    dtls_scrub_handshake_secrets(ctx);
+    ctx->state = SYN_DTLS_STATE_ESTABLISHED;
+    return true;
+}
+
+/**
+ * @brief Server Stage 3 (mTLS) protothread: verify client Flight 3; silently drop forged UDP.
+ * @param pt  Flight protothread control block (`&ctx->flight_pt`).
+ * @param ctx DTLS server context in `SYN_DTLS_STATE_FINISHED_SENT`.
+ * @return Protothread status (`PT_IDLE` while awaiting/dropping UDP, `PT_MORE`, or `PT_ENDED`).
+ */
+static SYN_PT_Status dtls_server_stage3_recv_mtls_pt(SYN_PT *pt, SYN_DTLS_Context *ctx)
+{
+    SYN_PT *spt = &ctx->sub_pt;
+    const uint8_t *rx_cv = ctx->rx_buf + DTLS_EPOCH0_HDR_LEN;
+
+    PT_BEGIN(pt);
+
+    if (!dtls_server_poll_mtls_flight3(ctx)) {
+        PT_RESTART(pt);
+    }
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, spt, dtls_check_peer_cv_pt(spt, ctx, false, ctx->hs_work.tr_cand, rx_cv));
+    if (!ctx->hs_work.crypto_ok) {
+        PT_RESTART(pt);
+    }
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(
+        pt, spt,
+        dtls_compute_finished_pt(spt, ctx, ctx->client_handshake_secret, ctx->hs_work.tr_cand));
+    PT_CONTINUE(pt);
+    if (!dtls_server_verify_client_fin(ctx)) {
+        PT_RESTART(pt);
+    }
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Poll transport for a valid ServerHello flight and initialize X25519 ECDHE derivation.
+ * @param ctx DTLS client context in `SYN_DTLS_STATE_CLIENT_HELLO_SENT`.
+ * @return true if a structurally valid ServerHello arrived and X25519 was initialized.
+ */
+static bool dtls_client_poll_sh(SYN_DTLS_Context *ctx)
 {
     size_t rx_len = 0U;
     if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
-        return;
+        return false;
     }
 
     bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
@@ -1156,61 +1650,117 @@ static void dtls_client_stage2_recv_sh(SYN_DTLS_Context *ctx, bool *progressed)
     const uint8_t *rx = ctx->rx_buf;
     uint16_t exp_suite = dtls_cipher_wire_id(ctx->config.cipher_suite);
 
-    if (rx_len != DTLS_EPOCH0_HDR_LEN + body_len || memcmp(rx, sh_hdr, sizeof(sh_hdr)) != 0 ||
-        (((uint16_t)rx[14] << 8U) | (uint16_t)rx[15]) != exp_suite) {
-        return;
+    if ((rx_len != (DTLS_EPOCH0_HDR_LEN + body_len)) || (memcmp(rx, sh_hdr, sizeof(sh_hdr)) != 0) ||
+        ((((uint16_t)rx[14] << 8U) | (uint16_t)rx[15]) != exp_suite)) {
+        return false;
     }
 
     memcpy(ctx->server_random, rx + 16U, 32U);
     memcpy(ctx->peer_ecdhe_pub, rx + 48U, 32U);
-    if (!dtls_derive_hs_secrets(ctx)) {
-        return;
-    }
-
-    ctx->state = SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED;
-    *progressed = true;
+    (void)syn_x25519_init(&ctx->crypto_scratch.x25519, ctx->ecdhe_priv, ctx->peer_ecdhe_pub);
+    return true;
 }
 
 /**
- * @brief Client Stage 3: verify Server CertificateVerify signature (when non-PSK); drop forged UDP.
- * @param ctx        DTLS client context in SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED.
- * @param progressed [out] Set true if verified, false if forged datagram was dropped.
+ * @brief Client Stage 2 protothread: await ServerHello, run X25519 ECDHE, derive handshake keys.
+ * @param pt  Flight protothread control block (`&ctx->flight_pt`).
+ * @param ctx DTLS client context in `SYN_DTLS_STATE_CLIENT_HELLO_SENT`.
+ * @return Protothread status (`PT_IDLE` while awaiting/dropping UDP, `PT_MORE`, or `PT_ENDED`).
  */
-static void dtls_client_stage3_verify_cv(SYN_DTLS_Context *ctx, bool *progressed)
+static SYN_PT_Status dtls_client_stage2_recv_sh_pt(SYN_PT *pt, SYN_DTLS_Context *ctx)
 {
-    if (ctx->config.mode != SYN_DTLS_AUTH_MODE_PSK &&
-        !dtls_check_peer_cv(ctx, true, ctx->transcript_digest, ctx->rx_buf + 80U)) {
-        ctx->state = SYN_DTLS_STATE_CLIENT_HELLO_SENT;
-        return;
+    SYN_PT *cpt = &ctx->crypto_pt;
+    SYN_X25519_Ctx *x25519 = &ctx->crypto_scratch.x25519;
+
+    PT_BEGIN(pt);
+
+    if (!dtls_client_poll_sh(ctx)) {
+        PT_RESTART(pt);
+    }
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, cpt, syn_x25519_pt(cpt, x25519, ctx->hs_work.ecdhe_secret));
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, dtls_derive_hs_secrets_pt(&ctx->sub_pt, ctx));
+    if (!ctx->hs_work.crypto_ok) {
+        dtls_rollback_forged_sh(ctx);
+        PT_RESTART(pt);
+    }
+    ctx->state = SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED;
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Client Stage 3 protothread: verify Server CertificateVerify; rollback on forged UDP.
+ * @param pt  Flight protothread control block (`&ctx->flight_pt`).
+ * @param ctx DTLS client context in `SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED`.
+ * @return Protothread status (`PT_IDLE` on forged rollback, `PT_MORE`, or `PT_ENDED`).
+ */
+static SYN_PT_Status dtls_client_stage3_verify_cv_pt(SYN_PT *pt, SYN_DTLS_Context *ctx)
+{
+    SYN_PT *spt = &ctx->sub_pt;
+    const uint8_t *rx_cv = ctx->rx_buf + 80U;
+
+    PT_BEGIN(pt);
+
+    if (ctx->config.mode != SYN_DTLS_AUTH_MODE_PSK) {
+        PT_SPAWN(pt, spt, dtls_check_peer_cv_pt(spt, ctx, true, ctx->transcript_digest, rx_cv));
+        if (!ctx->hs_work.crypto_ok) {
+            dtls_rollback_forged_sh(ctx);
+            PT_RESTART(pt);
+        }
     }
     ctx->state = SYN_DTLS_STATE_CERTIFICATE_VERIFIED;
-    *progressed = true;
+
+    PT_END(pt);
 }
 
 /**
- * @brief Client Stage 4: verify ServerFinished MAC and derive app keys; drop forged UDP.
- * @param ctx        DTLS client context in SYN_DTLS_STATE_CERTIFICATE_VERIFIED.
- * @param progressed [out] Set true if verified, false if forged datagram was dropped.
+ * @brief Verify staged ServerFinished MAC (`hs_work.ks_salt`) and chain into client transcript.
+ * @param ctx DTLS client context in `SYN_DTLS_STATE_CERTIFICATE_VERIFIED`.
+ * @return true if ServerFinished MAC matched, false if forged/corrupted.
  */
-static void dtls_client_stage4_verify_fin(SYN_DTLS_Context *ctx, bool *progressed)
+static bool dtls_client_verify_server_fin(SYN_DTLS_Context *ctx)
 {
     bool is_sha384 = (ctx->config.cipher_suite == SYN_DTLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
     size_t cv_len = (ctx->config.mode != SYN_DTLS_AUTH_MODE_PSK) ? DTLS_CERT_VERIFY_LEN : 0U;
     const uint8_t *fin = ctx->rx_buf + 80U + cv_len;
 
-    uint8_t expected_mac[SYN_DTLS_SECRET_LEN];
-    dtls_compute_finished(ctx, ctx->server_handshake_secret, ctx->transcript_digest, expected_mac);
-    bool ok = dtls_verify_mac_ct(expected_mac, fin, hash_len);
-    syn_secure_zero(expected_mac, sizeof(expected_mac));
+    bool ok = dtls_verify_mac_ct(ctx->hs_work.ks_salt, fin, hash_len);
+    syn_secure_zero(ctx->hs_work.ks_salt, sizeof(ctx->hs_work.ks_salt));
     if (!ok) {
-        ctx->state = SYN_DTLS_STATE_CLIENT_HELLO_SENT;
-        return;
+        return false;
     }
 
     dtls_chain_transcript(ctx, ctx->transcript_digest, fin, hash_len);
-    dtls_derive_app_keys(ctx);
+    return true;
+}
 
+/**
+ * @brief Client Stage 4 protothread: verify ServerFinished MAC, then derive application keys.
+ * @param pt  Flight protothread control block (`&ctx->flight_pt`).
+ * @param ctx DTLS client context in `SYN_DTLS_STATE_CERTIFICATE_VERIFIED`.
+ * @return Protothread status (`PT_IDLE` on forged rollback, `PT_MORE`, or `PT_ENDED`).
+ */
+static SYN_PT_Status dtls_client_stage4_verify_fin_pt(SYN_PT *pt, SYN_DTLS_Context *ctx)
+{
+    PT_BEGIN(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt,
+             dtls_compute_finished_pt(&ctx->sub_pt, ctx, ctx->server_handshake_secret,
+                                      ctx->transcript_digest));
+    PT_CONTINUE(pt);
+
+    if (!dtls_client_verify_server_fin(ctx)) {
+        dtls_rollback_forged_sh(ctx);
+        PT_RESTART(pt);
+    }
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, dtls_derive_app_keys_pt(&ctx->sub_pt, ctx));
     if (ctx->config.mode == SYN_DTLS_AUTH_MODE_MTLS) {
         ctx->state = SYN_DTLS_STATE_SERVER_HELLO_RECEIVED;
     } else {
@@ -1218,25 +1768,41 @@ static void dtls_client_stage4_verify_fin(SYN_DTLS_Context *ctx, bool *progresse
         ctx->state = SYN_DTLS_STATE_ESTABLISHED;
         ctx->epoch = SYN_DTLS_EPOCH_APP_DATA;
     }
-    *progressed = true;
+
+    PT_END(pt);
 }
 
 /**
- * @brief Client Stage 5 (mTLS): sign Client CertificateVerify and transmit ClientFinished.
- * @param ctx        DTLS client context in SYN_DTLS_STATE_SERVER_HELLO_RECEIVED.
- * @param progressed [out] Set true when Flight 3 transmitted.
- * @return true on success, false on local sign/send failure.
+ * @brief Client Stage 5 (mTLS) protothread: sign Client CertificateVerify and send Flight 3.
+ * @param pt  Flight protothread control block (`&ctx->flight_pt`).
+ * @param ctx DTLS client context in `SYN_DTLS_STATE_SERVER_HELLO_RECEIVED`.
+ * @return Protothread status.
  */
-static bool dtls_client_stage5_send_mtls(SYN_DTLS_Context *ctx, bool *progressed)
+static SYN_PT_Status dtls_client_stage5_send_mtls_pt(SYN_PT *pt, SYN_DTLS_Context *ctx)
 {
-    if (!dtls_send_client_mtls_flight(ctx)) {
-        return false;
+    SYN_PT *spt = &ctx->sub_pt;
+
+    PT_BEGIN(pt);
+
+    PT_SPAWN(pt, spt, dtls_build_local_cv_pt(spt, ctx, false, ctx->tx_buf + DTLS_EPOCH0_HDR_LEN));
+    if (!ctx->hs_work.crypto_ok) {
+        (void)dtls_fail_handshake(ctx);
+        PT_EXIT(pt);
+    }
+
+    PT_SPAWN(
+        pt, spt,
+        dtls_compute_finished_pt(spt, ctx, ctx->client_handshake_secret, ctx->transcript_digest));
+    PT_CONTINUE(pt);
+
+    if (!dtls_finish_and_send_client_mtls(ctx)) {
+        PT_EXIT(pt);
     }
     dtls_scrub_handshake_secrets(ctx);
     ctx->state = SYN_DTLS_STATE_ESTABLISHED;
     ctx->epoch = SYN_DTLS_EPOCH_APP_DATA;
-    *progressed = true;
-    return true;
+
+    PT_END(pt);
 }
 
 /**
@@ -1310,77 +1876,54 @@ static bool dtls_strip_inner_content_type(const uint8_t *pt_buf, size_t pt_with_
 }
 
 /**
- * @brief Advance server-side DTLS 1.3 handshake state machine by one single-asymmetric-op stage.
- * @param ctx        DTLS server context.
- * @param progressed [out] Set true if state advanced, false if waiting or forged packet dropped.
- * @return true if progressing or waiting, false on fatal local error.
+ * @brief Dispatch active server handshake flight protothread based on `ctx->state`.
+ * @param ctx DTLS server context.
+ * @return Active flight protothread status.
  */
-static bool dtls_server_handshake_step(SYN_DTLS_Context *ctx, bool *progressed)
+static SYN_PT_Status dtls_dispatch_server_flight_pt(SYN_DTLS_Context *ctx)
 {
     if (ctx->state == SYN_DTLS_STATE_UNINITIALIZED) {
-        return dtls_server_stage1_recv_ch(ctx, progressed);
+        return dtls_server_stage1_recv_ch_pt(&ctx->flight_pt, ctx);
     }
     if (ctx->state == SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED) {
-        uint16_t exp_suite = dtls_cipher_wire_id(ctx->config.cipher_suite);
-        if (!dtls_server_send_flight2(ctx, exp_suite)) {
-            return false;
-        }
-        *progressed = true;
-        return true;
+        return dtls_server_send_flight2_pt(&ctx->flight_pt, ctx);
     }
-
-    size_t rx_len = 0U;
-    if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
-        return true;
-    }
-    (void)dtls_server_process_client_mtls_flight(ctx, rx_len);
-    *progressed = (ctx->state == SYN_DTLS_STATE_ESTABLISHED);
-    return true;
+    return dtls_server_stage3_recv_mtls_pt(&ctx->flight_pt, ctx);
 }
 
 /**
- * @brief Advance client-side DTLS 1.3 handshake state machine by one single-asymmetric-op stage.
- * @param ctx        DTLS client context.
- * @param progressed [out] Set true if state advanced, false if waiting or forged packet dropped.
- * @return true if progressing or waiting, false on fatal local error.
+ * @brief Dispatch active client handshake flight protothread based on `ctx->state`.
+ * @param ctx DTLS client context.
+ * @return Active flight protothread status.
  */
-static bool dtls_client_handshake_step(SYN_DTLS_Context *ctx, bool *progressed)
+static SYN_PT_Status dtls_dispatch_client_flight_pt(SYN_DTLS_Context *ctx)
 {
     if (ctx->state == SYN_DTLS_STATE_UNINITIALIZED) {
-        if (!dtls_verify_peer_auth(ctx) || !dtls_send_client_hello(ctx)) {
-            return false;
-        }
-        *progressed = true;
-        return true;
+        return dtls_client_stage0_send_ch_pt(&ctx->flight_pt, ctx);
     }
     if (ctx->state == SYN_DTLS_STATE_CLIENT_HELLO_SENT) {
-        dtls_client_stage2_recv_sh(ctx, progressed);
-        return true;
+        return dtls_client_stage2_recv_sh_pt(&ctx->flight_pt, ctx);
     }
     if (ctx->state == SYN_DTLS_STATE_HANDSHAKE_KEYS_DERIVED) {
-        dtls_client_stage3_verify_cv(ctx, progressed);
-        return true;
+        return dtls_client_stage3_verify_cv_pt(&ctx->flight_pt, ctx);
     }
     if (ctx->state == SYN_DTLS_STATE_CERTIFICATE_VERIFIED) {
-        dtls_client_stage4_verify_fin(ctx, progressed);
-        return true;
+        return dtls_client_stage4_verify_fin_pt(&ctx->flight_pt, ctx);
     }
-    return dtls_client_stage5_send_mtls(ctx, progressed);
+    return dtls_client_stage5_send_mtls_pt(&ctx->flight_pt, ctx);
 }
 
 /**
- * @brief Execute one cooperative stage of the DTLS 1.3 client or server handshake.
- * @param ctx        DTLS context.
- * @param progressed [out] Set true if a handshake stage completed, false if waiting/dropped.
- * @return true if stage succeeded or waiting, false on fatal local error.
+ * @brief Dispatch client or server flight protothread for current handshake state.
+ * @param ctx DTLS context.
+ * @return Active flight protothread status.
  */
-static bool dtls_handshake_step(SYN_DTLS_Context *ctx, bool *progressed)
+static SYN_PT_Status dtls_dispatch_flight_pt(SYN_DTLS_Context *ctx)
 {
-    *progressed = false;
     if (ctx->config.is_server) {
-        return dtls_server_handshake_step(ctx, progressed);
+        return dtls_dispatch_server_flight_pt(ctx);
     }
-    return dtls_client_handshake_step(ctx, progressed);
+    return dtls_dispatch_client_flight_pt(ctx);
 }
 
 /** @endcond */
@@ -1439,21 +1982,52 @@ bool syn_dtls_init(SYN_DTLS_Context *ctx, const SYN_DTLS_Config *config, SYN_Tra
     ctx->epoch = SYN_DTLS_EPOCH_APP_DATA;
 
     PT_INIT(&ctx->pt);
+    PT_INIT(&ctx->hs_pt);
+    PT_INIT(&ctx->flight_pt);
+    PT_INIT(&ctx->sub_pt);
+    PT_INIT(&ctx->crypto_pt);
     return true;
+}
+
+SYN_PT_Status syn_dtls_handshake_pt(SYN_PT *pt, SYN_DTLS_Context *ctx)
+{
+    if ((pt == NULL) || (ctx == NULL)) {
+        return PT_EXITED;
+    }
+    if (ctx->state == SYN_DTLS_STATE_ERROR) {
+        PT_INIT(pt);
+        return PT_EXITED;
+    }
+
+    SYN_PT_Status st = PT_IDLE;
+
+    PT_BEGIN(pt);
+
+    while (ctx->state != SYN_DTLS_STATE_ESTABLISHED) {
+        st = dtls_dispatch_flight_pt(ctx);
+        if (ctx->state == SYN_DTLS_STATE_ERROR) {
+            PT_EXIT(pt);
+        }
+        if (st == PT_IDLE) {
+            PT_PASS(pt);
+        } else if (ctx->state != SYN_DTLS_STATE_ESTABLISHED) {
+            PT_CONTINUE(pt);
+        }
+    }
+
+    PT_END(pt);
 }
 
 bool syn_dtls_handshake(SYN_DTLS_Context *ctx)
 {
-    if (ctx == NULL || ctx->state == SYN_DTLS_STATE_ERROR) {
+    if (ctx == NULL) {
         return false;
     }
-    bool progressed = true;
-    while (progressed && ctx->state != SYN_DTLS_STATE_ESTABLISHED) {
-        if (!dtls_handshake_step(ctx, &progressed)) {
-            return false;
-        }
+    SYN_PT_Status st = syn_dtls_handshake_pt(&ctx->hs_pt, ctx);
+    while (st == PT_MORE) {
+        st = syn_dtls_handshake_pt(&ctx->hs_pt, ctx);
     }
-    return true;
+    return st != PT_EXITED;
 }
 
 /** @cond INTERNAL */
@@ -1609,18 +2183,9 @@ SYN_PT_Status syn_dtls_task(SYN_PT *pt, SYN_Task *task)
 
     PT_BEGIN(pt);
 
-    while (ctx->state != SYN_DTLS_STATE_ESTABLISHED) {
-        bool progressed = false;
-        if (ctx->state == SYN_DTLS_STATE_ERROR || !dtls_handshake_step(ctx, &progressed)) {
-            PT_EXIT(pt);
-        }
-        if (ctx->state != SYN_DTLS_STATE_ESTABLISHED) {
-            if (progressed) {
-                PT_CONTINUE_IF_NEEDED(pt, task);
-            } else {
-                PT_PASS(pt);
-            }
-        }
+    PT_SPAWN_IF_NEEDED(pt, task, &ctx->hs_pt, syn_dtls_handshake_pt(&ctx->hs_pt, ctx));
+    if (ctx->state != SYN_DTLS_STATE_ESTABLISHED) {
+        PT_EXIT(pt);
     }
 
     PT_WAIT_UNTIL(pt, ctx->state != SYN_DTLS_STATE_ESTABLISHED);

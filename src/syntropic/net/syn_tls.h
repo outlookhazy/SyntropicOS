@@ -35,6 +35,8 @@
 
 #include "syntropic/crypto/syn_aes.h"
 #include "syntropic/crypto/syn_chacha20poly1305.h"
+#include "syntropic/crypto/syn_ed25519.h"
+#include "syntropic/crypto/syn_p256.h"
 #include "syntropic/crypto/syn_sha256.h"
 #include "syntropic/crypto/syn_sha512.h"
 #include "syntropic/crypto/syn_x25519.h"
@@ -153,12 +155,42 @@ typedef struct {
     size_t app_rx_head;                             /**< App data head index */
     size_t app_rx_tail;                             /**< App data tail index */
 
+    SYN_PT hs_pt;     /**< Top-level handshake protothread continuation */
+    SYN_PT flight_pt; /**< Per-flight handshake protothread continuation */
+    SYN_PT sub_pt;    /**< Sub-stage handshake protothread continuation */
+    SYN_PT crypto_pt; /**< Leaf asymmetric crypto protothread continuation */
+
+    /** @brief Persistent handshake state across cooperative asymmetric protothreads. */
+    struct {
+        uint8_t cv_msg[146];                        /**< CertificateVerify signing/verify input */
+        uint8_t pub_cache[SYN_X509_PUBKEY_MAX_LEN]; /**< Cached local RPK/cert public key */
+        uint8_t peer_pub[SYN_X509_PUBKEY_MAX_LEN];  /**< Validated peer certificate public key */
+        uint8_t ks_salt[SYN_TLS_SECRET_LEN];        /**< Staged HKDF salt / derived secret */
+        uint8_t ks_prk[SYN_TLS_SECRET_LEN];         /**< Staged HKDF PRK across slices */
+        uint8_t ks_tr[SYN_TLS_SECRET_LEN];          /**< Staged transcript digest across slices */
+        uint8_t ecdhe_secret[32];                   /**< Staged X25519 shared secret for HKDF */
+        uint8_t pub_cache_len;                      /**< Byte length of pub_cache */
+        uint8_t peer_pub_len;                       /**< Byte length of peer_pub */
+        SYN_X509_Algo cv_algo;                      /**< Active CertificateVerify algorithm */
+        SYN_X509_Algo peer_algo;                    /**< Validated peer certificate algorithm */
+        bool my_pubkey_ready;                       /**< True once my_pubkey is derived */
+        bool peer_auth_verified;                    /**< True once peer credentials validated */
+        bool ok;                                    /**< Output flag from child crypto PT */
+    } hs_work;                                      /**< Cooperative handshake scratch state */
+
     /** @brief Transient cryptographic scratchpad keeping stack frames within 256B. */
     union {
-        SYN_AES_GCM_Context gcm; /**< AES-GCM scratch context */
-        SYN_AES_Context aes;     /**< AES-CCM scratch context */
-        SYN_X509_Cert cert;      /**< Parsed peer X.509 certificate scratch */
-    } crypto_scratch;            /**< Shared cipher/X.509 scratch storage */
+        struct {
+            SYN_AES_GCM_Context tx; /**< Cached established TX AES-GCM context */
+            SYN_AES_GCM_Context rx; /**< Cached established RX AES-GCM context */
+        } app_gcm;                  /**< Established application AES-GCM key schedules */
+        SYN_AES_Context aes;        /**< AES-CCM scratch context */
+        SYN_X25519_Ctx x25519;      /**< Cooperative X25519 ECDHE context */
+        SYN_P256_Ctx p256;          /**< Cooperative ECDSA P-256 context */
+        SYN_Ed25519_Ctx ed25519;    /**< Cooperative Ed25519 context */
+        SYN_X509_VerifyCtx x509;    /**< Cooperative X.509 chain verify context */
+    } crypto_scratch;               /**< Shared cipher/X.509/ECC scratch storage */
+
 } SYN_TLS_Context;
 
 /**
@@ -183,6 +215,15 @@ bool syn_tls_init(SYN_TLS_Context *ctx, const SYN_TLS_Config *config, SYN_Transp
  * @return true if handshake completed or progressing, false on fatal error.
  */
 bool syn_tls_handshake(SYN_TLS_Context *ctx);
+
+/**
+ * @brief Cooperative child protothread driving the TLS 1.3 client or server handshake.
+ *
+ * @param pt  Protothread control block (typically &ctx->hs_pt).
+ * @param ctx TLS 1.3 context.
+ * @return PT_IDLE, PT_MORE, PT_ENDED, or PT_EXITED.
+ */
+SYN_PT_Status syn_tls_handshake_pt(SYN_PT *pt, SYN_TLS_Context *ctx);
 
 /**
  * @brief Cooperative protothread task — drives the TLS 1.3 client handshake & session.

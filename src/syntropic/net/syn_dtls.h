@@ -30,7 +30,9 @@
 
 #include "syntropic/crypto/syn_aes.h"
 #include "syntropic/crypto/syn_chacha20poly1305.h"
+#include "syntropic/crypto/syn_ed25519.h"
 #include "syntropic/crypto/syn_hkdf.h"
+#include "syntropic/crypto/syn_p256.h"
 #include "syntropic/crypto/syn_sha256.h"
 #include "syntropic/crypto/syn_sha512.h"
 #include "syntropic/crypto/syn_x25519.h"
@@ -147,7 +149,11 @@ typedef struct {
     size_t tx_buf_size; /**< TX buffer capacity */
 
     /* Protothread state */
-    SYN_PT pt; /**< Non-blocking task state */
+    SYN_PT pt;        /**< Non-blocking task state */
+    SYN_PT hs_pt;     /**< Cooperative handshake driver continuation */
+    SYN_PT flight_pt; /**< Active per-flight coroutine continuation */
+    SYN_PT sub_pt;    /**< Credential / CertificateVerify sub-coroutine continuation */
+    SYN_PT crypto_pt; /**< Asymmetric primitive coroutine continuation */
 
     /* Cryptographic secrets & keys */
     uint8_t client_handshake_secret[SYN_DTLS_SECRET_LEN]; /**< Client handshake secret */
@@ -178,14 +184,34 @@ typedef struct {
     uint8_t client_random[32];  /**< ClientHello 32-byte random */
     uint8_t server_random[32];  /**< ServerHello 32-byte random */
 
+    /** @brief Cooperative handshake sub-stage tracking across slices. */
+    struct {
+        uint8_t cv_msg[146];                        /**< Formatted CertificateVerify payload */
+        uint8_t pub_cache[SYN_X509_PUBKEY_MAX_LEN]; /**< Cached local/peer public key bytes */
+        uint8_t peer_pub[SYN_X509_PUBKEY_MAX_LEN];  /**< Validated peer X.509 public key */
+        uint8_t tr_cand[SYN_DTLS_SECRET_LEN];       /**< Candidate transcript for UDP Flight 3 */
+        uint8_t ks_salt[SYN_DTLS_SECRET_LEN];       /**< Staged HKDF salt / derived secret */
+        uint8_t ks_prk[SYN_DTLS_SECRET_LEN];        /**< Staged HKDF PRK across slices */
+        uint8_t ecdhe_secret[32];                   /**< Staged X25519 shared secret for HKDF */
+        uint8_t pub_cache_len;                      /**< Byte length of pub_cache */
+        uint8_t peer_pub_len;                       /**< Byte length of peer_pub */
+        SYN_X509_Algo cv_algo;                      /**< Active CertificateVerify algorithm */
+        SYN_X509_Algo peer_algo;                    /**< Validated peer X.509 key algorithm */
+        bool crypto_ok;                             /**< Persistent child crypto outcome flag */
+        bool peer_auth_verified;                    /**< True once peer X.509/auth check done */
+    } hs_work;                                      /**< Handshake staging state */
+
     /** @brief Transient cryptographic scratchpad keeping stack frames within 256B. */
     union {
         SYN_AES_GCM_Context gcm; /**< AES-GCM scratch context */
         SYN_AES_Context aes;     /**< AES-CCM scratch context */
         SYN_SHA512 sha512;       /**< SHA-384 transcript scratch */
         SYN_SHA256 sha256;       /**< SHA-256 transcript scratch */
-        SYN_X509_Cert cert;      /**< Parsed peer X.509 certificate scratch */
-    } crypto_scratch;            /**< Shared cipher/hash/X.509 scratch storage */
+        SYN_X25519_Ctx x25519;   /**< Resumable X25519 ECDHE context */
+        SYN_P256_Ctx p256;       /**< Resumable P-256 ECDSA sign/verify context */
+        SYN_Ed25519_Ctx ed25519; /**< Resumable Ed25519 pubkey/sign/verify context */
+        SYN_X509_VerifyCtx x509; /**< Resumable X.509 signature verification context */
+    } crypto_scratch;            /**< Shared cipher/hash/asymmetric scratch storage */
 } SYN_DTLS_Context;
 
 /* ── API ────────────────────────────────────────────────────────────────── */
@@ -224,6 +250,14 @@ void syn_dtls_replay_update(SYN_DTLS_ReplayWindow *win, uint64_t seq);
  */
 bool syn_dtls_init(SYN_DTLS_Context *ctx, const SYN_DTLS_Config *config, SYN_Transport *transport,
                    uint8_t *rx_buf, size_t rx_buf_size, uint8_t *tx_buf, size_t tx_buf_size);
+
+/**
+ * @brief Cooperative DTLS 1.3 handshake protothread (< 750 us per slice on 25 MHz Cortex-M4).
+ * @param pt  Handshake protothread control block (typically `&ctx->hs_pt`).
+ * @param ctx Initialized DTLS context.
+ * @return PT_MORE mid-flight, PT_IDLE awaiting RX, PT_ENDED when established, or PT_EXITED.
+ */
+SYN_PT_Status syn_dtls_handshake_pt(SYN_PT *pt, SYN_DTLS_Context *ctx);
 
 /**
  * @brief Execute DTLS 1.3 handshake.

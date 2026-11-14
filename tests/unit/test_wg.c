@@ -22,19 +22,26 @@
 
 static bool wg_send_initiation(SYN_WG *wg)
 {
-    if (!wg_init_stage1_ephemeral(wg, false)) {
-        return false;
+    wg_init_start(wg, false);
+    SYN_PT_Status st = PT_MORE;
+    while (st == PT_MORE) {
+        st = wg_send_initiation_pt(&wg->hs_work.hs_pt, wg);
     }
-    wg_init_stage2_dh_es(wg);
-    return wg_init_stage3_dh_ss_and_send(wg);
+    wg->hs_work.active = false;
+    return wg->hs_work.ok;
 }
 
 static bool wg_consume_response(SYN_WG *wg, const uint8_t *msg, size_t len)
 {
-    if (!wg_resp_stage1_verify_and_dh_ee(wg, msg, len)) {
+    if (!wg_resp_start(wg, msg, len)) {
         return false;
     }
-    return wg_resp_stage2_dh_se_and_establish(wg);
+    SYN_PT_Status st = PT_MORE;
+    while (st == PT_MORE) {
+        st = wg_consume_response_pt(&wg->hs_work.hs_pt, wg);
+    }
+    wg->hs_work.active = false;
+    return wg->hs_work.ok;
 }
 
 static bool wg_replay_check(SYN_WgSession *s, uint64_t counter)
@@ -117,21 +124,31 @@ static void test_wg_hkdf2(void)
     TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_ck, out1, 32);
 }
 
-/* HKDF3 produces 3 outputs (used for PSK mixing) */
+static void test_peer_hkdf3(uint8_t out1[32], uint8_t out2[32], uint8_t out3[32],
+                            const uint8_t ck[32], const uint8_t *input, size_t input_len)
+{
+    uint8_t prk[32];
+    wg_hkdf3_step1(prk, out1, ck, input, input_len);
+    wg_hkdf3_step2(out2, out3, prk, out1);
+}
+
+/* HKDF3 produces 3 outputs across 2 cooperative slices (used for PSK mixing) */
 static void test_wg_hkdf3(void)
 {
-    uint8_t ck[32], out1[32], out2[32], out3[32];
+    uint8_t ck[32], prk[32], out1[32], out2[32], out3[32];
     memset(ck, 0x42, 32);
 
     uint8_t input[8] = {'h', 'k', 'd', 'f', '3', 't', 's', 't'};
-    wg_hkdf3(out1, out2, out3, ck, input, 8);
+    wg_hkdf3_step1(prk, out1, ck, input, 8);
+    wg_hkdf3_step2(out2, out3, prk, out1);
 
-    /* Verify all 3 outputs are different and non-zero */
+    /* Verify PRK was scrubbed and all 3 outputs are different and non-zero */
+    uint8_t zeros[32] = {0};
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(zeros, prk, 32);
     TEST_ASSERT_FALSE(memcmp(out1, out2, 32) == 0);
     TEST_ASSERT_FALSE(memcmp(out2, out3, 32) == 0);
     TEST_ASSERT_FALSE(memcmp(out1, out3, 32) == 0);
 
-    uint8_t zeros[32] = {0};
     TEST_ASSERT_FALSE(memcmp(out1, zeros, 32) == 0);
     TEST_ASSERT_FALSE(memcmp(out2, zeros, 32) == 0);
     TEST_ASSERT_FALSE(memcmp(out3, zeros, 32) == 0);
@@ -824,11 +841,13 @@ static void test_wg_disconnect_and_stats(void)
     wg.state = SYN_WG_ESTABLISHED;
     wg.udp_sock = 1;
     wg.session.established_ms = 1000;
+    mock_tick_ms = 5000U;
     uint8_t sample_ip[12] = {0x45, 0, 0, 12, 0, 0, 0, 0, 64, 1, 0, 0};
     TEST_ASSERT_EQUAL(SYN_OK, syn_wg_send(&wg, sample_ip, sizeof(sample_ip)));
 
     TEST_ASSERT_EQUAL(SYN_OK, syn_wg_get_stats(&wg, &stats));
     TEST_ASSERT_TRUE(stats.is_established);
+    TEST_ASSERT_EQUAL_UINT32(4U, stats.handshake_age_sec);
     TEST_ASSERT_EQUAL_UINT64(sizeof(sample_ip), stats.tx_bytes);
 
     syn_wg_disconnect(&wg);
@@ -1045,7 +1064,7 @@ static void test_wg_valid_response_exchange(void)
 
     /* DH(psk) */
     uint8_t psk_zeros[32] = {0};
-    wg_hkdf3(ck, h, key, ck, psk_zeros, 32);
+    test_peer_hkdf3(ck, h, key, ck, psk_zeros, 32);
 
     /* Encrypt empty payload */
     uint8_t zero_nonce[12] = {0};
@@ -1419,7 +1438,7 @@ static void test_wg_round3_regressions(void)
     wg_mix_key(ck, k, dh, 32);
     syn_x25519(dh, resp_e_priv, dec_s_pub_i);
     wg_mix_key(ck, k, dh, 32);
-    wg_hkdf3(ck, tau, k, ck, cfg.preshared_key, 32);
+    test_peer_hkdf3(ck, tau, k, ck, cfg.preshared_key, 32);
     wg_mix_hash(h, tau, 32);
     wg_encrypt_and_hash(h, k, NULL, 0, NULL, resp_msg + 44);
     wg_mac1(resp_msg + 60, dec_s_pub_i, resp_msg, 60);
@@ -1597,7 +1616,7 @@ static void test_wg_round4_forged_response_and_disconnect_zeroing(void)
     wg_mix_key(ck, k, dh, 32);
     syn_x25519(dh, resp_e_priv, dec_s_pub_i);
     wg_mix_key(ck, k, dh, 32);
-    wg_hkdf3(ck, tau, k, ck, cfg.preshared_key, 32);
+    test_peer_hkdf3(ck, tau, k, ck, cfg.preshared_key, 32);
     wg_mix_hash(h, tau, 32);
     wg_encrypt_and_hash(h, k, NULL, 0, NULL, resp_msg + 44);
     wg_mac1(resp_msg + 60, dec_s_pub_i, resp_msg, 60);
@@ -1697,7 +1716,7 @@ static void build_responder_handshake_reply(const SYN_WgConfig *cfg, const uint8
     wg_mix_key(ck, k, dh, 32U);
     syn_x25519(dh, resp_e_priv, dec_s_pub_i);
     wg_mix_key(ck, k, dh, 32U);
-    wg_hkdf3(ck, tau, k, ck, cfg->preshared_key, 32U);
+    test_peer_hkdf3(ck, tau, k, ck, cfg->preshared_key, 32U);
     wg_mix_hash(h, tau, 32U);
     wg_encrypt_and_hash(h, k, NULL, 0U, NULL, out_resp + 44U);
     wg_mac1(out_resp + 60U, dec_s_pub_i, out_resp, 60U);
@@ -1990,12 +2009,27 @@ static void test_tier_a_wg_low_order_dh_staged_hs_and_msg_limits(void)
         wg_mix_hash(f_h, zero32, 32U);
         wg_mix_key(f_ck, f_k, zero32, 32U);
         wg_mix_key(f_ck, f_k, zero32, 32U);
-        wg_hkdf3(f_ck, f_tau, f_k, f_ck, cfg.preshared_key, 32U);
+        test_peer_hkdf3(f_ck, f_tau, f_k, f_ck, cfg.preshared_key, 32U);
         wg_mix_hash(f_h, f_tau, 32U);
         wg_encrypt_and_hash(f_h, f_k, NULL, 0U, NULL, forged_low_order + 44U);
         wg_mac1(forged_low_order + 60U, wg.public_key, forged_low_order, 60U);
     }
     TEST_ASSERT_FALSE(wg_consume_response(&wg, forged_low_order, sizeof(forged_low_order)));
+
+    /* Also verify u = 1 low-order point response is rejected */
+    forged_low_order[12U] = 0x01U;
+    wg_mac1(forged_low_order + 60U, wg.public_key, forged_low_order, 60U);
+    TEST_ASSERT_FALSE(wg_consume_response(&wg, forged_low_order, sizeof(forged_low_order)));
+
+    /* Low-order peer_public_key (u = 0, u = 1) rejects initiation in constant time */
+    SYN_WgConfig low_u_cfg = cfg;
+    memset(low_u_cfg.peer_public_key, 0, 32U);
+    SYN_WG low_u_wg;
+    syn_wg_init(&low_u_wg, &low_u_cfg, &sntp, rx_buf, sizeof(rx_buf), tx_buf, sizeof(tx_buf));
+    TEST_ASSERT_FALSE(wg_send_initiation(&low_u_wg));
+    low_u_cfg.peer_public_key[0] = 0x01U;
+    syn_wg_init(&low_u_wg, &low_u_cfg, &sntp, rx_buf, sizeof(rx_buf), tx_buf, sizeof(tx_buf));
+    TEST_ASSERT_FALSE(wg_send_initiation(&low_u_wg));
 
     /* Genuine response to saved_rekey_init still succeeds because wg.hs_* was preserved */
     uint8_t resp2[SYN_WG_RESPONSE_SIZE];
@@ -2004,7 +2038,7 @@ static void test_tier_a_wg_low_order_dh_staged_hs_and_msg_limits(void)
                                     send_k2, recv_k2);
     TEST_ASSERT_TRUE(wg_consume_response(&wg, resp2, sizeof(resp2)));
     TEST_ASSERT_FALSE(wg.rekey_in_progress);
-    TEST_ASSERT_EQUAL_UINT64(0U, wg.session.send_counter);
+    TEST_ASSERT_EQUAL_UINT64(1U, wg.session.send_counter);
 
     /* 4. SYN_WG_REJECT_AFTER_MESSAGES enforced on both TX and RX */
     wg.session.send_counter = SYN_WG_REJECT_AFTER_MESSAGES - 1ULL;
@@ -2063,7 +2097,7 @@ static void test_tier_a_wg_low_order_dh_staged_hs_and_msg_limits(void)
         wg_mix_key(f_ck, f_k, f_dh, 32U);
         syn_x25519(f_dh, atk_e_priv, wg_h1.public_key);
         wg_mix_key(f_ck, f_k, f_dh, 32U);
-        wg_hkdf3(f_ck, f_tau, f_k, f_ck, zero_psk_cfg.preshared_key, 32U);
+        test_peer_hkdf3(f_ck, f_tau, f_k, f_ck, zero_psk_cfg.preshared_key, 32U);
         wg_mix_hash(f_h, f_tau, 32U);
         wg_encrypt_and_hash(f_h, f_k, NULL, 0U, NULL, forged_h1 + 44U);
         wg_mac1(forged_h1 + 60U, wg_h1.public_key, forged_h1, 60U);
@@ -2123,33 +2157,41 @@ static void test_wg_cooperative_per_x25519_stage_yielding(void)
     syn_task_create(&tasks[1], "wg", syn_wg_task, SYN_PRIO_HIGH, &wg);
     syn_sched_init(&sched, tasks, 2U);
 
-    /* 1. Contended Initiation: yields PT_MORE after each of the 3 X25519 stages */
+    /* 1. Contended Initiation: yields PT_MORE on every slice of wg_send_initiation_pt */
     syn_sched_run(&sched); /* peer (1) */
     TEST_ASSERT_EQUAL_UINT32(1U, peer_runs);
 
+    uint32_t init_peer_start = peer_runs;
     mock_udp_tx_len = 0U;
-    syn_sched_run(&sched); /* wg: Stage 1 (ephemeral keygen X25519 #1) -> stage == 1 */
-    TEST_ASSERT_EQUAL_UINT8(1U, wg.hs_work.stage);
+    syn_sched_run(&sched); /* wg: starts wg_send_initiation_pt slice 1 */
+    TEST_ASSERT_TRUE(wg.hs_work.active);
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&wg.hs_work.hs_pt));
+    TEST_ASSERT_FALSE(wg.hs_work.is_resp);
     TEST_ASSERT_EQUAL(SYN_WG_DISCONNECTED, wg.state);
     TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
 
-    syn_sched_run(&sched); /* peer (2) runs between X25519 #1 and X25519 #2 */
-    TEST_ASSERT_EQUAL_UINT32(2U, peer_runs);
-
-    syn_sched_run(&sched); /* wg: Stage 2 (dh_es X25519 #2) -> stage == 2 */
-    TEST_ASSERT_EQUAL_UINT8(2U, wg.hs_work.stage);
+    for (uint32_t i = 0U; i < 200U; i++) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_TRUE(wg.hs_work.active);
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&wg.hs_work.hs_pt));
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&wg.hs_work.crypto_pt));
     TEST_ASSERT_EQUAL(SYN_WG_DISCONNECTED, wg.state);
     TEST_ASSERT_EQUAL_size_t(0U, mock_udp_tx_len);
 
-    syn_sched_run(&sched); /* peer (3) runs between X25519 #2 and X25519 #3 */
-    TEST_ASSERT_EQUAL_UINT32(3U, peer_runs);
-
-    syn_sched_run(&sched); /* wg: Stage 3 (dh_ss X25519 #3 + sendto) -> HANDSHAKE_INIT */
-    TEST_ASSERT_EQUAL_UINT8(0U, wg.hs_work.stage);
+    while (wg.hs_work.active) {
+        syn_sched_run(&sched);
+    }
+    /* Contended Initiation: 3 x 509 X25519 slices (eph_pub, dh_es, dh_ss) + 11 framing/task turns
+     */
+    TEST_ASSERT_EQUAL_UINT32(1538U, peer_runs - init_peer_start);
+    TEST_ASSERT_FALSE(wg.hs_work.active);
+    TEST_ASSERT_TRUE(PT_IS_IDLE(&wg.hs_work.hs_pt));
+    TEST_ASSERT_TRUE(wg.hs_work.ok);
     TEST_ASSERT_EQUAL(SYN_WG_HANDSHAKE_INIT, wg.state);
     TEST_ASSERT_EQUAL_size_t(SYN_WG_INITIATION_SIZE, mock_udp_tx_len);
 
-    /* 2. Contended Response Consumption: yields PT_MORE between dh_ee (X25519 #4) and dh_se (#5) */
+    /* 2. Contended Response Consumption: yields PT_MORE on every slice across dh_ee/dh_se */
     uint8_t resp_pkt[SYN_WG_RESPONSE_SIZE];
     uint8_t exp_send_k[32], exp_recv_k[32];
     build_responder_handshake_reply(&cfg, resp_s_priv, mock_udp_tx_buf, 0x71U, 0x12345678U,
@@ -2159,20 +2201,32 @@ static void test_wg_cooperative_per_x25519_stage_yielding(void)
 
     /* Advance tick past max_wait so wg (now polling at PT_WAIT_UNTIL) gets scheduled */
     mock_tick_advance(10U);
-    syn_sched_run(&sched); /* peer (4) or wg depending on overdue rank */
-    if (wg.hs_work.stage == 0U) {
+    syn_sched_run(&sched);
+    if (!wg.hs_work.active) {
         syn_sched_run(&sched);
     }
-    /* wg ran Response Stage 1 (mac1 verify + dh_ee X25519 #4) and yielded at stage == 3! */
-    TEST_ASSERT_EQUAL_UINT8(3U, wg.hs_work.stage);
+    TEST_ASSERT_TRUE(wg.hs_work.active);
+    TEST_ASSERT_TRUE(wg.hs_work.is_resp);
     TEST_ASSERT_EQUAL(SYN_WG_HANDSHAKE_INIT, wg.state);
 
-    uint32_t runs_before = peer_runs;
-    syn_sched_run(&sched); /* peer runs between X25519 #4 and X25519 #5! */
-    TEST_ASSERT_EQUAL_UINT32(runs_before + 1U, peer_runs);
+    uint32_t resp_peer_start = peer_runs;
+    for (uint32_t i = 0U; i < 200U; i++) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_TRUE(wg.hs_work.active);
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&wg.hs_work.hs_pt));
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&wg.hs_work.crypto_pt));
+    TEST_ASSERT_EQUAL(SYN_WG_HANDSHAKE_INIT, wg.state);
+    TEST_ASSERT_FALSE(wg_consume_response(&wg, resp_pkt, sizeof(resp_pkt)));
 
-    syn_sched_run(&sched); /* wg runs Response Stage 2 (dh_se X25519 #5 + establish) */
-    TEST_ASSERT_EQUAL_UINT8(0U, wg.hs_work.stage);
+    while (wg.hs_work.active) {
+        syn_sched_run(&sched);
+    }
+    /* Contended Response: 2 x 509 X25519 slices (dh_ee, dh_se) + 11 PSK/tag/session turns */
+    TEST_ASSERT_EQUAL_UINT32(1029U, peer_runs - resp_peer_start);
+    TEST_ASSERT_FALSE(wg.hs_work.active);
+    TEST_ASSERT_TRUE(PT_IS_IDLE(&wg.hs_work.hs_pt));
+    TEST_ASSERT_TRUE(wg.hs_work.ok);
     TEST_ASSERT_TRUE(syn_wg_is_established(&wg));
     TEST_ASSERT_EQUAL_HEX8_ARRAY(exp_send_k, wg.session.send_key, 32U);
     TEST_ASSERT_EQUAL_HEX8_ARRAY(exp_recv_k, wg.session.recv_key, 32U);
@@ -2180,26 +2234,56 @@ static void test_wg_cooperative_per_x25519_stage_yielding(void)
     /* 3. Hitless rekey mid-stage yield + concurrent syn_wg_send does not clobber tx_buf or hs_* */
     mock_tick_advance(125000U);
     syn_sched_run(&sched);
-    if (wg.hs_work.stage == 0U) {
+    if (!wg.hs_work.active) {
         syn_sched_run(&sched);
     }
     TEST_ASSERT_TRUE(wg.rekey_in_progress);
-    TEST_ASSERT_EQUAL_UINT8(1U, wg.hs_work.stage);
+    TEST_ASSERT_TRUE(wg.hs_work.active);
+    TEST_ASSERT_TRUE(PT_IS_RUNNING(&wg.hs_work.hs_pt));
 
-    /* Send transport data while rekey initiation is yielded at Stage 1! */
+    /* Send transport data while rekey initiation is yielded mid-X25519! */
     static const uint8_t tunnel_pkt[20] = {0x45, 0x00, 0x00, 0x14, 1, 2, 3, 4};
     TEST_ASSERT_EQUAL(SYN_OK, syn_wg_send(&wg, tunnel_pkt, sizeof(tunnel_pkt)));
 
-    /* Advance through Stage 2 and Stage 3 of rekey initiation */
-    syn_sched_run(&sched); /* peer */
+    /* Also receive inbound transport + premature response while rekey is mid-X25519! */
+    s_recv_called = false;
+    wg.on_recv = test_on_recv;
+    uint8_t rx_tp[52];
+    uint8_t tp_nonce[12] = {0U};
+    store32_le(rx_tp, SYN_WG_MSG_TRANSPORT);
+    store32_le(rx_tp + 4U, wg.session.sender_index);
+    store64_le(rx_tp + 8U, 1ULL);
+    store64_le(tp_nonce + 4U, 1ULL);
+    syn_aead_encrypt(wg.session.recv_key, tp_nonce, NULL, 0U, tunnel_pkt, sizeof(tunnel_pkt),
+                     rx_tp + 16U, rx_tp + 36U);
+    mock_udp_rx_count = 0;
+    mock_udp_rx_pos = 0;
+    mock_udp_inject_packet(rx_tp, sizeof(rx_tp), &from);
+    mock_udp_inject_packet(resp_pkt, sizeof(resp_pkt), &from);
+
+    /* Advance through rekey initiation protothread while draining RX interleaved */
     mock_udp_tx_len = 0U;
-    syn_sched_run(&sched); /* wg Stage 2 */
-    TEST_ASSERT_EQUAL_UINT8(2U, wg.hs_work.stage);
-    syn_sched_run(&sched); /* peer */
-    syn_sched_run(&sched); /* wg Stage 3 sends 148-byte rekey initiation */
-    TEST_ASSERT_EQUAL_UINT8(0U, wg.hs_work.stage);
+    while (wg.hs_work.active) {
+        syn_sched_run(&sched);
+    }
+    TEST_ASSERT_TRUE(s_recv_called);
+    TEST_ASSERT_FALSE(wg.hs_work.active);
+    TEST_ASSERT_TRUE(PT_IS_IDLE(&wg.hs_work.hs_pt));
     TEST_ASSERT_EQUAL_size_t(SYN_WG_INITIATION_SIZE, mock_udp_tx_len);
     TEST_ASSERT_TRUE(wg.hs_valid);
+
+    /* 4. Reject oversized (> SYN_WG_MTU) and REJECT_AFTER_TIME-expired transport TX/RX */
+    static const uint8_t over_mtu[SYN_WG_MTU + 1U] = {0x45U};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_wg_send(&wg, over_mtu, sizeof(over_mtu)));
+    mock_tick_advance((uint32_t)SYN_WG_REJECT_AFTER_TIME * 1000U + 1000U);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_wg_send(&wg, tunnel_pkt, sizeof(tunnel_pkt)));
+    TEST_ASSERT_FALSE(wg_handle_transport(&wg, rx_tp, sizeof(rx_tp)));
+
+    /* 5. Unmatched protothread continuation lines fall through cleanly to PT_END */
+    SYN_PT unmatched_pt = {.lc = 0xFFFFU};
+    TEST_ASSERT_EQUAL(PT_ENDED, wg_send_initiation_pt(&unmatched_pt, &wg));
+    unmatched_pt.lc = 0xFFFFU;
+    TEST_ASSERT_EQUAL(PT_ENDED, wg_consume_response_pt(&unmatched_pt, &wg));
 }
 
 void run_wg_tests(void)

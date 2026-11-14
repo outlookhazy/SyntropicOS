@@ -1967,6 +1967,86 @@ static void test_http_oversized_chunk_hex_without_ext_rejected(void)
     TEST_ASSERT_EQUAL(SYN_ERROR, run_client_task(&client));
 }
 
+static void test_http_body_brc3_cooperative_yielding(void)
+{
+    uint8_t min_buf[128];
+    SYN_HttpClient client;
+    SYN_Sched sched = {0};
+    SYN_Task task = {0};
+    SYN_PT pt;
+
+    /* 1. EOF-delimited stream body draining final socket bytes (brc == 3):
+     *    contended yields PT_MORE before EOF; uncontended finishes in one call. */
+    const char *shdr = "HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n";
+    uint8_t sstream[140];
+    memcpy(sstream, shdr, 38U);
+    memset(sstream + 38U, 'S', 102U);
+
+    for (int contended = 0; contended <= 1; contended++) {
+        mock_port_reset();
+        reset_accum();
+        mock_sock_eof_on_empty = true;
+        mock_sock_set_response(sstream, sizeof(sstream));
+        syn_http_client_init(&client, "GET", "example.com", 80, "/eof", NULL, NULL, 0, NULL, 0,
+                             body_accumulate, NULL, min_buf, sizeof(min_buf));
+
+        memset(&sched, 0, sizeof(sched));
+        memset(&task, 0, sizeof(task));
+        task.user_data = &client;
+        task.sched = &sched;
+        sched.running = &task;
+        sched.share_contended = (contended != 0);
+        PT_INIT(&pt);
+
+        if (contended != 0) {
+            TEST_ASSERT_EQUAL(PT_MORE, syn_http_client_task(&pt, &task));
+            TEST_ASSERT_EQUAL_UINT(102U, body_accum_len);
+            TEST_ASSERT_EQUAL(PT_ENDED, syn_http_client_task(&pt, &task));
+        } else {
+            TEST_ASSERT_EQUAL(PT_ENDED, syn_http_client_task(&pt, &task));
+        }
+        TEST_ASSERT_EQUAL(SYN_HTTP_STATE_DONE, client.state);
+        TEST_ASSERT_EQUAL(SYN_OK, client.status);
+        TEST_ASSERT_EQUAL_UINT(102U, body_accum_len);
+    }
+
+    /* 2. Chunked body draining final socket bytes (brc == 3):
+     *    contended yields PT_MORE before parsing buffered tail; uncontended finishes in 1 call. */
+    const char *chdr = "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n";
+    uint8_t cstream[148];
+    memcpy(cstream, chdr, 47U);
+    memcpy(cstream + 47U, "5A\r\n", 4U);
+    memset(cstream + 51U, 'C', 90U);
+    memcpy(cstream + 141U, "\r\n0\r\n\r\n", 7U);
+
+    for (int contended = 0; contended <= 1; contended++) {
+        mock_port_reset();
+        reset_accum();
+        mock_sock_set_response(cstream, sizeof(cstream));
+        syn_http_client_init(&client, "GET", "example.com", 80, "/chunk", NULL, NULL, 0, NULL, 0,
+                             body_accumulate, NULL, min_buf, sizeof(min_buf));
+
+        memset(&sched, 0, sizeof(sched));
+        memset(&task, 0, sizeof(task));
+        task.user_data = &client;
+        task.sched = &sched;
+        sched.running = &task;
+        sched.share_contended = (contended != 0);
+        PT_INIT(&pt);
+
+        if (contended != 0) {
+            TEST_ASSERT_EQUAL(PT_MORE, syn_http_client_task(&pt, &task));
+            TEST_ASSERT_EQUAL_UINT(76U, body_accum_len);
+            TEST_ASSERT_EQUAL(PT_ENDED, syn_http_client_task(&pt, &task));
+        } else {
+            TEST_ASSERT_EQUAL(PT_ENDED, syn_http_client_task(&pt, &task));
+        }
+        TEST_ASSERT_EQUAL(SYN_HTTP_STATE_DONE, client.state);
+        TEST_ASSERT_EQUAL(SYN_OK, client.status);
+        TEST_ASSERT_EQUAL_UINT(90U, body_accum_len);
+    }
+}
+
 void run_http_tests(void)
 {
     RUN_TEST(test_http_get_200);
@@ -2008,4 +2088,5 @@ void run_http_tests(void)
     RUN_TEST(test_r5_n13_http_chunked_trailers_and_mid_trailer_eof);
     RUN_TEST(test_tier_a_http_head_bodyless_ows_and_redirect_port);
     RUN_TEST(test_http_oversized_chunk_hex_without_ext_rejected);
+    RUN_TEST(test_http_body_brc3_cooperative_yielding);
 }

@@ -499,7 +499,26 @@ static bool mqtt_rx_discard(SYN_MqttClient *c)
 }
 
 /**
- * @brief Non-blocking receive state machine poll (up to 32 steps per slice).
+ * @brief Advance the active MQTT RX parser phase by one socket read step.
+ * @param c MQTT client context.
+ * @return true if at least one byte was consumed in the active phase.
+ */
+static bool mqtt_rx_step(SYN_MqttClient *c)
+{
+    if (c->rx_phase == SYN_MQTT_RX_IDLE) {
+        return mqtt_rx_idle(c);
+    }
+    if (c->rx_phase == SYN_MQTT_RX_REMAINING_LEN) {
+        return mqtt_rx_rem_len(c);
+    }
+    if (c->rx_phase == SYN_MQTT_RX_PAYLOAD) {
+        return mqtt_rx_payload(c);
+    }
+    return mqtt_rx_discard(c);
+}
+
+/**
+ * @brief Non-blocking receive state machine poll (at most 1 payload packet or 32 steps).
  * @param c MQTT client context.
  * @return true if at least one socket read consumed >= 1 byte.
  */
@@ -510,28 +529,22 @@ static bool poll_rx(SYN_MqttClient *c)
     }
 
     bool progressed = false;
-    for (size_t steps = 0U; steps < 32U && c->sock != SYN_SOCKET_INVALID; steps++) {
-        if (c->rx_phase != SYN_MQTT_RX_IDLE &&
-            (int32_t)(syn_port_get_tick_ms() - c->rx_deadline) >= 0) {
+    for (size_t steps = 0U; (steps < 32U) && (c->sock != SYN_SOCKET_INVALID); steps++) {
+        if ((c->rx_phase != SYN_MQTT_RX_IDLE) &&
+            ((int32_t)(syn_port_get_tick_ms() - c->rx_deadline) >= 0)) {
             mqtt_reset_session(c);
             return progressed;
         }
 
-        bool step_ok = false;
-        if (c->rx_phase == SYN_MQTT_RX_IDLE) {
-            step_ok = mqtt_rx_idle(c);
-        } else if (c->rx_phase == SYN_MQTT_RX_REMAINING_LEN) {
-            step_ok = mqtt_rx_rem_len(c);
-        } else if (c->rx_phase == SYN_MQTT_RX_PAYLOAD) {
-            step_ok = mqtt_rx_payload(c);
-        } else {
-            step_ok = mqtt_rx_discard(c);
-        }
-
-        if (!step_ok) {
+        bool was_payload_or_discard =
+            (c->rx_phase == SYN_MQTT_RX_PAYLOAD) || (c->rx_phase == SYN_MQTT_RX_DISCARD);
+        if (!mqtt_rx_step(c)) {
             break;
         }
         progressed = true;
+        if (was_payload_or_discard && (c->rx_phase == SYN_MQTT_RX_IDLE)) {
+            break;
+        }
     }
     return progressed;
 }

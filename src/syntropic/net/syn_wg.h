@@ -45,6 +45,7 @@
 #if !defined(SYN_USE_WG) || SYN_USE_WG
 
 #include "../common/syn_defs.h"
+#include "../crypto/syn_x25519.h"
 #include "../port/syn_port_socket.h"
 #include "../pt/syn_pt.h"
 #include "../sched/syn_task.h"
@@ -60,31 +61,31 @@ extern "C" {
 
 /** Default tunnel MTU (inner IP packet before encryption). */
 #ifndef SYN_WG_MTU
-#define SYN_WG_MTU 1420
+#define SYN_WG_MTU 1420U
 #endif
 
 /** WireGuard transport overhead: type(4) + receiver(4) + counter(8) + tag(16) = 32 */
-#define SYN_WG_TRANSPORT_OVERHEAD 32
+#define SYN_WG_TRANSPORT_OVERHEAD 32U
 
 /** WireGuard protocol timers (seconds). */
-#define SYN_WG_REKEY_AFTER_TIME 120  /**< Initiate rekey after this many seconds */
-#define SYN_WG_REJECT_AFTER_TIME 180 /**< Drop session after this many seconds   */
-#define SYN_WG_REKEY_TIMEOUT 5       /**< Retry handshake if no response (s)     */
-#define SYN_WG_KEEPALIVE_TIMEOUT 10  /**< Send keepalive if no outbound (s)      */
+#define SYN_WG_REKEY_AFTER_TIME 120U  /**< Initiate rekey after this many seconds */
+#define SYN_WG_REJECT_AFTER_TIME 180U /**< Drop session after this many seconds   */
+#define SYN_WG_REKEY_TIMEOUT 5U       /**< Retry handshake if no response (s)     */
+#define SYN_WG_KEEPALIVE_TIMEOUT 10U  /**< Send keepalive if no outbound (s)      */
 
 /** WireGuard message counter limits (whitepaper Section 6.2). */
 #define SYN_WG_REKEY_AFTER_MESSAGES (1ULL << 60U)         /**< Initiate rekey at 2^60 messages */
 #define SYN_WG_REJECT_AFTER_MESSAGES (UINT64_MAX - 16ULL) /**< Reject transport at 2^64 - 17 */
 
 /** WireGuard message types. */
-#define SYN_WG_MSG_INITIATION 1 /**< Handshake initiation message */
-#define SYN_WG_MSG_RESPONSE 2   /**< Handshake response message   */
-#define SYN_WG_MSG_COOKIE 3     /**< Cookie reply message        */
-#define SYN_WG_MSG_TRANSPORT 4  /**< Encrypted transport message */
+#define SYN_WG_MSG_INITIATION 1U /**< Handshake initiation message */
+#define SYN_WG_MSG_RESPONSE 2U   /**< Handshake response message   */
+#define SYN_WG_MSG_COOKIE 3U     /**< Cookie reply message        */
+#define SYN_WG_MSG_TRANSPORT 4U  /**< Encrypted transport message */
 
 /** Message sizes. */
-#define SYN_WG_INITIATION_SIZE 148 /**< Size of initiation message */
-#define SYN_WG_RESPONSE_SIZE 92    /**< Size of response message   */
+#define SYN_WG_INITIATION_SIZE 148U /**< Size of initiation message */
+#define SYN_WG_RESPONSE_SIZE 92U    /**< Size of response message   */
 
 /* ── States ─────────────────────────────────────────────────────────────── */
 
@@ -130,16 +131,23 @@ typedef struct {
  * @brief Staged handshake crypto scratchpad for cooperative X25519 yielding.
  */
 typedef struct {
+    SYN_X25519_Ctx x25519;  /**< Active cooperative X25519 scalar-mul context */
+    uint32_t expected_idx;  /**< Initiator sender index (staged or expected)  */
+    uint32_t peer_idx;      /**< Responder sender index from response         */
+    SYN_PT hs_pt;           /**< Active handshake protothread continuation    */
+    SYN_PT crypto_pt;       /**< Child protothread for syn_x25519_pt          */
     uint8_t eph_priv[32];   /**< Staged ephemeral private key                 */
     uint8_t eph_pub[32];    /**< Staged local or peer ephemeral public key    */
     uint8_t ck[32];         /**< Staged Noise chaining key                    */
     uint8_t h[32];          /**< Staged Noise handshake hash                  */
+    uint8_t tmp_key[32];    /**< Staged DH shared secret or AEAD key          */
     uint8_t enc_static[48]; /**< Encrypted static key (48B) or resp tag (16B) */
-    uint32_t expected_idx;  /**< Expected initiator sender index for response */
-    uint32_t peer_idx;      /**< Responder sender index from response         */
+    uint8_t enc_ts[28];     /**< Encrypted TAI64N timestamp + AEAD tag        */
     uint8_t dh_ok;          /**< Constant-time non-zero DH accumulator        */
-    uint8_t stage;          /**< Active cooperative stage (0 = idle, 1..3)    */
+    bool active;            /**< True while handshake protothread is running  */
+    bool is_resp;           /**< True for response consumption, false init    */
     bool is_rekey;          /**< True when staged initiation is for rekey     */
+    bool ok;                /**< True when handshake PT completed cleanly     */
 } SYN_WgHsWork;
 
 /* ── Client context ─────────────────────────────────────────────────────── */
@@ -148,7 +156,7 @@ typedef struct {
  * @brief WireGuard client context — caller-owned.
  *
  * Contains config, session state, handshake scratch, timers, and
- * buffer pointers. Approximately ~350 bytes + buffer pointers.
+ * buffer pointers. Approximately ~980 bytes + buffer pointers.
  */
 typedef struct {
     SYN_WgConfig config; /**< Peer configuration                  */
@@ -170,6 +178,7 @@ typedef struct {
     uint8_t hs_hash[32];           /**< Noise handshake hash (H)                     */
     SYN_WgHsWork hs_work;          /**< Cooperative per-X25519 stage scratchpad      */
     uint32_t hs_sender_index;      /**< Pending handshake initiator sender index     */
+    uint8_t rx_turn;               /**< Fair RX/rekey alternation toggle             */
     bool hs_valid;                 /**< True when hs_* holds an in-flight initiation */
     bool rekey_in_progress;        /**< True while negotiating hitless rekey session */
 

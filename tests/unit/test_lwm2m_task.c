@@ -657,6 +657,84 @@ void test_lwm2m_task_dtls_coaps_integration(void)
     TEST_ASSERT_EQUAL_INT(SYN_LWM2M_STATE_REGISTERING, g_client.state);
     TEST_ASSERT_TRUE(g_mock_tx_len > 0U);
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_step(&g_task, 2100U));
+
+    /* Drive CoAPs DTLS 1.3 handshake cooperatively via syn_lwm2m_task_pt under contention */
+    lwm2m_task_test_setup();
+    mock_transport_reset();
+    TEST_ASSERT_TRUE(syn_coaps_client_init(&coaps_client, &psk_cfg, &g_transport, dtls_rx,
+                                           sizeof(dtls_rx), dtls_tx, sizeof(dtls_tx)));
+    TEST_ASSERT_TRUE(syn_dtls_init(&srv_dtls, &srv_psk_cfg, &g_transport, srv_rx, sizeof(srv_rx),
+                                   srv_tx, sizeof(srv_tx)));
+    SYN_LwM2M_TaskConfig pt_coaps_cfg = g_task.cfg;
+    pt_coaps_cfg.coaps_client = &coaps_client;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_init(&g_task, &pt_coaps_cfg));
+
+    SYN_Sched pt_sched = {0};
+    SYN_Task pt_task = {0};
+    pt_task.user_data = &g_task;
+    pt_task.sched = &pt_sched;
+    pt_sched.running = &pt_task;
+    pt_sched.share_contended = true;
+
+    SYN_PT coaps_pt;
+    PT_INIT(&coaps_pt);
+
+    uint32_t f1_slices = 0U;
+    SYN_PT_Status pt_st = syn_lwm2m_task_pt(&coaps_pt, &pt_task);
+    while ((pt_st == PT_MORE) && (f1_slices < 4096U)) {
+        f1_slices++;
+        pt_st = syn_lwm2m_task_pt(&coaps_pt, &pt_task);
+    }
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, pt_st);
+    TEST_ASSERT_GREATER_THAN_UINT32(250U, f1_slices);
+    TEST_ASSERT_EQUAL_INT(SYN_DTLS_STATE_CLIENT_HELLO_SENT, coaps_client.dtls.state);
+    TEST_ASSERT_EQUAL_INT(SYN_LWM2M_STATE_DEREGISTERED, g_client.state);
+    TEST_ASSERT_EQUAL_UINT32(80U, (uint32_t)g_mock_tx_len);
+
+    mock_transport_feed_rx(g_mock_tx_buf, g_mock_tx_len);
+    g_mock_tx_len = 0U;
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&srv_dtls));
+    mock_transport_feed_rx(g_mock_tx_buf, g_mock_tx_len);
+    g_mock_tx_len = 0U;
+
+    uint32_t f2_slices = 0U;
+    pt_st = syn_lwm2m_task_pt(&coaps_pt, &pt_task);
+    while ((pt_st == PT_MORE) && (f2_slices < 4096U)) {
+        f2_slices++;
+        pt_st = syn_lwm2m_task_pt(&coaps_pt, &pt_task);
+    }
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, pt_st);
+    TEST_ASSERT_GREATER_THAN_UINT32(250U, f2_slices);
+    TEST_ASSERT_EQUAL_INT(SYN_DTLS_STATE_ESTABLISHED, coaps_client.dtls.state);
+    TEST_ASSERT_EQUAL_INT(SYN_LWM2M_STATE_REGISTERING, g_client.state);
+    TEST_ASSERT_TRUE(g_mock_tx_len > 0U);
+
+    /* Subsequent poll when ESTABLISHED skips handshake; uncontended & NULL transport paths */
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, syn_lwm2m_task_pt(&coaps_pt, &pt_task));
+    g_task.cfg.transport = NULL;
+    TEST_ASSERT_EQUAL_INT(PT_ENDED, syn_lwm2m_task_pt(&coaps_pt, &pt_task));
+
+    /* Uncontended syn_lwm2m_task_pt CoAPs handshake completes back-to-back without extra yields */
+    lwm2m_task_test_setup();
+    mock_transport_reset();
+    TEST_ASSERT_TRUE(syn_coaps_client_init(&coaps_client, &psk_cfg, &g_transport, dtls_rx,
+                                           sizeof(dtls_rx), dtls_tx, sizeof(dtls_tx)));
+    TEST_ASSERT_TRUE(syn_dtls_init(&srv_dtls, &srv_psk_cfg, &g_transport, srv_rx, sizeof(srv_rx),
+                                   srv_tx, sizeof(srv_tx)));
+    pt_coaps_cfg = g_task.cfg;
+    pt_coaps_cfg.coaps_client = &coaps_client;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_lwm2m_task_init(&g_task, &pt_coaps_cfg));
+    pt_sched.share_contended = false;
+    PT_INIT(&coaps_pt);
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, syn_lwm2m_task_pt(&coaps_pt, &pt_task));
+    mock_transport_feed_rx(g_mock_tx_buf, g_mock_tx_len);
+    g_mock_tx_len = 0U;
+    TEST_ASSERT_TRUE(syn_dtls_handshake(&srv_dtls));
+    mock_transport_feed_rx(g_mock_tx_buf, g_mock_tx_len);
+    g_mock_tx_len = 0U;
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, syn_lwm2m_task_pt(&coaps_pt, &pt_task));
+    TEST_ASSERT_EQUAL_INT(SYN_DTLS_STATE_ESTABLISHED, coaps_client.dtls.state);
+    TEST_ASSERT_EQUAL_INT(SYN_LWM2M_STATE_REGISTERING, g_client.state);
 }
 
 void test_lwm2m_task_edge_cases_and_branches(void)

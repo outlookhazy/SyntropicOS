@@ -1363,6 +1363,100 @@ void test_pro21_opcua_browse_string_nodeid_no_union_pun(void)
     TEST_ASSERT_TRUE(found_str_nid);
 }
 
+static MockOPCUATransport s_burst_mock;
+
+void test_opcua_server_pt_pipelined_burst_yielding(void)
+{
+    (void)memset(&s_burst_mock, 0, sizeof(s_burst_mock));
+    SYN_Transport transport = {
+        .send = mock_opcua_send,
+        .recv = mock_opcua_recv,
+        .has_data = mock_opcua_has_data,
+        .ctx = &s_burst_mock,
+    };
+
+    SYN_OPCUA_Config cfg = {
+        .transport = NULL,
+        .rx_buf = s_pro21_rx,
+        .rx_buf_size = sizeof(s_pro21_rx),
+        .tx_buf = s_pro21_tx,
+        .tx_buf_size = sizeof(s_pro21_tx),
+    };
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_opcua_server_init(&s_pro21_srv, &cfg));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_opcua_server_step(&s_pro21_srv, 0U));
+
+    s_pro21_srv.cfg.transport = &transport;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_opcua_server_step(&s_pro21_srv, 0U));
+
+    uint8_t hel_msg[28] = {
+        'H',  'E',  'L',  'F',  28,   0,    0,    0,    0,    0,    0, 0, 0x00, 0x04,
+        0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 1, 0, 0,    0,
+    };
+    uint8_t opn_msg[32];
+    (void)memset(opn_msg, 0, sizeof(opn_msg));
+    (void)memcpy(opn_msg, "OPNF", 4U);
+    uint32_t opn_sz = 32U;
+    (void)memcpy(&opn_msg[4], &opn_sz, 4U);
+
+    uint8_t cs_msg[32];
+    (void)memset(cs_msg, 0, sizeof(cs_msg));
+    (void)build_opcua_msg_hdr(cs_msg, 1U, 1U, 461U);
+    (void)memcpy(&cs_msg[4], &opn_sz, 4U);
+
+    uint8_t act_msg[32];
+    (void)memset(act_msg, 0, sizeof(act_msg));
+    (void)build_opcua_msg_hdr(act_msg, 1U, 1U, 467U);
+    (void)memcpy(&act_msg[4], &opn_sz, 4U);
+
+    (void)memcpy(&s_burst_mock.rx_buf[0], hel_msg, sizeof(hel_msg));
+    (void)memcpy(&s_burst_mock.rx_buf[28], opn_msg, sizeof(opn_msg));
+    (void)memcpy(&s_burst_mock.rx_buf[60], cs_msg, sizeof(cs_msg));
+    (void)memcpy(&s_burst_mock.rx_buf[92], act_msg, sizeof(act_msg));
+    s_burst_mock.rx_len = 124U;
+    s_burst_mock.has_data_ready = false;
+
+    SYN_Sched sched = {0};
+    SYN_Task task = {0};
+    task.user_data = &s_pro21_srv;
+    task.sched = &sched;
+    sched.running = &task;
+    sched.share_contended = true;
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+
+    /* Contended: processes at most 1 complete OPC UA frame per slice */
+    TEST_ASSERT_EQUAL_INT(PT_MORE, syn_opcua_server_pt(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(SYN_OPCUA_STATE_HELLO_RECEIVED, s_pro21_srv.state);
+    TEST_ASSERT_EQUAL_UINT(96U, s_pro21_srv.rx_pending);
+
+    TEST_ASSERT_EQUAL_INT(PT_MORE, syn_opcua_server_pt(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(SYN_OPCUA_STATE_SECURE_CHANNEL, s_pro21_srv.state);
+    TEST_ASSERT_EQUAL_UINT(64U, s_pro21_srv.rx_pending);
+
+    TEST_ASSERT_EQUAL_INT(PT_MORE, syn_opcua_server_pt(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(SYN_OPCUA_STATE_SESSION_CREATED, s_pro21_srv.state);
+    TEST_ASSERT_EQUAL_UINT(32U, s_pro21_srv.rx_pending);
+
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, syn_opcua_server_pt(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(SYN_OPCUA_STATE_SESSION_ACTIVE, s_pro21_srv.state);
+    TEST_ASSERT_EQUAL_UINT(0U, s_pro21_srv.rx_pending);
+
+    /* Uncontended: drains all 4 pipelined frames in one turn and parks with PT_IDLE */
+    s_pro21_srv.state = SYN_OPCUA_STATE_CLOSED;
+    (void)memcpy(&s_burst_mock.rx_buf[0], hel_msg, sizeof(hel_msg));
+    (void)memcpy(&s_burst_mock.rx_buf[28], opn_msg, sizeof(opn_msg));
+    (void)memcpy(&s_burst_mock.rx_buf[60], cs_msg, sizeof(cs_msg));
+    (void)memcpy(&s_burst_mock.rx_buf[92], act_msg, sizeof(act_msg));
+    s_burst_mock.rx_len = 124U;
+    sched.share_contended = false;
+    PT_INIT(&pt);
+
+    TEST_ASSERT_EQUAL_INT(PT_IDLE, syn_opcua_server_pt(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(SYN_OPCUA_STATE_SESSION_ACTIVE, s_pro21_srv.state);
+    TEST_ASSERT_EQUAL_UINT(0U, s_pro21_srv.rx_pending);
+}
+
 void run_opcua_tests(void)
 {
     RUN_TEST(test_opcua_server_init_and_validation);
@@ -1374,4 +1468,5 @@ void run_opcua_tests(void)
     RUN_TEST(test_opcua_r4_p15_regressions);
     RUN_TEST(test_r5_a06_scada_write_read_and_session_guards);
     RUN_TEST(test_pro21_opcua_browse_string_nodeid_no_union_pun);
+    RUN_TEST(test_opcua_server_pt_pipelined_burst_yielding);
 }

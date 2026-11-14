@@ -1273,81 +1273,121 @@ SYN_Status syn_opcua_server_process_message(SYN_OPCUA_Server *srv, const uint8_t
 }
 
 /**
- * @brief Dispatch all complete OPC UA frames buffered in srv->cfg.rx_buf and retain partial tail.
+ * @brief Dispatch at most one complete OPC UA frame from srv->cfg.rx_buf and retain partial tail.
  * @param srv OPC UA server instance.
+ * @return true if one complete frame was processed, false otherwise.
  */
-static void opcua_drain_rx_frames(SYN_OPCUA_Server *srv)
+static bool opcua_drain_one_rx_frame(SYN_OPCUA_Server *srv)
 {
-    size_t offset = 0U;
-    while (srv->rx_pending - offset >= 8U) {
-        const uint8_t *frame = &srv->cfg.rx_buf[offset];
-        uint32_t msg_size = (uint32_t)frame[4] | ((uint32_t)frame[5] << 8U) |
-                            ((uint32_t)frame[6] << 16U) | ((uint32_t)frame[7] << 24U);
-        if (msg_size < 8U || (size_t)msg_size > srv->cfg.rx_buf_size) {
-            offset = srv->rx_pending;
-            break;
-        }
-        if ((size_t)msg_size > srv->rx_pending - offset) {
-            break;
-        }
-
-        size_t tx_len = 0U;
-        SYN_Status st = syn_opcua_server_process_message(
-            srv, frame, (size_t)msg_size, srv->cfg.tx_buf, srv->cfg.tx_buf_size, &tx_len);
-        if (st == SYN_OK && tx_len > 0U) {
-            (void)syn_transport_send(srv->cfg.transport, srv->cfg.tx_buf, tx_len);
-        }
-        offset += (size_t)msg_size;
+    if (srv->rx_pending < 8U) {
+        return false;
     }
 
-    if (offset > 0U) {
-        size_t rem = srv->rx_pending - offset;
-        if (rem > 0U) {
-            (void)memmove(srv->cfg.rx_buf, &srv->cfg.rx_buf[offset], rem);
-        }
-        srv->rx_pending = rem;
+    const uint8_t *frame = srv->cfg.rx_buf;
+    uint32_t msg_size = (uint32_t)frame[4] | ((uint32_t)frame[5] << 8U) |
+                        ((uint32_t)frame[6] << 16U) | ((uint32_t)frame[7] << 24U);
+    if ((msg_size < 8U) || ((size_t)msg_size > srv->cfg.rx_buf_size)) {
+        srv->rx_pending = 0U;
+        return false;
     }
+    if ((size_t)msg_size > srv->rx_pending) {
+        return false;
+    }
+
+    size_t tx_len = 0U;
+    SYN_Status st = syn_opcua_server_process_message(srv, frame, (size_t)msg_size, srv->cfg.tx_buf,
+                                                     srv->cfg.tx_buf_size, &tx_len);
+    if ((st == SYN_OK) && (tx_len > 0U)) {
+        (void)syn_transport_send(srv->cfg.transport, srv->cfg.tx_buf, tx_len);
+    }
+
+    size_t rem = srv->rx_pending - (size_t)msg_size;
+    if (rem > 0U) {
+        (void)memmove(srv->cfg.rx_buf, &srv->cfg.rx_buf[msg_size], rem);
+    }
+    srv->rx_pending = rem;
+    return true;
 }
 
 /**
- * @brief Step the OPC UA server once and report whether an inbound packet was consumed.
- * @param srv             OPC UA server instance.
- * @param now_ms          Current system timestamp in milliseconds.
- * @param out_rx_consumed [out] Optional flag set true if a non-empty packet was read.
- * @return SYN_OK on success, SYN_INVALID_PARAM on NULL server or transport.
+ * @brief Read available transport bytes into the free tail of srv->cfg.rx_buf.
+ * @param srv OPC UA server instance with non-NULL transport.
+ * @return true if at least one byte was appended to srv->rx_pending.
  */
-static SYN_Status opcua_server_step_ex(SYN_OPCUA_Server *srv, uint32_t now_ms,
-                                       bool *out_rx_consumed)
+static bool opcua_recv_rx_bytes(SYN_OPCUA_Server *srv)
 {
-    (void)now_ms;
-    if (out_rx_consumed != NULL) {
-        *out_rx_consumed = false;
-    }
-    if (srv == NULL || srv->cfg.transport == NULL) {
-        return SYN_INVALID_PARAM;
-    }
-
     size_t avail = srv->cfg.rx_buf_size - srv->rx_pending;
     size_t rx_len = 0U;
     if (syn_transport_recv(srv->cfg.transport, &srv->cfg.rx_buf[srv->rx_pending], avail, &rx_len) &&
-        rx_len > 0U) {
-        if (out_rx_consumed != NULL) {
-            *out_rx_consumed = true;
-        }
+        (rx_len > 0U)) {
         srv->rx_pending += rx_len;
-        opcua_drain_rx_frames(srv);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief Execute one cooperative OPC UA server slice (at most one complete RX frame).
+ * @param srv            Non-NULL OPC UA server instance.
+ * @param now_ms         Current system timestamp in milliseconds.
+ * @param out_progressed [out] Set true when bytes were read or a buffered frame was processed.
+ * @return SYN_OK on success, SYN_INVALID_PARAM when srv->cfg.transport is NULL.
+ */
+static SYN_Status opcua_server_step_pt_once(SYN_OPCUA_Server *srv, uint32_t now_ms,
+                                            bool *out_progressed)
+{
+    (void)now_ms;
+    *out_progressed = false;
+    if (srv->cfg.transport == NULL) {
+        return SYN_INVALID_PARAM;
+    }
+
+    if (opcua_drain_one_rx_frame(srv)) {
+        *out_progressed = true;
+        return SYN_OK;
+    }
+
+    if (opcua_recv_rx_bytes(srv)) {
+        (void)opcua_drain_one_rx_frame(srv);
+        *out_progressed = true;
     }
     return SYN_OK;
 }
 
+/**
+ * @brief Check whether another cooperative OPC UA server slice should run immediately.
+ * @param srv        Non-NULL OPC UA server instance with valid transport.
+ * @param progressed Whether the current slice read bytes or processed a frame.
+ * @return true when progressed and buffered/transport data remains.
+ */
+static bool opcua_pt_more_work(const SYN_OPCUA_Server *srv, bool progressed)
+{
+    if (!progressed) {
+        return false;
+    }
+    if (srv->rx_pending >= 8U) {
+        return true;
+    }
+    return (srv->cfg.transport->has_data != NULL) && syn_transport_has_data(srv->cfg.transport);
+}
+
 SYN_Status syn_opcua_server_step(SYN_OPCUA_Server *srv, uint32_t now_ms)
 {
-    return opcua_server_step_ex(srv, now_ms, NULL);
+    (void)now_ms;
+    if ((srv == NULL) || (srv->cfg.transport == NULL)) {
+        return SYN_INVALID_PARAM;
+    }
+
+    (void)opcua_recv_rx_bytes(srv);
+    while (opcua_drain_one_rx_frame(srv)) {
+        /* Drain all buffered frames for synchronous callers */
+    }
+    return SYN_OK;
 }
 
 SYN_PT_Status syn_opcua_server_pt(SYN_PT *pt, SYN_Task *task)
 {
-    if (pt == NULL || task == NULL || task->user_data == NULL) {
+    if ((pt == NULL) || (task == NULL) || (task->user_data == NULL)) {
         return PT_EXITED;
     }
 
@@ -1356,13 +1396,12 @@ SYN_PT_Status syn_opcua_server_pt(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     for (;;) {
-        bool rx_consumed = false;
+        bool progressed = false;
         uint32_t now = syn_port_get_tick_ms();
-        if (opcua_server_step_ex(srv, now, &rx_consumed) != SYN_OK) {
+        if (opcua_server_step_pt_once(srv, now, &progressed) != SYN_OK) {
             break;
         }
-        if (rx_consumed && srv->cfg.transport != NULL && srv->cfg.transport->has_data != NULL &&
-            syn_transport_has_data(srv->cfg.transport)) {
+        if (opcua_pt_more_work(srv, progressed)) {
             PT_CONTINUE_IF_NEEDED(pt, task);
         } else {
             PT_PASS(pt);

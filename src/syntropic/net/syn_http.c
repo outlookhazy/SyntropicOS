@@ -885,7 +885,7 @@ static int http_step_stream_body(SYN_HttpClient *c)
 /**
  * @brief Dispatch one body streaming step according to response framing mode.
  * @param c HTTP client instance.
- * @return Step status code (1=done, 2=share, 3=continue, 0=wait, -1=error).
+ * @return Step status code (1=done, 2/3=progress, 0=wait, -1=error).
  */
 static int http_step_body(SYN_HttpClient *c)
 {
@@ -935,7 +935,7 @@ SYN_PT_Status syn_http_client_task(SYN_PT *pt, SYN_Task *task)
             }
             if (brc == 0) {
                 PT_WAIT_UNTIL(pt, http_body_wake_ready(c));
-            } else if (brc == 2) {
+            } else {
                 PT_CONTINUE_IF_NEEDED(pt, task);
             }
         }

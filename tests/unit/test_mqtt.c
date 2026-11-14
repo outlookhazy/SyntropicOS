@@ -1524,6 +1524,90 @@ static void test_tier_a_mqtt_connack_send_fail_and_qos0_dup(void)
     TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c.sock);
 }
 
+static void test_mqtt_burst_publish_cooperative_yielding(void)
+{
+    uint8_t rx[32];
+    uint8_t tx[64];
+    SYN_MqttClient c;
+    SYN_Sched sched = {0};
+    SYN_Task task = {0};
+    SYN_PT pt;
+
+    /* Packet 1: 6B PUBLISH ("a" -> "1"), Packet 2: 82B oversized PUBLISH (discarded in 64B+16B),
+     * Packet 3: 6B PUBLISH ("b" -> "2"). Total = 94B. */
+    uint8_t burst[94];
+    const uint8_t p1[6] = {0x30U, 0x04U, 0x00U, 0x01U, 'a', '1'};
+    const uint8_t p3[6] = {0x30U, 0x04U, 0x00U, 0x01U, 'b', '2'};
+    memcpy(burst, p1, sizeof(p1));
+    burst[6] = 0x30U;
+    burst[7] = 80U;
+    memset(burst + 8U, 'X', 80U);
+    memcpy(burst + 88U, p3, sizeof(p3));
+
+    /* Contended: 1 payload/discard packet per slice -> PT_MORE, PT_MORE, PT_IDLE */
+    mock_port_reset();
+    s_mqtt_msg_count = 0;
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 11;
+    c.on_message = on_mqtt_message;
+    mock_sock_connected = true;
+    c.last_activity_ms = mock_tick_ms;
+    mock_sock_set_response(burst, sizeof(burst));
+
+    task.user_data = &c;
+    task.sched = &sched;
+    sched.running = &task;
+    sched.share_contended = true;
+    PT_INIT(&pt);
+
+    TEST_ASSERT_EQUAL(PT_MORE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(1, s_mqtt_msg_count);
+    TEST_ASSERT_EQUAL_STRING("a", s_mqtt_last_topic);
+    TEST_ASSERT_EQUAL_UINT(6U, mock_sock_rx_pos);
+
+    TEST_ASSERT_EQUAL(PT_MORE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(1, s_mqtt_msg_count);
+    TEST_ASSERT_EQUAL_UINT(88U, mock_sock_rx_pos);
+
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(2, s_mqtt_msg_count);
+    TEST_ASSERT_EQUAL_STRING("b", s_mqtt_last_topic);
+    TEST_ASSERT_EQUAL_UINT(94U, mock_sock_rx_pos);
+
+    /* Uncontended: drains entire 3-packet burst in 1 turn and parks with PT_IDLE */
+    mock_port_reset();
+    s_mqtt_msg_count = 0;
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTED;
+    c.sock = 11;
+    c.on_message = on_mqtt_message;
+    mock_sock_connected = true;
+    c.last_activity_ms = mock_tick_ms;
+    mock_sock_set_response(burst, sizeof(burst));
+    sched.share_contended = false;
+    PT_INIT(&pt);
+
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL_INT(2, s_mqtt_msg_count);
+    TEST_ASSERT_EQUAL_STRING("b", s_mqtt_last_topic);
+    TEST_ASSERT_EQUAL_UINT(94U, mock_sock_rx_pos);
+
+    /* 0-length CONNACK resets session inside mqtt_rx_rem_len and exits poll_rx loop */
+    mock_port_reset();
+    syn_mqtt_init(&c, "broker", 1883, "cid", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
+    c.state = SYN_MQTT_CONNECTING;
+    c.sock = 11;
+    mock_sock_connected = true;
+    c.last_activity_ms = mock_tick_ms;
+    const uint8_t zero_connack[4] = {0x20U, 0x00U, 0xD0U, 0x00U};
+    mock_sock_set_response(zero_connack, sizeof(zero_connack));
+    PT_INIT(&pt);
+    TEST_ASSERT_EQUAL(PT_IDLE, syn_mqtt_task(&pt, &task));
+    TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c.sock);
+}
+
 void run_mqtt_tests(void)
 {
     RUN_TEST(test_mqtt_connect);
@@ -1554,4 +1638,5 @@ void run_mqtt_tests(void)
     RUN_TEST(test_mqtt_round4_regressions);
     RUN_TEST(test_r5_n11_mqtt_qos1_retransmit_bounds_and_sub_qos2);
     RUN_TEST(test_tier_a_mqtt_connack_send_fail_and_qos0_dup);
+    RUN_TEST(test_mqtt_burst_publish_cooperative_yielding);
 }

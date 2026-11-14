@@ -174,11 +174,7 @@ static void tls_compute_transcript_digest(const SYN_TLS_Context *ctx, bool is_sh
  */
 static bool tls_is_nonzero_32(const uint8_t b[32])
 {
-    uint8_t acc = 0U;
-    for (size_t i = 0U; i < 32U; i++) {
-        acc |= b[i];
-    }
-    return acc != 0U;
+    return syn_x25519_is_nonzero(b);
 }
 
 /** @brief SHA-256("") empty transcript hash per RFC 8446 §7.1. */
@@ -195,72 +191,183 @@ static const uint8_t TLS_EMPTY_SHA384[48] = {
     0xE7U, 0x6FU, 0x65U, 0xFBU, 0xD5U, 0x1AU, 0xD2U, 0xF1U, 0x48U, 0x98U, 0xB9U, 0x5BU};
 
 /**
- * @brief Derive TLS 1.3 handshake secrets and master secret after ServerHello (RFC 8446 §7.1).
- * @param ctx TLS context pointer.
- * @return true if X25519 shared secret is non-zero and handshake secrets were derived.
+ * @brief Cipher-suite-aware HKDF-Extract (SHA-256 or SHA-384).
+ * @param ctx      TLS context pointer.
+ * @param salt     Salt bytes.
+ * @param salt_len Salt byte length.
+ * @param ikm      Input keying material.
+ * @param ikm_len  IKM byte length.
+ * @param prk      [out] Pseudorandom key output buffer.
  */
-static bool derive_tls13_hs_secrets(SYN_TLS_Context *ctx)
+static void tls_hkdf_extract_cs(const SYN_TLS_Context *ctx, const uint8_t *salt, size_t salt_len,
+                                const uint8_t *ikm, size_t ikm_len, uint8_t *prk)
 {
-    static const uint8_t zero_salt[SYN_TLS_SECRET_LEN] = {0};
-    bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
-    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-
-    uint8_t buf1[SYN_TLS_SECRET_LEN];
-    uint8_t buf2[SYN_TLS_SECRET_LEN];
-    uint8_t ecdhe_shared[32];
-    uint8_t transcript_digest[SYN_TLS_SECRET_LEN];
-
-    memset(buf1, 0, sizeof(buf1));
-    size_t copy_len = hash_len;
-
-    if (ctx->config.mode == SYN_TLS_AUTH_MODE_PSK) {
-        copy_len = ctx->config.psk_secret_len;
-        if (copy_len > SYN_TLS_SECRET_LEN) {
-            copy_len = SYN_TLS_SECRET_LEN;
-        }
-        memcpy(buf1, ctx->config.psk_secret, copy_len);
+    if (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384) {
+        syn_hkdf_sha384_extract(salt, salt_len, ikm, ikm_len, prk);
+    } else {
+        syn_hkdf_extract(salt, salt_len, ikm, ikm_len, prk);
     }
+}
 
-    syn_x25519(ecdhe_shared, ctx->my_privkey, ctx->peer_pubkey);
-    if (!tls_is_nonzero_32(ecdhe_shared)) {
-        syn_secure_zero(buf1, sizeof(buf1));
-        syn_secure_zero(ecdhe_shared, sizeof(ecdhe_shared));
+/**
+ * @brief Cipher-suite-aware HKDF-Expand-Label (SHA-256 or SHA-384).
+ * @param ctx         TLS context pointer.
+ * @param secret      Base secret (32 or 48 bytes).
+ * @param label       TLS 1.3 label string without "tls13 " prefix.
+ * @param label_len   Label byte length.
+ * @param context     Transcript hash context bytes.
+ * @param context_len Context byte length.
+ * @param out         [out] Derived key material output buffer.
+ * @param out_len     Desired output byte length.
+ */
+static void tls_hkdf_expand_cs(const SYN_TLS_Context *ctx, const uint8_t *secret, const char *label,
+                               size_t label_len, const uint8_t *context, size_t context_len,
+                               uint8_t *out, size_t out_len)
+{
+    if (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384) {
+        syn_hkdf_sha384_expand_label(secret, SYN_SHA384_DIGEST_SIZE, label, label_len, context,
+                                     context_len, out, out_len);
+    } else {
+        syn_hkdf_expand_label(secret, SYN_SHA256_DIGEST_SIZE, label, label_len, context,
+                              context_len, out, out_len);
+    }
+}
+
+/**
+ * @brief Validate ECDHE shared secret and snapshot ClientHello..ServerHello transcript digest.
+ * @param ctx TLS context pointer.
+ * @return true if ECDHE shared secret is non-zero.
+ */
+static bool tls_hs_secrets_prep(SYN_TLS_Context *ctx)
+{
+    bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
+    if (!tls_is_nonzero_32(ctx->hs_work.ecdhe_secret)) {
+        syn_secure_zero(ctx->hs_work.ecdhe_secret, sizeof(ctx->hs_work.ecdhe_secret));
         return false;
     }
-
-    tls_compute_transcript_digest(ctx, is_sha384, transcript_digest);
-
-    if (is_sha384) {
-        syn_hkdf_sha384_extract(zero_salt, hash_len, buf1, copy_len, buf2);
-        syn_hkdf_sha384_expand_label(buf2, hash_len, "derived", 7, TLS_EMPTY_SHA384, hash_len, buf1,
-                                     hash_len);
-        syn_hkdf_sha384_extract(buf1, hash_len, ecdhe_shared, 32U, buf2);
-        syn_hkdf_sha384_expand_label(buf2, hash_len, "c hs traffic", 12, transcript_digest,
-                                     hash_len, ctx->client_handshake_secret, hash_len);
-        syn_hkdf_sha384_expand_label(buf2, hash_len, "s hs traffic", 12, transcript_digest,
-                                     hash_len, ctx->server_handshake_secret, hash_len);
-        syn_hkdf_sha384_expand_label(buf2, hash_len, "derived", 7, TLS_EMPTY_SHA384, hash_len, buf1,
-                                     hash_len);
-        syn_hkdf_sha384_extract(buf1, hash_len, zero_salt, hash_len, ctx->master_secret);
-    } else {
-        syn_hkdf_extract(zero_salt, hash_len, buf1, copy_len, buf2);
-        syn_hkdf_expand_label(buf2, hash_len, "derived", 7, TLS_EMPTY_SHA256, hash_len, buf1,
-                              hash_len);
-        syn_hkdf_extract(buf1, hash_len, ecdhe_shared, 32U, buf2);
-        syn_hkdf_expand_label(buf2, hash_len, "c hs traffic", 12, transcript_digest, hash_len,
-                              ctx->client_handshake_secret, hash_len);
-        syn_hkdf_expand_label(buf2, hash_len, "s hs traffic", 12, transcript_digest, hash_len,
-                              ctx->server_handshake_secret, hash_len);
-        syn_hkdf_expand_label(buf2, hash_len, "derived", 7, TLS_EMPTY_SHA256, hash_len, buf1,
-                              hash_len);
-        syn_hkdf_extract(buf1, hash_len, zero_salt, hash_len, ctx->master_secret);
-    }
-
-    syn_secure_zero(buf1, sizeof(buf1));
-    syn_secure_zero(buf2, sizeof(buf2));
-    syn_secure_zero(ecdhe_shared, sizeof(ecdhe_shared));
-    syn_secure_zero(transcript_digest, sizeof(transcript_digest));
+    tls_compute_transcript_digest(ctx, is_sha384, ctx->hs_work.ks_tr);
     return true;
+}
+
+/**
+ * @brief Extract TLS 1.3 Early Secret into hs_work.ks_prk.
+ * @param ctx TLS context pointer.
+ */
+static void tls_hs_extract_early(SYN_TLS_Context *ctx)
+{
+    static const uint8_t zero_salt[SYN_TLS_SECRET_LEN] = {0};
+    size_t hash_len = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384)
+                          ? SYN_SHA384_DIGEST_SIZE
+                          : SYN_SHA256_DIGEST_SIZE;
+    uint8_t ikm[SYN_TLS_SECRET_LEN];
+    memset(ikm, 0, sizeof(ikm));
+    size_t ikm_len = hash_len;
+    if (ctx->config.mode == SYN_TLS_AUTH_MODE_PSK) {
+        ikm_len = (ctx->config.psk_secret_len > SYN_TLS_SECRET_LEN) ? SYN_TLS_SECRET_LEN
+                                                                    : ctx->config.psk_secret_len;
+        memcpy(ikm, ctx->config.psk_secret, ikm_len);
+    }
+    tls_hkdf_extract_cs(ctx, zero_salt, hash_len, ikm, ikm_len, ctx->hs_work.ks_prk);
+    syn_secure_zero(ikm, sizeof(ikm));
+}
+
+/**
+ * @brief Expand "derived" salt from hs_work.ks_prk over empty transcript hash into hs_work.ks_salt.
+ * @param ctx TLS context pointer.
+ */
+static void tls_hs_expand_derived(SYN_TLS_Context *ctx)
+{
+    bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
+    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
+    const uint8_t *empty_h = is_sha384 ? TLS_EMPTY_SHA384 : TLS_EMPTY_SHA256;
+    tls_hkdf_expand_cs(ctx, ctx->hs_work.ks_prk, "derived", 7U, empty_h, hash_len,
+                       ctx->hs_work.ks_salt, hash_len);
+}
+
+/**
+ * @brief Extract Handshake Secret from ks_salt and ecdhe_secret into hs_work.ks_prk.
+ * @param ctx TLS context pointer.
+ */
+static void tls_hs_extract_hs(SYN_TLS_Context *ctx)
+{
+    size_t hash_len = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384)
+                          ? SYN_SHA384_DIGEST_SIZE
+                          : SYN_SHA256_DIGEST_SIZE;
+    tls_hkdf_extract_cs(ctx, ctx->hs_work.ks_salt, hash_len, ctx->hs_work.ecdhe_secret, 32U,
+                        ctx->hs_work.ks_prk);
+    syn_secure_zero(ctx->hs_work.ecdhe_secret, sizeof(ctx->hs_work.ecdhe_secret));
+}
+
+/**
+ * @brief Expand a handshake traffic secret ("c hs traffic" or "s hs traffic") from ks_prk + ks_tr.
+ * @param ctx   TLS context pointer.
+ * @param label 12-byte label ("c hs traffic" or "s hs traffic").
+ * @param out   [out] Destination secret buffer.
+ */
+static void tls_hs_expand_traffic(SYN_TLS_Context *ctx, const char *label, uint8_t *out)
+{
+    size_t hash_len = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384)
+                          ? SYN_SHA384_DIGEST_SIZE
+                          : SYN_SHA256_DIGEST_SIZE;
+    tls_hkdf_expand_cs(ctx, ctx->hs_work.ks_prk, label, 12U, ctx->hs_work.ks_tr, hash_len, out,
+                       hash_len);
+}
+
+/**
+ * @brief Extract master_secret from ks_salt and scrub HKDF staging buffers.
+ * @param ctx TLS context pointer.
+ */
+static void tls_hs_extract_master(SYN_TLS_Context *ctx)
+{
+    static const uint8_t zero_salt[SYN_TLS_SECRET_LEN] = {0};
+    size_t hash_len = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384)
+                          ? SYN_SHA384_DIGEST_SIZE
+                          : SYN_SHA256_DIGEST_SIZE;
+    tls_hkdf_extract_cs(ctx, ctx->hs_work.ks_salt, hash_len, zero_salt, hash_len,
+                        ctx->master_secret);
+    syn_secure_zero(ctx->hs_work.ks_salt, sizeof(ctx->hs_work.ks_salt));
+    syn_secure_zero(ctx->hs_work.ks_prk, sizeof(ctx->hs_work.ks_prk));
+    syn_secure_zero(ctx->hs_work.ks_tr, sizeof(ctx->hs_work.ks_tr));
+}
+
+/**
+ * @brief Cooperative child protothread deriving TLS 1.3 handshake secrets (1 HKDF call per slice).
+ * @param pt  Sub-protothread control block (&ctx->sub_pt).
+ * @param ctx TLS context pointer (sets hs_work.ok true on success).
+ * @return PT status.
+ */
+static SYN_PT_Status tls_derive_hs_secrets_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
+{
+    PT_BEGIN(pt);
+
+    ctx->hs_work.ok = false;
+    if (!tls_hs_secrets_prep(ctx)) {
+        PT_EXIT(pt);
+    }
+    PT_CONTINUE(pt);
+
+    tls_hs_extract_early(ctx);
+    PT_CONTINUE(pt);
+
+    tls_hs_expand_derived(ctx);
+    PT_CONTINUE(pt);
+
+    tls_hs_extract_hs(ctx);
+    PT_CONTINUE(pt);
+
+    tls_hs_expand_traffic(ctx, "c hs traffic", ctx->client_handshake_secret);
+    PT_CONTINUE(pt);
+
+    tls_hs_expand_traffic(ctx, "s hs traffic", ctx->server_handshake_secret);
+    PT_CONTINUE(pt);
+
+    tls_hs_expand_derived(ctx);
+    PT_CONTINUE(pt);
+
+    tls_hs_extract_master(ctx);
+    ctx->hs_work.ok = true;
+
+    PT_END(pt);
 }
 
 /**
@@ -273,69 +380,157 @@ static void tls_scrub_handshake_secrets(SYN_TLS_Context *ctx)
     syn_secure_zero(ctx->client_handshake_secret, sizeof(ctx->client_handshake_secret));
     syn_secure_zero(ctx->server_handshake_secret, sizeof(ctx->server_handshake_secret));
     syn_secure_zero(ctx->master_secret, sizeof(ctx->master_secret));
+    syn_secure_zero(&ctx->hs_work, sizeof(ctx->hs_work));
+    syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
 }
 
 /**
- * @brief Derive TLS 1.3 application traffic secrets, keys, and IVs after ServerFinished.
+ * @brief Return AEAD key byte length (16 or 32) for the configured TLS 1.3 cipher suite.
  * @param ctx TLS context pointer.
+ * @return AEAD key size in bytes.
  */
-static void derive_tls13_app_keys(SYN_TLS_Context *ctx)
+static size_t tls_aead_key_len(const SYN_TLS_Context *ctx)
 {
-    bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
-    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-    uint8_t transcript_digest[SYN_TLS_SECRET_LEN];
-
-    tls_compute_transcript_digest(ctx, is_sha384, transcript_digest);
-    if (is_sha384) {
-        syn_hkdf_sha384_expand_label(ctx->master_secret, hash_len, "c ap traffic", 12,
-                                     transcript_digest, hash_len, ctx->client_app_secret, hash_len);
-        syn_hkdf_sha384_expand_label(ctx->master_secret, hash_len, "s ap traffic", 12,
-                                     transcript_digest, hash_len, ctx->server_app_secret, hash_len);
-    } else {
-        syn_hkdf_expand_label(ctx->master_secret, hash_len, "c ap traffic", 12, transcript_digest,
-                              hash_len, ctx->client_app_secret, hash_len);
-        syn_hkdf_expand_label(ctx->master_secret, hash_len, "s ap traffic", 12, transcript_digest,
-                              hash_len, ctx->server_app_secret, hash_len);
-    }
-    syn_secure_zero(transcript_digest, sizeof(transcript_digest));
-
-    size_t key_len = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_GCM_SHA256 ||
-                      ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_CCM_SHA256 ||
-                      ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_CCM_8_SHA256)
-                         ? 16U
-                         : 32U;
-    derive_traffic_key_or_iv(ctx, ctx->client_app_secret, "key", ctx->client_app_key, key_len);
-    derive_traffic_key_or_iv(ctx, ctx->client_app_secret, "iv", ctx->client_app_iv, 12);
-    derive_traffic_key_or_iv(ctx, ctx->server_app_secret, "key", ctx->server_app_key, key_len);
-    derive_traffic_key_or_iv(ctx, ctx->server_app_secret, "iv", ctx->server_app_iv, 12);
+    return (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_GCM_SHA256 ||
+            ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_CCM_SHA256 ||
+            ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_CCM_8_SHA256)
+               ? 16U
+               : 32U;
 }
 
 /**
- * @brief Compute RFC 8446 §4.4.4 Finished verify_data MAC over running handshake transcript.
- * @param ctx       TLS context pointer.
- * @param hs_secret Base handshake traffic secret (server or client).
- * @param out_mac   [out] Verify data output buffer (32 or 48 bytes).
+ * @brief Scrub handshake secrets and cooperatively initialize cached app AES-GCM contexts.
+ * @param pt  Sub-protothread control block (&ctx->sub_pt).
+ * @param ctx TLS context transitioning to SYN_TLS_STATE_ESTABLISHED.
+ * @return PT status.
  */
-static void tls_compute_finished(const SYN_TLS_Context *ctx, const uint8_t *hs_secret,
-                                 uint8_t out_mac[SYN_TLS_SECRET_LEN])
+static SYN_PT_Status tls_finalize_established_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
+{
+    PT_BEGIN(pt);
+
+    tls_scrub_handshake_secrets(ctx);
+    if ((ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_GCM_SHA256) ||
+        (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384)) {
+        const uint8_t *tx_key = ctx->config.is_server ? ctx->server_app_key : ctx->client_app_key;
+        (void)syn_aes_gcm_init(&ctx->crypto_scratch.app_gcm.tx, tx_key, tls_aead_key_len(ctx));
+        PT_CONTINUE(pt);
+        const uint8_t *rx_key = ctx->config.is_server ? ctx->client_app_key : ctx->server_app_key;
+        (void)syn_aes_gcm_init(&ctx->crypto_scratch.app_gcm.rx, rx_key, tls_aead_key_len(ctx));
+    }
+    ctx->state = SYN_TLS_STATE_ESTABLISHED;
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Scrub transient handshake state and transition context to SYN_TLS_STATE_ERROR.
+ * @param ctx TLS context pointer.
+ * @return Always false.
+ */
+static bool tls_fail_handshake(SYN_TLS_Context *ctx)
+{
+    PT_INIT(&ctx->hs_pt);
+    PT_INIT(&ctx->flight_pt);
+    PT_INIT(&ctx->sub_pt);
+    PT_INIT(&ctx->crypto_pt);
+    syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
+    syn_secure_zero(ctx->hs_work.ecdhe_secret, sizeof(ctx->hs_work.ecdhe_secret));
+    syn_secure_zero(ctx->hs_work.ks_salt, sizeof(ctx->hs_work.ks_salt));
+    syn_secure_zero(ctx->hs_work.ks_prk, sizeof(ctx->hs_work.ks_prk));
+    syn_secure_zero(ctx->hs_work.ks_tr, sizeof(ctx->hs_work.ks_tr));
+    syn_secure_zero(ctx->hs_work.cv_msg, sizeof(ctx->hs_work.cv_msg));
+    syn_secure_zero(ctx->hs_work.pub_cache, sizeof(ctx->hs_work.pub_cache));
+    syn_secure_zero(ctx->client_app_secret, sizeof(ctx->client_app_secret));
+    syn_secure_zero(ctx->server_app_secret, sizeof(ctx->server_app_secret));
+    syn_secure_zero(ctx->client_app_key, sizeof(ctx->client_app_key));
+    syn_secure_zero(ctx->client_app_iv, sizeof(ctx->client_app_iv));
+    syn_secure_zero(ctx->server_app_key, sizeof(ctx->server_app_key));
+    syn_secure_zero(ctx->server_app_iv, sizeof(ctx->server_app_iv));
+    ctx->state = SYN_TLS_STATE_ERROR;
+    return false;
+}
+
+/**
+ * @brief Expand an application traffic secret ("c ap traffic" or "s ap traffic") from ks_tr.
+ * @param ctx   TLS context pointer.
+ * @param label 12-byte label ("c ap traffic" or "s ap traffic").
+ * @param out   [out] Destination secret buffer.
+ */
+static void tls_app_expand_secret(SYN_TLS_Context *ctx, const char *label, uint8_t *out)
+{
+    size_t hash_len = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384)
+                          ? SYN_SHA384_DIGEST_SIZE
+                          : SYN_SHA256_DIGEST_SIZE;
+    tls_hkdf_expand_cs(ctx, ctx->master_secret, label, 12U, ctx->hs_work.ks_tr, hash_len, out,
+                       hash_len);
+}
+
+/**
+ * @brief Cooperative child protothread deriving TLS 1.3 application traffic keys (1 HKDF/slice).
+ * @param pt  Sub-protothread control block (&ctx->sub_pt).
+ * @param ctx TLS context pointer.
+ * @return PT status.
+ */
+static SYN_PT_Status tls_derive_app_keys_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
+{
+    PT_BEGIN(pt);
+
+    tls_compute_transcript_digest(
+        ctx, ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384,
+        ctx->hs_work.ks_tr);
+    PT_CONTINUE(pt);
+
+    tls_app_expand_secret(ctx, "c ap traffic", ctx->client_app_secret);
+    PT_CONTINUE(pt);
+
+    tls_app_expand_secret(ctx, "s ap traffic", ctx->server_app_secret);
+    syn_secure_zero(ctx->hs_work.ks_tr, sizeof(ctx->hs_work.ks_tr));
+    PT_CONTINUE(pt);
+
+    derive_traffic_key_or_iv(ctx, ctx->client_app_secret, "key", ctx->client_app_key,
+                             tls_aead_key_len(ctx));
+    PT_CONTINUE(pt);
+
+    derive_traffic_key_or_iv(ctx, ctx->client_app_secret, "iv", ctx->client_app_iv, 12U);
+    PT_CONTINUE(pt);
+
+    derive_traffic_key_or_iv(ctx, ctx->server_app_secret, "key", ctx->server_app_key,
+                             tls_aead_key_len(ctx));
+    PT_CONTINUE(pt);
+
+    derive_traffic_key_or_iv(ctx, ctx->server_app_secret, "iv", ctx->server_app_iv, 12U);
+    PT_CONTINUE(pt);
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Cooperative child protothread computing RFC 8446 §4.4.4 Finished MAC into hs_work.ks_salt.
+ * @param pt        Sub-protothread control block (&ctx->sub_pt).
+ * @param ctx       TLS context pointer (output MAC staged in ctx->hs_work.ks_salt).
+ * @param hs_secret Base handshake traffic secret (server or client).
+ * @return PT status.
+ */
+static SYN_PT_Status tls_compute_finished_pt(SYN_PT *pt, SYN_TLS_Context *ctx,
+                                             const uint8_t *hs_secret)
 {
     bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-    uint8_t fin_key[SYN_TLS_SECRET_LEN];
-    uint8_t tr_digest[SYN_TLS_SECRET_LEN];
 
-    tls_compute_transcript_digest(ctx, is_sha384, tr_digest);
-    if (is_sha384) {
-        syn_hkdf_sha384_expand_label(hs_secret, hash_len, "finished", 8U, NULL, 0U, fin_key,
-                                     hash_len);
-        syn_hkdf_sha384_extract(fin_key, hash_len, tr_digest, hash_len, out_mac);
-    } else {
-        syn_hkdf_expand_label(hs_secret, hash_len, "finished", 8U, NULL, 0U, fin_key, hash_len);
-        syn_hkdf_extract(fin_key, hash_len, tr_digest, hash_len, out_mac);
-    }
+    PT_BEGIN(pt);
 
-    syn_secure_zero(fin_key, sizeof(fin_key));
-    syn_secure_zero(tr_digest, sizeof(tr_digest));
+    tls_compute_transcript_digest(ctx, is_sha384, ctx->hs_work.ks_tr);
+    PT_CONTINUE(pt);
+
+    tls_hkdf_expand_cs(ctx, hs_secret, "finished", 8U, NULL, 0U, ctx->hs_work.ks_prk, hash_len);
+    PT_CONTINUE(pt);
+
+    tls_hkdf_extract_cs(ctx, ctx->hs_work.ks_prk, hash_len, ctx->hs_work.ks_tr, hash_len,
+                        ctx->hs_work.ks_salt);
+    syn_secure_zero(ctx->hs_work.ks_prk, sizeof(ctx->hs_work.ks_prk));
+    syn_secure_zero(ctx->hs_work.ks_tr, sizeof(ctx->hs_work.ks_tr));
+
+    PT_END(pt);
 }
 
 /**
@@ -380,26 +575,23 @@ static void tls_record_encrypt(SYN_TLS_Context *ctx, const uint8_t *key, const u
                                const uint8_t aad[TLS_RECORD_HEADER_LEN], const uint8_t *in,
                                size_t in_len, uint8_t *out_ct, uint8_t *out_tag)
 {
-    if (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_GCM_SHA256) {
-        (void)syn_aes_gcm_init(&ctx->crypto_scratch.gcm, key, 16U);
-        (void)syn_aes_gcm_encrypt(&ctx->crypto_scratch.gcm, nonce, 12U, aad, TLS_RECORD_HEADER_LEN,
-                                  in, in_len, out_ct, out_tag);
-    } else if (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384) {
-        (void)syn_aes_gcm_init(&ctx->crypto_scratch.gcm, key, 32U);
-        (void)syn_aes_gcm_encrypt(&ctx->crypto_scratch.gcm, nonce, 12U, aad, TLS_RECORD_HEADER_LEN,
-                                  in, in_len, out_ct, out_tag);
+    if ((ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_GCM_SHA256) ||
+        (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384)) {
+        (void)syn_aes_gcm_encrypt(&ctx->crypto_scratch.app_gcm.tx, nonce, 12U, aad,
+                                  TLS_RECORD_HEADER_LEN, in, in_len, out_ct, out_tag);
     } else if (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_CCM_SHA256) {
         (void)syn_aes_init(&ctx->crypto_scratch.aes, key, 16U);
         (void)syn_aes_ccm_encrypt(&ctx->crypto_scratch.aes, nonce, 12U, aad, TLS_RECORD_HEADER_LEN,
                                   in, in_len, out_ct, out_tag, 16U);
+        syn_secure_zero(&ctx->crypto_scratch.aes, sizeof(ctx->crypto_scratch.aes));
     } else if (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_CCM_8_SHA256) {
         (void)syn_aes_init(&ctx->crypto_scratch.aes, key, 16U);
         (void)syn_aes_ccm_encrypt(&ctx->crypto_scratch.aes, nonce, 12U, aad, TLS_RECORD_HEADER_LEN,
                                   in, in_len, out_ct, out_tag, 8U);
+        syn_secure_zero(&ctx->crypto_scratch.aes, sizeof(ctx->crypto_scratch.aes));
     } else {
         syn_aead_encrypt(key, nonce, aad, TLS_RECORD_HEADER_LEN, in, in_len, out_ct, out_tag);
     }
-    syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
 }
 
 /**
@@ -419,26 +611,23 @@ static bool tls_record_decrypt(SYN_TLS_Context *ctx, const uint8_t *key, const u
                                size_t ct_len, const uint8_t *tag, uint8_t *out_pt)
 {
     bool ok = false;
-    if (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_GCM_SHA256) {
-        (void)syn_aes_gcm_init(&ctx->crypto_scratch.gcm, key, 16U);
-        ok = (syn_aes_gcm_decrypt(&ctx->crypto_scratch.gcm, nonce, 12U, aad, TLS_RECORD_HEADER_LEN,
-                                  ct, ct_len, out_pt, tag) == SYN_OK);
-    } else if (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384) {
-        (void)syn_aes_gcm_init(&ctx->crypto_scratch.gcm, key, 32U);
-        ok = (syn_aes_gcm_decrypt(&ctx->crypto_scratch.gcm, nonce, 12U, aad, TLS_RECORD_HEADER_LEN,
-                                  ct, ct_len, out_pt, tag) == SYN_OK);
+    if ((ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_GCM_SHA256) ||
+        (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384)) {
+        ok = (syn_aes_gcm_decrypt(&ctx->crypto_scratch.app_gcm.rx, nonce, 12U, aad,
+                                  TLS_RECORD_HEADER_LEN, ct, ct_len, out_pt, tag) == SYN_OK);
     } else if (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_CCM_SHA256) {
         (void)syn_aes_init(&ctx->crypto_scratch.aes, key, 16U);
         ok = (syn_aes_ccm_decrypt(&ctx->crypto_scratch.aes, nonce, 12U, aad, TLS_RECORD_HEADER_LEN,
                                   ct, ct_len, tag, 16U, out_pt) == SYN_OK);
+        syn_secure_zero(&ctx->crypto_scratch.aes, sizeof(ctx->crypto_scratch.aes));
     } else if (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_128_CCM_8_SHA256) {
         (void)syn_aes_init(&ctx->crypto_scratch.aes, key, 16U);
         ok = (syn_aes_ccm_decrypt(&ctx->crypto_scratch.aes, nonce, 12U, aad, TLS_RECORD_HEADER_LEN,
                                   ct, ct_len, tag, 8U, out_pt) == SYN_OK);
+        syn_secure_zero(&ctx->crypto_scratch.aes, sizeof(ctx->crypto_scratch.aes));
     } else {
         ok = syn_aead_decrypt(key, nonce, aad, TLS_RECORD_HEADER_LEN, ct, ct_len, tag, out_pt);
     }
-    syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
     return ok;
 }
 
@@ -486,23 +675,21 @@ static size_t tls_format_cv_input(bool is_server_cv, const uint8_t *tr_digest, s
 }
 
 /**
- * @brief Build and sign a 72-byte RFC 8446 §4.4.3 CertificateVerify handshake message.
- * @param ctx          TLS context pointer.
+ * @brief Format CertificateVerify header/payload and initialize cooperative P-256 or Ed25519 sign.
+ * @param ctx          TLS context pointer with hs_work.cv_algo populated.
  * @param is_server_cv true for server CertificateVerify, false for client.
- * @param algo         Local signing key algorithm (Ed25519 or ECDSA-P256).
- * @param out_cv       [out] 72-byte CertificateVerify message buffer.
- * @return true if signature generation succeeded.
+ * @param out_cv       [out] 72-byte CertificateVerify message buffer (8B header written).
+ * @return true if signing context initialized successfully.
  */
-static bool tls_sign_cert_verify(const SYN_TLS_Context *ctx, bool is_server_cv, SYN_X509_Algo algo,
-                                 uint8_t out_cv[TLS_CERT_VERIFY_LEN])
+static bool tls_init_cv_sign(SYN_TLS_Context *ctx, bool is_server_cv,
+                             uint8_t out_cv[TLS_CERT_VERIFY_LEN])
 {
     bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
     uint8_t tr_digest[SYN_TLS_SECRET_LEN];
-    uint8_t cv_msg[146];
-
     tls_compute_transcript_digest(ctx, is_sha384, tr_digest);
-    size_t cv_len = tls_format_cv_input(is_server_cv, tr_digest, hash_len, cv_msg);
+    size_t cv_len = tls_format_cv_input(is_server_cv, tr_digest, hash_len, ctx->hs_work.cv_msg);
+    syn_secure_zero(tr_digest, sizeof(tr_digest));
 
     out_cv[0] = TLS_HANDSHAKE_CERTIFICATE_VERIFY;
     out_cv[1] = 0x00U;
@@ -511,187 +698,378 @@ static bool tls_sign_cert_verify(const SYN_TLS_Context *ctx, bool is_server_cv, 
     out_cv[6] = 0x00U;
     out_cv[7] = 64U;
 
-    bool ok = false;
-    if (algo == SYN_X509_ALGO_ECDSA_P256) {
+    if (ctx->hs_work.cv_algo == SYN_X509_ALGO_ECDSA_P256) {
         uint8_t digest[32];
         out_cv[4] = 0x04U;
         out_cv[5] = 0x03U;
-        syn_sha256(cv_msg, cv_len, digest);
-        ok = syn_p256_sign_ecdsa_deterministic(ctx->config.client_privkey, digest, out_cv + 8U,
-                                               out_cv + 40U);
+        syn_sha256(ctx->hs_work.cv_msg, cv_len, digest);
+        bool ok = syn_p256_sign_deterministic_init(&ctx->crypto_scratch.p256,
+                                                   ctx->config.client_privkey, digest);
         syn_secure_zero(digest, sizeof(digest));
-    } else {
-        out_cv[4] = 0x08U;
-        out_cv[5] = 0x07U;
-        ok = syn_ed25519_sign(cv_msg, cv_len, ctx->config.client_privkey, NULL, out_cv + 8U);
+        return ok;
     }
 
-    syn_secure_zero(tr_digest, sizeof(tr_digest));
-    syn_secure_zero(cv_msg, sizeof(cv_msg));
-    return ok;
+    out_cv[4] = 0x08U;
+    out_cv[5] = 0x07U;
+    (void)syn_ed25519_sign_init(&ctx->crypto_scratch.ed25519, ctx->hs_work.cv_msg, cv_len,
+                                ctx->config.client_privkey, ctx->hs_work.pub_cache);
+    return true;
 }
 
 /**
- * @brief Verify a 64-byte ECDSA-P256 signature over SHA-256(cv_msg).
- * @param pubkey     Peer P-256 public key (65-byte uncompressed 0x04||X||Y or 64-byte X||Y).
- * @param pubkey_len Public key byte length.
- * @param cv_msg     Formatted CertificateVerify signing content.
- * @param cv_len     Byte length of cv_msg.
- * @param sig64      64-byte raw (r || s) signature.
- * @return true if ECDSA signature is valid.
+ * @brief Parse local X.509 leaf certificate in an isolated stack frame without union aliasing.
+ * @param ctx TLS context pointer.
+ * @return true if certificate parsed with an Ed25519 or ECDSA-P256 subject public key.
  */
-static bool tls_verify_p256_cv(const uint8_t *pubkey, size_t pubkey_len, const uint8_t *cv_msg,
-                               size_t cv_len, const uint8_t sig64[64])
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((noinline))
+#endif
+static bool
+tls_parse_local_cert(SYN_TLS_Context *ctx)
 {
+    SYN_X509_Cert own;
+    if (!syn_x509_parse(ctx->config.client_cert_der, ctx->config.client_cert_len, &own) ||
+        ((own.pubkey_algo != SYN_X509_ALGO_ED25519) &&
+         (own.pubkey_algo != SYN_X509_ALGO_ECDSA_P256))) {
+        syn_secure_zero(&own, sizeof(own));
+        return false;
+    }
+    ctx->hs_work.cv_algo = own.pubkey_algo;
+    if (own.pubkey_algo == SYN_X509_ALGO_ED25519) {
+        memcpy(ctx->hs_work.pub_cache, own.pubkey, 32U);
+    }
+    syn_secure_zero(&own, sizeof(own));
+    return true;
+}
+
+/**
+ * @brief Cooperative wrapper for Ed25519 RPK public-key derivation.
+ * @param ctx TLS context pointer.
+ * @return Child protothread status.
+ */
+static SYN_PT_Status tls_ed25519_pubkey_pt(SYN_TLS_Context *ctx)
+{
+    return syn_ed25519_publickey_pt(&ctx->crypto_pt, &ctx->crypto_scratch.ed25519,
+                                    ctx->hs_work.pub_cache);
+}
+
+/**
+ * @brief Cooperative wrapper for P-256 or Ed25519 CertificateVerify signing.
+ * @param ctx    TLS context pointer.
+ * @param out_cv 72-byte CertificateVerify wire buffer.
+ * @return Child protothread status.
+ */
+static SYN_PT_Status tls_cv_sign_crypto_pt(SYN_TLS_Context *ctx, uint8_t *out_cv)
+{
+    if (ctx->hs_work.cv_algo == SYN_X509_ALGO_ECDSA_P256) {
+        return syn_p256_sign_pt(&ctx->crypto_pt, &ctx->crypto_scratch.p256, out_cv + 8U,
+                                out_cv + 40U, &ctx->hs_work.ok);
+    }
+    SYN_PT_Status st =
+        syn_ed25519_sign_pt(&ctx->crypto_pt, &ctx->crypto_scratch.ed25519, out_cv + 8U);
+    if (st == PT_ENDED) {
+        ctx->hs_work.ok = true;
+    }
+    return st;
+}
+
+/**
+ * @brief Child protothread binding local credential and signing CertificateVerify.
+ * @param pt           Protothread control block (&ctx->sub_pt).
+ * @param ctx          TLS context pointer.
+ * @param is_server_cv true for server CertificateVerify, false for client.
+ * @return PT status.
+ */
+static SYN_PT_Status tls_build_local_cv_pt(SYN_PT *pt, SYN_TLS_Context *ctx, bool is_server_cv)
+{
+    uint8_t *out_cv = ctx->tx_buf + (is_server_cv ? 85U : 5U);
+
+    PT_BEGIN(pt);
+
+    ctx->hs_work.ok = false;
+    if (ctx->config.mode == SYN_TLS_AUTH_MODE_RAW_PUBKEY) {
+        ctx->hs_work.cv_algo = SYN_X509_ALGO_ED25519;
+        (void)syn_ed25519_publickey_init(&ctx->crypto_scratch.ed25519, ctx->config.client_privkey);
+        PT_CONTINUE(pt);
+        PT_SPAWN(pt, &ctx->crypto_pt, tls_ed25519_pubkey_pt(ctx));
+        PT_CONTINUE(pt);
+        tls_transcript_update(ctx, ctx->hs_work.pub_cache, 32U);
+        PT_CONTINUE(pt);
+        (void)tls_init_cv_sign(ctx, is_server_cv, out_cv);
+    } else {
+        if (!tls_parse_local_cert(ctx)) {
+            (void)tls_fail_handshake(ctx);
+            PT_EXIT(pt);
+        }
+        tls_transcript_update(ctx, ctx->config.client_cert_der, ctx->config.client_cert_len);
+        PT_CONTINUE(pt);
+        if (!tls_init_cv_sign(ctx, is_server_cv, out_cv)) {
+            (void)tls_fail_handshake(ctx);
+            PT_EXIT(pt);
+        }
+    }
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, &ctx->crypto_pt, tls_cv_sign_crypto_pt(ctx, out_cv));
+    PT_CONTINUE(pt);
+    syn_secure_zero(ctx->hs_work.cv_msg, sizeof(ctx->hs_work.cv_msg));
+    syn_secure_zero(ctx->hs_work.pub_cache, sizeof(ctx->hs_work.pub_cache));
+    if (ctx->hs_work.ok) {
+        tls_transcript_update(ctx, out_cv, TLS_CERT_VERIFY_LEN);
+    }
+    PT_CONTINUE(pt);
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Initialize cooperative ECDSA-P256 verification over SHA-256(hs_work.cv_msg).
+ * @param ctx    TLS context pointer with hs_work.pub_cache and hs_work.cv_msg populated.
+ * @param cv_len Byte length of hs_work.cv_msg.
+ * @param sig64  64-byte raw (r || s) signature.
+ * @return true if public key and signature scalars passed initial checks.
+ */
+static bool tls_init_p256_cv_verify(SYN_TLS_Context *ctx, size_t cv_len, const uint8_t sig64[64])
+{
+    const uint8_t *pubkey = ctx->hs_work.pub_cache;
+    size_t pubkey_len = ctx->hs_work.pub_cache_len;
     const uint8_t *px = pubkey;
-    if (pubkey_len == 65U && pubkey[0] == 0x04U) {
+    if ((pubkey_len == 65U) && (pubkey[0] == 0x04U)) {
         px = pubkey + 1U;
     } else if (pubkey_len != 64U) {
         return false;
     }
     uint8_t digest[32];
-    syn_sha256(cv_msg, cv_len, digest);
-    return syn_p256_verify_ecdsa(digest, sig64, sig64 + 32U, px, px + 32U);
+    syn_sha256(ctx->hs_work.cv_msg, cv_len, digest);
+    bool ok =
+        syn_p256_verify_init(&ctx->crypto_scratch.p256, digest, sig64, sig64 + 32U, px, px + 32U);
+    syn_secure_zero(digest, sizeof(digest));
+    return ok;
 }
 
 /**
- * @brief Verify an inbound 72-byte RFC 8446 §4.4.3 CertificateVerify handshake message.
- * @param ctx          TLS context pointer.
- * @param is_server_cv true for server CertificateVerify, false for client.
- * @param algo         Expected peer public key algorithm.
- * @param pubkey       Authenticated peer public key bytes.
- * @param pubkey_len   Public key byte length.
- * @param in_cv        72-byte wire CertificateVerify message.
- * @return true if header, SignatureScheme, and cryptographic signature are valid.
+ * @brief Bind peer raw public key or X.509 DER certificate into the handshake transcript.
+ * @param ctx TLS context pointer.
  */
-static bool tls_verify_cert_verify(const SYN_TLS_Context *ctx, bool is_server_cv,
-                                   SYN_X509_Algo algo, const uint8_t *pubkey, size_t pubkey_len,
-                                   const uint8_t in_cv[TLS_CERT_VERIFY_LEN])
+static void tls_bind_peer_cv_cred(SYN_TLS_Context *ctx)
+{
+    if (ctx->config.mode == SYN_TLS_AUTH_MODE_RAW_PUBKEY) {
+        ctx->hs_work.cv_algo = SYN_X509_ALGO_ED25519;
+        memcpy(ctx->hs_work.pub_cache, ctx->config.peer_pubkey, 32U);
+        ctx->hs_work.pub_cache_len = 32U;
+        tls_transcript_update(ctx, ctx->config.peer_pubkey, 32U);
+    } else {
+        ctx->hs_work.cv_algo = ctx->hs_work.peer_algo;
+        memcpy(ctx->hs_work.pub_cache, ctx->hs_work.peer_pub, ctx->hs_work.peer_pub_len);
+        ctx->hs_work.pub_cache_len = ctx->hs_work.peer_pub_len;
+        tls_transcript_update(ctx, ctx->config.peer_cert_der, ctx->config.peer_cert_len);
+    }
+}
+
+/**
+ * @brief Validate CertificateVerify framing and initialize signature verification context.
+ * @param ctx          TLS context pointer with peer credential already bound into transcript.
+ * @param is_server_cv true for server CertificateVerify, false for client.
+ * @param in_cv        72-byte wire CertificateVerify message.
+ * @return true if header, SignatureScheme, and initial curve checks succeeded.
+ */
+static bool tls_init_peer_cv_verify(SYN_TLS_Context *ctx, bool is_server_cv,
+                                    const uint8_t in_cv[TLS_CERT_VERIFY_LEN])
 {
     static const uint8_t cv_hdr[4] = {TLS_HANDSHAKE_CERTIFICATE_VERIFY, 0x00U, 0x00U, 68U};
-    if (memcmp(in_cv, cv_hdr, 4U) != 0 || in_cv[6] != 0x00U || in_cv[7] != 64U) {
+    if ((memcmp(in_cv, cv_hdr, 4U) != 0) || (in_cv[6] != 0x00U) || (in_cv[7] != 64U)) {
         return false;
     }
 
     bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
     uint8_t tr_digest[SYN_TLS_SECRET_LEN];
-    uint8_t cv_msg[146];
-
     tls_compute_transcript_digest(ctx, is_sha384, tr_digest);
-    size_t cv_len = tls_format_cv_input(is_server_cv, tr_digest, hash_len, cv_msg);
-    uint16_t scheme = ((uint16_t)in_cv[4] << 8U) | (uint16_t)in_cv[5];
-
-    bool ok = false;
-    if (algo == SYN_X509_ALGO_ED25519 && scheme == 0x0807U && pubkey_len == 32U) {
-        ok = syn_ed25519_verify(in_cv + 8U, cv_msg, cv_len, pubkey);
-    } else if (algo == SYN_X509_ALGO_ECDSA_P256 && scheme == 0x0403U) {
-        ok = tls_verify_p256_cv(pubkey, pubkey_len, cv_msg, cv_len, in_cv + 8U);
-    }
-
+    size_t cv_len = tls_format_cv_input(is_server_cv, tr_digest, hash_len, ctx->hs_work.cv_msg);
     syn_secure_zero(tr_digest, sizeof(tr_digest));
-    syn_secure_zero(cv_msg, sizeof(cv_msg));
-    return ok;
+
+    uint16_t scheme = ((uint16_t)in_cv[4] << 8U) | (uint16_t)in_cv[5];
+    if ((ctx->hs_work.cv_algo == SYN_X509_ALGO_ED25519) && (scheme == 0x0807U) &&
+        (ctx->hs_work.pub_cache_len == 32U)) {
+        return syn_ed25519_verify_init(&ctx->crypto_scratch.ed25519, in_cv + 8U,
+                                       ctx->hs_work.cv_msg, cv_len, ctx->hs_work.pub_cache);
+    }
+    if ((ctx->hs_work.cv_algo == SYN_X509_ALGO_ECDSA_P256) && (scheme == 0x0403U)) {
+        return tls_init_p256_cv_verify(ctx, cv_len, in_cv + 8U);
+    }
+    return false;
 }
 
 /**
- * @brief Bind local certificate or raw public key into transcript and sign CertificateVerify.
- * @param ctx          TLS context pointer.
- * @param is_server_cv true for server CertificateVerify, false for client.
- * @param out_cv       [out] 72-byte CertificateVerify message buffer.
- * @return true if local credential parsed and signature succeeded.
- */
-static bool tls_build_local_cv(SYN_TLS_Context *ctx, bool is_server_cv,
-                               uint8_t out_cv[TLS_CERT_VERIFY_LEN])
-{
-    SYN_X509_Algo algo = SYN_X509_ALGO_ED25519;
-    if (ctx->config.mode == SYN_TLS_AUTH_MODE_RAW_PUBKEY) {
-        uint8_t pub[32];
-        (void)syn_ed25519_publickey(ctx->config.client_privkey, pub);
-        tls_transcript_update(ctx, pub, 32U);
-    } else {
-        SYN_X509_Cert *own = &ctx->crypto_scratch.cert;
-        if (!syn_x509_parse(ctx->config.client_cert_der, ctx->config.client_cert_len, own) ||
-            (own->pubkey_algo != SYN_X509_ALGO_ED25519 &&
-             own->pubkey_algo != SYN_X509_ALGO_ECDSA_P256)) {
-            syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
-            return false;
-        }
-        algo = own->pubkey_algo;
-        syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
-        tls_transcript_update(ctx, ctx->config.client_cert_der, ctx->config.client_cert_len);
-    }
-    if (!tls_sign_cert_verify(ctx, is_server_cv, algo, out_cv)) {
-        return false;
-    }
-    tls_transcript_update(ctx, out_cv, TLS_CERT_VERIFY_LEN);
-    return true;
-}
-
-/**
- * @brief Bind peer certificate or raw public key into transcript and verify CertificateVerify.
- * @param ctx          TLS context pointer.
- * @param is_server_cv true for server CertificateVerify, false for client.
- * @param in_cv        72-byte inbound CertificateVerify message.
- * @return true if peer CertificateVerify signature matches authenticated peer key.
- */
-static bool tls_check_peer_cv(SYN_TLS_Context *ctx, bool is_server_cv,
-                              const uint8_t in_cv[TLS_CERT_VERIFY_LEN])
-{
-    bool ok = false;
-    if (ctx->config.mode == SYN_TLS_AUTH_MODE_RAW_PUBKEY) {
-        tls_transcript_update(ctx, ctx->config.peer_pubkey, 32U);
-        ok = tls_verify_cert_verify(ctx, is_server_cv, SYN_X509_ALGO_ED25519,
-                                    ctx->config.peer_pubkey, 32U, in_cv);
-    } else {
-        SYN_X509_Cert *peer = &ctx->crypto_scratch.cert;
-        (void)syn_x509_parse(ctx->config.peer_cert_der, ctx->config.peer_cert_len, peer);
-        tls_transcript_update(ctx, ctx->config.peer_cert_der, ctx->config.peer_cert_len);
-        ok = tls_verify_cert_verify(ctx, is_server_cv, peer->pubkey_algo, peer->pubkey,
-                                    peer->pubkey_len, in_cv);
-        syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
-    }
-    if (ok) {
-        tls_transcript_update(ctx, in_cv, TLS_CERT_VERIFY_LEN);
-    }
-    return ok;
-}
-
-/**
- * @brief Verify peer X.509 certificate chain and local credentials for configured auth mode.
+ * @brief Cooperative wrapper for P-256 or Ed25519 CertificateVerify verification.
  * @param ctx TLS context pointer.
- * @return true if credential validation passes or is not required.
+ * @return Child protothread status.
  */
-static bool tls_verify_peer_certificate(SYN_TLS_Context *ctx)
+static SYN_PT_Status tls_cv_verify_crypto_pt(SYN_TLS_Context *ctx)
 {
-    if (!tls_verify_local_auth(ctx)) {
-        ctx->state = SYN_TLS_STATE_ERROR;
+    if (ctx->hs_work.cv_algo == SYN_X509_ALGO_ECDSA_P256) {
+        return syn_p256_verify_pt(&ctx->crypto_pt, &ctx->crypto_scratch.p256, &ctx->hs_work.ok);
+    }
+    return syn_ed25519_verify_pt(&ctx->crypto_pt, &ctx->crypto_scratch.ed25519, &ctx->hs_work.ok);
+}
+
+/**
+ * @brief Child protothread verifying inbound peer CertificateVerify message.
+ * @param pt           Protothread control block (&ctx->sub_pt).
+ * @param ctx          TLS context pointer.
+ * @param is_server_cv true for server CertificateVerify, false for client.
+ * @return PT status.
+ */
+static SYN_PT_Status tls_check_peer_cv_pt(SYN_PT *pt, SYN_TLS_Context *ctx, bool is_server_cv)
+{
+    const uint8_t *in_cv = ctx->rx_buf + (is_server_cv ? 85U : 5U);
+
+    PT_BEGIN(pt);
+
+    ctx->hs_work.ok = false;
+    tls_bind_peer_cv_cred(ctx);
+    PT_CONTINUE(pt);
+
+    if (!tls_init_peer_cv_verify(ctx, is_server_cv, in_cv)) {
+        (void)tls_fail_handshake(ctx);
+        PT_EXIT(pt);
+    }
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, &ctx->crypto_pt, tls_cv_verify_crypto_pt(ctx));
+    PT_CONTINUE(pt);
+    syn_secure_zero(ctx->hs_work.cv_msg, sizeof(ctx->hs_work.cv_msg));
+    syn_secure_zero(ctx->hs_work.pub_cache, sizeof(ctx->hs_work.pub_cache));
+    if (!ctx->hs_work.ok) {
+        (void)tls_fail_handshake(ctx);
+        PT_EXIT(pt);
+    }
+    tls_transcript_update(ctx, in_cv, TLS_CERT_VERIFY_LEN);
+    PT_CONTINUE(pt);
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Parse peer X.509 certificate in an isolated stack frame and initialize chain validation.
+ * @param ctx TLS context pointer.
+ * @return true if certificate parsed and chain verification context initialized.
+ */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((noinline))
+#endif
+static bool
+tls_init_peer_x509(SYN_TLS_Context *ctx)
+{
+    if ((ctx->config.root_ca == NULL) || (ctx->config.peer_cert_der == NULL) ||
+        (ctx->config.peer_cert_len == 0U)) {
         return false;
     }
 
-    bool need_peer_x509 =
-        (ctx->config.mode == SYN_TLS_AUTH_MODE_MTLS) ||
-        (ctx->config.mode == SYN_TLS_AUTH_MODE_X509_SERVER && !ctx->config.is_server);
-    if (!need_peer_x509) {
-        return true;
-    }
-
-    if (ctx->config.root_ca == NULL || ctx->config.peer_cert_der == NULL ||
-        ctx->config.peer_cert_len == 0U) {
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
-    }
-
-    SYN_X509_Cert *peer_cert = &ctx->crypto_scratch.cert;
+    SYN_X509_Cert peer_cert;
     const char *expected_cn = ctx->config.is_server ? NULL : ctx->config.server_name;
-    if (!syn_x509_parse(ctx->config.peer_cert_der, ctx->config.peer_cert_len, peer_cert) ||
-        !syn_x509_validate_chain(peer_cert, ctx->config.root_ca, expected_cn)) {
-        syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
-        ctx->state = SYN_TLS_STATE_ERROR;
+    if (!syn_x509_parse(ctx->config.peer_cert_der, ctx->config.peer_cert_len, &peer_cert) ||
+        !syn_x509_validate_chain_init(&ctx->crypto_scratch.x509, &peer_cert, ctx->config.root_ca,
+                                      expected_cn)) {
+        syn_secure_zero(&peer_cert, sizeof(peer_cert));
         return false;
     }
-    syn_secure_zero(&ctx->crypto_scratch, sizeof(ctx->crypto_scratch));
+    ctx->hs_work.peer_algo = peer_cert.pubkey_algo;
+    ctx->hs_work.peer_pub_len = (uint8_t)peer_cert.pubkey_len;
+    memcpy(ctx->hs_work.peer_pub, peer_cert.pubkey, peer_cert.pubkey_len);
+    syn_secure_zero(&peer_cert, sizeof(peer_cert));
     return true;
+}
+
+/**
+ * @brief Cooperative wrapper for X.509 certificate chain signature verification.
+ * @param ctx TLS context pointer.
+ * @return Child protothread status.
+ */
+static SYN_PT_Status tls_x509_verify_pt(SYN_TLS_Context *ctx)
+{
+    return syn_x509_verify_pt(&ctx->crypto_pt, &ctx->crypto_scratch.x509, &ctx->hs_work.ok);
+}
+
+/**
+ * @brief Child protothread validating local credentials and peer X.509 certificate chain.
+ * @param pt  Protothread control block (&ctx->sub_pt).
+ * @param ctx TLS context pointer.
+ * @return PT status.
+ */
+static SYN_PT_Status tls_peer_cert_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
+{
+    PT_BEGIN(pt);
+
+    if (!ctx->hs_work.peer_auth_verified) {
+        if (!tls_verify_local_auth(ctx)) {
+            (void)tls_fail_handshake(ctx);
+            PT_EXIT(pt);
+        }
+
+        bool need_peer_x509 =
+            (ctx->config.mode == SYN_TLS_AUTH_MODE_MTLS) ||
+            ((ctx->config.mode == SYN_TLS_AUTH_MODE_X509_SERVER) && !ctx->config.is_server);
+        if (need_peer_x509) {
+            if (!tls_init_peer_x509(ctx)) {
+                (void)tls_fail_handshake(ctx);
+                PT_EXIT(pt);
+            }
+            ctx->hs_work.ok = false;
+            PT_CONTINUE(pt);
+            PT_SPAWN(pt, &ctx->crypto_pt, tls_x509_verify_pt(ctx));
+            if (!ctx->hs_work.ok) {
+                (void)tls_fail_handshake(ctx);
+                PT_EXIT(pt);
+            }
+            ctx->hs_work.peer_auth_verified = true;
+            PT_CONTINUE(pt);
+        } else {
+            ctx->hs_work.peer_auth_verified = true;
+        }
+    }
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Cooperative wrapper for local X25519 ephemeral public-key derivation.
+ * @param ctx TLS context pointer.
+ * @return Child protothread status.
+ */
+static SYN_PT_Status tls_x25519_keygen_pt(SYN_TLS_Context *ctx)
+{
+    return syn_x25519_pt(&ctx->crypto_pt, &ctx->crypto_scratch.x25519, ctx->my_pubkey);
+}
+
+/**
+ * @brief Cooperative wrapper for X25519 ECDHE shared-secret computation.
+ * @param ctx TLS context pointer.
+ * @return Child protothread status.
+ */
+static SYN_PT_Status tls_x25519_ecdhe_pt(SYN_TLS_Context *ctx)
+{
+    return syn_x25519_pt(&ctx->crypto_pt, &ctx->crypto_scratch.x25519, ctx->hs_work.ecdhe_secret);
+}
+
+/**
+ * @brief Child protothread deriving local X25519 ephemeral public key cooperatively.
+ * @param pt  Protothread control block (&ctx->sub_pt).
+ * @param ctx TLS context pointer.
+ * @return PT status.
+ */
+static SYN_PT_Status tls_keygen_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
+{
+    PT_BEGIN(pt);
+
+    if (!ctx->hs_work.my_pubkey_ready) {
+        (void)syn_x25519_pubkey_init(&ctx->crypto_scratch.x25519, ctx->my_privkey);
+        PT_SPAWN(pt, &ctx->crypto_pt, tls_x25519_keygen_pt(ctx));
+        ctx->hs_work.my_pubkey_ready = true;
+        PT_CONTINUE(pt);
+    }
+
+    PT_END(pt);
 }
 
 /**
@@ -718,8 +1096,7 @@ static bool tls_send_client_hello(SYN_TLS_Context *ctx)
     tx[10] = 0x03U;
 
     if (syn_random_fill(tx + 11U, 32U) != SYN_OK) {
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
+        return tls_fail_handshake(ctx);
     }
 
     tx[43] = 0x00U;
@@ -741,8 +1118,7 @@ static bool tls_send_client_hello(SYN_TLS_Context *ctx)
     tls_transcript_update(ctx, tx + 5U, 83U);
 
     if (!syn_transport_send(ctx->underlying_transport, tx, 88U)) {
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
+        return tls_fail_handshake(ctx);
     }
     ctx->state = SYN_TLS_STATE_CLIENT_HELLO_SENT;
     return true;
@@ -786,26 +1162,12 @@ static bool tls_parse_client_hello(SYN_TLS_Context *ctx, size_t rx_len)
 }
 
 /**
- * @brief Server Stage 1: parse ClientHello, format ServerHello header, and derive HS secrets.
- * @param ctx        TLS server context in SYN_TLS_STATE_UNINITIALIZED.
- * @param progressed [out] Set true if ClientHello processed and HS secrets derived.
- * @return true if waiting or Stage 1 succeeded, false on fatal error.
+ * @brief Format ServerHello record header and body into tx_buf and update transcript.
+ * @param ctx TLS server context.
+ * @return true if ServerHello random filled and formatted into tx_buf.
  */
-static bool tls_server_stage1_recv_ch(SYN_TLS_Context *ctx, bool *progressed)
+static bool tls_format_server_hello(SYN_TLS_Context *ctx)
 {
-    if (!tls_verify_peer_certificate(ctx)) {
-        return false;
-    }
-
-    size_t rx_len = 0U;
-    if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
-        return true;
-    }
-    if (!tls_parse_client_hello(ctx, rx_len)) {
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
-    }
-
     bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
     size_t cv_len = (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK) ? TLS_CERT_VERIFY_LEN : 0U;
@@ -827,7 +1189,6 @@ static bool tls_server_stage1_recv_ch(SYN_TLS_Context *ctx, bool *progressed)
     tx[10] = 0x03U;
 
     if (syn_random_fill(tx + 11U, 32U) != SYN_OK) {
-        ctx->state = SYN_TLS_STATE_ERROR;
         return false;
     }
 
@@ -844,58 +1205,122 @@ static bool tls_server_stage1_recv_ch(SYN_TLS_Context *ctx, bool *progressed)
     memcpy(tx + 53U, ctx->my_pubkey, 32U);
 
     tls_transcript_update(ctx, tx + 5U, 80U);
-    if (!derive_tls13_hs_secrets(ctx)) {
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
-    }
-
-    ctx->state = SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED;
-    *progressed = true;
     return true;
 }
 
 /**
- * @brief Server Stage 2: sign CertificateVerify, compute ServerFinished, and send flight.
- * @param ctx        TLS server context in SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED.
- * @param progressed [out] Set true when Server flight transmitted.
- * @return true on success, false on fatal error.
+ * @brief Poll underlying transport for an inbound record into ctx->rx_buf.
+ * @param ctx    TLS context pointer.
+ * @param rx_len [out] Bytes received.
+ * @return true if a record was read into ctx->rx_buf.
  */
-static bool tls_server_stage2_send_flight(SYN_TLS_Context *ctx, bool *progressed)
+static inline bool tls_poll_rx(const SYN_TLS_Context *ctx, size_t *rx_len)
+{
+    return syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, rx_len);
+}
+
+/**
+ * @brief Append staged ServerFinished MAC (`hs_work.ks_salt`) to tx_buf and transmit Flight 2.
+ * @param ctx TLS server context with ServerHello (and optional CV) formatted in tx_buf.
+ * @return true if Server Flight 2 record transmitted.
+ */
+static bool tls_send_server_flight2(SYN_TLS_Context *ctx)
 {
     bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-    bool has_cv = (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK);
-    size_t cv_len = has_cv ? TLS_CERT_VERIFY_LEN : 0U;
+    size_t cv_len = (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK) ? TLS_CERT_VERIFY_LEN : 0U;
     size_t body_len = 80U + cv_len + 4U + hash_len;
-    uint8_t *tx = ctx->tx_buf;
+    uint8_t *fin = ctx->tx_buf + 85U + cv_len;
 
-    if (has_cv && !tls_build_local_cv(ctx, true, tx + 85U)) {
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
-    }
-
-    uint8_t *fin = tx + 85U + cv_len;
     fin[0] = TLS_HANDSHAKE_FINISHED;
     fin[1] = 0x00U;
     fin[2] = 0x00U;
     fin[3] = (uint8_t)hash_len;
-    tls_compute_finished(ctx, ctx->server_handshake_secret, fin + 4U);
+    memcpy(fin + 4U, ctx->hs_work.ks_salt, hash_len);
+    syn_secure_zero(ctx->hs_work.ks_salt, sizeof(ctx->hs_work.ks_salt));
     tls_transcript_update(ctx, fin, 4U + hash_len);
-    derive_tls13_app_keys(ctx);
+    return syn_transport_send(ctx->underlying_transport, ctx->tx_buf, 5U + body_len);
+}
 
-    if (!syn_transport_send(ctx->underlying_transport, tx, 5U + body_len)) {
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
+/**
+ * @brief Server Flight 1 PT: verify peer cert, derive keygen, parse ClientHello, run ECDHE.
+ * @param pt  Protothread control block (&ctx->flight_pt).
+ * @param ctx TLS server context in SYN_TLS_STATE_UNINITIALIZED.
+ * @return PT status.
+ */
+static SYN_PT_Status tls_server_flight1_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
+{
+    size_t rx_len = 0U;
+
+    PT_BEGIN(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, tls_peer_cert_pt(&ctx->sub_pt, ctx));
+    if (ctx->state == SYN_TLS_STATE_ERROR) {
+        PT_EXIT(pt);
     }
 
+    PT_SPAWN(pt, &ctx->sub_pt, tls_keygen_pt(&ctx->sub_pt, ctx));
+
+    while (!tls_poll_rx(ctx, &rx_len)) {
+        PT_PASS(pt);
+    }
+    if (!tls_parse_client_hello(ctx, rx_len) || !tls_format_server_hello(ctx)) {
+        (void)tls_fail_handshake(ctx);
+        PT_EXIT(pt);
+    }
+
+    (void)syn_x25519_init(&ctx->crypto_scratch.x25519, ctx->my_privkey, ctx->peer_pubkey);
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, &ctx->crypto_pt, tls_x25519_ecdhe_pt(ctx));
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, tls_derive_hs_secrets_pt(&ctx->sub_pt, ctx));
+    if (!ctx->hs_work.ok) {
+        (void)tls_fail_handshake(ctx);
+        PT_EXIT(pt);
+    }
+    ctx->state = SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED;
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Server Flight 2 PT: sign CertificateVerify, transmit flight, and derive app keys.
+ * @param pt  Protothread control block (&ctx->flight_pt).
+ * @param ctx TLS server context in SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED.
+ * @return PT status.
+ */
+static SYN_PT_Status tls_server_flight2_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
+{
+    PT_BEGIN(pt);
+
+    if (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK) {
+        PT_SPAWN(pt, &ctx->sub_pt, tls_build_local_cv_pt(&ctx->sub_pt, ctx, true));
+        if (!ctx->hs_work.ok) {
+            (void)tls_fail_handshake(ctx);
+            PT_EXIT(pt);
+        }
+    }
+
+    PT_SPAWN(pt, &ctx->sub_pt,
+             tls_compute_finished_pt(&ctx->sub_pt, ctx, ctx->server_handshake_secret));
+    PT_CONTINUE(pt);
+
+    if (!tls_send_server_flight2(ctx)) {
+        (void)tls_fail_handshake(ctx);
+        PT_EXIT(pt);
+    }
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, tls_derive_app_keys_pt(&ctx->sub_pt, ctx));
     if (ctx->config.mode == SYN_TLS_AUTH_MODE_MTLS) {
         ctx->state = SYN_TLS_STATE_FINISHED_SENT;
     } else {
-        tls_scrub_handshake_secrets(ctx);
-        ctx->state = SYN_TLS_STATE_ESTABLISHED;
+        PT_SPAWN(pt, &ctx->sub_pt, tls_finalize_established_pt(&ctx->sub_pt, ctx));
     }
-    *progressed = true;
-    return true;
+
+    PT_END(pt);
 }
 
 /**
@@ -948,81 +1373,110 @@ static bool tls_verify_mac_ct(const uint8_t *expected, const uint8_t *actual, si
 }
 
 /**
- * @brief Build and send mTLS Flight 3 (Client CertificateVerify + Client Finished).
- * @param ctx TLS client context.
- * @return true if signed and transmitted.
+ * @brief Validate framing headers on inbound mTLS Client Flight 3 record.
+ * @param ctx    TLS server context.
+ * @param rx_len Received record byte count.
+ * @return true if record header and Finished handshake header match expected lengths.
  */
-static bool tls_send_client_mtls_flight(SYN_TLS_Context *ctx)
-{
-    bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
-    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
-    size_t body_len = TLS_CERT_VERIFY_LEN + 4U + hash_len;
-    uint8_t *tx = ctx->tx_buf;
-
-    tx[0] = TLS_CONTENT_TYPE_HANDSHAKE;
-    tx[1] = 0x03U;
-    tx[2] = 0x03U;
-    tx[3] = 0x00U;
-    tx[4] = (uint8_t)body_len;
-
-    if (!tls_build_local_cv(ctx, false, tx + 5U)) {
-        return false;
-    }
-
-    uint8_t *fin = tx + 5U + TLS_CERT_VERIFY_LEN;
-    fin[0] = TLS_HANDSHAKE_FINISHED;
-    fin[1] = 0x00U;
-    fin[2] = 0x00U;
-    fin[3] = (uint8_t)hash_len;
-    tls_compute_finished(ctx, ctx->client_handshake_secret, fin + 4U);
-
-    return syn_transport_send(ctx->underlying_transport, tx, 5U + body_len);
-}
-
-/**
- * @brief Parse and verify mTLS Flight 3 (Client CertificateVerify + Client Finished) on server.
- * @param ctx    TLS server context in SYN_TLS_STATE_FINISHED_SENT.
- * @param rx_len Bytes received from underlying_transport.
- * @return true if Client CertificateVerify and Client Finished are authentic.
- */
-static bool tls_process_client_mtls_flight(SYN_TLS_Context *ctx, size_t rx_len)
+static bool tls_check_client_mtls_hdr(const SYN_TLS_Context *ctx, size_t rx_len)
 {
     bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
     size_t body_len = TLS_CERT_VERIFY_LEN + 4U + hash_len;
     const uint8_t *rx = ctx->rx_buf;
-
     uint8_t rec_hdr[5] = {TLS_CONTENT_TYPE_HANDSHAKE, 0x03U, 0x03U, 0x00U, (uint8_t)body_len};
     uint8_t fin_hdr[4] = {TLS_HANDSHAKE_FINISHED, 0x00U, 0x00U, (uint8_t)hash_len};
 
-    if (rx_len != 5U + body_len || memcmp(rx, rec_hdr, 5U) != 0 ||
-        memcmp(rx + 5U + TLS_CERT_VERIFY_LEN, fin_hdr, 4U) != 0) {
-        return false;
-    }
-    if (!tls_check_peer_cv(ctx, false, rx + 5U)) {
-        return false;
-    }
+    return (rx_len == (5U + body_len)) && (memcmp(rx, rec_hdr, 5U) == 0) &&
+           (memcmp(rx + 5U + TLS_CERT_VERIFY_LEN, fin_hdr, 4U) == 0);
+}
 
-    uint8_t expected_mac[SYN_TLS_SECRET_LEN];
-    tls_compute_finished(ctx, ctx->client_handshake_secret, expected_mac);
-    bool ok = tls_verify_mac_ct(expected_mac, rx + 5U + TLS_CERT_VERIFY_LEN + 4U, hash_len);
-    syn_secure_zero(expected_mac, sizeof(expected_mac));
+/**
+ * @brief Verify staged mTLS ClientFinished MAC (`hs_work.ks_salt`) in constant time.
+ * @param ctx TLS server context with client CV bound into transcript.
+ * @return true if ClientFinished MAC matches expected verify_data.
+ */
+static bool tls_verify_client_finished(SYN_TLS_Context *ctx)
+{
+    bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
+    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
+
+    bool ok = tls_verify_mac_ct(ctx->hs_work.ks_salt, ctx->rx_buf + 5U + TLS_CERT_VERIFY_LEN + 4U,
+                                hash_len);
+    syn_secure_zero(ctx->hs_work.ks_salt, sizeof(ctx->hs_work.ks_salt));
     return ok;
 }
 
 /**
- * @brief Client Stage 2: receive ServerHello flight, validate headers, and derive HS secrets.
- * @param ctx        TLS client context in SYN_TLS_STATE_CLIENT_HELLO_SENT.
- * @param progressed [out] Set true if ServerHello flight received and HS secrets derived.
- * @return true if waiting or Stage 2 succeeded, false on fatal error.
+ * @brief Server Flight 3 (mTLS) PT: receive Flight 3, verify Client CV and ClientFinished.
+ * @param pt  Protothread control block (&ctx->flight_pt).
+ * @param ctx TLS server context in SYN_TLS_STATE_FINISHED_SENT.
+ * @return PT status.
  */
-static bool tls_client_stage2_recv_sh(SYN_TLS_Context *ctx, bool *progressed)
+static SYN_PT_Status tls_server_mtls_flight3_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
 {
     size_t rx_len = 0U;
-    if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
-        return true;
+
+    PT_BEGIN(pt);
+
+    while (!tls_poll_rx(ctx, &rx_len)) {
+        PT_PASS(pt);
+    }
+    if (!tls_check_client_mtls_hdr(ctx, rx_len)) {
+        (void)tls_fail_handshake(ctx);
+        PT_EXIT(pt);
     }
 
+    PT_SPAWN(pt, &ctx->sub_pt, tls_check_peer_cv_pt(&ctx->sub_pt, ctx, false));
+    if (ctx->state == SYN_TLS_STATE_ERROR) {
+        PT_EXIT(pt);
+    }
+
+    PT_SPAWN(pt, &ctx->sub_pt,
+             tls_compute_finished_pt(&ctx->sub_pt, ctx, ctx->client_handshake_secret));
+    PT_CONTINUE(pt);
+    if (!tls_verify_client_finished(ctx)) {
+        (void)tls_fail_handshake(ctx);
+        PT_EXIT(pt);
+    }
+
+    PT_SPAWN(pt, &ctx->sub_pt, tls_finalize_established_pt(&ctx->sub_pt, ctx));
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Client Flight 1 PT: verify peer cert, derive local X25519 pubkey, send ClientHello.
+ * @param pt  Protothread control block (&ctx->flight_pt).
+ * @param ctx TLS client context in SYN_TLS_STATE_UNINITIALIZED.
+ * @return PT status.
+ */
+static SYN_PT_Status tls_client_flight1_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
+{
+    PT_BEGIN(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, tls_peer_cert_pt(&ctx->sub_pt, ctx));
+    if (ctx->state == SYN_TLS_STATE_ERROR) {
+        PT_EXIT(pt);
+    }
+
+    PT_SPAWN(pt, &ctx->sub_pt, tls_keygen_pt(&ctx->sub_pt, ctx));
+
+    if (!tls_send_client_hello(ctx)) {
+        PT_EXIT(pt);
+    }
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Validate inbound ServerHello flight headers and record peer ephemeral X25519 key.
+ * @param ctx    TLS client context.
+ * @param rx_len Bytes received into ctx->rx_buf.
+ * @return true if ServerHello framing is valid and transcript updated.
+ */
+static bool tls_accept_server_hello(SYN_TLS_Context *ctx, size_t rx_len)
+{
     bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
     size_t cv_len = (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK) ? TLS_CERT_VERIFY_LEN : 0U;
@@ -1032,48 +1486,77 @@ static bool tls_client_stage2_recv_sh(SYN_TLS_Context *ctx, bool *progressed)
     const uint8_t *rx = ctx->rx_buf;
 
     if (!tls_check_server_flight_hdr(rx, rx_len, body_len, exp_suite, fin_off, hash_len)) {
-        ctx->state = SYN_TLS_STATE_ERROR;
         return false;
     }
-
     ctx->rx_record_len = rx_len;
     memcpy(ctx->peer_pubkey, rx + 53U, 32U);
     tls_transcript_update(ctx, rx + 5U, 80U);
-    if (!derive_tls13_hs_secrets(ctx)) {
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
-    }
-
-    ctx->state = SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED;
-    *progressed = true;
     return true;
 }
 
 /**
- * @brief Client Stage 3: verify Server CertificateVerify signature (when non-PSK).
- * @param ctx        TLS client context in SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED.
- * @param progressed [out] Set true when stage completes.
- * @return true on authentic signature, false on verification failure.
+ * @brief Client ServerHello PT: receive ServerHello flight, run X25519 ECDHE, derive HS keys.
+ * @param pt  Protothread control block (&ctx->flight_pt).
+ * @param ctx TLS client context in SYN_TLS_STATE_CLIENT_HELLO_SENT.
+ * @return PT status.
  */
-static bool tls_client_stage3_verify_cv(SYN_TLS_Context *ctx, bool *progressed)
+static SYN_PT_Status tls_client_sh_ecdhe_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
 {
-    if (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK &&
-        !tls_check_peer_cv(ctx, true, ctx->rx_buf + 85U)) {
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
+    size_t rx_len = 0U;
+
+    PT_BEGIN(pt);
+
+    while (!tls_poll_rx(ctx, &rx_len)) {
+        PT_PASS(pt);
+    }
+    if (!tls_accept_server_hello(ctx, rx_len)) {
+        (void)tls_fail_handshake(ctx);
+        PT_EXIT(pt);
+    }
+
+    (void)syn_x25519_init(&ctx->crypto_scratch.x25519, ctx->my_privkey, ctx->peer_pubkey);
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, &ctx->crypto_pt, tls_x25519_ecdhe_pt(ctx));
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, tls_derive_hs_secrets_pt(&ctx->sub_pt, ctx));
+    if (!ctx->hs_work.ok) {
+        (void)tls_fail_handshake(ctx);
+        PT_EXIT(pt);
+    }
+    ctx->state = SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED;
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Client CertificateVerify PT: verify server CertificateVerify signature when non-PSK.
+ * @param pt  Protothread control block (&ctx->flight_pt).
+ * @param ctx TLS client context in SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED.
+ * @return PT status.
+ */
+static SYN_PT_Status tls_client_verify_cv_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
+{
+    PT_BEGIN(pt);
+
+    if (ctx->config.mode != SYN_TLS_AUTH_MODE_PSK) {
+        PT_SPAWN(pt, &ctx->sub_pt, tls_check_peer_cv_pt(&ctx->sub_pt, ctx, true));
+        if (ctx->state == SYN_TLS_STATE_ERROR) {
+            PT_EXIT(pt);
+        }
     }
     ctx->state = SYN_TLS_STATE_CERTIFICATE_VERIFIED;
-    *progressed = true;
-    return true;
+
+    PT_END(pt);
 }
 
 /**
- * @brief Client Stage 4: verify ServerFinished MAC and derive application traffic keys.
- * @param ctx        TLS client context in SYN_TLS_STATE_CERTIFICATE_VERIFIED.
- * @param progressed [out] Set true when stage completes.
- * @return true on authentic Finished MAC, false on mismatch.
+ * @brief Verify staged ServerFinished MAC (`hs_work.ks_salt`) and append Finished to transcript.
+ * @param ctx TLS client context in SYN_TLS_STATE_CERTIFICATE_VERIFIED.
+ * @return true if ServerFinished MAC is authentic.
  */
-static bool tls_client_stage4_verify_fin(SYN_TLS_Context *ctx, bool *progressed)
+static bool tls_verify_server_finished(SYN_TLS_Context *ctx)
 {
     bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
     size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
@@ -1081,44 +1564,132 @@ static bool tls_client_stage4_verify_fin(SYN_TLS_Context *ctx, bool *progressed)
     size_t fin_off = 85U + cv_len;
     const uint8_t *rx = ctx->rx_buf;
 
-    uint8_t expected_mac[SYN_TLS_SECRET_LEN];
-    tls_compute_finished(ctx, ctx->server_handshake_secret, expected_mac);
-    bool ok = tls_verify_mac_ct(expected_mac, rx + fin_off + 4U, hash_len);
-    syn_secure_zero(expected_mac, sizeof(expected_mac));
+    bool ok = tls_verify_mac_ct(ctx->hs_work.ks_salt, rx + fin_off + 4U, hash_len);
+    syn_secure_zero(ctx->hs_work.ks_salt, sizeof(ctx->hs_work.ks_salt));
     if (!ok) {
-        ctx->state = SYN_TLS_STATE_ERROR;
         return false;
     }
-
     tls_transcript_update(ctx, rx + fin_off, 4U + hash_len);
-    derive_tls13_app_keys(ctx);
-
-    if (ctx->config.mode == SYN_TLS_AUTH_MODE_MTLS) {
-        ctx->state = SYN_TLS_STATE_SERVER_HELLO_RECEIVED;
-    } else {
-        tls_scrub_handshake_secrets(ctx);
-        ctx->state = SYN_TLS_STATE_ESTABLISHED;
-    }
-    *progressed = true;
     return true;
 }
 
 /**
- * @brief Client Stage 5 (mTLS): sign Client CertificateVerify and transmit ClientFinished.
- * @param ctx        TLS client context in SYN_TLS_STATE_SERVER_HELLO_RECEIVED.
- * @param progressed [out] Set true when Flight 3 transmitted.
- * @return true on success, false on signing or transport failure.
+ * @brief Client Finished PT: verify ServerFinished MAC and derive application traffic keys.
+ * @param pt  Protothread control block (&ctx->flight_pt).
+ * @param ctx TLS client context in SYN_TLS_STATE_CERTIFICATE_VERIFIED.
+ * @return PT status.
  */
-static bool tls_client_stage5_send_mtls(SYN_TLS_Context *ctx, bool *progressed)
+static SYN_PT_Status tls_client_verify_fin_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
 {
-    if (!tls_send_client_mtls_flight(ctx)) {
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
+    PT_BEGIN(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt,
+             tls_compute_finished_pt(&ctx->sub_pt, ctx, ctx->server_handshake_secret));
+    PT_CONTINUE(pt);
+
+    if (!tls_verify_server_finished(ctx)) {
+        (void)tls_fail_handshake(ctx);
+        PT_EXIT(pt);
     }
-    tls_scrub_handshake_secrets(ctx);
-    ctx->state = SYN_TLS_STATE_ESTABLISHED;
-    *progressed = true;
-    return true;
+    PT_CONTINUE(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, tls_derive_app_keys_pt(&ctx->sub_pt, ctx));
+    if (ctx->config.mode == SYN_TLS_AUTH_MODE_MTLS) {
+        ctx->state = SYN_TLS_STATE_SERVER_HELLO_RECEIVED;
+    } else {
+        PT_SPAWN(pt, &ctx->sub_pt, tls_finalize_established_pt(&ctx->sub_pt, ctx));
+    }
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Format 5B record header + staged ClientFinished MAC (`hs_work.ks_salt`) and send Flight 3.
+ * @param ctx TLS client context with signed 72B CertificateVerify at tx_buf + 5.
+ * @return true if Flight 3 record transmitted.
+ */
+static bool tls_send_client_mtls_flight3(SYN_TLS_Context *ctx)
+{
+    bool is_sha384 = (ctx->config.cipher_suite == SYN_TLS_CIPHER_SUITE_AES_256_GCM_SHA384);
+    size_t hash_len = is_sha384 ? SYN_SHA384_DIGEST_SIZE : SYN_SHA256_DIGEST_SIZE;
+    size_t body_len = TLS_CERT_VERIFY_LEN + 4U + hash_len;
+    uint8_t *tx = ctx->tx_buf;
+    uint8_t *fin = tx + 5U + TLS_CERT_VERIFY_LEN;
+
+    tx[0] = TLS_CONTENT_TYPE_HANDSHAKE;
+    tx[1] = 0x03U;
+    tx[2] = 0x03U;
+    tx[3] = 0x00U;
+    tx[4] = (uint8_t)body_len;
+    fin[0] = TLS_HANDSHAKE_FINISHED;
+    fin[1] = 0x00U;
+    fin[2] = 0x00U;
+    fin[3] = (uint8_t)hash_len;
+    memcpy(fin + 4U, ctx->hs_work.ks_salt, hash_len);
+    syn_secure_zero(ctx->hs_work.ks_salt, sizeof(ctx->hs_work.ks_salt));
+    return syn_transport_send(ctx->underlying_transport, tx, 5U + body_len);
+}
+
+/**
+ * @brief Client Flight 3 (mTLS) PT: sign Client CertificateVerify and send ClientFinished.
+ * @param pt  Protothread control block (&ctx->flight_pt).
+ * @param ctx TLS client context in SYN_TLS_STATE_SERVER_HELLO_RECEIVED.
+ * @return PT status.
+ */
+static SYN_PT_Status tls_client_mtls_flight3_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
+{
+    PT_BEGIN(pt);
+
+    PT_SPAWN(pt, &ctx->sub_pt, tls_build_local_cv_pt(&ctx->sub_pt, ctx, false));
+    if (!ctx->hs_work.ok) {
+        (void)tls_fail_handshake(ctx);
+        PT_EXIT(pt);
+    }
+
+    PT_SPAWN(pt, &ctx->sub_pt,
+             tls_compute_finished_pt(&ctx->sub_pt, ctx, ctx->client_handshake_secret));
+    PT_CONTINUE(pt);
+
+    if (!tls_send_client_mtls_flight3(ctx)) {
+        (void)tls_fail_handshake(ctx);
+        PT_EXIT(pt);
+    }
+
+    PT_SPAWN(pt, &ctx->sub_pt, tls_finalize_established_pt(&ctx->sub_pt, ctx));
+
+    PT_END(pt);
+}
+
+/**
+ * @brief Dispatch the active per-state client or server handshake flight protothread.
+ * @param pt  Flight protothread control block (&ctx->flight_pt).
+ * @param ctx TLS context pointer.
+ * @return Child flight protothread status.
+ */
+static SYN_PT_Status tls_dispatch_flight_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
+{
+    if (ctx->config.is_server) {
+        if (ctx->state == SYN_TLS_STATE_UNINITIALIZED) {
+            return tls_server_flight1_pt(pt, ctx);
+        }
+        if (ctx->state == SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED) {
+            return tls_server_flight2_pt(pt, ctx);
+        }
+        return tls_server_mtls_flight3_pt(pt, ctx);
+    }
+    if (ctx->state == SYN_TLS_STATE_UNINITIALIZED) {
+        return tls_client_flight1_pt(pt, ctx);
+    }
+    if (ctx->state == SYN_TLS_STATE_CLIENT_HELLO_SENT) {
+        return tls_client_sh_ecdhe_pt(pt, ctx);
+    }
+    if (ctx->state == SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED) {
+        return tls_client_verify_cv_pt(pt, ctx);
+    }
+    if (ctx->state == SYN_TLS_STATE_CERTIFICATE_VERIFIED) {
+        return tls_client_verify_fin_pt(pt, ctx);
+    }
+    return tls_client_mtls_flight3_pt(pt, ctx);
 }
 
 /**
@@ -1179,77 +1750,6 @@ static bool tls_parse_record_header(const uint8_t *rx_buf, size_t rx_len, size_t
     return true;
 }
 
-/**
- * @brief Advance server-side TLS 1.3 handshake state machine by one single-asymmetric-op stage.
- * @param ctx        TLS server context.
- * @param progressed [out] Set true if state advanced, false if waiting for transport RX.
- * @return true if progressing or waiting, false on fatal error.
- */
-static bool tls_server_handshake_step(SYN_TLS_Context *ctx, bool *progressed)
-{
-    if (ctx->state == SYN_TLS_STATE_UNINITIALIZED) {
-        return tls_server_stage1_recv_ch(ctx, progressed);
-    }
-    if (ctx->state == SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED) {
-        return tls_server_stage2_send_flight(ctx, progressed);
-    }
-
-    size_t rx_len = 0U;
-    if (!syn_transport_recv(ctx->underlying_transport, ctx->rx_buf, ctx->rx_buf_size, &rx_len)) {
-        return true;
-    }
-    if (!tls_process_client_mtls_flight(ctx, rx_len)) {
-        ctx->state = SYN_TLS_STATE_ERROR;
-        return false;
-    }
-    tls_scrub_handshake_secrets(ctx);
-    ctx->state = SYN_TLS_STATE_ESTABLISHED;
-    *progressed = true;
-    return true;
-}
-
-/**
- * @brief Advance client-side TLS 1.3 handshake state machine by one single-asymmetric-op stage.
- * @param ctx        TLS client context.
- * @param progressed [out] Set true if state advanced, false if waiting for transport RX.
- * @return true if progressing or waiting, false on fatal error.
- */
-static bool tls_client_handshake_step(SYN_TLS_Context *ctx, bool *progressed)
-{
-    if (ctx->state == SYN_TLS_STATE_UNINITIALIZED) {
-        if (!tls_verify_peer_certificate(ctx) || !tls_send_client_hello(ctx)) {
-            return false;
-        }
-        *progressed = true;
-        return true;
-    }
-    if (ctx->state == SYN_TLS_STATE_CLIENT_HELLO_SENT) {
-        return tls_client_stage2_recv_sh(ctx, progressed);
-    }
-    if (ctx->state == SYN_TLS_STATE_HANDSHAKE_KEYS_DERIVED) {
-        return tls_client_stage3_verify_cv(ctx, progressed);
-    }
-    if (ctx->state == SYN_TLS_STATE_CERTIFICATE_VERIFIED) {
-        return tls_client_stage4_verify_fin(ctx, progressed);
-    }
-    return tls_client_stage5_send_mtls(ctx, progressed);
-}
-
-/**
- * @brief Execute one cooperative stage of the TLS 1.3 client or server handshake.
- * @param ctx        TLS context.
- * @param progressed [out] Set true if a handshake stage completed, false if waiting on RX.
- * @return true if stage succeeded or waiting on RX, false on fatal error.
- */
-static bool tls_handshake_step(SYN_TLS_Context *ctx, bool *progressed)
-{
-    *progressed = false;
-    if (ctx->config.is_server) {
-        return tls_server_handshake_step(ctx, progressed);
-    }
-    return tls_client_handshake_step(ctx, progressed);
-}
-
 /** @endcond */
 
 void syn_tls_bind_transport(SYN_TLS_Context *tls_ctx, SYN_Transport *tr_out)
@@ -1290,26 +1790,47 @@ bool syn_tls_init(SYN_TLS_Context *ctx, const SYN_TLS_Config *config, SYN_Transp
     ctx->tx_buf = tx_buf;
     ctx->tx_buf_size = tx_buf_size;
     ctx->state = SYN_TLS_STATE_UNINITIALIZED;
+    PT_INIT(&ctx->hs_pt);
+    PT_INIT(&ctx->flight_pt);
+    PT_INIT(&ctx->sub_pt);
+    PT_INIT(&ctx->crypto_pt);
 
     syn_x25519_clamp(ctx->my_privkey);
-    syn_x25519_pubkey(ctx->my_pubkey, ctx->my_privkey);
-
     tls_transcript_reset(ctx);
     return true;
 }
 
-bool syn_tls_handshake(SYN_TLS_Context *ctx)
+SYN_PT_Status syn_tls_handshake_pt(SYN_PT *pt, SYN_TLS_Context *ctx)
 {
-    if (ctx == NULL || ctx->state == SYN_TLS_STATE_ERROR) {
-        return false;
+    if (pt == NULL || ctx == NULL || ctx->state == SYN_TLS_STATE_ERROR) {
+        return PT_EXITED;
     }
-    bool progressed = true;
-    while (progressed && ctx->state != SYN_TLS_STATE_ESTABLISHED) {
-        if (!tls_handshake_step(ctx, &progressed)) {
-            return false;
+
+    PT_BEGIN(pt);
+
+    while (ctx->state != SYN_TLS_STATE_ESTABLISHED) {
+        PT_SPAWN(pt, &ctx->flight_pt, tls_dispatch_flight_pt(&ctx->flight_pt, ctx));
+        if (ctx->state == SYN_TLS_STATE_ERROR) {
+            PT_EXIT(pt);
+        }
+        if (ctx->state != SYN_TLS_STATE_ESTABLISHED) {
+            PT_CONTINUE(pt);
         }
     }
-    return true;
+
+    PT_END(pt);
+}
+
+bool syn_tls_handshake(SYN_TLS_Context *ctx)
+{
+    if (ctx == NULL) {
+        return false;
+    }
+    SYN_PT_Status st;
+    do {
+        st = syn_tls_handshake_pt(&ctx->hs_pt, ctx);
+    } while (st == PT_MORE);
+    return st != PT_EXITED;
 }
 
 SYN_PT_Status syn_tls_task(SYN_PT *pt, SYN_Task *task)
@@ -1322,18 +1843,9 @@ SYN_PT_Status syn_tls_task(SYN_PT *pt, SYN_Task *task)
 
     PT_BEGIN(pt);
 
-    while (ctx->state != SYN_TLS_STATE_ESTABLISHED) {
-        bool progressed = false;
-        if (ctx->state == SYN_TLS_STATE_ERROR || !tls_handshake_step(ctx, &progressed)) {
-            PT_EXIT(pt);
-        }
-        if (ctx->state != SYN_TLS_STATE_ESTABLISHED) {
-            if (progressed) {
-                PT_CONTINUE_IF_NEEDED(pt, task);
-            } else {
-                PT_PASS(pt);
-            }
-        }
+    PT_SPAWN_IF_NEEDED(pt, task, &ctx->hs_pt, syn_tls_handshake_pt(&ctx->hs_pt, ctx));
+    if (ctx->state != SYN_TLS_STATE_ESTABLISHED) {
+        PT_EXIT(pt);
     }
 
     PT_WAIT_UNTIL(pt, ctx->state != SYN_TLS_STATE_ESTABLISHED);

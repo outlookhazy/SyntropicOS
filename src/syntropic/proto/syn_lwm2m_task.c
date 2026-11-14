@@ -566,6 +566,20 @@ SYN_Status syn_lwm2m_task_step(SYN_LwM2M_Task *task, uint32_t now_ms)
     return lwm2m_task_step_ex(task, now_ms, NULL);
 }
 
+#if SYN_DTLS_ENABLED
+/**
+ * @brief Check whether the LwM2M supervisor task must run a cooperative DTLS 1.3 handshake first.
+ * @param task LwM2M supervisor task instance.
+ * @return true if transport/client are valid and a bound CoAPs session is not yet established.
+ */
+static bool lwm2m_needs_dtls_handshake(const SYN_LwM2M_Task *task)
+{
+    return (task->cfg.client != NULL) && (task->cfg.transport != NULL) &&
+           (task->cfg.coaps_client != NULL) &&
+           (task->cfg.coaps_client->dtls.state != SYN_DTLS_STATE_ESTABLISHED);
+}
+#endif
+
 SYN_PT_Status syn_lwm2m_task_pt(SYN_PT *pt, SYN_Task *task)
 {
     if (pt == NULL || task == NULL || task->user_data == NULL) {
@@ -577,6 +591,17 @@ SYN_PT_Status syn_lwm2m_task_pt(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     for (;;) {
+#if SYN_DTLS_ENABLED
+        if (lwm2m_needs_dtls_handshake(lwm2m_task)) {
+            PT_SPAWN_IF_NEEDED(pt, task, &lwm2m_task->cfg.coaps_client->dtls.hs_pt,
+                               syn_dtls_handshake_pt(&lwm2m_task->cfg.coaps_client->dtls.hs_pt,
+                                                     &lwm2m_task->cfg.coaps_client->dtls));
+            if (lwm2m_task->cfg.coaps_client->dtls.state != SYN_DTLS_STATE_ESTABLISHED) {
+                break;
+            }
+            PT_CONTINUE_IF_NEEDED(pt, task);
+        }
+#endif
         bool rx_consumed = false;
         uint32_t now = syn_port_get_tick_ms();
         if (lwm2m_task_step_ex(lwm2m_task, now, &rx_consumed) != SYN_OK) {
