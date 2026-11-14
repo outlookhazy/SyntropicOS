@@ -84,6 +84,10 @@ extern "C" {
 
 /* ── Scheduler struct ───────────────────────────────────────────────────── */
 
+#if !defined(SYN_USE_PROFILER) || SYN_USE_PROFILER
+struct SYN_TaskProfileManager;
+#endif
+
 /**
  * @brief Scheduler control block.
  *
@@ -98,9 +102,12 @@ typedef struct SYN_Sched {
     uint32_t share_deadline_ms;                  /**< Earliest peer due_ms during dispatch  */
     SYN_Task *running;                           /**< Task currently executing (or NULL)    */
     struct SYN_Mutex *standalone_mutexes;        /**< Locked ownerless mutexes with waiters */
-    bool share_contended;                        /**< Equal/higher-prio MORE peer waiting   */
-    bool share_has_deadline;                     /**< True when share_deadline_ms is valid  */
-    bool share_watch_wakeups;                    /**< Watch blocked/suspended urgent peers  */
+#if !defined(SYN_USE_PROFILER) || SYN_USE_PROFILER
+    struct SYN_TaskProfileManager *profiler; /**< Optional attached task profiler       */
+#endif
+    bool share_contended;     /**< Equal/higher-prio MORE peer waiting   */
+    bool share_has_deadline;  /**< True when share_deadline_ms is valid  */
+    bool share_watch_wakeups; /**< Watch blocked/suspended urgent peers  */
 } SYN_Sched;
 
 /* ── Initialization ─────────────────────────────────────────────────────── */
@@ -125,6 +132,21 @@ void syn_sched_init(SYN_Sched *sched, SYN_Task *tasks, size_t count);
  * @param ms     Maximum wait window in milliseconds (clamped to >= 1).
  */
 void syn_sched_set_max_wait(SYN_Sched *sched, SYN_Prio prio, uint16_t ms);
+
+#if !defined(SYN_USE_PROFILER) || SYN_USE_PROFILER
+/**
+ * @brief Attach or detach a task execution profiler on @p sched.
+ *
+ * When a non-NULL enabled profiler is attached, syn_sched_run() wraps every
+ * task dispatch with syn_task_profile_step_start() and syn_task_profile_step_end()
+ * using syn_port_get_tick_us(), recording peak cooperative chunk duration
+ * (max_yield_us) per task slot. Pass NULL to detach.
+ *
+ * @param sched     Scheduler instance.
+ * @param profiler  Profiler manager to attach, or NULL to detach.
+ */
+void syn_sched_set_profiler(SYN_Sched *sched, struct SYN_TaskProfileManager *profiler);
+#endif
 
 /**
  * @brief Initialize a single task descriptor.

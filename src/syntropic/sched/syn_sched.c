@@ -12,6 +12,9 @@
 #include "../util/syn_event.h"
 #include "../util/syn_metrics.h"
 #include "syn_sched.h"
+#if !defined(SYN_USE_PROFILER) || SYN_USE_PROFILER
+#include "../debug/syn_task_profile.h"
+#endif
 #if !defined(SYN_USE_MUTEX) || SYN_USE_MUTEX
 #include "syn_mutex.h"
 #endif
@@ -62,6 +65,9 @@ void syn_sched_init(SYN_Sched *sched, SYN_Task *tasks, size_t count)
     sched->share_deadline_ms = 0U;
     sched->running = NULL;
     sched->standalone_mutexes = NULL;
+#if !defined(SYN_USE_PROFILER) || SYN_USE_PROFILER
+    sched->profiler = NULL;
+#endif
     sched->share_contended = false;
     sched->share_has_deadline = false;
     sched->share_watch_wakeups = false;
@@ -101,6 +107,15 @@ void syn_sched_set_max_wait(SYN_Sched *sched, SYN_Prio prio, uint16_t ms)
 
     sched->max_wait_ms[(uint32_t)prio] = sched_clamp_wait_ms(ms);
 }
+
+#if !defined(SYN_USE_PROFILER) || SYN_USE_PROFILER
+void syn_sched_set_profiler(SYN_Sched *sched, struct SYN_TaskProfileManager *profiler)
+{
+    if (sched != NULL) {
+        sched->profiler = profiler;
+    }
+}
+#endif
 
 void syn_task_create(SYN_Task *task, const char *name, SYN_TaskFunc func, SYN_Prio priority,
                      void *user_data)
@@ -743,6 +758,25 @@ static void sched_finish_dispatch(SYN_Sched *sched, SYN_Task *task, size_t idx,
     }
     syn_port_exit_critical();
 }
+
+static SYN_PT_Status sched_invoke_task(SYN_Sched *sched, SYN_Task *best_task, size_t best_idx)
+{
+#if !defined(SYN_USE_PROFILER) || SYN_USE_PROFILER
+    SYN_TaskProfileManager *prof = sched->profiler;
+    if (prof != NULL) {
+        syn_task_profile_step_start(prof, best_idx, best_task->name, syn_port_get_tick_us());
+    }
+    SYN_PT_Status status = best_task->func(&best_task->pt, best_task);
+    if (prof != NULL && sched->profiler == prof) {
+        syn_task_profile_step_end(prof, best_idx, syn_port_get_tick_us());
+    }
+    return status;
+#else
+    (void)sched;
+    (void)best_idx;
+    return best_task->func(&best_task->pt, best_task);
+#endif
+}
 /** @endcond */
 
 /* ── Scheduler tick ─────────────────────────────────────────────────────── */
@@ -798,7 +832,7 @@ bool syn_sched_run(SYN_Sched *sched)
 #endif
     syn_port_exit_critical();
 
-    SYN_PT_Status status = best_task->func(&best_task->pt, best_task);
+    SYN_PT_Status status = sched_invoke_task(sched, best_task, best_idx);
 
     SYN_METRIC_INC(sched_switches);
     if (sched->running != best_task) {

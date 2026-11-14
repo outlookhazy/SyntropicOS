@@ -5,8 +5,8 @@ Applies to `syn_sched`, `syn_task`, `syn_mutex`, `syn_event_flags`, `syn_ao`, `s
 ## Cross-Directory Touchpoints
 
 - **Protothreads**: `src/syntropic/pt/syn_pt.h` (`PT_IDLE`, `PT_MORE`, `PT_YIELDED`, `PT_EXITED`, `PT_ENDED`) and `syn_pt_sem.h`; scheduler-aware cooperative yield macros `PT_CONTINUE_IF_NEEDED` and `PT_SPAWN_IF_NEEDED` in `src/syntropic/sched/syn_sched.h`.
-- **System & Port**: `src/syntropic/system/syn_sleep.h` (tickless sleep coordinator), `src/syntropic/port/syn_port_system.h` (`syn_port_enter_critical`, `syn_port_get_tick_ms`, `syn_port_sleep_until`), `src/syntropic/common/syn_barrier.h`, and `src/syntropic/util/syn_event.h`.
-- **Host Mock**: `tests/unit/mocks/mock_port.c` simulates ticks, critical-section nesting, and sleep hooks in unit tests.
+- **System & Port**: `src/syntropic/system/syn_sleep.h` (tickless sleep coordinator), `src/syntropic/port/syn_port_system.h` (`syn_port_enter_critical`, `syn_port_get_tick_ms`, `syn_port_get_tick_us`, `syn_port_sleep_until`), `src/syntropic/debug/syn_task_profile.h` (opt-in `syn_sched_set_profiler()` dispatch instrumentation and `syn_task_profile_check_budgets()` verification), `src/syntropic/common/syn_barrier.h`, and `src/syntropic/util/syn_event.h`.
+- **Host Mock & QEMU Gate**: `tests/unit/mocks/mock_port.c` simulates ticks, critical-section nesting, and sleep hooks in unit tests; `tests/emulation/test_chunk_budget.c` overrides `mock_port_set_tick_hooks()` with Cortex-M4 hardware SysTick under QEMU `-icount` to verify cooperative chunk durations against peer `max_wait_ms` budgets.
 
 ## Kernel & Concurrency Invariants
 

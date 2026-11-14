@@ -756,6 +756,7 @@
 
 #if !defined(SYN_USE_PROFILER) || SYN_USE_PROFILER
 #include "debug/syn_profiler.h"
+#include "debug/syn_task_profile.h"
 #endif
 
 /* ── System ─────────────────────────────────────────────────────────────── */

@@ -124,3 +124,34 @@ SensorTask      12.5%        1420 us    100
 CommTask         4.2%         320 us     50
 DisplayTask     28.1%        4800 us     10
 ```
+
+---
+
+## 3. Cooperative Yield-Latency & Chunk-Budget Profiler (`syn_task_profile.h`)
+
+`syn_task_profile` (`SYN_USE_PROFILER`) measures microsecond-resolution uninterrupted step durations (`max_yield_us`) via `syn_port_get_tick_us()` and integrates directly with `SYN_Sched` via `syn_sched_set_profiler()`.
+
+- **Zero per-task RAM overhead when unused**: `sizeof(SYN_Task)` is unchanged; `SYN_Sched` holds a single nullable `SYN_TaskProfileManager *` pointer when `SYN_USE_PROFILER` is enabled.
+- **Cooperative budget contract check**: `syn_task_profile_check_budgets(&prof, &sched, &violations, &worst)` compares each profiled task's `max_yield_us` against the tightest `max_wait_ms * 1000` among all participating peer tasks in `sched` (excluding `SYN_TASK_SUSPENDED` slots and unprofiled `SYN_TASK_DEAD` slots).
+
+```c
+#include <syntropic/syntropic.h>
+
+static SYN_TaskProfileManager g_prof;
+
+void attach_budget_profiler(SYN_Sched *sched)
+{
+    syn_task_profile_init(&g_prof);
+    syn_sched_set_profiler(sched, &g_prof);
+}
+
+bool check_cooperative_budgets(const SYN_Sched *sched)
+{
+    size_t violations = 0U;
+    SYN_TaskBudgetViolation worst;
+    if (syn_task_profile_check_budgets(&g_prof, sched, &violations, &worst) != SYN_OK) {
+        return false;
+    }
+    return violations == 0U;
+}
+```

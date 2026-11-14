@@ -256,6 +256,8 @@ syn_sched_set_max_wait(&sched, SYN_PRIO_LOW, 25);
 
 Because protothreads are non-preemptive, the scheduler only regains control at yield points. Keep every uninterrupted execution chunk across **all** tasks (including `SYN_PRIO_LOW`) shorter than the tightest active `max_wait_ms` (`1 ms` default when `SYN_PRIO_CRITICAL` is used). Split multi-millisecond loops across `PT_CONTINUE(pt)` or `PT_CONTINUE_IF_NEEDED(pt, task)`.
 
+Attach a `SYN_TaskProfileManager` (`syntropic/debug/syn_task_profile.h`) via `syn_sched_set_profiler(&sched, &prof)` during development, HIL, or QEMU CI runs and call `syn_task_profile_check_budgets(&prof, &sched, &violations, &worst)` to verify that no scheduled task's `max_yield_us` exceeds its participating peers' `max_wait_ms` budget.
+
 ### Ranked Dispatch & Yield Intent (`PT_PASS` vs `PT_CONTINUE`)
 
 On each `syn_sched_run()` call, eligible (ready, non-delayed, non-blocked) tasks are grouped into ranks. The highest rank with any member wins, and **priority followed by round-robin** determines the winner inside every rank:

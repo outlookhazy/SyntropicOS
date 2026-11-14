@@ -1,17 +1,24 @@
 /**
  * @file syn_task_profile.h
- * @brief Opt-In Task Execution & CPU Jitter Profiler.
+ * @brief Opt-In Task Execution, CPU Jitter & Cooperative Chunk-Budget Profiler.
  * @ingroup syn_debug
  *
- * Provides opt-in execution duration, maximum yield latency, and CPU %
- * utilization tracking for cooperative protothread tasks.
+ * Provides opt-in execution duration, maximum yield latency, CPU %
+ * utilization tracking, and cooperative starvation-budget verification
+ * for protothread tasks.
  */
 
 #ifndef SYN_TASK_PROFILE_H
 #define SYN_TASK_PROFILE_H
 
+#if __has_include("syn_config.h")
+#include "syn_config.h"
+#endif
+
 #include "../common/syn_defs.h"
+#if !defined(SYN_USE_SCHED) || SYN_USE_SCHED
 #include "../sched/syn_sched.h"
+#endif
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -42,7 +49,7 @@ typedef struct {
 /**
  * @brief Task Profiler Registry / Manager Instance.
  */
-typedef struct {
+typedef struct SYN_TaskProfileManager {
     SYN_TaskProfile profiles[SYN_TASK_PROFILE_MAX_TASKS]; /**< Task profile array  */
     size_t count;                                         /**< Profile count       */
     uint32_t window_start_us;                             /**< Profile window start*/
@@ -50,9 +57,21 @@ typedef struct {
 } SYN_TaskProfileManager;
 
 /**
+ * @brief Cooperative chunk latency budget violation record.
+ */
+typedef struct {
+    size_t task_idx;       /**< Index of offending task in scheduler       */
+    const char *task_name; /**< Name of offending task                     */
+    uint8_t task_priority; /**< Priority of offending task                 */
+    uint8_t peer_priority; /**< Priority of tightest constraining peer     */
+    uint32_t max_yield_us; /**< Observed peak continuous execution (us)    */
+    uint32_t budget_us;    /**< Allowed chunk budget from peer max_wait_ms */
+} SYN_TaskBudgetViolation;
+
+/**
  * @brief Initialize the task execution profiler.
  * @param mgr Pointer to task profile manager.
- * @return SYN_OK on success.
+ * @return SYN_OK on success, or SYN_INVALID_PARAM when @p mgr is NULL.
  */
 SYN_Status syn_task_profile_init(SYN_TaskProfileManager *mgr);
 
@@ -97,6 +116,43 @@ void syn_task_profile_update(SYN_TaskProfileManager *mgr, uint32_t now_us);
  */
 SYN_Status syn_task_profile_get(const SYN_TaskProfileManager *mgr, size_t task_idx,
                                 SYN_TaskProfile *profile);
+
+#if !defined(SYN_USE_SCHED) || SYN_USE_SCHED
+/**
+ * @brief Compute the cooperative chunk budget (us) for @p task_idx in @p sched.
+ *
+ * Returns the smallest `sched->max_wait_ms[prio] * 1000` among all participating
+ * peer tasks `j != task_idx` (any non-SUSPENDED peer that is currently alive or
+ * executed at least one profiled step in @p mgr). Returns `UINT32_MAX` when
+ * uncontended or out of range.
+ *
+ * @param mgr            Optional profiler manager (used to include completed peers).
+ * @param sched          Scheduler instance.
+ * @param task_idx       Task slot index in `sched->tasks`.
+ * @param out_peer_prio  Optional output receiving the constraining peer priority (0xFF if none).
+ * @return Allowed cooperative chunk duration in microseconds, or UINT32_MAX if unbounded.
+ */
+uint32_t syn_task_profile_task_budget_us(const SYN_TaskProfileManager *mgr, const SYN_Sched *sched,
+                                         size_t task_idx, uint8_t *out_peer_prio);
+
+/**
+ * @brief Verify profiled cooperative chunk durations against scheduler peer budgets.
+ *
+ * Scans all profiled tasks with `step_count > 0` up to `min(mgr->count, sched->task_count)`,
+ * counting every task whose `max_yield_us` exceeds `syn_task_profile_task_budget_us()`.
+ * Populates @p worst_out (when non-NULL) with the violation having the largest
+ * overrun (`max_yield_us - budget_us`).
+ *
+ * @param mgr             Initialized task profile manager.
+ * @param sched           Scheduler instance whose tasks were profiled.
+ * @param out_violations  Output receiving total number of budget-violating tasks.
+ * @param worst_out       Optional output receiving the worst violation (zeroed if 0).
+ * @return SYN_OK on success, or SYN_INVALID_PARAM on NULL required arguments.
+ */
+SYN_Status syn_task_profile_check_budgets(const SYN_TaskProfileManager *mgr, const SYN_Sched *sched,
+                                          size_t *out_violations,
+                                          SYN_TaskBudgetViolation *worst_out);
+#endif /* SYN_USE_SCHED */
 
 #ifdef __cplusplus
 }
