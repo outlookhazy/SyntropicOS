@@ -116,7 +116,7 @@ pio:
 	@bash $(ROOT_DIR)/tools/platformio/run_platformio.sh
 
 arduino:
-	@SKETCH="$(SKETCH)" UPLOAD="$(UPLOAD)" ARDUINO_PORT="$(ARDUINO_PORT)" FQBN="$(FQBN)" bash $(ROOT_DIR)/tools/arduino/run_arduino.sh
+	@SKETCH="$(SKETCH)" UPLOAD="$(UPLOAD)" ARDUINO_PORT="$(ARDUINO_PORT)" ARDUINO_USB_ID="$(ARDUINO_USB_ID)" FQBN="$(FQBN)" bash $(ROOT_DIR)/tools/arduino/run_arduino.sh
 
 integration:
 	@bash $(ROOT_DIR)/tests/integration/run_integration.sh
@@ -187,7 +187,10 @@ container-dox: container-build
 	@$(CONTAINER_RUN) -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers dox JOBS=$(JOBS)
 
 ifeq ($(strip $(ARDUINO_PORT)),)
-  override ARDUINO_PORT := /dev/ttyACM0
+  override ARDUINO_PORT := $(shell ls /dev/ttyACM* /dev/ttyUSB* 2>/dev/null | head -n1)
+  ifeq ($(strip $(ARDUINO_PORT)),)
+    override ARDUINO_PORT := /dev/ttyACM0
+  endif
 endif
 ARDUINO_DEV_FLAGS := $(shell if [ -c "$(ARDUINO_PORT)" ]; then \
 	if echo "$(CONTAINER_ENGINE)" | grep -q "podman"; then \
@@ -196,12 +199,18 @@ ARDUINO_DEV_FLAGS := $(shell if [ -c "$(ARDUINO_PORT)" ]; then \
 		echo "--device=$(ARDUINO_PORT) --security-opt label=disable"; \
 	fi; \
 fi)
+ARDUINO_USB_ID := $(shell if [ -c "$(ARDUINO_PORT)" ]; then \
+	dev=$$(basename "$(ARDUINO_PORT)"); \
+	vid=$$(cat "/sys/class/tty/$$dev/device/../idVendor" 2>/dev/null || true); \
+	pid=$$(cat "/sys/class/tty/$$dev/device/../idProduct" 2>/dev/null || true); \
+	if [ -n "$$vid" ] && [ -n "$$pid" ]; then echo "$$vid:$$pid"; fi; \
+fi)
 
 container-pio: container-build container-volume
 	@$(CONTAINER_RUN) -v $(CACHE_VOL):/workspace/build -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers pio JOBS=$(JOBS)
 
 container-arduino: container-build container-volume
-	@$(CONTAINER_RUN) $(ARDUINO_DEV_FLAGS) -v $(CACHE_VOL):/workspace/build -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers arduino JOBS=$(JOBS) SKETCH="$(SKETCH)" UPLOAD="$(UPLOAD)" ARDUINO_PORT="$(ARDUINO_PORT)" FQBN="$(FQBN)"
+	@$(CONTAINER_RUN) $(ARDUINO_DEV_FLAGS) -v $(CACHE_VOL):/workspace/build -v $(ROOT_DIR):/workspace$(VOL_FLAG) syntropicos-test make -C tools/containers arduino JOBS=$(JOBS) SKETCH="$(SKETCH)" UPLOAD="$(UPLOAD)" ARDUINO_PORT="$(ARDUINO_PORT)" ARDUINO_USB_ID="$(ARDUINO_USB_ID)" FQBN="$(FQBN)"
 
 valgrind:
 	@bash $(ROOT_DIR)/tools/valgrind/run_valgrind.sh

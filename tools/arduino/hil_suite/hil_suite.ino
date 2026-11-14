@@ -1,6 +1,6 @@
 /**
  * @file hil_suite.ino
- * @brief Comprehensive Hardware-in-the-Loop (HIL) System Test on ATmega328P (Arduino Uno).
+ * @brief Comprehensive Hardware-in-the-Loop (HIL) System Test on AVR targets.
  *
  * Exercises hardware-specific paths on real 8-bit/16-bit AVR silicon:
  *   1. SREG critical section nesting (both from SEI and CLI contexts)
@@ -19,7 +19,9 @@
 #include <syntropic/port/syn_port_wdt.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#if !defined(ARDUINO_ARCH_MEGAAVR)
 #include <avr/wdt.h>
+#endif
 #include <avr/eeprom.h>
 #include <string.h>
 
@@ -35,7 +37,11 @@ static uint16_t get_free_sram(void)
 /* ── Persistent State Across Hardware WDT Reboot ────────────────────────── */
 
 #define HIL_EEPROM_ADDR_BANK_A  128U
+#if defined(ARDUINO_ARCH_MEGAAVR)
+#define HIL_EEPROM_ADDR_BANK_B  192U
+#else
 #define HIL_EEPROM_ADDR_BANK_B  256U
+#endif
 #define HIL_MAGIC_WDT_PENDING   0x53594E31UL /* "SYN1" */
 
 typedef struct {
@@ -111,7 +117,7 @@ static bool g_pi_boost_observed_low = false;
 static bool g_pi_boost_observed_norm = false;
 static bool g_pi_demote_clean = false;
 
-ISR(TIMER1_COMPA_vect)
+static void timer_isr_step(void)
 {
     uint16_t n = ++g_timer1_isr_fires;
     if (n <= 64U) {
@@ -125,11 +131,29 @@ ISR(TIMER1_COMPA_vect)
         PT_SEM_SIGNAL(&g_isr_sem);
         syn_event_flags_set(&g_isr_ev, 0x01U);
     } else {
-        /* Stop Timer1 after 64 ISR bursts */
+        /* Stop hardware timer after 64 ISR bursts */
+#if defined(ARDUINO_ARCH_MEGAAVR)
+        TCB0.CTRLA = 0U;
+        TCB0.INTCTRL = 0U;
+#else
         TCCR1B = 0U;
         TIMSK1 = 0U;
+#endif
     }
 }
+
+#if defined(ARDUINO_ARCH_MEGAAVR)
+ISR(TCB0_INT_vect)
+{
+    TCB0.INTFLAGS = TCB_CAPT_bm;
+    timer_isr_step();
+}
+#else
+ISR(TIMER1_COMPA_vect)
+{
+    timer_isr_step();
+}
+#endif
 
 /* LOW priority task: acquires mtx_a, waits for NORMAL and HIGH to contend */
 static SYN_PT_Status task_low_fn(SYN_PT *pt, SYN_Task *task)
@@ -232,6 +256,11 @@ static SYN_PT_Status task_isr_consumer_fn(SYN_PT *pt, SYN_Task *task)
 
 static bool test_timer1_isr_and_mutex_pi(void)
 {
+    SYN_TaskProfileManager prof;
+    if (syn_task_profile_init(&prof) != SYN_OK) {
+        return false;
+    }
+
     syn_mutex_init(&g_mtx_a);
     syn_mutex_init(&g_mtx_b);
     PT_SEM_INIT(&g_isr_sem, 0);
@@ -244,15 +273,26 @@ static bool test_timer1_isr_and_mutex_pi(void)
     syn_task_create(&g_tasks[2], "norm",  task_norm_fn,         SYN_PRIO_NORMAL,   NULL);
     syn_task_create(&g_tasks[3], "low",   task_low_fn,          SYN_PRIO_LOW,      NULL);
     syn_sched_init(&g_sched, g_tasks, 4U);
+    syn_sched_set_profiler(&g_sched, &prof);
 
-    /* Configure Hardware Timer1 for 2 kHz CTC (16 MHz / 8 / 1000 = 2000 Hz) */
+    /* Configure Hardware Timer for 2 kHz periodic ISR */
     noInterrupts();
+#if defined(ARDUINO_ARCH_MEGAAVR)
+    TCB0.CTRLA = 0U;
+    TCB0.CTRLB = TCB_CNTMODE_INT_gc;
+    TCB0.CNT = 0U;
+    TCB0.CCMP = (uint16_t)((F_CPU / 2UL / 2000UL) - 1UL);
+    TCB0.INTFLAGS = TCB_CAPT_bm;
+    TCB0.INTCTRL = TCB_CAPT_bm;
+    TCB0.CTRLA = TCB_CLKSEL_CLKDIV2_gc | TCB_ENABLE_bm;
+#else
     TCCR1A = 0U;
     TCCR1B = 0U;
     TCNT1  = 0U;
     OCR1A  = 999U;
     TCCR1B = (1U << WGM12) | (1U << CS11); /* CTC mode, /8 prescaler */
     TIMSK1 = (1U << OCIE1A);
+#endif
     interrupts();
 
     uint32_t t0 = millis();
@@ -264,8 +304,19 @@ static bool test_timer1_isr_and_mutex_pi(void)
         }
     }
 
+#if defined(ARDUINO_ARCH_MEGAAVR)
+    TCB0.CTRLA = 0U;
+    TCB0.INTCTRL = 0U;
+#else
     TCCR1B = 0U;
     TIMSK1 = 0U;
+#endif
+    syn_sched_set_profiler(&g_sched, NULL);
+
+    size_t budget_violations = 1U;
+    bool budget_ok =
+        (syn_task_profile_check_budgets(&prof, &g_sched, &budget_violations, NULL) == SYN_OK) &&
+        (budget_violations == 0U);
 
     return (g_timer1_isr_fires >= 64U) &&
            (g_isr_pushed > 0U) &&
@@ -277,7 +328,8 @@ static bool test_timer1_isr_and_mutex_pi(void)
            g_pi_boost_observed_low &&
            g_pi_boost_observed_norm &&
            g_pi_demote_clean &&
-           (g_pi_stage == 5U);
+           (g_pi_stage == 5U) &&
+           budget_ok;
 }
 
 /* ── Test 3: Hardware INT0 (Pin 2) Self-Loopback External Interrupt ─────── */
@@ -295,9 +347,14 @@ static bool test_hardware_exti_int0(void)
 {
     syn_exti_init();
 
-    /* Probe 6 non-EXTI pins (4..9) on ATmega328P: all must return SYN_NOT_IMPLEMENTED
+    /* Probe 6 non-EXTI pins: all must return SYN_NOT_IMPLEMENTED
      * and MUST NOT leak the 6 hardware EXTI trampoline slots! */
-    for (SYN_GPIO_Pin p = 4U; p <= 9U; p++) {
+#if defined(ARDUINO_ARCH_MEGAAVR)
+    const SYN_GPIO_Pin bad_pin_base = (SYN_GPIO_Pin)NUM_DIGITAL_PINS;
+#else
+    const SYN_GPIO_Pin bad_pin_base = 4U;
+#endif
+    for (SYN_GPIO_Pin p = bad_pin_base; p < (SYN_GPIO_Pin)(bad_pin_base + 6U); p++) {
         if (syn_port_exti_configure(p, SYN_EXTI_RISING) != SYN_NOT_IMPLEMENTED) {
             return false;
         }
@@ -307,15 +364,16 @@ static bool test_hardware_exti_int0(void)
     if (syn_exti_register(2U, SYN_EXTI_BOTH, on_pin2_exti, (void *)&g_exti_cb_count) != SYN_OK) {
         return false;
     }
-    /* Verify syn_port_exti_configure on valid INT0 pin 2 succeeds even after 6 invalid probes */
+    /* Verify syn_port_exti_configure on valid Pin 2 succeeds even after 6 invalid probes */
     if (syn_port_exti_configure(2U, SYN_EXTI_BOTH) != SYN_OK) {
         return false;
     }
-    syn_exti_enable(2U);
 
-    /* Drive PD2 (Pin 2 / INT0) in software; AVR INT0 fires on output toggles */
+    /* Drive Pin 2 in software; AVR/megaAVR pin interrupts fire on output toggles */
     pinMode(2U, OUTPUT);
     digitalWrite(2U, HIGH);
+    delayMicroseconds(20);
+    syn_exti_enable(2U);
     delayMicroseconds(20);
     uint16_t baseline = g_exti_cb_count;
 
@@ -492,10 +550,24 @@ static bool test_dual_bank_eeprom_failover(void)
 
 /* ── Entry Points ───────────────────────────────────────────────────────── */
 
+static void print_ready_banner(void)
+{
+    Serial.println(F("\r\n=== SyntropicOS AVR HIL Test Suite Ready ==="));
+    Serial.print(F("Free SRAM at boot: "));
+    Serial.print(get_free_sram());
+    Serial.println(F(" bytes"));
+    Serial.flush();
+}
+
 void setup(void)
 {
+#if defined(ARDUINO_ARCH_MEGAAVR)
+    _PROTECTED_WRITE(WDT.CTRLA, 0U);
+    RSTCTRL.RSTFR = RSTCTRL.RSTFR;
+#else
     MCUSR = 0U;
     wdt_disable();
+#endif
 
     Serial.begin(115200);
     while (!Serial && millis() < 1500UL) {}
@@ -519,14 +591,11 @@ void setup(void)
         Serial.print(F(" free_sram="));
         Serial.print(get_free_sram());
         Serial.println(F("B)"));
-        Serial.println(F("=== ALL 5 ARDUINO UNO HIL SUBSYSTEM TESTS PASSED ==="));
+        Serial.println(F("=== ALL 5 AVR HIL SUBSYSTEM TESTS PASSED ==="));
         return;
     }
 
-    Serial.println(F("\r\n=== SyntropicOS ATmega328P HIL Test Suite Ready ==="));
-    Serial.print(F("Free SRAM at boot: "));
-    Serial.print(get_free_sram());
-    Serial.println(F(" bytes"));
+    print_ready_banner();
 }
 
 void loop(void)
@@ -534,7 +603,9 @@ void loop(void)
     if (Serial.available() > 0) {
         String cmd = Serial.readStringUntil('\n');
         cmd.trim();
-        if (cmd == "run_hil") {
+        if (cmd == "banner") {
+            print_ready_banner();
+        } else if (cmd == "run_hil") {
             bool ok1 = test_sreg_critical_sections();
             Serial.print(F("[HIL-1/5] SREG_CRITICAL_NESTING: "));
             Serial.println(ok1 ? F("PASS") : F("FAIL"));

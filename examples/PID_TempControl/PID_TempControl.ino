@@ -66,12 +66,13 @@ static int cmd_sp(int argc, char *argv[])
 {
     if (argc < 2) {
         syn_cli_printf(&cli, "Current setpoint: %ld.%ld degC\r\nUsage: sp <temp_x10> (e.g. 600 for 60.0C)\r\n",
-                       setpoint / 10, abs(setpoint % 10));
+                       (long)(setpoint / 10), (long)labs(setpoint % 10));
         return 1;
     }
-    setpoint = atoi(argv[1]);
+    setpoint = atol(argv[1]);
     settled_count = 0;
-    syn_cli_printf(&cli, "Setpoint updated to %ld.%ld degC\r\n", setpoint / 10, abs(setpoint % 10));
+    syn_cli_printf(&cli, "Setpoint updated to %ld.%ld degC\r\n",
+                   (long)(setpoint / 10), (long)labs(setpoint % 10));
     return 0;
 }
 
@@ -81,11 +82,12 @@ static int cmd_gains(int argc, char *argv[])
         syn_cli_printf(&cli, "Usage: gains <kp> <ki> <kd>\r\n");
         return 1;
     }
-    int32_t kp = atoi(argv[1]);
-    int32_t ki = atoi(argv[2]);
-    int32_t kd = atoi(argv[3]);
+    int32_t kp = atol(argv[1]);
+    int32_t ki = atol(argv[2]);
+    int32_t kd = atol(argv[3]);
     syn_pid_set_gains(&pid, kp, ki, kd);
-    syn_cli_printf(&cli, "PID gains updated: Kp=%ld Ki=%ld Kd=%ld\r\n", kp, ki, kd);
+    syn_cli_printf(&cli, "PID gains updated: Kp=%ld Ki=%ld Kd=%ld\r\n",
+                   (long)kp, (long)ki, (long)kd);
     return 0;
 }
 
@@ -93,10 +95,13 @@ static int cmd_status(int argc, char *argv[])
 {
     (void)argc; (void)argv;
     syn_cli_printf(&cli, "--- PID Status ---\r\n");
-    syn_cli_printf(&cli, "Setpoint:  %ld.%ld degC\r\n", setpoint / 10, abs(setpoint % 10));
+    syn_cli_printf(&cli, "Setpoint:  %ld.%ld degC\r\n",
+                   (long)(setpoint / 10), (long)labs(setpoint % 10));
     syn_cli_printf(&cli, "Temp (PV): %ld.%ld degC (raw=%ld.%ld)\r\n",
-                   filt_temp / 10, abs(filt_temp % 10), raw_temp / 10, abs(raw_temp % 10));
-    syn_cli_printf(&cli, "Heater:    %ld.%ld%%\r\n", heater_pwm / 10, abs(heater_pwm % 10));
+                   (long)(filt_temp / 10), (long)labs(filt_temp % 10),
+                   (long)(raw_temp / 10), (long)labs(raw_temp % 10));
+    syn_cli_printf(&cli, "Heater:    %ld.%ld%%\r\n",
+                   (long)(heater_pwm / 10), (long)labs(heater_pwm % 10));
     return 0;
 }
 
@@ -152,13 +157,13 @@ static SYN_PT_Status pid_task(SYN_PT *pt, SYN_Task *task)
         heater_pwm = syn_pid_update(&pid, setpoint, filt_temp, 100);
 
         /* 4. Check convergence stability */
-        err = abs(setpoint - filt_temp);
+        err = labs(setpoint - filt_temp);
         if (err <= 5) { /* within ±0.5°C */
             if (settled_count < 10) {
                 settled_count++;
                 if (settled_count == 10) {
                     syn_cli_printf(&cli, "[PID] Settled at setpoint (%ld.%ld degC)\r\n",
-                                   filt_temp / 10, abs(filt_temp % 10));
+                                   (long)(filt_temp / 10), (long)labs(filt_temp % 10));
                     syn_led_on(&led);
                 }
             }
@@ -170,9 +175,9 @@ static SYN_PT_Status pid_task(SYN_PT *pt, SYN_Task *task)
         }
 
         syn_cli_printf(&cli, "SP=%ld.%ld C | PV=%ld.%ld C | OUT=%ld.%ld%%\r\n",
-                       setpoint / 10, abs(setpoint % 10),
-                       filt_temp / 10, abs(filt_temp % 10),
-                       heater_pwm / 10, abs(heater_pwm % 10));
+                       (long)(setpoint / 10), (long)labs(setpoint % 10),
+                       (long)(filt_temp / 10), (long)labs(filt_temp % 10),
+                       (long)(heater_pwm / 10), (long)labs(heater_pwm % 10));
 
         PT_TASK_DELAY_MS(pt, task, 100);
     }

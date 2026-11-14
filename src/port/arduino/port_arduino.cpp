@@ -186,6 +186,10 @@ SYN_NORETURN void syn_port_system_reset(void)
     wdt_enable(WDTO_15MS);
     for (;;) {
     }
+#elif defined(ARDUINO_ARCH_MEGAAVR)
+    _PROTECTED_WRITE(RSTCTRL.SWRR, RSTCTRL_SWRE_bm);
+    for (;;) {
+    }
 #elif defined(ARDUINO_ARCH_RP2040)
     watchdog_reboot(0, 0, 0);
     for (;;) {
@@ -668,8 +672,8 @@ extern "C" {
 
 static SYN_GPIO_Pin exti_pins[SYN_ARDUINO_EXTI_SLOTS];
 static uint8_t      exti_modes[SYN_ARDUINO_EXTI_SLOTS];
-#if defined(ARDUINO_ARCH_RP2040)
-/* arduino-pico uses PinStatus enum instead of uint8_t for interrupt modes */
+#if defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_ARCH_MEGAAVR) || defined(ARDUINO_API_VERSION)
+/* ArduinoCore-API / arduino-pico use PinStatus enum instead of uint8_t for interrupt modes */
 static PinStatus exti_pin_status[SYN_ARDUINO_EXTI_SLOTS];
 #endif
 static uint8_t      exti_slot_count = 0;
@@ -701,7 +705,14 @@ static int8_t exti_find_slot(SYN_GPIO_Pin pin)
 
 SYN_Status syn_port_exti_configure(SYN_GPIO_Pin pin, SYN_EXTI_Edge edge)
 {
-    /* Verify the pin supports hardware interrupts before allocating a slot */
+    /* Verify the pin supports hardware interrupts before allocating a slot.
+     * Cores such as megaAVR/RP2040/ESP32 define digitalPinToInterrupt(p) as (p),
+     * so guard against NUM_DIGITAL_PINS before probing digitalPinToInterrupt(). */
+#if defined(NUM_DIGITAL_PINS)
+    if (pin >= (SYN_GPIO_Pin)NUM_DIGITAL_PINS) {
+        return SYN_NOT_IMPLEMENTED;
+    }
+#endif
     if ((int)digitalPinToInterrupt(pin) == (int)NOT_AN_INTERRUPT) {
         return SYN_NOT_IMPLEMENTED;
     }
@@ -719,7 +730,7 @@ SYN_Status syn_port_exti_configure(SYN_GPIO_Pin pin, SYN_EXTI_Edge edge)
         case SYN_EXTI_BOTH:    exti_modes[slot] = CHANGE;  break;
         default:               exti_modes[slot] = CHANGE;  break;
     }
-#if defined(ARDUINO_ARCH_RP2040)
+#if defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_ARCH_MEGAAVR) || defined(ARDUINO_API_VERSION)
     exti_pin_status[slot] = (PinStatus)exti_modes[slot];
 #endif
 
@@ -734,7 +745,7 @@ void syn_port_exti_enable(SYN_GPIO_Pin pin)
     if (slot < 0) return;
     attachInterrupt(digitalPinToInterrupt(pin),
                     exti_trampolines[slot],
-#if defined(ARDUINO_ARCH_RP2040)
+#if defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_ARCH_MEGAAVR) || defined(ARDUINO_API_VERSION)
                     exti_pin_status[slot]);
 #else
                     exti_modes[slot]);
@@ -743,6 +754,9 @@ void syn_port_exti_enable(SYN_GPIO_Pin pin)
 
 void syn_port_exti_disable(SYN_GPIO_Pin pin)
 {
+#if defined(NUM_DIGITAL_PINS)
+    if (pin >= (SYN_GPIO_Pin)NUM_DIGITAL_PINS) return;
+#endif
     if ((int)digitalPinToInterrupt(pin) == (int)NOT_AN_INTERRUPT) return;
     detachInterrupt(digitalPinToInterrupt(pin));
 }
@@ -1386,7 +1400,7 @@ SYN_Status syn_port_rtc_get(SYN_RTC_DateTime *dt)
 /* ── Flash / EEPROM Port Implementation ────────────────────────────────────── */
 
 #include "syntropic/port/syn_port_flash.h"
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_MEGAAVR)
 #include <avr/eeprom.h>
 #endif
 
@@ -1403,7 +1417,7 @@ SYN_WEAK uint32_t syn_port_flash_sector_size(uint32_t addr)
 SYN_WEAK SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
 {
     if (!buf) return SYN_INVALID_PARAM;
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_MEGAAVR)
     if (addr > (uint32_t)E2END || (uint32_t)len > ((uint32_t)E2END + 1UL - addr)) {
         return SYN_INVALID_PARAM;
     }
@@ -1419,7 +1433,7 @@ SYN_WEAK SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
 SYN_WEAK SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
 {
     if (!buf) return SYN_INVALID_PARAM;
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_MEGAAVR)
     if (addr > (uint32_t)E2END || (uint32_t)len > ((uint32_t)E2END + 1UL - addr)) {
         return SYN_INVALID_PARAM;
     }
@@ -1434,7 +1448,7 @@ SYN_WEAK SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t 
 
 SYN_WEAK SYN_Status syn_port_flash_erase(uint32_t addr)
 {
-#if defined(ARDUINO_ARCH_AVR)
+#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_MEGAAVR)
     if (addr > (uint32_t)E2END ||
         (uint32_t)SYN_ARDUINO_SECTOR_SIZE > ((uint32_t)E2END + 1UL - addr)) {
         return SYN_INVALID_PARAM;
