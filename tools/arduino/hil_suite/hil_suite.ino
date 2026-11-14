@@ -8,7 +8,8 @@
  *      transitive Mutex Priority Inheritance + ISR-to-task RingBuf/Sem/EventFlags/Mailbox
  *   3. Hardware INT0 (Pin 2) self-triggered external interrupts via syn_exti +
  *      non-interrupt pin rejection without slot leakage
- *   4. 8/16-bit AVR Crypto, Codec & Fixed-Point KATs (CRC32, SHA-256, AES-128-GCM,
+ *   4. 8/16-bit AVR Crypto, Codec & Fixed-Point KATs (CRC32, SHA-256, multi-block
+ *      AES-128-GCM SP 800-38D Case 4, cooperative X25519 RFC 7748 §6.1,
  *      PMBus exponent=-16, LwM2M TLV 64-bit int, Q16.16)
  *   5. Hardware EEPROM wear-leveled & dual-bank failover + E2END bounds check +
  *      real Hardware Watchdog (WDT) MCU reset recovery
@@ -19,6 +20,7 @@
 #include <syntropic/port/syn_port_wdt.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #if !defined(ARDUINO_ARCH_MEGAAVR)
 #include <avr/wdt.h>
 #endif
@@ -410,41 +412,169 @@ static __attribute__((noinline)) bool test_kat_sha256(void)
             digest[3] == 0xBFU && digest[31] == 0xADU);
 }
 
+/* NIST SP 800-38D Test Case 4: 60B plaintext (3 full + 12B tail), 20B AAD (1 full + 4B tail) */
+static const uint8_t k_gcm_key4[16] PROGMEM = {
+    0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c,
+    0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08
+};
+static const uint8_t k_gcm_iv4[12] PROGMEM = {
+    0xca, 0xfe, 0xba, 0xbe, 0xfa, 0xce, 0xdb, 0xad, 0xde, 0xca, 0xf8, 0x88
+};
+static const uint8_t k_gcm_aad4[20] PROGMEM = {
+    0xfe, 0xed, 0xfa, 0xce, 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xed,
+    0xfa, 0xce, 0xde, 0xad, 0xbe, 0xef, 0xab, 0xad, 0xda, 0xd2
+};
+static const uint8_t k_gcm_pt4[60] PROGMEM = {
+    0xd9, 0x31, 0x32, 0x25, 0xf8, 0x84, 0x06, 0xe5, 0xa5, 0x59, 0x09, 0xc5, 0xaf, 0xf5, 0x26,
+    0x9a, 0x86, 0xa7, 0xa9, 0x53, 0x15, 0x34, 0xf7, 0xda, 0x2e, 0x4c, 0x30, 0x3d, 0x8a, 0x31,
+    0x8a, 0x72, 0x1c, 0x3c, 0x0c, 0x95, 0x95, 0x68, 0x09, 0x53, 0x2f, 0xcf, 0x0e, 0x24, 0x49,
+    0xa6, 0xb5, 0x25, 0xb1, 0x6a, 0xed, 0xf5, 0xaa, 0x0d, 0xe6, 0x57, 0xba, 0x63, 0x7b, 0x39
+};
+static const uint8_t k_gcm_tag4[16] PROGMEM = {
+    0x5b, 0xc9, 0x4f, 0xbc, 0x32, 0x21, 0xa5, 0xdb,
+    0x94, 0xfa, 0xe9, 0x5a, 0xe7, 0x12, 0x1a, 0x47
+};
+
 static __attribute__((noinline)) bool test_kat_aes_gcm(void)
 {
-    static const uint8_t key[16] = {
-        0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
-        0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F
-    };
-    static const uint8_t iv[12] = {1,2,3,4,5,6,7,8,9,10,11,12};
-    static const uint8_t aad[4] = {0xAA, 0xBB, 0xCC, 0xDD};
-    const uint8_t pt[16] = "SyntropicOS-AVR";
-    uint8_t ct[16];
-    uint8_t dec[16];
+    uint8_t key[16];
+    uint8_t iv[12];
+    uint8_t aad[20];
+    uint8_t pt[60];
+    uint8_t ct[60];
+    uint8_t dec[60];
     uint8_t tag[16];
     SYN_AES_GCM_Context gcm;
 
-    if (syn_aes_gcm_init(&gcm, key, 16U) != SYN_OK) {
+    memcpy_P(key, k_gcm_key4, sizeof(key));
+    memcpy_P(iv, k_gcm_iv4, sizeof(iv));
+    memcpy_P(aad, k_gcm_aad4, sizeof(aad));
+    memcpy_P(pt, k_gcm_pt4, sizeof(pt));
+
+    if (syn_aes_gcm_init(&gcm, key, sizeof(key)) != SYN_OK) {
         return false;
     }
-    if (syn_aes_gcm_encrypt(&gcm, iv, 12U, aad, sizeof(aad), pt, 16U, ct, tag) != SYN_OK) {
+    if (syn_aes_gcm_encrypt(&gcm, iv, sizeof(iv), aad, sizeof(aad),
+                            pt, sizeof(pt), ct, tag) != SYN_OK) {
         return false;
     }
-    if (syn_aes_gcm_decrypt(&gcm, iv, 12U, aad, sizeof(aad), ct, 16U, dec, tag) != SYN_OK) {
+    if (memcmp_P(tag, k_gcm_tag4, sizeof(tag)) != 0) {
         return false;
     }
-    if (memcmp(pt, dec, 16U) != 0) {
+    if (syn_aes_gcm_decrypt(&gcm, iv, sizeof(iv), aad, sizeof(aad),
+                            ct, sizeof(ct), dec, tag) != SYN_OK) {
         return false;
     }
+    if (memcmp(pt, dec, sizeof(pt)) != 0) {
+        return false;
+    }
+
+    /* Tamper partial AAD tail, partial ciphertext tail, and tag */
+    aad[19] ^= 0x01U;
+    if (syn_aes_gcm_decrypt(&gcm, iv, sizeof(iv), aad, sizeof(aad),
+                            ct, sizeof(ct), dec, tag) == SYN_OK) {
+        return false;
+    }
+    aad[19] ^= 0x01U;
+
+    ct[59] ^= 0x80U;
+    if (syn_aes_gcm_decrypt(&gcm, iv, sizeof(iv), aad, sizeof(aad),
+                            ct, sizeof(ct), dec, tag) == SYN_OK) {
+        return false;
+    }
+    ct[59] ^= 0x80U;
+
     tag[0] ^= 0x01U;
-    if (syn_aes_gcm_decrypt(&gcm, iv, 12U, aad, sizeof(aad), ct, 16U, dec, tag) == SYN_OK) {
+    if (syn_aes_gcm_decrypt(&gcm, iv, sizeof(iv), aad, sizeof(aad),
+                            ct, sizeof(ct), dec, tag) == SYN_OK) {
         return false;
     }
     return true;
 }
 
-static __attribute__((noinline)) bool test_avr16_kats(uint16_t *out_crc)
+/* X25519 (~10 KB Flash on 8-bit AVR) runs on >32 KB AVR targets (Nano Every 48 KB, Mega 256 KB) */
+#if defined(ARDUINO_ARCH_MEGAAVR) || (defined(FLASHEND) && (FLASHEND > 0x7FFFUL))
+#define HIL_HAS_X25519 1
+#else
+#define HIL_HAS_X25519 0
+#endif
+
+#if HIL_HAS_X25519
+/* RFC 7748 §6.1 Test Vector 1 */
+static const uint8_t k_x25519_scalar[32] PROGMEM = {
+    0xa5, 0x46, 0xe3, 0x6b, 0xf0, 0x52, 0x7c, 0x9d,
+    0x3b, 0x16, 0x15, 0x4b, 0x82, 0x46, 0x5e, 0xdd,
+    0x62, 0x14, 0x4c, 0x0a, 0xc1, 0xfc, 0x5a, 0x18,
+    0x50, 0x6a, 0x22, 0x44, 0xba, 0x44, 0x9a, 0xc4
+};
+static const uint8_t k_x25519_point[32] PROGMEM = {
+    0xe6, 0xdb, 0x68, 0x67, 0x58, 0x30, 0x30, 0xdb,
+    0x35, 0x94, 0xc1, 0xa4, 0x24, 0xb1, 0x5f, 0x7c,
+    0x72, 0x66, 0x24, 0xec, 0x26, 0xb3, 0x35, 0x3b,
+    0x10, 0xa9, 0x03, 0xa6, 0xd0, 0xab, 0x1c, 0x4c
+};
+static const uint8_t k_x25519_expected[32] PROGMEM = {
+    0xc3, 0xda, 0x55, 0x37, 0x9d, 0xe9, 0xc6, 0x90,
+    0x8e, 0x94, 0xea, 0x4d, 0xf2, 0x8d, 0x08, 0x4f,
+    0x32, 0xec, 0xcf, 0x03, 0x49, 0x1c, 0x71, 0xf7,
+    0x54, 0xb4, 0x07, 0x55, 0x77, 0xa2, 0x85, 0x52
+};
+
+static __attribute__((noinline)) bool init_x25519_kat_ctx(SYN_X25519_Ctx *ctx)
 {
+    uint8_t scalar[32];
+    uint8_t point[32];
+    memcpy_P(scalar, k_x25519_scalar, sizeof(scalar));
+    memcpy_P(point, k_x25519_point, sizeof(point));
+    return syn_x25519_init(ctx, scalar, point);
+}
+
+static __attribute__((noinline)) bool test_kat_x25519_pt(uint16_t *out_slices, uint32_t *out_max_us)
+{
+    SYN_X25519_Ctx ctx;
+    SYN_PT pt;
+    uint8_t shared[32];
+    uint16_t slices = 0U;
+    uint32_t max_us = 0UL;
+
+    if (!init_x25519_kat_ctx(&ctx)) {
+        return false;
+    }
+    PT_INIT(&pt);
+
+    for (;;) {
+        uint32_t t0 = micros();
+        SYN_PT_Status st = syn_x25519_pt(&pt, &ctx, shared);
+        uint32_t dt = micros() - t0;
+        if (dt > max_us) {
+            max_us = dt;
+        }
+        slices++;
+        if (st == PT_ENDED) {
+            break;
+        }
+        if (st != PT_MORE || slices > 600U) {
+            return false;
+        }
+    }
+
+    *out_slices = slices;
+    *out_max_us = max_us;
+
+    if (ctx.active || slices != 510U || !syn_x25519_is_nonzero(shared)) {
+        return false;
+    }
+    return (memcmp_P(shared, k_x25519_expected, sizeof(shared)) == 0);
+}
+#endif
+
+static __attribute__((noinline)) bool test_avr16_kats(uint16_t *out_crc,
+                                                      uint16_t *out_x25519_slices,
+                                                      uint32_t *out_x25519_max_us)
+{
+    *out_x25519_slices = 0U;
+    *out_x25519_max_us = 0UL;
+
     /* 1. IEEE 802.3 CRC-32 ("123456789" -> 0xCBF43926) & CRC-16-CCITT (0x29B1) */
     const uint8_t nine[] = "123456789";
     uint32_t crc32 = syn_crc32(nine, 9U);
@@ -459,19 +589,26 @@ static __attribute__((noinline)) bool test_avr16_kats(uint16_t *out_crc)
         return false;
     }
 
-    /* 3. AES-128-GCM Encrypt + Authenticate + Tamper Reject */
+    /* 3. Multi-block + partial-tail AES-128-GCM (NIST SP 800-38D Case 4) + Tamper Reject */
     if (!test_kat_aes_gcm()) {
         return false;
     }
 
-    /* 4. PMBus Linear16 & Linear11 at exponent = -16 (vout_mode = 0x10, 16-bit shift boundary) */
+#if HIL_HAS_X25519
+    /* 4. Cooperative X25519 scalar mult (RFC 7748 §6.1) */
+    if (!test_kat_x25519_pt(out_x25519_slices, out_x25519_max_us)) {
+        return false;
+    }
+#endif
+
+    /* 5. PMBus Linear16 & Linear11 at exponent = -16 (vout_mode = 0x10, 16-bit shift boundary) */
     float vout = syn_pmbus_linear16_to_float(65535U, 0x10U);
     uint16_t raw16 = syn_pmbus_float_to_linear16(0.5f, 0x10U);
     if (vout < 0.999f || vout > 1.001f || raw16 != 32768U) {
         return false;
     }
 
-    /* 5. LwM2M 16-bit TLV & 64-bit Int Codec */
+    /* 6. LwM2M 16-bit TLV & 64-bit Int Codec */
     uint8_t tlv_buf[12];
     size_t tlv_len = syn_lwm2m_tlv_encode_int(1U, 0x0102030405LL, tlv_buf, sizeof(tlv_buf));
     SYN_LwM2M_TLV tlv;
@@ -483,7 +620,7 @@ static __attribute__((noinline)) bool test_avr16_kats(uint16_t *out_crc)
         return false;
     }
 
-    /* 6. Fixed-Point Q16.16 Math */
+    /* 7. Fixed-Point Q16.16 Math */
     int32_t a = Q16_FROM_INT(12);
     int32_t b = Q16_FROM_INT(3);
     if (q16_mul(a, b) != Q16_FROM_INT(36) ||
@@ -632,11 +769,17 @@ void loop(void)
             Serial.flush();
 
             uint16_t kat_crc = 0U;
-            bool ok4 = test_avr16_kats(&kat_crc);
+            uint16_t x25519_slices = 0U;
+            uint32_t x25519_max_us = 0UL;
+            bool ok4 = test_avr16_kats(&kat_crc, &x25519_slices, &x25519_max_us);
             Serial.print(F("[HIL-4/5] AVR16_CRYPTO_PROTO_KATS: "));
             Serial.print(ok4 ? F("PASS") : F("FAIL"));
             Serial.print(F(" (crc16=0x"));
             Serial.print(kat_crc, HEX);
+            Serial.print(F(" x25519_slices="));
+            Serial.print(x25519_slices);
+            Serial.print(F(" max_us="));
+            Serial.print(x25519_max_us);
             Serial.println(F(")"));
             Serial.flush();
 

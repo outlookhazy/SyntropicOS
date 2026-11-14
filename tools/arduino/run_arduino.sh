@@ -64,6 +64,7 @@ else
         fi
         SKETCHES+=("${dir}")
     done
+    SKETCHES+=("tools/arduino/hil_suite")
 fi
 
 FAIL=0
@@ -81,6 +82,13 @@ for sk in "${SKETCHES[@]}"; do
     if ! arduino-cli compile --fqbn "${sk_fqbn}" --warnings all "${sk}"; then
         echo "FAILURE: ${sk} failed to compile for ${sk_fqbn}"
         FAIL=1
+    fi
+    if [ "${base}" = "hil_suite" ] && [ "${sk_fqbn}" = "arduino:avr:uno" ]; then
+        echo "--- Compiling ${sk} (arduino:avr:mega) ---"
+        if ! arduino-cli compile --fqbn "arduino:avr:mega" --warnings all "${sk}"; then
+            echo "FAILURE: ${sk} failed to compile for arduino:avr:mega"
+            FAIL=1
+        fi
     fi
 done
 
@@ -130,9 +138,9 @@ import serial, time
 with serial.Serial("'"${PORT}"'", 115200, timeout=0.1) as s:
     s.dtr = False; time.sleep(0.05); s.dtr = True; s.reset_input_buffer()
 ' 2>/dev/null || true
-        if ! timeout -k 5 30s arduino-cli upload -p "${PORT}" --fqbn "${HIL_FQBN}" "${sketch}"; then
-            sleep 1
-            timeout -k 5 30s arduino-cli upload -p "${PORT}" --fqbn "${HIL_FQBN}" "${sketch}"
+        if ! timeout -k 5 90s arduino-cli upload -p "${PORT}" --fqbn "${HIL_FQBN}" "${sketch}"; then
+            sleep 2
+            timeout -k 5 90s arduino-cli upload -p "${PORT}" --fqbn "${HIL_FQBN}" "${sketch}"
         fi
     }
 
@@ -142,10 +150,11 @@ with serial.Serial("'"${PORT}"'", 115200, timeout=0.1) as s:
     upload_with_timeout "${HIL_SKETCH}"
 
     echo "--- Running 5-stage AVR Hardware-in-the-Loop Suite on ${PORT} (${HIL_FQBN}) ---"
-    python3 - "${PORT}" <<'PY'
+    python3 - "${PORT}" "${HIL_FQBN}" <<'PY'
 import serial, sys, time
 
 port = sys.argv[1]
+fqbn = sys.argv[2]
 with serial.Serial(port, 115200, timeout=0.2) as ser:
     # Wait for DTR-triggered Optiboot reset (~1.6s) if applicable
     time.sleep(1.8)
@@ -180,7 +189,7 @@ with serial.Serial(port, 115200, timeout=0.2) as ser:
     ser.flush()
 
     hil_out = b""
-    t_end = time.monotonic() + 8.0
+    t_end = time.monotonic() + 25.0
     while time.monotonic() < t_end:
         chunk = ser.read(512)
         if chunk:
@@ -191,12 +200,13 @@ with serial.Serial(port, 115200, timeout=0.2) as ser:
             if b"FAILURE:" in hil_out or b": FAIL" in hil_out:
                 break
 
+    exp_slices = "0" if fqbn == "arduino:avr:uno" else "510"
     txt = hil_out.decode("utf-8", errors="replace")
     for required in [
         "[HIL-1/5] SREG_CRITICAL_NESTING: PASS",
         "[HIL-2/5] TIMER1_ISR_AND_MUTEX_PI: PASS",
         "[HIL-3/5] EXTI_INT0_SELF_TRIGGER: PASS",
-        "[HIL-4/5] AVR16_CRYPTO_PROTO_KATS: PASS",
+        f"[HIL-4/5] AVR16_CRYPTO_PROTO_KATS: PASS (crc16=0x29B1 x25519_slices={exp_slices}",
         "[HIL-4b]  EEPROM_DUAL_BANK_FAILOVER: PASS",
         "[HIL-5/5] WDT_REBOOT_RECOVERY: PASS (seq=42 crc=0x29B1",
         "=== ALL 5 AVR HIL SUBSYSTEM TESTS PASSED ===",

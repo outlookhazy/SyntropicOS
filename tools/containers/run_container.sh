@@ -39,7 +39,7 @@ trap cleanup EXIT INT TERM HUP
 
 # Pre-execution sweep: kill any leftover/orphaned containers from interrupted host tasks
 if [[ "$CONTAINER_ENGINE" == *podman* ]]; then
-    podman ps -q --filter "image=localhost/syntropicos-test" | xargs -r podman rm -f >/dev/null 2>&1 || true
+    podman ps -aq --filter "name=syntropicos_run_" 2>/dev/null | xargs -r podman rm -f >/dev/null 2>&1 || true
 fi
 
 "$CONTAINER_ENGINE" run --init --name "$CONTAINER_NAME" --cidfile "$CID_FILE" --rm "$@"
