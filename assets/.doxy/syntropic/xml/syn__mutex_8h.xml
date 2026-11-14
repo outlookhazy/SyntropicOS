@@ -1,0 +1,561 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.15.0" xml:lang="en-US">
+  <compounddef id="syn__mutex_8h" kind="file" language="C++">
+    <compoundname>syn_mutex.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__pt_8h" local="yes">../pt/syn_pt.h</includes>
+    <includes refid="syn__task_8h" local="yes">syn_task.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__mutex_8c" local="yes">src/syntropic/sched/syn_mutex.c</includedby>
+    <includedby refid="syn__sched_8c" local="yes">src/syntropic/sched/syn_sched.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>../common/syn_barrier.h</label>
+        <link refid="syn__barrier_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>syn_event_flags.h</label>
+        <link refid="syn__event__flags_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sched/syn_mutex.h</label>
+        <link refid="syn__mutex_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>syn_task.h</label>
+        <link refid="syn__task_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/sched/syn_mutex.c</label>
+        <link refid="syn__mutex_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sched/syn_mutex.h</label>
+        <link refid="syn__mutex_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/sched/syn_sched.c</label>
+        <link refid="syn__sched_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Mutex" prot="public">SYN_Mutex</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__mutex_8h_1aea2b1537d8eaa97a70d0285c61589d65" prot="public" static="no">
+        <name>SYN_MUTEX_MAX_WAITERS</name>
+        <initializer>4U</initializer>
+        <briefdescription>
+<para>Maximum concurrent priority-tracked waiters per mutex. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="34" column="9" bodyfile="src/syntropic/sched/syn_mutex.h" bodystart="34" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__mutex_8h_1a11852ea863e482a79075295c0ac38aa8" prot="public" static="no">
+        <name>PT_MUTEX_INIT</name>
+        <param><defname>mutex</defname></param>
+        <initializer><ref refid="syn__mutex_8h_1a95191401d28efddc05594ba5adfc25e6" kindref="member">syn_mutex_init</ref>(mutex)</initializer>
+        <briefdescription>
+<para>Initialize a mutex. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="124" column="9" bodyfile="src/syntropic/sched/syn_mutex.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__mutex_8h_1a0d51ff228eb84a3b3c50abd32a7698b2" prot="public" static="no">
+        <name>PT_MUTEX_LOCK</name>
+        <param><defname>pt</defname></param>
+        <param><defname>task</defname></param>
+        <param><defname>mutex</defname></param>
+        <initializer>    <ref refid="syn__pt_8h_1a0a7f29e2a1e2caaf5bcc343412eef273" kindref="member">PT_WAIT_UNTIL</ref>(pt, <ref refid="syn__mutex_8h_1aad080753a75e4f7a92c81aa9b1ee30c6" kindref="member">syn_mutex_try_lock</ref>((mutex), (task)) == <ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)</initializer>
+        <briefdescription>
+<para>Block the protothread until the mutex is acquired. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Cooperatively waits via PT_WAIT_UNTIL (polled; keeps task READY and prevents tickless sleep while contended). On contention, automatically boosts the holding task&apos;s priority to prevent unbounded priority inversion.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Protothread control block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>task</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to calling <ref refid="structSYN__Task" kindref="compound">SYN_Task</ref>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mutex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to <ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="137" column="9" bodyfile="src/syntropic/sched/syn_mutex.h" bodystart="137" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__mutex_8h_1a0e7d65741ffcd3cb694acef8c336a1b9" prot="public" static="no">
+        <name>PT_MUTEX_UNLOCK</name>
+        <param><defname>mutex</defname></param>
+        <param><defname>task</defname></param>
+        <initializer><ref refid="syn__mutex_8h_1afbe47c758aa2f703d5e8d7bcc58ec74d" kindref="member">syn_mutex_unlock</ref>((mutex), (task))</initializer>
+        <briefdescription>
+<para>Unlock a mutex held by the task. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mutex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to <ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>task</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to calling <ref refid="structSYN__Task" kindref="compound">SYN_Task</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="146" column="9" bodyfile="src/syntropic/sched/syn_mutex.h" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__mutex_8h_1a34828b7de1acf4dbc4bc10bd37e013c2" prot="public" static="no">
+        <name>PT_MUTEX_TRYLOCK</name>
+        <param><defname>mutex</defname></param>
+        <param><defname>task</defname></param>
+        <initializer>(<ref refid="syn__mutex_8h_1ad63bb1e7cd673b1ebdb8fede60048a20" kindref="member">syn_mutex_probe</ref>((mutex), (task)) == <ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)</initializer>
+        <briefdescription>
+<para>Non-blocking try-lock macro for protothreads. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mutex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to <ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>task</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to calling <ref refid="structSYN__Task" kindref="compound">SYN_Task</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if acquired, false if busy. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="155" column="9" bodyfile="src/syntropic/sched/syn_mutex.h" bodystart="155" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__mutex_8h_1a95191401d28efddc05594ba5adfc25e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mutex_init</definition>
+        <argsstring>(SYN_Mutex *mutex)</argsstring>
+        <name>syn_mutex_init</name>
+        <param>
+          <type><ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref> *</type>
+          <declname>mutex</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a mutex in unlocked state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mutex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to mutex structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM if mutex is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="57" column="12" bodyfile="src/syntropic/sched/syn_mutex.c" bodystart="336" bodyend="353" declfile="src/syntropic/sched/syn_mutex.h" declline="57" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mutex_8h_1aad080753a75e4f7a92c81aa9b1ee30c6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mutex_try_lock</definition>
+        <argsstring>(SYN_Mutex *mutex, SYN_Task *task)</argsstring>
+        <name>syn_mutex_try_lock</name>
+        <param>
+          <type><ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref> *</type>
+          <declname>mutex</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <briefdescription>
+<para>Attempt to acquire the mutex without blocking. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the mutex is already locked by another task and <computeroutput>task</computeroutput> has higher priority (numerically lower value) than the owner, the owner&apos;s priority is automatically boosted.</para>
+<para><simplesect kind="note"><para>Single-scheduler (AMP) scope: all scheduled tasks (<computeroutput>task-&gt;sched != NULL</computeroutput>) acquiring or contending on a mutex must belong to the same <computeroutput><ref refid="structSYN__Sched" kindref="compound">SYN_Sched</ref></computeroutput> instance (<computeroutput><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref></computeroutput> otherwise). Use <computeroutput><ref refid="syn__port__spinlock_8h" kindref="compound">syn_port_spinlock.h</ref></computeroutput> or SPSC <computeroutput>syn_mailbox</computeroutput> across AMP cores.</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mutex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to mutex structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>task</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to acquiring task (optional, NULL for standalone lock). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK if acquired, SYN_BUSY if held by another task, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="75" column="12" bodyfile="src/syntropic/sched/syn_mutex.c" bodystart="355" bodyend="358" declfile="src/syntropic/sched/syn_mutex.h" declline="75" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mutex_8h_1ad63bb1e7cd673b1ebdb8fede60048a20" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mutex_probe</definition>
+        <argsstring>(SYN_Mutex *mutex, SYN_Task *task)</argsstring>
+        <name>syn_mutex_probe</name>
+        <param>
+          <type><ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref> *</type>
+          <declname>mutex</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <briefdescription>
+<para>Probe and acquire the mutex without registering as a contended waiter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Acquires an unlocked or recursively-held mutex like <ref refid="syn__mutex_8h_1aad080753a75e4f7a92c81aa9b1ee30c6" kindref="member">syn_mutex_try_lock()</ref>, but on contention returns SYN_BUSY without adding <computeroutput>task</computeroutput> to the waiter list or boosting the current owner.</para>
+<para><simplesect kind="note"><para>Single-scheduler (AMP) scope: returns <computeroutput><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref></computeroutput> if contended against a different <computeroutput><ref refid="structSYN__Sched" kindref="compound">SYN_Sched</ref></computeroutput> instance.</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mutex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to mutex structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>task</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to acquiring task (optional, NULL for standalone lock). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK if acquired, SYN_BUSY if held by another task, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="91" column="12" bodyfile="src/syntropic/sched/syn_mutex.c" bodystart="360" bodyend="363" declfile="src/syntropic/sched/syn_mutex.h" declline="91" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mutex_8h_1afbe47c758aa2f703d5e8d7bcc58ec74d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mutex_unlock</definition>
+        <argsstring>(SYN_Mutex *mutex, SYN_Task *task)</argsstring>
+        <name>syn_mutex_unlock</name>
+        <param>
+          <type><ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref> *</type>
+          <declname>mutex</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <briefdescription>
+<para>Release a previously acquired mutex. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Decrements the recursion count. When the count reaches zero, the owner&apos;s priority is restored to its base priority and ownership is cleared.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mutex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to mutex structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>task</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to owner task releasing the lock. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if not locked or wrong owner, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="103" column="12" bodyfile="src/syntropic/sched/syn_mutex.c" bodystart="365" bodyend="385" declfile="src/syntropic/sched/syn_mutex.h" declline="103" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mutex_8h_1a47e26db034f09e823e3814daec749cd2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_mutex_is_locked</definition>
+        <argsstring>(const SYN_Mutex *mutex)</argsstring>
+        <name>syn_mutex_is_locked</name>
+        <param>
+          <type>const <ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref> *</type>
+          <declname>mutex</declname>
+        </param>
+        <briefdescription>
+<para>Check if the mutex is currently locked. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mutex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to mutex structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if locked, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="110" column="6" bodyfile="src/syntropic/sched/syn_mutex.c" bodystart="387" bodyend="393" declfile="src/syntropic/sched/syn_mutex.h" declline="110" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mutex_8h_1ac5aea351c3233a38f1096aa8103d45fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref> *</type>
+        <definition>SYN_Task * syn_mutex_get_owner</definition>
+        <argsstring>(const SYN_Mutex *mutex)</argsstring>
+        <name>syn_mutex_get_owner</name>
+        <param>
+          <type>const <ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref> *</type>
+          <declname>mutex</declname>
+        </param>
+        <briefdescription>
+<para>Get the current owner of the mutex. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mutex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to mutex structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to owner task, or NULL if unlocked. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="117" column="10" bodyfile="src/syntropic/sched/syn_mutex.c" bodystart="395" bodyend="401" declfile="src/syntropic/sched/syn_mutex.h" declline="117" declcolumn="10"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Priority-inheriting mutual exclusion primitive for tasks and protothreads. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides recursive mutual exclusion with priority inheritance to prevent unbounded priority inversion. If a higher-priority task attempts to acquire a mutex held by a lower-priority task, the owner&apos;s priority is temporarily boosted to match the waiting task until the mutex is released. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_MUTEX_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MUTEX_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">../common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__pt_8h" kindref="compound">../pt/syn_pt.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__task_8h" kindref="compound">syn_task.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Mutex<sp/>Control<sp/>Structure<sp/>──────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_MUTEX_MAX_WAITERS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="syn__mutex_8h_1aea2b1537d8eaa97a70d0285c61589d65" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MUTEX_MAX_WAITERS<sp/>4U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="structSYN__Mutex" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref><sp/>{</highlight></codeline>
+<codeline lineno="41" refid="structSYN__Mutex_1a93892939e97b243453bdba74bd9bcfa5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref><sp/>*<ref refid="structSYN__Mutex_1a93892939e97b243453bdba74bd9bcfa5" kindref="member">owner</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="42" refid="structSYN__Mutex_1a2b796c6daa3160cd83e40998b2f8d44d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref><sp/>*<ref refid="structSYN__Mutex_1a2b796c6daa3160cd83e40998b2f8d44d" kindref="member">waiters</ref>[<ref refid="syn__mutex_8h_1aea2b1537d8eaa97a70d0285c61589d65" kindref="member">SYN_MUTEX_MAX_WAITERS</ref>];<sp/></highlight></codeline>
+<codeline lineno="43" refid="structSYN__Mutex_1a5c615cf57c821d5ac3cfc80ba606b458" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref><sp/>*<ref refid="structSYN__Mutex_1a5c615cf57c821d5ac3cfc80ba606b458" kindref="member">next_held</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="44" refid="structSYN__Mutex_1a43adf153b64f89167e62fc2a0fa65f46" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref><sp/>*<ref refid="structSYN__Mutex_1a43adf153b64f89167e62fc2a0fa65f46" kindref="member">next_contended</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="45" refid="structSYN__Mutex_1a2d81efa579f19451b4ac73200606e1bd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Sched" kindref="compound">SYN_Sched</ref><sp/>*<ref refid="structSYN__Mutex_1a2d81efa579f19451b4ac73200606e1bd" kindref="member">wait_sched</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="46" refid="structSYN__Mutex_1a9766b890eeec23d960336ce84bae45f6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__Mutex_1a9766b890eeec23d960336ce84bae45f6" kindref="member">lock_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="47" refid="structSYN__Mutex_1ac097275733c26a5714d426a736c67a90" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__Mutex_1ac097275733c26a5714d426a736c67a90" kindref="member">has_evicted</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="48"><highlight class="normal">}<sp/><ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Public<sp/>API<sp/>───────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mutex_8h_1a95191401d28efddc05594ba5adfc25e6" kindref="member">syn_mutex_init</ref>(<ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref><sp/>*mutex);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mutex_8h_1aad080753a75e4f7a92c81aa9b1ee30c6" kindref="member">syn_mutex_try_lock</ref>(<ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref><sp/>*mutex,<sp/><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref><sp/>*task);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mutex_8h_1ad63bb1e7cd673b1ebdb8fede60048a20" kindref="member">syn_mutex_probe</ref>(<ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref><sp/>*mutex,<sp/><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref><sp/>*task);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mutex_8h_1afbe47c758aa2f703d5e8d7bcc58ec74d" kindref="member">syn_mutex_unlock</ref>(<ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref><sp/>*mutex,<sp/><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref><sp/>*task);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__mutex_8h_1a47e26db034f09e823e3814daec749cd2" kindref="member">syn_mutex_is_locked</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref><sp/>*mutex);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref><sp/>*<ref refid="syn__mutex_8h_1ac5aea351c3233a38f1096aa8103d45fe" kindref="member">syn_mutex_get_owner</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref><sp/>*mutex);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Protothread<sp/>Macros<sp/>───────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="syn__mutex_8h_1a11852ea863e482a79075295c0ac38aa8" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_MUTEX_INIT(mutex)<sp/>syn_mutex_init(mutex)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137" refid="syn__mutex_8h_1a0d51ff228eb84a3b3c50abd32a7698b2" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_MUTEX_LOCK(pt,<sp/>task,<sp/>mutex)<sp/>\</highlight></codeline>
+<codeline lineno="138"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>PT_WAIT_UNTIL(pt,<sp/>syn_mutex_try_lock((mutex),<sp/>(task))<sp/>==<sp/>SYN_OK)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146" refid="syn__mutex_8h_1a0e7d65741ffcd3cb694acef8c336a1b9" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_MUTEX_UNLOCK(mutex,<sp/>task)<sp/>syn_mutex_unlock((mutex),<sp/>(task))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155" refid="syn__mutex_8h_1a34828b7de1acf4dbc4bc10bd37e013c2" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_MUTEX_TRYLOCK(mutex,<sp/>task)<sp/>(syn_mutex_probe((mutex),<sp/>(task))<sp/>==<sp/>SYN_OK)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_MUTEX_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/sched/syn_mutex.h"/>
+  </compounddef>
+</doxygen>

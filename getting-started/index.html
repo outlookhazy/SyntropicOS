@@ -1,0 +1,2503 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular cooperative OS & application framework for microcontrollers">
+      
+      
+      
+        <link rel="canonical" href="https://outlookhazy.github.io/SyntropicOS/getting-started/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../ide-guides/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Getting Started - SyntropicOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#getting-started-with-syntropicos" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SyntropicOS" class="md-header__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SyntropicOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Getting Started
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SyntropicOS" class="md-nav__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    SyntropicOS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-try-it-in-60-seconds-no-hardware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Try It in 60 Seconds (No Hardware)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-how-tasks-work-3-minute-tour" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. How Tasks Work (3-Minute Tour)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. How Tasks Work (3-Minute Tour)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anatomy-of-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anatomy of a Task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#which-pause-macro-should-i-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which Pause Macro Should I Use?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keeping-state-across-pauses-the-two-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keeping State Across Pauses (The Two Rules)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-add-to-your-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Add to Your Project
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Add to Your Project">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ready-made-hardware-ports-srcport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ready-Made Hardware Ports (src/port/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-first-mcu-firmware-blink-and-serial-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. First MCU Firmware (Blink and Serial Log)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-optional-configuration-syn_configh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Optional Configuration (syn_config.h)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-first-boot-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. First-Boot Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ide-guides/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IDE Setup Guides
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../arduino/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arduino Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview & Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/multitasking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multitasking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control & Motor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/communication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Communication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/ble/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bluetooth Low Energy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/audio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audio & Codecs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/crypto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Crypto & VPN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/wasm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebAssembly VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Module Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/group__syn__core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/group__syn__sched/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/group__syn__drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/group__syn__io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/group__syn__motor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Motor & Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/group__syn__display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/group__syn__net/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/group__syn__protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocols
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/group__syn__storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/group__syn__system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/group__syn__dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/group__syn__debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug & Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../syntropic/annotated/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Structs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../porting-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Porting Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../directory-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Directory Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-try-it-in-60-seconds-no-hardware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Try It in 60 Seconds (No Hardware)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-how-tasks-work-3-minute-tour" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. How Tasks Work (3-Minute Tour)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. How Tasks Work (3-Minute Tour)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anatomy-of-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anatomy of a Task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#which-pause-macro-should-i-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which Pause Macro Should I Use?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keeping-state-across-pauses-the-two-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keeping State Across Pauses (The Two Rules)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-add-to-your-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Add to Your Project
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Add to Your Project">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ready-made-hardware-ports-srcport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ready-Made Hardware Ports (src/port/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-first-mcu-firmware-blink-and-serial-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. First MCU Firmware (Blink and Serial Log)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-optional-configuration-syn_configh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Optional Configuration (syn_config.h)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-first-boot-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. First-Boot Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="getting-started-with-syntropicos">Getting Started with SyntropicOS<a class="headerlink" href="#getting-started-with-syntropicos" title="Permanent link">&para;</a></h1>
+<p>SyntropicOS is a C99 cooperative multitasking operating system, driver layer, and protocol framework for microcontrollers. Tasks run on the main stack with <strong>zero heap allocation</strong> (<code>malloc</code> is never called) and <strong>2 bytes of continuation state</strong> per protothread.</p>
+<p><strong>Choose where to start:</strong></p>
+<ul>
+<li><strong>No hardware handy?</strong> Run a two-task demo on Linux or macOS in <strong><a href="#1-try-it-in-60-seconds-no-hardware">Section 1</a></strong>.</li>
+<li><strong>New to protothreads?</strong> Read <strong><a href="#2-how-tasks-work-3-minute-tour">Section 2: How Tasks Work (3-Minute Tour)</a></strong>.</li>
+<li><strong>Setting up a board or IDE?</strong> Jump to <strong><a href="#3-add-to-your-project">Section 3: Add to Your Project</a></strong> and <strong><a href="#4-first-mcu-firmware-blink-and-serial-log">Section 4: First MCU Firmware</a></strong>.</li>
+</ul>
+<hr />
+<h2 id="1-try-it-in-60-seconds-no-hardware">1. Try It in 60 Seconds (No Hardware)<a class="headerlink" href="#1-try-it-in-60-seconds-no-hardware" title="Permanent link">&para;</a></h2>
+<p>You can run the scheduler, timed delays (<code>PT_TASK_DELAY_MS</code>), event-flag blocking (<code>PT_BLOCK_EVENT</code>), and structured logging on Linux or macOS with any C99 compiler (<code>gcc</code> or <code>clang</code>).</p>
+<p>From a SyntropicOS checkout, save this file as <code>host_demo.c</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#define _POSIX_C_SOURCE 199309L</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;time.h&gt;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"syntropic/syntropic.h"</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="cm">/* ── Minimal host system port &amp; console output ─────────────────────────── */</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="kt">void</span><span class="w"> </span><span class="nf">syn_port_enter_critical</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="kt">void</span><span class="w"> </span><span class="nf">syn_port_exit_critical</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">syn_port_get_tick_ms</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">timespec</span><span class="w"> </span><span class="n">ts</span><span class="p">;</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="n">clock_gettime</span><span class="p">(</span><span class="n">CLOCK_MONOTONIC</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ts</span><span class="p">);</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)((</span><span class="kt">uint64_t</span><span class="p">)</span><span class="n">ts</span><span class="p">.</span><span class="n">tv_sec</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000ULL</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span><span class="n">ts</span><span class="p">.</span><span class="n">tv_nsec</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1000000ULL</span><span class="p">);</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="p">}</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">console_out</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">fwrite</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="n">stdout</span><span class="p">);</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="p">}</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="cm">/* ── Application tasks ─────────────────────────────────────────────────── */</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="cp">#define EVT_PING (1UL &lt;&lt; 0)</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_EventFlags</span><span class="w"> </span><span class="n">s_events</span><span class="p">;</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">producer_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">sent</span><span class="p">;</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">sent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">sent</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="n">sent</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">);</span><span class="w">          </span><span class="cm">/* Pause 200 ms without blocking */</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">        </span><span class="n">SYN_LOG_I</span><span class="p">(</span><span class="s">"PROD"</span><span class="p">,</span><span class="w"> </span><span class="s">"Ping #%lu"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="p">)</span><span class="n">sent</span><span class="p">);</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">        </span><span class="n">syn_event_flags_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s_events</span><span class="p">,</span><span class="w"> </span><span class="n">EVT_PING</span><span class="p">);</span><span class="w"> </span><span class="cm">/* Wake consumer_task */</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="p">}</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">consumer_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">received</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">received</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">        </span><span class="n">PT_BLOCK_EVENT</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s_events</span><span class="p">,</span><span class="w"> </span><span class="n">EVT_PING</span><span class="p">);</span><span class="w"> </span><span class="cm">/* Sleep until EVT_PING */</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="w">        </span><span class="n">received</span><span class="o">++</span><span class="p">;</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="w">        </span><span class="n">SYN_LOG_I</span><span class="p">(</span><span class="s">"CONS"</span><span class="p">,</span><span class="w"> </span><span class="s">"Got ping #%lu"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="p">)</span><span class="n">received</span><span class="p">);</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a><span class="p">}</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="n">tasks</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">SYN_Sched</span><span class="w"> </span><span class="n">sched</span><span class="p">;</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>
+<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a><span class="w">    </span><span class="n">syn_log_init</span><span class="p">(</span><span class="n">console_out</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_LOG_INFO</span><span class="p">);</span>
+<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a><span class="w">    </span><span class="n">syn_event_flags_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s_events</span><span class="p">);</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>
+<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a><span class="w">    </span><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">"producer"</span><span class="p">,</span><span class="w"> </span><span class="n">producer_task</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_PRIO_NORMAL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a><span class="w">    </span><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">"consumer"</span><span class="p">,</span><span class="w"> </span><span class="n">consumer_task</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_PRIO_HIGH</span><span class="p">,</span><span class="w">   </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a><span class="w">    </span><span class="n">syn_sched_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">,</span><span class="w"> </span><span class="n">tasks</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a>
+<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a><span class="w">    </span><span class="cm">/* Returns false once both tasks reach PT_END(pt) */</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">syn_sched_run</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a><span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">timespec</span><span class="w"> </span><span class="n">nap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1000000L</span><span class="p">};</span><span class="w"> </span><span class="cm">/* 1 ms idle sleep */</span>
+<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a><span class="w">        </span><span class="n">nanosleep</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nap</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a><span class="p">}</span>
+</code></pre></div>
+<p>Compile and run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cc<span class="w"> </span>-std<span class="o">=</span>c99<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-Isrc<span class="w"> </span>host_demo.c<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>src/syntropic/sched/syn_sched.c<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>src/syntropic/sched/syn_mutex.c<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>src/syntropic/sched/syn_event_flags.c<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>src/syntropic/log/syn_log.c<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span>src/syntropic/util/syn_fmt.c<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span>src/syntropic/port_stubs/syn_port_stubs.c<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span>-o<span class="w"> </span>host_demo<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./host_demo
+</code></pre></div>
+<p>Expected output:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>[     200] I/PROD: Ping #1
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>[     201] I/CONS: Got ping #1
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>[     401] I/PROD: Ping #2
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>[     402] I/CONS: Got ping #2
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>[     602] I/PROD: Ping #3
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>[     603] I/CONS: Got ping #3
+</code></pre></div>
+<p><strong>What happened:</strong></p>
+<ol>
+<li>Both tasks ran sequentially on the single main stack — no OS threads and no <code>malloc()</code>.</li>
+<li><code>PT_TASK_DELAY_MS</code> paused <code>producer_task</code> for 200 ms while letting the rest of the program run.</li>
+<li><code>PT_BLOCK_EVENT</code> parked <code>consumer_task</code> in <code>SYN_TASK_BLOCKED</code> (zero polling) until <code>syn_event_flags_set()</code> woke it.</li>
+</ol>
+<hr />
+<h2 id="2-how-tasks-work-3-minute-tour">2. How Tasks Work (3-Minute Tour)<a class="headerlink" href="#2-how-tasks-work-3-minute-tour" title="Permanent link">&para;</a></h2>
+<h3 id="anatomy-of-a-task">Anatomy of a Task<a class="headerlink" href="#anatomy-of-a-task" title="Permanent link">&para;</a></h3>
+<p>Think of each task as an independent <code>for (;;)</code> loop that pauses cooperatively instead of calling a blocking <code>delay()</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">my_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span><span class="w">                        </span><span class="cm">/* 1. Required at top of task body */</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">        </span><span class="n">do_some_nonblocking_work</span><span class="p">();</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span><span class="w"> </span><span class="cm">/* 2. Bookmark line &amp; return to scheduler */</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span><span class="w">                          </span><span class="cm">/* 3. Required at bottom of task body */</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="p">}</span>
+</code></pre></div>
+<p>Preemptive RTOS threads allocate a separate 512 B–4 KB stack per task. A SyntropicOS protothread (<code>SYN_PT</code>) stores a <strong>2-byte bookmark</strong> (<code>uint16_t</code> line number; <strong>44 bytes</strong> total per scheduled <code>SYN_Task</code> on 32-bit MCUs). When a task hits a <code>PT_*</code> macro, it saves its line number and returns to <code>syn_sched_run()</code>. On its next turn, it jumps straight back to that bookmark.</p>
+<h3 id="which-pause-macro-should-i-use">Which Pause Macro Should I Use?<a class="headerlink" href="#which-pause-macro-should-i-use" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Macro</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wait <code>ms</code> milliseconds</td>
+<td><code>PT_TASK_DELAY_MS(pt, task, ms)</code></td>
+<td>Pauses this task for at least <code>ms</code>; other tasks keep running.</td>
+</tr>
+<tr>
+<td>Sleep until signaled by ISR or task</td>
+<td><code>PT_BLOCK_EVENT(pt, task, &amp;ev, mask)</code></td>
+<td>Parks task (<code>SYN_TASK_BLOCKED</code>, zero polling) until event bit is set. Related: <code>PT_MUTEX_LOCK</code>, <code>PT_BLOCK_STREAM</code>, <code>PT_BLOCK_CONDITION</code>.</td>
+</tr>
+<tr>
+<td>Wait until an expression is true</td>
+<td><code>PT_WAIT_UNTIL(pt, cond)</code></td>
+<td>Checks <code>cond</code> once per scheduler round until true.</td>
+</tr>
+<tr>
+<td>Yield for the rest of this round</td>
+<td><code>PT_PASS(pt)</code></td>
+<td>Reports no more work this round (<code>PT_IDLE</code>).</td>
+</tr>
+<tr>
+<td>Slice a long loop (DSP, crypto, I/O)</td>
+<td><code>PT_CONTINUE_IF_NEEDED(pt, task)</code></td>
+<td>Yields (<code>PT_MORE</code>) <strong>only</strong> when a peer task needs CPU time.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="keeping-state-across-pauses-the-two-rules">Keeping State Across Pauses (The Two Rules)<a class="headerlink" href="#keeping-state-across-pauses-the-two-rules" title="Permanent link">&para;</a></h3>
+<p>Because a task returns from the C function on every pause, keep two rules in mind:</p>
+<ol>
+<li><strong>Stack variables reset across pauses.</strong> Store values that must survive across a <code>PT_*</code> yield in a <strong>context struct passed via <code>user_data</code></strong> (best when running multiple instances of a task) or in <strong><code>static</code> variables</strong> (fine for single-instance tasks). Re-reading <code>task-&gt;user_data</code> <em>above</em> <code>PT_BEGIN(pt)</code> is safe because the function runs from the top before jumping to its bookmark.</li>
+<li><strong>Do not place a C <code>switch</code> directly inside <code>PT_BEGIN</code>..<code>PT_END</code>.</strong> (<code>PT_BEGIN</code> expands to a <code>switch</code> jump table.) Use <code>if</code> / <code>else if</code>, or put <code>switch</code> statements inside a normal helper function.</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">SYN_GPIO_Pin</span><span class="w"> </span><span class="n">pin</span><span class="p">;</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">period_ms</span><span class="p">;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">toggles</span><span class="p">;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span><span class="w"> </span><span class="n">BlinkCtx</span><span class="p">;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">log_milestone</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">count</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">count</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* switch inside a helper function is always fine */</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="mi">10</span><span class="p">:</span><span class="w"> </span><span class="n">SYN_LOG_I</span><span class="p">(</span><span class="s">"LED"</span><span class="p">,</span><span class="w"> </span><span class="s">"10 toggles"</span><span class="p">);</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">}</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">blink_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="n">BlinkCtx</span><span class="w"> </span><span class="o">*</span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">BlinkCtx</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">task</span><span class="o">-&gt;</span><span class="n">user_data</span><span class="p">;</span><span class="w"> </span><span class="cm">/* Re-fetched on every wake */</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">        </span><span class="n">syn_gpio_toggle</span><span class="p">(</span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">pin</span><span class="p">);</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">        </span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">toggles</span><span class="o">++</span><span class="p">;</span><span class="w">                  </span><span class="cm">/* Persists inside caller-owned BlinkCtx */</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">        </span><span class="n">log_milestone</span><span class="p">(</span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">toggles</span><span class="p">);</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">period_ms</span><span class="p">);</span>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="p">}</span>
+</code></pre></div>
+<p>With <code>user_data</code>, two independent tasks can share <code>blink_task</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">static</span><span class="w"> </span><span class="n">BlinkCtx</span><span class="w"> </span><span class="n">fast_led</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="n">pin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LED_A_PIN</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">period_ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">  </span><span class="p">.</span><span class="n">toggles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">static</span><span class="w"> </span><span class="n">BlinkCtx</span><span class="w"> </span><span class="n">slow_led</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="n">pin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LED_B_PIN</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">period_ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">toggles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">"led_fast"</span><span class="p">,</span><span class="w"> </span><span class="n">blink_task</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_PRIO_NORMAL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">fast_led</span><span class="p">);</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">"led_slow"</span><span class="p">,</span><span class="w"> </span><span class="n">blink_task</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_PRIO_LOW</span><span class="p">,</span><span class="w">    </span><span class="o">&amp;</span><span class="n">slow_led</span><span class="p">);</span>
+</code></pre></div>
+<hr />
+<h2 id="3-add-to-your-project">3. Add to Your Project<a class="headerlink" href="#3-add-to-your-project" title="Permanent link">&para;</a></h2>
+<p><strong>Compiler Requirement</strong>: C99 or newer with <code>__has_include</code> support — GCC &gt;= 5 (<code>arm-none-eabi-gcc</code>, <code>riscv-none-embed-gcc</code>, host <code>gcc</code>), Clang / ARM Compiler 6, IAR EWARM &gt;= 8, or Arduino IDE.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:5"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><input id="__tabbed_1_5" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Arduino IDE</label><label for="__tabbed_1_2">PlatformIO</label><label for="__tabbed_1_3">CMake (Submodule)</label><label for="__tabbed_1_4">Makefile (Submodule)</label><label for="__tabbed_1_5">STM32CubeIDE / Keil / IAR</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<ol>
+<li>Open <strong>Tools → Manage Libraries...</strong> (<code>Ctrl+Shift+I</code>).</li>
+<li>Search for <strong>SyntropicOS</strong> and click <strong>Install</strong>.</li>
+<li>Open <strong>File → Examples → SyntropicOS → Blink</strong> and upload to your board.</li>
+</ol>
+<p>See the <a href="../arduino/">Arduino Compatibility Guide</a> for multi-tab sketch patterns and board notes.</p>
+</div>
+<div class="tabbed-block">
+<p>Add <code>SyntropicOS</code> to <code>platformio.ini</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">[env:disco_f407vg]</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="na">platform</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ststm32</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="na">board</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">disco_f407vg</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="na">framework</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">stm32cube</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="na">build_flags</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="na">-std</span><span class="o">=</span><span class="s">c99</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="na">-Iinclude</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="na">lib_deps</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="na">https</span><span class="o">:</span><span class="s">//github.com/outlookhazy/SyntropicOS.git</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>Add the submodule to your project:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>git<span class="w"> </span>submodule<span class="w"> </span>add<span class="w"> </span>https://github.com/outlookhazy/SyntropicOS<span class="w"> </span>lib/SyntropicOS
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init
+</code></pre></div>
+<p>In <code>CMakeLists.txt</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.16</span><span class="p">)</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nb">project</span><span class="p">(</span><span class="s">my_firmware</span><span class="w"> </span><span class="s">LANGUAGES</span><span class="w"> </span><span class="s">C</span><span class="p">)</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_C_STANDARD</span><span class="w"> </span><span class="s">99</span><span class="p">)</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="nb">add_subdirectory</span><span class="p">(</span><span class="s">lib/SyntropicOS</span><span class="p">)</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="nb">add_executable</span><span class="p">(</span><span class="s">my_firmware</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="s">src/main.c</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="c"># Pick the port matching your target from src/port/:</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="s">lib/SyntropicOS/src/port/stm32_hal/port_stm32_hal.c</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="p">)</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="c"># Optional: directory holding your syn_config.h (if you use one)</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="nb">target_include_directories</span><span class="p">(</span><span class="s">my_firmware</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">include</span><span class="p">)</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="c"># Define your MCU family when using port_stm32_hal.c outside CubeIDE/PlatformIO:</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="nb">target_compile_definitions</span><span class="p">(</span><span class="s">my_firmware</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">STM32F4xx</span><span class="p">)</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="c"># syntropic = portable headers &amp; sources; syn_stubs = weak fallbacks for unused ports</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">my_firmware</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">syntropic</span><span class="w"> </span><span class="s">syn_stubs</span><span class="p">)</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="c"># Strip unused functions and data at link time</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="nb">target_compile_options</span><span class="p">(</span><span class="s">my_firmware</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">-ffunction-sections</span><span class="w"> </span><span class="s">-fdata-sections</span><span class="p">)</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="nb">target_link_options</span><span class="p">(</span><span class="s">my_firmware</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">-Wl,--gc-sections</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p><code>sources.mk</code> exports <code>SYN_INC</code> (<code>lib/SyntropicOS/src</code>), <code>SYN_SRCS</code> (all portable <code>.c</code> modules), and <code>SYN_STUB_SRCS</code> (<code>syn_port_stubs.c</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nv">SYN_DIR</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span>lib/SyntropicOS
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="cp">include $(SYN_DIR)/sources.mk</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="nv">CFLAGS</span><span class="w">  </span><span class="o">+=</span><span class="w"> </span>-std<span class="o">=</span>c99<span class="w"> </span>-ffunction-sections<span class="w"> </span>-fdata-sections<span class="w"> </span>-DSTM32F4xx<span class="w"> </span>-Iinclude<span class="w"> </span>-I<span class="k">$(</span>SYN_INC<span class="k">)</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="nv">LDFLAGS</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span>-Wl,--gc-sections
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="nv">SRCS</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span>src/main.c
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="nv">SRCS</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="k">$(</span>SYN_SRCS<span class="k">)</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="nv">SRCS</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="k">$(</span>SYN_DIR<span class="k">)</span>/src/port/stm32_hal/port_stm32_hal.c
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="nv">SRCS</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="k">$(</span>SYN_STUB_SRCS<span class="k">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<ol>
+<li>Add <strong><code>SyntropicOS/src</code></strong> (not the repo root) to your compiler include paths so <code>#include "syntropic/syntropic.h"</code> resolves.</li>
+<li>Enable <strong>C99</strong> mode and dead-code stripping (<code>-ffunction-sections -fdata-sections</code> and <code>-Wl,--gc-sections</code>).</li>
+<li>Compile <code>src/syntropic/**.c</code>, your target port from <code>src/port/&lt;platform&gt;/</code>, and <code>src/syntropic/port_stubs/syn_port_stubs.c</code>.</li>
+</ol>
+<p>See <a href="../ide-guides/">IDE Setup Guides</a> for click-by-click screenshots/paths in STM32CubeIDE, VS Code + Cortex-Debug, Keil uVision, and IAR.</p>
+</div>
+</div>
+</div>
+<h3 id="ready-made-hardware-ports-srcport">Ready-Made Hardware Ports (<code>src/port/</code>)<a class="headerlink" href="#ready-made-hardware-ports-srcport" title="Permanent link">&para;</a></h3>
+<p>Include the port file matching your target — no custom HAL code is needed for supported boards:</p>
+<table>
+<thead>
+<tr>
+<th>Target Platform</th>
+<th>Port Source</th>
+<th>Target Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>STM32 (Cube HAL)</strong></td>
+<td><code>src/port/stm32_hal/port_stm32_hal.c</code></td>
+<td>Supports F0/F1/F4/F7/G0/H7/L4/C0/U0. Include <code>port/stm32_hal/port_stm32_hal.h</code> for <code>SYN_PORT_STM32_PIN()</code> and <code>syn_port_stm32_register_uart()</code>.</td>
+</tr>
+<tr>
+<td><strong>STM32F4 (Bare-Metal)</strong></td>
+<td><code>src/port/stm32f4/port_stm32f4.c</code></td>
+<td>Direct CMSIS register port (zero HAL dependency; includes <code>startup_stm32f407.c</code> &amp; <code>stm32f407.ld</code>).</td>
+</tr>
+<tr>
+<td><strong>Raspberry Pi RP2040 / RP2350</strong></td>
+<td><code>src/port/rp2040/port_rp2040.c</code></td>
+<td>Pico SDK (<code>-DPICO_BOARD=...</code>; add <code>port_rp2040_multicore.c</code> when <code>SYN_USE_MULTICORE=1</code>).</td>
+</tr>
+<tr>
+<td><strong>ESP32</strong></td>
+<td><code>src/port/esp32/port_esp32.c</code></td>
+<td>ESP-IDF GPIO, UART, SPI, I2C, ADC, flash, and system tick port.</td>
+</tr>
+<tr>
+<td><strong>WCH CH32V307 (RISC-V)</strong></td>
+<td><code>src/port/ch32v307/port_ch32v307.c</code></td>
+<td>QingKe V4F bare-metal port (<code>-DCH32V307=ON</code> in CMake).</td>
+</tr>
+<tr>
+<td><strong>Arduino</strong></td>
+<td><code>src/port/arduino/port_arduino.cpp</code></td>
+<td>Cross-board Arduino C++ core (<code>+ port_arduino_multicore.cpp</code> on Arduino-Pico).</td>
+</tr>
+<tr>
+<td><strong>POSIX Host Sockets</strong></td>
+<td><code>src/port/posix/port_posix_socket.c</code></td>
+<td>Non-blocking TCP/UDP socket backend for Linux/macOS host testing.</td>
+</tr>
+</tbody>
+</table>
+<p>For custom MCUs, see the <a href="../porting-guide/">Porting Guide</a> — a minimal scheduler + GPIO bring-up only requires <code>syn_port_system.h</code> and <code>syn_port_gpio.h</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">What <code>syn_stubs</code> (<code>syn_port_stubs.c</code>) Does</p>
+<p>Linking <code>syn_port_stubs.c</code> provides <code>SYN_WEAK</code> defaults for every <code>syn_port_*</code> function so your project links even if your port only implements GPIO and UART (skipping CAN, SPI, or Flash). <strong>Stubs are fail-fast traps, not silent no-ops</strong>: calling an unimplemented port function invokes <code>syn_assert_failed(__FILE__, __LINE__)</code>.</p>
+</div>
+<hr />
+<h2 id="4-first-mcu-firmware-blink-and-serial-log">4. First MCU Firmware (Blink and Serial Log)<a class="headerlink" href="#4-first-mcu-firmware-blink-and-serial-log" title="Permanent link">&para;</a></h2>
+<p>Two cooperative tasks — one blinking an LED every 500 ms, one logging uptime every 2 seconds:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">STM32 (Cube HAL)</label><label for="__tabbed_2_2">Raspberry Pi Pico (Pico SDK)</label><label for="__tabbed_2_3">Arduino / ESP32 / STM32duino</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"main.h"</span><span class="w"> </span><span class="cm">/* CubeMX-generated clocks, GPIO, and UART handles */</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"syntropic/syntropic.h"</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"port/stm32_hal/port_stm32_hal.h"</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="k">extern</span><span class="w"> </span><span class="n">UART_HandleTypeDef</span><span class="w"> </span><span class="n">huart2</span><span class="p">;</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="cm">/* Works with CubeMX labels (LD2_GPIO_Port, LD2_Pin) or raw (GPIOA, GPIO_PIN_5) */</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="cp">#define LED_PIN SYN_PORT_STM32_PIN(GPIOA, GPIO_PIN_5)</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">blink_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">        </span><span class="n">syn_gpio_toggle</span><span class="p">(</span><span class="n">LED_PIN</span><span class="p">);</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">);</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="p">}</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">log_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a><span class="w">        </span><span class="n">SYN_LOG_I</span><span class="p">(</span><span class="s">"APP"</span><span class="p">,</span><span class="w"> </span><span class="s">"Uptime: %lu ms"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="p">)</span><span class="n">syn_port_get_tick_ms</span><span class="p">());</span>
+<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">2000</span><span class="p">);</span>
+<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a><span class="p">}</span>
+<a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a>
+<a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="n">tasks</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">SYN_Sched</span><span class="w"> </span><span class="n">sched</span><span class="p">;</span>
+<a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a>
+<a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a><span class="w">    </span><span class="cm">/* 1. Standard CubeMX clock + UART init (1 kHz SysTick feeds syn_port_get_tick_ms) */</span>
+<a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a><span class="w">    </span><span class="n">HAL_Init</span><span class="p">();</span>
+<a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a><span class="w">    </span><span class="n">SystemClock_Config</span><span class="p">();</span>
+<a id="__codelineno-10-35" name="__codelineno-10-35" href="#__codelineno-10-35"></a><span class="w">    </span><span class="n">MX_USART2_UART_Init</span><span class="p">();</span>
+<a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a>
+<a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a><span class="w">    </span><span class="cm">/* 2. Bind huart2 to UART slot 0 for console logging, and configure LED pin */</span>
+<a id="__codelineno-10-38" name="__codelineno-10-38" href="#__codelineno-10-38"></a><span class="w">    </span><span class="n">syn_port_stm32_register_uart</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">huart2</span><span class="p">);</span>
+<a id="__codelineno-10-39" name="__codelineno-10-39" href="#__codelineno-10-39"></a><span class="w">    </span><span class="n">syn_port_serial_init</span><span class="p">(</span><span class="mi">115200</span><span class="p">);</span>
+<a id="__codelineno-10-40" name="__codelineno-10-40" href="#__codelineno-10-40"></a><span class="w">    </span><span class="n">syn_log_init</span><span class="p">(</span><span class="n">SYN_LOG_INFO</span><span class="p">);</span>
+<a id="__codelineno-10-41" name="__codelineno-10-41" href="#__codelineno-10-41"></a><span class="w">    </span><span class="n">syn_gpio_init</span><span class="p">(</span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_GPIO_OUTPUT</span><span class="p">);</span>
+<a id="__codelineno-10-42" name="__codelineno-10-42" href="#__codelineno-10-42"></a>
+<a id="__codelineno-10-43" name="__codelineno-10-43" href="#__codelineno-10-43"></a><span class="w">    </span><span class="cm">/* 3. Register static tasks (SYN_PRIO_CRITICAL = 0 highest .. SYN_PRIO_LOW = 3) */</span>
+<a id="__codelineno-10-44" name="__codelineno-10-44" href="#__codelineno-10-44"></a><span class="w">    </span><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">"blink"</span><span class="p">,</span><span class="w"> </span><span class="n">blink_task</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_PRIO_NORMAL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-10-45" name="__codelineno-10-45" href="#__codelineno-10-45"></a><span class="w">    </span><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">"log"</span><span class="p">,</span><span class="w">   </span><span class="n">log_task</span><span class="p">,</span><span class="w">   </span><span class="n">SYN_PRIO_LOW</span><span class="p">,</span><span class="w">    </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-10-46" name="__codelineno-10-46" href="#__codelineno-10-46"></a>
+<a id="__codelineno-10-47" name="__codelineno-10-47" href="#__codelineno-10-47"></a><span class="w">    </span><span class="cm">/* 4. Start cooperative scheduler */</span>
+<a id="__codelineno-10-48" name="__codelineno-10-48" href="#__codelineno-10-48"></a><span class="w">    </span><span class="n">syn_sched_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">,</span><span class="w"> </span><span class="n">tasks</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+<a id="__codelineno-10-49" name="__codelineno-10-49" href="#__codelineno-10-49"></a><span class="w">    </span><span class="n">syn_sched_run_forever</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">);</span>
+<a id="__codelineno-10-50" name="__codelineno-10-50" href="#__codelineno-10-50"></a><span class="p">}</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"pico/stdlib.h"</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"syntropic/syntropic.h"</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="cp">#define LED_PIN 25 </span><span class="cm">/* On-board GP25 LED on Pico */</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">blink_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">        </span><span class="n">syn_gpio_toggle</span><span class="p">(</span><span class="n">LED_PIN</span><span class="p">);</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">);</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="p">}</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">log_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="w">        </span><span class="n">SYN_LOG_I</span><span class="p">(</span><span class="s">"PICO"</span><span class="p">,</span><span class="w"> </span><span class="s">"Uptime: %lu ms"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="p">)</span><span class="n">syn_port_get_tick_ms</span><span class="p">());</span>
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">2000</span><span class="p">);</span>
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a><span class="p">}</span>
+<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>
+<a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="n">tasks</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">SYN_Sched</span><span class="w"> </span><span class="n">sched</span><span class="p">;</span>
+<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>
+<a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a><span class="w">    </span><span class="n">stdio_init_all</span><span class="p">();</span><span class="w"> </span><span class="cm">/* Initializes USB CDC / UART stdio used by port_rp2040.c */</span>
+<a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a><span class="w">    </span><span class="n">syn_port_serial_init</span><span class="p">(</span><span class="mi">115200</span><span class="p">);</span>
+<a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a><span class="w">    </span><span class="n">syn_log_init</span><span class="p">(</span><span class="n">SYN_LOG_INFO</span><span class="p">);</span>
+<a id="__codelineno-11-31" name="__codelineno-11-31" href="#__codelineno-11-31"></a><span class="w">    </span><span class="n">syn_gpio_init</span><span class="p">(</span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_GPIO_OUTPUT</span><span class="p">);</span>
+<a id="__codelineno-11-32" name="__codelineno-11-32" href="#__codelineno-11-32"></a>
+<a id="__codelineno-11-33" name="__codelineno-11-33" href="#__codelineno-11-33"></a><span class="w">    </span><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">"blink"</span><span class="p">,</span><span class="w"> </span><span class="n">blink_task</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_PRIO_NORMAL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-11-34" name="__codelineno-11-34" href="#__codelineno-11-34"></a><span class="w">    </span><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">"log"</span><span class="p">,</span><span class="w">   </span><span class="n">log_task</span><span class="p">,</span><span class="w">   </span><span class="n">SYN_PRIO_LOW</span><span class="p">,</span><span class="w">    </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-11-35" name="__codelineno-11-35" href="#__codelineno-11-35"></a>
+<a id="__codelineno-11-36" name="__codelineno-11-36" href="#__codelineno-11-36"></a><span class="w">    </span><span class="n">syn_sched_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">,</span><span class="w"> </span><span class="n">tasks</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+<a id="__codelineno-11-37" name="__codelineno-11-37" href="#__codelineno-11-37"></a><span class="w">    </span><span class="n">syn_sched_run_forever</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">);</span>
+<a id="__codelineno-11-38" name="__codelineno-11-38" href="#__codelineno-11-38"></a><span class="p">}</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;SyntropicOS.h&gt;</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="n">tasks</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_Sched</span><span class="w"> </span><span class="n">sched</span><span class="p">;</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">blink_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">        </span><span class="n">syn_gpio_toggle</span><span class="p">(</span><span class="n">LED_BUILTIN</span><span class="p">);</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">);</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="p">}</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">log_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">        </span><span class="n">SYN_LOG_I</span><span class="p">(</span><span class="s">"APP"</span><span class="p">,</span><span class="w"> </span><span class="s">"Uptime: %lu ms"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="p">)</span><span class="n">syn_port_get_tick_ms</span><span class="p">());</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">2000</span><span class="p">);</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="p">}</span>
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>
+<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a><span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a><span class="w">    </span><span class="n">syn_port_serial_init</span><span class="p">(</span><span class="mi">115200</span><span class="p">);</span>
+<a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a><span class="w">    </span><span class="n">syn_log_init</span><span class="p">(</span><span class="n">SYN_LOG_INFO</span><span class="p">);</span>
+<a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a><span class="w">    </span><span class="n">syn_gpio_init</span><span class="p">(</span><span class="n">LED_BUILTIN</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_GPIO_OUTPUT</span><span class="p">);</span>
+<a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a>
+<a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a><span class="w">    </span><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">"blink"</span><span class="p">,</span><span class="w"> </span><span class="n">blink_task</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_PRIO_NORMAL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a><span class="w">    </span><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">"log"</span><span class="p">,</span><span class="w">   </span><span class="n">log_task</span><span class="p">,</span><span class="w">   </span><span class="n">SYN_PRIO_LOW</span><span class="p">,</span><span class="w">    </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a><span class="w">    </span><span class="n">syn_sched_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">,</span><span class="w"> </span><span class="n">tasks</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+<a id="__codelineno-12-32" name="__codelineno-12-32" href="#__codelineno-12-32"></a><span class="p">}</span>
+<a id="__codelineno-12-33" name="__codelineno-12-33" href="#__codelineno-12-33"></a>
+<a id="__codelineno-12-34" name="__codelineno-12-34" href="#__codelineno-12-34"></a><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-35" name="__codelineno-12-35" href="#__codelineno-12-35"></a><span class="w">    </span><span class="n">syn_sched_run</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">);</span>
+<a id="__codelineno-12-36" name="__codelineno-12-36" href="#__codelineno-12-36"></a><span class="p">}</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<hr />
+<h2 id="5-optional-configuration-syn_configh">5. Optional Configuration (<code>syn_config.h</code>)<a class="headerlink" href="#5-optional-configuration-syn_configh" title="Permanent link">&para;</a></h2>
+<p><strong>You do not need <code>syn_config.h</code> to get started.</strong> All 199 standard modules are enabled by default, and compiling with <code>-ffunction-sections -fdata-sections</code> plus <code>-Wl,--gc-sections</code> strips unused code automatically.</p>
+<p>Create <code>syn_config.h</code> on your include path (auto-detected via <code>#if __has_include("syn_config.h")</code>) when you want to:</p>
+<ol>
+<li><strong>Speed up builds or save static RAM</strong> by compiling out unused subsystems (<code>#define SYN_USE_BLE 0</code>, <code>#define SYN_USE_TLS 0</code>, etc.).</li>
+<li><strong>Tune static buffer sizes</strong> (for example <code>SYN_LOG_BUF_SIZE</code> or <code>SYN_UART_RX_BUF_SIZE</code> on small-RAM MCUs).</li>
+<li><strong>Enable any of the 9 opt-in hardware features</strong> (off by default because they require extra port hooks or dedicated RAM/Flash):</li>
+<li><code>SYN_USE_TICKLESS</code> — Low-power tickless idle sleep (<code>syn_sched_run_tickless*</code>; requires <code>syn_port_sleep_until()</code>)</li>
+<li><code>SYN_USE_MULTICORE</code> — Dual-core AMP spinlocks &amp; cross-core mailboxes (<code>syn_port_spinlock.h</code>)</li>
+<li><code>SYN_USE_DMA</code> — Hardware DMA &amp; cache coherency port (<code>syn_port_dma.h</code>)</li>
+<li><code>SYN_USE_I2C_ASYNC</code> / <code>SYN_USE_SPI_ASYNC</code> — Interrupt/DMA non-blocking bus queues</li>
+<li><code>SYN_USE_CAN_FD</code> — 64-byte CAN FD payloads in <code>syn_can</code></li>
+<li><code>SYN_USE_PORT_AES</code> — Hardware AES/GHASH offload (<code>syn_port_aes.h</code>)</li>
+<li><code>SYN_USE_COREDUMP</code> — Crash core dump to flash (<code>SYN_COREDUMP_FLASH_ADDR</code>)</li>
+<li><code>SYN_USE_METRICS</code> — Runtime counters, gauges, and histograms</li>
+</ol>
+<p>Copy the documented template into your include folder:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>cp<span class="w"> </span>lib/SyntropicOS/src/syntropic/syn_config_template.h<span class="w"> </span>include/syn_config.h
+</code></pre></div>
+<details class="info">
+<summary>Common <code>syn_config.h</code> Tuning Parameters &amp; Defaults</summary>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SYN_SCHED_PRIO_LEVELS</code></td>
+<td><code>4</code></td>
+<td>Priority levels (<code>SYN_PRIO_CRITICAL = 0</code> .. <code>SYN_PRIO_LOW = 3</code>, max <code>255</code>)</td>
+</tr>
+<tr>
+<td><code>SYN_SCHED_MAX_WAIT_*_MS</code></td>
+<td><code>1 / 5 / 15 / 50</code></td>
+<td>Max starvation window per priority (<code>CRITICAL</code> / <code>HIGH</code> / <code>NORMAL</code> / <code>LOW</code>)</td>
+</tr>
+<tr>
+<td><code>SYN_MUTEX_MAX_WAITERS</code></td>
+<td><code>4U</code></td>
+<td>Tracked contended waiters per <code>SYN_Mutex</code> for priority inheritance</td>
+</tr>
+<tr>
+<td><code>SYN_LOG_LEVEL</code></td>
+<td><code>SYN_LOG_DEBUG</code> (<code>1</code>)</td>
+<td>Compile-time minimum log level (<code>0</code> = TRACE .. <code>5</code> = FATAL, <code>6</code> = NONE)</td>
+</tr>
+<tr>
+<td><code>SYN_LOG_BUF_SIZE</code></td>
+<td><code>192</code></td>
+<td>Stack buffer size for <code>syn_log()</code> formatting (bytes)</td>
+</tr>
+<tr>
+<td><code>SYN_LOG_TIMESTAMP</code></td>
+<td><code>1</code></td>
+<td>Prefix log lines with <code>[tick]</code> millisecond timestamp</td>
+</tr>
+<tr>
+<td><code>SYN_LOG_COLOR</code></td>
+<td><code>0</code></td>
+<td>Emit ANSI color codes by severity</td>
+</tr>
+<tr>
+<td><code>SYN_CLI_LINE_BUF_SIZE</code></td>
+<td><code>128</code></td>
+<td>Maximum CLI command line length (bytes)</td>
+</tr>
+<tr>
+<td><code>SYN_CLI_HISTORY_DEPTH</code></td>
+<td><code>0</code></td>
+<td>CLI command history ring depth (<code>0</code> = disabled)</td>
+</tr>
+<tr>
+<td><code>SYN_UART_TX_BUF_SIZE</code> / <code>RX_BUF_SIZE</code></td>
+<td><code>128</code></td>
+<td>Per-instance buffered <code>SYN_UART</code> ring sizes (bytes)</td>
+</tr>
+<tr>
+<td><code>SYN_UART_MAX_INSTANCES</code></td>
+<td><code>2</code></td>
+<td>Maximum simultaneous buffered <code>SYN_UART</code> instances</td>
+</tr>
+<tr>
+<td><code>SYN_CRC_USE_TABLE</code></td>
+<td><code>1</code></td>
+<td><code>1</code> = lookup-table CRC, <code>0</code> = compact bitwise CRC</td>
+</tr>
+<tr>
+<td><code>SYN_DISABLE_ASSERT</code></td>
+<td><em>(undefined)</em></td>
+<td>Define to strip runtime <code>SYN_ASSERT()</code> checks in release builds</td>
+</tr>
+</tbody>
+</table>
+<p>See <code>examples/PicoBlink/syn_config.h</code> for a minimal bring-up configuration and <code>src/syntropic/syn_config_template.h</code> for all 208 switches.</p>
+</details>
+<hr />
+<h2 id="6-first-boot-troubleshooting">6. First-Boot Troubleshooting<a class="headerlink" href="#6-first-boot-troubleshooting" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Firmware halts immediately in an infinite loop</strong>: A <code>SYN_ASSERT()</code> failed or your code called an unimplemented <code>syn_port_*</code> weak stub. Set a breakpoint on <code>syn_assert_failed</code>, or define a strong handler in <code>main.c</code> to print the offending file and line:
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">syn_assert_failed</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">file</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="cm">/* Print over UART/SWO/RTT or inspect 'file' and 'line' in debugger */</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">file</span><span class="p">;</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">line</span><span class="p">;</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{}</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">}</span>
+</code></pre></div></li>
+<li><strong><code>PT_TASK_DELAY_MS</code> pauses forever</strong>: <code>syn_port_get_tick_ms()</code> is stuck at <code>0</code>. Verify your 1 kHz timer interrupt is enabled (for example <code>SysTick_Handler</code> calling <code>HAL_IncTick()</code> on STM32).</li>
+<li><strong>No <code>SYN_LOG_*</code> output on STM32Cube HAL</strong>: Call <code>syn_port_stm32_register_uart(0, &amp;huartX)</code> before <code>syn_port_serial_init()</code>, or pass a custom sink callback (<code>syn_log_init(my_rtt_write, SYN_LOG_INFO)</code>).</li>
+<li><strong><code>syn_config.h</code> in an Arduino sketch folder has no effect on library <code>.c</code> files</strong>: Arduino IDE compiles libraries without <code>-I&lt;sketch_dir&gt;</code>. Place <code>syn_config.h</code> in <code>libraries/SyntropicOS/src/</code> or use PlatformIO <code>build_flags</code> (see <a href="../arduino/#disabling-unused-modules">Arduino Guide</a>).</li>
+</ul>
+<hr />
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><a href="../modules/">Module Catalog</a></strong> — Browse all 17 subsystem guides (I/O, CLI, Display/IMGUI, Storage, DSP, Motor Control, Networking, Crypto, BLE, Fieldbuses).</li>
+<li><strong><a href="https://github.com/outlookhazy/SyntropicOS/tree/main/examples">Examples Directory</a></strong> — 100+ complete projects across STM32, RP2040, ESP32, CH32V307, and Arduino.</li>
+<li><strong><a href="../ide-guides/">IDE Setup Guides</a></strong> &amp; <strong><a href="../arduino/">Arduino Guide</a></strong> — Toolchain-specific project configurations.</li>
+<li><strong><a href="../porting-guide/">Porting Guide</a></strong> — Implementing <code>syn_port_*</code> contracts on custom hardware.</li>
+<li><strong><a href="../testing/">Testing Guide</a></strong> — Running containerized unit tests, QEMU/Renode emulation, and sanitizers.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

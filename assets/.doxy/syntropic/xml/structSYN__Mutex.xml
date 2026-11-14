@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.15.0" xml:lang="en-US">
+  <compounddef id="structSYN__Mutex" kind="struct" language="C++" prot="public">
+    <compoundname>SYN_Mutex</compoundname>
+    <includes refid="syn__mutex_8h" local="no">syn_mutex.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structSYN__Mutex_1a93892939e97b243453bdba74bd9bcfa5" prot="public" static="no" mutable="no">
+        <type><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref> *</type>
+        <definition>SYN_Task* SYN_Mutex::owner</definition>
+        <argsstring></argsstring>
+        <name>owner</name>
+        <qualifiedname>SYN_Mutex::owner</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Current owner task (NULL if unlocked) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="41" column="14" bodyfile="src/syntropic/sched/syn_mutex.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structSYN__Mutex_1a2b796c6daa3160cd83e40998b2f8d44d" prot="public" static="no" mutable="no">
+        <type><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref> *</type>
+        <definition>SYN_Task* SYN_Mutex::waiters[SYN_MUTEX_MAX_WAITERS]</definition>
+        <argsstring>[SYN_MUTEX_MAX_WAITERS]</argsstring>
+        <name>waiters</name>
+        <qualifiedname>SYN_Mutex::waiters</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Active contended waiter tasks </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="42" column="14" bodyfile="src/syntropic/sched/syn_mutex.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structSYN__Mutex_1a5c615cf57c821d5ac3cfc80ba606b458" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref> *</type>
+        <definition>struct SYN_Mutex* SYN_Mutex::next_held</definition>
+        <argsstring></argsstring>
+        <name>next_held</name>
+        <qualifiedname>SYN_Mutex::next_held</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Next mutex in owner lock list </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="43" column="20" bodyfile="src/syntropic/sched/syn_mutex.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structSYN__Mutex_1a43adf153b64f89167e62fc2a0fa65f46" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structSYN__Mutex" kindref="compound">SYN_Mutex</ref> *</type>
+        <definition>struct SYN_Mutex* SYN_Mutex::next_contended</definition>
+        <argsstring></argsstring>
+        <name>next_contended</name>
+        <qualifiedname>SYN_Mutex::next_contended</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Next mutex in wait_sched list </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="44" column="20" bodyfile="src/syntropic/sched/syn_mutex.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structSYN__Mutex_1a2d81efa579f19451b4ac73200606e1bd" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structSYN__Sched" kindref="compound">SYN_Sched</ref> *</type>
+        <definition>struct SYN_Sched* SYN_Mutex::wait_sched</definition>
+        <argsstring></argsstring>
+        <name>wait_sched</name>
+        <qualifiedname>SYN_Mutex::wait_sched</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Scheduler tracking external waiters </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="45" column="20" bodyfile="src/syntropic/sched/syn_mutex.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structSYN__Mutex_1a9766b890eeec23d960336ce84bae45f6" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t SYN_Mutex::lock_count</definition>
+        <argsstring></argsstring>
+        <name>lock_count</name>
+        <qualifiedname>SYN_Mutex::lock_count</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Recursive lock acquisition depth </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="46" column="14" bodyfile="src/syntropic/sched/syn_mutex.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structSYN__Mutex_1ac097275733c26a5714d426a736c67a90" prot="public" static="no" mutable="no">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool SYN_Mutex::has_evicted</definition>
+        <argsstring></argsstring>
+        <name>has_evicted</name>
+        <qualifiedname>SYN_Mutex::has_evicted</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>True if waiters[] overflowed </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_mutex.h" line="47" column="10" bodyfile="src/syntropic/sched/syn_mutex.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Priority-inheriting recursive mutex structure. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="7">
+        <label>SYN_EventFlags</label>
+        <link refid="structSYN__EventFlags"/>
+      </node>
+      <node id="1">
+        <label>SYN_Mutex</label>
+        <link refid="structSYN__Mutex"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>owner</edgelabel>
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+        <childnode refid="1" relation="usage">
+          <edgelabel>next_contended</edgelabel>
+          <edgelabel>next_held</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>wait_sched</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>SYN_PT</label>
+        <link refid="structSYN__PT"/>
+      </node>
+      <node id="4">
+        <label>SYN_Sched</label>
+        <link refid="structSYN__Sched"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>running</edgelabel>
+          <edgelabel>tasks</edgelabel>
+        </childnode>
+        <childnode refid="1" relation="usage">
+          <edgelabel>standalone_mutexes</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>profiler</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>SYN_Task</label>
+        <link refid="structSYN__Task"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>func</edgelabel>
+          <edgelabel>pt</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>sched</edgelabel>
+        </childnode>
+        <childnode refid="1" relation="usage">
+          <edgelabel>held_mutexes</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>wait_event</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>SYN_TaskProfile</label>
+        <link refid="structSYN__TaskProfile"/>
+      </node>
+      <node id="5">
+        <label>SYN_TaskProfileManager</label>
+        <link refid="structSYN__TaskProfileManager"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>profiles</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/syntropic/sched/syn_mutex.h" line="40" column="1" bodyfile="src/syntropic/sched/syn_mutex.h" bodystart="40" bodyend="48"/>
+    <listofallmembers>
+      <member refid="structSYN__Mutex_1ac097275733c26a5714d426a736c67a90" prot="public" virt="non-virtual"><scope>SYN_Mutex</scope><name>has_evicted</name></member>
+      <member refid="structSYN__Mutex_1a9766b890eeec23d960336ce84bae45f6" prot="public" virt="non-virtual"><scope>SYN_Mutex</scope><name>lock_count</name></member>
+      <member refid="structSYN__Mutex_1a43adf153b64f89167e62fc2a0fa65f46" prot="public" virt="non-virtual"><scope>SYN_Mutex</scope><name>next_contended</name></member>
+      <member refid="structSYN__Mutex_1a5c615cf57c821d5ac3cfc80ba606b458" prot="public" virt="non-virtual"><scope>SYN_Mutex</scope><name>next_held</name></member>
+      <member refid="structSYN__Mutex_1a93892939e97b243453bdba74bd9bcfa5" prot="public" virt="non-virtual"><scope>SYN_Mutex</scope><name>owner</name></member>
+      <member refid="structSYN__Mutex_1a2d81efa579f19451b4ac73200606e1bd" prot="public" virt="non-virtual"><scope>SYN_Mutex</scope><name>wait_sched</name></member>
+      <member refid="structSYN__Mutex_1a2b796c6daa3160cd83e40998b2f8d44d" prot="public" virt="non-virtual"><scope>SYN_Mutex</scope><name>waiters</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

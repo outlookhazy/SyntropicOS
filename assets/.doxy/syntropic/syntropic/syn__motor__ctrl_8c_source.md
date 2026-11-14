@@ -1,0 +1,771 @@
+
+
+# File syn\_motor\_ctrl.c
+
+[**File List**](files.md) **>** [**motor**](dir_61470c21c7c2e7c9f977d1e3c2e6c7e0.md) **>** [**syn\_motor\_ctrl.c**](syn__motor__ctrl_8c.md)
+
+[Go to the documentation of this file](syn__motor__ctrl_8c.md)
+
+
+```C++
+#if __has_include("syn_config.h")
+#include "syn_config.h"
+#endif
+
+#if !defined(SYN_USE_MOTOR_CTRL) || SYN_USE_MOTOR_CTRL
+
+#if defined(SYN_USE_PID) && !SYN_USE_PID
+#error "syn_motor_ctrl requires SYN_USE_PID=1"
+#endif
+
+
+#include "../util/syn_assert.h"
+#include "syn_motor_ctrl.h"
+
+/* Only include optional module headers when enabled */
+#if !defined(SYN_USE_ERRLOG) || SYN_USE_ERRLOG
+#include "../system/syn_errlog.h"
+#endif
+
+#include <string.h>
+
+#define SYN_MCTRL_ERR_STALL 0x0100 
+#define SYN_MCTRL_ERR_LIMIT 0x0101 
+
+static int32_t mctrl_clamp_i64(int64_t val)
+{
+    if (val > (int64_t)INT32_MAX) {
+        return INT32_MAX;
+    }
+    if (val < (int64_t)INT32_MIN) {
+        return INT32_MIN;
+    }
+    return (int32_t)val;
+}
+
+static int32_t mctrl_abs_i32(int32_t val)
+{
+    int64_t mag = (val < 0) ? -(int64_t)val : (int64_t)val;
+    return mctrl_clamp_i64(mag);
+}
+
+/* ── Motor output wrappers ─────────────────────────────────────────────── */
+
+static void apply_output(SYN_MotorCtrl *ctrl, int32_t output)
+{
+    if (ctrl->cfg.motor.set_output != NULL) {
+        ctrl->cfg.motor.set_output(ctrl->cfg.motor.ctx, output);
+    }
+}
+
+static void stop_motor(SYN_MotorCtrl *ctrl)
+{
+    if (ctrl == NULL || ctrl->cfg.motor.coast == NULL)
+        return;
+    ctrl->cfg.motor.coast(ctrl->cfg.motor.ctx);
+}
+
+static void brake_motor(SYN_MotorCtrl *ctrl)
+{
+    if (ctrl == NULL || ctrl->cfg.motor.brake == NULL)
+        return;
+    ctrl->cfg.motor.brake(ctrl->cfg.motor.ctx);
+}
+
+static int32_t read_position(SYN_MotorCtrl *ctrl)
+{
+    if (ctrl == NULL || ctrl->cfg.read_pos == NULL)
+        return 0; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
+    return ctrl->cfg.read_pos(ctrl->cfg.read_pos_ctx);
+}
+
+static bool limits_enabled(const SYN_MotorCtrl *ctrl)
+{
+    if (ctrl == NULL)
+        return false; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
+    return (ctrl->cfg.position_min != 0 || ctrl->cfg.position_max != 0);
+}
+
+static bool at_limit(const SYN_MotorCtrl *ctrl, int32_t pos, int32_t output)
+{
+    if (!limits_enabled(ctrl))
+        return false;
+
+    /* At min limit and trying to go further negative */
+    if (pos <= ctrl->cfg.position_min && output < 0)
+        return true;
+    /* At max limit and trying to go further positive */
+    if (pos >= ctrl->cfg.position_max && output > 0)
+        return true; /* LCOV_EXCL_LINE: Defensive NULL check or invalid parameter fallback */
+
+    return false;
+}
+
+/* ── API ────────────────────────────────────────────────────────────────── */
+
+SYN_Status syn_motor_ctrl_init(SYN_MotorCtrl *ctrl, const SYN_MotorCtrl_Config *cfg)
+{
+    SYN_ASSERT(ctrl != NULL);
+    SYN_ASSERT(cfg != NULL);
+    SYN_ASSERT(cfg->read_pos != NULL);
+    SYN_ASSERT(cfg->update_hz > 0);
+    if (cfg->pid_scale >= 31) {
+        return SYN_INVALID_PARAM;
+    }
+
+    memset(ctrl, 0, sizeof(*ctrl));
+    ctrl->cfg = *cfg;
+
+    SYN_PID_Config pid_cfg = {
+        .kp = cfg->pid_kp,
+        .ki = cfg->pid_ki,
+        .kd = cfg->pid_kd,
+        .scale = (int32_t)1 << cfg->pid_scale,
+        .out_min = cfg->output_min,
+        .out_max = cfg->output_max,
+        /* integral_max = 0 → auto-computed by syn_pid_init() */
+        .d_filter_alpha = 200,
+    };
+    syn_pid_init(&ctrl->pid, &pid_cfg);
+
+    ctrl->mode = SYN_MCTRL_MODE_IDLE;
+    ctrl->state = SYN_MCTRL_STOPPED;
+    ctrl->last_position = read_position(ctrl);
+    ctrl->measured_position = ctrl->last_position;
+    ctrl->last_update_tick = syn_port_get_tick_ms();
+    ctrl->enabled = true;
+    ctrl->trajectory_active = false;
+    ctrl->profile_active = false;
+    ctrl->scurve_active = false;
+    ctrl->ff_output = 0;
+    ctrl->total_output = 0;
+    ctrl->datalog = NULL;
+
+    return SYN_OK;
+}
+
+void syn_motor_ctrl_set_output(SYN_MotorCtrl *ctrl, int32_t output)
+{
+    SYN_ASSERT(ctrl != NULL);
+
+    /* Clamp to configured output range */
+    if (output > ctrl->cfg.output_max)
+        output = ctrl->cfg.output_max;
+    if (output < ctrl->cfg.output_min)
+        output = ctrl->cfg.output_min;
+
+    ctrl->mode = SYN_MCTRL_MODE_OPEN_LOOP;
+    ctrl->state = SYN_MCTRL_RUNNING;
+    ctrl->trajectory_active = false;
+    ctrl->profile_active = false;
+    ctrl->scurve_active = false;
+    ctrl->stall_active = false;
+    ctrl->pid_output = 0;
+    ctrl->ff_output = 0;
+    ctrl->total_output = output;
+
+    apply_output(ctrl, output);
+    ctrl->last_position = read_position(ctrl);
+    ctrl->last_update_tick = syn_port_get_tick_ms();
+}
+
+void syn_motor_ctrl_set_velocity(SYN_MotorCtrl *ctrl, int32_t units_per_sec)
+{
+    SYN_ASSERT(ctrl != NULL);
+
+    ctrl->target_velocity = units_per_sec;
+    ctrl->mode = SYN_MCTRL_MODE_VELOCITY;
+    ctrl->state = SYN_MCTRL_RUNNING;
+    ctrl->stall_active = false;
+    ctrl->trajectory_active = false;
+    ctrl->profile_active = false;
+    ctrl->scurve_active = false;
+
+    syn_pid_reset(&ctrl->pid);
+    ctrl->last_position = read_position(ctrl);
+    ctrl->last_update_tick = syn_port_get_tick_ms();
+}
+
+void syn_motor_ctrl_set_position(SYN_MotorCtrl *ctrl, int32_t target)
+{
+    SYN_ASSERT(ctrl != NULL);
+
+    /* Clamp target to soft limits */
+    if (limits_enabled(ctrl)) {
+        if (target < ctrl->cfg.position_min)
+            target = ctrl->cfg.position_min;
+        if (target > ctrl->cfg.position_max)
+            target = ctrl->cfg.position_max;
+    }
+
+    ctrl->target_position = target;
+    ctrl->mode = SYN_MCTRL_MODE_POSITION;
+    ctrl->state = SYN_MCTRL_RUNNING;
+    ctrl->stall_active = false;
+    ctrl->trajectory_active = false;
+    ctrl->profile_active = false;
+    ctrl->scurve_active = false;
+
+    syn_pid_reset(&ctrl->pid);
+    ctrl->last_position = read_position(ctrl);
+    ctrl->last_update_tick = syn_port_get_tick_ms();
+}
+
+void syn_motor_ctrl_set_trajectory(SYN_MotorCtrl *ctrl, const SYN_MotorCtrl_Trajectory *traj)
+{
+    SYN_ASSERT(ctrl != NULL);
+    SYN_ASSERT(traj != NULL);
+
+    bool was_traj = ctrl->trajectory_active;
+    ctrl->trajectory = *traj;
+    ctrl->target_position = traj->position;
+    ctrl->trajectory_active = true;
+    ctrl->profile_active = false;
+    ctrl->scurve_active = false;
+
+    /* Activate/reset PID when entering trajectory mode from non-RUNNING or non-trajectory state */
+    if (ctrl->mode != SYN_MCTRL_MODE_POSITION || ctrl->state != SYN_MCTRL_RUNNING || !was_traj) {
+        ctrl->mode = SYN_MCTRL_MODE_POSITION;
+        ctrl->state = SYN_MCTRL_RUNNING;
+        ctrl->stall_active = false;
+        syn_pid_reset(&ctrl->pid);
+        ctrl->last_position = read_position(ctrl);
+        ctrl->last_update_tick = syn_port_get_tick_ms();
+    }
+}
+
+void syn_motor_ctrl_move_to(SYN_MotorCtrl *ctrl, int32_t target, int32_t max_velocity,
+                            int32_t acceleration)
+{
+    SYN_ASSERT(ctrl != NULL);
+    SYN_ASSERT(max_velocity > 0);
+    SYN_ASSERT(acceleration > 0);
+
+    /* Clamp target to soft limits */
+    if (ctrl->cfg.position_min != 0 || ctrl->cfg.position_max != 0) {
+        if (target < ctrl->cfg.position_min) {
+            target = ctrl->cfg.position_min;
+        }
+        if (target > ctrl->cfg.position_max) {
+            target = ctrl->cfg.position_max;
+        }
+    }
+
+    /* Convert per-second → per-tick in Q8 fixed-point.
+     * vel_q8  = (vel_per_sec << 8) / update_hz
+     * accel_q8 = (accel_per_sec² << 8) / (update_hz²)
+     * Use 64-bit to avoid overflow in the shift. */
+    int64_t hz = (int64_t)ctrl->cfg.update_hz;
+    int32_t vel_q8 = mctrl_clamp_i64(((int64_t)max_velocity << 8) / hz);
+    int32_t accel_q8 = mctrl_clamp_i64(((int64_t)acceleration << 8) / (hz * hz));
+    if (vel_q8 < 1) {
+        vel_q8 = 1;
+    }
+    if (accel_q8 < 1) {
+        accel_q8 = 1;
+    }
+
+    if (ctrl->profile_active) {
+        /* Mid-move retarget: update target while preserving current velocity.
+         * The ramp will decelerate/reverse smoothly toward the new target. */
+        ctrl->profile.target = target;
+        ctrl->profile.rate = vel_q8;
+        ctrl->profile.accel = accel_q8;
+        ctrl->profile.done = false;
+    } else {
+        /* Fresh move from standstill */
+        int32_t current = read_position(ctrl);
+        memset(&ctrl->trajectory, 0, sizeof(ctrl->trajectory));
+        syn_ramp_init(&ctrl->profile, current);
+        syn_ramp_set_target_trapezoid_fp(&ctrl->profile, target, vel_q8, accel_q8, 8);
+
+        ctrl->last_position = current;
+        ctrl->measured_position = current;
+        ctrl->last_update_tick = syn_port_get_tick_ms();
+        syn_pid_reset(&ctrl->pid);
+    }
+
+    ctrl->target_position = target;
+    ctrl->mode = SYN_MCTRL_MODE_POSITION;
+    ctrl->state = SYN_MCTRL_RUNNING;
+    ctrl->stall_active = false;
+    ctrl->trajectory_active = true;
+    ctrl->profile_active = true;
+    ctrl->scurve_active = false;
+}
+
+void syn_motor_ctrl_move_to_scurve(SYN_MotorCtrl *ctrl, int32_t target, int32_t max_velocity,
+                                   int32_t max_accel, int32_t max_jerk)
+{
+    SYN_ASSERT(ctrl != NULL);
+    SYN_ASSERT(max_velocity > 0);
+    SYN_ASSERT(max_accel > 0);
+    SYN_ASSERT(max_jerk > 0);
+
+    /* Clamp target to soft limits */
+    if (ctrl->cfg.position_min != 0 || ctrl->cfg.position_max != 0) {
+        if (target < ctrl->cfg.position_min) {
+            target = ctrl->cfg.position_min;
+        }
+        if (target > ctrl->cfg.position_max) {
+            target = ctrl->cfg.position_max;
+        }
+    }
+
+    /* Convert per-second → per-tick.
+     * The S-curve works in integer ticks, so:
+     *   v_tick = v_sec / hz
+     *   a_tick = a_sec / hz²
+     *   j_tick = j_sec / hz³
+     * Clamp to minimum of 1 to avoid zero-motion. */
+    int64_t hz = (int64_t)ctrl->cfg.update_hz;
+    int64_t hz2 = hz * hz;
+    int64_t hz3 = hz2 * hz;
+    int64_t v_tick64 = (int64_t)max_velocity / hz;
+    int64_t a_tick64 = (int64_t)max_accel / hz2;
+    int64_t j_tick64 = (int64_t)max_jerk / hz3;
+    int32_t v_tick = (v_tick64 < 1LL) ? 1 : (int32_t)v_tick64;
+    int32_t a_tick = (a_tick64 < 1LL) ? 1 : (int32_t)a_tick64;
+    int32_t j_tick = (j_tick64 < 1LL) ? 1 : (int32_t)j_tick64;
+
+    int32_t current = read_position(ctrl);
+    syn_scurve_init(&ctrl->scurve_profile, current);
+    syn_scurve_set_constraints(&ctrl->scurve_profile, v_tick, a_tick, j_tick);
+    syn_scurve_set_target(&ctrl->scurve_profile, target);
+
+    ctrl->target_position = target;
+    ctrl->mode = SYN_MCTRL_MODE_POSITION;
+    ctrl->state = SYN_MCTRL_RUNNING;
+    ctrl->stall_active = false;
+    ctrl->trajectory_active = true;
+    ctrl->profile_active = false;
+    ctrl->scurve_active = true;
+
+    syn_pid_reset(&ctrl->pid);
+    ctrl->last_position = current;
+    ctrl->measured_position = current;
+    ctrl->last_update_tick = syn_port_get_tick_ms();
+}
+
+void syn_motor_ctrl_stop(SYN_MotorCtrl *ctrl)
+{
+    SYN_ASSERT(ctrl != NULL);
+    ctrl->mode = SYN_MCTRL_MODE_IDLE;
+    ctrl->state = SYN_MCTRL_STOPPED;
+    ctrl->pid_output = 0;
+    ctrl->ff_output = 0;
+    ctrl->total_output = 0;
+    memset(&ctrl->trajectory, 0, sizeof(ctrl->trajectory));
+    ctrl->trajectory_active = false;
+    ctrl->profile_active = false;
+    ctrl->scurve_active = false;
+    stop_motor(ctrl);
+    syn_pid_reset(&ctrl->pid);
+}
+
+void syn_motor_ctrl_estop(SYN_MotorCtrl *ctrl)
+{
+    SYN_ASSERT(ctrl != NULL);
+    ctrl->mode = SYN_MCTRL_MODE_IDLE;
+    ctrl->state = SYN_MCTRL_STOPPED;
+    ctrl->pid_output = 0;
+    ctrl->ff_output = 0;
+    ctrl->total_output = 0;
+    memset(&ctrl->trajectory, 0, sizeof(ctrl->trajectory));
+    ctrl->trajectory_active = false;
+    ctrl->profile_active = false;
+    ctrl->scurve_active = false;
+    brake_motor(ctrl);
+    syn_pid_reset(&ctrl->pid);
+}
+
+static void mctrl_step_profiles(SYN_MotorCtrl *ctrl)
+{
+    if (ctrl->profile_active) {
+        int64_t hz = (int64_t)ctrl->cfg.update_hz;
+        int32_t prev_vel = ctrl->trajectory.velocity;
+        int32_t prev_profile_pos = syn_ramp_value(&ctrl->profile);
+        int32_t profile_pos = syn_ramp_update(&ctrl->profile);
+        int32_t profile_vel =
+            mctrl_clamp_i64(((int64_t)profile_pos - (int64_t)prev_profile_pos) * hz);
+        int32_t profile_accel = mctrl_clamp_i64(((int64_t)profile_vel - (int64_t)prev_vel) * hz);
+
+        ctrl->trajectory.position = profile_pos;
+        ctrl->trajectory.velocity = profile_vel;
+        ctrl->trajectory.acceleration = profile_accel;
+        ctrl->target_position = profile_pos;
+
+        if (syn_ramp_done(&ctrl->profile)) {
+            ctrl->profile_active = false;
+            ctrl->trajectory_active = false;
+        }
+    }
+
+    if (ctrl->scurve_active) {
+        int64_t hz = (int64_t)ctrl->cfg.update_hz;
+        int64_t hz2 = hz * hz;
+        syn_scurve_update(&ctrl->scurve_profile);
+
+        ctrl->trajectory.position = syn_scurve_position(&ctrl->scurve_profile);
+        ctrl->trajectory.velocity =
+            mctrl_clamp_i64((int64_t)syn_scurve_velocity(&ctrl->scurve_profile) * hz);
+        ctrl->trajectory.acceleration =
+            mctrl_clamp_i64((int64_t)syn_scurve_acceleration(&ctrl->scurve_profile) * hz2);
+        ctrl->target_position = ctrl->trajectory.position;
+
+        if (syn_scurve_done(&ctrl->scurve_profile)) {
+            ctrl->scurve_active = false;
+            ctrl->trajectory_active = false;
+        }
+    }
+}
+
+static int32_t mctrl_compute_ff(const SYN_MotorCtrl *ctrl)
+{
+    if (!ctrl->trajectory_active || (ctrl->cfg.ff_kv == 0 && ctrl->cfg.ff_ka == 0)) {
+        return 0;
+    }
+
+    uint8_t ff_shift = (ctrl->cfg.ff_scale < 31U) ? ctrl->cfg.ff_scale : 30U;
+    int64_t ff_div = (int64_t)(1ULL << ff_shift);
+    int64_t kv_prod = (int64_t)ctrl->cfg.ff_kv * (int64_t)ctrl->trajectory.velocity;
+    int64_t ka_prod = (int64_t)ctrl->cfg.ff_ka * (int64_t)ctrl->trajectory.acceleration;
+    int64_t ff_num =
+        (kv_prod > 0 && ka_prod > (INT64_MAX - kv_prod)) ? INT64_MAX : (kv_prod + ka_prod);
+    int64_t ff_raw = ff_num / ff_div;
+
+    int32_t ff_max = (int32_t)(((int64_t)ctrl->cfg.output_max * 9LL) / 10LL);
+    int32_t ff_min = (int32_t)(((int64_t)ctrl->cfg.output_min * 9LL) / 10LL);
+    if (ff_raw > (int64_t)ff_max) {
+        return ff_max;
+    }
+    if (ff_raw < (int64_t)ff_min) {
+        return ff_min;
+    }
+    return (int32_t)ff_raw;
+}
+
+static int32_t mctrl_combine_and_antiwindup(SYN_MotorCtrl *ctrl, int32_t pid_out, int32_t ff)
+{
+    int64_t out64 = (int64_t)pid_out + (int64_t)ff;
+    bool saturated = false;
+
+    if (out64 > (int64_t)ctrl->cfg.output_max) {
+        out64 = (int64_t)ctrl->cfg.output_max;
+        saturated = true;
+    }
+    if (out64 < (int64_t)ctrl->cfg.output_min) {
+        out64 = (int64_t)ctrl->cfg.output_min;
+        saturated = true;
+    }
+
+    if (saturated) {
+        int64_t max_pid = (int64_t)ctrl->cfg.output_max - (int64_t)ff;
+        int64_t min_pid = (int64_t)ctrl->cfg.output_min - (int64_t)ff;
+        /* LCOV_EXCL_START: Defensive max_pid/min_pid swap guard */
+        if (max_pid < min_pid) {
+            int64_t t = max_pid;
+            max_pid = min_pid;
+            min_pid = t;
+        }
+        /* LCOV_EXCL_STOP */
+        if (ctrl->pid.integral > 0 && (int64_t)pid_out > max_pid) {
+            int64_t adj = ((int64_t)pid_out - max_pid) * (int64_t)ctrl->pid.cfg.scale;
+            ctrl->pid.integral = mctrl_clamp_i64((int64_t)ctrl->pid.integral - adj);
+        }
+        if (ctrl->pid.integral < 0 && (int64_t)pid_out < min_pid) {
+            int64_t adj = ((int64_t)pid_out - min_pid) * (int64_t)ctrl->pid.cfg.scale;
+            ctrl->pid.integral = mctrl_clamp_i64((int64_t)ctrl->pid.integral - adj);
+        }
+    }
+
+    return (int32_t)out64;
+}
+
+static void mctrl_accumulate_metrics(SYN_MotorCtrl *ctrl, int32_t current_pos, int32_t output,
+                                     uint32_t now)
+{
+    int32_t pos_error = mctrl_clamp_i64((int64_t)ctrl->target_position - (int64_t)current_pos);
+    int32_t abs_err = mctrl_abs_i32(pos_error);
+    int32_t abs_out = mctrl_abs_i32(output);
+    int64_t sq = (int64_t)pos_error * (int64_t)pos_error;
+
+    if (abs_err > ctrl->metrics.max_error) {
+        ctrl->metrics.max_error = abs_err;
+    }
+
+    ctrl->metrics.error_sq_sum = (ctrl->metrics.error_sq_sum > (INT64_MAX - sq))
+                                     ? INT64_MAX
+                                     : (ctrl->metrics.error_sq_sum + sq);
+
+    if (abs_out > ctrl->metrics.peak_output) {
+        ctrl->metrics.peak_output = abs_out;
+    }
+
+    if (ctrl->mode == SYN_MCTRL_MODE_POSITION) {
+        int32_t beyond = mctrl_clamp_i64((int64_t)current_pos - (int64_t)ctrl->target_position);
+        int32_t abs_beyond = mctrl_abs_i32(beyond);
+        if (abs_err < ctrl->metrics.max_error && abs_beyond > ctrl->metrics.overshoot) {
+            ctrl->metrics.overshoot = abs_beyond;
+        }
+    }
+
+    if (ctrl->metrics.settle_tick == 0U && abs_err <= ctrl->cfg.position_deadband) {
+        ctrl->metrics.settle_tick = now;
+    }
+
+    ctrl->metrics.sample_count++;
+}
+
+static void mctrl_check_stall(SYN_MotorCtrl *ctrl, int32_t current_pos, int32_t delta,
+                              int32_t output, uint32_t now)
+{
+    if (ctrl->cfg.stall_timeout_ms == 0U) {
+        return;
+    }
+
+    int32_t abs_delta = mctrl_abs_i32(delta);
+    int32_t abs_output = mctrl_abs_i32(output);
+
+    if (abs_output > (ctrl->cfg.output_max / 4) && abs_delta <= ctrl->cfg.stall_threshold) {
+        if (!ctrl->stall_active) {
+            ctrl->stall_active = true;
+            ctrl->stall_start_tick = now;
+        } else if ((now - ctrl->stall_start_tick) >= ctrl->cfg.stall_timeout_ms) {
+            ctrl->state = SYN_MCTRL_STALLED;
+            ctrl->mode = SYN_MCTRL_MODE_IDLE;
+            ctrl->stall_active = false;
+            ctrl->trajectory_active = false;
+            ctrl->profile_active = false;
+            ctrl->scurve_active = false;
+            ctrl->pid_output = 0;
+            ctrl->ff_output = 0;
+            ctrl->total_output = 0;
+            stop_motor(ctrl);
+            syn_pid_reset(&ctrl->pid);
+
+#if !defined(SYN_USE_ERRLOG) || SYN_USE_ERRLOG
+            if (ctrl->cfg.errlog != NULL) {
+                syn_errlog_record(ctrl->cfg.errlog, SYN_MCTRL_ERR_STALL, SYN_ERR_ERROR,
+                                  (uint32_t)current_pos);
+            }
+#endif
+
+            if (ctrl->on_stall != NULL) {
+                ctrl->on_stall(ctrl, ctrl->on_stall_ctx);
+            }
+        }
+    } else {
+        ctrl->stall_active = false;
+    }
+}
+
+SYN_MotorCtrl_State syn_motor_ctrl_update(SYN_MotorCtrl *ctrl)
+{
+    SYN_ASSERT(ctrl != NULL);
+
+    if (ctrl->mode == SYN_MCTRL_MODE_IDLE || !ctrl->enabled) {
+        return ctrl->state;
+    }
+
+    uint32_t now = syn_port_get_tick_ms();
+    uint32_t dt_ms = now - ctrl->last_update_tick;
+    if (dt_ms == 0U) {
+        dt_ms = 1U;
+    }
+
+    /* ── Read feedback ──────────────────────────────────────────── */
+    int32_t current_pos = read_position(ctrl);
+    int64_t delta64 = (int64_t)current_pos - (int64_t)ctrl->last_position;
+    int32_t delta = mctrl_clamp_i64(delta64);
+    ctrl->last_position = current_pos;
+    ctrl->measured_position = current_pos;
+    ctrl->measured_velocity = mctrl_clamp_i64(delta64 * (int64_t)ctrl->cfg.update_hz);
+
+    int32_t ff = 0;
+    int32_t pid_out = 0;
+    int32_t output = ctrl->total_output;
+
+    if (ctrl->mode != SYN_MCTRL_MODE_OPEN_LOOP) {
+        mctrl_step_profiles(ctrl);
+        ff = mctrl_compute_ff(ctrl);
+        ctrl->ff_output = ff;
+
+        if (ctrl->mode == SYN_MCTRL_MODE_VELOCITY) {
+            pid_out =
+                syn_pid_update(&ctrl->pid, ctrl->target_velocity, ctrl->measured_velocity, dt_ms);
+        } else {
+            int32_t error = mctrl_clamp_i64((int64_t)ctrl->target_position - (int64_t)current_pos);
+
+            if (!ctrl->trajectory_active) {
+                int32_t abs_error = mctrl_abs_i32(error);
+                if (abs_error <= ctrl->cfg.position_deadband) {
+                    if (ctrl->metrics.settle_tick == 0U) {
+                        ctrl->metrics.settle_tick = now;
+                    }
+                    ctrl->last_update_tick = now;
+                    if (ctrl->state != SYN_MCTRL_ON_TARGET) {
+                        ctrl->state = SYN_MCTRL_ON_TARGET;
+                        ctrl->pid_output = 0;
+                        ctrl->ff_output = 0;
+                        ctrl->total_output = 0;
+                        stop_motor(ctrl);
+                        syn_pid_reset(&ctrl->pid);
+
+                        if (ctrl->on_target != NULL) {
+                            ctrl->on_target(ctrl, ctrl->on_target_ctx);
+                        }
+                    }
+                    return ctrl->state;
+                }
+            }
+
+            ctrl->state = SYN_MCTRL_RUNNING;
+            pid_out = syn_pid_update(&ctrl->pid, ctrl->target_position, current_pos, dt_ms);
+        }
+
+        ctrl->pid_output = pid_out;
+        output = mctrl_combine_and_antiwindup(ctrl, pid_out, ff);
+        ctrl->total_output = output;
+    }
+
+    /* ── Enforce soft position limits ───────────────────────────── */
+    if (at_limit(ctrl, current_pos, output)) {
+        ctrl->state = SYN_MCTRL_LIMIT;
+        if (ctrl->mode == SYN_MCTRL_MODE_OPEN_LOOP) {
+            ctrl->mode = SYN_MCTRL_MODE_IDLE;
+        }
+        ctrl->pid_output = 0;
+        ctrl->ff_output = 0;
+        ctrl->total_output = 0;
+        ctrl->trajectory_active = false;
+        ctrl->profile_active = false;
+        ctrl->scurve_active = false;
+        ctrl->last_update_tick = now;
+        stop_motor(ctrl);
+        syn_pid_reset(&ctrl->pid);
+#if !defined(SYN_USE_ERRLOG) || SYN_USE_ERRLOG
+        if (ctrl->cfg.errlog != NULL) {
+            syn_errlog_record(ctrl->cfg.errlog, SYN_MCTRL_ERR_LIMIT, SYN_ERR_WARNING,
+                              (uint32_t)current_pos);
+        }
+#endif
+        return ctrl->state;
+    }
+
+    if (ctrl->state != SYN_MCTRL_STALLED) {
+        ctrl->state = SYN_MCTRL_RUNNING;
+    }
+
+    /* ── Apply to motor ─────────────────────────────────────────── */
+    apply_output(ctrl, output);
+
+    /* ── Tuning capture ─────────────────────────────────────────── */
+#if !defined(SYN_USE_DATALOG) || SYN_USE_DATALOG
+    if (ctrl->datalog != NULL) {
+        SYN_MotorCtrl_Sample sample = {
+            .tick_ms = now,
+            .target_pos = ctrl->target_position,
+            .measured_pos = current_pos,
+            .target_vel =
+                ctrl->trajectory_active ? ctrl->trajectory.velocity : ctrl->target_velocity,
+            .measured_vel = ctrl->measured_velocity,
+            .ff_output = ff,
+            .pid_output = pid_out,
+            .total_output = output,
+        };
+        syn_datalog_write(ctrl->datalog, SYN_MCTRL_DATALOG_ID, &sample, sizeof(sample));
+    }
+#endif
+
+    mctrl_accumulate_metrics(ctrl, current_pos, output, now);
+    mctrl_check_stall(ctrl, current_pos, delta, output, now);
+
+    ctrl->last_update_tick = now;
+    return ctrl->state;
+}
+
+void syn_motor_ctrl_on_stall(SYN_MotorCtrl *ctrl, SYN_MotorCtrl_StallCallback cb, void *ctx)
+{
+    SYN_ASSERT(ctrl != NULL);
+    ctrl->on_stall = cb;
+    ctrl->on_stall_ctx = ctx;
+}
+
+void syn_motor_ctrl_on_target(SYN_MotorCtrl *ctrl, SYN_MotorCtrl_TargetCallback cb, void *ctx)
+{
+    SYN_ASSERT(ctrl != NULL);
+    ctrl->on_target = cb;
+    ctrl->on_target_ctx = ctx;
+}
+
+void syn_motor_ctrl_set_gains(SYN_MotorCtrl *ctrl, int32_t kp, int32_t ki, int32_t kd)
+{
+    SYN_ASSERT(ctrl != NULL);
+    ctrl->cfg.pid_kp = kp;
+    ctrl->cfg.pid_ki = ki;
+    ctrl->cfg.pid_kd = kd;
+    syn_pid_set_gains(&ctrl->pid, kp, ki, kd);
+    if (ki > 0) {
+        int64_t cap = ((int64_t)INT32_MAX * (int64_t)ki) / (int64_t)ctrl->pid.cfg.scale;
+        int64_t num = (int64_t)ctrl->pid.cfg.out_max * 1000LL;
+        ctrl->pid.cfg.integral_max =
+            (num >= cap) ? INT32_MAX
+                         : mctrl_clamp_i64((num * (int64_t)ctrl->pid.cfg.scale) / (int64_t)ki);
+    } else {
+        ctrl->pid.cfg.integral_max =
+            mctrl_clamp_i64((int64_t)ctrl->pid.cfg.out_max * (int64_t)ctrl->pid.cfg.scale);
+    }
+}
+
+void syn_motor_ctrl_set_ff_gains(SYN_MotorCtrl *ctrl, int32_t ff_kv, int32_t ff_ka)
+{
+    SYN_ASSERT(ctrl != NULL);
+    ctrl->cfg.ff_kv = ff_kv;
+    ctrl->cfg.ff_ka = ff_ka;
+}
+
+void syn_motor_ctrl_clear_stall(SYN_MotorCtrl *ctrl)
+{
+    SYN_ASSERT(ctrl != NULL);
+    if (ctrl->state == SYN_MCTRL_STALLED) {
+        ctrl->state = SYN_MCTRL_STOPPED;
+        ctrl->stall_start_tick = 0;
+        ctrl->stall_active = false;
+        ctrl->trajectory_active = false;
+        ctrl->profile_active = false;
+        ctrl->scurve_active = false;
+        syn_pid_reset(&ctrl->pid);
+    }
+}
+
+void syn_motor_ctrl_set_datalog(SYN_MotorCtrl *ctrl, SYN_DataLog *log)
+{
+    SYN_ASSERT(ctrl != NULL);
+    ctrl->datalog = log;
+}
+
+void syn_motor_ctrl_reset_metrics(SYN_MotorCtrl *ctrl)
+{
+    SYN_ASSERT(ctrl != NULL);
+    memset(&ctrl->metrics, 0, sizeof(ctrl->metrics));
+    ctrl->metrics.move_start_tick = syn_port_get_tick_ms();
+}
+
+#include "../util/syn_qmath.h"
+
+int32_t syn_motor_ctrl_rms_error(const SYN_MotorCtrl *ctrl)
+{
+    SYN_ASSERT(ctrl != NULL);
+    if (ctrl->metrics.sample_count == 0)
+        return 0;
+    int64_t mean_sq = ctrl->metrics.error_sq_sum / (int64_t)ctrl->metrics.sample_count;
+    if (mean_sq <= 0)
+        return 0;
+    return (int32_t)syn_isqrt64((uint64_t)mean_sq);
+}
+
+#endif /* SYN_USE_MOTOR_CTRL */
+```
+
+

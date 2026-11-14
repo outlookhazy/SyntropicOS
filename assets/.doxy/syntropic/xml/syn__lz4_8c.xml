@@ -1,0 +1,884 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.15.0" xml:lang="en-US">
+  <compounddef id="syn__lz4_8c" kind="file" language="C++">
+    <compoundname>syn_lz4.c</compoundname>
+    <includes refid="syn__lz4_8h" local="yes">syn_lz4.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_lz4.c</label>
+        <link refid="syn__lz4_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_lz4.h</label>
+        <link refid="syn__lz4_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__lz4_8c_1afbcbb5b9f92ae3b3ff869804efd8dbb7" prot="public" static="no">
+        <name>LZ4_MIN_MATCH</name>
+        <initializer>4U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Minimum byte match length for LZ4 compression </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="11" column="9" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="11" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__lz4_8c_1a56952ad2d496377f2d4934dfbb3937bc" prot="public" static="no">
+        <name>LZ4_LASTLITERALS</name>
+        <initializer>5U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Mandatory trailing literal bytes at end of block </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="12" column="9" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="12" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__lz4_8c_1acb4ecfef66ca9c5b82bd2a5a5298b429" prot="public" static="no">
+        <name>LZ4_MFLIMIT</name>
+        <initializer>12U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Minimum distance from block end to start a match </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="13" column="9" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="13" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__lz4_8c_1af99c729f0ee63182b959e4486e3f8349" prot="public" static="no">
+        <name>LZ4_MIN_LENGTH</name>
+        <initializer>13U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Minimum block size eligible for match search </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="14" column="9" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="14" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__lz4_8c_1ab5100db7f86c04e2de742fc7f1ce2701" prot="public" static="no">
+        <name>LZ4_HASH_MASK</name>
+        <initializer>(<ref refid="syn__config__template_8h_1a81e149384ef0e536bcc1e0860bd72a8c" kindref="member">SYN_LZ4_HASH_SIZE</ref> - 1U)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Index bitmask derived from SYN_LZ4_HASH_SIZE </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="22" column="9" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="22" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__lz4_8c_1a23bb69dbcbaf20697ae64eaeae964cb4" prot="public" static="no">
+        <name>LZ4_HASH_BITS</name>
+        <initializer>12U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Log2 size of hash table </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="37" column="9" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="37" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__lz4_8c_1a0ff3e54674abff0cd5d7a17cfac7708e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t lz4_hash4</definition>
+        <argsstring>(uint32_t val)</argsstring>
+        <name>lz4_hash4</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Hash 4 bytes into bounded table index using Knuth multiplicative hash. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-bit integer word to hash. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Hash index in [0, SYN_LZ4_HASH_SIZE - 1]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="53" column="24" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="53" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lz4_8c_1a366f67e6467bebd82125340d6572df9b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t lz4_read32</definition>
+        <argsstring>(const uint8_t *ptr)</argsstring>
+        <name>lz4_read32</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>ptr</declname>
+        </param>
+        <briefdescription>
+<para>Read 32-bit little-endian word from unaligned byte pointer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to byte stream. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>32-bit unsigned integer value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="63" column="24" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="63" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lz4_8c_1a152ba407548bbd71a9de271e2e6e3b2a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t *</type>
+        <definition>static uint8_t * lz4_write_len</definition>
+        <argsstring>(uint8_t *op, const uint8_t *out_end, size_t rem)</argsstring>
+        <name>lz4_write_len</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>out_end</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>rem</declname>
+        </param>
+        <briefdescription>
+<para>Encode extended LZ4 length bytes (&gt;= 15) into output buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>op</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current output pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_end</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>End of output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rem</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Remaining length after subtracting 15. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Updated output pointer, or NULL on buffer overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="76" column="16" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="76" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lz4_8c_1a8df104778722ea09e2b4b1a7c4840cf1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t *</type>
+        <definition>static uint8_t * lz4_emit_sequence</definition>
+        <argsstring>(uint8_t *op, const uint8_t *out_end, const uint8_t *anchor, size_t lit_len, size_t offset, size_t match_len)</argsstring>
+        <name>lz4_emit_sequence</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>out_end</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>anchor</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>lit_len</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>match_len</declname>
+        </param>
+        <briefdescription>
+<para>Emit one LZ4 sequence (token, literal run, 16-bit offset, extra match length). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>op</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current output pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_end</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>End of output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>anchor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start of literal run. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lit_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Literal run byte count. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Backward match offset (1..65535). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>match_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Match length minus LZ4_MIN_MATCH. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Updated output pointer, or NULL on buffer overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="102" column="16" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="102" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lz4_8c_1a229f4ba940068c03575aa45b69f2a0b7" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const uint8_t *</type>
+        <definition>static const uint8_t * lz4_read_len</definition>
+        <argsstring>(const uint8_t *ip, const uint8_t *in_end, size_t max_len, size_t *len_io)</argsstring>
+        <name>lz4_read_len</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>ip</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>in_end</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>len_io</declname>
+        </param>
+        <briefdescription>
+<para>Decode extended LZ4 length bytes when nibble equals 15. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current input pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in_end</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>End of compressed input buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum valid accumulated length for remaining buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len_io</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[in,out] Accumulated length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Updated input pointer, or NULL on truncated input or length overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="148" column="22" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="148" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lz4_8c_1afda22d733b9d59e5cab30c20ccad231f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_lz4_init</definition>
+        <argsstring>(SYN_Lz4 *ctx)</argsstring>
+        <name>syn_lz4_init</name>
+        <param>
+          <type><ref refid="structSYN__Lz4" kindref="compound">SYN_Lz4</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an LZ4 compression context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LZ4 context instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="162" column="12" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="162" bodyend="169"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lz4_8c_1a33127bf5998718b4bfa1e97c1008fb11" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_lz4_compress_bound</definition>
+        <argsstring>(size_t input_size)</argsstring>
+        <name>syn_lz4_compress_bound</name>
+        <param>
+          <type>size_t</type>
+          <declname>input_size</declname>
+        </param>
+        <briefdescription>
+<para>Calculate worst-case compressed output bound for a given input size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>input_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Uncompressed payload size in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Maximum compressed buffer size required. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="171" column="8" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="171" bodyend="177"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lz4_8c_1a3b20db2fa809519fdaeee7f11c41d2e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_lz4_compress</definition>
+        <argsstring>(SYN_Lz4 *ctx, const void *src, size_t src_size, void *dst, size_t dst_capacity)</argsstring>
+        <name>syn_lz4_compress</name>
+        <param>
+          <type><ref refid="structSYN__Lz4" kindref="compound">SYN_Lz4</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_size</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_capacity</declname>
+        </param>
+        <briefdescription>
+<para>Compress data buffer into LZ4 raw block format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialized LZ4 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source data buffer to compress. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source data size in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer for compressed output. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of destination buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of compressed bytes written to dst, or 0 on error/overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="179" column="8" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="179" bodyend="244"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lz4_8c_1ac946664f9de61bd2b570c84a11371dc5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_lz4_decompress</definition>
+        <argsstring>(const void *src, size_t src_size, void *dst, size_t dst_capacity)</argsstring>
+        <name>syn_lz4_decompress</name>
+        <param>
+          <type>const void *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_size</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_capacity</declname>
+        </param>
+        <briefdescription>
+<para>Decompress LZ4 raw block buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Decompression is fully stateless and requires no context workspace.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Compressed source buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Compressed source size in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer for decompressed output. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of destination buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of decompressed bytes written to dst, or 0 on corruption/overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.c" line="246" column="8" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="246" bodyend="315"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Implementation of Zero-Heap LZ4 Raw Block Compression &amp; Decompression. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__lz4_8h" kindref="compound">syn_lz4.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_MIN_MATCH<sp/>4U<sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_LASTLITERALS<sp/>5U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_MFLIMIT<sp/>12U<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_MIN_LENGTH<sp/>13U<sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(SYN_LZ4_HASH_SIZE<sp/>&lt;<sp/>64U)<sp/>||<sp/>(SYN_LZ4_HASH_SIZE<sp/>&gt;<sp/>65536U)<sp/>||<sp/>\</highlight></codeline>
+<codeline lineno="17"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>((SYN_LZ4_HASH_SIZE<sp/>&amp;<sp/>(SYN_LZ4_HASH_SIZE<sp/>-<sp/>1U))<sp/>!=<sp/>0U)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#error<sp/>&quot;SYN_LZ4_HASH_SIZE<sp/>must<sp/>be<sp/>a<sp/>power<sp/>of<sp/>two<sp/>in<sp/>[64,<sp/>65536]&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_HASH_MASK<sp/>(SYN_LZ4_HASH_SIZE<sp/>-<sp/>1U)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>SYN_LZ4_HASH_SIZE<sp/>==<sp/>64U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_HASH_BITS<sp/>6U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>SYN_LZ4_HASH_SIZE<sp/>==<sp/>128U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_HASH_BITS<sp/>7U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>SYN_LZ4_HASH_SIZE<sp/>==<sp/>256U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_HASH_BITS<sp/>8U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>SYN_LZ4_HASH_SIZE<sp/>==<sp/>512U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_HASH_BITS<sp/>9U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>SYN_LZ4_HASH_SIZE<sp/>==<sp/>1024U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_HASH_BITS<sp/>10U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>SYN_LZ4_HASH_SIZE<sp/>==<sp/>2048U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_HASH_BITS<sp/>11U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>SYN_LZ4_HASH_SIZE<sp/>==<sp/>4096U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_HASH_BITS<sp/>12U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>SYN_LZ4_HASH_SIZE<sp/>==<sp/>8192U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_HASH_BITS<sp/>13U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>SYN_LZ4_HASH_SIZE<sp/>==<sp/>16384U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_HASH_BITS<sp/>14U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>SYN_LZ4_HASH_SIZE<sp/>==<sp/>32768U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_HASH_BITS<sp/>15U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LZ4_HASH_BITS<sp/>16U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__lz4_8c_1a0ff3e54674abff0cd5d7a17cfac7708e" kindref="member">lz4_hash4</ref>(uint32_t<sp/>val)</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>((val<sp/>*<sp/>2654435761U)<sp/>&gt;&gt;<sp/>(32U<sp/>-<sp/><ref refid="syn__lz4_8c_1a23bb69dbcbaf20697ae64eaeae964cb4" kindref="member">LZ4_HASH_BITS</ref>))<sp/>&amp;<sp/><ref refid="syn__lz4_8c_1ab5100db7f86c04e2de742fc7f1ce2701" kindref="member">LZ4_HASH_MASK</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__lz4_8c_1a366f67e6467bebd82125340d6572df9b" kindref="member">lz4_read32</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ptr)</highlight></codeline>
+<codeline lineno="64"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>((uint32_t)ptr[0])<sp/>|<sp/>(((uint32_t)ptr[1])<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>(((uint32_t)ptr[2])<sp/>&lt;&lt;<sp/>16)<sp/>|</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(((uint32_t)ptr[3])<sp/>&lt;&lt;<sp/>24);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint8_t<sp/>*<ref refid="syn__lz4_8c_1a152ba407548bbd71a9de271e2e6e3b2a" kindref="member">lz4_write_len</ref>(uint8_t<sp/>*op,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*out_end,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>rem)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(rem<sp/>&gt;=<sp/>255U)<sp/>{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(op<sp/>&gt;=<sp/>out_end)<sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*op++<sp/>=<sp/>255U;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rem<sp/>-=<sp/>255U;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(op<sp/>&gt;=<sp/>out_end)<sp/>{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>*op++<sp/>=<sp/>(uint8_t)rem;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>op;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint8_t<sp/>*<ref refid="syn__lz4_8c_1a8df104778722ea09e2b4b1a7c4840cf1" kindref="member">lz4_emit_sequence</ref>(uint8_t<sp/>*op,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*out_end,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*anchor,</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>lit_len,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>match_len)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(op<sp/>&gt;=<sp/>out_end)<sp/>{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>lit_tok<sp/>=<sp/>(uint8_t)((lit_len<sp/>&gt;=<sp/>15U)<sp/>?<sp/>15U<sp/>:<sp/>lit_len);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>mat_tok<sp/>=<sp/>(uint8_t)((match_len<sp/>&gt;=<sp/>15U)<sp/>?<sp/>15U<sp/>:<sp/>match_len);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>*op++<sp/>=<sp/>(uint8_t)((lit_tok<sp/>&lt;&lt;<sp/>4)<sp/>|<sp/>mat_tok);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lit_len<sp/>&gt;=<sp/>15U)<sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>op<sp/>=<sp/><ref refid="syn__lz4_8c_1a152ba407548bbd71a9de271e2e6e3b2a" kindref="member">lz4_write_len</ref>(op,<sp/>out_end,<sp/>lit_len<sp/>-<sp/>15U);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(op<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(out_end<sp/>-<sp/>op)<sp/>&lt;<sp/>lit_len)<sp/>{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lit_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(op,<sp/>anchor,<sp/>lit_len);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>op<sp/>+=<sp/>lit_len;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(out_end<sp/>-<sp/>op)<sp/>&lt;<sp/>2U)<sp/>{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/>*op++<sp/>=<sp/>(uint8_t)(offset<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>*op++<sp/>=<sp/>(uint8_t)((offset<sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(match_len<sp/>&gt;=<sp/>15U)<sp/>{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>op<sp/>=<sp/><ref refid="syn__lz4_8c_1a152ba407548bbd71a9de271e2e6e3b2a" kindref="member">lz4_write_len</ref>(op,<sp/>out_end,<sp/>match_len<sp/>-<sp/>15U);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>op;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*<ref refid="syn__lz4_8c_1a229f4ba940068c03575aa45b69f2a0b7" kindref="member">lz4_read_len</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ip,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*in_end,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len,</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*len_io)</highlight></codeline>
+<codeline lineno="150"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>s<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">do</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((ip<sp/>&gt;=<sp/>in_end)<sp/>||<sp/>(*len_io<sp/>&gt;<sp/>max_len)<sp/>||<sp/>((</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)*ip<sp/>&gt;<sp/>(max_len<sp/>-<sp/>*len_io)))<sp/>{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>=<sp/>*ip++;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*len_io<sp/>+=<sp/>s;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(s<sp/>==<sp/>255U);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ip;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__lz4_8c_1afda22d733b9d59e5cab30c20ccad231f" kindref="member">syn_lz4_init</ref>(<ref refid="structSYN__Lz4" kindref="compound">SYN_Lz4</ref><sp/>*ctx)</highlight></codeline>
+<codeline lineno="163"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(ctx-&gt;<ref refid="structSYN__Lz4_1a0cd1f433c88e984537bdebf87d5da535" kindref="member">hash_table</ref>,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__Lz4_1a0cd1f433c88e984537bdebf87d5da535" kindref="member">hash_table</ref>));</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__lz4_8c_1a33127bf5998718b4bfa1e97c1008fb11" kindref="member">syn_lz4_compress_bound</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>input_size)</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(input_size<sp/>&gt;<sp/>(SIZE_MAX<sp/>-<sp/>16U<sp/>-<sp/>(input_size<sp/>/<sp/>255U)))<sp/>{</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>input_size<sp/>+<sp/>(input_size<sp/>/<sp/>255U)<sp/>+<sp/>16U;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__lz4_8c_1a3b20db2fa809519fdaeee7f11c41d2e8" kindref="member">syn_lz4_compress</ref>(<ref refid="structSYN__Lz4" kindref="compound">SYN_Lz4</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_size,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*dst,</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_capacity)</highlight></codeline>
+<codeline lineno="181"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((ctx<sp/>==<sp/>NULL)<sp/>||<sp/>(src<sp/>==<sp/>NULL)<sp/>||<sp/>(dst<sp/>==<sp/>NULL)<sp/>||<sp/>(src_size<sp/>==<sp/>0U))<sp/>{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*src_base<sp/>=<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*)src;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ip<sp/>=<sp/>src_base;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*in_end<sp/>=<sp/>src_base<sp/>+<sp/>src_size;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*anchor<sp/>=<sp/>ip;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*op<sp/>=<sp/>(uint8_t<sp/>*)dst;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*out_end<sp/>=<sp/>op<sp/>+<sp/>dst_capacity;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(src_size<sp/>&gt;=<sp/><ref refid="syn__lz4_8c_1af99c729f0ee63182b959e4486e3f8349" kindref="member">LZ4_MIN_LENGTH</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<ref refid="syn__lz4_8c_1afda22d733b9d59e5cab30c20ccad231f" kindref="member">syn_lz4_init</ref>(ctx);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*mflimit<sp/>=<sp/>in_end<sp/>-<sp/><ref refid="syn__lz4_8c_1acb4ecfef66ca9c5b82bd2a5a5298b429" kindref="member">LZ4_MFLIMIT</ref>;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*match_bound<sp/>=<sp/>in_end<sp/>-<sp/><ref refid="syn__lz4_8c_1a56952ad2d496377f2d4934dfbb3937bc" kindref="member">LZ4_LASTLITERALS</ref>;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(ip<sp/>&lt;=<sp/>mflimit)<sp/>{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>val<sp/>=<sp/><ref refid="syn__lz4_8c_1a366f67e6467bebd82125340d6572df9b" kindref="member">lz4_read32</ref>(ip);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash<sp/>=<sp/><ref refid="syn__lz4_8c_1a0ff3e54674abff0cd5d7a17cfac7708e" kindref="member">lz4_hash4</ref>(val);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*match<sp/>=<sp/>src_base<sp/>+<sp/>ctx-&gt;<ref refid="structSYN__Lz4_1a0cd1f433c88e984537bdebf87d5da535" kindref="member">hash_table</ref>[hash];</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__Lz4_1a0cd1f433c88e984537bdebf87d5da535" kindref="member">hash_table</ref>[hash]<sp/>=<sp/>(uint16_t)(ip<sp/>-<sp/>src_base);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((match<sp/>&lt;<sp/>ip)<sp/>&amp;&amp;<sp/>((</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(ip<sp/>-<sp/>match)<sp/>&lt;=<sp/>65535U)<sp/>&amp;&amp;<sp/>(<ref refid="syn__lz4_8c_1a366f67e6467bebd82125340d6572df9b" kindref="member">lz4_read32</ref>(match)<sp/>==<sp/>val))<sp/>{</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ref<sp/>=<sp/>match<sp/>+<sp/><ref refid="syn__lz4_8c_1afbcbb5b9f92ae3b3ff869804efd8dbb7" kindref="member">LZ4_MIN_MATCH</ref>;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*p<sp/>=<sp/>ip<sp/>+<sp/><ref refid="syn__lz4_8c_1afbcbb5b9f92ae3b3ff869804efd8dbb7" kindref="member">LZ4_MIN_MATCH</ref>;</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>((p<sp/>&lt;<sp/>match_bound)<sp/>&amp;&amp;<sp/>(*p<sp/>==<sp/>*ref))<sp/>{</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p++;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ref++;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>op<sp/>=<sp/><ref refid="syn__lz4_8c_1a8df104778722ea09e2b4b1a7c4840cf1" kindref="member">lz4_emit_sequence</ref>(op,<sp/>out_end,<sp/>anchor,<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(ip<sp/>-<sp/>anchor),</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(ip<sp/>-<sp/>match),<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(p<sp/>-<sp/>ip)<sp/>-<sp/><ref refid="syn__lz4_8c_1afbcbb5b9f92ae3b3ff869804efd8dbb7" kindref="member">LZ4_MIN_MATCH</ref>);</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(op<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ip<sp/>=<sp/>p;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>anchor<sp/>=<sp/>ip;</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ip++;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>last_lit<sp/>=<sp/>(size_t)(in_end<sp/>-<sp/>anchor);</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(op<sp/>&gt;=<sp/>out_end)<sp/>{</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/>*op++<sp/>=<sp/>(uint8_t)(((last_lit<sp/>&gt;=<sp/>15U)<sp/>?<sp/>15U<sp/>:<sp/>last_lit)<sp/>&lt;&lt;<sp/>4);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(last_lit<sp/>&gt;=<sp/>15U)<sp/>{</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>op<sp/>=<sp/><ref refid="syn__lz4_8c_1a152ba407548bbd71a9de271e2e6e3b2a" kindref="member">lz4_write_len</ref>(op,<sp/>out_end,<sp/>last_lit<sp/>-<sp/>15U);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(op<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(out_end<sp/>-<sp/>op)<sp/>&lt;<sp/>last_lit)<sp/>{</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(op,<sp/>anchor,<sp/>last_lit);</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/>op<sp/>+=<sp/>last_lit;</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(op<sp/>-<sp/>(uint8_t<sp/>*)dst);</highlight></codeline>
+<codeline lineno="244"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__lz4_8c_1ac946664f9de61bd2b570c84a11371dc5" kindref="member">syn_lz4_decompress</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_size,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_capacity)</highlight></codeline>
+<codeline lineno="247"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((src<sp/>==<sp/>NULL)<sp/>||<sp/>(dst<sp/>==<sp/>NULL)<sp/>||<sp/>(src_size<sp/>==<sp/>0U)<sp/>||<sp/>(dst_capacity<sp/>==<sp/>0U))<sp/>{</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ip<sp/>=<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*)src;</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*in_end<sp/>=<sp/>ip<sp/>+<sp/>src_size;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*op<sp/>=<sp/>(uint8_t<sp/>*)dst;</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*out_end<sp/>=<sp/>op<sp/>+<sp/>dst_capacity;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(ip<sp/>&lt;<sp/>in_end)<sp/>{</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>token<sp/>=<sp/>*ip++;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>lit_len<sp/>=<sp/>(size_t)(token<sp/>&gt;&gt;<sp/>4);</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lit_len<sp/>==<sp/>15U)<sp/>{</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ip<sp/>=<sp/><ref refid="syn__lz4_8c_1a229f4ba940068c03575aa45b69f2a0b7" kindref="member">lz4_read_len</ref>(ip,<sp/>in_end,<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(out_end<sp/>-<sp/>op),<sp/>&amp;lit_len);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ip<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"></highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(((</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(in_end<sp/>-<sp/>ip)<sp/>&lt;<sp/>lit_len)<sp/>||<sp/>((</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(out_end<sp/>-<sp/>op)<sp/>&lt;<sp/>lit_len))<sp/>{</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lit_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(op,<sp/>ip,<sp/>lit_len);</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ip<sp/>+=<sp/>lit_len;</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>op<sp/>+=<sp/>lit_len;</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ip<sp/>&gt;=<sp/>in_end)<sp/>{</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(in_end<sp/>-<sp/>ip)<sp/>&lt;<sp/>2U)<sp/>{</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset<sp/>=<sp/>(size_t)ip[0]<sp/>|<sp/>(((</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)ip[1])<sp/>&lt;&lt;<sp/>8);</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ip<sp/>+=<sp/>2;</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((offset<sp/>==<sp/>0U)<sp/>||<sp/>(offset<sp/>&gt;<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(op<sp/>-<sp/>(uint8_t<sp/>*)dst)))<sp/>{</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"></highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>match_len<sp/>=<sp/>(size_t)(token<sp/>&amp;<sp/>0x0FU);</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(match_len<sp/>==<sp/>15U)<sp/>{</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>rem_out<sp/>=<sp/>(size_t)(out_end<sp/>-<sp/>op);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_mat<sp/>=<sp/>(rem_out<sp/>&gt;=<sp/><ref refid="syn__lz4_8c_1afbcbb5b9f92ae3b3ff869804efd8dbb7" kindref="member">LZ4_MIN_MATCH</ref>)<sp/>?<sp/>(rem_out<sp/>-<sp/><ref refid="syn__lz4_8c_1afbcbb5b9f92ae3b3ff869804efd8dbb7" kindref="member">LZ4_MIN_MATCH</ref>)<sp/>:<sp/>0U;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ip<sp/>=<sp/><ref refid="syn__lz4_8c_1a229f4ba940068c03575aa45b69f2a0b7" kindref="member">lz4_read_len</ref>(ip,<sp/>in_end,<sp/>max_mat,<sp/>&amp;match_len);</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ip<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>match_len<sp/>+=<sp/><ref refid="syn__lz4_8c_1afbcbb5b9f92ae3b3ff869804efd8dbb7" kindref="member">LZ4_MIN_MATCH</ref>;</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(out_end<sp/>-<sp/>op)<sp/>&lt;<sp/>match_len)<sp/>{</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ref<sp/>=<sp/>op<sp/>-<sp/>offset;</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0U;<sp/>i<sp/>&lt;<sp/>match_len;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*op++<sp/>=<sp/>*ref++;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(op<sp/>-<sp/>(uint8_t<sp/>*)dst);</highlight></codeline>
+<codeline lineno="315"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_lz4.c"/>
+  </compounddef>
+</doxygen>

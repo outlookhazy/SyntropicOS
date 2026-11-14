@@ -1,0 +1,151 @@
+
+
+# File syn\_transport\_tcp.c
+
+[**File List**](files.md) **>** [**net**](dir_1b04293f300841df63a8ab6b5fd3200c.md) **>** [**syn\_transport\_tcp.c**](syn__transport__tcp_8c.md)
+
+[Go to the documentation of this file](syn__transport__tcp_8c.md)
+
+
+```C++
+#if __has_include("syn_config.h")
+#include "syn_config.h"
+#endif
+
+#if !defined(SYN_USE_TRANSPORT_TCP) || SYN_USE_TRANSPORT_TCP
+
+
+#include "../util/syn_assert.h"
+#include "syn_transport_tcp.h"
+
+#include <string.h>
+
+static bool tcp_send(const uint8_t *data, size_t len, void *ctx)
+{
+    SYN_TransportTcp *tcp = (SYN_TransportTcp *)ctx;
+    SYN_ASSERT(tcp != NULL);
+
+    if (tcp->sock == SYN_SOCKET_INVALID || len > 0xFFFFU || (len > 0U && data == NULL)) {
+        return false;
+    }
+
+    uint8_t len_hdr[2];
+    len_hdr[0] = (uint8_t)(len >> 8U);
+    len_hdr[1] = (uint8_t)(len & 0xFFU);
+
+    if (syn_port_sock_send_all(tcp->sock, len_hdr, 2U) != 2) {
+        syn_port_sock_close(tcp->sock);
+        tcp->sock = SYN_SOCKET_INVALID;
+        tcp->state = 0U;
+        return false;
+    }
+
+    if (len > 0U) {
+        if (syn_port_sock_send_all(tcp->sock, data, len) != (int)len) {
+            syn_port_sock_close(tcp->sock);
+            tcp->sock = SYN_SOCKET_INVALID;
+            tcp->state = 0U;
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static int tcp_read_chunk(SYN_TransportTcp *tcp, void *buf, size_t len)
+{
+    bool was_readable = syn_port_sock_readable(tcp->sock);
+    int n = syn_port_sock_recv(tcp->sock, buf, len, 0);
+    if (n == 0 || (n < 0 && was_readable)) {
+        syn_port_sock_close(tcp->sock);
+        tcp->sock = SYN_SOCKET_INVALID;
+        tcp->state = 0;
+    }
+    return n;
+}
+
+static bool tcp_recv(uint8_t *data, size_t max_len, size_t *out_len, void *ctx)
+{
+    SYN_TransportTcp *tcp = (SYN_TransportTcp *)ctx;
+    SYN_ASSERT(tcp != NULL);
+    SYN_ASSERT(data != NULL);
+    SYN_ASSERT(out_len != NULL);
+
+    if (tcp->sock == SYN_SOCKET_INVALID)
+        return false;
+
+    /* Poll in a loop until we either run out of available data on socket or finish a packet */
+    for (;;) {
+        if (tcp->state == 0) {
+            uint8_t b;
+            int n = tcp_read_chunk(tcp, &b, 1U);
+            if (n <= 0)
+                return false;
+            tcp->payload_len = (uint16_t)((uint16_t)b << 8);
+            tcp->state = 1;
+        } else if (tcp->state == 1) {
+            uint8_t b;
+            int n = tcp_read_chunk(tcp, &b, 1U);
+            if (n <= 0)
+                return false;
+            tcp->payload_len |= b;
+            tcp->bytes_read = 0;
+
+            if (tcp->payload_len == 0U) {
+                *out_len = 0U;
+                tcp->state = 0;
+                return true;
+            }
+            if (tcp->payload_len > sizeof(tcp->rx_buf)) {
+                /* Framing error: packet too large for transport buffer */
+                syn_port_sock_close(tcp->sock);
+                tcp->sock = SYN_SOCKET_INVALID;
+                tcp->state = 0;
+                return false;
+            }
+            tcp->state = 2;
+        } else {
+            uint16_t remaining = tcp->payload_len - tcp->bytes_read;
+            int n = tcp_read_chunk(tcp, tcp->rx_buf + tcp->bytes_read, remaining);
+            if (n <= 0)
+                return false;
+
+            tcp->bytes_read += (uint16_t)n;
+            if (tcp->bytes_read == tcp->payload_len) {
+                tcp->state = 0;
+                if (tcp->payload_len <= max_len) {
+                    memcpy(data, tcp->rx_buf, tcp->payload_len);
+                    *out_len = tcp->payload_len;
+                    return true;
+                }
+                return false;
+            }
+        }
+    }
+}
+
+static bool tcp_has_data(const void *ctx)
+{
+    const SYN_TransportTcp *tcp = (const SYN_TransportTcp *)ctx;
+    return (tcp != NULL) && (tcp->sock != SYN_SOCKET_INVALID) && syn_port_sock_readable(tcp->sock);
+}
+
+void syn_transport_tcp_init(SYN_Transport *t, SYN_TransportTcp *tcp, SYN_Socket sock)
+{
+    SYN_ASSERT(t != NULL);
+    SYN_ASSERT(tcp != NULL);
+
+    memset(tcp, 0, sizeof(*tcp));
+    tcp->sock = sock;
+    tcp->state = 0;
+
+    t->send = tcp_send;
+    t->recv = tcp_recv;
+    t->has_data = tcp_has_data;
+    t->ctx = tcp;
+}
+
+#endif /* SYN_USE_TRANSPORT_TCP */
+```
+
+

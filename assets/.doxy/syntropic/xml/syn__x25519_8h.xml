@@ -1,0 +1,550 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.15.0" xml:lang="en-US">
+  <compounddef id="syn__x25519_8h" kind="file" language="C++">
+    <compoundname>syn_x25519.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__pt_8h" local="yes">../pt/syn_pt.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__x25519_8c" local="yes">src/syntropic/crypto/syn_x25519.c</includedby>
+    <includedby refid="syn__wg_8c" local="yes">src/syntropic/net/syn_wg.c</includedby>
+    <includedby refid="syn__wg_8h" local="yes">src/syntropic/net/syn_wg.h</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>../common/syn_barrier.h</label>
+        <link refid="syn__barrier_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_x25519.h</label>
+        <link refid="syn__x25519_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/crypto/syn_x25519.c</label>
+        <link refid="syn__x25519_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_x25519.h</label>
+        <link refid="syn__x25519_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/net/syn_wg.c</label>
+        <link refid="syn__wg_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/net/syn_wg.h</label>
+        <link refid="syn__wg_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__X25519__Ctx" prot="public">SYN_X25519_Ctx</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__x25519_8h_1a5ebffc18301fb84fc245bc7c9a2b0f56" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_x25519</definition>
+        <argsstring>(uint8_t shared_out[32], const uint8_t scalar[32], const uint8_t point[32])</argsstring>
+        <name>syn_x25519</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>shared_out</declname>
+          <array>[32]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>scalar</declname>
+          <array>[32]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>point</declname>
+          <array>[32]</array>
+        </param>
+        <briefdescription>
+<para>X25519 scalar multiplication. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes shared = scalar * point on Curve25519. Callers invoking <ref refid="syn__x25519_8h_1a5ebffc18301fb84fc245bc7c9a2b0f56" kindref="member">syn_x25519()</ref> directly in Diffie-Hellman protocols MUST verify in constant time that shared_out is not all-zero (RFC 7748 Section 6.1) to reject low-order input points.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>shared_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output: 32-byte shared secret. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scalar</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte private scalar (clamped internally per RFC 7748). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>point</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte public point (peer&apos;s public key). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x25519.h" line="73" column="6" bodyfile="src/syntropic/crypto/syn_x25519.c" bodystart="353" bodyend="363" declfile="src/syntropic/crypto/syn_x25519.h" declline="73" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__x25519_8h_1a0d775658b7a519f8cbc37a3cf0d8b815" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_x25519_pubkey</definition>
+        <argsstring>(uint8_t public_out[32], const uint8_t private_key[32])</argsstring>
+        <name>syn_x25519_pubkey</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>public_out</declname>
+          <array>[32]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>private_key</declname>
+          <array>[32]</array>
+        </param>
+        <briefdescription>
+<para>Derive a public key from a private key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes public = scalar * basepoint (the Curve25519 generator, u=9).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>public_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output: 32-byte public key. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>private_key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte private key (should be clamped). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x25519.h" line="83" column="6" bodyfile="src/syntropic/crypto/syn_x25519.c" bodystart="365" bodyend="369" declfile="src/syntropic/crypto/syn_x25519.h" declline="83" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__x25519_8h_1a12e51be2c6468d04f027c360100581a4" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_x25519_clamp</definition>
+        <argsstring>(uint8_t key[32])</argsstring>
+        <name>syn_x25519_clamp</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>key</declname>
+          <array>[32]</array>
+        </param>
+        <briefdescription>
+<para>Clamp a 32-byte private key per RFC 7748. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets bits to ensure the scalar is a multiple of the cofactor (8) and has the high bit set for constant-time operation.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte key to clamp (modified in place). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x25519.h" line="93" column="20" bodyfile="src/syntropic/crypto/syn_x25519.h" bodystart="93" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__x25519_8h_1aabd7297dec6beda5085fd42d826232d0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_x25519_is_nonzero</definition>
+        <argsstring>(const uint8_t secret[32])</argsstring>
+        <name>syn_x25519_is_nonzero</name>
+        <param>
+          <type>const uint8_t</type>
+          <declname>secret</declname>
+          <array>[32]</array>
+        </param>
+        <briefdescription>
+<para>Constant-time check that a 32-byte X25519 shared secret is non-zero (RFC 7748 §6.1). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Diffie-Hellman protocol consumers must verify that the scalar multiplication output is not the all-zero value to reject low-order points.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secret</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte shared secret buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if at least one byte is non-zero, false if all-zero. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x25519.h" line="109" column="20" bodyfile="src/syntropic/crypto/syn_x25519.h" bodystart="109" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__x25519_8h_1a06e86676708caabec8ca8308818c73c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_x25519_init</definition>
+        <argsstring>(SYN_X25519_Ctx *ctx, const uint8_t scalar[32], const uint8_t point[32])</argsstring>
+        <name>syn_x25519_init</name>
+        <param>
+          <type><ref refid="structSYN__X25519__Ctx" kindref="compound">SYN_X25519_Ctx</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>scalar</declname>
+          <array>[32]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>point</declname>
+          <array>[32]</array>
+        </param>
+        <briefdescription>
+<para>Initialize a resumable X25519 scalar multiplication context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Caller-owned X25519 working context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scalar</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte private scalar (clamped internally per RFC 7748). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>point</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte public point (peer&apos;s public key or basepoint). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if initialized, false on NULL pointer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x25519.h" line="125" column="6" bodyfile="src/syntropic/crypto/syn_x25519.c" bodystart="297" bodyend="316" declfile="src/syntropic/crypto/syn_x25519.h" declline="125" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__x25519_8h_1abd08032acace669f357966084fddca6b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_x25519_pubkey_init</definition>
+        <argsstring>(SYN_X25519_Ctx *ctx, const uint8_t private_key[32])</argsstring>
+        <name>syn_x25519_pubkey_init</name>
+        <param>
+          <type><ref refid="structSYN__X25519__Ctx" kindref="compound">SYN_X25519_Ctx</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>private_key</declname>
+          <array>[32]</array>
+        </param>
+        <briefdescription>
+<para>Initialize a resumable X25519 public-key derivation context (scalar * basepoint). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Caller-owned X25519 working context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>private_key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte private key. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if initialized, false on NULL pointer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x25519.h" line="133" column="6" bodyfile="src/syntropic/crypto/syn_x25519.c" bodystart="318" bodyend="322" declfile="src/syntropic/crypto/syn_x25519.h" declline="133" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__x25519_8h_1a1456ae0e0b9f4cc56fdd2a62db27725b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_x25519_wipe</definition>
+        <argsstring>(SYN_X25519_Ctx *ctx)</argsstring>
+        <name>syn_x25519_wipe</name>
+        <param>
+          <type><ref refid="structSYN__X25519__Ctx" kindref="compound">SYN_X25519_Ctx</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Securely zeroize an X25519 working context (for cancellation / abort). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context to wipe (safe if NULL). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x25519.h" line="139" column="6" bodyfile="src/syntropic/crypto/syn_x25519.c" bodystart="324" bodyend="329" declfile="src/syntropic/crypto/syn_x25519.h" declline="139" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__x25519_8h_1a149746cb94fabb4dbd38ed90d59b0637" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref></type>
+        <definition>SYN_PT_Status syn_x25519_pt</definition>
+        <argsstring>(SYN_PT *pt, SYN_X25519_Ctx *ctx, uint8_t shared_out[32])</argsstring>
+        <name>syn_x25519_pt</name>
+        <param>
+          <type><ref refid="structSYN__PT" kindref="compound">SYN_PT</ref> *</type>
+          <declname>pt</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__X25519__Ctx" kindref="compound">SYN_X25519_Ctx</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>shared_out</declname>
+          <array>[32]</array>
+        </param>
+        <briefdescription>
+<para>Cooperative protothread for sliced X25519 scalar multiplication. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Executes one Montgomery ladder or field inversion step per slice and yields PT_MORE via <ref refid="syn__pt_8h_1ab8854581f75a8790b02d340a09311ac9" kindref="member">PT_CONTINUE(pt)</ref>. Automatically wipes <computeroutput>ctx</computeroutput> before completing with PT_ENDED. Composes with <ref refid="syn__sched_8h_1afc3556ce99d555da2e970bf8be4a8253" kindref="member">PT_SPAWN_IF_NEEDED(pt, task, child, syn_x25519_pt(...))</ref> for demand-driven yielding.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Protothread control block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized X25519 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>shared_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] 32-byte output buffer populated on PT_ENDED. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>PT_MORE while in progress, PT_ENDED on completion, or PT_EXITED on invalid args. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x25519.h" line="154" column="15" bodyfile="src/syntropic/crypto/syn_x25519.c" bodystart="331" bodyend="351" declfile="src/syntropic/crypto/syn_x25519.h" declline="154" declcolumn="15"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>X25519 Diffie-Hellman key exchange — RFC 7748, pure C99. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Elliptic-curve Diffie-Hellman on Curve25519 using the Montgomery ladder. Provides shared-secret computation and public-key derivation.</para>
+<para>This is the most computationally expensive WireGuard operation (~1–2 seconds on Cortex-M4 @ 64 MHz) but only runs during handshake, not on every packet.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="normal">uint8_t<sp/>my_priv[32],<sp/>my_pub[32],<sp/>shared[32];</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Generate<sp/>keypair<sp/>(private<sp/>key<sp/>=<sp/>32<sp/>random<sp/>bytes,<sp/>then<sp/>clamp):</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">fill_random(my_priv,<sp/>32);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__x25519_8h_1a12e51be2c6468d04f027c360100581a4" kindref="member">syn_x25519_clamp</ref>(my_priv);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__x25519_8c_1a0d775658b7a519f8cbc37a3cf0d8b815" kindref="member">syn_x25519_pubkey</ref>(my_pub,<sp/>my_priv);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Compute<sp/>shared<sp/>secret<sp/>with<sp/>peer&apos;s<sp/>public<sp/>key:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__x25519_8c_1a5ebffc18301fb84fc245bc7c9a2b0f56" kindref="member">syn_x25519</ref>(shared,<sp/>my_priv,<sp/>peer_pub);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_X25519_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_X25519_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_X25519)<sp/>||<sp/>SYN_USE_X25519</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">../common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__pt_8h" kindref="compound">../pt/syn_pt.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="structSYN__X25519__Ctx" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="50" refid="structSYN__X25519__Ctx_1afd9866f48c9ce06faaa4ee4c614e1628" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__X25519__Ctx_1afd9866f48c9ce06faaa4ee4c614e1628" kindref="member">z</ref>[32];<sp/></highlight></codeline>
+<codeline lineno="51" refid="structSYN__X25519__Ctx_1a54f81e461bd42402f2bd011cd6c51832" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><ref refid="structSYN__X25519__Ctx_1a54f81e461bd42402f2bd011cd6c51832" kindref="member">x</ref>[16];<sp/></highlight></codeline>
+<codeline lineno="52" refid="structSYN__X25519__Ctx_1ad592e6e091a980c976c1e14cfe4ec470" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><ref refid="structSYN__X25519__Ctx_1ad592e6e091a980c976c1e14cfe4ec470" kindref="member">a</ref>[16];<sp/></highlight></codeline>
+<codeline lineno="53" refid="structSYN__X25519__Ctx_1af39527e816d9d854f22ebcdd3bf4ff57" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><ref refid="structSYN__X25519__Ctx_1af39527e816d9d854f22ebcdd3bf4ff57" kindref="member">b</ref>[16];<sp/></highlight></codeline>
+<codeline lineno="54" refid="structSYN__X25519__Ctx_1a7cf44d871ca42c7f3822a369f37e8d4d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><ref refid="structSYN__X25519__Ctx_1a7cf44d871ca42c7f3822a369f37e8d4d" kindref="member">c</ref>[16];<sp/></highlight></codeline>
+<codeline lineno="55" refid="structSYN__X25519__Ctx_1a694f4b79369adfbcf6b85c0ba2293619" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><ref refid="structSYN__X25519__Ctx_1a694f4b79369adfbcf6b85c0ba2293619" kindref="member">d</ref>[16];<sp/></highlight></codeline>
+<codeline lineno="56" refid="structSYN__X25519__Ctx_1a6a278245ffe7184e691b26fdfd343ec6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__PT" kindref="compound">SYN_PT</ref><sp/><ref refid="structSYN__X25519__Ctx_1a6a278245ffe7184e691b26fdfd343ec6" kindref="member">sub_pt</ref>;<sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__X25519__Ctx_1a1d8bc42ccbc9bd23efda5a8d3b8d2491" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__X25519__Ctx_1a1d8bc42ccbc9bd23efda5a8d3b8d2491" kindref="member">idx</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__X25519__Ctx_1a8c7fa150ed22c3e3bd6bbc87d2fda802" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__X25519__Ctx_1a8c7fa150ed22c3e3bd6bbc87d2fda802" kindref="member">active</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}<sp/><ref refid="structSYN__X25519__Ctx" kindref="compound">SYN_X25519_Ctx</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__x25519_8h_1a5ebffc18301fb84fc245bc7c9a2b0f56" kindref="member">syn_x25519</ref>(uint8_t<sp/>shared_out[32],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>scalar[32],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>point[32]);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__x25519_8h_1a0d775658b7a519f8cbc37a3cf0d8b815" kindref="member">syn_x25519_pubkey</ref>(uint8_t<sp/>public_out[32],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>private_key[32]);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="syn__x25519_8h_1a12e51be2c6468d04f027c360100581a4" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__x25519_8h_1a12e51be2c6468d04f027c360100581a4" kindref="member">syn_x25519_clamp</ref>(uint8_t<sp/>key[32])</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>key[0]<sp/>&amp;=<sp/>248U;<sp/><sp/></highlight><highlight class="comment">/*<sp/>Clear<sp/>low<sp/>3<sp/>bits<sp/>(multiple<sp/>of<sp/>8)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>key[31]<sp/>&amp;=<sp/>127U;<sp/></highlight><highlight class="comment">/*<sp/>Clear<sp/>high<sp/>bit<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>key[31]<sp/>|=<sp/>64U;<sp/><sp/></highlight><highlight class="comment">/*<sp/>Set<sp/>second-highest<sp/>bit<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109" refid="syn__x25519_8h_1aabd7297dec6beda5085fd42d826232d0" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__x25519_8h_1aabd7297dec6beda5085fd42d826232d0" kindref="member">syn_x25519_is_nonzero</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>secret[32])</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>acc<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0U;<sp/>i<sp/>&lt;<sp/>32U;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>acc<sp/>|=<sp/>secret[i];</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>acc<sp/>!=<sp/>0U;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__x25519_8h_1a06e86676708caabec8ca8308818c73c4" kindref="member">syn_x25519_init</ref>(<ref refid="structSYN__X25519__Ctx" kindref="compound">SYN_X25519_Ctx</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>scalar[32],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>point[32]);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__x25519_8h_1abd08032acace669f357966084fddca6b" kindref="member">syn_x25519_pubkey_init</ref>(<ref refid="structSYN__X25519__Ctx" kindref="compound">SYN_X25519_Ctx</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>private_key[32]);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__x25519_8h_1a1456ae0e0b9f4cc56fdd2a62db27725b" kindref="member">syn_x25519_wipe</ref>(<ref refid="structSYN__X25519__Ctx" kindref="compound">SYN_X25519_Ctx</ref><sp/>*ctx);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref><sp/><ref refid="syn__x25519_8h_1a149746cb94fabb4dbd38ed90d59b0637" kindref="member">syn_x25519_pt</ref>(<ref refid="structSYN__PT" kindref="compound">SYN_PT</ref><sp/>*pt,<sp/><ref refid="structSYN__X25519__Ctx" kindref="compound">SYN_X25519_Ctx</ref><sp/>*ctx,<sp/>uint8_t<sp/>shared_out[32]);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_X25519<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_X25519_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/crypto/syn_x25519.h"/>
+  </compounddef>
+</doxygen>

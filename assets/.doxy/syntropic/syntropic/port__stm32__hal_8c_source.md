@@ -1,0 +1,794 @@
+
+
+# File port\_stm32\_hal.c
+
+[**File List**](files.md) **>** [**port**](dir_fd8b95245ffcce776715f180c056b450.md) **>** [**stm32\_hal**](dir_beb8b7258a6e20be6ee3b2db46ef4785.md) **>** [**port\_stm32\_hal.c**](port__stm32__hal_8c.md)
+
+[Go to the documentation of this file](port__stm32__hal_8c.md)
+
+
+```C++
+
+
+#if !defined(ARDUINO) &&                                                                     \
+    (defined(STM32F0xx) || defined(STM32F1xx) || defined(STM32F4xx) || defined(STM32F7xx) || \
+     defined(STM32L4xx) || defined(STM32G0xx) || defined(STM32H7xx) || defined(STM32C0xx) || \
+     defined(STM32U0xx) || defined(STM32F0) || defined(STM32F1) || defined(STM32F4) ||       \
+     defined(STM32F7) || defined(STM32L4) || defined(STM32G0) || defined(STM32H7) ||         \
+     defined(STM32C0) || defined(STM32U0))
+
+#include "syntropic/common/syn_compiler.h"
+#include "syntropic/common/syn_defs.h"
+#include "syntropic/port/syn_port_gpio.h"
+#include "syntropic/port/syn_port_system.h"
+#include "syntropic/port/syn_port_uart.h"
+#include "syntropic/util/syn_assert.h"
+
+/* ── Assert Handler Fallback ────────────────────────────────────────────── */
+
+SYN_WEAK SYN_NORETURN void syn_assert_failed(const char *file, int line)
+{
+    (void)file;
+    (void)line;
+    __disable_irq();
+    for (;;) {
+    }
+}
+
+/* ── STM32 HAL Headers ─────────────────────────────────────────────────── */
+/* Adjust the include based on your target microcontroller family. */
+#if defined(STM32F072xx) || defined(STM32F0) || defined(STM32F0xx)
+#include "stm32f0xx_hal.h"
+#elif defined(STM32F407xx) || defined(STM32F4) || defined(STM32F4xx)
+#include "stm32f4xx_hal.h"
+#elif defined(STM32F746xx) || defined(STM32F767xx) || defined(STM32F7) || defined(STM32F7xx)
+#include "stm32f7xx_hal.h"
+#elif defined(STM32F103xx) || defined(STM32F1) || defined(STM32F1xx)
+#include "stm32f1xx_hal.h"
+#elif defined(STM32L476xx) || defined(STM32L4) || defined(STM32L4xx)
+#include "stm32l4xx_hal.h"
+#elif defined(STM32G071xx) || defined(STM32G0) || defined(STM32G0xx)
+#include "stm32g0xx_hal.h"
+#elif defined(STM32H743xx) || defined(STM32H7) || defined(STM32H7xx)
+#include "stm32h7xx_hal.h"
+#elif defined(STM32C092xx) || defined(STM32C0) || defined(STM32C0xx)
+#include "stm32c0xx_hal.h"
+#elif defined(STM32U083xx) || defined(STM32U0) || defined(STM32U0xx)
+#include "stm32u0xx_hal.h"
+#else
+/* Fallback: user can define this header or configure their include path */
+#include "stm32_hal.h"
+#endif
+
+/* ── System Port ────────────────────────────────────────────────────────── */
+
+static volatile uint32_t s_crit_depth = 0U;
+static volatile uint32_t s_saved_primask = 0U;
+
+void syn_port_enter_critical(void)
+{
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();
+    if (s_crit_depth == 0U) {
+        s_saved_primask = primask;
+    }
+    s_crit_depth++;
+}
+
+void syn_port_exit_critical(void)
+{
+    SYN_COMPILER_BARRIER();
+    if (s_crit_depth > 0U) {
+        s_crit_depth--;
+        if (s_crit_depth == 0U && (s_saved_primask & 1U) == 0U) {
+            __enable_irq();
+        }
+    }
+}
+
+uint32_t syn_port_get_tick_ms(void)
+{
+    return HAL_GetTick();
+}
+
+uint32_t syn_port_get_tick_us(void)
+{
+    uint32_t load = SysTick->LOAD & 0x00FFFFFFUL;
+    if (load == 0U) {
+        return HAL_GetTick() * 1000U;
+    }
+
+    uint32_t ms1;
+    uint32_t ms2;
+    uint32_t val;
+    uint32_t pend1;
+    uint32_t pend2;
+    do {
+        ms1 = HAL_GetTick();
+        pend1 = (*(volatile uint32_t *)0xE000ED04UL) & (1UL << 26);
+        val = SysTick->VAL & 0x00FFFFFFUL;
+        ms2 = HAL_GetTick();
+        pend2 = (*(volatile uint32_t *)0xE000ED04UL) & (1UL << 26);
+    } while (ms1 != ms2 || pend1 != pend2);
+
+    if (pend1 != 0U) {
+        ms1++;
+    }
+
+    uint32_t elapsed_cycles = (val == 0U || val > load) ? 0U : (load - val);
+    uint32_t elapsed_us =
+        (uint32_t)(((uint64_t)elapsed_cycles * 1000ULL) / ((uint64_t)load + 1ULL));
+    return (ms1 * 1000U) + elapsed_us;
+}
+
+void syn_port_delay_ms(uint32_t ms)
+{
+    HAL_Delay(ms);
+}
+
+SYN_NORETURN void syn_port_system_reset(void)
+{
+    NVIC_SystemReset();
+    for (;;) {
+    }
+}
+
+/* ── GPIO Port ──────────────────────────────────────────────────────────── */
+
+static GPIO_TypeDef *get_gpio_port(SYN_GPIO_Pin pin)
+{
+    uint8_t port_idx = SYN_GPIO_PIN_PORT(pin);
+    switch (port_idx) {
+#ifdef GPIOA
+    case 0:
+        return GPIOA;
+#endif
+#ifdef GPIOB
+    case 1:
+        return GPIOB;
+#endif
+#ifdef GPIOC
+    case 2:
+        return GPIOC;
+#endif
+#ifdef GPIOD
+    case 3:
+        return GPIOD;
+#endif
+#ifdef GPIOE
+    case 4:
+        return GPIOE;
+#endif
+#ifdef GPIOF
+    case 5:
+        return GPIOF;
+#endif
+#ifdef GPIOG
+    case 6:
+        return GPIOG;
+#endif
+#ifdef GPIOH
+    case 7:
+        return GPIOH;
+#endif
+#ifdef GPIOI
+    case 8:
+        return GPIOI;
+#endif
+    default:
+        return NULL;
+    }
+}
+
+static uint16_t get_gpio_pin_mask(SYN_GPIO_Pin pin)
+{
+    return (uint16_t)(1U << SYN_GPIO_PIN_NUM(pin));
+}
+
+SYN_Status syn_port_gpio_init(SYN_GPIO_Pin pin, SYN_GPIO_Mode mode)
+{
+    GPIO_TypeDef *port = get_gpio_port(pin);
+    if (!port)
+        return SYN_INVALID_PARAM;
+
+    /* Enable peripheral clock dynamically */
+    uint8_t port_idx = SYN_GPIO_PIN_PORT(pin);
+    switch (port_idx) {
+#ifdef GPIOA
+    case 0:
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        break;
+#endif
+#ifdef GPIOB
+    case 1:
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+        break;
+#endif
+#ifdef GPIOC
+    case 2:
+        __HAL_RCC_GPIOC_CLK_ENABLE();
+        break;
+#endif
+#ifdef GPIOD
+    case 3:
+        __HAL_RCC_GPIOD_CLK_ENABLE();
+        break;
+#endif
+#ifdef GPIOE
+    case 4:
+        __HAL_RCC_GPIOE_CLK_ENABLE();
+        break;
+#endif
+#ifdef GPIOF
+    case 5:
+        __HAL_RCC_GPIOF_CLK_ENABLE();
+        break;
+#endif
+#ifdef GPIOG
+    case 6:
+        __HAL_RCC_GPIOG_CLK_ENABLE();
+        break;
+#endif
+#ifdef GPIOH
+    case 7:
+        __HAL_RCC_GPIOH_CLK_ENABLE();
+        break;
+#endif
+#ifdef GPIOI
+    case 8:
+        __HAL_RCC_GPIOI_CLK_ENABLE();
+        break;
+#endif
+    default:
+        return SYN_INVALID_PARAM;
+    }
+
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = get_gpio_pin_mask(pin);
+
+    switch (mode) {
+    case SYN_GPIO_INPUT:
+        GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        break;
+    case SYN_GPIO_OUTPUT:
+        GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+        break;
+    case SYN_GPIO_INPUT_PULLUP:
+        GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+        GPIO_InitStruct.Pull = GPIO_PULLUP;
+        break;
+    case SYN_GPIO_INPUT_PULLDOWN:
+        GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+        GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+        break;
+    case SYN_GPIO_OUTPUT_OD:
+        GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+        break;
+    default:
+        return SYN_NOT_IMPLEMENTED;
+    }
+
+    HAL_GPIO_Init(port, &GPIO_InitStruct);
+    return SYN_OK;
+}
+
+SYN_Status syn_port_gpio_deinit(SYN_GPIO_Pin pin)
+{
+    GPIO_TypeDef *port = get_gpio_port(pin);
+    if (!port)
+        return SYN_INVALID_PARAM;
+    HAL_GPIO_DeInit(port, get_gpio_pin_mask(pin));
+    return SYN_OK;
+}
+
+SYN_Status syn_port_gpio_write(SYN_GPIO_Pin pin, SYN_GPIO_State state)
+{
+    GPIO_TypeDef *port = get_gpio_port(pin);
+    if (!port)
+        return SYN_INVALID_PARAM;
+    HAL_GPIO_WritePin(port, get_gpio_pin_mask(pin),
+                      (state == SYN_GPIO_HIGH) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    return SYN_OK;
+}
+
+SYN_GPIO_State syn_port_gpio_read(SYN_GPIO_Pin pin)
+{
+    GPIO_TypeDef *port = get_gpio_port(pin);
+    if (!port)
+        return SYN_GPIO_LOW;
+    return (HAL_GPIO_ReadPin(port, get_gpio_pin_mask(pin)) == GPIO_PIN_SET) ? SYN_GPIO_HIGH
+                                                                            : SYN_GPIO_LOW;
+}
+
+SYN_Status syn_port_gpio_toggle(SYN_GPIO_Pin pin)
+{
+    GPIO_TypeDef *port = get_gpio_port(pin);
+    if (!port)
+        return SYN_INVALID_PARAM;
+    HAL_GPIO_TogglePin(port, get_gpio_pin_mask(pin));
+    return SYN_OK;
+}
+
+/* ── UART Port ──────────────────────────────────────────────────────────── */
+
+UART_HandleTypeDef *syn_port_uart_handles[6] = {NULL};
+
+SYN_Status syn_port_stm32_register_uart(SYN_UARTInstance instance, void *huart)
+{
+    if (instance >= 6) {
+        return SYN_INVALID_PARAM;
+    }
+    syn_port_uart_handles[instance] = (UART_HandleTypeDef *)huart;
+    return SYN_OK;
+}
+
+static UART_HandleTypeDef *get_uart_handle(SYN_UARTInstance instance)
+{
+    if (instance < 6) {
+        return syn_port_uart_handles[instance];
+    }
+    return NULL;
+}
+
+SYN_Status syn_port_uart_init(SYN_UARTInstance instance, uint32_t baudrate)
+{
+    (void)baudrate;
+    UART_HandleTypeDef *huart = get_uart_handle(instance);
+    if (!huart) {
+        return SYN_INVALID_PARAM;
+    }
+    return SYN_OK;
+}
+
+SYN_Status syn_port_uart_deinit(SYN_UARTInstance instance)
+{
+    UART_HandleTypeDef *huart = get_uart_handle(instance);
+    if (!huart) {
+        return SYN_INVALID_PARAM;
+    }
+    HAL_StatusTypeDef status = HAL_UART_DeInit(huart);
+    return (status == HAL_OK) ? SYN_OK : SYN_ERROR;
+}
+
+SYN_Status syn_port_uart_transmit(SYN_UARTInstance instance, const uint8_t *data, size_t len,
+                                  uint32_t timeout_ms)
+{
+    UART_HandleTypeDef *huart = get_uart_handle(instance);
+    if (!huart)
+        return SYN_INVALID_PARAM;
+
+    HAL_StatusTypeDef status = HAL_UART_Transmit(huart, (uint8_t *)data, (uint16_t)len,
+                                                 timeout_ms == 0 ? HAL_MAX_DELAY : timeout_ms);
+    switch (status) {
+    case HAL_OK:
+        return SYN_OK;
+    case HAL_TIMEOUT:
+        return SYN_TIMEOUT;
+    case HAL_BUSY:
+        return SYN_BUSY;
+    default:
+        return SYN_ERROR;
+    }
+}
+
+SYN_Status syn_port_uart_receive(SYN_UARTInstance instance, uint8_t *data, size_t len,
+                                 size_t *received, uint32_t timeout_ms)
+{
+    UART_HandleTypeDef *huart = get_uart_handle(instance);
+    if (!huart || (len > 0U && !data))
+        return SYN_INVALID_PARAM;
+
+    size_t count = 0;
+    uint32_t start_ms = syn_port_get_tick_ms();
+    uint32_t per_byte_timeout = (timeout_ms > 0U) ? 1U : 0U;
+
+    while (count < len) {
+        /* Clear any overrun error before attempting receive */
+        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
+            __HAL_UART_CLEAR_OREFLAG(huart);
+        }
+
+        HAL_StatusTypeDef status = HAL_UART_Receive(huart, &data[count], 1, per_byte_timeout);
+        if (status == HAL_OK) {
+            count++;
+        } else if (timeout_ms == 0U || (syn_port_get_tick_ms() - start_ms) >= timeout_ms ||
+                   count > 0U) {
+            break;
+        }
+    }
+
+    if (received)
+        *received = count;
+    return (count > 0) ? SYN_OK : SYN_TIMEOUT;
+}
+
+SYN_Status syn_port_uart_transmit_byte(SYN_UARTInstance instance, uint8_t byte)
+{
+    return syn_port_uart_transmit(instance, &byte, 1, 100);
+}
+
+SYN_Status syn_port_uart_receive_byte(SYN_UARTInstance instance, uint8_t *byte, uint32_t timeout_ms)
+{
+    size_t rec = 0;
+    return syn_port_uart_receive(instance, byte, 1, &rec, timeout_ms);
+}
+
+/* ── Console serial port ────────────────────────────────────────────────── */
+
+#include "syntropic/port/syn_port_serial.h"
+
+#ifndef SYN_SERIAL_UART_INSTANCE
+#define SYN_SERIAL_UART_INSTANCE 0
+#endif
+
+SYN_WEAK SYN_Status syn_port_serial_init(uint32_t baudrate)
+{
+    if (baudrate == 0)
+        baudrate = 115200;
+    return syn_port_uart_init(SYN_SERIAL_UART_INSTANCE, baudrate);
+}
+
+SYN_WEAK int syn_port_serial_write(const uint8_t *data, size_t len)
+{
+    SYN_Status s = syn_port_uart_transmit(SYN_SERIAL_UART_INSTANCE, data, len, 100);
+    return (s == SYN_OK) ? (int)len : -1;
+}
+
+SYN_WEAK int syn_port_serial_read(uint8_t *buf, size_t max_len)
+{
+    size_t received = 0;
+    SYN_Status s = syn_port_uart_receive(SYN_SERIAL_UART_INSTANCE, buf, max_len, &received, 0);
+    if (s == SYN_TIMEOUT)
+        return (int)received;
+    if (s != SYN_OK)
+        return -1;
+    return (int)received;
+}
+
+/* ── Hardware Flash Port (STM32 HAL) ────────────────────────────────────── */
+
+#include "syntropic/port/syn_port_flash.h"
+
+#if defined(FLASH_TYPEERASE_SECTORS)
+static uint32_t syn_stm32_addr_to_sector(uint32_t addr)
+{
+    if (addr < 0x08004000U)
+        return FLASH_SECTOR_0;
+    if (addr < 0x08008000U)
+        return FLASH_SECTOR_1;
+    if (addr < 0x0800C000U)
+        return FLASH_SECTOR_2;
+    if (addr < 0x08010000U)
+        return FLASH_SECTOR_3;
+    if (addr < 0x08020000U)
+        return FLASH_SECTOR_4;
+    if (addr < 0x08040000U)
+        return FLASH_SECTOR_5;
+    if (addr < 0x08060000U)
+        return FLASH_SECTOR_6;
+    if (addr < 0x08080000U)
+        return FLASH_SECTOR_7;
+    if (addr < 0x080A0000U)
+        return FLASH_SECTOR_8;
+    if (addr < 0x080C0000U)
+        return FLASH_SECTOR_9;
+    if (addr < 0x080E0000U)
+        return FLASH_SECTOR_10;
+    if (addr < 0x08100000U)
+        return FLASH_SECTOR_11;
+#if defined(FLASH_SECTOR_12)
+    if (addr < 0x08104000U)
+        return FLASH_SECTOR_12;
+    if (addr < 0x08108000U)
+        return FLASH_SECTOR_13;
+    if (addr < 0x0810C000U)
+        return FLASH_SECTOR_14;
+    if (addr < 0x08110000U)
+        return FLASH_SECTOR_15;
+    if (addr < 0x08120000U)
+        return FLASH_SECTOR_16;
+    if (addr < 0x08140000U)
+        return FLASH_SECTOR_17;
+    if (addr < 0x08160000U)
+        return FLASH_SECTOR_18;
+    if (addr < 0x08180000U)
+        return FLASH_SECTOR_19;
+    if (addr < 0x081A0000U)
+        return FLASH_SECTOR_20;
+    if (addr < 0x081C0000U)
+        return FLASH_SECTOR_21;
+    if (addr < 0x081E0000U)
+        return FLASH_SECTOR_22;
+    return FLASH_SECTOR_23;
+#else
+    return FLASH_SECTOR_11;
+#endif
+}
+#endif
+
+static void stm32_hal_flush_flash_cache(void)
+{
+#if defined(__HAL_FLASH_INSTRUCTION_CACHE_RESET) && defined(__HAL_FLASH_INSTRUCTION_CACHE_DISABLE)
+    __HAL_FLASH_INSTRUCTION_CACHE_DISABLE();
+    __HAL_FLASH_INSTRUCTION_CACHE_RESET();
+    __HAL_FLASH_INSTRUCTION_CACHE_ENABLE();
+#endif
+#if defined(__HAL_FLASH_DATA_CACHE_RESET) && defined(__HAL_FLASH_DATA_CACHE_DISABLE)
+    __HAL_FLASH_DATA_CACHE_DISABLE();
+    __HAL_FLASH_DATA_CACHE_RESET();
+    __HAL_FLASH_DATA_CACHE_ENABLE();
+#endif
+#if defined(__HAL_FLASH_ART_RESET) && defined(__HAL_FLASH_ART_DISABLE)
+    __HAL_FLASH_ART_DISABLE();
+    __HAL_FLASH_ART_RESET();
+    __HAL_FLASH_ART_ENABLE();
+#endif
+#if defined(__ICACHE_PRESENT) && (__ICACHE_PRESENT == 1U)
+    SCB_InvalidateICache();
+#endif
+#if defined(__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
+    SCB_CleanInvalidateDCache();
+#endif
+}
+
+SYN_WEAK SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
+{
+    if (buf == NULL)
+        return SYN_INVALID_PARAM;
+    memcpy(buf, (const void *)addr, len);
+    return SYN_OK;
+}
+
+SYN_WEAK SYN_Status syn_port_flash_erase(uint32_t addr)
+{
+    HAL_FLASH_Unlock();
+#if defined(FLASH_TYPEERASE_SECTORS)
+    FLASH_EraseInitTypeDef erase;
+    erase.TypeErase = FLASH_TYPEERASE_SECTORS;
+    erase.Sector = syn_stm32_addr_to_sector(addr);
+    erase.NbSectors = 1;
+    erase.VoltageRange = FLASH_VOLTAGE_RANGE_3;
+    uint32_t error = 0;
+    HAL_StatusTypeDef status = HAL_FLASHEx_Erase(&erase, &error);
+#elif defined(FLASH_TYPEERASE_PAGES)
+    FLASH_EraseInitTypeDef erase;
+    erase.TypeErase = FLASH_TYPEERASE_PAGES;
+    erase.PageAddress = addr;
+    erase.NbPages = 1;
+    uint32_t error = 0;
+    HAL_StatusTypeDef status = HAL_FLASHEx_Erase(&erase, &error);
+#else
+    HAL_StatusTypeDef status = HAL_ERROR;
+    (void)addr;
+#endif
+    HAL_FLASH_Lock();
+    stm32_hal_flush_flash_cache();
+    return (status == HAL_OK) ? SYN_OK : SYN_ERROR;
+}
+
+SYN_WEAK SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
+{
+    if (len == 0U)
+        return SYN_OK;
+    if (buf == NULL)
+        return SYN_INVALID_PARAM;
+    const uint8_t *src = (const uint8_t *)buf;
+    HAL_FLASH_Unlock();
+    HAL_StatusTypeDef status = HAL_OK;
+    for (size_t i = 0; i < len; i++) {
+#if defined(FLASH_TYPEPROGRAM_BYTE)
+        status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, addr + i, src[i]);
+#elif defined(FLASH_TYPEPROGRAM_DOUBLEWORD)
+        if (i + 8 <= len && ((addr + i) % 8 == 0)) {
+            uint64_t val = 0;
+            memcpy(&val, &src[i], 8);
+            status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, addr + i, val);
+            i += 7;
+        } else {
+            uint64_t val = 0xFFFFFFFFFFFFFFFFULL;
+            size_t rem = len - i;
+            memcpy(&val, &src[i], rem > 8 ? 8 : rem);
+            status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, addr + i, val);
+            i += 7;
+        }
+#else
+        status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, addr + i, src[i]);
+#endif
+        if (status != HAL_OK)
+            break;
+    }
+    HAL_FLASH_Lock();
+    stm32_hal_flush_flash_cache();
+    return (status == HAL_OK) ? SYN_OK : SYN_ERROR;
+}
+
+SYN_WEAK uint32_t syn_port_flash_sector_size(uint32_t addr)
+{
+    if (addr < 0x08010000U)
+        return 16u * 1024u;
+    if (addr < 0x08020000U)
+        return 64u * 1024u;
+#if defined(FLASH_SECTOR_12)
+    if (addr >= 0x08100000U && addr < 0x08110000U)
+        return 16u * 1024u;
+    if (addr >= 0x08110000U && addr < 0x08120000U)
+        return 64u * 1024u;
+#endif
+    return 128u * 1024u;
+}
+
+/* ── Hardware Crypto Port (STM32 CRYP) ─────────────────────────────────── */
+
+#include "syntropic/port/syn_port_aes.h"
+
+static void *g_hcryp = NULL;
+
+SYN_Status syn_port_stm32_register_cryp(void *hcryp)
+{
+    g_hcryp = hcryp;
+    return SYN_OK;
+}
+
+SYN_Status syn_port_aes_init(void)
+{
+#if defined(CRYP) || defined(AES)
+    return (g_hcryp != NULL) ? SYN_OK : SYN_NOT_IMPLEMENTED;
+#else
+    return SYN_NOT_IMPLEMENTED;
+#endif
+}
+
+#if (defined(CRYP) || defined(AES)) && defined(HAL_CRYP_MODULE_ENABLED)
+static void stm32_cryp_zero_words(uint32_t words[8])
+{
+    volatile uint32_t *vp = words;
+    for (size_t i = 0U; i < 8U; i++) {
+        vp[i] = 0U;
+    }
+}
+
+static SYN_Status stm32_cryp_configure_key(CRYP_HandleTypeDef *hcryp, const uint8_t *round_keys,
+                                           uint8_t nr, uint32_t key_buf[8])
+{
+    size_t key_bytes = (nr == 10U) ? 16U : ((nr == 12U) ? 24U : 32U);
+    memset(key_buf, 0, sizeof(uint32_t) * 8U);
+#if defined(CRYP_ALGORITHM_AES_ECB)
+    size_t word_count = key_bytes / 4U;
+    for (size_t i = 0U; i < word_count; i++) {
+        size_t off = i * 4U;
+        key_buf[i] = ((uint32_t)round_keys[off] << 24) | ((uint32_t)round_keys[off + 1U] << 16) |
+                     ((uint32_t)round_keys[off + 2U] << 8) | (uint32_t)round_keys[off + 3U];
+    }
+    hcryp->Init.Algorithm = CRYP_ALGORITHM_AES_ECB;
+#if defined(CRYP_DATAWIDTHUNIT_BYTE)
+    hcryp->Init.DataWidthUnit = CRYP_DATAWIDTHUNIT_BYTE;
+#endif
+#else
+    memcpy(key_buf, round_keys, key_bytes);
+#endif
+
+    if (nr == 10U) {
+        hcryp->Init.KeySize = CRYP_KEYSIZE_128B;
+    } else if (nr == 12U) {
+#if defined(CRYP_KEYSIZE_192B)
+        hcryp->Init.KeySize = CRYP_KEYSIZE_192B;
+#else
+        stm32_cryp_zero_words(key_buf);
+        return SYN_NOT_IMPLEMENTED;
+#endif
+    } else {
+        hcryp->Init.KeySize = CRYP_KEYSIZE_256B;
+    }
+#if defined(CRYP_ALGORITHM_AES_ECB)
+    hcryp->Init.pKey = key_buf;
+#else
+    hcryp->Init.pKey = (uint8_t *)key_buf;
+#endif
+    if (HAL_CRYP_Init(hcryp) != HAL_OK) {
+        hcryp->Init.pKey = NULL;
+        stm32_cryp_zero_words(key_buf);
+        return SYN_ERROR;
+    }
+    return SYN_OK;
+}
+#endif
+
+SYN_Status syn_port_aes_encrypt_block(const uint8_t *round_keys, uint8_t nr, const uint8_t in[16],
+                                      uint8_t out[16])
+{
+#if defined(CRYP) || defined(AES)
+    if (g_hcryp == NULL || round_keys == NULL || in == NULL || out == NULL) {
+        return SYN_NOT_IMPLEMENTED;
+    }
+    if (nr != 10U && nr != 12U && nr != 14U) {
+        return SYN_INVALID_PARAM;
+    }
+#if defined(HAL_CRYP_MODULE_ENABLED)
+    CRYP_HandleTypeDef *hcryp = (CRYP_HandleTypeDef *)g_hcryp;
+    uint32_t key_buf[8];
+    SYN_Status cfg_res = stm32_cryp_configure_key(hcryp, round_keys, nr, key_buf);
+    if (cfg_res != SYN_OK) {
+        return cfg_res;
+    }
+#if defined(CRYP_ALGORITHM_AES_ECB)
+    HAL_StatusTypeDef res =
+        HAL_CRYP_Encrypt(hcryp, (uint32_t *)(uintptr_t)in, 16U, (uint32_t *)(uintptr_t)out, 1000U);
+#else
+    HAL_StatusTypeDef res =
+        HAL_CRYP_AESECB_Encrypt(hcryp, (uint8_t *)(uintptr_t)in, 16U, out, 1000U);
+#endif
+    hcryp->Init.pKey = NULL;
+    stm32_cryp_zero_words(key_buf);
+    return (res == HAL_OK) ? SYN_OK : SYN_ERROR;
+#else
+    return SYN_NOT_IMPLEMENTED;
+#endif
+#else
+    if (nr != 10U && nr != 12U && nr != 14U) {
+        return SYN_INVALID_PARAM;
+    }
+    (void)round_keys;
+    (void)in;
+    (void)out;
+    return SYN_NOT_IMPLEMENTED;
+#endif
+}
+
+SYN_Status syn_port_aes_decrypt_block(const uint8_t *round_keys, uint8_t nr, const uint8_t in[16],
+                                      uint8_t out[16])
+{
+#if defined(CRYP) || defined(AES)
+    if (g_hcryp == NULL || round_keys == NULL || in == NULL || out == NULL) {
+        return SYN_NOT_IMPLEMENTED;
+    }
+    if (nr != 10U && nr != 12U && nr != 14U) {
+        return SYN_INVALID_PARAM;
+    }
+#if defined(HAL_CRYP_MODULE_ENABLED)
+    CRYP_HandleTypeDef *hcryp = (CRYP_HandleTypeDef *)g_hcryp;
+    uint32_t key_buf[8];
+    SYN_Status cfg_res = stm32_cryp_configure_key(hcryp, round_keys, nr, key_buf);
+    if (cfg_res != SYN_OK) {
+        return cfg_res;
+    }
+#if defined(CRYP_ALGORITHM_AES_ECB)
+    HAL_StatusTypeDef res =
+        HAL_CRYP_Decrypt(hcryp, (uint32_t *)(uintptr_t)in, 16U, (uint32_t *)(uintptr_t)out, 1000U);
+#else
+    HAL_StatusTypeDef res =
+        HAL_CRYP_AESECB_Decrypt(hcryp, (uint8_t *)(uintptr_t)in, 16U, out, 1000U);
+#endif
+    hcryp->Init.pKey = NULL;
+    stm32_cryp_zero_words(key_buf);
+    return (res == HAL_OK) ? SYN_OK : SYN_ERROR;
+#else
+    return SYN_NOT_IMPLEMENTED;
+#endif
+#else
+    if (nr != 10U && nr != 12U && nr != 14U) {
+        return SYN_INVALID_PARAM;
+    }
+    (void)round_keys;
+    (void)in;
+    (void)out;
+    return SYN_NOT_IMPLEMENTED;
+#endif
+}
+
+SYN_Status syn_port_ghash_mult(const uint8_t x[16], const uint8_t h[16], uint8_t out[16])
+{
+    (void)x;
+    (void)h;
+    (void)out;
+    return SYN_NOT_IMPLEMENTED;
+}
+
+#endif /* STM32 HAL */
+```
+
+

@@ -1,0 +1,3693 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular cooperative OS & application framework for microcontrollers">
+      
+      
+      
+        <link rel="canonical" href="https://outlookhazy.github.io/SyntropicOS/modules/multitasking/">
+      
+      
+        <link rel="prev" href="../drivers/">
+      
+      
+        <link rel="next" href="../services/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Multitasking - SyntropicOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cooperative-multitasking" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SyntropicOS" class="md-header__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SyntropicOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Multitasking
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SyntropicOS" class="md-nav__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    SyntropicOS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ide-guides/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IDE Setup Guides
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arduino/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arduino Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview & Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multitasking
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multitasking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#protothreads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Protothreads
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Protothreads">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#macro-expansion-under-the-hood-duffs-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Macro Expansion Under the Hood (Duff's Device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writing-tasks-rules-and-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing Tasks: Rules and Gotchas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Writing Tasks: Rules and Gotchas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rule-1-local-variables-dont-survive-across-yields-or-delays" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rule 1: Local variables don't survive across yields or delays
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-2-no-switch-statements-inside-a-protothread-body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rule 2: No switch statements inside a protothread body
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduler
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scheduler">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#priorities-starvation-windows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priorities &amp; Starvation Windows
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priorities &amp; Starvation Windows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cooperative-chunk-sizing-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cooperative Chunk Sizing Rule
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ranked-dispatch-yield-intent-pt_pass-vs-pt_continue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ranked Dispatch &amp; Yield Intent (PT_PASS vs PT_CONTINUE)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ranked Dispatch &amp; Yield Intent (PT_PASS vs PT_CONTINUE)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#choosing-the-right-yield-macro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing the Right Yield Macro
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#four-standard-task-archetypes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Four Standard Task Archetypes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#true-task-blocking-primitives-syn_task_blocked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        True Task Blocking Primitives (SYN_TASK_BLOCKED)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="True Task Blocking Primitives (SYN_TASK_BLOCKED)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#native-task-blocking-matrix-across-os-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Native Task Blocking Matrix Across OS Services
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#yield-safe-priority-boosting-syn_task_boost_priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Yield-Safe Priority Boosting (syn_task_boost_priority)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-inheriting-mutex-schedsyn_mutexh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority-Inheriting Mutex (sched/syn_mutex.h)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-delay-semantics-at-least-minimum-wait-guarantees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task Delay Semantics: "At Least" Minimum Wait Guarantees
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task Delay Semantics: &#34;At Least&#34; Minimum Wait Guarantees">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#millisecond-vs-microsecond-delays" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Millisecond vs Microsecond Delays
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#isr-safety-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ISR-Safety Reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timers-scheduling-extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timers &amp; Scheduling Extensions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tickless-idle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tickless Idle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tickless Idle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interrupts-and-wakeup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interrupts and Wakeup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wakelocks-sleep-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wakelocks &amp; Sleep Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-button-periodic-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Button + Periodic Task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#port-requirement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Port Requirement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timer-aware-tickless-run_tickless_ex" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timer-Aware Tickless (run_tickless_ex)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multicore-amp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multicore (AMP)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Multicore (AMP)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-core-mailbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-Core Mailbox
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spinlocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spinlocks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#porting-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Porting Guide
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control & Motor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../communication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Communication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ble/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bluetooth Low Energy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../audio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audio & Codecs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../crypto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Crypto & VPN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../wasm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebAssembly VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Module Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/group__syn__core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/group__syn__sched/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/group__syn__drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/group__syn__io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/group__syn__motor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Motor & Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/group__syn__display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/group__syn__net/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/group__syn__protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocols
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/group__syn__storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/group__syn__system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/group__syn__dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/group__syn__debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug & Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../syntropic/annotated/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Structs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../porting-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Porting Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../directory-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Directory Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#protothreads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Protothreads
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Protothreads">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#macro-expansion-under-the-hood-duffs-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Macro Expansion Under the Hood (Duff's Device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writing-tasks-rules-and-gotchas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing Tasks: Rules and Gotchas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Writing Tasks: Rules and Gotchas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rule-1-local-variables-dont-survive-across-yields-or-delays" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rule 1: Local variables don't survive across yields or delays
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-2-no-switch-statements-inside-a-protothread-body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rule 2: No switch statements inside a protothread body
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduler
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scheduler">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#priorities-starvation-windows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priorities &amp; Starvation Windows
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priorities &amp; Starvation Windows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cooperative-chunk-sizing-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cooperative Chunk Sizing Rule
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ranked-dispatch-yield-intent-pt_pass-vs-pt_continue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ranked Dispatch &amp; Yield Intent (PT_PASS vs PT_CONTINUE)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ranked Dispatch &amp; Yield Intent (PT_PASS vs PT_CONTINUE)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#choosing-the-right-yield-macro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing the Right Yield Macro
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#four-standard-task-archetypes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Four Standard Task Archetypes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#true-task-blocking-primitives-syn_task_blocked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        True Task Blocking Primitives (SYN_TASK_BLOCKED)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="True Task Blocking Primitives (SYN_TASK_BLOCKED)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#native-task-blocking-matrix-across-os-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Native Task Blocking Matrix Across OS Services
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#yield-safe-priority-boosting-syn_task_boost_priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Yield-Safe Priority Boosting (syn_task_boost_priority)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-inheriting-mutex-schedsyn_mutexh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority-Inheriting Mutex (sched/syn_mutex.h)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-delay-semantics-at-least-minimum-wait-guarantees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task Delay Semantics: "At Least" Minimum Wait Guarantees
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task Delay Semantics: &#34;At Least&#34; Minimum Wait Guarantees">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#millisecond-vs-microsecond-delays" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Millisecond vs Microsecond Delays
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#isr-safety-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ISR-Safety Reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timers-scheduling-extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timers &amp; Scheduling Extensions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tickless-idle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tickless Idle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tickless Idle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interrupts-and-wakeup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interrupts and Wakeup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wakelocks-sleep-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wakelocks &amp; Sleep Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-button-periodic-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Button + Periodic Task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#port-requirement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Port Requirement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timer-aware-tickless-run_tickless_ex" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timer-Aware Tickless (run_tickless_ex)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multicore-amp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multicore (AMP)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Multicore (AMP)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-core-mailbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-Core Mailbox
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spinlocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spinlocks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#porting-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Porting Guide
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cooperative-multitasking">Cooperative Multitasking<a class="headerlink" href="#cooperative-multitasking" title="Permanent link">&para;</a></h1>
+<p>SyntropicOS provides a cooperative multitasking kernel built on protothreads — stackless coroutines where standalone <code>SYN_PT</code> continuation state costs <strong>2 bytes of RAM</strong> (<code>uint16_t lc</code>), and full scheduled <code>SYN_Task</code> descriptors with priority, delays, mutex tracking, and event-blocking cost <strong>44 bytes per task descriptor on 32-bit targets</strong> (80 bytes on 64-bit LP64 targets, with zero per-task stack allocation).</p>
+<h2 id="protothreads">Protothreads<a class="headerlink" href="#protothreads" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Header</th>
+<th>Config</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Protothreads</td>
+<td><code>pt/syn_pt.h</code></td>
+<td><code>SYN_USE_PT</code></td>
+</tr>
+<tr>
+<td>Semaphores</td>
+<td><code>pt/syn_pt_sem.h</code></td>
+<td><code>SYN_USE_PT</code></td>
+</tr>
+</tbody>
+</table>
+<p>Protothreads are stackless cooperative coroutines implemented via the Duff's device trick (<code>switch</code>/<code>__LINE__</code> continuation). Each <code>SYN_PT</code> struct is a single <code>uint16_t</code>.</p>
+<p><strong>Core macros:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Macro</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PT_BEGIN(pt)</code></td>
+<td>Open a protothread body (must be first)</td>
+</tr>
+<tr>
+<td><code>PT_END(pt)</code></td>
+<td>Close body and return <code>PT_ENDED</code> (normal completion)</td>
+</tr>
+<tr>
+<td><code>PT_WAIT_UNTIL(pt, cond)</code></td>
+<td>Yield <code>PT_IDLE</code> until condition is true</td>
+</tr>
+<tr>
+<td><code>PT_WAIT_WHILE(pt, cond)</code></td>
+<td>Yield <code>PT_IDLE</code> while condition is true</td>
+</tr>
+<tr>
+<td><code>PT_PASS(pt)</code></td>
+<td>Yield <code>PT_IDLE</code> — no immediate work; let other ready tasks run this round</td>
+</tr>
+<tr>
+<td><code>PT_CONTINUE(pt)</code></td>
+<td>Yield <code>PT_MORE</code> — completed a work chunk and more work is waiting</td>
+</tr>
+<tr>
+<td><code>PT_CONTINUE_IF_NEEDED(pt, task)</code></td>
+<td>Yield <code>PT_MORE</code> only if <code>syn_task_should_share(task)</code> is true (<code>sched/syn_sched.h</code>)</td>
+</tr>
+<tr>
+<td><code>PT_EXIT(pt)</code></td>
+<td>Abort immediately and return <code>PT_EXITED</code></td>
+</tr>
+<tr>
+<td><code>PT_RESTART(pt)</code></td>
+<td>Reset continuation and return <code>PT_IDLE</code></td>
+</tr>
+<tr>
+<td><code>PT_SPAWN(pt, child, func)</code></td>
+<td>Run child protothread until exit, propagating child <code>PT_IDLE</code> / <code>PT_MORE</code> verbatim</td>
+</tr>
+<tr>
+<td><code>PT_DELAY_MS(pt, target, ms)</code></td>
+<td>Non-blocking delay (needs a <code>uint32_t*</code> for deadline storage)</td>
+</tr>
+<tr>
+<td><code>PT_TASK_DELAY_MS(pt, task, ms)</code></td>
+<td>Convenience form using <code>task-&gt;delay_until</code></td>
+</tr>
+<tr>
+<td><code>PT_BLOCK_CONDITION(pt, task, cond)</code></td>
+<td>Park task in <code>SYN_TASK_BLOCKED</code> without polling while <code>cond</code> is false; requires explicit <code>syn_task_resume(task)</code> from an ISR/driver/producer to re-evaluate <code>cond</code></td>
+</tr>
+<tr>
+<td><code>PT_BLOCK_EVENT(pt, task, grp, mask)</code></td>
+<td>Block task execution (<code>SYN_TASK_BLOCKED</code>) until event bit fires</td>
+</tr>
+<tr>
+<td><code>PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, grp, mask, ms, out)</code></td>
+<td>Block task execution (<code>SYN_TASK_BLOCKED</code>) until event bit fires OR timeout elapses</td>
+</tr>
+</tbody>
+</table>
+<h3 id="macro-expansion-under-the-hood-duffs-device">Macro Expansion Under the Hood (Duff's Device)<a class="headerlink" href="#macro-expansion-under-the-hood-duffs-device" title="Permanent link">&para;</a></h3>
+<p>Protothreads save execution position using a 2-byte line continuation variable (<code>uint16_t lc</code>) and C <code>switch</code>/<code>case</code> jump tables:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">High-Level C Code</label><label for="__tabbed_1_2">Preprocessor Macro Expansion</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">blink_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="p">{</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">        </span><span class="n">HAL_GPIO_TogglePin</span><span class="p">(</span><span class="n">GPIOA</span><span class="p">,</span><span class="w"> </span><span class="n">GPIO_PIN_5</span><span class="p">);</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">        </span><span class="n">PT_WAIT_UNTIL</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">syn_port_get_tick_ms</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">last_tick</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">500</span><span class="p">);</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">        </span><span class="n">last_tick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">syn_port_get_tick_ms</span><span class="p">();</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">}</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">blink_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">_pt_yield_flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">pt</span><span class="o">-&gt;</span><span class="n">lc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">            </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">                </span><span class="n">HAL_GPIO_TogglePin</span><span class="p">(</span><span class="n">GPIOA</span><span class="p">,</span><span class="w"> </span><span class="n">GPIO_PIN_5</span><span class="p">);</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">                </span><span class="cm">/* PT_WAIT_UNTIL expansion: saves __LINE__ (10) into pt-&gt;lc before returning.</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="cm">                 * On next function invocation, switch(pt-&gt;lc) jumps directly to 'case 10:' </span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="cm">                 * inside the while loop, bypassing function re-entry and resuming execution! */</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">                </span><span class="n">pt</span><span class="o">-&gt;</span><span class="n">lc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="k">case</span><span class="w"> </span><span class="mi">10</span><span class="p">:</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">((</span><span class="n">syn_port_get_tick_ms</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">last_tick</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">500</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">                    </span><span class="k">return</span><span class="w"> </span><span class="n">PT_IDLE</span><span class="p">;</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">                </span><span class="n">last_tick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">syn_port_get_tick_ms</span><span class="p">();</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">    </span><span class="n">_pt_yield_flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">    </span><span class="n">pt</span><span class="o">-&gt;</span><span class="n">lc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">PT_ENDED</span><span class="p">;</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="p">}</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<h3 id="writing-tasks-rules-and-gotchas">Writing Tasks: Rules and Gotchas<a class="headerlink" href="#writing-tasks-rules-and-gotchas" title="Permanent link">&para;</a></h3>
+<p>Protothreads use a <code>switch</code>/<code>__LINE__</code> continuation technique (sometimes
+called Duff's device). This is invisible in normal use, but it creates two
+constraints you must follow.</p>
+<h4 id="rule-1-local-variables-dont-survive-across-yields-or-delays">Rule 1: Local variables don't survive across yields or delays<a class="headerlink" href="#rule-1-local-variables-dont-survive-across-yields-or-delays" title="Permanent link">&para;</a></h4>
+<p>When a task hits <code>PT_TASK_DELAY_MS()</code>, <code>PT_PASS()</code>, <code>PT_CONTINUE()</code>, or any <code>PT_WAIT_*</code>
+macro, it <strong>returns</strong> from the function. When the scheduler calls it again,
+execution resumes at the saved line — but local variables on the stack are
+gone.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// ❌ BAD: 'count' resets every time the task resumes</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">counter_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p">{</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">                          </span><span class="c1">// Allocated on the stack</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="n">count</span><span class="o">++</span><span class="p">;</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span><span class="w">       </span><span class="c1">// Task returns here → stack is gone</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">        </span><span class="c1">// 'count' is undefined after this point</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Fix:</strong> Use <code>static</code> locals, file-scope globals, or <code>task-&gt;user_data</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// ✅ Option A: static local</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">counter_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="p">{</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">    </span><span class="c1">// Lives in .bss, survives across yields</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">        </span><span class="n">count</span><span class="o">++</span><span class="p">;</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="p">}</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="c1">// ✅ Option B: user_data pointer (best for multiple task instances)</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">counter_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="p">{</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">task</span><span class="o">-&gt;</span><span class="n">user_data</span><span class="p">;</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">        </span><span class="p">(</span><span class="o">*</span><span class="n">count</span><span class="p">)</span><span class="o">++</span><span class="p">;</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="p">}</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Local Variables &amp; Resumption</p>
+<p>Because protothreads are stackless and resume execution using a <code>switch</code> statement under the hood, <strong>automatic local variables do not preserve their state across a yield</strong>. </p>
+<ul>
+<li><strong>Across a Yield:</strong> Any variable whose value must survive a yield (<code>PT_PASS</code>, <code>PT_CONTINUE</code>, <code>PT_WAIT_UNTIL</code>, etc.) <strong>must</strong> be declared <code>static</code> or stored in a persistent structure (like <code>user_data</code>).</li>
+<li><strong>Before <code>PT_BEGIN</code>:</strong> Declaring a local variable before <code>PT_BEGIN</code> does <strong>not</strong> make it safe to use across a yield. Its declaration code will re-run on every invocation, resetting the variable to its initial value.</li>
+<li><strong>Between Yields:</strong> Local variables are only safe if their entire usage is self-contained <strong>between</strong> two consecutive yield points. To avoid compiler warnings about jumping over variable initializations, declare them inside a nested block <code>{ ... }</code> between the yields, or declare them before <code>PT_BEGIN</code> (if they do not need to persist across yields).</li>
+</ul>
+</div>
+<h4 id="rule-2-no-switch-statements-inside-a-protothread-body">Rule 2: No <code>switch</code> statements inside a protothread body<a class="headerlink" href="#rule-2-no-switch-statements-inside-a-protothread-body" title="Permanent link">&para;</a></h4>
+<p>Because <code>PT_BEGIN</code>/<code>PT_END</code> expand to a <code>switch</code>/<code>case</code> construct,
+placing your own <code>switch</code> inside the protothread body produces nested
+<code>switch</code> labels that confuse the compiler.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// ❌ BAD: compiler error — nested switch conflicts with PT macros</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">my_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="p">{</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">        </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">mode</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">           </span><span class="c1">// Conflicts with PT_BEGIN's switch</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Fix:</strong> Extract the <code>switch</code> into a helper function, or use <code>if</code>/<code>else if</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// ✅ Option A: helper function</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">handle_mode</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">mode</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">mode</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">}</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">my_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">{</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">        </span><span class="n">handle_mode</span><span class="p">(</span><span class="n">mode</span><span class="p">);</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="p">}</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="c1">// ✅ Option B: if/else if chain</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">my_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="p">{</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="p">}</span>
+</code></pre></div>
+<h4 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Constraint</th>
+<th>Workaround</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local variables lost across yield/delay</td>
+<td>Use <code>static</code>, globals, or <code>task-&gt;user_data</code></td>
+</tr>
+<tr>
+<td>No <code>switch</code> inside task body</td>
+<td>Extract to a helper function, or use <code>if</code>/<code>else if</code></td>
+</tr>
+<tr>
+<td>Task must be a single function</td>
+<td>Use <code>PT_SPAWN()</code> for subtask decomposition</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Return values</strong> (<code>SYN_PT_Status</code>):</p>
+<ul>
+<li><code>PT_IDLE</code> (<code>0</code>) — nothing to do right now (<code>PT_PASS</code>, false <code>PT_WAIT_UNTIL</code>); scheduler marks the task <code>PASSED</code> for the current round so other ready tasks run first</li>
+<li><code>PT_MORE</code> (<code>1</code>) — completed a chunk of work and more work is waiting (<code>PT_CONTINUE</code>); task stays in the scheduler's <code>Work</code> tier</li>
+<li><code>PT_EXITED</code> (<code>2</code>) — aborted early via <code>PT_EXIT</code></li>
+<li><code>PT_ENDED</code> (<code>3</code>) — ran to <code>PT_END</code> (normal completion)</li>
+</ul>
+<h2 id="scheduler">Scheduler<a class="headerlink" href="#scheduler" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Header</th>
+<th>Config</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Task</td>
+<td><code>sched/syn_task.h</code></td>
+<td><code>SYN_USE_SCHED</code></td>
+</tr>
+<tr>
+<td>Scheduler</td>
+<td><code>sched/syn_sched.h</code></td>
+<td><code>SYN_USE_SCHED</code></td>
+</tr>
+<tr>
+<td>Mutex</td>
+<td><code>sched/syn_mutex.h</code></td>
+<td><code>SYN_USE_MUTEX</code></td>
+</tr>
+</tbody>
+</table>
+<p>The scheduler manages a caller-owned array of <code>SYN_Task</code> descriptors. Each call to <code>syn_sched_run()</code> dispatches <strong>one</strong> eligible task using ranked selection with per-priority starvation bounds and round-robin rotation within each priority level.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="n">tasks</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_Sched</span><span class="w"> </span><span class="n">sched</span><span class="p">;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">"blink"</span><span class="p">,</span><span class="w">   </span><span class="n">blink_fn</span><span class="p">,</span><span class="w">   </span><span class="n">SYN_PRIO_HIGH</span><span class="p">,</span><span class="w">     </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">"serial"</span><span class="p">,</span><span class="w">  </span><span class="n">serial_fn</span><span class="p">,</span><span class="w">  </span><span class="n">SYN_PRIO_CRITICAL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="s">"monitor"</span><span class="p">,</span><span class="w"> </span><span class="n">monitor_fn</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_PRIO_NORMAL</span><span class="p">,</span><span class="w">   </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">syn_sched_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">,</span><span class="w"> </span><span class="n">tasks</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="n">syn_sched_run_forever</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">);</span><span class="w">  </span><span class="c1">// never returns</span>
+</code></pre></div>
+<h3 id="priorities-starvation-windows">Priorities &amp; Starvation Windows<a class="headerlink" href="#priorities-starvation-windows" title="Permanent link">&para;</a></h3>
+<p>SyntropicOS defines four standard priority levels (<code>SYN_Prio</code> in <code>syn_task.h</code>, <code>0</code> = highest):</p>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Value</th>
+<th>Default Max Wait (<code>max_wait_ms</code>)</th>
+<th>Config Macro</th>
+<th>Typical Workload</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SYN_PRIO_CRITICAL</code></td>
+<td><code>0</code></td>
+<td><code>1 ms</code></td>
+<td><code>SYN_SCHED_MAX_WAIT_CRITICAL_MS</code></td>
+<td>Control loops, safety interlocks, low-latency bus polling</td>
+</tr>
+<tr>
+<td><code>SYN_PRIO_HIGH</code></td>
+<td><code>1</code></td>
+<td><code>5 ms</code></td>
+<td><code>SYN_SCHED_MAX_WAIT_HIGH_MS</code></td>
+<td>Protocol I/O, serial CLI, active frame/event handlers</td>
+</tr>
+<tr>
+<td><code>SYN_PRIO_NORMAL</code></td>
+<td><code>2</code></td>
+<td><code>15 ms</code></td>
+<td><code>SYN_SCHED_MAX_WAIT_NORMAL_MS</code></td>
+<td>Application state machines, UI refresh, periodic sampling</td>
+</tr>
+<tr>
+<td><code>SYN_PRIO_LOW</code></td>
+<td><code>3</code></td>
+<td><code>50 ms</code></td>
+<td><code>SYN_SCHED_MAX_WAIT_LOW_MS</code></td>
+<td>Background batch compute (NN inference, flash GC, logging)</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// Define SYN_USE_* and struct-sizing macros in syn_config.h (or project-wide -D flags)</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="c1">// so syn_sched.c and application translation units compile with identical layouts:</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="cp">#define SYN_SCHED_PRIO_LEVELS 4  </span><span class="c1">// default</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="c1">// Or configure per-instance at runtime (values &lt; 1 clamp to 1 ms):</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="n">syn_sched_set_max_wait</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_PRIO_LOW</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">);</span>
+</code></pre></div>
+<h4 id="cooperative-chunk-sizing-rule">Cooperative Chunk Sizing Rule<a class="headerlink" href="#cooperative-chunk-sizing-rule" title="Permanent link">&para;</a></h4>
+<p>Because protothreads are non-preemptive, the scheduler only regains control at yield points. Keep every uninterrupted execution chunk across <strong>all</strong> tasks (including <code>SYN_PRIO_LOW</code>) shorter than the tightest active <code>max_wait_ms</code> (<code>1 ms</code> default when <code>SYN_PRIO_CRITICAL</code> is used). Split multi-millisecond loops across <code>PT_CONTINUE(pt)</code> or <code>PT_CONTINUE_IF_NEEDED(pt, task)</code>.</p>
+<p>Attach a <code>SYN_TaskProfileManager</code> (<code>syntropic/debug/syn_task_profile.h</code>) via <code>syn_sched_set_profiler(&amp;sched, &amp;prof)</code> during development, HIL, or QEMU CI runs and call <code>syn_task_profile_check_budgets(&amp;prof, &amp;sched, &amp;violations, &amp;worst)</code> to verify that no scheduled task's <code>max_yield_us</code> exceeds its participating peers' <code>max_wait_ms</code> budget.</p>
+<h3 id="ranked-dispatch-yield-intent-pt_pass-vs-pt_continue">Ranked Dispatch &amp; Yield Intent (<code>PT_PASS</code> vs <code>PT_CONTINUE</code>)<a class="headerlink" href="#ranked-dispatch-yield-intent-pt_pass-vs-pt_continue" title="Permanent link">&para;</a></h3>
+<p>On each <code>syn_sched_run()</code> call, eligible (ready, non-delayed, non-blocked) tasks are grouped into ranks. The highest rank with any member wins, and <strong>priority followed by round-robin</strong> determines the winner inside every rank:</p>
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>Membership</th>
+<th>Order Within Rank</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Overdue</strong></td>
+<td><code>(int32_t)(now - due_ms) &gt;= 0</code></td>
+<td>Priority, then round-robin</td>
+</tr>
+<tr>
+<td><strong>2. Work</strong></td>
+<td><code>MORE</code> set (<code>PT_CONTINUE</code> or woke from sleep/block)</td>
+<td>Priority, then round-robin</td>
+</tr>
+<tr>
+<td><strong>3. Poll</strong></td>
+<td>Not <code>MORE</code> and not <code>PASSED</code></td>
+<td>Priority, then round-robin</td>
+</tr>
+<tr>
+<td><strong>Round Reset</strong></td>
+<td>Only <code>PASSED</code> tasks remain</td>
+<td>Clear all <code>PASSED</code> flags and select by priority, then round-robin</td>
+</tr>
+</tbody>
+</table>
+<p>After each dispatch, <code>due_ms = now + max_wait_ms[prio]</code> and the priority level's round-robin cursor advances.</p>
+<div class="admonition important">
+<p class="admonition-title">Starvation Bound Guarantee</p>
+<p>Every eligible task runs within <code>max_wait_ms[prio]</code> <strong>plus</strong> the execution time of the cooperative chunk running at that moment <strong>plus</strong> any higher-priority overdue tasks ahead of it. This is a soft cooperative bound; hard real-time latency belongs in an ISR. If higher priorities consume more than 100% of CPU (<code>sum(run_time / max_wait) &gt; 1</code>), lower priorities shed first by design.</p>
+</div>
+<h4 id="choosing-the-right-yield-macro">Choosing the Right Yield Macro<a class="headerlink" href="#choosing-the-right-yield-macro" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Macro</th>
+<th>Status Returned</th>
+<th>Scheduler Effect</th>
+<th>When to Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PT_PASS(pt)</code></td>
+<td><code>PT_IDLE</code></td>
+<td>Marks task <code>PASSED</code> for the current round</td>
+<td>Polling loops that checked for work and found none, or finished draining</td>
+</tr>
+<tr>
+<td><code>PT_CONTINUE(pt)</code></td>
+<td><code>PT_MORE</code></td>
+<td>Keeps task in <code>Work</code> rank</td>
+<td>Chunked processing (e.g. NN layer, HTTP stream, motion step) with remaining backlog</td>
+</tr>
+<tr>
+<td><code>PT_CONTINUE_IF_NEEDED(pt, task)</code></td>
+<td><code>PT_MORE</code> (conditional)</td>
+<td>Yields only if <code>syn_task_should_share(task)</code> is true</td>
+<td>Drain loops that can process multiple items back-to-back until an equal/higher-priority <code>MORE</code> peer is waiting or any peer reaches its <code>due_ms</code></td>
+</tr>
+<tr>
+<td><code>PT_WAIT_UNTIL(pt, cond)</code></td>
+<td><code>PT_IDLE</code> (if false)</td>
+<td>Marks task <code>PASSED</code> for the current round</td>
+<td>Polled condition waiting (keeps task <code>READY</code>; use <code>PT_BLOCK_*</code> for tickless sleep)</td>
+</tr>
+<tr>
+<td><code>PT_BLOCK_EVENT(pt, ...)</code></td>
+<td><code>PT_IDLE</code> + <code>BLOCKED</code></td>
+<td>Skipped completely until event flag fires</td>
+<td>Event-driven tasks and tickless low-power designs</td>
+</tr>
+</tbody>
+</table>
+<h4 id="four-standard-task-archetypes">Four Standard Task Archetypes<a class="headerlink" href="#four-standard-task-archetypes" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// 1. Periodic task: sleeps until deadline (tickless-compatible, wakes in Work rank)</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">blink_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="p">{</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">        </span><span class="n">syn_gpio_toggle</span><span class="p">(</span><span class="n">LED_PIN</span><span class="p">);</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">500</span><span class="p">);</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="p">}</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="c1">// 2. Non-blocking poller: PT_CONTINUE while active, PT_PASS when idle</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">cli_poll_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="p">{</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="kt">byte</span><span class="p">;</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">task</span><span class="p">;</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">uart_try_read_byte</span><span class="p">(</span><span class="o">&amp;</span><span class="kt">byte</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="w">            </span><span class="n">syn_cli_process_char</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cli</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="p">)</span><span class="kt">byte</span><span class="p">);</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">            </span><span class="n">PT_CONTINUE</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span><span class="w"> </span><span class="c1">// More RX bytes likely queued — stay in Work rank</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="w">            </span><span class="n">PT_PASS</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span><span class="w">     </span><span class="c1">// Nothing waiting — pass remainder of round</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="p">}</span>
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="c1">// 3. Chunked compute worker: bounded latency per step with PT_CONTINUE</span>
+<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">nn_worker_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a><span class="p">{</span>
+<a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">layer</span><span class="p">;</span>
+<a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">task</span><span class="p">;</span>
+<a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-8-35" name="__codelineno-8-35" href="#__codelineno-8-35"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-36" name="__codelineno-8-36" href="#__codelineno-8-36"></a><span class="w">        </span><span class="n">PT_WAIT_UNTIL</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">inference_requested</span><span class="p">);</span>
+<a id="__codelineno-8-37" name="__codelineno-8-37" href="#__codelineno-8-37"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">layer</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LAYERS</span><span class="p">;</span><span class="w"> </span><span class="n">layer</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-38" name="__codelineno-8-38" href="#__codelineno-8-38"></a><span class="w">            </span><span class="n">run_nn_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">);</span><span class="w"> </span><span class="c1">// Keep each chunk &lt; 1 ms</span>
+<a id="__codelineno-8-39" name="__codelineno-8-39" href="#__codelineno-8-39"></a><span class="w">            </span><span class="n">PT_CONTINUE</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span><span class="w">     </span><span class="c1">// More layers remain — share CPU, stay in Work rank</span>
+<a id="__codelineno-8-40" name="__codelineno-8-40" href="#__codelineno-8-40"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-8-41" name="__codelineno-8-41" href="#__codelineno-8-41"></a><span class="w">        </span><span class="n">inference_requested</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<a id="__codelineno-8-42" name="__codelineno-8-42" href="#__codelineno-8-42"></a><span class="w">        </span><span class="n">PT_PASS</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-8-43" name="__codelineno-8-43" href="#__codelineno-8-43"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-44" name="__codelineno-8-44" href="#__codelineno-8-44"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-8-45" name="__codelineno-8-45" href="#__codelineno-8-45"></a><span class="p">}</span>
+<a id="__codelineno-8-46" name="__codelineno-8-46" href="#__codelineno-8-46"></a>
+<a id="__codelineno-8-47" name="__codelineno-8-47" href="#__codelineno-8-47"></a><span class="c1">// 4. Adaptive burst drain: zero yield overhead until a peer actually needs CPU</span>
+<a id="__codelineno-8-48" name="__codelineno-8-48" href="#__codelineno-8-48"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">rx_drain_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-8-49" name="__codelineno-8-49" href="#__codelineno-8-49"></a><span class="p">{</span>
+<a id="__codelineno-8-50" name="__codelineno-8-50" href="#__codelineno-8-50"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-8-51" name="__codelineno-8-51" href="#__codelineno-8-51"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-52" name="__codelineno-8-52" href="#__codelineno-8-52"></a><span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">rx_ring_available</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-53" name="__codelineno-8-53" href="#__codelineno-8-53"></a><span class="w">            </span><span class="n">process_one_frame</span><span class="p">();</span>
+<a id="__codelineno-8-54" name="__codelineno-8-54" href="#__codelineno-8-54"></a><span class="w">            </span><span class="n">PT_CONTINUE_IF_NEEDED</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">);</span><span class="w"> </span><span class="c1">// Yields only on peer contention/due_ms</span>
+<a id="__codelineno-8-55" name="__codelineno-8-55" href="#__codelineno-8-55"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-8-56" name="__codelineno-8-56" href="#__codelineno-8-56"></a><span class="w">        </span><span class="n">PT_PASS</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span><span class="w"> </span><span class="c1">// Queue empty — let lower priorities run this round</span>
+<a id="__codelineno-8-57" name="__codelineno-8-57" href="#__codelineno-8-57"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-58" name="__codelineno-8-58" href="#__codelineno-8-58"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-8-59" name="__codelineno-8-59" href="#__codelineno-8-59"></a><span class="p">}</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Anti-Pattern: Unconditional <code>PT_CONTINUE</code> in an Idle Poll Loop</p>
+<p>Never end an unconditional poll loop with <code>PT_CONTINUE(pt)</code> when no work was performed:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// ❌ BAD: stays in Work rank forever even when sensor has no data</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sensor_has_sample</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">read_sample</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="n">PT_CONTINUE</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span><span class="w"> </span><span class="c1">// Forces lower-priority tasks onto their max_wait_ms timer!</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">}</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1">// ✅ GOOD: only report PT_MORE when work remains; otherwise PT_PASS</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sensor_has_sample</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">        </span><span class="n">read_sample</span><span class="p">();</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">        </span><span class="n">PT_CONTINUE</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">        </span><span class="n">PT_PASS</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="p">}</span>
+</code></pre></div>
+Returning <code>PT_MORE</code> when idle defeats <code>Poll</code> rounds (<code>Rank 3</code>) and prevents lower-priority tasks from running until their <code>due_ms</code> starvation deadline expires.</p>
+</div>
+<h3 id="true-task-blocking-primitives-syn_task_blocked">True Task Blocking Primitives (<code>SYN_TASK_BLOCKED</code>)<a class="headerlink" href="#true-task-blocking-primitives-syn_task_blocked" title="Permanent link">&para;</a></h3>
+<p>Standard protothread <code>PT_WAIT_UNTIL</code> and <code>PT_WAIT_EVENT</code> use cooperative polling — the task stays <code>SYN_TASK_READY</code>, executes once per polling round, checks its condition, and returns <code>PT_IDLE</code>. While functional, this wastes CPU cycles and prevents tickless sleep hardware low-power modes.</p>
+<p>SyntropicOS provides <strong>First-Class Native Task Blocking</strong>. When a task blocks via <code>PT_BLOCK_EVENT</code> or <code>PT_BLOCK_CONDITION</code> (and its subsystem wrappers), its state transitions to <code>SYN_TASK_BLOCKED</code> and the scheduler <strong>skips the task completely</strong> on subsequent dispatches (zero CPU polling overhead, tickless-sleep compatible):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="cp">#define EVT_DATA_READY  SYN_BIT(0)</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_EventGroup</span><span class="w"> </span><span class="n">uart_events</span><span class="p">;</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="c1">// ISR:</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="kt">void</span><span class="w"> </span><span class="nf">UART_IRQHandler</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="n">syn_event_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">uart_events</span><span class="p">,</span><span class="w"> </span><span class="n">EVT_DATA_READY</span><span class="p">);</span><span class="w">  </span><span class="c1">// ISR-safe; scheduler auto-wakes blocked waiter</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="p">}</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="c1">// Task:</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">uart_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="p">{</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">        </span><span class="n">PT_BLOCK_EVENT</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">uart_events</span><span class="p">,</span><span class="w"> </span><span class="n">EVT_DATA_READY</span><span class="p">);</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">        </span><span class="c1">// Wakes here when EVT_DATA_READY is set (flag auto-cleared)</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">        </span><span class="n">process_uart_data</span><span class="p">();</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="p">}</span>
+</code></pre></div>
+<h4 id="native-task-blocking-matrix-across-os-services">Native Task Blocking Matrix Across OS Services<a class="headerlink" href="#native-task-blocking-matrix-across-os-services" title="Permanent link">&para;</a></h4>
+<p>Native blocking primitives fall into two distinct wake contracts:</p>
+<p><strong>1. Auto-Waking Native Primitives (no manual <code>syn_task_resume(task)</code> required)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Subsystem / Layer</th>
+<th>Polled Primitive</th>
+<th>Native Task-Blocking Primitive</th>
+<th>Automatic Wake Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Event Flags</strong></td>
+<td><code>PT_WAIT_EVENT(pt, grp, mask)</code></td>
+<td><code>PT_BLOCK_EVENT(pt, task, grp, mask)</code> / <code>PT_BLOCK_EVENT_WITH_TIMEOUT(pt, task, grp, mask, ms, out)</code></td>
+<td>Woken automatically when <code>syn_event_flags_set()</code> / <code>syn_event_set()</code> sets a matching bit (or <code>ms</code> timeout expires)</td>
+</tr>
+<tr>
+<td><strong>Active Objects</strong></td>
+<td>—</td>
+<td><code>SYN_ActiveObject</code> (<code>syn_ao_init</code>, internal <code>syn_ao_pt_run</code>)</td>
+<td>Woken automatically by <code>syn_ao_post(ao, sig, data)</code></td>
+</tr>
+<tr>
+<td><strong>TCP / UDP Sockets</strong></td>
+<td>—</td>
+<td><code>PT_TCP_BLOCK_READ(...)</code> / <code>PT_UDP_BLOCK_READ(...)</code></td>
+<td>Woken automatically by <code>syn_tcp_process_packet()</code>, <code>syn_udp_process_packet()</code>, or <code>syn_udp_unbind()</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>2. Zero-RAM <code>PT_BLOCK_CONDITION</code> Convenience Wrappers (producer / ISR MUST call <code>syn_task_resume(task)</code>)</strong></p>
+<div class="admonition warning">
+<p class="admonition-title"><code>PT_BLOCK_CONDITION</code> Does Not Poll</p>
+<p><code>PT_BLOCK_CONDITION(pt, task, cond)</code> and the zero-RAM convenience wrappers below do <strong>not</strong> store a waiter pointer inside the target struct and are <strong>not</strong> polled by the scheduler. After updating the underlying state, the producer, driver, or ISR <strong>must</strong> call <code>syn_task_resume(task)</code> so the scheduler re-evaluates <code>cond</code>; omitting <code>syn_task_resume(task)</code> leaves the task parked in <code>SYN_TASK_BLOCKED</code> indefinitely.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Subsystem / Layer</th>
+<th>Polled Primitive</th>
+<th>Native Task-Blocking Wrapper</th>
+<th>Required Producer / ISR Wake Sequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Core Expression</strong></td>
+<td><code>PT_WAIT_UNTIL(pt, cond)</code></td>
+<td><code>PT_BLOCK_CONDITION(pt, task, cond)</code></td>
+<td>Update state satisfying <code>cond</code> + <code>syn_task_resume(task)</code></td>
+</tr>
+<tr>
+<td><strong>Semaphores</strong></td>
+<td><code>PT_SEM_WAIT(pt, sem)</code></td>
+<td><code>PT_SEM_BLOCK(pt, task, sem)</code></td>
+<td><code>PT_SEM_SIGNAL(sem)</code> + <code>syn_task_resume(task)</code></td>
+</tr>
+<tr>
+<td><strong>Stream I/O</strong></td>
+<td><code>PT_STREAM_WAIT(pt, stream)</code></td>
+<td><code>PT_BLOCK_STREAM(pt, task, stream)</code></td>
+<td><code>syn_stream_put()</code> / <code>syn_stream_write()</code> + <code>syn_task_resume(task)</code></td>
+</tr>
+<tr>
+<td><strong>SPSC Queue</strong></td>
+<td><code>PT_QUEUE_WAIT_POP(pt, q)</code></td>
+<td><code>PT_BLOCK_QUEUE_POP(pt, task, q)</code></td>
+<td><code>syn_spsc_queue_push()</code> + <code>syn_task_resume(task)</code></td>
+</tr>
+<tr>
+<td><strong>DHCP Engine</strong></td>
+<td><code>PT_DHCP_WAIT_BOUND(pt, dhcp)</code></td>
+<td><code>PT_DHCP_BLOCK_BOUND(pt, task, dhcp)</code></td>
+<td><code>syn_dhcp_process_packet()</code> state update + <code>syn_task_resume(task)</code></td>
+</tr>
+<tr>
+<td><strong>Network Config</strong></td>
+<td><code>PT_NETCFG_WAIT_BOUND(pt, netcfg)</code></td>
+<td><code>PT_NETCFG_BLOCK_BOUND(pt, task, netcfg)</code> / <code>PT_NETCFG_BLOCK_LINK_UP(...)</code></td>
+<td><code>syn_netcfg_*()</code> state update + <code>syn_task_resume(task)</code></td>
+</tr>
+<tr>
+<td><strong>AutoIP Service</strong></td>
+<td><code>PT_AUTOIP_WAIT_BOUND(pt, autoip)</code></td>
+<td><code>PT_AUTOIP_BLOCK_BOUND(pt, task, autoip)</code></td>
+<td><code>syn_autoip_process_arp()</code> state update + <code>syn_task_resume(task)</code></td>
+</tr>
+<tr>
+<td><strong>Button Input</strong></td>
+<td><code>PT_WAIT_BUTTON_PRESS(pt, btn)</code> / <code>RELEASE</code></td>
+<td><code>PT_BUTTON_BLOCK_PRESS(pt, task, btn)</code> / <code>PT_BUTTON_BLOCK_RELEASE(pt, task, btn)</code></td>
+<td><code>syn_button_update()</code> state update + <code>syn_task_resume(task)</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Ethernet RX (<code>PT_ETH_WAIT_FRAME</code>)</strong>: <code>PT_ETH_WAIT_FRAME(pt, rx_buf, max_len, rx_len)</code> is a polled primitive (<code>PT_WAIT_UNTIL</code> over <code>syn_port_eth_rx()</code>). For native task blocking on Ethernet RX, signal an event flag (<code>PT_BLOCK_EVENT</code>) or pair <code>PT_BLOCK_CONDITION</code> with <code>syn_task_resume(task)</code> in the MAC/PHY RX ISR.</li>
+<li><strong>Mutex Contention (<code>PT_MUTEX_LOCK</code>)</strong>: <code>PT_MUTEX_LOCK(pt, task, mutex)</code> uses polled <code>PT_WAIT_UNTIL</code> with priority inheritance and promotes the contended waiter into <code>Work</code> rank on <code>syn_mutex_unlock()</code> (keeps contended tasks <code>SYN_TASK_READY</code> and prevents tickless sleep while contended).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Scheduling cost</th>
+<th>Tickless-safe</th>
+<th>Use case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PT_WAIT_*</code> (Polled)</td>
+<td>Polled every pass</td>
+<td>No — prevents sleep</td>
+<td>Simple standalone / legacy coroutines</td>
+</tr>
+<tr>
+<td><code>PT_BLOCK_*</code> (Native)</td>
+<td>Skipped entirely while blocked</td>
+<td>Yes</td>
+<td>Low-power event-driven services</td>
+</tr>
+</tbody>
+</table>
+<h3 id="yield-safe-priority-boosting-syn_task_boost_priority">Yield-Safe Priority Boosting (<code>syn_task_boost_priority</code>)<a class="headerlink" href="#yield-safe-priority-boosting-syn_task_boost_priority" title="Permanent link">&para;</a></h3>
+<p>Tasks can temporarily elevate their execution priority during critical hardware transactions (e.g. RS-485 frame bursts, SPI flash writes) without risk of stack variable corruption across yields:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">sensor_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="p">{</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">        </span><span class="c1">// Elevate task to SYN_PRIO_CRITICAL (highest)</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">        </span><span class="n">syn_task_boost_priority</span><span class="p">(</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_PRIO_CRITICAL</span><span class="p">);</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">        </span><span class="n">send_sensor_request</span><span class="p">();</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">        </span><span class="n">PT_WAIT_UNTIL</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">sensor_data_ready</span><span class="p">());</span><span class="w"> </span><span class="c1">// Yield safe across ticks!</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">        </span><span class="n">read_sensor_response</span><span class="p">();</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">        </span><span class="c1">// Restore back to configured base priority</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="w">        </span><span class="n">syn_task_restore_priority</span><span class="p">(</span><span class="n">task</span><span class="p">);</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="p">}</span>
+</code></pre></div>
+<ul>
+<li><strong><code>syn_task_boost_priority(task, temp_prio)</code></strong>: Monotonic upward priority boost — elevates <code>task-&gt;priority</code> to <code>temp_prio</code> only when <code>temp_prio &lt; task-&gt;priority</code> (numerically lower <code>SYN_Prio</code> is higher priority; never demotes an already higher manual boost or inherited mutex priority), marks <code>MORE</code>, and tightens <code>due_ms</code> to the boosted priority's wait window.</li>
+<li><strong><code>syn_task_restore_priority(task)</code></strong>: Restores <code>task-&gt;priority</code> to <code>task-&gt;base_priority</code>, or retains the highest contended waiter priority across any held <code>SYN_Mutex</code> locks while priority inheritance is active.</li>
+<li><strong><code>syn_task_set_base_priority(task, new_prio)</code></strong>: Updates <code>task-&gt;base_priority</code> permanently and recomputes <code>task-&gt;priority</code> while preserving any higher active <code>SYN_Mutex</code> priority inheritance.</li>
+</ul>
+<h3 id="priority-inheriting-mutex-schedsyn_mutexh">Priority-Inheriting Mutex (<code>sched/syn_mutex.h</code>)<a class="headerlink" href="#priority-inheriting-mutex-schedsyn_mutexh" title="Permanent link">&para;</a></h3>
+<p>When tasks at different priorities share a peripheral or multi-step transaction (e.g. shared SPI bus or I2C EEPROM), <code>SYN_Mutex</code> provides recursive cooperative mutual exclusion with automatic priority inheritance:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_Mutex</span><span class="w"> </span><span class="n">spi_bus_mtx</span><span class="p">;</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="c1">// Initialize once during setup:</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="n">syn_mutex_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">spi_bus_mtx</span><span class="p">);</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="c1">// Inside any task (e.g. SYN_PRIO_LOW flash logger or SYN_PRIO_CRITICAL sensor):</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">flash_log_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="p">{</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">        </span><span class="n">PT_WAIT_UNTIL</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">log_page_full</span><span class="p">());</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">        </span><span class="n">PT_MUTEX_LOCK</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">spi_bus_mtx</span><span class="p">);</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">        </span><span class="n">spi_select_flash</span><span class="p">();</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">        </span><span class="n">PT_SPAWN</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">flash_pt</span><span class="p">,</span><span class="w"> </span><span class="n">flash_write_page_pt</span><span class="p">(</span><span class="o">&amp;</span><span class="n">flash_pt</span><span class="p">));</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">        </span><span class="n">spi_deselect_flash</span><span class="p">();</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">        </span><span class="n">PT_MUTEX_UNLOCK</span><span class="p">(</span><span class="o">&amp;</span><span class="n">spi_bus_mtx</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">);</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">        </span><span class="n">PT_PASS</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="p">}</span>
+</code></pre></div>
+<ul>
+<li><strong>Priority Inheritance</strong>: If a higher-priority task calls <code>PT_MUTEX_LOCK</code> while a lower-priority task holds <code>spi_bus_mtx</code>, the holder's priority is immediately boosted to the waiter's priority and promoted into <code>Work</code> rank (<code>MORE</code> set) until <code>PT_MUTEX_UNLOCK</code> releases the outer lock, preventing medium-priority tasks from preempting the holder.</li>
+<li><strong>Recursive Locking</strong>: The owning task may re-acquire the same <code>SYN_Mutex</code> up to <code>UINT16_MAX</code> times; ownership releases when <code>lock_count</code> returns to <code>0</code>.</li>
+<li><strong>Non-Blocking Try-Lock</strong>: <code>PT_MUTEX_TRYLOCK(&amp;spi_bus_mtx, task)</code> attempts immediate acquisition and returns <code>true</code> on success or <code>false</code> if held by another task.</li>
+<li><strong>Single-Scheduler (AMP) Scope</strong>: All scheduled tasks acquiring or waiting on a <code>SYN_Mutex</code> must belong to the same <code>SYN_Sched</code> instance (<code>SYN_INVALID_PARAM</code> on cross-scheduler contention). For cross-core synchronization in AMP builds, use <code>SYN_SPINLOCK_GUARD()</code> or SPSC <code>syn_mailbox</code>.</li>
+</ul>
+<h3 id="task-delay-semantics-at-least-minimum-wait-guarantees">Task Delay Semantics: "At Least" Minimum Wait Guarantees<a class="headerlink" href="#task-delay-semantics-at-least-minimum-wait-guarantees" title="Permanent link">&para;</a></h3>
+<p>In a cooperative operating system like SyntropicOS, all delay macros (<code>PT_TASK_DELAY_MS</code>, <code>PT_DELAY_MS</code>, <code>PT_DELAY_US</code>) guarantee a <strong>minimum wait duration</strong> ("at least N ms / N us").</p>
+<div class="admonition important">
+<p class="admonition-title">Non-Preemptive Delay Guarantee</p>
+<p>Delays do <strong>not</strong> guarantee an exact microsecond or millisecond wakeup time. Because execution is strictly cooperative, a task whose delay has expired will resume on the <strong>next scheduler pass after the currently executing task yields</strong>. Actual resumption latency equals <code>deadline + execution_time_of_running_tasks</code>.</p>
+</div>
+<h4 id="millisecond-vs-microsecond-delays">Millisecond vs Microsecond Delays<a class="headerlink" href="#millisecond-vs-microsecond-delays" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Millisecond Delays (<code>PT_TASK_DELAY_MS</code>)</strong>:</li>
+<li>Managed directly by the scheduler top-level loop (<code>task-&gt;delay_until</code> in ms).</li>
+<li>Maximum single delay capacity: <strong>24.8 days</strong> ($2,147,483,647$ ms).</li>
+<li>
+<p>Ideal for periodic tasks, heartbeat timers, and protocol timeouts.</p>
+</li>
+<li>
+<p><strong>Microsecond Delays (<code>PT_DELAY_US</code>)</strong>:</p>
+</li>
+<li>Uses a dedicated, user-supplied persistent target variable (<code>static uint32_t us_target;</code>).</li>
+<li>Does <strong>not</strong> modify <code>task-&gt;delay_until</code>, preventing top-level scheduler deadline conflicts.</li>
+<li>Evaluated inside the protothread via <code>PT_WAIT_UNTIL</code> against <code>syn_port_get_tick_us()</code>. Returns <code>PT_IDLE</code> while the deadline is pending, allowing other ready tasks to run during the round.</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">pulse_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="p">{</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">us_target</span><span class="p">;</span><span class="w"> </span><span class="c1">// Persistent target for microsecond delay</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">        </span><span class="n">syn_gpio_write</span><span class="p">(</span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_GPIO_HIGH</span><span class="p">);</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">        </span><span class="c1">// 1. Microsecond delay: minimum 50 µs wait (uses us_target, task-&gt;delay_until stays 0)</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">        </span><span class="n">PT_DELAY_US</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">us_target</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">        </span><span class="n">syn_gpio_write</span><span class="p">(</span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_GPIO_LOW</span><span class="p">);</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="w">        </span><span class="c1">// 2. Millisecond delay: minimum 100 ms wait (managed by scheduler in ms)</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Task states:</strong></p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SYN_TASK_READY</code></td>
+<td>0</td>
+<td>Eligible to run when not delayed</td>
+</tr>
+<tr>
+<td><code>SYN_TASK_SUSPENDED</code></td>
+<td>1</td>
+<td>Skipped until resumed</td>
+</tr>
+<tr>
+<td><code>SYN_TASK_DEAD</code></td>
+<td>2</td>
+<td>Exited, will not run again</td>
+</tr>
+<tr>
+<td><code>SYN_TASK_BLOCKED</code></td>
+<td>3</td>
+<td>Blocked on event/condition — skipped until woken</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Task &amp; scheduler control:</strong></p>
+<ul>
+<li><code>syn_sched_set_max_wait(sched, prio, ms)</code> — configure per-priority starvation bound (clamped to <code>&gt;= 1</code> ms)</li>
+<li><code>syn_task_should_share(task)</code> — true during <code>task</code>'s dispatch if an equal/higher-priority <code>MORE</code> peer is waiting or a peer's <code>due_ms</code> has arrived</li>
+<li><code>syn_task_suspend(task)</code> — skip task until resumed</li>
+<li><code>syn_task_resume(task)</code> — make task eligible again</li>
+<li><code>syn_task_restart(task)</code> — reset protothread and set to READY</li>
+<li><code>syn_task_is_alive(task)</code> — check if task is not DEAD</li>
+<li><code>syn_sched_alive_count(sched)</code> — count living tasks</li>
+</ul>
+<h3 id="isr-safety-reference">ISR-Safety Reference<a class="headerlink" href="#isr-safety-reference" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Execution Context</th>
+<th>Functions / Macros</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ISR-safe</strong></td>
+<td><code>syn_task_resume()</code>, <code>syn_event_flags_set()</code> (<code>syn_event_set()</code>), <code>syn_event_flags_clear()</code> (<code>syn_event_clear()</code>), <code>syn_event_flags_get()</code> (<code>syn_event_get()</code>), <code>syn_ao_post()</code>, <code>syn_workqueue_post()</code>, <code>syn_spsc_queue_push()</code> (single-ISR producer), <code>syn_sleep_lock()</code>, <code>syn_sleep_unlock()</code></td>
+</tr>
+<tr>
+<td><strong>Task / main-loop context only</strong></td>
+<td><code>syn_sched_init()</code>, <code>syn_sched_run*()</code>, <code>syn_sched_set_max_wait()</code>, <code>syn_task_create()</code>, <code>syn_task_suspend()</code>, <code>syn_task_restart()</code>, <code>syn_task_boost_priority()</code>, <code>syn_task_restore_priority()</code>, <code>syn_task_set_base_priority()</code>, <code>syn_mutex_try_lock()</code>, <code>syn_mutex_unlock()</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="timers-scheduling-extensions">Timers &amp; Scheduling Extensions<a class="headerlink" href="#timers-scheduling-extensions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Header</th>
+<th>Config</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Timers</td>
+<td><code>sched/syn_timer.h</code></td>
+<td><code>SYN_USE_TIMER</code></td>
+<td>Software timers — one-shot and periodic callbacks driven by <code>syn_port_get_tick_ms()</code></td>
+</tr>
+<tr>
+<td>Timer Wheel</td>
+<td><code>sched/syn_timer_wheel.h</code></td>
+<td>Always available</td>
+<td>O(1) 64-bucket hashed timing wheel (<code>syn_timer_wheel_add</code>, <code>syn_timer_wheel_cancel</code>, <code>syn_timer_wheel_step</code>) for high-count one-shot timeouts</td>
+</tr>
+<tr>
+<td>Events</td>
+<td><code>sched/syn_event_flags.h</code> / <code>util/syn_event.h</code></td>
+<td><code>SYN_USE_EVENT</code></td>
+<td>32-bit atomic event flag groups (<code>SYN_EventFlags</code> / <code>SYN_EventGroup</code>) for ISR &amp; inter-task signaling</td>
+</tr>
+<tr>
+<td>Watchdog</td>
+<td><code>sched/syn_watchdog.h</code></td>
+<td><code>SYN_USE_WATCHDOG</code></td>
+<td>Per-task software check-in deadlines. Timeout events auto-record to <code>syn_errlog</code> if configured.</td>
+</tr>
+<tr>
+<td>Sequencer</td>
+<td><code>sched/syn_sequencer.h</code></td>
+<td><code>SYN_USE_SEQUENCER</code></td>
+<td>Step-based async sequence runner for timed action chains</td>
+</tr>
+<tr>
+<td>Work Queue</td>
+<td><code>sched/syn_workqueue.h</code></td>
+<td><code>SYN_USE_WORKQUEUE</code></td>
+<td>Deferred work queue — safely post work from ISR to main thread</td>
+</tr>
+<tr>
+<td>Mailbox</td>
+<td><code>sched/syn_mailbox.h</code></td>
+<td>Always available</td>
+<td>Typed single-producer/single-consumer (SPSC) message queue (header-only)</td>
+</tr>
+<tr>
+<td>Active Object</td>
+<td><code>sched/syn_ao.h</code></td>
+<td><code>SYN_USE_AO</code></td>
+<td>Active Object execution context — combines FSM + <code>SYN_Mailbox</code> + caller-owned scheduler task</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tickless-idle">Tickless Idle<a class="headerlink" href="#tickless-idle" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Header</th>
+<th>Config</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tickless Idle</td>
+<td><code>sched/syn_sched.h</code></td>
+<td><code>SYN_USE_TICKLESS</code> — Low-power sleep between task deadlines (requires: SCHED)</td>
+</tr>
+</tbody>
+</table>
+<p>Enabled via <code>SYN_USE_TICKLESS 1</code> in <code>syn_config.h</code>. Off by default — the scheduler is unchanged unless you opt in.</p>
+<h3 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h3>
+<p>In a normal <code>syn_sched_run_forever()</code> loop, the CPU busy-loops when no tasks are ready. Tickless idle replaces that with low-power sleep (<code>syn_sched_run_tickless()</code> for task deadlines, or <code>syn_sched_run_tickless_ex()</code> when <code>SYN_Timer</code> deadlines must also wake the CPU):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>┌────────────────────────────────────────────────────────┐
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>│                syn_sched_run_tickless()                │
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>│                                                        │
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>│  +---&gt; Run all ready tasks (syn_sched_run)             │
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>│  |                                                     │
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>│  |    Any tasks ready NOW?                             │
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>│  |    |- Yes -&gt; loop back, run them                    │
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>│  |    \- No  -&gt; compute next wakeup deadline           │
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>│  |             |                                       │
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>│  |             |- Deadline exists -&gt; sleep until it    │
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>│  |             |   syn_port_sleep_until(wake_tick)     │
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>│  |             |                                       │
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>│  |             \- No deadlines  -&gt; light sleep         │
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>│  |                 syn_sleep_enter(sleep)              │
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>│  |                                                     │
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>│  |    &lt;--- CPU wakes (timer alarm OR interrupt) ---&gt;   │
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>│  +───────────────────────────────────────────────────  │
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>└────────────────────────────────────────────────────────┘
+</code></pre></div>
+<h3 id="interrupts-and-wakeup">Interrupts and Wakeup<a class="headerlink" href="#interrupts-and-wakeup" title="Permanent link">&para;</a></h3>
+<p>The key insight: <strong><code>syn_port_sleep_until()</code> returns on <em>any</em> interrupt, not just the timer alarm.</strong> This is how interrupts integrate naturally:</p>
+<table>
+<thead>
+<tr>
+<th>Wakeup Source</th>
+<th>What Happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Timer alarm fires</strong></td>
+<td>CPU wakes at the scheduled tick. The scheduler runs delayed tasks that are now due.</td>
+</tr>
+<tr>
+<td><strong>EXTI / GPIO interrupt</strong></td>
+<td>CPU wakes early. The ISR runs (e.g., button press, sensor data-ready). If the ISR posts work via <code>syn_workqueue_post()</code> or sets an event via <code>syn_event_set()</code>, the scheduler picks it up on the next loop iteration.</td>
+</tr>
+<tr>
+<td><strong>UART / SPI / DMA interrupt</strong></td>
+<td>Same — ISR runs, fills a ring buffer/stream or signals a semaphore, and calls <code>syn_task_resume(task)</code> (or <code>syn_event_set()</code>). The scheduler runs the woken task.</td>
+</tr>
+<tr>
+<td><strong>Any other IRQ</strong></td>
+<td>CPU wakes, ISR runs, scheduler re-evaluates. If nothing is ready, it goes back to sleep.</td>
+</tr>
+</tbody>
+</table>
+<p>The scheduler <strong>doesn't need to know about your interrupts.</strong> It simply re-checks task readiness every time it wakes up. The idle loop is:</p>
+<ol>
+<li>Run ready tasks</li>
+<li>No tasks ready? → Sleep until the next deadline (or forever)</li>
+<li>Wake up (timer <em>or</em> interrupt) → goto 1</li>
+</ol>
+<div class="admonition important">
+<p class="admonition-title">Polling Tasks Prevent Tickless Sleep</p>
+<p><code>syn_sched_next_wakeup()</code> returns <code>now</code> whenever any <code>SYN_TASK_READY</code> task has <code>delay_until == 0</code> — including any task yielded via <code>PT_PASS(pt)</code> or polling on <code>PT_WAIT_UNTIL(pt, cond)</code> / <code>PT_DELAY_US(...)</code>. Whenever <code>wake == now</code>, sleep entry is skipped immediately. In a tickless system, <strong>every</strong> task must park in <code>PT_TASK_DELAY_MS</code>, <code>PT_BLOCK_*</code> (<code>SYN_TASK_BLOCKED</code>), <code>SYN_TASK_SUSPENDED</code>, or <code>SYN_TASK_DEAD</code> when idle.</p>
+</div>
+<h3 id="wakelocks-sleep-control">Wakelocks &amp; Sleep Control<a class="headerlink" href="#wakelocks-sleep-control" title="Permanent link">&para;</a></h3>
+<p>If a peripheral needs the CPU to stay awake (e.g., mid-UART or DMA transfer), acquire a named lock bit on the <code>SYN_Sleep</code> coordinator:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="cp">#define LOCK_UART_TX SYN_SLEEP_LOCK_UART</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="n">syn_sleep_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sleep</span><span class="p">,</span><span class="w"> </span><span class="n">LOCK_UART_TX</span><span class="p">);</span><span class="w">    </span><span class="c1">// Prevent sleep (ISR-safe)</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1">// ... do time-critical work ...</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="n">syn_sleep_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sleep</span><span class="p">,</span><span class="w"> </span><span class="n">LOCK_UART_TX</span><span class="p">);</span><span class="w">  </span><span class="c1">// Allow sleep again</span>
+</code></pre></div>
+<p>While any wakelock bit is held, when <code>syn_sleep_enable(&amp;sleep, false)</code> has disabled sleep globally, or when <code>sleep</code> is configured with <code>SYN_SLEEP_NONE</code>, <code>syn_sched_run_tickless()</code> and <code>syn_sched_run_tickless_ex()</code> skip hardware sleep and busy-loop like <code>syn_sched_run_forever()</code>.</p>
+<h3 id="example-button-periodic-task">Example: Button + Periodic Task<a class="headerlink" href="#example-button-periodic-task" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1">// syn_config.h (must be visible when compiling syn_sched.c as well as app TUs)</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="cp">#define SYN_USE_TICKLESS 1</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="n">tasks</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_Sched</span><span class="w"> </span><span class="n">sched</span><span class="p">;</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_Sleep</span><span class="w"> </span><span class="n">sleep</span><span class="p">;</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="c1">// Task A: blink LED every 1 second</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">blink_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">        </span><span class="n">syn_gpio_toggle</span><span class="p">(</span><span class="n">LED_PIN</span><span class="p">);</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">        </span><span class="n">PT_TASK_DELAY_MS</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="p">}</span>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="c1">// Task B: respond to button press (EXTI sets event flag and wakes CPU)</span>
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="nf">button_task</span><span class="p">(</span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_Task</span><span class="w"> </span><span class="o">*</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="w">    </span><span class="n">PT_BEGIN</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a><span class="w">        </span><span class="n">PT_BLOCK_EVENT</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">btn_events</span><span class="p">,</span><span class="w"> </span><span class="n">EVT_BUTTON_PRESSED</span><span class="p">);</span>
+<a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="w">        </span><span class="n">handle_button</span><span class="p">();</span>
+<a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a><span class="w">    </span><span class="n">PT_END</span><span class="p">(</span><span class="n">pt</span><span class="p">);</span>
+<a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a><span class="p">}</span>
+<a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a>
+<a id="__codelineno-17-25" name="__codelineno-17-25" href="#__codelineno-17-25"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-17-26" name="__codelineno-17-26" href="#__codelineno-17-26"></a><span class="w">    </span><span class="n">syn_event_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">btn_events</span><span class="p">);</span>
+<a id="__codelineno-17-27" name="__codelineno-17-27" href="#__codelineno-17-27"></a><span class="w">    </span><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">"blink"</span><span class="p">,</span><span class="w">  </span><span class="n">blink_task</span><span class="p">,</span><span class="w">  </span><span class="n">SYN_PRIO_NORMAL</span><span class="p">,</span><span class="w">   </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-17-28" name="__codelineno-17-28" href="#__codelineno-17-28"></a><span class="w">    </span><span class="n">syn_task_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tasks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">"button"</span><span class="p">,</span><span class="w"> </span><span class="n">button_task</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_PRIO_CRITICAL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-17-29" name="__codelineno-17-29" href="#__codelineno-17-29"></a><span class="w">    </span><span class="n">syn_sched_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">,</span><span class="w"> </span><span class="n">tasks</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+<a id="__codelineno-17-30" name="__codelineno-17-30" href="#__codelineno-17-30"></a><span class="w">    </span><span class="n">syn_sleep_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sleep</span><span class="p">,</span><span class="w"> </span><span class="n">SYN_SLEEP_DEEP</span><span class="p">);</span>
+<a id="__codelineno-17-31" name="__codelineno-17-31" href="#__codelineno-17-31"></a>
+<a id="__codelineno-17-32" name="__codelineno-17-32" href="#__codelineno-17-32"></a><span class="w">    </span><span class="c1">// CPU sleeps between 1-second blinks.</span>
+<a id="__codelineno-17-33" name="__codelineno-17-33" href="#__codelineno-17-33"></a><span class="w">    </span><span class="c1">// Button EXTI wakes it early when pressed.</span>
+<a id="__codelineno-17-34" name="__codelineno-17-34" href="#__codelineno-17-34"></a><span class="w">    </span><span class="n">syn_sched_run_tickless</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sleep</span><span class="p">);</span>
+<a id="__codelineno-17-35" name="__codelineno-17-35" href="#__codelineno-17-35"></a><span class="p">}</span>
+</code></pre></div>
+<p>Between blinks, <code>blink_task</code> is delayed and <code>button_task</code> is <code>SYN_TASK_BLOCKED</code>, so the CPU enters low-power mode for ~1 second. If a button EXTI fires at 500 ms, the CPU wakes immediately, the ISR calls <code>syn_event_set(&amp;btn_events, EVT_BUTTON_PRESSED)</code>, and the scheduler runs <code>button_task</code> before returning to sleep for the remaining ~500 ms until the next blink.</p>
+<h3 id="port-requirement">Port Requirement<a class="headerlink" href="#port-requirement" title="Permanent link">&para;</a></h3>
+<p>Implement <code>syn_port_sleep_until(uint32_t wake_tick_ms)</code> in your platform port. This function must:</p>
+<ol>
+<li>Program a hardware wake timer (RTC alarm, LPTIM compare, etc.) for <code>wake_tick_ms</code></li>
+<li>Enter a low-power mode (e.g., <code>__WFI()</code> on Cortex-M)</li>
+<li>Return when the alarm fires <strong>or</strong> any interrupt wakes the CPU</li>
+</ol>
+<p>The default weak stub falls back to <code>syn_port_sleep(SYN_SLEEP_LIGHT)</code> (no timer programming — just WFI).</p>
+<h3 id="timer-aware-tickless-run_tickless_ex">Timer-Aware Tickless (<code>run_tickless_ex</code>)<a class="headerlink" href="#timer-aware-tickless-run_tickless_ex" title="Permanent link">&para;</a></h3>
+<p>When using software timers alongside tickless idle, the basic <code>syn_sched_run_tickless()</code> only considers task <code>delay_until</code> deadlines. Software timer expirations won't wake the CPU — they'll fire late, after the next task wakes up.</p>
+<p><code>syn_sched_run_tickless_ex()</code> solves this by combining both:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>                             syn_sched_run_tickless_ex()
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>┌────────────────────────────────────────────────────────────┐
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>│  1. Run scheduler (syn_sched_run)                          │
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>│  2. Service software timers (syn_timer_service)            │
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>│  3. sleep_until = min(next_task_wakeup, next_timer_expiry) │
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>│  4. Enter low-power sleep until sleep_until                │
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>│  5. goto 1                                                 │
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>└────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<p>Requires both <code>SYN_USE_TICKLESS</code> and <code>SYN_USE_TIMER</code> to be enabled.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1">// syn_config.h</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="cp">#define SYN_USE_TICKLESS 1</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="cp">#define SYN_USE_TIMER    1</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">static</span><span class="w"> </span><span class="n">SYN_Timer</span><span class="w"> </span><span class="n">timers</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="n">syn_timer_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="n">sensor_poll_cb</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="n">syn_timer_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timers</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">5000</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="n">heartbeat_cb</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="n">syn_timer_start</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timers</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="n">syn_timer_start</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timers</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="c1">// CPU wakes for both task delays AND timer expirations</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="n">syn_sched_run_tickless_ex</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sched</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sleep</span><span class="p">,</span><span class="w"> </span><span class="n">timers</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+</code></pre></div>
+<p><code>syn_timer_next_expiry()</code> is also available standalone if you need to query the earliest timer deadline:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kt">uint32_t</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">syn_timer_next_expiry</span><span class="p">(</span><span class="n">timers</span><span class="p">,</span><span class="w"> </span><span class="n">timer_count</span><span class="p">);</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="c1">// UINT32_MAX if no active timers</span>
+</code></pre></div>
+<hr />
+<h2 id="multicore-amp">Multicore (AMP)<a class="headerlink" href="#multicore-amp" title="Permanent link">&para;</a></h2>
+<p>Enable <code>SYN_USE_MULTICORE</code> to add Asymmetric Multiprocessing support. Each core runs its own independent cooperative scheduler; cores communicate via the existing mailbox (upgraded with memory barriers) and protect shared peripherals with spinlocks.</p>
+<p><strong>Key files:</strong></p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>syn_barrier.h</code></td>
+<td>Acquire/release memory ordering primitives</td>
+</tr>
+<tr>
+<td><code>syn_port_spinlock.h</code></td>
+<td>Spinlock, core ID, and IPC notify port functions</td>
+</tr>
+<tr>
+<td><code>syn_spinlock.h</code></td>
+<td>Scoped <code>SYN_SPINLOCK_GUARD()</code> helper</td>
+</tr>
+<tr>
+<td><code>syn_mailbox.h</code></td>
+<td>SPSC mailbox (barrier-upgraded for cross-core safety)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>         Core 0                         Core 1
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>   ┌──────────────────┐          ┌──────────────────┐
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>   │ SYN_Sched sched0 │          │ SYN_Sched sched1 │
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>   │ tasks0[N]        │          │ tasks1[M]        │
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>   │                  │          │                  │
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>   │ run_forever()    │&lt;--------&gt;│ run_forever()    │
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>   │                  │ Mailbox  │                  │
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>   └──────────────────┘          └──────────────────┘
+</code></pre></div>
+<p>Each core owns its own scheduler, task array, and timers. No changes to the cooperative protothread model. Cross-core coordination uses only two primitives:
+- <strong>Mailbox</strong> — typed message passing (SPSC, lock-free)
+- <strong>Spinlock</strong> — mutual exclusion for shared hardware (UART, flash, etc.)</p>
+<h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1">// syn_config.h</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="cp">#define SYN_USE_MULTICORE   1</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="cp">#define SYN_SPINLOCK_COUNT  4  </span><span class="c1">// number of spinlock IDs (default 4)</span>
+</code></pre></div>
+<h3 id="cross-core-mailbox">Cross-Core Mailbox<a class="headerlink" href="#cross-core-mailbox" title="Permanent link">&para;</a></h3>
+<p>The existing <code>syn_mailbox</code> is automatically upgraded with acquire/release barriers when <code>SYN_USE_MULTICORE=1</code>. On single-core builds, these compile to zero-cost plain volatile access.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">id</span><span class="p">;</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">value</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="n">SensorMsg</span><span class="p">;</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="c1">// Place in shared SRAM accessible to both cores</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="n">SYN_MAILBOX_DEFINE</span><span class="p">(</span><span class="n">ipc_mbox</span><span class="p">,</span><span class="w"> </span><span class="n">SensorMsg</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="c1">// Optional: wake consumer core on post</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="n">syn_mailbox_set_notify</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ipc_mbox</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a><span class="c1">// Core 0 (producer):</span>
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a><span class="n">SensorMsg</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a><span class="n">syn_mailbox_post</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ipc_mbox</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">msg</span><span class="p">);</span>
+<a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>
+<a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a><span class="c1">// Core 1 (consumer):</span>
+<a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a><span class="n">SensorMsg</span><span class="w"> </span><span class="n">rx</span><span class="p">;</span>
+<a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">syn_mailbox_receive</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ipc_mbox</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rx</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-24-16" name="__codelineno-24-16" href="#__codelineno-24-16"></a><span class="w">    </span><span class="n">handle</span><span class="p">(</span><span class="n">rx</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">rx</span><span class="p">.</span><span class="n">value</span><span class="p">);</span>
+<a id="__codelineno-24-17" name="__codelineno-24-17" href="#__codelineno-24-17"></a><span class="p">}</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Warning:</strong> The mailbox is strictly <strong>single-producer, single-consumer</strong>. If you need multiple producers, serialize access with a spinlock.</p>
+</blockquote>
+<h3 id="spinlocks">Spinlocks<a class="headerlink" href="#spinlocks" title="Permanent link">&para;</a></h3>
+<p>Spinlocks protect shared resources (peripherals, log buffers) across cores. They disable interrupts on the acquiring core to prevent priority inversion.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"syntropic/util/syn_spinlock.h"</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="c1">// Scoped lock — guaranteed release on scope exit</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="n">SYN_SPINLOCK_GUARD</span><span class="p">(</span><span class="n">SYN_SPINLOCK_UART</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="w">    </span><span class="n">syn_port_uart_transmit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="p">}</span>
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="c1">// Manual lock (for more control)</span>
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="n">syn_port_spinlock_acquire</span><span class="p">(</span><span class="n">SYN_SPINLOCK_FLASH</span><span class="p">);</span>
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a><span class="n">syn_port_flash_write</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">);</span>
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="n">syn_port_spinlock_release</span><span class="p">(</span><span class="n">SYN_SPINLOCK_FLASH</span><span class="p">);</span>
+</code></pre></div>
+<p>Well-known lock IDs:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Macro</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td><code>SYN_SPINLOCK_UART</code></td>
+<td>Shared UART</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>SYN_SPINLOCK_FLASH</code></td>
+<td>Shared flash</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>SYN_SPINLOCK_USER0</code></td>
+<td>Application use</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>SYN_SPINLOCK_USER1</code></td>
+<td>Application use</td>
+</tr>
+</tbody>
+</table>
+<h3 id="porting-guide">Porting Guide<a class="headerlink" href="#porting-guide" title="Permanent link">&para;</a></h3>
+<p>Implement these functions for your platform:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="c1">// Required:</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="kt">void</span><span class="w">     </span><span class="nf">syn_port_spinlock_acquire</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w">   </span><span class="c1">// disable IRQ + spin</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="kt">void</span><span class="w">     </span><span class="nf">syn_port_spinlock_release</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w">   </span><span class="c1">// release + restore IRQ</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="kt">bool</span><span class="w">     </span><span class="nf">syn_port_spinlock_try_acquire</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">id</span><span class="p">);</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="kt">uint8_t</span><span class="w">  </span><span class="nf">syn_port_core_id</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w">                  </span><span class="c1">// return 0 or 1</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="kt">void</span><span class="w">     </span><span class="nf">syn_port_memory_barrier</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w">           </span><span class="c1">// DMB on ARM, __sync_synchronize fallback</span>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="c1">// Optional (no-op stub provided):</span>
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="kt">void</span><span class="w">     </span><span class="nf">syn_port_ipc_notify</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w">               </span><span class="c1">// SEV on ARM, triggers WFE wakeup</span>
+</code></pre></div>
+<p><strong>RP2040 example</strong> — hardware spinlocks:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"hardware/sync.h"</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="k">static</span><span class="w"> </span><span class="n">spin_lock_t</span><span class="w"> </span><span class="o">*</span><span class="n">locks</span><span class="p">[</span><span class="n">SYN_SPINLOCK_COUNT</span><span class="p">];</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="k">static</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">saved_irq</span><span class="p">[</span><span class="n">SYN_SPINLOCK_COUNT</span><span class="p">];</span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="kt">void</span><span class="w"> </span><span class="nf">syn_port_spinlock_acquire</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="w">    </span><span class="n">saved_irq</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spin_lock_blocking</span><span class="p">(</span><span class="n">locks</span><span class="p">[</span><span class="n">id</span><span class="p">]);</span>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="p">}</span>
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a><span class="kt">void</span><span class="w"> </span><span class="nf">syn_port_spinlock_release</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="w">    </span><span class="n">spin_unlock</span><span class="p">(</span><span class="n">locks</span><span class="p">[</span><span class="n">id</span><span class="p">],</span><span class="w"> </span><span class="n">saved_irq</span><span class="p">[</span><span class="n">id</span><span class="p">]);</span>
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a><span class="p">}</span>
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a>
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a><span class="kt">void</span><span class="w"> </span><span class="nf">syn_port_memory_barrier</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="w">    </span><span class="n">__dmb</span><span class="p">();</span><span class="w">  </span><span class="c1">// Data Memory Barrier</span>
+<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="p">}</span>
+<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a>
+<a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a><span class="kt">void</span><span class="w"> </span><span class="nf">syn_port_ipc_notify</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-19" name="__codelineno-27-19" href="#__codelineno-27-19"></a><span class="w">    </span><span class="n">__sev</span><span class="p">();</span><span class="w">  </span><span class="c1">// Send Event — wakes other core from WFE</span>
+<a id="__codelineno-27-20" name="__codelineno-27-20" href="#__codelineno-27-20"></a><span class="p">}</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
