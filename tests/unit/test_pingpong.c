@@ -17,12 +17,21 @@ static void test_pingpong(void)
     TEST_ASSERT_EQUAL(a, syn_pingpong_active(&pp));
     TEST_ASSERT_FALSE(syn_pingpong_ready(&pp));
     TEST_ASSERT_EQUAL_INT(8, syn_pingpong_size(&pp));
+    TEST_ASSERT_EQUAL_UINT32(0U, syn_pingpong_overruns(&pp));
 
     /* Write to active, swap */
     memset(syn_pingpong_active(&pp), 0xAA, 8);
-    syn_pingpong_swap(&pp);
+    TEST_ASSERT_TRUE(syn_pingpong_swap(&pp));
 
     TEST_ASSERT_TRUE(syn_pingpong_ready(&pp));
+    TEST_ASSERT_EQUAL(b, syn_pingpong_active(&pp));
+    TEST_ASSERT_EQUAL(a, syn_pingpong_ready_buf(&pp));
+    TEST_ASSERT_EQUAL_HEX8(0xAA, syn_pingpong_ready_buf(&pp)[0]);
+
+    /* D-CORE-03: Swap while unconsumed must NOT flip active onto consumer's ready buffer a */
+    memset(syn_pingpong_active(&pp), 0xCC, 8);
+    TEST_ASSERT_FALSE(syn_pingpong_swap(&pp));
+    TEST_ASSERT_EQUAL_UINT32(1U, syn_pingpong_overruns(&pp));
     TEST_ASSERT_EQUAL(b, syn_pingpong_active(&pp));
     TEST_ASSERT_EQUAL(a, syn_pingpong_ready_buf(&pp));
     TEST_ASSERT_EQUAL_HEX8(0xAA, syn_pingpong_ready_buf(&pp)[0]);
@@ -33,7 +42,8 @@ static void test_pingpong(void)
 
     /* Write to b, swap back */
     memset(syn_pingpong_active(&pp), 0xBB, 8);
-    syn_pingpong_swap(&pp);
+    TEST_ASSERT_TRUE(syn_pingpong_swap(&pp));
+    TEST_ASSERT_EQUAL_UINT32(1U, syn_pingpong_overruns(&pp));
     TEST_ASSERT_EQUAL(a, syn_pingpong_active(&pp));
     TEST_ASSERT_EQUAL_HEX8(0xBB, syn_pingpong_ready_buf(&pp)[0]);
 }

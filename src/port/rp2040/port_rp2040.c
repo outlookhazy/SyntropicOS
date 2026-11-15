@@ -8,7 +8,9 @@
 
 #if defined(PICO_BOARD) && !defined(ARDUINO)
 
+#include "hardware/irq.h"
 #include "hardware/sync.h"
+#include "hardware/uart.h"
 #include "hardware/watchdog.h"
 #include "pico/stdlib.h"
 #include "syntropic/common/syn_compiler.h"
@@ -233,6 +235,78 @@ SYN_Status syn_port_uart_receive_byte(SYN_UARTInstance instance, uint8_t *byte, 
     }
     *byte = (uint8_t)uart_getc(uart);
     return SYN_OK;
+}
+
+static void (*s_rp2040_tc_cb[2])(void *ctx) = {NULL, NULL};
+static void *s_rp2040_tc_ctx[2] = {NULL, NULL};
+static volatile bool s_rp2040_tc_armed[2] = {false, false};
+
+void syn_port_uart_enable_txe_irq(SYN_UARTInstance instance)
+{
+    uart_inst_t *uart = get_uart_instance(instance);
+    if (uart == NULL) {
+        return;
+    }
+    irq_set_enabled((instance == 0U) ? UART0_IRQ : UART1_IRQ, true);
+    syn_port_enter_critical();
+    s_rp2040_tc_armed[instance] = false;
+    uart_get_hw(uart)->imsc |= UART_UARTIMSC_TXIM_BITS;
+    syn_port_exit_critical();
+}
+
+void syn_port_uart_disable_txe_irq(SYN_UARTInstance instance)
+{
+    uart_inst_t *uart = get_uart_instance(instance);
+    if (uart == NULL) {
+        return;
+    }
+    syn_port_enter_critical();
+    uart_get_hw(uart)->imsc &= ~UART_UARTIMSC_TXIM_BITS;
+    if (s_rp2040_tc_cb[instance] != NULL) {
+        s_rp2040_tc_armed[instance] = true;
+    }
+    syn_port_exit_critical();
+}
+
+void syn_port_uart_write_dr(SYN_UARTInstance instance, uint8_t byte)
+{
+    uart_inst_t *uart = get_uart_instance(instance);
+    if (uart == NULL) {
+        return;
+    }
+    uart_get_hw(uart)->dr = byte;
+}
+
+bool syn_port_uart_is_tc_set(SYN_UARTInstance instance)
+{
+    uart_inst_t *uart = get_uart_instance(instance);
+    if (uart == NULL) {
+        return false;
+    }
+    uint32_t fr = uart_get_hw(uart)->fr;
+    bool tc = ((fr & UART_UARTFR_TXFE_BITS) != 0U) && ((fr & UART_UARTFR_BUSY_BITS) == 0U);
+    if (tc && s_rp2040_tc_armed[instance]) {
+        s_rp2040_tc_armed[instance] = false;
+        if (s_rp2040_tc_cb[instance] != NULL) {
+            s_rp2040_tc_cb[instance](s_rp2040_tc_ctx[instance]);
+        }
+    }
+    return tc;
+}
+
+void syn_port_uart_set_tc_callback(SYN_UARTInstance instance, void (*callback)(void *ctx),
+                                   void *ctx)
+{
+    if (instance >= 2U) {
+        return;
+    }
+    syn_port_enter_critical();
+    s_rp2040_tc_cb[instance] = callback;
+    s_rp2040_tc_ctx[instance] = ctx;
+    if (callback == NULL) {
+        s_rp2040_tc_armed[instance] = false;
+    }
+    syn_port_exit_critical();
 }
 
 /* ── Console serial port (Pico SDK stdio) ──────────────────────────────── */

@@ -127,8 +127,11 @@ typedef struct {
 #define USART1 ((USART_TypeDef *)(APB2_BASE + 0x3800))
 
 #define USART_STATR_TXE (1U << 7)
+#define USART_STATR_TC (1U << 6)
 #define USART_STATR_RXNE (1U << 5)
 #define USART_CTLR1_UE (1U << 13)
+#define USART_CTLR1_TXEIE (1U << 7)
+#define USART_CTLR1_TCIE (1U << 6)
 #define USART_CTLR1_TE (1U << 3)
 #define USART_CTLR1_RE (1U << 2)
 
@@ -568,12 +571,29 @@ SYN_Status syn_port_uart_transmit_byte(SYN_UARTInstance instance, uint8_t byte)
 SYN_Status syn_port_uart_transmit(SYN_UARTInstance instance, const uint8_t *data, size_t len,
                                   uint32_t timeout_ms)
 {
-    (void)timeout_ms;
-    if (data == NULL)
+    if (instance != 0) {
+        return SYN_NOT_IMPLEMENTED;
+    }
+    if (len > 0U && data == NULL) {
         return SYN_INVALID_PARAM;
+    }
+    if (len == 0U) {
+        return SYN_OK;
+    }
 
-    for (size_t i = 0; i < len; i++) {
-        syn_port_uart_transmit_byte(instance, data[i]);
+    uint32_t start_ms = syn_port_get_tick_ms();
+    for (size_t i = 0U; i < len; i++) {
+        while ((USART1->STATR & USART_STATR_TXE) == 0U) {
+            if (timeout_ms > 0U && (syn_port_get_tick_ms() - start_ms) >= timeout_ms) {
+                return SYN_TIMEOUT;
+            }
+        }
+        USART1->DATAR = data[i];
+    }
+    while ((USART1->STATR & USART_STATR_TC) == 0U) {
+        if (timeout_ms > 0U && (syn_port_get_tick_ms() - start_ms) >= timeout_ms) {
+            return SYN_TIMEOUT;
+        }
     }
     return SYN_OK;
 }
@@ -619,6 +639,82 @@ SYN_Status syn_port_uart_receive(SYN_UARTInstance instance, uint8_t *data, size_
     }
     *received = count;
     return (count > 0U) ? SYN_OK : SYN_TIMEOUT;
+}
+
+static void (*s_ch32_uart1_tc_cb)(void *ctx) = NULL;
+static void *s_ch32_uart1_tc_ctx = NULL;
+
+void syn_port_uart_enable_txe_irq(SYN_UARTInstance instance)
+{
+    if (instance != 0) {
+        return;
+    }
+    syn_port_nvic_enable_irq(53U);
+    syn_port_enter_critical();
+    USART1->CTLR1 |= USART_CTLR1_TXEIE;
+    syn_port_exit_critical();
+}
+
+void syn_port_uart_disable_txe_irq(SYN_UARTInstance instance)
+{
+    if (instance != 0) {
+        return;
+    }
+    syn_port_enter_critical();
+    uint32_t ctlr1 = USART1->CTLR1 & ~USART_CTLR1_TXEIE;
+    if (s_ch32_uart1_tc_cb != NULL) {
+        ctlr1 |= USART_CTLR1_TCIE;
+    }
+    USART1->CTLR1 = ctlr1;
+    syn_port_exit_critical();
+}
+
+void syn_port_uart_write_dr(SYN_UARTInstance instance, uint8_t byte)
+{
+    if (instance != 0) {
+        return;
+    }
+    USART1->DATAR = byte;
+}
+
+bool syn_port_uart_is_tc_set(SYN_UARTInstance instance)
+{
+    if (instance != 0) {
+        return false;
+    }
+    return (USART1->STATR & USART_STATR_TC) != 0U;
+}
+
+void syn_port_uart_set_tc_callback(SYN_UARTInstance instance, void (*callback)(void *ctx),
+                                   void *ctx)
+{
+    if (instance != 0) {
+        return;
+    }
+    syn_port_enter_critical();
+    s_ch32_uart1_tc_cb = callback;
+    s_ch32_uart1_tc_ctx = ctx;
+    if (callback == NULL) {
+        USART1->CTLR1 &= ~USART_CTLR1_TCIE;
+    } else {
+        syn_port_nvic_enable_irq(53U);
+    }
+    syn_port_exit_critical();
+}
+
+void syn_port_ch32_uart_tc_isr(SYN_UARTInstance instance)
+{
+    if (instance != 0) {
+        return;
+    }
+    if ((USART1->CTLR1 & USART_CTLR1_TCIE) != 0U && (USART1->STATR & USART_STATR_TC) != 0U) {
+        USART1->CTLR1 &= ~USART_CTLR1_TCIE;
+        void (*cb)(void *ctx) = s_ch32_uart1_tc_cb;
+        void *cb_ctx = s_ch32_uart1_tc_ctx;
+        if (cb != NULL) {
+            cb(cb_ctx);
+        }
+    }
 }
 
 int _write(int file, char *ptr, int len)
@@ -1367,6 +1463,9 @@ typedef struct {
     volatile uint32_t MACMIIDR;
     volatile uint32_t MACFCR;
     volatile uint32_t MACVLANTR;
+    uint32_t RESERVED0[8];
+    volatile uint32_t MACA0HR;
+    volatile uint32_t MACA0LR;
 } ETH_MAC_TypeDef;
 
 typedef struct {
@@ -1385,13 +1484,17 @@ typedef struct {
 
 #define ETH_MACCR_RE (1UL << 2)
 #define ETH_MACCR_TE (1UL << 3)
+#define ETH_MACA0HR_MO (1UL << 31)
 
 #define ETH_DMATXDESC_OWN (1UL << 31)
 #define ETH_DMATXDESC_LS (1UL << 29)
 #define ETH_DMATXDESC_FS (1UL << 28)
 #define ETH_DMATXDESC_TCH (1UL << 20)
 #define ETH_DMARXDESC_OWN (1UL << 31)
+#define ETH_DMARXDESC_ES (1UL << 15)
 #define ETH_DMARXDESC_RCH (1UL << 14)
+#define ETH_DMARXDESC_FS (1UL << 9)
+#define ETH_DMARXDESC_LS (1UL << 8)
 
 #define ETH_TX_DESC_NUM 4U
 #define ETH_RX_DESC_NUM 4U
@@ -1407,7 +1510,9 @@ static uint32_t s_rx_desc_idx = 0U;
 
 SYN_Status syn_port_eth_init(const uint8_t mac_addr[6])
 {
-    (void)mac_addr;
+    if (mac_addr == NULL) {
+        return SYN_INVALID_PARAM;
+    }
 
     /* Enable Ethernet MAC, TX, & RX clocks */
     RCC_AHBCNTR |= (1UL << 14) | (1UL << 15) | (1UL << 16);
@@ -1416,6 +1521,11 @@ SYN_Status syn_port_eth_init(const uint8_t mac_addr[6])
     ETH_DMA->BMR |= (1UL << 0);
     while ((ETH_DMA->BMR & (1UL << 0)) != 0UL) {
     }
+
+    /* Program MAC station address 0 for hardware unicast filtering */
+    ETH_MAC->MACA0HR = ETH_MACA0HR_MO | ((uint32_t)mac_addr[5] << 8U) | (uint32_t)mac_addr[4];
+    ETH_MAC->MACA0LR = ((uint32_t)mac_addr[3] << 24U) | ((uint32_t)mac_addr[2] << 16U) |
+                       ((uint32_t)mac_addr[1] << 8U) | (uint32_t)mac_addr[0];
 
     s_tx_desc_idx = 0U;
     s_rx_desc_idx = 0U;
@@ -1474,26 +1584,45 @@ SYN_Status syn_port_eth_rx(void *buf, size_t max_len, size_t *out_len)
         return SYN_INVALID_PARAM;
     }
 
-    ETH_DMADescTypeDef *desc = &DMARxDscrTab[s_rx_desc_idx];
-    if ((desc->Status & ETH_DMARXDESC_OWN) != 0UL) {
-        *out_len = 0U;
-        return SYN_BUSY;
+    for (uint32_t scanned = 0U; scanned < ETH_RX_DESC_NUM; scanned++) {
+        ETH_DMADescTypeDef *desc = &DMARxDscrTab[s_rx_desc_idx];
+        uint32_t status = desc->Status;
+        if ((status & ETH_DMARXDESC_OWN) != 0UL) {
+            *out_len = 0U;
+            return SYN_BUSY;
+        }
+
+        size_t pkt_len = (size_t)((status >> 16U) & 0x3FFFUL);
+        bool bad_frame = ((status & ETH_DMARXDESC_ES) != 0UL) ||
+                         ((status & (ETH_DMARXDESC_FS | ETH_DMARXDESC_LS)) !=
+                          (ETH_DMARXDESC_FS | ETH_DMARXDESC_LS)) ||
+                         (pkt_len == 0U) || (pkt_len > ETH_MAX_PACKET_SIZE);
+
+        if (bad_frame) {
+            desc->ControlBufferSize = ETH_DMARXDESC_RCH | (uint32_t)ETH_MAX_PACKET_SIZE;
+            desc->Status = ETH_DMARXDESC_OWN;
+            ETH_DMA->RPDR = 0UL;
+            s_rx_desc_idx = (s_rx_desc_idx + 1U) % ETH_RX_DESC_NUM;
+            continue;
+        }
+
+        if (pkt_len > max_len) {
+            pkt_len = max_len;
+        }
+
+        memcpy(buf, Rx_Buff[s_rx_desc_idx], pkt_len);
+        *out_len = pkt_len;
+
+        desc->ControlBufferSize = ETH_DMARXDESC_RCH | (uint32_t)ETH_MAX_PACKET_SIZE;
+        desc->Status = ETH_DMARXDESC_OWN;
+        ETH_DMA->RPDR = 0UL; /* Receive poll demand */
+
+        s_rx_desc_idx = (s_rx_desc_idx + 1U) % ETH_RX_DESC_NUM;
+        return SYN_OK;
     }
 
-    size_t pkt_len = (size_t)((desc->Status >> 16U) & 0x3FFFUL);
-    if (pkt_len > max_len) {
-        pkt_len = max_len;
-    }
-
-    memcpy(buf, Rx_Buff[s_rx_desc_idx], pkt_len);
-    *out_len = pkt_len;
-
-    desc->ControlBufferSize = ETH_DMARXDESC_RCH | (uint32_t)ETH_MAX_PACKET_SIZE;
-    desc->Status = ETH_DMARXDESC_OWN;
-    ETH_DMA->RPDR = 0UL; /* Receive poll demand */
-
-    s_rx_desc_idx = (s_rx_desc_idx + 1U) % ETH_RX_DESC_NUM;
-    return SYN_OK;
+    *out_len = 0U;
+    return SYN_BUSY;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

@@ -3735,6 +3735,103 @@ static void test_fastpath_event_autoclear_late_evt_timeout_and_respawn_boost(voi
     TEST_ASSERT_TRUE(rctx.share_after_respawn_boost);
 }
 
+typedef struct {
+    SYN_Sched *sched;
+    int new_runs;
+} SelfRespawnCtx;
+
+static SYN_PT_Status respawned_target_fn(SYN_PT *pt, SYN_Task *task)
+{
+    SelfRespawnCtx *ctx = (SelfRespawnCtx *)task->user_data;
+    PT_BEGIN(pt);
+    ctx->new_runs++;
+    PT_END(pt);
+}
+
+static SYN_PT_Status self_respawn_caller_fn(SYN_PT *pt, SYN_Task *task)
+{
+    SelfRespawnCtx *ctx = (SelfRespawnCtx *)task->user_data;
+    PT_BEGIN(pt);
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_sched_respawn_task(ctx->sched, 0U, "self_new", respawned_target_fn,
+                                                 SYN_PRIO_CRITICAL, ctx));
+    PT_CONTINUE(pt);
+    PT_END(pt);
+}
+
+static SYN_PT_Status mutex_waiter_block_fn(SYN_PT *pt, SYN_Task *task)
+{
+    SYN_Mutex *mtx = (SYN_Mutex *)task->user_data;
+    PT_BEGIN(pt);
+    PT_MUTEX_LOCK(pt, task, mtx);
+    (void)syn_mutex_unlock(mtx, task);
+    PT_END(pt);
+}
+
+static void test_sched_respawn_task_lifecycle_and_mutex_cleanup(void)
+{
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    SYN_Mutex mtx;
+    SelfRespawnCtx sctx = {&sched, 0};
+    int id0 = 10;
+    int id1 = 20;
+
+    mock_tick_ms = 100U;
+    log_reset();
+    syn_mutex_init(&mtx);
+    syn_task_create(&tasks[0], "t0_orig", pass_task, SYN_PRIO_NORMAL, &id0);
+    syn_task_create(&tasks[1], "t1_wait", mutex_waiter_block_fn, SYN_PRIO_CRITICAL, &mtx);
+    syn_sched_init(&sched, tasks, 2U);
+
+    /* 1. Invalid parameter rejection */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_sched_respawn_task(NULL, 0U, "x", pass_task, SYN_PRIO_LOW, &id0));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_sched_respawn_task(&sched, 2U, "x", pass_task, SYN_PRIO_LOW, &id0));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_sched_respawn_task(&sched, 0U, "x", NULL, SYN_PRIO_LOW, &id0));
+    TEST_ASSERT_EQUAL_INT(
+        SYN_INVALID_PARAM,
+        syn_sched_respawn_task(&sched, 0U, "x", pass_task, (SYN_Prio)SYN_SCHED_PRIO_LEVELS, &id0));
+
+    /* 2. Slot 0 holds mtx while Slot 1 contends (boosting Slot 0 to CRITICAL); respawning Slot 1
+     *    prunes its mutex wait and demotes Slot 0; respawning Slot 0 unlocks mtx and stamps due_ms
+     */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mutex_try_lock(&mtx, &tasks[0]));
+    syn_sched_run(&sched); /* t1_wait contends on mtx -> boosts tasks[0] to CRITICAL */
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[0].priority);
+    TEST_ASSERT_TRUE((tasks[1].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+
+    TEST_ASSERT_EQUAL_INT(
+        SYN_OK, syn_sched_respawn_task(&sched, 1U, "t1_new", pass_task, SYN_PRIO_LOW, &id1));
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_NORMAL, tasks[0].priority);
+    TEST_ASSERT_TRUE((tasks[1].sched_flags & SYN_SCHED_FLAG_DUE_VALID) != 0U);
+
+    mock_tick_ms = 110U;
+    TEST_ASSERT_EQUAL_INT(SYN_OK,
+                          syn_sched_respawn_task(&sched, 0U, "t0_resp", self_respawn_caller_fn,
+                                                 SYN_PRIO_HIGH, &sctx));
+    TEST_ASSERT_FALSE(syn_mutex_is_locked(&mtx));
+    TEST_ASSERT_EQUAL_PTR(&sched, tasks[0].sched);
+    TEST_ASSERT_EQUAL_UINT32(110U + SYN_SCHED_MAX_WAIT_HIGH_MS, tasks[0].due_ms);
+
+    /* Suspend + ISR resume preserves sched back-pointer and stamps fresh due_ms */
+    syn_task_suspend(&tasks[0]);
+    mock_tick_ms = 120U;
+    syn_task_resume(&tasks[0]);
+    TEST_ASSERT_TRUE((tasks[0].sched_flags & SYN_SCHED_FLAG_DUE_VALID) != 0U);
+    TEST_ASSERT_EQUAL_UINT32(120U + SYN_SCHED_MAX_WAIT_HIGH_MS, tasks[0].due_ms);
+
+    /* 3. Self-respawn while executing transitions to new entry point and priority on next run */
+    syn_sched_run(&sched); /* self_respawn_caller_fn respawns slot 0 to respawned_target_fn */
+    TEST_ASSERT_EQUAL_UINT8(SYN_PRIO_CRITICAL, tasks[0].priority);
+    TEST_ASSERT_EQUAL_INT(0, sctx.new_runs);
+    syn_sched_run(&sched); /* executes respawned_target_fn */
+    TEST_ASSERT_EQUAL_INT(1, sctx.new_runs);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEAD, tasks[0].state);
+}
+
 void run_sched_tests(void)
 {
     RUN_TEST(test_scheduler);
@@ -3808,4 +3905,5 @@ void run_sched_tests(void)
     RUN_TEST(test_dead_slot_respawn_suspended_wrap_and_mid_reinit);
     RUN_TEST(test_self_restart_then_suspend_stays_suspended_at_pt_begin);
     RUN_TEST(test_fastpath_event_autoclear_late_evt_timeout_and_respawn_boost);
+    RUN_TEST(test_sched_respawn_task_lifecycle_and_mutex_cleanup);
 }

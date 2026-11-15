@@ -149,9 +149,16 @@ void syn_sched_set_profiler(SYN_Sched *sched, struct SYN_TaskProfileManager *pro
 #endif
 
 /**
- * @brief Initialize a single task descriptor.
+ * @brief Initialize a raw task descriptor before scheduler registration.
  *
  * Sets the task to READY state with the protothread reset to the top.
+ *
+ * @note For raw/unregistered task structs only (never dereferences existing
+ *       fields). To recycle an already-registered scheduler slot with a new
+ *       protothread function, priority, or user_data while releasing held
+ *       mutexes and preserving scheduler starvation bounds, use
+ *       syn_sched_respawn_task(). To restart an active task with the same
+ *       function, use syn_task_restart().
  *
  * @param task       Task to initialize.
  * @param name       Human-readable name (stored by pointer, not copied).
@@ -161,6 +168,27 @@ void syn_sched_set_profiler(SYN_Sched *sched, struct SYN_TaskProfileManager *pro
  */
 void syn_task_create(SYN_Task *task, const char *name, SYN_TaskFunc func, SYN_Prio priority,
                      void *user_data);
+
+/**
+ * @brief Recycle a registered scheduler task slot with a new entry point.
+ *
+ * Releases any mutexes held by `sched->tasks[idx]`, prunes pending mutex
+ * waits, binds `task->sched = sched`, stamps the initial starvation deadline
+ * `due_ms`, updates `name`, `func`, `priority`, and `user_data`, and sets
+ * the slot to READY. Safe to call on DEAD, READY, SUSPENDED, BLOCKED, or
+ * currently executing (`sched->running == &sched->tasks[idx]`) slots.
+ *
+ * @note Main-loop / task context only (not ISR-safe).
+ * @param sched      Owning scheduler instance.
+ * @param idx        Task slot index (`< sched->task_count`).
+ * @param name       Human-readable name (stored by pointer, not copied).
+ * @param func       New protothread function (non-NULL).
+ * @param priority   New base priority (`< SYN_SCHED_PRIO_LEVELS`).
+ * @param user_data  Optional pointer to task-private state (or NULL).
+ * @return SYN_OK on success, or SYN_INVALID_PARAM if parameters are invalid.
+ */
+SYN_Status syn_sched_respawn_task(SYN_Sched *sched, size_t idx, const char *name, SYN_TaskFunc func,
+                                  SYN_Prio priority, void *user_data);
 
 /* ── Cooperative CPU sharing ────────────────────────────────────────────── */
 

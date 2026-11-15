@@ -92,8 +92,13 @@ typedef struct {
  */
 static inline void syn_pool_init(SYN_Pool *pool, void *buf, size_t buf_size, size_t block_size)
 {
-    SYN_ASSERT(pool != NULL);
-    SYN_ASSERT(buf != NULL);
+    if (pool == NULL) {
+        return;
+    }
+    if (buf == NULL || block_size > (SIZE_MAX - (sizeof(void *) - 1U))) {
+        memset(pool, 0, sizeof(*pool));
+        return;
+    }
 
     /* Enforce minimum block size and pointer-size alignment */
     if (block_size < sizeof(void *)) {
@@ -101,16 +106,23 @@ static inline void syn_pool_init(SYN_Pool *pool, void *buf, size_t buf_size, siz
     }
     block_size = SYN_POOL_ALIGN_PTR(block_size);
 
-    /* Align starting buffer address up to pointer boundary if unaligned */
+    /* Align starting buffer address up to pointer boundary without overflow or underflow */
     uintptr_t raw_addr = (uintptr_t)buf;
     uintptr_t align_mask = (uintptr_t)(sizeof(void *) - 1U);
-    uintptr_t aligned_addr = (raw_addr + align_mask) & ~align_mask;
-    size_t adjust = (size_t)(aligned_addr - raw_addr);
-    SYN_ASSERT(buf_size > adjust);
+    size_t rem = (size_t)(raw_addr & align_mask);
+    size_t adjust = (rem == 0U) ? 0U : (sizeof(void *) - rem);
+    if (buf_size <= adjust) {
+        memset(pool, 0, sizeof(*pool));
+        return;
+    }
+    uintptr_t aligned_addr = raw_addr + (uintptr_t)adjust;
     buf_size -= adjust;
 
     size_t count = buf_size / block_size;
-    SYN_ASSERT(count > 0U);
+    if (count == 0U) {
+        memset(pool, 0, sizeof(*pool));
+        return;
+    }
 
     pool->buf = (uint8_t *)aligned_addr;
     pool->block_size = block_size;

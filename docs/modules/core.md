@@ -75,7 +75,7 @@ SYN_PT_Status line_consumer_task(SYN_PT *pt, SYN_Task *task) {
 
 - **`util/syn_ringbuf.h`** (`SYN_RingBuf`, always enabled): Lock-free SPSC byte ring buffer (`size - 1` usable capacity) with single-byte (`syn_ringbuf_put`, `syn_ringbuf_get`, `syn_ringbuf_peek`) and bulk (`syn_ringbuf_write`, `syn_ringbuf_read`, `syn_ringbuf_peek_n`) APIs.
 - **`util/syn_spsc_queue.h`** (`SYN_SPSC_Queue`, always enabled): Lock-free SPSC queue for fixed-size structs (`syn_spsc_queue_init(&q, buf, sizeof(elem), cap)`, `syn_spsc_queue_push`, `syn_spsc_queue_pop`, `PT_QUEUE_WAIT_POP`, `PT_BLOCK_QUEUE_POP`).
-- **`util/syn_pingpong.h`** (`SYN_PingPong`, header-only): Zero-copy double buffer for DMA/ISR producers (`syn_pingpong_init(&pp, buf_a, buf_b, sz)`, `syn_pingpong_active` for ISR writes, `syn_pingpong_swap` on completion, `syn_pingpong_ready` / `syn_pingpong_ready_buf` / `syn_pingpong_consume` in task context).
+- **`util/syn_pingpong.h`** (`SYN_PingPong`, header-only): Acquire/release-synchronized zero-copy double buffer for DMA/ISR producers (`syn_pingpong_init(&pp, buf_a, buf_b, sz)`, `syn_pingpong_active` for ISR writes, `bool syn_pingpong_swap` on completion — rejects swaps while a ready buffer is unconsumed and increments `syn_pingpong_overruns(&pp)` — and `syn_pingpong_ready` / `syn_pingpong_ready_buf` / `syn_pingpong_consume` in task context).
 
 ---
 

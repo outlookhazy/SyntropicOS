@@ -68,6 +68,32 @@ SYN_WEAK SYN_NORETURN void syn_assert_failed(const char *file, int line)
     syn_port_system_reset();
 }
 
+#if !defined(ARDUINO_ARCH_ESP32) && !defined(ARDUINO_ARCH_RP2040) && !defined(ARDUINO_ARCH_AVR) && \
+    !defined(__AVR__) && !defined(ARDUINO_ARCH_SAMD) && !defined(ARDUINO_ARCH_SAM) && \
+    !defined(CORE_TEENSY) && !defined(ARDUINO_ARCH_STM32) && !defined(ARDUINO_ARCH_NRF52) && \
+    !defined(ARDUINO_ARCH_MBED) && !defined(ARDUINO_ARCH_RENESAS) && \
+    !defined(__ARM_ARCH_ISA_THUMB) && !defined(__arm__) && !defined(__thumb__) && \
+    !defined(__riscv) && !defined(ARDUINO_ARCH_ESP8266) && !defined(__XTENSA__) && \
+    !defined(__PIC32MX__) && !defined(__PIC32MZ__) && !defined(__MSP430__)
+static volatile uint8_t s_fallback_irq_enabled = 1U;
+
+SYN_WEAK uint32_t syn_port_arduino_irq_save(void)
+{
+    uint32_t prev = s_fallback_irq_enabled;
+    noInterrupts();
+    s_fallback_irq_enabled = 0U;
+    return prev;
+}
+
+SYN_WEAK void syn_port_arduino_irq_restore(uint32_t state)
+{
+    if (state != 0U) {
+        s_fallback_irq_enabled = 1U;
+        interrupts();
+    }
+}
+#endif
+
 void syn_port_enter_critical(void)
 {
 #if defined(ARDUINO_ARCH_ESP32)
@@ -110,8 +136,24 @@ void syn_port_enter_critical(void)
         s_saved_irq = ps;
     }
     s_crit_depth = s_crit_depth + 1U;
-#else
+#elif defined(__PIC32MX__) || defined(__PIC32MZ__)
+    uint32_t status = (uint32_t)disableInterrupts();
+    if (s_crit_depth == 0U) {
+        s_saved_irq = status;
+    }
+    s_crit_depth = s_crit_depth + 1U;
+#elif defined(__MSP430__)
+    uint32_t sr = (uint32_t)__get_SR_register();
     noInterrupts();
+    if (s_crit_depth == 0U) {
+        s_saved_irq = sr;
+    }
+    s_crit_depth = s_crit_depth + 1U;
+#else
+    uint32_t state = syn_port_arduino_irq_save();
+    if (s_crit_depth == 0U) {
+        s_saved_irq = state;
+    }
     s_crit_depth = s_crit_depth + 1U;
 #endif
 }
@@ -161,12 +203,25 @@ void syn_port_exit_critical(void)
             xt_wsr_ps(s_saved_irq);
         }
     }
-#else
-    (void)s_saved_irq;
+#elif defined(__PIC32MX__) || defined(__PIC32MZ__)
     if (s_crit_depth > 0U) {
         s_crit_depth = s_crit_depth - 1U;
         if (s_crit_depth == 0U) {
+            restoreInterrupts(s_saved_irq);
+        }
+    }
+#elif defined(__MSP430__)
+    if (s_crit_depth > 0U) {
+        s_crit_depth = s_crit_depth - 1U;
+        if (s_crit_depth == 0U && (s_saved_irq & 0x0008U) != 0U) {
             interrupts();
+        }
+    }
+#else
+    if (s_crit_depth > 0U) {
+        s_crit_depth = s_crit_depth - 1U;
+        if (s_crit_depth == 0U) {
+            syn_port_arduino_irq_restore(s_saved_irq);
         }
     }
 #endif
@@ -364,7 +419,11 @@ SYN_Status syn_port_uart_receive(SYN_UARTInstance instance,
 {
 #if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY) || defined(ARDUINO_ARCH_RP2040)
     HardwareSerial* serial = get_serial_instance(instance);
-    if (!serial) return SYN_INVALID_PARAM;
+    if (!serial || (len > 0U && data == NULL)) return SYN_INVALID_PARAM;
+    if (len == 0U) {
+        if (received) *received = 0U;
+        return SYN_OK;
+    }
     if (serial->available() == 0 && timeout_ms == 0) {
         if (received) *received = 0;
         return SYN_TIMEOUT;
@@ -375,7 +434,11 @@ SYN_Status syn_port_uart_receive(SYN_UARTInstance instance,
     
     return (count > 0) ? SYN_OK : SYN_TIMEOUT;
 #else
-    if (instance != 0) return SYN_INVALID_PARAM;
+    if (instance != 0 || (len > 0U && data == NULL)) return SYN_INVALID_PARAM;
+    if (len == 0U) {
+        if (received) *received = 0U;
+        return SYN_OK;
+    }
     if (Serial.available() == 0 && timeout_ms == 0) {
         if (received) *received = 0;
         return SYN_TIMEOUT;
@@ -396,6 +459,98 @@ SYN_Status syn_port_uart_receive_byte(SYN_UARTInstance instance, uint8_t *byte, 
 {
     size_t rec = 0;
     return syn_port_uart_receive(instance, byte, 1, &rec, timeout_ms);
+}
+
+static volatile bool s_arduino_txe_irq_en[4] = {false, false, false, false};
+static volatile bool s_arduino_tc_armed[4] = {false, false, false, false};
+static void (*s_arduino_tc_cb[4])(void *ctx) = {NULL, NULL, NULL, NULL};
+static void *s_arduino_tc_ctx[4] = {NULL, NULL, NULL, NULL};
+
+SYN_WEAK void syn_port_uart_enable_txe_irq(SYN_UARTInstance instance)
+{
+    if (instance >= 4U) {
+        return;
+    }
+    s_arduino_tc_armed[instance] = false;
+    s_arduino_txe_irq_en[instance] = true;
+}
+
+SYN_WEAK void syn_port_uart_disable_txe_irq(SYN_UARTInstance instance)
+{
+    if (instance >= 4U) {
+        return;
+    }
+    s_arduino_txe_irq_en[instance] = false;
+    if (s_arduino_tc_cb[instance] != NULL) {
+        s_arduino_tc_armed[instance] = true;
+    }
+}
+
+SYN_WEAK void syn_port_uart_write_dr(SYN_UARTInstance instance, uint8_t byte)
+{
+#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY) || defined(ARDUINO_ARCH_RP2040)
+    HardwareSerial *serial = get_serial_instance(instance);
+    if (serial != NULL) {
+        (void)serial->write(byte);
+    }
+#else
+    if (instance == 0U) {
+        (void)Serial.write(byte);
+    }
+#endif
+}
+
+SYN_WEAK bool syn_port_uart_is_tc_set(SYN_UARTInstance instance)
+{
+    if (instance >= 4U || s_arduino_txe_irq_en[instance]) {
+        return false;
+    }
+    bool tc = false;
+#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY) || defined(ARDUINO_ARCH_RP2040)
+    HardwareSerial *serial = get_serial_instance(instance);
+    if (serial == NULL) {
+        return false;
+    }
+#if defined(ARDUINO_ARCH_AVR) && defined(UCSR0A) && defined(UDRE0)
+    if (instance == 0U) {
+        tc = (UCSR0A & (1U << UDRE0)) != 0U;
+    } else
+#if defined(UCSR1A) && defined(UDRE1)
+    if (instance == 1U) {
+        tc = (UCSR1A & (1U << UDRE1)) != 0U;
+    } else
+#endif
+    {
+        tc = true;
+    }
+#else
+    tc = true;
+#endif
+#else
+    tc = (instance == 0U);
+#endif
+    if (tc && s_arduino_tc_armed[instance]) {
+        s_arduino_tc_armed[instance] = false;
+        if (s_arduino_tc_cb[instance] != NULL) {
+            s_arduino_tc_cb[instance](s_arduino_tc_ctx[instance]);
+        }
+    }
+    return tc;
+}
+
+SYN_WEAK void syn_port_uart_set_tc_callback(SYN_UARTInstance instance, void (*callback)(void *ctx),
+                                            void *ctx)
+{
+    if (instance >= 4U) {
+        return;
+    }
+    syn_port_enter_critical();
+    s_arduino_tc_cb[instance] = callback;
+    s_arduino_tc_ctx[instance] = ctx;
+    if (callback == NULL) {
+        s_arduino_tc_armed[instance] = false;
+    }
+    syn_port_exit_critical();
 }
 
 /* ── ADC Port ───────────────────────────────────────────────────────────── */
@@ -816,23 +971,24 @@ extern "C" {
 
 SYN_Status syn_port_wdt_init(uint32_t timeout_ms)
 {
-    uint8_t wdt_val;
-    if      (timeout_ms <= 15)   wdt_val = WDTO_15MS;
-    else if (timeout_ms <= 30)   wdt_val = WDTO_30MS;
-    else if (timeout_ms <= 60)   wdt_val = WDTO_60MS;
-    else if (timeout_ms <= 120)  wdt_val = WDTO_120MS;
-    else if (timeout_ms <= 250)  wdt_val = WDTO_250MS;
-    else if (timeout_ms <= 500)  wdt_val = WDTO_500MS;
-    else if (timeout_ms <= 1000) wdt_val = WDTO_1S;
-    else if (timeout_ms <= 2000) wdt_val = WDTO_2S;
-#if defined(WDTO_4S)
-    else if (timeout_ms <= 4000) wdt_val = WDTO_4S;
-#endif
-#if defined(WDTO_8S)
-    else                         wdt_val = WDTO_8S;
-#endif
-#if !defined(WDTO_4S)
-    else                         wdt_val = WDTO_2S;
+    uint8_t wdt_val = WDTO_2S;
+    if      (timeout_ms <= 15U)   wdt_val = WDTO_15MS;
+    else if (timeout_ms <= 30U)   wdt_val = WDTO_30MS;
+    else if (timeout_ms <= 60U)   wdt_val = WDTO_60MS;
+    else if (timeout_ms <= 120U)  wdt_val = WDTO_120MS;
+    else if (timeout_ms <= 250U)  wdt_val = WDTO_250MS;
+    else if (timeout_ms <= 500U)  wdt_val = WDTO_500MS;
+    else if (timeout_ms <= 1000U) wdt_val = WDTO_1S;
+    else if (timeout_ms <= 2000U) wdt_val = WDTO_2S;
+#if defined(WDTO_4S) && defined(WDTO_8S)
+    else if (timeout_ms <= 4000U) wdt_val = WDTO_4S;
+    else                          wdt_val = WDTO_8S;
+#elif defined(WDTO_4S)
+    else                          wdt_val = WDTO_4S;
+#elif defined(WDTO_8S)
+    else                          wdt_val = WDTO_8S;
+#else
+    else                          wdt_val = WDTO_2S;
 #endif
     wdt_enable(wdt_val);
     return SYN_OK;
@@ -1114,7 +1270,7 @@ int syn_port_sock_recv(SYN_Socket sock, void *buf, size_t max_len, uint32_t time
         return -1;
     }
     uint8_t hw = s_arduino_sockets[sock].hw_sock;
-    if (hw >= MAX_SOCK_NUM) return 0;
+    if (hw >= MAX_SOCK_NUM) return -1;
 
     EthernetClient c(hw);
     uint32_t start = millis();

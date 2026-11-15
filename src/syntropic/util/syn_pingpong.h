@@ -32,6 +32,7 @@
 #ifndef SYN_PINGPONG_H
 #define SYN_PINGPONG_H
 
+#include "../common/syn_barrier.h"
 #include "../common/syn_defs.h"
 
 #include <stdbool.h>
@@ -44,10 +45,11 @@ extern "C" {
 
 /** @brief Ping-pong (double) buffer — zero-copy DMA pattern. */
 typedef struct {
-    uint8_t *buf[2];          /**< Two buffer pointers                      */
-    size_t size;              /**< Size of each buffer                      */
-    uint8_t active_idx;       /**< Index (0 or 1) of the active buffer      */
-    volatile bool data_ready; /**< True when ready buffer has data         */
+    uint8_t *buf[2];            /**< Two buffer pointers                      */
+    size_t size;                /**< Size of each buffer                      */
+    volatile size_t active_idx; /**< Index (0 or 1) of the active buffer      */
+    volatile size_t data_ready; /**< Non-zero when ready buffer has data      */
+    volatile size_t overruns;   /**< Count of swaps rejected while unconsumed */
 } SYN_PingPong;
 
 /**
@@ -62,8 +64,9 @@ static inline void syn_pingpong_init(SYN_PingPong *pp, uint8_t *buf_a, uint8_t *
     pp->buf[0] = buf_a;
     pp->buf[1] = buf_b;
     pp->size = size;
-    pp->active_idx = 0;
-    pp->data_ready = false;
+    pp->active_idx = 0U;
+    pp->data_ready = 0U;
+    pp->overruns = 0U;
 }
 
 /**
@@ -73,7 +76,7 @@ static inline void syn_pingpong_init(SYN_PingPong *pp, uint8_t *buf_a, uint8_t *
  */
 static inline uint8_t *syn_pingpong_active(const SYN_PingPong *pp)
 {
-    return pp->buf[pp->active_idx];
+    return pp->buf[SYN_LOAD_ACQUIRE(&pp->active_idx)];
 }
 
 /**
@@ -83,7 +86,7 @@ static inline uint8_t *syn_pingpong_active(const SYN_PingPong *pp)
  */
 static inline uint8_t *syn_pingpong_ready_buf(const SYN_PingPong *pp)
 {
-    return pp->buf[1 - pp->active_idx];
+    return pp->buf[1U - SYN_LOAD_ACQUIRE(&pp->active_idx)];
 }
 
 /**
@@ -93,30 +96,49 @@ static inline uint8_t *syn_pingpong_ready_buf(const SYN_PingPong *pp)
  */
 static inline bool syn_pingpong_ready(const SYN_PingPong *pp)
 {
-    return pp->data_ready;
+    return SYN_LOAD_ACQUIRE(&pp->data_ready) != 0U;
 }
 
 /**
- * @brief Swap buffers. Call from ISR/DMA complete.
+ * @brief Swap buffers with release ordering. Call from ISR/DMA complete.
  *
- * The previously-active buffer becomes ready for processing.
- * The previously-ready buffer becomes the new active buffer.
+ * If the consumer has not yet consumed the previous ready buffer, refuses
+ * to flip @c active_idx onto the live consumer buffer, increments the
+ * overrun counter, and returns @c false.
  *
  * @param pp  Ping-pong instance.
+ * @return true if buffers swapped, false on unconsumed ready-buffer overrun.
  */
-static inline void syn_pingpong_swap(SYN_PingPong *pp)
+static inline bool syn_pingpong_swap(SYN_PingPong *pp)
 {
-    pp->active_idx = (uint8_t)(1 - pp->active_idx);
-    pp->data_ready = true;
+    if (SYN_LOAD_ACQUIRE(&pp->data_ready) != 0U) {
+        size_t drops = SYN_LOAD_ACQUIRE(&pp->overruns);
+        SYN_STORE_RELEASE(&pp->overruns, drops + 1U);
+        return false;
+    }
+    size_t next_idx = 1U - SYN_LOAD_ACQUIRE(&pp->active_idx);
+    SYN_STORE_RELEASE(&pp->active_idx, next_idx);
+    SYN_STORE_RELEASE(&pp->data_ready, 1U);
+    return true;
 }
 
 /**
- * @brief Mark the ready buffer as consumed. Call after processing.
+ * @brief Mark the ready buffer as consumed with release ordering.
  * @param pp  Ping-pong instance.
  */
 static inline void syn_pingpong_consume(SYN_PingPong *pp)
 {
-    pp->data_ready = false;
+    SYN_STORE_RELEASE(&pp->data_ready, 0U);
+}
+
+/**
+ * @brief Get the cumulative count of swaps rejected due to unconsumed data.
+ * @param pp  Ping-pong instance.
+ * @return Rejected swap overrun count.
+ */
+static inline uint32_t syn_pingpong_overruns(const SYN_PingPong *pp)
+{
+    return (uint32_t)SYN_LOAD_ACQUIRE(&pp->overruns);
 }
 
 /**

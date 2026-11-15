@@ -62,6 +62,169 @@ SYN_Status syn_mavlink_init(SYN_MAVLINK_Parser *parser)
     return SYN_OK;
 }
 
+/**
+ * @brief Reconstruct post-STX frame bytes (header, payload, and CRC) after CRC mismatch.
+ * @param parser MAVLink parser state holding header and payload bytes.
+ * @param crc0 First received CRC byte.
+ * @param crc1 Second received CRC byte.
+ * @param out Destination buffer (up to 266 bytes) for sliding resynchronization replay.
+ * @return Number of bytes written to @p out.
+ */
+static size_t mavlink_extract_tail(const SYN_MAVLINK_Parser *parser, uint8_t crc0, uint8_t crc1,
+                                   uint8_t out[266])
+{
+    out[0] = parser->payload_len;
+    out[1] = parser->incompat_flags;
+    out[2] = parser->compat_flags;
+    out[3] = parser->seq;
+    out[4] = parser->sys_id;
+    out[5] = parser->comp_id;
+    out[6] = (uint8_t)(parser->msg_id & 0xFFU);
+    out[7] = (uint8_t)((parser->msg_id >> 8U) & 0xFFU);
+    out[8] = (uint8_t)((parser->msg_id >> 16U) & 0xFFU);
+    size_t plen = parser->payload_len;
+    if (plen > 0U) {
+        memcpy(&out[9], parser->payload, plen);
+    }
+    out[9U + plen] = crc0;
+    out[10U + plen] = crc1;
+    return 11U + plen;
+}
+
+/**
+ * @brief Accumulate one MAVLink v2 header byte and advance header state machine.
+ * @param parser MAVLink parser instance.
+ * @param byte Incoming header byte.
+ */
+static void mavlink_step_header(SYN_MAVLINK_Parser *parser, uint8_t byte)
+{
+    parser->crc = syn_mavlink_crc_accumulate(byte, parser->crc);
+    switch (parser->state) {
+    case STATE_LEN:
+        parser->payload_len = byte;
+        parser->state = STATE_INCOMPAT;
+        break;
+    case STATE_INCOMPAT:
+        parser->incompat_flags = byte;
+        parser->state = STATE_COMPAT;
+        break;
+    case STATE_COMPAT:
+        parser->compat_flags = byte;
+        parser->state = STATE_SEQ;
+        break;
+    case STATE_SEQ:
+        parser->seq = byte;
+        parser->state = STATE_SYS_ID;
+        break;
+    case STATE_SYS_ID:
+        parser->sys_id = byte;
+        parser->state = STATE_COMP_ID;
+        break;
+    case STATE_COMP_ID:
+        parser->comp_id = byte;
+        parser->state = STATE_MSG_ID0;
+        break;
+    case STATE_MSG_ID0:
+        parser->msg_id = byte;
+        parser->state = STATE_MSG_ID1;
+        break;
+    case STATE_MSG_ID1:
+        parser->msg_id |= ((uint32_t)byte << 8U);
+        parser->state = STATE_MSG_ID2;
+        break;
+    default:
+        parser->msg_id |= ((uint32_t)byte << 16U);
+        parser->payload_idx = 0U;
+        parser->state = (parser->payload_len == 0U) ? STATE_CRC0 : STATE_PAYLOAD;
+        break;
+    }
+}
+
+/**
+ * @brief Verify final MAVLink v2 CRC and populate output frame on match.
+ * @param parser MAVLink parser instance.
+ * @param crc1 High byte of received X.25 CRC.
+ * @param frame Optional output frame populated when CRC matches.
+ * @param crc_failed Set to true when CRC verification fails.
+ * @return SYN_OK on valid frame, SYN_ERROR on CRC mismatch.
+ */
+static SYN_Status mavlink_finish_frame(SYN_MAVLINK_Parser *parser, uint8_t crc1,
+                                       SYN_MAVLINK_Frame *frame, bool *crc_failed)
+{
+    parser->state = STATE_STX;
+    uint16_t rx_crc = (uint16_t)parser->payload_idx | ((uint16_t)crc1 << 8U);
+    uint8_t extra_crc = get_crc_extra(parser->msg_id);
+    parser->crc = syn_mavlink_crc_accumulate(extra_crc, parser->crc);
+
+    if (parser->crc != rx_crc) {
+        parser->crc_errors++;
+        *crc_failed = true;
+        return SYN_ERROR;
+    }
+
+    *crc_failed = false;
+    parser->packets_received++;
+    parser->last_frame.payload_len = parser->payload_len;
+    parser->last_frame.incompat_flags = parser->incompat_flags;
+    parser->last_frame.compat_flags = parser->compat_flags;
+    parser->last_frame.seq = parser->seq;
+    parser->last_frame.sys_id = parser->sys_id;
+    parser->last_frame.comp_id = parser->comp_id;
+    parser->last_frame.msg_id = parser->msg_id;
+    if (parser->payload_len > 0U) {
+        memcpy(parser->last_frame.payload, parser->payload, parser->payload_len);
+    }
+    if (frame != NULL) {
+        *frame = parser->last_frame;
+    }
+    return SYN_OK;
+}
+
+/**
+ * @brief Advance raw MAVLink v2 byte parser by one byte without resynchronization replay.
+ * @param parser MAVLink parser instance.
+ * @param byte Incoming byte.
+ * @param frame Optional output frame populated on valid packet completion.
+ * @param crc0_out Receives low CRC byte when completing a candidate frame.
+ * @param crc_failed Set to true if a complete candidate frame failed CRC check.
+ * @return SYN_OK on valid frame, SYN_BUSY while accumulating, SYN_ERROR on CRC failure.
+ */
+static SYN_Status mavlink_step_raw(SYN_MAVLINK_Parser *parser, uint8_t byte,
+                                   SYN_MAVLINK_Frame *frame, uint8_t *crc0_out, bool *crc_failed)
+{
+    *crc_failed = false;
+    if (parser->state == STATE_STX) {
+        if (byte == SYN_MAVLINK_STX_V2) {
+            parser->state = STATE_LEN;
+            parser->crc = 0xFFFFU;
+        }
+        return SYN_BUSY;
+    }
+    if (parser->state <= STATE_MSG_ID2) {
+        mavlink_step_header(parser, byte);
+        return SYN_BUSY;
+    }
+    if (parser->state == STATE_PAYLOAD) {
+        parser->payload[parser->payload_idx++] = byte;
+        parser->crc = syn_mavlink_crc_accumulate(byte, parser->crc);
+        if (parser->payload_idx >= parser->payload_len) {
+            parser->state = STATE_CRC0;
+        }
+        return SYN_BUSY;
+    }
+    if (parser->state == STATE_CRC0) {
+        parser->state = STATE_CRC1;
+        parser->payload_idx = byte;
+        return SYN_BUSY;
+    }
+    if (parser->state == STATE_CRC1) {
+        *crc0_out = parser->payload_idx;
+        return mavlink_finish_frame(parser, byte, frame, crc_failed);
+    }
+    parser->state = STATE_STX;
+    return SYN_BUSY;
+}
+
 SYN_Status syn_mavlink_parse_byte(SYN_MAVLINK_Parser *parser, uint8_t byte,
                                   SYN_MAVLINK_Frame *frame)
 {
@@ -69,124 +232,32 @@ SYN_Status syn_mavlink_parse_byte(SYN_MAVLINK_Parser *parser, uint8_t byte,
         return SYN_INVALID_PARAM;
     }
 
-    switch (parser->state) {
-    case STATE_STX:
-        if (byte == SYN_MAVLINK_STX_V2) {
-            parser->state = STATE_LEN;
-            parser->crc = 0xFFFF;
-        }
-        return SYN_BUSY;
-
-    case STATE_LEN:
-        parser->payload_len = byte;
-        parser->crc = syn_mavlink_crc_accumulate(byte, parser->crc);
-        parser->state = STATE_INCOMPAT;
-        return SYN_BUSY;
-
-    case STATE_INCOMPAT:
-        parser->incompat_flags = byte;
-        parser->crc = syn_mavlink_crc_accumulate(byte, parser->crc);
-        parser->state = STATE_COMPAT;
-        return SYN_BUSY;
-
-    case STATE_COMPAT:
-        parser->compat_flags = byte;
-        parser->crc = syn_mavlink_crc_accumulate(byte, parser->crc);
-        parser->state = STATE_SEQ;
-        return SYN_BUSY;
-
-    case STATE_SEQ:
-        parser->seq = byte;
-        parser->crc = syn_mavlink_crc_accumulate(byte, parser->crc);
-        parser->state = STATE_SYS_ID;
-        return SYN_BUSY;
-
-    case STATE_SYS_ID:
-        parser->sys_id = byte;
-        parser->crc = syn_mavlink_crc_accumulate(byte, parser->crc);
-        parser->state = STATE_COMP_ID;
-        return SYN_BUSY;
-
-    case STATE_COMP_ID:
-        parser->comp_id = byte;
-        parser->crc = syn_mavlink_crc_accumulate(byte, parser->crc);
-        parser->state = STATE_MSG_ID0;
-        return SYN_BUSY;
-
-    case STATE_MSG_ID0:
-        parser->msg_id = byte;
-        parser->crc = syn_mavlink_crc_accumulate(byte, parser->crc);
-        parser->state = STATE_MSG_ID1;
-        return SYN_BUSY;
-
-    case STATE_MSG_ID1:
-        parser->msg_id |= ((uint32_t)byte << 8);
-        parser->crc = syn_mavlink_crc_accumulate(byte, parser->crc);
-        parser->state = STATE_MSG_ID2;
-        return SYN_BUSY;
-
-    case STATE_MSG_ID2:
-        parser->msg_id |= ((uint32_t)byte << 16);
-        parser->crc = syn_mavlink_crc_accumulate(byte, parser->crc);
-        parser->payload_idx = 0;
-        if (parser->payload_len == 0) {
-            parser->state = STATE_CRC0;
-        } else {
-            parser->state = STATE_PAYLOAD;
-        }
-        return SYN_BUSY;
-
-    case STATE_PAYLOAD:
-        if (parser->payload_idx < SYN_MAVLINK_MAX_PAYLOAD_LEN) {
-            parser->payload[parser->payload_idx++] = byte;
-        }
-        parser->crc = syn_mavlink_crc_accumulate(byte, parser->crc);
-        if (parser->payload_idx >= parser->payload_len) {
-            parser->state = STATE_CRC0;
-        }
-        return SYN_BUSY;
-
-    case STATE_CRC0:
-        /* Low byte of CRC */
-        parser->state = STATE_CRC1;
-        /* Store low byte for check */
-        parser->payload_idx = byte;
-        return SYN_BUSY;
-
-    case STATE_CRC1: {
-        parser->state = STATE_STX;
-        uint16_t rx_crc = (uint16_t)parser->payload_idx | ((uint16_t)byte << 8);
-
-        /* Accumulate CRC Extra byte */
-        uint8_t extra_crc = get_crc_extra(parser->msg_id);
-        parser->crc = syn_mavlink_crc_accumulate(extra_crc, parser->crc);
-
-        if (parser->crc == rx_crc) {
-            parser->packets_received++;
-            parser->last_frame.payload_len = parser->payload_len;
-            parser->last_frame.incompat_flags = parser->incompat_flags;
-            parser->last_frame.compat_flags = parser->compat_flags;
-            parser->last_frame.seq = parser->seq;
-            parser->last_frame.sys_id = parser->sys_id;
-            parser->last_frame.comp_id = parser->comp_id;
-            parser->last_frame.msg_id = parser->msg_id;
-            if (parser->payload_len > 0) {
-                memcpy(parser->last_frame.payload, parser->payload, parser->payload_len);
-            }
-            if (frame) {
-                *frame = parser->last_frame;
-            }
-            return SYN_OK;
-        } else {
-            parser->crc_errors++;
-            return SYN_ERROR;
-        }
+    uint8_t crc0 = 0U;
+    bool crc_failed = false;
+    SYN_Status st = mavlink_step_raw(parser, byte, frame, &crc0, &crc_failed);
+    if (!crc_failed) {
+        return st;
     }
 
-    default:
-        parser->state = STATE_STX;
-        return SYN_BUSY;
+    uint8_t pending[266];
+    size_t head = 0U;
+    size_t tail = mavlink_extract_tail(parser, crc0, byte, pending);
+    SYN_Status result = SYN_ERROR;
+    while (head < tail) {
+        uint8_t inner_crc0 = 0U;
+        bool inner_failed = false;
+        SYN_Status inner_st =
+            mavlink_step_raw(parser, pending[head++], frame, &inner_crc0, &inner_failed);
+        if (inner_st == SYN_OK) {
+            result = SYN_OK;
+        } else if (inner_failed) {
+            size_t rem_back = (size_t)parser->payload_len + 11U;
+            head -= rem_back;
+            (void)mavlink_extract_tail(parser, inner_crc0, pending[head + rem_back - 1U],
+                                       &pending[head]);
+        }
     }
+    return result;
 }
 
 SYN_Status syn_mavlink_encode_msg(uint8_t sys_id, uint8_t comp_id, uint8_t seq, uint32_t msg_id,

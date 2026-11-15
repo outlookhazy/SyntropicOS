@@ -555,7 +555,8 @@ static SYN_PT_Status pulse_task(SYN_PT *pt, SYN_Task *task)
 - `syn_task_should_share(task)` — true during `task`'s dispatch if an equal/higher-priority `MORE` peer is waiting or a peer's `due_ms` has arrived
 - `syn_task_suspend(task)` — skip task until resumed
 - `syn_task_resume(task)` — make task eligible again
-- `syn_task_restart(task)` — reset protothread and set to READY
+- `syn_task_restart(task)` — reset protothread and set to READY (releasing held mutexes and pending mutex waits)
+- `syn_sched_respawn_task(sched, idx, name, func, prio, user_data)` — atomically recycle a registered task slot with a new entry point/priority while cleaning up held/waited mutexes and preserving scheduler linkage
 - `syn_task_is_alive(task)` — check if task is not DEAD
 - `syn_sched_alive_count(sched)` — count living tasks
 
@@ -564,7 +565,7 @@ static SYN_PT_Status pulse_task(SYN_PT *pt, SYN_Task *task)
 | Execution Context | Functions / Macros |
 |---|---|
 | **ISR-safe** | `syn_task_resume()`, `syn_event_flags_set()` (`syn_event_set()`), `syn_event_flags_clear()` (`syn_event_clear()`), `syn_event_flags_get()` (`syn_event_get()`), `syn_ao_post()`, `syn_workqueue_post()`, `syn_spsc_queue_push()` (single-ISR producer), `syn_sleep_lock()`, `syn_sleep_unlock()` |
-| **Task / main-loop context only** | `syn_sched_init()`, `syn_sched_run*()`, `syn_sched_set_max_wait()`, `syn_task_create()`, `syn_task_suspend()`, `syn_task_restart()`, `syn_task_boost_priority()`, `syn_task_restore_priority()`, `syn_task_set_base_priority()`, `syn_mutex_try_lock()`, `syn_mutex_cancel_wait()`, `syn_mutex_unlock()` |
+| **Task / main-loop context only** | `syn_sched_init()`, `syn_sched_run*()`, `syn_sched_set_max_wait()`, `syn_task_create()`, `syn_sched_respawn_task()`, `syn_task_suspend()`, `syn_task_restart()`, `syn_task_boost_priority()`, `syn_task_restore_priority()`, `syn_task_set_base_priority()`, `syn_mutex_try_lock()`, `syn_mutex_cancel_wait()`, `syn_mutex_unlock()` |
 
 ## Timers & Scheduling Extensions
 

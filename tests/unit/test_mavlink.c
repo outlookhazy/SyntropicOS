@@ -6,6 +6,8 @@
 #include "syntropic/proto/syn_mavlink.h"
 #include "unity/unity.h"
 
+#include <string.h>
+
 void test_mavlink_init(void)
 {
     SYN_MAVLINK_Parser parser;
@@ -219,4 +221,39 @@ void test_mavlink_stream_noise_and_post_error_resync(void)
     TEST_ASSERT_EQUAL_UINT8(3U, frame.comp_id);
     TEST_ASSERT_EQUAL_UINT8(99U, frame.seq);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(hb_payload, frame.payload, 9U);
+
+    /* 4. D-PROTO-02: False 0xFD start byte + noise immediately followed by valid MAVLink v2 frame
+     *    resynchronizes across CRC failure without dropping the embedded packet */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mavlink_init(&parser));
+    const uint8_t false_mav[8] = {SYN_MAVLINK_STX_V2, 6U, 0U, 0U, 1U, 1U, 1U, 0U};
+    for (size_t i = 0U; i < sizeof(false_mav); i++) {
+        (void)syn_mavlink_parse_byte(&parser, false_mav[i], &frame);
+    }
+    SYN_Status st_m = SYN_BUSY;
+    for (size_t i = 0U; i < len_ok; i++) {
+        st_m = syn_mavlink_parse_byte(&parser, pkt_ok[i], &frame);
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, st_m);
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.crc_errors);
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.packets_received);
+    TEST_ASSERT_EQUAL_UINT8(99U, frame.seq);
+
+    /* 5. Wholly embedded valid frame + nested bad candidate inside larger false-length frame */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_mavlink_init(&parser));
+    uint8_t outer[52];
+    memset(outer, 0x42U, sizeof(outer));
+    outer[0] = SYN_MAVLINK_STX_V2;
+    outer[1] = 40U; /* 10 + 40 + 2 = 52 bytes total */
+    /* Nested false 12-byte frame at outer[10..21] followed by pkt_ok (21 bytes) at outer[22..42] */
+    const uint8_t inner_bad[12] = {SYN_MAVLINK_STX_V2, 0U, 0U, 0U, 1U, 1U, 1U, 0U, 0U, 0U, 9U, 9U};
+    memcpy(&outer[10], inner_bad, sizeof(inner_bad));
+    memcpy(&outer[22], pkt_ok, len_ok);
+    SYN_Status outer_st = SYN_BUSY;
+    for (size_t i = 0U; i < sizeof(outer); i++) {
+        outer_st = syn_mavlink_parse_byte(&parser, outer[i], &frame);
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, outer_st);
+    TEST_ASSERT_EQUAL_UINT32(2U, parser.crc_errors);
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.packets_received);
+    TEST_ASSERT_EQUAL_UINT8(99U, frame.seq);
 }

@@ -28,6 +28,24 @@ uint16_t syn_ibus_calc_checksum(const uint8_t buf[30])
     return sum;
 }
 
+/**
+ * @brief Slide buffered IBUS bytes forward to the next candidate 0x20 0x40 sync header.
+ * @param parser IBUS parser context containing rejected frame bytes.
+ */
+static void ibus_resync(SYN_IBUS_Parser *parser)
+{
+    for (size_t i = 1U; i < SYN_IBUS_FRAME_SIZE; i++) {
+        if (parser->buf[i] == SYN_IBUS_HEADER1 &&
+            ((i + 1U == SYN_IBUS_FRAME_SIZE) || (parser->buf[i + 1U] == SYN_IBUS_HEADER2))) {
+            size_t rem = SYN_IBUS_FRAME_SIZE - i;
+            (void)memmove(parser->buf, &parser->buf[i], rem);
+            parser->idx = rem;
+            return;
+        }
+    }
+    parser->idx = 0U;
+}
+
 SYN_Status syn_ibus_parse_byte(SYN_IBUS_Parser *parser, uint8_t byte, SYN_IBUS_Frame *frame)
 {
     if (!parser) {
@@ -52,15 +70,16 @@ SYN_Status syn_ibus_parse_byte(SYN_IBUS_Parser *parser, uint8_t byte, SYN_IBUS_F
     parser->buf[parser->idx++] = byte;
 
     if (parser->idx >= SYN_IBUS_FRAME_SIZE) {
-        parser->idx = 0;
-
         uint16_t expected_sum = syn_ibus_calc_checksum(parser->buf);
         uint16_t rx_sum = (uint16_t)(parser->buf[30] | (parser->buf[31] << 8));
 
         if (expected_sum != rx_sum) {
             parser->checksum_errors++;
+            ibus_resync(parser);
             return SYN_ERROR;
         }
+
+        parser->idx = 0U;
 
         /* Unpack 14 16-bit little-endian channels */
         for (size_t i = 0; i < SYN_IBUS_NUM_CHANNELS; i++) {

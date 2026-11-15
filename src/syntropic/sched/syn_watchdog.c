@@ -119,7 +119,7 @@ static bool wdt_poll_slot_locked(SYN_Watchdog *wdt, uint8_t idx, SYN_WDT_Entry *
 
     uint32_t now = syn_port_get_tick_ms();
     uint32_t elapsed = now - wdt->entries[idx].last_checkin;
-    if (elapsed < wdt->entries[idx].timeout_ms || elapsed > 0xEFFFFFFFU) {
+    if (elapsed < wdt->entries[idx].timeout_ms || elapsed > 0xFFFF0000U) {
         return false;
     }
 

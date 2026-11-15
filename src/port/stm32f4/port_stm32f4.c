@@ -117,10 +117,14 @@ typedef struct {
 #define USART_SR_RXNE (1U << 5)
 #define USART_SR_TC (1U << 6)
 #define USART_CR1_UE (1U << 13)
+#define USART_CR1_TXEIE (1U << 7)
+#define USART_CR1_TCIE (1U << 6)
 #define USART_CR1_TE (1U << 3)
 #define USART_CR1_RE (1U << 2)
+#define NVIC_ISER ((volatile uint32_t *)0xE000E100UL)
 
 static USART_TypeDef *const usart_instances[] = {USART1, USART2, USART3, UART4, UART5};
+static const uint8_t usart_irq_numbers[] = {37U, 38U, 39U, 52U, 53U};
 
 /* ── SPI ────────────────────────────────────────────────────────────────── */
 
@@ -574,79 +578,189 @@ SYN_Status syn_port_uart_deinit(SYN_UARTInstance inst)
 
 SYN_Status syn_port_uart_transmit_byte(SYN_UARTInstance inst, uint8_t byte)
 {
-    if (inst >= 5)
+    if (inst >= 5U) {
         return SYN_INVALID_PARAM;
-    USART_TypeDef *uart = usart_instances[inst];
-    volatile uint32_t timeout = 100000;
-    while (!(uart->SR & USART_SR_TXE) && --timeout) { /* spin */
     }
-    if (!timeout)
-        return SYN_TIMEOUT;
+    USART_TypeDef *uart = usart_instances[inst];
+    while ((uart->SR & USART_SR_TXE) == 0U) {
+    }
     uart->DR = byte;
     return SYN_OK;
 }
 
 SYN_Status syn_port_uart_receive_byte(SYN_UARTInstance inst, uint8_t *byte, uint32_t timeout_ms)
 {
-    if (inst >= 5)
+    if (inst >= 5U || byte == NULL) {
         return SYN_INVALID_PARAM;
+    }
     USART_TypeDef *uart = usart_instances[inst];
 
-    if (timeout_ms == 0) {
-        if (!(uart->SR & USART_SR_RXNE)) {
+    if (timeout_ms == 0U) {
+        if ((uart->SR & USART_SR_RXNE) == 0U) {
             return SYN_TIMEOUT;
         }
-        *byte = (uint8_t)(uart->DR & 0xFF);
+        *byte = (uint8_t)(uart->DR & 0xFFU);
         return SYN_OK;
     }
 
     uint32_t start = systick_ms;
-    while (!(uart->SR & USART_SR_RXNE)) {
+    while ((uart->SR & USART_SR_RXNE) == 0U) {
         if ((systick_ms - start) >= timeout_ms) {
             return SYN_TIMEOUT;
         }
     }
-    *byte = (uint8_t)(uart->DR & 0xFF);
+    *byte = (uint8_t)(uart->DR & 0xFFU);
     return SYN_OK;
 }
 
 SYN_Status syn_port_uart_transmit(SYN_UARTInstance inst, const uint8_t *data, size_t len,
                                   uint32_t timeout_ms)
 {
-    (void)timeout_ms;
-    for (size_t i = 0; i < len; i++) {
-        SYN_Status s = syn_port_uart_transmit_byte(inst, data[i]);
-        if (s != SYN_OK)
-            return s;
+    if (inst >= 5U || (len > 0U && data == NULL)) {
+        return SYN_INVALID_PARAM;
     }
-    /* Wait for last byte to finish transmitting */
+    if (len == 0U) {
+        return SYN_OK;
+    }
+
     USART_TypeDef *uart = usart_instances[inst];
-    volatile uint32_t timeout = 100000;
-    while (!(uart->SR & USART_SR_TC) && --timeout) { /* spin */
+    uint32_t start_ms = systick_ms;
+
+    for (size_t i = 0U; i < len; i++) {
+        while ((uart->SR & USART_SR_TXE) == 0U) {
+            if (timeout_ms > 0U && (systick_ms - start_ms) >= timeout_ms) {
+                return SYN_TIMEOUT;
+            }
+        }
+        uart->DR = data[i];
     }
-    if (!timeout)
-        return SYN_TIMEOUT;
+
+    while ((uart->SR & USART_SR_TC) == 0U) {
+        if (timeout_ms > 0U && (systick_ms - start_ms) >= timeout_ms) {
+            return SYN_TIMEOUT;
+        }
+    }
     return SYN_OK;
 }
 
 SYN_Status syn_port_uart_receive(SYN_UARTInstance inst, uint8_t *data, size_t len, size_t *received,
                                  uint32_t timeout_ms)
 {
-    size_t count = 0;
-    for (size_t i = 0; i < len; i++) {
-        SYN_Status s = syn_port_uart_receive_byte(inst, &data[i], timeout_ms);
-        if (s == SYN_TIMEOUT)
+    if (inst >= 5U || (len > 0U && data == NULL)) {
+        return SYN_INVALID_PARAM;
+    }
+    if (len == 0U) {
+        if (received != NULL) {
+            *received = 0U;
+        }
+        return SYN_OK;
+    }
+
+    size_t count = 0U;
+    uint32_t start_ms = systick_ms;
+    while (count < len) {
+        uint32_t rem = 0U;
+        if (timeout_ms > 0U) {
+            uint32_t elapsed = systick_ms - start_ms;
+            if (elapsed < timeout_ms) {
+                rem = timeout_ms - elapsed;
+            }
+        }
+        SYN_Status s = syn_port_uart_receive_byte(inst, &data[count], rem);
+        if (s == SYN_OK) {
+            count++;
+        } else if (s == SYN_TIMEOUT) {
             break;
-        if (s != SYN_OK) {
-            if (received)
+        } else {
+            if (received != NULL) {
                 *received = count;
+            }
             return s;
         }
-        count++;
     }
-    if (received)
+    if (received != NULL) {
         *received = count;
-    return SYN_OK;
+    }
+    return (count > 0U) ? SYN_OK : SYN_TIMEOUT;
+}
+
+static void (*s_uart_tc_cb[5])(void *ctx) = {NULL};
+static void *s_uart_tc_ctx[5] = {NULL};
+
+void syn_port_uart_enable_txe_irq(SYN_UARTInstance instance)
+{
+    if (instance >= 5U) {
+        return;
+    }
+    uint8_t irqn = usart_irq_numbers[instance];
+    NVIC_ISER[irqn >> 5U] = (1UL << (irqn & 0x1FU));
+    syn_port_enter_critical();
+    usart_instances[instance]->CR1 |= USART_CR1_TXEIE;
+    syn_port_exit_critical();
+}
+
+void syn_port_uart_disable_txe_irq(SYN_UARTInstance instance)
+{
+    if (instance >= 5U) {
+        return;
+    }
+    syn_port_enter_critical();
+    uint32_t cr1 = usart_instances[instance]->CR1 & ~USART_CR1_TXEIE;
+    if (s_uart_tc_cb[instance] != NULL) {
+        cr1 |= USART_CR1_TCIE;
+    }
+    usart_instances[instance]->CR1 = cr1;
+    syn_port_exit_critical();
+}
+
+void syn_port_uart_write_dr(SYN_UARTInstance instance, uint8_t byte)
+{
+    if (instance >= 5U) {
+        return;
+    }
+    usart_instances[instance]->DR = byte;
+}
+
+bool syn_port_uart_is_tc_set(SYN_UARTInstance instance)
+{
+    if (instance >= 5U) {
+        return false;
+    }
+    return (usart_instances[instance]->SR & USART_SR_TC) != 0U;
+}
+
+void syn_port_uart_set_tc_callback(SYN_UARTInstance instance, void (*callback)(void *ctx),
+                                   void *ctx)
+{
+    if (instance >= 5U) {
+        return;
+    }
+    syn_port_enter_critical();
+    s_uart_tc_cb[instance] = callback;
+    s_uart_tc_ctx[instance] = ctx;
+    if (callback == NULL) {
+        usart_instances[instance]->CR1 &= ~USART_CR1_TCIE;
+    } else {
+        uint8_t irqn = usart_irq_numbers[instance];
+        NVIC_ISER[irqn >> 5U] = (1UL << (irqn & 0x1FU));
+    }
+    syn_port_exit_critical();
+}
+
+void syn_port_stm32f4_uart_tc_isr(SYN_UARTInstance instance)
+{
+    if (instance >= 5U) {
+        return;
+    }
+    USART_TypeDef *uart = usart_instances[instance];
+    if ((uart->CR1 & USART_CR1_TCIE) != 0U && (uart->SR & USART_SR_TC) != 0U) {
+        uart->CR1 &= ~USART_CR1_TCIE;
+        void (*cb)(void *ctx) = s_uart_tc_cb[instance];
+        void *cb_ctx = s_uart_tc_ctx[instance];
+        if (cb != NULL) {
+            cb(cb_ctx);
+        }
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1079,9 +1193,7 @@ SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
             FLASH->SR = FLASH_SR_ERR_MASK;
             FLASH->CR = 0UL;
             flash_lock();
-            if (i > 0U) {
-                flash_flush_art_cache();
-            }
+            flash_flush_art_cache();
             return (s != SYN_OK) ? s : SYN_ERROR;
         }
     }

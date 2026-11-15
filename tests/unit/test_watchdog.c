@@ -420,6 +420,15 @@ static void test_watchdog_snapshot_across_isr_and_reinit_in_cb(void)
     /* Only old0's timeout fires on this update; new_slot1 must NOT be scanned in stale loop */
     TEST_ASSERT_EQUAL_INT(1, ctx.cb_fires);
     TEST_ASSERT_EQUAL_STRING("old0", ctx.observed_name);
+
+    /* 3. Starvation > 40.2 days (0xF0000000 ms) must still trigger watchdog timeout (D-CORE-04) */
+    mock_tick_ms = 0U;
+    wdt_timeout_count = 0;
+    syn_watchdog_init(&wdt, entries, 1U, wdt_on_timeout, NULL);
+    TEST_ASSERT_EQUAL_INT8(0, syn_watchdog_register(&wdt, "long_starve", 1000U));
+    mock_tick_ms = 0xF0000000U;
+    syn_watchdog_update(&wdt);
+    TEST_ASSERT_EQUAL_INT(1, wdt_timeout_count);
 }
 
 void run_watchdog_tests(void)

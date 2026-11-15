@@ -117,4 +117,36 @@ void test_tier_a_ibus_duplicate_header1_recovery(void)
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_ibus_parse_byte(&parser, pkt[31], &frame));
     TEST_ASSERT_EQUAL_UINT32(1U, parser.frames_received);
     TEST_ASSERT_EQUAL_UINT16(1500U, frame.channels[0]);
+
+    /* D-PROTO-02: False [0x20, 0x40, noise...] prefix followed by valid 32-byte frame resyncs */
+    syn_ibus_init(&parser);
+    const uint8_t false_prefix[10] = {
+        SYN_IBUS_HEADER1, SYN_IBUS_HEADER2, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U};
+    for (size_t i = 0U; i < sizeof(false_prefix); i++) {
+        (void)syn_ibus_parse_byte(&parser, false_prefix[i], &frame);
+    }
+    SYN_Status st = SYN_BUSY;
+    for (size_t i = 0U; i < sizeof(pkt); i++) {
+        st = syn_ibus_parse_byte(&parser, pkt[i], &frame);
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, st);
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.checksum_errors);
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.frames_received);
+    TEST_ASSERT_EQUAL_UINT16(1500U, frame.channels[0]);
+
+    /* Trailing byte 31 == SYN_IBUS_HEADER1 (0x20) on checksum failure also resyncs */
+    syn_ibus_init(&parser);
+    uint8_t bad31[32];
+    memset(bad31, 0x55U, sizeof(bad31));
+    bad31[0] = SYN_IBUS_HEADER1;
+    bad31[1] = SYN_IBUS_HEADER2;
+    bad31[31] = SYN_IBUS_HEADER1;
+    for (size_t i = 0U; i < 32U; i++) {
+        (void)syn_ibus_parse_byte(&parser, bad31[i], &frame);
+    }
+    for (size_t i = 1U; i < 32U; i++) {
+        st = syn_ibus_parse_byte(&parser, pkt[i], &frame);
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, st);
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.frames_received);
 }

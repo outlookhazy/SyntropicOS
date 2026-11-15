@@ -1171,7 +1171,7 @@ static int32_t syn_fat_vfs_seek(SYN_VfsFile *file, int32_t offset, int whence)
     }
 
     if (target_offset < 0) {
-        target_offset = 0;
+        return -2;
     }
     if (target_offset > (int64_t)ctx->size) {
         target_offset = (int64_t)ctx->size;

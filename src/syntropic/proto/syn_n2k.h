@@ -137,8 +137,17 @@ typedef struct {
     uint16_t pressure_pa_1e2; /**< Atmospheric Pressure in 100 Pa (hPa / mbar) */
 } SYN_N2K_EnvParams;
 
+/** @brief NMEA 2000 Fast-Packet inter-frame timeout in milliseconds. */
+#define SYN_N2K_FASTPACKET_TIMEOUT_MS 750U
+
 /**
  * @brief NMEA 2000 Fast-Packet RX Re-assembly Context.
+ *
+ * @note Tracks one active `(pgn, sa)` Fast-Packet session at a time. Concurrent
+ *       Frame 0 arrivals from another source address are rejected with SYN_BUSY
+ *       until the active session completes, aborts on a sequence break, is
+ *       cleared via syn_n2k_fastpacket_reset(), or expires after
+ *       SYN_N2K_FASTPACKET_TIMEOUT_MS.
  */
 typedef struct {
     bool active;            /**< Active Fast-Packet session flag */
@@ -146,6 +155,7 @@ typedef struct {
     uint8_t expected_frame; /**< Next expected frame index (0..31) */
     uint8_t sa;             /**< Sender Source Address */
     uint32_t pgn;           /**< Target PGN */
+    uint32_t last_rx_ms;    /**< Tick timestamp of last accepted Fast-Packet frame */
     uint8_t total_bytes;    /**< Total payload length in bytes (max 223) */
     uint8_t received_bytes; /**< Currently received byte count */
     uint8_t data[223];      /**< Re-assembled payload buffer */
@@ -282,13 +292,20 @@ SYN_Status syn_n2k_encode_environment(uint8_t sa, const SYN_N2K_EnvParams *env,
 SYN_Status syn_n2k_decode_environment(const SYN_CAN_Frame *frame, SYN_N2K_EnvParams *env);
 
 /**
+ * @brief Reset an NMEA 2000 Fast-Packet RX reassembly context.
+ * @param rx Fast-Packet RX state context (NULL is safely ignored).
+ */
+void syn_n2k_fastpacket_reset(SYN_N2K_FastPacketRx *rx);
+
+/**
  * @brief Process an incoming CAN frame in the Fast-Packet multi-frame RX reassembler.
  * @param rx Fast-Packet RX state context.
  * @param frame Incoming CAN frame.
  * @param target_pgn Expected target PGN for the Fast-Packet message.
  * @param out_payload Output pointer receiving reassembled payload buffer.
  * @param out_len Output length of payload in bytes.
- * @return SYN_OK if payload complete, or SYN_BUSY if Fast-Packet frames are still pending.
+ * @return SYN_OK if payload complete, SYN_BUSY if Fast-Packet frames are pending or
+ *         another source address holds an active session, or SYN_INVALID_PARAM on mismatch.
  */
 SYN_Status syn_n2k_fastpacket_process(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Frame *frame,
                                       uint32_t target_pgn, const uint8_t **out_payload,

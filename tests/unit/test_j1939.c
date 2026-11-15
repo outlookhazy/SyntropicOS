@@ -3,6 +3,7 @@
  * @brief Unit test suite for SAE J1939 CAN protocol engine (syn_j1939).
  */
 
+#include "mocks/mock_port.h"
 #include "syntropic/proto/syn_j1939.h"
 #include "unity/unity.h"
 
@@ -581,6 +582,49 @@ static void test_j1939_pro16_tp_concurrency_ext_filter_and_dm2_dedup(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_dtc_add_active(&log, 900U, 2U));
     TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_dtc_clear_active(&log, 900U, 2U));
     TEST_ASSERT_EQUAL(SYN_J1939_MAX_LOGGED_DTCS, log.prev_count);
+
+    /* 4. D-PROTO-01: Dropped BAM TP.DT packet aborts BAM session immediately; stalled BAM expires
+     *    after J1939-21 T1 (750 ms) or when same SA starts a fresh BAM */
+    mock_tick_ms = 1000U;
+    ecu.tp_rx.active = false;
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &bam1, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_TRUE(ecu.tp_rx.active);
+
+    uint8_t dt_payload[7] = {1U, 2U, 3U, 4U, 5U, 6U, 7U};
+    SYN_CAN_Frame dt_seq2;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_build_tp_dt(0x10U, 2U, dt_payload, 7U, &dt_seq2));
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &dt_seq2, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_FALSE(ecu.tp_rx.active);
+
+    /* New BAM from peer 0x30 is now accepted immediately */
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &bam2, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_TRUE(ecu.tp_rx.active);
+    TEST_ASSERT_EQUAL_UINT8(0x30U, ecu.tp_rx.sa);
+
+    /* Same SA (0x30) restarting BAM supersedes its own incomplete BAM */
+    SYN_CAN_Frame bam2_restart;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_build_tp_bam(0x30U, SYN_J1939_PGN_ET1, 10U, &bam2_restart));
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &bam2_restart, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_EQUAL_UINT32(SYN_J1939_PGN_ET1, ecu.tp_rx.pgn);
+
+    /* Stalled BAM with dropped final packet expires after T1 = 750 ms so peer 0x10 BAM succeeds */
+    mock_tick_ms = 1750U;
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &bam1, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_TRUE(ecu.tp_rx.active);
+    TEST_ASSERT_EQUAL_UINT8(0x10U, ecu.tp_rx.sa);
+
+    /* Late TP.DT arriving >= 750 ms after BAM start also expires stale TP RX session */
+    SYN_CAN_Frame dt_seq1;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_j1939_build_tp_dt(0x10U, 1U, dt_payload, 7U, &dt_seq1));
+    mock_tick_ms = 2500U;
+    TEST_ASSERT_EQUAL(SYN_BUSY,
+                      syn_j1939_process_frame(&ecu, &dt_seq1, &out_pgn, &out_data, &out_len));
+    TEST_ASSERT_FALSE(ecu.tp_rx.active);
 }
 
 void run_j1939_tests(void)

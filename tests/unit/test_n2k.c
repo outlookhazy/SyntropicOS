@@ -3,6 +3,7 @@
  * @brief Unit test suite for NMEA 2000 marine CAN protocol engine (syn_n2k).
  */
 
+#include "mocks/mock_port.h"
 #include "syntropic/proto/syn_n2k.h"
 #include "unity/unity.h"
 
@@ -376,6 +377,42 @@ static void test_n2k_pro16_fastpacket_cross_pgn_guard(void)
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_n2k_fastpacket_process(&rx, &f1_a, pgn_a, &payload, &len));
     TEST_ASSERT_EQUAL_UINT32(11U, (uint32_t)len);
     TEST_ASSERT_EQUAL_MEMORY("AAAAAA12345", payload, 11U);
+
+    /* D-PROTO-03: Dropped continuation frame on active session clears rx.active; concurrent
+     * Frame 0 from another SA does not clobber active session until timeout (750 ms) */
+    mock_tick_ms = 2000U;
+    f0_a.data[1] = 18U;
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_n2k_fastpacket_process(&rx, &f0_a, pgn_a, &payload, &len));
+    TEST_ASSERT_TRUE(rx.active);
+
+    /* Concurrent Frame 0 from Node 0x20 for same PGN while Node 0x10 is active (< 750 ms) */
+    uint32_t id_a_peer2 = syn_j1939_id_pack(6U, pgn_a, 0x20U, SYN_J1939_ADDR_GLOBAL);
+    SYN_CAN_Frame f0_peer2 = {.id = id_a_peer2, .dlc = 8U, .extended = true};
+    f0_peer2.data[0] = (uint8_t)((4U << 5U) | 0U);
+    f0_peer2.data[1] = 11U;
+    memcpy(&f0_peer2.data[2], "ZZZZZZ", 6U);
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY,
+                          syn_n2k_fastpacket_process(&rx, &f0_peer2, pgn_a, &payload, &len));
+    TEST_ASSERT_EQUAL_UINT8(0x10U, rx.sa);
+
+    /* Frame 1 dropped on Node 0x10; Frame 2 arrives -> aborts broken session (rx.active = false) */
+    SYN_CAN_Frame f2_a = {.id = id_a, .dlc = 8U, .extended = true};
+    f2_a.data[0] = (uint8_t)((3U << 5U) | 2U);
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM,
+                          syn_n2k_fastpacket_process(&rx, &f2_a, pgn_a, &payload, &len));
+    TEST_ASSERT_FALSE(rx.active);
+
+    /* Stale active session expires after 750 ms; syn_n2k_fastpacket_reset clears active state */
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY, syn_n2k_fastpacket_process(&rx, &f0_a, pgn_a, &payload, &len));
+    mock_tick_ms = 2750U;
+    TEST_ASSERT_EQUAL_INT(SYN_BUSY,
+                          syn_n2k_fastpacket_process(&rx, &f0_peer2, pgn_a, &payload, &len));
+    TEST_ASSERT_TRUE(rx.active);
+    TEST_ASSERT_EQUAL_UINT8(0x20U, rx.sa);
+
+    syn_n2k_fastpacket_reset(NULL);
+    syn_n2k_fastpacket_reset(&rx);
+    TEST_ASSERT_FALSE(rx.active);
 }
 
 void run_n2k_tests(void)

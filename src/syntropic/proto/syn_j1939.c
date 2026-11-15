@@ -9,6 +9,7 @@
  * @brief SAE J1939 Heavy-Duty Vehicle CAN Protocol Stack implementation.
  */
 
+#include "../port/syn_port_system.h"
 #include "../util/syn_assert.h"
 #include "../util/syn_pack.h"
 #include "syn_j1939.h"
@@ -342,6 +343,19 @@ static void j1939_queue_tp_abort(SYN_J1939_Node *node, uint8_t da, uint8_t reaso
 }
 
 /**
+ * @brief Expire an active multi-packet TP RX session if J1939-21 T1 timeout has elapsed.
+ * @param node J1939 node instance.
+ * @param now Current millisecond tick.
+ */
+static void j1939_expire_stale_tp_rx(SYN_J1939_Node *node, uint32_t now)
+{
+    if (node->tp_rx.active && ((now - node->tp_rx.last_rx_ms) >= SYN_J1939_TP_T1_TIMEOUT_MS)) {
+        node->tp_rx.active = false;
+        node->tx_pending = false;
+    }
+}
+
+/**
  * @brief Initialize multi-packet TP RX state and emit initial CTS for unicast RTS sessions.
  * @param node J1939 node instance.
  * @param hdr Unpacked J1939 CAN identifier header.
@@ -349,10 +363,11 @@ static void j1939_queue_tp_abort(SYN_J1939_Node *node, uint8_t da, uint8_t reaso
  * @param pgn Unpacked 24-bit parameter group number.
  * @param total_bytes Validated payload byte count (9..1785).
  * @param total_packets Validated TP.DT packet count.
+ * @param now Current millisecond tick.
  */
 static void j1939_start_tp_rx(SYN_J1939_Node *node, const SYN_J1939_Header *hdr,
                               const SYN_CAN_Frame *frame, uint32_t pgn, uint16_t total_bytes,
-                              uint8_t total_packets)
+                              uint8_t total_packets, uint32_t now)
 {
     node->tp_rx.active = true;
     node->tp_rx.is_bam = (frame->data[0] == SYN_J1939_TP_CTRL_BAM);
@@ -363,6 +378,7 @@ static void j1939_start_tp_rx(SYN_J1939_Node *node, const SYN_J1939_Header *hdr,
     node->tp_rx.total_packets = total_packets;
     node->tp_rx.next_seq = 1U;
     node->tp_rx.received_packets = 0U;
+    node->tp_rx.last_rx_ms = now;
 
     if (!node->tp_rx.is_bam) {
         uint8_t max_cts = frame->data[4];
@@ -407,6 +423,9 @@ static SYN_Status j1939_handle_tp_cm(SYN_J1939_Node *node, const SYN_J1939_Heade
         return SYN_INVALID_PARAM;
     }
 
+    uint32_t now = syn_port_get_tick_ms();
+    j1939_expire_stale_tp_rx(node, now);
+
     uint8_t ctrl = frame->data[0];
     if (ctrl == SYN_J1939_TP_CTRL_ABORT) {
         if (node->tp_rx.active && hdr->sa == node->tp_rx.sa && hdr->da == node->tp_rx.da) {
@@ -414,6 +433,11 @@ static SYN_Status j1939_handle_tp_cm(SYN_J1939_Node *node, const SYN_J1939_Heade
             node->tx_pending = false;
         }
         return SYN_BUSY;
+    }
+
+    if (ctrl == SYN_J1939_TP_CTRL_BAM && hdr->da == SYN_J1939_ADDR_GLOBAL && node->tp_rx.active &&
+        node->tp_rx.is_bam && hdr->sa == node->tp_rx.sa) {
+        node->tp_rx.active = false;
     }
 
     if (!j1939_tp_cm_accept(node, hdr, frame)) {
@@ -437,7 +461,7 @@ static SYN_Status j1939_handle_tp_cm(SYN_J1939_Node *node, const SYN_J1939_Heade
 
     if (total_bytes >= 9U && total_bytes <= sizeof(node->tp_rx.data) &&
         total_packets == expected_packets) {
-        j1939_start_tp_rx(node, hdr, frame, pgn, total_bytes, total_packets);
+        j1939_start_tp_rx(node, hdr, frame, pgn, total_bytes, total_packets, now);
     }
     return SYN_BUSY;
 }
@@ -459,14 +483,21 @@ static SYN_Status j1939_handle_tp_dt(SYN_J1939_Node *node, const SYN_J1939_Heade
     if (frame->dlc != 8U) {
         return SYN_INVALID_PARAM;
     }
+    uint32_t now = syn_port_get_tick_ms();
+    j1939_expire_stale_tp_rx(node, now);
     if (!node->tp_rx.active || hdr->sa != node->tp_rx.sa || hdr->da != node->tp_rx.da) {
         return SYN_BUSY;
     }
 
     uint8_t seq = frame->data[0];
     if (seq != node->tp_rx.next_seq) {
+        if (node->tp_rx.is_bam) {
+            node->tp_rx.active = false;
+        }
         return SYN_BUSY;
     }
+
+    node->tp_rx.last_rx_ms = now;
 
     size_t offset = (size_t)(seq - 1U) * 7U;
     size_t rem = (size_t)node->tp_rx.total_bytes - offset;

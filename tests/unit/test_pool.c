@@ -267,6 +267,42 @@ static void test_r5_pool_alignment_and_double_free(void)
     TEST_ASSERT_EQUAL(64U, syn_pool_used(&big_pool));
 }
 
+/** D-CORE-02: Defensive runtime bounds checks prevent size_t underflow and OOB freelist writes. */
+static void test_pool_init_defensive_underflow_and_overflow_guards(void)
+{
+    uintptr_t raw[4];
+    uint8_t *unaligned = ((uint8_t *)raw) + 1U;
+    size_t adjust = sizeof(void *) - 1U;
+    SYN_Pool pool;
+
+    /* 1. NULL pool is a safe no-op */
+    syn_pool_init(NULL, raw, sizeof(raw), 8U);
+
+    /* 2. NULL backing buffer zeroes pool cleanly */
+    memset(&pool, 0xA5, sizeof(pool));
+    syn_pool_init(&pool, NULL, sizeof(raw), 8U);
+    TEST_ASSERT_EQUAL(0U, syn_pool_block_count(&pool));
+    TEST_ASSERT_NULL(syn_pool_alloc(&pool));
+
+    /* 3. Oversized block_size near SIZE_MAX cannot wrap alignment rounding */
+    memset(&pool, 0xA5, sizeof(pool));
+    syn_pool_init(&pool, raw, sizeof(raw), SIZE_MAX);
+    TEST_ASSERT_EQUAL(0U, syn_pool_block_count(&pool));
+    TEST_ASSERT_NULL(syn_pool_alloc(&pool));
+
+    /* 4. Unaligned buffer with buf_size <= adjust does NOT underflow size_t */
+    memset(&pool, 0xA5, sizeof(pool));
+    syn_pool_init(&pool, unaligned, adjust, 8U);
+    TEST_ASSERT_EQUAL(0U, syn_pool_block_count(&pool));
+    TEST_ASSERT_NULL(syn_pool_alloc(&pool));
+
+    /* 5. Remaining size smaller than one aligned block yields empty pool (count == 0) */
+    memset(&pool, 0xA5, sizeof(pool));
+    syn_pool_init(&pool, unaligned, adjust + 4U, 16U);
+    TEST_ASSERT_EQUAL(0U, syn_pool_block_count(&pool));
+    TEST_ASSERT_NULL(syn_pool_alloc(&pool));
+}
+
 /* ── Runner ─────────────────────────────────────────────────────────────── */
 
 void run_pool_tests(void)
@@ -282,4 +318,5 @@ void run_pool_tests(void)
     RUN_TEST(test_pool_no_overlap);
     RUN_TEST(test_pool_buf_size_macro);
     RUN_TEST(test_r5_pool_alignment_and_double_free);
+    RUN_TEST(test_pool_init_defensive_underflow_and_overflow_guards);
 }

@@ -126,6 +126,41 @@ SYN_WEAK SYN_Status syn_port_uart_receive_byte(SYN_UARTInstance instance, uint8_
     return SYN_NOT_IMPLEMENTED;
 }
 
+SYN_WEAK void syn_port_uart_enable_txe_irq(SYN_UARTInstance instance)
+{
+    (void)instance;
+    syn_assert_failed(__FILE__, __LINE__);
+}
+
+SYN_WEAK void syn_port_uart_disable_txe_irq(SYN_UARTInstance instance)
+{
+    (void)instance;
+    syn_assert_failed(__FILE__, __LINE__);
+}
+
+SYN_WEAK void syn_port_uart_write_dr(SYN_UARTInstance instance, uint8_t byte)
+{
+    (void)instance;
+    (void)byte;
+    syn_assert_failed(__FILE__, __LINE__);
+}
+
+SYN_WEAK bool syn_port_uart_is_tc_set(SYN_UARTInstance instance)
+{
+    (void)instance;
+    syn_assert_failed(__FILE__, __LINE__);
+    return false;
+}
+
+SYN_WEAK void syn_port_uart_set_tc_callback(SYN_UARTInstance instance, void (*callback)(void *ctx),
+                                            void *ctx)
+{
+    (void)instance;
+    (void)callback;
+    (void)ctx;
+    syn_assert_failed(__FILE__, __LINE__);
+}
+
 /* ── System stubs ───────────────────────────────────────────────────────── */
 
 SYN_WEAK void syn_port_enter_critical(void)

@@ -9,6 +9,7 @@
  * @brief NMEA 2000 Marine CAN Protocol Stack implementation.
  */
 
+#include "../port/syn_port_system.h"
 #include "../util/syn_pack.h"
 #include "syn_n2k.h"
 
@@ -288,24 +289,37 @@ SYN_Status syn_n2k_decode_environment(const SYN_CAN_Frame *frame, SYN_N2K_EnvPar
     return SYN_OK;
 }
 
+void syn_n2k_fastpacket_reset(SYN_N2K_FastPacketRx *rx)
+{
+    if (rx != NULL) {
+        memset(rx, 0, sizeof(*rx));
+    }
+}
+
 /**
- * @brief Process the initial frame (frame_idx == 0) of an NMEA 2000 Fast-Packet sequence.
- * @param rx Fast-Packet RX context.
+ * @brief Handle Fast-Packet Frame 0 (start of sequence) and guard active sessions from other SAs.
+ * @param rx Fast-Packet RX session state.
  * @param frame Incoming 8-byte CAN frame.
- * @param sa Unpacked J1939 source address.
- * @param target_pgn Target PGN matched by caller.
- * @param seq_id 3-bit Fast-Packet sequence identifier.
- * @param out_payload Output pointer to reassembled payload when complete.
- * @param out_len Output payload length when complete.
- * @return SYN_OK if single-frame Fast-Packet completed, SYN_BUSY if multi-frame started, or
- *         SYN_INVALID_PARAM if total_bytes exceeds buffer capacity.
+ * @param sa Source address unpacked from CAN ID.
+ * @param target_pgn Expected 24-bit PGN.
+ * @param seq_id 3-bit sequence counter extracted from byte 0.
+ * @param now Current millisecond tick.
+ * @param out_payload Receives reassembled payload pointer if completed in Frame 0.
+ * @param out_len Receives reassembled payload length if completed in Frame 0.
+ * @return SYN_OK if complete, SYN_BUSY if in progress or busy with another SA, SYN_INVALID_PARAM on
+ * error.
  */
 static SYN_Status n2k_fp_first_frame(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Frame *frame,
-                                     uint8_t sa, uint32_t target_pgn, uint8_t seq_id,
+                                     uint8_t sa, uint32_t target_pgn, uint8_t seq_id, uint32_t now,
                                      const uint8_t **out_payload, size_t *out_len)
 {
+    if (rx->active && (sa != rx->sa)) {
+        return SYN_BUSY;
+    }
+
     uint8_t total_bytes = frame->data[1];
     if (total_bytes > sizeof(rx->data)) {
+        rx->active = false;
         return SYN_INVALID_PARAM;
     }
 
@@ -314,6 +328,7 @@ static SYN_Status n2k_fp_first_frame(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Fra
     rx->expected_frame = 1U;
     rx->sa = sa;
     rx->pgn = target_pgn;
+    rx->last_rx_ms = now;
     rx->total_bytes = total_bytes;
     rx->received_bytes = 0U;
 
@@ -331,26 +346,33 @@ static SYN_Status n2k_fp_first_frame(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Fra
 }
 
 /**
- * @brief Process a continuation frame (frame_idx > 0) of an NMEA 2000 Fast-Packet sequence.
- * @param rx Fast-Packet RX context.
+ * @brief Handle Fast-Packet continuation frame (frame index >= 1) and abort session on sequence
+ * gap.
+ * @param rx Fast-Packet RX session state.
  * @param frame Incoming 8-byte CAN frame.
- * @param sa Unpacked J1939 source address.
- * @param pgn Unpacked 24-bit PGN of the continuation frame.
- * @param seq_id 3-bit Fast-Packet sequence identifier.
- * @param frame_idx 5-bit Fast-Packet frame counter (> 0).
- * @param out_payload Output pointer to reassembled payload when complete.
- * @param out_len Output payload length when complete.
- * @return SYN_OK on completion, SYN_BUSY while reassembling, or SYN_INVALID_PARAM on mismatch.
+ * @param sa Source address unpacked from CAN ID.
+ * @param pgn Unpacked 24-bit PGN.
+ * @param seq_id 3-bit sequence counter extracted from byte 0.
+ * @param frame_idx 5-bit continuation frame index (>= 1).
+ * @param now Current millisecond tick.
+ * @param out_payload Receives reassembled payload pointer on final frame.
+ * @param out_len Receives reassembled payload length on final frame.
+ * @return SYN_OK when reassembly finishes, SYN_BUSY while accumulating, SYN_INVALID_PARAM on
+ * mismatch.
  */
 static SYN_Status n2k_fp_cont_frame(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Frame *frame,
                                     uint8_t sa, uint32_t pgn, uint8_t seq_id, uint8_t frame_idx,
-                                    const uint8_t **out_payload, size_t *out_len)
+                                    uint32_t now, const uint8_t **out_payload, size_t *out_len)
 {
-    if (!rx->active || (rx->pgn != pgn) || (rx->seq_id != seq_id) ||
-        (frame_idx != rx->expected_frame) || (sa != rx->sa)) {
+    if (!rx->active || (rx->pgn != pgn) || (sa != rx->sa)) {
+        return SYN_INVALID_PARAM;
+    }
+    if ((rx->seq_id != seq_id) || (frame_idx != rx->expected_frame)) {
+        rx->active = false;
         return SYN_INVALID_PARAM;
     }
 
+    rx->last_rx_ms = now;
     size_t offset = 6U + ((size_t)(frame_idx - 1U) * 7U);
     if (offset < rx->total_bytes) {
         size_t remaining = rx->total_bytes - offset;
@@ -377,6 +399,11 @@ SYN_Status syn_n2k_fastpacket_process(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Fr
         return SYN_INVALID_PARAM;
     }
 
+    uint32_t now = syn_port_get_tick_ms();
+    if (rx->active && ((now - rx->last_rx_ms) >= SYN_N2K_FASTPACKET_TIMEOUT_MS)) {
+        rx->active = false;
+    }
+
     SYN_J1939_Header hdr;
     (void)syn_j1939_id_unpack(frame->id, &hdr);
     if (hdr.pgn != target_pgn) {
@@ -388,9 +415,10 @@ SYN_Status syn_n2k_fastpacket_process(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Fr
     uint8_t frame_idx = seq_frame & 0x1FU;
 
     if (frame_idx == 0U) {
-        return n2k_fp_first_frame(rx, frame, hdr.sa, target_pgn, seq_id, out_payload, out_len);
+        return n2k_fp_first_frame(rx, frame, hdr.sa, target_pgn, seq_id, now, out_payload, out_len);
     }
-    return n2k_fp_cont_frame(rx, frame, hdr.sa, hdr.pgn, seq_id, frame_idx, out_payload, out_len);
+    return n2k_fp_cont_frame(rx, frame, hdr.sa, hdr.pgn, seq_id, frame_idx, now, out_payload,
+                             out_len);
 }
 
 #endif /* SYN_USE_N2K */

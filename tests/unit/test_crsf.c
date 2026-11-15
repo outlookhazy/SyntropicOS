@@ -6,6 +6,8 @@
 #include "syntropic/proto/syn_crsf.h"
 #include "unity/unity.h"
 
+#include <string.h>
+
 void test_crsf_init(void)
 {
     SYN_CRSF_Parser parser;
@@ -170,5 +172,39 @@ void test_tier_a_crsf_short_payload_guards(void)
     }
     TEST_ASSERT_EQUAL_INT(SYN_OK, syn_crsf_parse_byte(&parser, batt_pkt[5], &type));
     TEST_ASSERT_EQUAL_INT(SYN_CRSF_TYPE_BATTERY, type);
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.packets_received);
+
+    /* D-PROTO-02: Sliding resync after false start byte + CRC error recovers embedded frame
+     * Case A: partial valid frame straddling end of false 10-byte frame
+     * Case B: complete shorter valid frame wholly inside false 14-byte frame */
+    syn_crsf_init(&parser);
+    const uint8_t false_hdr_a[6] = {SYN_CRSF_ADDR_FC, 8U, 0x01U, 0x02U, 0x03U, 0x04U};
+    for (size_t i = 0U; i < sizeof(false_hdr_a); i++) {
+        (void)syn_crsf_parse_byte(&parser, false_hdr_a[i], &type);
+    }
+    SYN_Status st_a = SYN_BUSY;
+    for (size_t i = 0U; i < sizeof(batt_pkt); i++) {
+        st_a = syn_crsf_parse_byte(&parser, batt_pkt[i], &type);
+    }
+    TEST_ASSERT_EQUAL_INT(SYN_OK, st_a);
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.crc_errors);
+    TEST_ASSERT_EQUAL_UINT32(1U, parser.packets_received);
+
+    syn_crsf_init(&parser);
+    uint8_t stream_b[16];
+    memset(stream_b, 0x11U, sizeof(stream_b));
+    stream_b[0] = SYN_CRSF_ADDR_FC;
+    stream_b[1] = 14U;
+    /* Nested false candidate [0xC8, 2, 0x99, 0x99] + duplicate 0xC8 + valid 6-byte batt_pkt */
+    stream_b[2] = SYN_CRSF_ADDR_FC;
+    stream_b[3] = 2U;
+    stream_b[4] = 0x99U;
+    stream_b[5] = 0x99U;
+    stream_b[6] = SYN_CRSF_ADDR_FC;
+    memcpy(&stream_b[7], batt_pkt, sizeof(batt_pkt));
+    for (size_t i = 0U; i < sizeof(stream_b); i++) {
+        (void)syn_crsf_parse_byte(&parser, stream_b[i], &type);
+    }
+    TEST_ASSERT_EQUAL_UINT32(2U, parser.crc_errors);
     TEST_ASSERT_EQUAL_UINT32(1U, parser.packets_received);
 }

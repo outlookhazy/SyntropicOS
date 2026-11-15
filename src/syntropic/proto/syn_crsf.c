@@ -137,20 +137,30 @@ static SYN_Status crsf_dispatch_frame(SYN_CRSF_Parser *parser, SYN_CRSF_FrameTyp
     return SYN_OK;
 }
 
-SYN_Status syn_crsf_parse_byte(SYN_CRSF_Parser *parser, uint8_t byte, SYN_CRSF_FrameType *type_out)
+/**
+ * @brief Advance raw CRSF frame state machine by one byte without resynchronization replay.
+ * @param parser CRSF parser instance.
+ * @param byte Incoming byte.
+ * @param type_out Optional output for decoded frame type.
+ * @param failed_len Receives buffered byte count when a full candidate frame fails validation.
+ * @return SYN_OK on valid frame, SYN_BUSY while accumulating, SYN_ERROR on sync/CRC rejection.
+ */
+static SYN_Status crsf_step_raw(SYN_CRSF_Parser *parser, uint8_t byte, SYN_CRSF_FrameType *type_out,
+                                size_t *failed_len)
 {
-    if (!parser) {
-        return SYN_INVALID_PARAM;
-    }
-
-    if (parser->idx == 0) {
+    *failed_len = 0U;
+    if (parser->idx == 0U) {
         if (byte != SYN_CRSF_ADDR_FC) {
             return SYN_ERROR;
         }
-    } else if (parser->idx == 1) {
+    } else if (parser->idx == 1U) {
+        if (byte == SYN_CRSF_ADDR_FC) {
+            parser->buf[0] = SYN_CRSF_ADDR_FC;
+            return SYN_BUSY;
+        }
         parser->payload_len = byte;
         if (byte < 2U || byte > (SYN_CRSF_MAX_PACKET_LEN - 2U)) {
-            parser->idx = 0;
+            parser->idx = 0U;
             return SYN_ERROR;
         }
     }
@@ -158,11 +168,47 @@ SYN_Status syn_crsf_parse_byte(SYN_CRSF_Parser *parser, uint8_t byte, SYN_CRSF_F
     parser->buf[parser->idx++] = byte;
 
     if (parser->idx >= 2U && parser->idx == (size_t)(2U + parser->payload_len)) {
-        parser->idx = 0;
-        return crsf_dispatch_frame(parser, type_out);
+        size_t full_len = parser->idx;
+        parser->idx = 0U;
+        SYN_Status st = crsf_dispatch_frame(parser, type_out);
+        if (st != SYN_OK) {
+            *failed_len = full_len;
+        }
+        return st;
     }
 
     return SYN_BUSY;
+}
+
+SYN_Status syn_crsf_parse_byte(SYN_CRSF_Parser *parser, uint8_t byte, SYN_CRSF_FrameType *type_out)
+{
+    if (!parser) {
+        return SYN_INVALID_PARAM;
+    }
+
+    size_t failed_len = 0U;
+    SYN_Status st = crsf_step_raw(parser, byte, type_out, &failed_len);
+    if (failed_len == 0U) {
+        return st;
+    }
+
+    uint8_t pending[SYN_CRSF_MAX_PACKET_LEN];
+    size_t head = 0U;
+    size_t tail = failed_len - 1U;
+    memcpy(pending, &parser->buf[1], tail);
+    SYN_Status result = SYN_ERROR;
+    while (head < tail) {
+        size_t inner_failed = 0U;
+        SYN_Status inner_st = crsf_step_raw(parser, pending[head++], type_out, &inner_failed);
+        if (inner_st == SYN_OK) {
+            result = SYN_OK;
+        } else if (inner_failed > 0U) {
+            size_t rem_back = inner_failed - 1U;
+            head -= rem_back;
+            memcpy(&pending[head], &parser->buf[1], rem_back);
+        }
+    }
+    return result;
 }
 
 uint16_t syn_crsf_raw_to_us(uint16_t raw_val)

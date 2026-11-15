@@ -53,11 +53,12 @@ extern "C" {
 
 /** @defgroup j1939_tp_control J1939 TP.CM Control Bytes
  *  @{ */
-#define SYN_J1939_TP_CTRL_RTS 16U    /**< Request to Send (P2P) */
-#define SYN_J1939_TP_CTRL_CTS 17U    /**< Clear to Send (P2P) */
-#define SYN_J1939_TP_CTRL_ACK 19U    /**< End of Message Acknowledgment (P2P) */
-#define SYN_J1939_TP_CTRL_BAM 32U    /**< Broadcast Announce Message (BAM) */
-#define SYN_J1939_TP_CTRL_ABORT 255U /**< Connection Abort */
+#define SYN_J1939_TP_CTRL_RTS 16U       /**< Request to Send (P2P) */
+#define SYN_J1939_TP_CTRL_CTS 17U       /**< Clear to Send (P2P) */
+#define SYN_J1939_TP_CTRL_ACK 19U       /**< End of Message Acknowledgment (P2P) */
+#define SYN_J1939_TP_CTRL_BAM 32U       /**< Broadcast Announce Message (BAM) */
+#define SYN_J1939_TP_CTRL_ABORT 255U    /**< Connection Abort */
+#define SYN_J1939_TP_T1_TIMEOUT_MS 750U /**< J1939-21 T1 inter-packet RX timeout (ms) */
 /** @} */
 
 /**
@@ -123,6 +124,7 @@ typedef struct {
     uint8_t received_packets; /**< Currently received packet count */
     uint8_t cts_window;       /**< Max packets granted per CTS window */
     uint8_t cts_remaining;    /**< Remaining packets in active CTS window */
+    uint32_t last_rx_ms;      /**< Tick timestamp of last accepted TP frame */
     uint8_t data[1785];       /**< Maximum 1785-byte payload buffer */
 } SYN_J1939_TpRxSession;
 

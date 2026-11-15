@@ -713,7 +713,7 @@ void publish_telemetry(int16_t temperature_c) {
 | Header | Config Switch | Specification & Key API |
 |---|---|---|
 | `proto/syn_j1939.h` | `SYN_USE_J1939` | SAE J1939 29-bit CAN ID/PGN packing, 64-bit NAME address claiming, Transport Protocol (BAM / CMDT), and DM1 DTC encoding (`syn_j1939_id_pack`, `syn_j1939_name_encode`) |
-| `proto/syn_n2k.h` | `SYN_USE_N2K` | NMEA 2000 marine CAN PGN encoders/decoders for rapid position, COG/SOG, vessel heading, and battery status (`syn_n2k_encode_position_rapid`, `syn_n2k_decode_position_rapid`) |
+| `proto/syn_n2k.h` | `SYN_USE_N2K` | NMEA 2000 marine CAN PGN encoders/decoders and Fast-Packet multi-frame reassembly (`syn_n2k_encode_position_rapid`, `syn_n2k_decode_position_rapid`, `syn_n2k_fastpacket_process`, `syn_n2k_fastpacket_reset`) |
 | `proto/syn_cannm.h` | `SYN_USE_CANNM` | AUTOSAR CAN Network Management state machine (`Bus-Sleep`, `Prepare Bus-Sleep`, `Repeat Message`, `Normal Operation`, `Ready Sleep`) (`SYN_CanNM_Session`, `syn_cannm_init`) |
 | `proto/syn_ccp.h` | `SYN_USE_CCP` | ASAM CAN Calibration Protocol v2.1 Slave supporting CRO/DTO commands, MTA memory access, and synchronous DAQ lists (`syn_ccp_init`, `syn_ccp_process_cro`, `syn_ccp_daq_event`) |
 | `proto/syn_xcp.h` | `SYN_USE_XCP` | Transport-agnostic ASAM XCP v1.x Slave (XCP-on-CAN / XCP-on-Ethernet / XCP-on-UART) with CTO command processor and ODT DAQ engine (`syn_xcp_init`, `syn_xcp_process_cto`) |

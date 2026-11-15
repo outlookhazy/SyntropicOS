@@ -293,6 +293,74 @@ SYN_WEAK SYN_Status syn_port_uart_receive_byte(SYN_UARTInstance instance, uint8_
     return syn_port_uart_receive(instance, byte, 1, &rec, timeout_ms);
 }
 
+static void (*s_esp32_tc_cb[3])(void *ctx) = {NULL, NULL, NULL};
+static void *s_esp32_tc_ctx[3] = {NULL, NULL, NULL};
+static volatile bool s_esp32_tc_armed[3] = {false, false, false};
+
+SYN_WEAK void syn_port_uart_enable_txe_irq(SYN_UARTInstance instance)
+{
+    uart_port_t port = get_uart_port(instance);
+    if (port == UART_NUM_MAX) {
+        return;
+    }
+    if (instance < 3U) {
+        s_esp32_tc_armed[instance] = false;
+    }
+    (void)uart_enable_tx_intr(port, 1, 1);
+}
+
+SYN_WEAK void syn_port_uart_disable_txe_irq(SYN_UARTInstance instance)
+{
+    uart_port_t port = get_uart_port(instance);
+    if (port == UART_NUM_MAX) {
+        return;
+    }
+    (void)uart_disable_tx_intr(port);
+    if (instance < 3U && s_esp32_tc_cb[instance] != NULL) {
+        s_esp32_tc_armed[instance] = true;
+    }
+}
+
+SYN_WEAK void syn_port_uart_write_dr(SYN_UARTInstance instance, uint8_t byte)
+{
+    uart_port_t port = get_uart_port(instance);
+    if (port == UART_NUM_MAX) {
+        return;
+    }
+    (void)uart_tx_chars(port, (const char *)&byte, 1U);
+}
+
+SYN_WEAK bool syn_port_uart_is_tc_set(SYN_UARTInstance instance)
+{
+    uart_port_t port = get_uart_port(instance);
+    if (port == UART_NUM_MAX) {
+        return false;
+    }
+    bool tc = (uart_wait_tx_done(port, 0U) == ESP_OK);
+    if (tc && instance < 3U && s_esp32_tc_armed[instance]) {
+        s_esp32_tc_armed[instance] = false;
+        if (s_esp32_tc_cb[instance] != NULL) {
+            s_esp32_tc_cb[instance](s_esp32_tc_ctx[instance]);
+        }
+    }
+    return tc;
+}
+
+SYN_WEAK void syn_port_uart_set_tc_callback(SYN_UARTInstance instance, void (*callback)(void *ctx),
+                                            void *ctx)
+{
+    if (instance >= 3U || get_uart_port(instance) == UART_NUM_MAX) {
+        return;
+    }
+    syn_port_enter_critical();
+    s_esp32_tc_cb[instance] = callback;
+    s_esp32_tc_ctx[instance] = ctx;
+    if (callback == NULL) {
+        s_esp32_tc_armed[instance] = false;
+    }
+    syn_port_exit_critical();
+}
+
 /* ── Console serial port (weak — override for USB CDC chips) ──────────── */
 
 #include "syntropic/port/syn_port_serial.h"

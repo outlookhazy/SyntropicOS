@@ -343,8 +343,15 @@ static void test_fat16_read_write_seek_trunc_append_unlink(void)
     TEST_ASSERT_EQUAL_INT(1200, syn_vfs_write(fd, tx, sizeof(tx)));
     TEST_ASSERT_EQUAL_INT32(1200, syn_vfs_tell(fd));
 
-    /* Seek to beginning (including negative clamp), overwrite 16 bytes in-place, follow chain */
-    TEST_ASSERT_EQUAL_INT32(0, syn_vfs_seek(fd, -50, SYN_SEEK_SET));
+    /* Negative seek offsets must fail (< 0) without moving cursor; seek to 0 succeeds */
+    TEST_ASSERT_LESS_THAN_INT32(0, syn_vfs_seek(fd, -50, SYN_SEEK_SET));
+    TEST_ASSERT_EQUAL_INT32(1200, syn_vfs_tell(fd));
+    TEST_ASSERT_EQUAL_INT32(10, syn_vfs_seek(fd, 10, SYN_SEEK_SET));
+    TEST_ASSERT_LESS_THAN_INT32(0, syn_vfs_seek(fd, -20, SYN_SEEK_CUR));
+    TEST_ASSERT_EQUAL_INT32(10, syn_vfs_tell(fd));
+    TEST_ASSERT_LESS_THAN_INT32(0, syn_vfs_seek(fd, -1300, SYN_SEEK_END));
+    TEST_ASSERT_EQUAL_INT32(10, syn_vfs_tell(fd));
+    TEST_ASSERT_EQUAL_INT32(0, syn_vfs_seek(fd, 0, SYN_SEEK_SET));
     uint8_t patch[600];
     memset(patch, 0xA5, sizeof(patch));
     TEST_ASSERT_EQUAL_INT(600, syn_vfs_write(fd, patch, sizeof(patch)));

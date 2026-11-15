@@ -1111,6 +1111,48 @@ void syn_task_restart(SYN_Task *task)
     syn_port_exit_critical();
 }
 
+SYN_Status syn_sched_respawn_task(SYN_Sched *sched, size_t idx, const char *name, SYN_TaskFunc func,
+                                  SYN_Prio priority, void *user_data)
+{
+    if (sched == NULL || idx >= sched->task_count || func == NULL ||
+        (uint32_t)priority >= (uint32_t)SYN_SCHED_PRIO_LEVELS) {
+        return SYN_INVALID_PARAM;
+    }
+
+    SYN_Task *task = &sched->tasks[idx];
+#if !defined(SYN_USE_MUTEX) || SYN_USE_MUTEX
+    sched_release_held_mutexes(task);
+#endif
+    syn_port_enter_critical();
+    bool had_mutex_wait = (task->sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U;
+    uint8_t flags = (uint8_t)(SYN_SCHED_FLAG_MORE | SYN_SCHED_FLAG_DUE_VALID);
+    if (sched->running == task) {
+        flags |= SYN_SCHED_FLAG_RESTARTED;
+    }
+    PT_INIT(&task->pt);
+    task->manual_priority = SYN_TASK_NO_MANUAL_PRIO;
+    task->func = func;
+    task->name = name;
+    task->priority = (uint8_t)priority;
+    task->base_priority = (uint8_t)priority;
+    task->delay_until = 0U;
+    task->due_ms = syn_port_get_tick_ms() + (uint32_t)sched->max_wait_ms[(uint32_t)priority];
+    task->sched = sched;
+    task->user_data = user_data;
+    task->wait_event = NULL;
+    task->wait_mask = 0U;
+    task->sched_flags = flags;
+    task->state = (uint8_t)SYN_TASK_READY;
+    SYN_PT_STATE_BARRIER();
+    if (had_mutex_wait) {
+        sched_recompute_mutex_owners_locked(sched);
+    } else {
+        sched_refresh_share_locked(sched);
+    }
+    syn_port_exit_critical();
+    return SYN_OK;
+}
+
 size_t syn_sched_alive_count(const SYN_Sched *sched)
 {
     SYN_ASSERT(sched != NULL);

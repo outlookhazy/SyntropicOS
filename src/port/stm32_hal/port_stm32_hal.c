@@ -390,6 +390,12 @@ SYN_Status syn_port_uart_receive(SYN_UARTInstance instance, uint8_t *data, size_
     UART_HandleTypeDef *huart = get_uart_handle(instance);
     if (!huart || (len > 0U && !data))
         return SYN_INVALID_PARAM;
+    if (len == 0U) {
+        if (received) {
+            *received = 0U;
+        }
+        return SYN_OK;
+    }
 
     size_t count = 0;
     uint32_t start_ms = syn_port_get_tick_ms();
@@ -424,6 +430,96 @@ SYN_Status syn_port_uart_receive_byte(SYN_UARTInstance instance, uint8_t *byte, 
 {
     size_t rec = 0;
     return syn_port_uart_receive(instance, byte, 1, &rec, timeout_ms);
+}
+
+static void (*s_hal_uart_tc_cb[6])(void *ctx) = {NULL};
+static void *s_hal_uart_tc_ctx[6] = {NULL};
+
+void syn_port_uart_enable_txe_irq(SYN_UARTInstance instance)
+{
+    UART_HandleTypeDef *huart = get_uart_handle(instance);
+    if (huart == NULL) {
+        return;
+    }
+#if defined(UART_IT_TXE)
+    __HAL_UART_ENABLE_IT(huart, UART_IT_TXE);
+#elif defined(UART_IT_TXFNF)
+    __HAL_UART_ENABLE_IT(huart, UART_IT_TXFNF);
+#endif
+}
+
+void syn_port_uart_disable_txe_irq(SYN_UARTInstance instance)
+{
+    UART_HandleTypeDef *huart = get_uart_handle(instance);
+    if (huart == NULL) {
+        return;
+    }
+#if defined(UART_IT_TXE)
+    __HAL_UART_DISABLE_IT(huart, UART_IT_TXE);
+#elif defined(UART_IT_TXFNF)
+    __HAL_UART_DISABLE_IT(huart, UART_IT_TXFNF);
+#endif
+#if defined(UART_IT_TC)
+    if (s_hal_uart_tc_cb[instance] != NULL) {
+        __HAL_UART_ENABLE_IT(huart, UART_IT_TC);
+    }
+#endif
+}
+
+void syn_port_uart_write_dr(SYN_UARTInstance instance, uint8_t byte)
+{
+    UART_HandleTypeDef *huart = get_uart_handle(instance);
+    if (huart == NULL || huart->Instance == NULL) {
+        return;
+    }
+#if defined(USART_ISR_TC)
+    huart->Instance->TDR = byte;
+#elif defined(USART_SR_TC)
+    huart->Instance->DR = byte;
+#else
+    (void)HAL_UART_Transmit(huart, &byte, 1U, 0U);
+#endif
+}
+
+bool syn_port_uart_is_tc_set(SYN_UARTInstance instance)
+{
+    UART_HandleTypeDef *huart = get_uart_handle(instance);
+    if (huart == NULL) {
+        return false;
+    }
+#if defined(UART_FLAG_TC)
+    return (__HAL_UART_GET_FLAG(huart, UART_FLAG_TC) != RESET);
+#else
+    return true;
+#endif
+}
+
+void syn_port_uart_set_tc_callback(SYN_UARTInstance instance, void (*callback)(void *ctx),
+                                   void *ctx)
+{
+    UART_HandleTypeDef *huart = get_uart_handle(instance);
+    if (huart == NULL) {
+        return;
+    }
+    syn_port_enter_critical();
+    s_hal_uart_tc_cb[instance] = callback;
+    s_hal_uart_tc_ctx[instance] = ctx;
+#if defined(UART_IT_TC)
+    if (callback == NULL) {
+        __HAL_UART_DISABLE_IT(huart, UART_IT_TC);
+    }
+#endif
+    syn_port_exit_critical();
+}
+
+SYN_WEAK void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+    for (uint8_t i = 0U; i < 6U; i++) {
+        if (syn_port_uart_handles[i] == huart && s_hal_uart_tc_cb[i] != NULL) {
+            s_hal_uart_tc_cb[i](s_hal_uart_tc_ctx[i]);
+            break;
+        }
+    }
 }
 
 /* ── Console serial port ────────────────────────────────────────────────── */
