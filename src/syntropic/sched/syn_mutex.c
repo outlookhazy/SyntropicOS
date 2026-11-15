@@ -331,6 +331,25 @@ static void mutex_finish_unlock(SYN_Mutex *mutex)
     }
 #endif
 }
+
+static bool mutex_prune_task_waiter(SYN_Mutex *mutex, const SYN_Task *task, bool *out_any_active)
+{
+    bool removed = false;
+    bool any_active = false;
+
+    for (size_t i = 0U; i < SYN_MUTEX_MAX_WAITERS; i++) {
+        if (mutex->waiters[i] == task) {
+            mutex->waiters[i] = NULL;
+            removed = true;
+        } else if (mutex_waiter_is_active(mutex->waiters[i])) {
+            any_active = true;
+        } else {
+            mutex->waiters[i] = NULL;
+        }
+    }
+    *out_any_active = any_active;
+    return removed;
+}
 /** @endcond */
 
 SYN_Status syn_mutex_init(SYN_Mutex *mutex)
@@ -380,6 +399,38 @@ SYN_Status syn_mutex_unlock(SYN_Mutex *mutex, SYN_Task *task)
         mutex_finish_unlock(mutex);
     }
 
+    syn_port_exit_critical();
+    return SYN_OK;
+}
+
+SYN_Status syn_mutex_cancel_wait(SYN_Mutex *mutex, SYN_Task *task)
+{
+    if ((mutex == NULL) || (task == NULL)) {
+        return SYN_INVALID_PARAM;
+    }
+
+    syn_port_enter_critical();
+    bool any_active = false;
+    bool removed = mutex_prune_task_waiter(mutex, task, &any_active);
+
+#if !defined(SYN_USE_SCHED) || SYN_USE_SCHED
+    if ((removed || mutex->has_evicted) && !mutex_is_tracked_in_sched(task->sched, task)) {
+        mutex_clear_task_wait(task);
+    }
+    if (!any_active && !mutex->has_evicted && (mutex->wait_sched != NULL)) {
+        mutex_unlink_contended(&mutex->wait_sched->standalone_mutexes, mutex);
+        mutex->wait_sched = NULL;
+        mutex->next_contended = NULL;
+    }
+#else
+    if (removed || mutex->has_evicted) {
+        mutex_clear_task_wait(task);
+    }
+#endif
+
+    if (removed && (mutex->owner != NULL)) {
+        mutex_recompute_owner_prio(mutex->owner);
+    }
     syn_port_exit_critical();
     return SYN_OK;
 }

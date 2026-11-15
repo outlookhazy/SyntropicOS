@@ -1334,7 +1334,7 @@ static void test_sched_mutex_state_machine_invariants(void)
         uint32_t r = sm_rand();
         size_t ti = (size_t)(r % SM_TASK_COUNT);
         size_t mi = (size_t)((r >> 3) % SM_MTX_COUNT);
-        uint32_t act = (r >> 8) % 12U;
+        uint32_t act = (r >> 8) % 13U;
 
         if (act < 5U) {
             (void)syn_sched_run(&sm_sched);
@@ -1351,6 +1351,8 @@ static void test_sched_mutex_state_machine_invariants(void)
         } else if (act == 10U) {
             syn_task_set_base_priority(&sm_tasks[ti],
                                        (SYN_Prio)((r >> 14) % SYN_SCHED_PRIO_LEVELS));
+        } else if (act == 11U) {
+            (void)syn_mutex_cancel_wait(&sm_mtx[mi], &sm_tasks[ti]);
         } else {
             if (((r >> 16) & 1U) != 0U) {
                 (void)syn_mutex_try_lock(&sm_mtx[mi], &sm_tasks[ti]);
@@ -1363,6 +1365,113 @@ static void test_sched_mutex_state_machine_invariants(void)
 
         sm_assert_invariants();
     }
+}
+
+static SYN_PT_Status cancel_wait_dummy_fn(SYN_PT *pt, SYN_Task *task)
+{
+    (void)task;
+    PT_BEGIN(pt);
+    PT_PASS(pt);
+    PT_END(pt);
+}
+
+static void test_mutex_cancel_wait(void)
+{
+    SYN_Mutex m1;
+    SYN_Mutex m2;
+    SYN_Task tasks[4];
+    SYN_Sched sched;
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_init(&m1));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_init(&m2));
+
+    syn_task_create(&tasks[0], "rt", cancel_wait_dummy_fn, SYN_PRIO_CRITICAL, NULL);
+    syn_task_create(&tasks[1], "hi", cancel_wait_dummy_fn, SYN_PRIO_HIGH, NULL);
+    syn_task_create(&tasks[2], "nrm", cancel_wait_dummy_fn, SYN_PRIO_NORMAL, NULL);
+    syn_task_create(&tasks[3], "low", cancel_wait_dummy_fn, SYN_PRIO_LOW, NULL);
+    syn_sched_init(&sched, tasks, 4U);
+
+    /* 1. NULL parameter guards & safe no-op when not waiting */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mutex_cancel_wait(NULL, &tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_mutex_cancel_wait(&m1, NULL));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_cancel_wait(&m1, &tasks[0]));
+
+    /* 2. Multi-waiter progressive demotion (REALTIME + HIGH + stale suspended NORMAL -> LOW) */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m1, &tasks[3]));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m1, &tasks[2]));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m1, &tasks[1]));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m1, &tasks[0]));
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_CRITICAL, tasks[3].priority);
+
+    /* Make tasks[2] slot stale without pruning yet by marking delay_until != 0 */
+    tasks[2].delay_until = 100U;
+
+    /* Withdraw REALTIME waiter -> owner demotes to HIGH (active tasks[1]) & prunes stale slot */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_cancel_wait(&m1, &tasks[0]));
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_HIGH, tasks[3].priority);
+
+    /* Withdraw HIGH waiter -> owner demotes back to LOW */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_cancel_wait(&m1, &tasks[1]));
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[1].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_LOW, tasks[3].priority);
+    tasks[2].delay_until = 0U;
+    (void)syn_mutex_cancel_wait(&m1, &tasks[2]);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m1, &tasks[3]));
+
+    /* 3. Dual-mutex wait: cancelling m1 preserves SYN_SCHED_FLAG_MUTEX_WAIT for m2 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m1, &tasks[3]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m2, &tasks[2]));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m1, &tasks[0]));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m2, &tasks[0]));
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_CRITICAL, tasks[3].priority);
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_CRITICAL, tasks[2].priority);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_cancel_wait(&m1, &tasks[0]));
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_LOW, tasks[3].priority);
+    TEST_ASSERT_TRUE((tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_CRITICAL, tasks[2].priority);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_cancel_wait(&m2, &tasks[0]));
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_NORMAL, tasks[2].priority);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m1, &tasks[3]));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m2, &tasks[2]));
+
+    /* 4. Standalone owner == NULL & unscheduled owner (wait_sched standalone_mutexes unlink) */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m1, NULL));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m1, &tasks[1]));
+    TEST_ASSERT_EQUAL_PTR(&sched, m1.wait_sched);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_cancel_wait(&m1, &tasks[1]));
+    TEST_ASSERT_NULL(m1.wait_sched);
+    TEST_ASSERT_NULL(sched.standalone_mutexes);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m1, NULL));
+
+    /* 5. Evicted waiter cancellation: unrelated mutex cancel preserves flag; target clears it */
+    SYN_Task extra_tasks[2];
+    SYN_Task all_tasks[6];
+    for (size_t i = 0U; i < 4U; i++) {
+        all_tasks[i] = tasks[i];
+    }
+    syn_task_create(&extra_tasks[0], "ex0", cancel_wait_dummy_fn, SYN_PRIO_LOW, NULL);
+    syn_task_create(&extra_tasks[1], "bg", cancel_wait_dummy_fn, SYN_PRIO_LOW, NULL);
+    all_tasks[4] = extra_tasks[0];
+    all_tasks[5] = extra_tasks[1];
+    syn_sched_init(&sched, all_tasks, 6U);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_try_lock(&m2, &all_tasks[0]));
+    for (size_t i = 1U; i < 6U; i++) {
+        TEST_ASSERT_EQUAL(SYN_BUSY, syn_mutex_try_lock(&m2, &all_tasks[i]));
+    }
+    TEST_ASSERT_TRUE(m2.has_evicted);
+    TEST_ASSERT_TRUE((all_tasks[5].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+    /* Cancelling unrelated m1 (has_evicted == false, not in waiters[]) preserves flag on m2 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_cancel_wait(&m1, &all_tasks[5]));
+    TEST_ASSERT_TRUE((all_tasks[5].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT) != 0U);
+    /* Cancelling target m2 (has_evicted == true) clears evicted waiter's flag */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_cancel_wait(&m2, &all_tasks[5]));
+    TEST_ASSERT_EQUAL_UINT8(0U, all_tasks[5].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_unlock(&m2, &all_tasks[0]));
 }
 
 void run_mutex_tests(void)
@@ -1387,4 +1496,5 @@ void run_mutex_tests(void)
     RUN_TEST(test_mutex_standalone_evicted_wake_and_unbound_owner_refresh);
     RUN_TEST(test_mutex_recursive_relock_wait_keep_and_single_sched_isolation);
     RUN_TEST(test_sched_mutex_state_machine_invariants);
+    RUN_TEST(test_mutex_cancel_wait);
 }

@@ -117,14 +117,14 @@ void *syn_wasm_host_user(const SYN_WASM_Context *ctx);
 ### Owning `SYN_Task *` Propagation (`ctx->active_task`)
 
 `syn_wasm_task()` and `syn_wasm_exec_pt(pt, task, ctx, quantum_instructions)` record the owning `SYN_Task *` in `ctx->active_task` (`NULL` when stepped standalone):
-- **True Tickless Sleep**: Use `PT_TASK_DELAY_MS(pt, ctx->active_task, ms)` when `ctx->active_task != NULL` (falling back to `PT_DELAY_MS(pt, &ctx->host_scratch.u32[0], ms)` when `NULL`) so `task->delay_until` is armed and the scheduler skips polling the task until wakeup.
-- **Priority-Inheriting Mutexes**: Use `PT_MUTEX_LOCK(pt, ctx->active_task, &mutex)` and `PT_MUTEX_UNLOCK(&mutex, ctx->active_task)` so contended locks boost lower-priority owners.
+- **True Tickless Sleep**: Use `PT_TASK_DELAY_MS(pt, ctx->active_task, ms)` when `ctx->active_task != NULL` (falling back to `PT_DELAY_MS(pt, &ctx->host_scratch.u32[0], ms)` when `NULL`) so `task->delay_until` is armed and the scheduler skips polling the task until wakeup. `syn_wasm_exec_pt()`, `syn_wasm_task()`, and `syn_wasm_abort()` clear `ctx->active_task` once execution finishes or parks idle so subsequent standalone `syn_wasm_step()` calls never touch a stale task.
+- **Priority-Inheriting Mutexes**: Use `PT_MUTEX_LOCK(pt, ctx->active_task, &mutex)` and `PT_MUTEX_UNLOCK(&mutex, ctx->active_task)` so contended locks boost lower-priority owners. Register a `SYN_WASM_HostCancelFunc` calling `syn_mutex_cancel_wait(&mutex, ctx->active_task)` so `syn_wasm_abort()` withdraws any pending contended wait and demotes the owner immediately.
 
 ### Bounds-Checked Guest Memory, Cancellation & Built-In Host Coroutines
 
 - **Linear Memory Accessors**: `syn_wasm_mem_ptr(ctx, offset, size)` and `syn_wasm_mem_cptr(ctx, offset, size)` perform `uint64_t` overflow-safe bounds checks against `ctx->linear_mem_size` and return `NULL` on invalid ranges. Because `ctx->linear_mem` is a fixed static arena (`memory.grow` expands `linear_mem_size` in place without reallocation), validated pointers remain stable across yields.
-- **Pending Call Cancellation**: `syn_wasm_call()` returns `false` while `ctx->host_pending` is `true`. Call `syn_wasm_abort(ctx)` to invoke any registered `SYN_WASM_HostCancelFunc`, clear pending host state and `active_task->delay_until`, unwind the VM stack, and set `ctx->status = SYN_WASM_HALTED`.
-- **Built-In Standard Host Coroutines**: `syn_wasm_host_millis`, `syn_wasm_host_micros`, `syn_wasm_host_sleep_ms`, and `syn_wasm_host_yield` are provided out of the box for direct registration via `syn_wasm_register_host()`.
+- **Pending Call Cancellation**: `syn_wasm_call()` returns `false` while `ctx->host_pending` is `true`. Call `syn_wasm_abort(ctx)` to unwind the VM stack, set `ctx->status = SYN_WASM_HALTED`, and — when `ctx->host_pending` was active — clear `active_task->delay_until` and invoke any registered `SYN_WASM_HostCancelFunc` while `ctx->active_task` is still accessible.
+- **Built-In Standard Host Coroutines**: `syn_wasm_host_millis`, `syn_wasm_host_micros`, `syn_wasm_host_sleep_ms` (treats signed 32-bit durations `<= 0` as immediate 0 ms completion), and `syn_wasm_host_yield` are provided out of the box for direct registration via `syn_wasm_register_host()`.
 
 ---
 

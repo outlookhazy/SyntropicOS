@@ -2965,6 +2965,14 @@ static void test_wasm_host_sleep_scheduler_and_builtins(void)
     PT_INIT(&bpt);
     barg = 0ULL;
     TEST_ASSERT_EQUAL(PT_ENDED, syn_wasm_host_sleep_ms(&bpt, &g_wasm_ctx, &barg, 1U, &bret));
+    /* Negative signed i32 values (-1 = 0xFFFFFFFFU, INT32_MIN = 0x80000000U) complete immediately
+     */
+    PT_INIT(&bpt);
+    barg = 0xFFFFFFFFULL;
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_wasm_host_sleep_ms(&bpt, &g_wasm_ctx, &barg, 1U, &bret));
+    PT_INIT(&bpt);
+    barg = 0x80000000ULL;
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_wasm_host_sleep_ms(&bpt, &g_wasm_ctx, &barg, 1U, &bret));
     PT_INIT(&bpt);
     barg = 20ULL;
     mock_tick_ms = 500U;
@@ -3286,6 +3294,14 @@ static SYN_PT_Status coro_mutex_inc_host(SYN_PT *pt, SYN_WASM_Context *ctx, cons
     PT_END(pt);
 }
 
+static void coro_mutex_cancel_cb(SYN_WASM_Context *ctx, void *user)
+{
+    SYN_Mutex *mtx = (SYN_Mutex *)user;
+    if ((ctx != NULL) && (ctx->active_task != NULL) && (mtx != NULL)) {
+        (void)syn_mutex_cancel_wait(mtx, ctx->active_task);
+    }
+}
+
 static SYN_PT_Status wasm_mtx_low_owner_task(SYN_PT *pt, SYN_Task *task)
 {
     PT_BEGIN(pt);
@@ -3369,6 +3385,31 @@ static void test_wasm_host_mutex_priority_inheritance(void)
     syn_sched_run(&sched);
     TEST_ASSERT_EQUAL_UINT32(2U, g_wasm_mtx_state.med_first_seq);
     TEST_ASSERT_TRUE(g_wasm_mtx_state.low_unlock_seq < g_wasm_mtx_state.med_first_seq);
+    /* Idle syn_wasm_task clears ctx->active_task when parked */
+    syn_sched_run(&sched);
+    TEST_ASSERT_NULL(g_wasm_ctx.active_task);
+
+    /* Aborting a host call blocked in PT_MUTEX_LOCK withdraws waiter & demotes boosted owner */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mutex_init(&g_wasm_mtx_state.mtx));
+    TEST_ASSERT_TRUE(syn_wasm_register_host_ex(&g_wasm_ctx, 0U, coro_mutex_inc_host,
+                                               coro_mutex_cancel_cb, &g_wasm_mtx_state.mtx));
+    syn_task_create(&tasks[0], "wasm_hi", syn_wasm_task, SYN_PRIO_HIGH, &g_wasm_ctx);
+    syn_task_create(&tasks[2], "low_own", wasm_mtx_low_owner_task, SYN_PRIO_LOW, NULL);
+    syn_task_suspend(&tasks[0]);
+    syn_task_suspend(&tasks[1]);
+    syn_sched_init(&sched, tasks, 3U);
+
+    syn_sched_run(&sched); /* low_own acquires mutex */
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 1U));
+    syn_task_resume(&tasks[0]);
+    syn_sched_run(&sched); /* wasm_hi contends -> boosts low_own to HIGH */
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_HIGH, tasks[2].priority);
+
+    syn_wasm_abort(&g_wasm_ctx);
+    TEST_ASSERT_NULL(g_wasm_ctx.active_task);
+    TEST_ASSERT_EQUAL_UINT8(0U, tasks[0].sched_flags & SYN_SCHED_FLAG_MUTEX_WAIT);
+    TEST_ASSERT_EQUAL_UINT8((uint8_t)SYN_PRIO_LOW, tasks[2].priority);
+    (void)syn_mutex_unlock(&g_wasm_mtx_state.mtx, &tasks[2]);
 }
 #endif
 
@@ -3486,10 +3527,40 @@ static void test_wasm_host_traps_abort_bounds_and_limits(void)
     TEST_ASSERT_EQUAL_PTR(&g_wasm_ctx, g_cancel_track.observed_ctx);
     TEST_ASSERT_EQUAL_PTR(&user_cookie, g_cancel_track.observed_user);
     TEST_ASSERT_FALSE(g_wasm_ctx.host_pending);
+    TEST_ASSERT_NULL(g_wasm_ctx.active_task);
     TEST_ASSERT_EQUAL_UINT16(0U, g_wasm_ctx.call_depth);
     TEST_ASSERT_EQUAL_UINT32(0U, g_wasm_ctx.sp);
     TEST_ASSERT_EQUAL_UINT32(0U, abort_task.delay_until);
     TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+
+    /* Aborting an idle VM MUST NOT clear a parent task's own delay_until */
+    abort_task.delay_until = 9999U;
+    g_wasm_ctx.active_task = &abort_task;
+    syn_wasm_abort(&g_wasm_ctx);
+    TEST_ASSERT_EQUAL_UINT32(9999U, abort_task.delay_until);
+    TEST_ASSERT_NULL(g_wasm_ctx.active_task);
+    abort_task.delay_until = 0U;
+
+    /* Negative guest sleep_ms(-1) under scheduled syn_wasm_task completes with 0 ms delay */
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    g_wasm_ctx.locals[0] = 0xFFFFFFFFULL;
+    syn_sched_run(&abort_sched);
+    TEST_ASSERT_EQUAL_UINT32(0U, abort_task.delay_until);
+    TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
+
+    /* syn_wasm_exec_pt clears active_task on completion so standalone syn_wasm_step won't touch it
+     */
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    g_wasm_ctx.locals[0] = 0ULL;
+    PT_INIT(&ept);
+    TEST_ASSERT_EQUAL(PT_ENDED, syn_wasm_exec_pt(&ept, &abort_task, &g_wasm_ctx, 16U));
+    TEST_ASSERT_NULL(g_wasm_ctx.active_task);
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    g_wasm_ctx.locals[0] = 25ULL;
+    TEST_ASSERT_EQUAL(SYN_WASM_WAITING, syn_wasm_step(&g_wasm_ctx, 16U));
+    TEST_ASSERT_EQUAL_UINT32(0U, abort_task.delay_until);
+    syn_wasm_abort(&g_wasm_ctx);
+    TEST_ASSERT_EQUAL_UINT32(2U, g_cancel_track.cancel_calls);
 
     /* Without advancing clock (still 500 ms < 5500 ms), fresh call executes immediately! */
     TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 0U, mock_host_func));
@@ -3499,10 +3570,18 @@ static void test_wasm_host_traps_abort_bounds_and_limits(void)
     TEST_ASSERT_EQUAL(SYN_WASM_HALTED, g_wasm_ctx.status);
     TEST_ASSERT_EQUAL_UINT32(42U, (uint32_t)syn_wasm_result(&g_wasm_ctx));
 
+    /* syn_wasm_task clears active_task when exiting on a VM trap */
+    TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 0U, coro_trap_mode_host));
+    TEST_ASSERT_TRUE(syn_wasm_call(&g_wasm_ctx, 2U));
+    g_wasm_ctx.locals[0] = 0ULL;
+    syn_sched_run(&abort_sched);
+    TEST_ASSERT_EQUAL(SYN_WASM_TRAP_HOST, g_wasm_ctx.status);
+    TEST_ASSERT_NULL(g_wasm_ctx.active_task);
+
     /* Abort when not pending or when cancel == NULL */
     g_wasm_ctx.active_task = NULL;
     syn_wasm_abort(&g_wasm_ctx);
-    TEST_ASSERT_EQUAL_UINT32(1U, g_cancel_track.cancel_calls);
+    TEST_ASSERT_EQUAL_UINT32(2U, g_cancel_track.cancel_calls);
 
     /* Self-aborting host coroutine (calls syn_wasm_abort(ctx) from inside wasm_poll_host) */
     TEST_ASSERT_TRUE(syn_wasm_register_host(&g_wasm_ctx, 0U, coro_trap_mode_host));

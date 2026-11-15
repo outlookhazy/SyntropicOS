@@ -103,6 +103,20 @@ SYN_Status syn_mutex_probe(SYN_Mutex *mutex, SYN_Task *task);
 SYN_Status syn_mutex_unlock(SYN_Mutex *mutex, SYN_Task *task);
 
 /**
+ * @brief Withdraw a task's pending contended wait on a mutex.
+ *
+ * Removes @p task from @p mutex's waiter list, clears the task's mutex-wait
+ * tracking flag when no other mutex is contended by @p task, and recomputes
+ * the current owner's inherited priority. Safe no-op if @p task is not
+ * currently waiting on @p mutex.
+ *
+ * @param mutex Pointer to mutex structure.
+ * @param task  Pointer to waiting task withdrawing its wait.
+ * @return SYN_OK on success, or SYN_INVALID_PARAM if @p mutex or @p task is NULL.
+ */
+SYN_Status syn_mutex_cancel_wait(SYN_Mutex *mutex, SYN_Task *task);
+
+/**
  * @brief Check if the mutex is currently locked.
  * @param mutex Pointer to mutex structure.
  * @return true if locked, false otherwise.

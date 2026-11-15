@@ -428,7 +428,7 @@ Native blocking primitives fall into two distinct wake contracts:
 | **Button Input** | `PT_WAIT_BUTTON_PRESS(pt, btn)` / `RELEASE` | `PT_BUTTON_BLOCK_PRESS(pt, task, btn)` / `PT_BUTTON_BLOCK_RELEASE(pt, task, btn)` | `syn_button_update()` state update + `syn_task_resume(task)` |
 
 - **Ethernet RX (`PT_ETH_WAIT_FRAME`)**: `PT_ETH_WAIT_FRAME(pt, rx_buf, max_len, rx_len)` is a polled primitive (`PT_WAIT_UNTIL` over `syn_port_eth_rx()`). For native task blocking on Ethernet RX, signal an event flag (`PT_BLOCK_EVENT`) or pair `PT_BLOCK_CONDITION` with `syn_task_resume(task)` in the MAC/PHY RX ISR.
-- **Mutex Contention (`PT_MUTEX_LOCK`)**: `PT_MUTEX_LOCK(pt, task, mutex)` uses polled `PT_WAIT_UNTIL` with priority inheritance and promotes the contended waiter into `Work` rank on `syn_mutex_unlock()` (keeps contended tasks `SYN_TASK_READY` and prevents tickless sleep while contended).
+- **Mutex Contention (`PT_MUTEX_LOCK`)**: `PT_MUTEX_LOCK(pt, task, mutex)` uses polled `PT_WAIT_UNTIL` with priority inheritance and promotes the contended waiter into `Work` rank on `syn_mutex_unlock()` (keeps contended tasks `SYN_TASK_READY` and prevents tickless sleep while contended). If a child coroutine or host call aborts before acquiring a contended mutex, call `syn_mutex_cancel_wait(mutex, task)` to withdraw the waiter and recompute the owner's priority immediately.
 
 | Approach | Scheduling cost | Tickless-safe | Use case |
 |---|---|---|---|
@@ -564,7 +564,7 @@ static SYN_PT_Status pulse_task(SYN_PT *pt, SYN_Task *task)
 | Execution Context | Functions / Macros |
 |---|---|
 | **ISR-safe** | `syn_task_resume()`, `syn_event_flags_set()` (`syn_event_set()`), `syn_event_flags_clear()` (`syn_event_clear()`), `syn_event_flags_get()` (`syn_event_get()`), `syn_ao_post()`, `syn_workqueue_post()`, `syn_spsc_queue_push()` (single-ISR producer), `syn_sleep_lock()`, `syn_sleep_unlock()` |
-| **Task / main-loop context only** | `syn_sched_init()`, `syn_sched_run*()`, `syn_sched_set_max_wait()`, `syn_task_create()`, `syn_task_suspend()`, `syn_task_restart()`, `syn_task_boost_priority()`, `syn_task_restore_priority()`, `syn_task_set_base_priority()`, `syn_mutex_try_lock()`, `syn_mutex_unlock()` |
+| **Task / main-loop context only** | `syn_sched_init()`, `syn_sched_run*()`, `syn_sched_set_max_wait()`, `syn_task_create()`, `syn_task_suspend()`, `syn_task_restart()`, `syn_task_boost_priority()`, `syn_task_restore_priority()`, `syn_task_set_base_priority()`, `syn_mutex_try_lock()`, `syn_mutex_cancel_wait()`, `syn_mutex_unlock()` |
 
 ## Timers & Scheduling Extensions
 

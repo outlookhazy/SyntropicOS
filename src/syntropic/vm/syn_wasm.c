@@ -2856,9 +2856,10 @@ void syn_wasm_abort(SYN_WASM_Context *ctx)
         return;
     }
 
+    bool was_pending = ctx->host_pending;
     SYN_WASM_HostCancelFunc cancel_fn = NULL;
     void *cancel_user = NULL;
-    if (ctx->host_pending && (ctx->host_import_idx < SYN_WASM_MAX_HOST_FUNCS)) {
+    if (was_pending && (ctx->host_import_idx < SYN_WASM_MAX_HOST_FUNCS)) {
         cancel_fn = ctx->host_cancels[ctx->host_import_idx];
         cancel_user = ctx->host_users[ctx->host_import_idx];
     }
@@ -2873,13 +2874,16 @@ void syn_wasm_abort(SYN_WASM_Context *ctx)
     ctx->label_depth = 0U;
     ctx->local_count = 0U;
     ctx->sp = 0U;
-    if (ctx->active_task != NULL) {
+    if (was_pending && (ctx->active_task != NULL)) {
         ctx->active_task->delay_until = 0U;
     }
     ctx->status = SYN_WASM_HALTED;
 
     if (cancel_fn != NULL) {
         cancel_fn(ctx, cancel_user);
+    }
+    if (!ctx->host_pending && (ctx->call_depth == 0U)) {
+        ctx->active_task = NULL;
     }
 }
 
@@ -4840,6 +4844,7 @@ SYN_PT_Status syn_wasm_exec_pt(SYN_PT *pt, SYN_Task *task, SYN_WASM_Context *ctx
         }
     }
 
+    ctx->active_task = NULL;
     if (ctx->status != SYN_WASM_HALTED) {
         PT_EXIT(pt);
     }
@@ -4867,10 +4872,12 @@ SYN_PT_Status syn_wasm_task(SYN_PT *pt, SYN_Task *task)
                 PT_CONTINUE_IF_NEEDED(pt, task);
             }
         } else {
+            ctx->active_task = NULL;
             PT_PASS(pt);
         }
     }
 
+    ctx->active_task = NULL;
     PT_END(pt);
 }
 
@@ -4909,12 +4916,19 @@ SYN_PT_Status syn_wasm_host_sleep_ms(SYN_PT *pt, SYN_WASM_Context *ctx, const ui
         return PT_EXITED;
     }
 
+    uint32_t raw_ms = (uint32_t)args[0];
+    if ((raw_ms == 0U) || (raw_ms > 0x7FFFFFFFU)) {
+        PT_INIT(pt);
+        *ret = 0ULL;
+        return PT_ENDED;
+    }
+
     PT_BEGIN(pt);
 
     if (ctx->active_task != NULL) {
-        PT_TASK_DELAY_MS(pt, ctx->active_task, (uint32_t)args[0]);
+        PT_TASK_DELAY_MS(pt, ctx->active_task, raw_ms);
     } else {
-        PT_DELAY_MS(pt, &ctx->host_scratch.u32[0], (uint32_t)args[0]);
+        PT_DELAY_MS(pt, &ctx->host_scratch.u32[0], raw_ms);
     }
 
     *ret = 0ULL;

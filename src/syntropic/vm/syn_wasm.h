@@ -204,18 +204,18 @@ typedef void (*SYN_WASM_HostCancelFunc)(SYN_WASM_Context *ctx, void *user);
  * @param args_var Parameter name for `const uint64_t *`.
  * @param argc_var Parameter name for `uint8_t`.
  */
-#define SYN_WASM_HOST_SYNC(name, ctx_var, args_var, argc_var)                                     \
-    static inline uint64_t name##_sync_impl_(SYN_WASM_Context *ctx_var, const uint64_t *args_var, \
-                                             uint8_t argc_var);                                   \
-    static SYN_PT_Status name(SYN_PT *syn_wasm_pt_, SYN_WASM_Context *syn_wasm_ctx_,              \
-                              const uint64_t *syn_wasm_args_, uint8_t syn_wasm_argc_,             \
-                              uint64_t *syn_wasm_ret_ptr_)                                        \
-    {                                                                                             \
-        SYN_WASM_HOST_RETURN(syn_wasm_pt_, syn_wasm_ret_ptr_,                                     \
-                             name##_sync_impl_(syn_wasm_ctx_, syn_wasm_args_, syn_wasm_argc_));   \
-    }                                                                                             \
-    static inline uint64_t name##_sync_impl_(SYN_WASM_Context *ctx_var, const uint64_t *args_var, \
-                                             uint8_t argc_var)
+#define SYN_WASM_HOST_SYNC(name, ctx_var, args_var, argc_var)                                   \
+    static inline uint64_t name##_sync_impl_(SYN_WASM_Context *(ctx_var),                       \
+                                             const uint64_t *(args_var), uint8_t argc_var);     \
+    static SYN_PT_Status name(SYN_PT *syn_wasm_pt_, SYN_WASM_Context *syn_wasm_ctx_,            \
+                              const uint64_t *syn_wasm_args_, uint8_t syn_wasm_argc_,           \
+                              uint64_t *syn_wasm_ret_ptr_)                                      \
+    {                                                                                           \
+        SYN_WASM_HOST_RETURN(syn_wasm_pt_, syn_wasm_ret_ptr_,                                   \
+                             name##_sync_impl_(syn_wasm_ctx_, syn_wasm_args_, syn_wasm_argc_)); \
+    }                                                                                           \
+    static inline uint64_t name##_sync_impl_(SYN_WASM_Context *(ctx_var),                       \
+                                             const uint64_t *(args_var), uint8_t argc_var)
 
 /** @brief Per-call scratch storage preserved across host coroutine yields */
 typedef union {
@@ -489,9 +489,10 @@ bool syn_wasm_call(SYN_WASM_Context *ctx, uint16_t func_index);
 /**
  * @brief Abort any active Wasm execution and cancel any in-flight host coroutine.
  *
- * If `ctx->host_pending` is true and the active import has a registered `cancel` hook,
- * clears VM/coroutine state and `active_task->delay_until` (if owned), sets `ctx->status`
- * to `SYN_WASM_HALTED`, and invokes `cancel(ctx, user)`.
+ * Resets VM call/operand stacks and sets `ctx->status` to `SYN_WASM_HALTED`. When
+ * `ctx->host_pending` was true, clears `active_task->delay_until` (if owned) and invokes
+ * any registered `cancel(ctx, user)` hook while `ctx->active_task` is still readable,
+ * then clears `ctx->active_task`.
  *
  * @param ctx Pointer to context.
  */
@@ -577,13 +578,14 @@ SYN_PT_Status syn_wasm_host_micros(SYN_PT *pt, SYN_WASM_Context *ctx, const uint
 /**
  * @brief Standard non-spinning sleep host coroutine (`(i32 ms) -> ()` or `(i32 ms) -> i32`).
  *
- * Uses `PT_TASK_DELAY_MS(pt, ctx->active_task, ms)` when bound to a scheduler task
- * (enabling true zero-polling sleep and tickless idle), and falls back to standalone
- * `PT_DELAY_MS(pt, &ctx->host_scratch.u32[0], ms)` when `ctx->active_task == NULL`.
+ * Non-positive signed 32-bit durations (`<= 0`) complete immediately with `PT_ENDED`.
+ * Positive durations use `PT_TASK_DELAY_MS(pt, ctx->active_task, ms)` when bound to a
+ * scheduler task (enabling true zero-polling sleep and tickless idle), and fall back to
+ * standalone `PT_DELAY_MS(pt, &ctx->host_scratch.u32[0], ms)` when `ctx->active_task == NULL`.
  *
  * @param pt   Host protothread control block.
  * @param ctx  Wasm execution context.
- * @param args Argument array (`args[0]` is delay duration in milliseconds).
+ * @param args Argument array (`args[0]` is signed 32-bit delay duration in milliseconds).
  * @param argc Argument count (must be `>= 1`).
  * @param ret  Receives `0` on completion.
  * @return `PT_IDLE` while sleeping, `PT_ENDED` when elapsed, or `PT_EXITED` on invalid args.
