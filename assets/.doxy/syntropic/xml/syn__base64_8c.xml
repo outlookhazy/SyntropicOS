@@ -1,0 +1,1171 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.15.0" xml:lang="en-US">
+  <compounddef id="syn__base64_8c" kind="file" language="C++">
+    <compoundname>syn_base64.c</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__base64_8h" local="yes">syn_base64.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_base64.c</label>
+        <link refid="syn__base64_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>syn_base64.h</label>
+        <link refid="syn__base64_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__base64_8c_1a4131cbdf9eedc8740e783d66f4b36e7a" prot="public" static="no">
+        <name>B64_VAL_INVALID</name>
+        <initializer>0xFFU</initializer>
+        <briefdescription>
+<para>Marker value for non-base64 character. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="25" column="9" bodyfile="src/syntropic/util/syn_base64.c" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__base64_8c_1ae75e1560d62c3d4bd51f953fb3c4b598" prot="public" static="no">
+        <name>B64_VAL_PAD</name>
+        <initializer>0xFEU</initializer>
+        <briefdescription>
+<para>Marker value for base64 padding &apos;=&apos; character. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="27" column="9" bodyfile="src/syntropic/util/syn_base64.c" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__base64_8c_1aaafbe4abd2f0713640ca43c926cd2c31" prot="public" static="no">
+        <name>B64_VAL_WS</name>
+        <initializer>0xFDU</initializer>
+        <briefdescription>
+<para>Marker value for whitespace character. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="29" column="9" bodyfile="src/syntropic/util/syn_base64.c" bodystart="29" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="syn__base64_8c_1a648827ea82dcac8b7c553ebda85fb395" prot="public" static="yes" mutable="no">
+        <type>const char</type>
+        <definition>const char B64_STD_TABLE[]</definition>
+        <argsstring>[]</argsstring>
+        <name>B64_STD_TABLE</name>
+        <initializer>=
+    &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/&quot;</initializer>
+        <briefdescription>
+<para>Standard RFC 4648 Base64 character encoding table. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="18" column="19" bodyfile="src/syntropic/util/syn_base64.c" bodystart="18" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="syn__base64_8c_1ac5ea77f360592811f6f455c050be1ae3" prot="public" static="yes" mutable="no">
+        <type>const char</type>
+        <definition>const char B64_URL_TABLE[]</definition>
+        <argsstring>[]</argsstring>
+        <name>B64_URL_TABLE</name>
+        <initializer>=
+    &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_&quot;</initializer>
+        <briefdescription>
+<para>URL and filename-safe RFC 4648 Base64URL character encoding table. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="21" column="19" bodyfile="src/syntropic/util/syn_base64.c" bodystart="21" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__base64_8c_1a0c770ef4ea8727688b57eedcdde66caf" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>static uint8_t decode_special_char</definition>
+        <argsstring>(char c, bool url_mode)</argsstring>
+        <name>decode_special_char</name>
+        <param>
+          <type>char</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>url_mode</declname>
+        </param>
+        <briefdescription>
+<para>Decode non-alphanumeric Base64 symbol, padding, or whitespace. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ASCII character to decode. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>url_mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if decoding in URL-safe mode (- and _). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>6-bit value (62-63) or marker constant. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="37" column="16" bodyfile="src/syntropic/util/syn_base64.c" bodystart="37" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8c_1ae76e940995a64fa00b64ecc127e67dcd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>static uint8_t decode_char</definition>
+        <argsstring>(char c, bool url_mode)</argsstring>
+        <name>decode_char</name>
+        <param>
+          <type>char</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>url_mode</declname>
+        </param>
+        <briefdescription>
+<para>Decode single ASCII character into 6-bit value or control marker. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ASCII character to decode. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>url_mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if decoding in URL-safe mode (- and _). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>6-bit value (0-63) or marker constant (B64_VAL_PAD, B64_VAL_WS, B64_VAL_INVALID). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="62" column="16" bodyfile="src/syntropic/util/syn_base64.c" bodystart="62" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8c_1a7f29d7a3a2775ef87909ef6cedf66c0a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t base64url_calc_req_len</definition>
+        <argsstring>(size_t src_len, bool with_padding)</argsstring>
+        <name>base64url_calc_req_len</name>
+        <param>
+          <type>size_t</type>
+          <declname>src_len</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>with_padding</declname>
+        </param>
+        <briefdescription>
+<para>Compute required output buffer capacity for Base64URL encoding. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw input length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>with_padding</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True when &apos;=&apos; padding characters are emitted. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Required capacity including NUL byte, or 0 on size_t overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="82" column="15" bodyfile="src/syntropic/util/syn_base64.c" bodystart="82" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8c_1a7801014b6916d13ce38c82541159839e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_base64_encode</definition>
+        <argsstring>(const uint8_t *src, size_t src_len, char *dst, size_t dst_size, size_t *out_len)</argsstring>
+        <name>syn_base64_encode</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_len</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_size</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Encode binary data to standard RFC 4648 Base64 string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Uses alphabet <computeroutput>[A-Za-z0-9+/]</computeroutput> and adds <computeroutput>=</computeroutput> padding when needed. Always null-terminates the output if <computeroutput>dst_size &gt; 0</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input binary data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of input binary data in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output string buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of output buffer in bytes (must be &gt;= <computeroutput>syn_base64_calc_encoded_size(src_len)</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Optional pointer to receive character length written (excluding null). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false if parameters are invalid or buffer is too small. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="95" column="6" bodyfile="src/syntropic/util/syn_base64.c" bodystart="95" bodyend="142"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8c_1a32a05a30985c48730f950f721168c2a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_base64url_encode</definition>
+        <argsstring>(const uint8_t *src, size_t src_len, char *dst, size_t dst_size, bool with_padding, size_t *out_len)</argsstring>
+        <name>syn_base64url_encode</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_len</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_size</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>with_padding</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Encode binary data to RFC 4648 Base64URL string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Uses URL-safe alphabet <computeroutput>[A-Za-z0-9-_]</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input binary data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of input binary data in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output string buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of output buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>with_padding</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If true, appends <computeroutput>=</computeroutput> padding; if false, omits padding (standard JWT format). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Optional pointer to receive character length written (excluding null). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false if buffer is too small or parameters invalid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="144" column="6" bodyfile="src/syntropic/util/syn_base64.c" bodystart="144" bodyend="195"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8c_1a4797ef731868b95518420e3cfb266e97" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool base64_handle_pad</definition>
+        <argsstring>(uint8_t q_pos, uint8_t *pad_count)</argsstring>
+        <name>base64_handle_pad</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>q_pos</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>pad_count</declname>
+        </param>
+        <briefdescription>
+<para>Validate and record a Base64 &apos;=&apos; padding character. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q_pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data characters seen in the current quartet (0..3). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pad_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[in,out] Padding characters seen so far. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if &apos;=&apos; is valid at this position, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="203" column="13" bodyfile="src/syntropic/util/syn_base64.c" bodystart="203" bodyend="217"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8c_1a3dab34ec65e0c4565fdcc77597eebca1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool base64_validate_tail</definition>
+        <argsstring>(uint32_t block, uint8_t q_pos, uint8_t pad_count)</argsstring>
+        <name>base64_validate_tail</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>block</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>q_pos</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>pad_count</declname>
+        </param>
+        <briefdescription>
+<para>Validate final incomplete quartet and canonical zero pad bits. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>block</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Accumulated bit buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>q_pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data characters in final quartet (0..3). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pad_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Padding &apos;=&apos; characters seen at end (0..2). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if stream termination and pad bits are valid, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="226" column="13" bodyfile="src/syntropic/util/syn_base64.c" bodystart="226" bodyend="241"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8c_1adf42d90865dc6830e3229c9fb9c08eb6" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool base64_push_symbol</definition>
+        <argsstring>(uint8_t val, uint32_t *block, uint8_t *bits, uint8_t *q_pos, uint8_t *dst, size_t dst_size, size_t *out_pos)</argsstring>
+        <name>base64_push_symbol</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>val</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>block</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>bits</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>q_pos</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_size</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_pos</declname>
+        </param>
+        <briefdescription>
+<para>Append a decoded 6-bit Base64 symbol and emit a byte when &gt;= 8 bits are buffered. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Decoded 6-bit value (0..63). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>block</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[in,out] Bit accumulator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bits</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[in,out] Buffered bit count. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>q_pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[in,out] Quartet symbol position (0..3). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Destination byte buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[in,out] Output byte write index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True on success, false if destination buffer is full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="254" column="13" bodyfile="src/syntropic/util/syn_base64.c" bodystart="254" bodyend="273"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8c_1a97bffda9356e486c905da09a11fccc2d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool base64_decode_internal</definition>
+        <argsstring>(const char *src, size_t src_len, uint8_t *dst, size_t dst_size, size_t *out_len, bool url_mode)</argsstring>
+        <name>base64_decode_internal</name>
+        <param>
+          <type>const char *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_size</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>url_mode</declname>
+        </param>
+        <briefdescription>
+<para>Internal shared decoder for standard and URL-safe Base64. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input Base64 string buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of input string (or 0 for strlen). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output destination binary buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of destination buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Pointer to receive decoded byte count. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>url_mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True for URL-safe alphabet, false for standard RFC 4648. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True on success, false on decode error or buffer overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="285" column="13" bodyfile="src/syntropic/util/syn_base64.c" bodystart="285" bodyend="332"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8c_1a6f8039a4ba0886500b72908a787d0136" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_base64_decode</definition>
+        <argsstring>(const char *src, size_t src_len, uint8_t *dst, size_t dst_size, size_t *out_len)</argsstring>
+        <name>syn_base64_decode</name>
+        <param>
+          <type>const char *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_size</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Decode an RFC 4648 standard Base64 string into binary data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Automatically skips whitespace characters (spaces, tabs, CR, LF). Rejects invalid non-base64 characters and malformed padding.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input Base64 string (null-terminated or bounded by <computeroutput>src_len</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of input string (or <computeroutput>0</computeroutput> to determine via <computeroutput>strlen</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output binary buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of output buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Optional pointer to receive actual binary bytes written. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false if input contains invalid characters or destination is too small. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="334" column="6" bodyfile="src/syntropic/util/syn_base64.c" bodystart="334" bodyend="338"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8c_1a561339e8289904324b2cd292fed1b289" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_base64url_decode</definition>
+        <argsstring>(const char *src, size_t src_len, uint8_t *dst, size_t dst_size, size_t *out_len)</argsstring>
+        <name>syn_base64url_decode</name>
+        <param>
+          <type>const char *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_size</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Decode an RFC 4648 Base64URL string into binary data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Supports both padded (<computeroutput>=</computeroutput>) and unpadded URL-safe strings.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input Base64URL string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of input string (or <computeroutput>0</computeroutput> to determine via <computeroutput>strlen</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output binary buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of output buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Optional pointer to receive actual binary bytes written. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false on invalid input or insufficient buffer capacity. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.c" line="340" column="6" bodyfile="src/syntropic/util/syn_base64.c" bodystart="340" bodyend="344"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>RFC 4648 Base64 and Base64URL codec implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">../common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_BASE64)<sp/>||<sp/>SYN_USE_BASE64</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__base64_8h" kindref="compound">syn_base64.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1a648827ea82dcac8b7c553ebda85fb395" kindref="member">B64_STD_TABLE</ref>[]<sp/>=</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1ac5ea77f360592811f6f455c050be1ae3" kindref="member">B64_URL_TABLE</ref>[]<sp/>=</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>B64_VAL_INVALID<sp/>0xFFU</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>B64_VAL_PAD<sp/>0xFEU</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>B64_VAL_WS<sp/>0xFDU</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__base64_8c_1a0c770ef4ea8727688b57eedcdde66caf" kindref="member">decode_special_char</ref>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>c,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>url_mode)</highlight></codeline>
+<codeline lineno="38"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>c62<sp/>=<sp/>url_mode<sp/>?<sp/></highlight><highlight class="charliteral">&apos;-&apos;</highlight><highlight class="normal"><sp/>:<sp/></highlight><highlight class="charliteral">&apos;+&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>c63<sp/>=<sp/>url_mode<sp/>?<sp/></highlight><highlight class="charliteral">&apos;_&apos;</highlight><highlight class="normal"><sp/>:<sp/></highlight><highlight class="charliteral">&apos;/&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c<sp/>==<sp/>c62)<sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>62U;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c<sp/>==<sp/>c63)<sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>63U;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c<sp/>==<sp/></highlight><highlight class="charliteral">&apos;=&apos;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1ae75e1560d62c3d4bd51f953fb3c4b598" kindref="member">B64_VAL_PAD</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((c<sp/>==<sp/></highlight><highlight class="charliteral">&apos;<sp/>&apos;</highlight><highlight class="normal">)<sp/>||<sp/>(c<sp/>==<sp/></highlight><highlight class="charliteral">&apos;\t&apos;</highlight><highlight class="normal">)<sp/>||<sp/>(c<sp/>==<sp/></highlight><highlight class="charliteral">&apos;\r&apos;</highlight><highlight class="normal">)<sp/>||<sp/>(c<sp/>==<sp/></highlight><highlight class="charliteral">&apos;\n&apos;</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1aaafbe4abd2f0713640ca43c926cd2c31" kindref="member">B64_VAL_WS</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1a4131cbdf9eedc8740e783d66f4b36e7a" kindref="member">B64_VAL_INVALID</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__base64_8c_1ae76e940995a64fa00b64ecc127e67dcd" kindref="member">decode_char</ref>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>c,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>url_mode)</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((c<sp/>&gt;=<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal">)<sp/>&amp;&amp;<sp/>(c<sp/>&lt;=<sp/></highlight><highlight class="charliteral">&apos;Z&apos;</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint8_t)(c<sp/>-<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((c<sp/>&gt;=<sp/></highlight><highlight class="charliteral">&apos;a&apos;</highlight><highlight class="normal">)<sp/>&amp;&amp;<sp/>(c<sp/>&lt;=<sp/></highlight><highlight class="charliteral">&apos;z&apos;</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint8_t)(c<sp/>-<sp/></highlight><highlight class="charliteral">&apos;a&apos;</highlight><highlight class="normal"><sp/>+<sp/>26);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((c<sp/>&gt;=<sp/></highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal">)<sp/>&amp;&amp;<sp/>(c<sp/>&lt;=<sp/></highlight><highlight class="charliteral">&apos;9&apos;</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint8_t)(c<sp/>-<sp/></highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal"><sp/>+<sp/>52);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1a0c770ef4ea8727688b57eedcdde66caf" kindref="member">decode_special_char</ref>(c,<sp/>url_mode);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1a7f29d7a3a2775ef87909ef6cedf66c0a" kindref="member">base64url_calc_req_len</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_len,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>with_padding)</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(src_len<sp/>&gt;<sp/><ref refid="syn__base64_8h_1ac45caaa32f9124224247545399767bf5" kindref="member">SYN_BASE64_MAX_RAW_LEN</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(with_padding)<sp/>{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8h_1aeee27946f6cafe7a8e318fe6dee44030" kindref="member">syn_base64_calc_encoded_size</ref>(src_len);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>rem<sp/>=<sp/>src_len<sp/>%<sp/>3U;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tail<sp/>=<sp/>(rem<sp/>==<sp/>0U)<sp/>?<sp/>0U<sp/>:<sp/>(rem<sp/>+<sp/>1U);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>((src_len<sp/>/<sp/>3U)<sp/>*<sp/>4U)<sp/>+<sp/>tail<sp/>+<sp/>1U;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1a7801014b6916d13ce38c82541159839e" kindref="member">syn_base64_encode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_len,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_size,</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len)</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((dst<sp/>==<sp/>NULL)<sp/>||<sp/>((src<sp/>==<sp/>NULL)<sp/>&amp;&amp;<sp/>(src_len<sp/>&gt;<sp/>0U)))<sp/>{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>req_len<sp/>=<sp/><ref refid="syn__base64_8h_1aeee27946f6cafe7a8e318fe6dee44030" kindref="member">syn_base64_calc_encoded_size</ref>(src_len);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((req_len<sp/>==<sp/>0U)<sp/>||<sp/>(dst_size<sp/>&lt;<sp/>req_len))<sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>in_pos<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_pos<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>((src_len<sp/>-<sp/>in_pos)<sp/>&gt;=<sp/>3U)<sp/>{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>triple<sp/>=<sp/>((uint32_t)src[in_pos]<sp/>&lt;&lt;<sp/>16U)<sp/>|<sp/>((uint32_t)src[in_pos<sp/>+<sp/>1U]<sp/>&lt;&lt;<sp/>8U)<sp/>|</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint32_t)src[in_pos<sp/>+<sp/>2U];</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1a648827ea82dcac8b7c553ebda85fb395" kindref="member">B64_STD_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>18U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1a648827ea82dcac8b7c553ebda85fb395" kindref="member">B64_STD_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>12U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1a648827ea82dcac8b7c553ebda85fb395" kindref="member">B64_STD_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>6U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1a648827ea82dcac8b7c553ebda85fb395" kindref="member">B64_STD_TABLE</ref>[triple<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>in_pos<sp/>+=<sp/>3U;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(in_pos<sp/>&lt;<sp/>src_len)<sp/>{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>rem<sp/>=<sp/>src_len<sp/>-<sp/>in_pos;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rem<sp/>==<sp/>1U)<sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>triple<sp/>=<sp/>(uint32_t)src[in_pos]<sp/>&lt;&lt;<sp/>16U;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1a648827ea82dcac8b7c553ebda85fb395" kindref="member">B64_STD_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>18U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1a648827ea82dcac8b7c553ebda85fb395" kindref="member">B64_STD_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>12U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;=&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;=&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{<sp/></highlight><highlight class="comment">/*<sp/>rem<sp/>==<sp/>2<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>triple<sp/>=<sp/>((uint32_t)src[in_pos]<sp/>&lt;&lt;<sp/>16U)<sp/>|<sp/>((uint32_t)src[in_pos<sp/>+<sp/>1U]<sp/>&lt;&lt;<sp/>8U);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1a648827ea82dcac8b7c553ebda85fb395" kindref="member">B64_STD_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>18U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1a648827ea82dcac8b7c553ebda85fb395" kindref="member">B64_STD_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>12U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1a648827ea82dcac8b7c553ebda85fb395" kindref="member">B64_STD_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>6U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;=&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>dst[out_pos]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_len<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>out_pos;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1a32a05a30985c48730f950f721168c2a2" kindref="member">syn_base64url_encode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_len,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_size,</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>with_padding,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len)</highlight></codeline>
+<codeline lineno="146"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((dst<sp/>==<sp/>NULL)<sp/>||<sp/>((src<sp/>==<sp/>NULL)<sp/>&amp;&amp;<sp/>(src_len<sp/>&gt;<sp/>0U)))<sp/>{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>in_pos<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_pos<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>req_len<sp/>=<sp/><ref refid="syn__base64_8c_1a7f29d7a3a2775ef87909ef6cedf66c0a" kindref="member">base64url_calc_req_len</ref>(src_len,<sp/>with_padding);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((req_len<sp/>==<sp/>0U)<sp/>||<sp/>(dst_size<sp/>&lt;<sp/>req_len))<sp/>{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>((src_len<sp/>-<sp/>in_pos)<sp/>&gt;=<sp/>3U)<sp/>{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>triple<sp/>=<sp/>((uint32_t)src[in_pos]<sp/>&lt;&lt;<sp/>16U)<sp/>|<sp/>((uint32_t)src[in_pos<sp/>+<sp/>1U]<sp/>&lt;&lt;<sp/>8U)<sp/>|</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint32_t)src[in_pos<sp/>+<sp/>2U];</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1ac5ea77f360592811f6f455c050be1ae3" kindref="member">B64_URL_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>18U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1ac5ea77f360592811f6f455c050be1ae3" kindref="member">B64_URL_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>12U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1ac5ea77f360592811f6f455c050be1ae3" kindref="member">B64_URL_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>6U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1ac5ea77f360592811f6f455c050be1ae3" kindref="member">B64_URL_TABLE</ref>[triple<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>in_pos<sp/>+=<sp/>3U;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(in_pos<sp/>&lt;<sp/>src_len)<sp/>{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>rem<sp/>=<sp/>src_len<sp/>-<sp/>in_pos;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rem<sp/>==<sp/>1U)<sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>triple<sp/>=<sp/>(uint32_t)src[in_pos]<sp/>&lt;&lt;<sp/>16U;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1ac5ea77f360592811f6f455c050be1ae3" kindref="member">B64_URL_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>18U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1ac5ea77f360592811f6f455c050be1ae3" kindref="member">B64_URL_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>12U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(with_padding)<sp/>{</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;=&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;=&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{<sp/></highlight><highlight class="comment">/*<sp/>rem<sp/>==<sp/>2<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>triple<sp/>=<sp/>((uint32_t)src[in_pos]<sp/>&lt;&lt;<sp/>16U)<sp/>|<sp/>((uint32_t)src[in_pos<sp/>+<sp/>1U]<sp/>&lt;&lt;<sp/>8U);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1ac5ea77f360592811f6f455c050be1ae3" kindref="member">B64_URL_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>18U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1ac5ea77f360592811f6f455c050be1ae3" kindref="member">B64_URL_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>12U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/><ref refid="syn__base64_8c_1ac5ea77f360592811f6f455c050be1ae3" kindref="member">B64_URL_TABLE</ref>[(triple<sp/>&gt;&gt;<sp/>6U)<sp/>&amp;<sp/>0x3FU];</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(with_padding)<sp/>{</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[out_pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;=&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/>dst[out_pos]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_len<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>out_pos;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1a4797ef731868b95518420e3cfb266e97" kindref="member">base64_handle_pad</ref>(uint8_t<sp/>q_pos,<sp/>uint8_t<sp/>*pad_count)</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(*pad_count<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q_pos<sp/>&lt;<sp/>2U)<sp/>{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*pad_count<sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((*pad_count<sp/>==<sp/>1U)<sp/>&amp;&amp;<sp/>(q_pos<sp/>==<sp/>2U))<sp/>{</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*pad_count<sp/>=<sp/>2U;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1a3dab34ec65e0c4565fdcc77597eebca1" kindref="member">base64_validate_tail</ref>(uint32_t<sp/>block,<sp/>uint8_t<sp/>q_pos,<sp/>uint8_t<sp/>pad_count)</highlight></codeline>
+<codeline lineno="227"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q_pos<sp/>==<sp/>1U)<sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q_pos<sp/>==<sp/>2U)<sp/>{</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pad_count<sp/>==<sp/>1U)<sp/>{</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(block<sp/>&amp;<sp/>0x0FU)<sp/>==<sp/>0U;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q_pos<sp/>==<sp/>3U)<sp/>{</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(block<sp/>&amp;<sp/>0x03U)<sp/>==<sp/>0U;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1adf42d90865dc6830e3229c9fb9c08eb6" kindref="member">base64_push_symbol</ref>(uint8_t<sp/>val,<sp/>uint32_t<sp/>*block,<sp/>uint8_t<sp/>*bits,<sp/>uint8_t<sp/>*q_pos,</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_pos)</highlight></codeline>
+<codeline lineno="256"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/>*block<sp/>=<sp/>(*block<sp/>&lt;&lt;<sp/>6U)<sp/>|<sp/>(uint32_t)val;</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/>*bits<sp/>=<sp/>(uint8_t)(*bits<sp/>+<sp/>6U);</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/>(*q_pos)++;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(*bits<sp/>&gt;=<sp/>8U)<sp/>{</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*bits<sp/>=<sp/>(uint8_t)(*bits<sp/>-<sp/>8U);</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(*out_pos<sp/>&gt;=<sp/>dst_size)<sp/>{</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dst[(*out_pos)++]<sp/>=<sp/>(uint8_t)((*block<sp/>&gt;&gt;<sp/>*bits)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(*q_pos<sp/>==<sp/>4U)<sp/>{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*q_pos<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*block<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1a97bffda9356e486c905da09a11fccc2d" kindref="member">base64_decode_internal</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_len,<sp/>uint8_t<sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_size,</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>url_mode)</highlight></codeline>
+<codeline lineno="287"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((dst<sp/>==<sp/>NULL)<sp/>||<sp/>(src<sp/>==<sp/>NULL))<sp/>{</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(src_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>src_len<sp/>=<sp/>strlen(src);</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>block<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>bits<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>q_pos<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>pad_count<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_pos<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0U;<sp/>i<sp/>&lt;<sp/>src_len;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>val<sp/>=<sp/><ref refid="syn__base64_8c_1ae76e940995a64fa00b64ecc127e67dcd" kindref="member">decode_char</ref>(src[i],<sp/>url_mode);</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>==<sp/><ref refid="syn__base64_8c_1aaafbe4abd2f0713640ca43c926cd2c31" kindref="member">B64_VAL_WS</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>==<sp/><ref refid="syn__base64_8c_1a4131cbdf9eedc8740e783d66f4b36e7a" kindref="member">B64_VAL_INVALID</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>==<sp/><ref refid="syn__base64_8c_1ae75e1560d62c3d4bd51f953fb3c4b598" kindref="member">B64_VAL_PAD</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__base64_8c_1a4797ef731868b95518420e3cfb266e97" kindref="member">base64_handle_pad</ref>(q_pos,<sp/>&amp;pad_count))<sp/>{</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pad_count<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__base64_8c_1adf42d90865dc6830e3229c9fb9c08eb6" kindref="member">base64_push_symbol</ref>(val,<sp/>&amp;block,<sp/>&amp;bits,<sp/>&amp;q_pos,<sp/>dst,<sp/>dst_size,<sp/>&amp;out_pos))<sp/>{</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"></highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__base64_8c_1a3dab34ec65e0c4565fdcc77597eebca1" kindref="member">base64_validate_tail</ref>(block,<sp/>q_pos,<sp/>pad_count))<sp/>{</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"></highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_len<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>out_pos;</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="332"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1a6f8039a4ba0886500b72908a787d0136" kindref="member">syn_base64_decode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_len,<sp/>uint8_t<sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_size,</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len)</highlight></codeline>
+<codeline lineno="336"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1a97bffda9356e486c905da09a11fccc2d" kindref="member">base64_decode_internal</ref>(src,<sp/>src_len,<sp/>dst,<sp/>dst_size,<sp/>out_len,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="338"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1a561339e8289904324b2cd292fed1b289" kindref="member">syn_base64url_decode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_len,<sp/>uint8_t<sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_size,</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len)</highlight></codeline>
+<codeline lineno="342"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8c_1a97bffda9356e486c905da09a11fccc2d" kindref="member">base64_decode_internal</ref>(src,<sp/>src_len,<sp/>dst,<sp/>dst_size,<sp/>out_len,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="344"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"></highlight></codeline>
+<codeline lineno="346"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_BASE64<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_base64.c"/>
+  </compounddef>
+</doxygen>

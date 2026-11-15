@@ -1,0 +1,833 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.15.0" xml:lang="en-US">
+  <compounddef id="syn__doip_8h" kind="file" language="C++">
+    <compoundname>syn_doip.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">syntropic/common/syn_defs.h</includes>
+    <includes refid="syn__uds_8h" local="yes">syntropic/proto/syn_uds.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__doip_8c" local="yes">src/syntropic/proto/syn_doip.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>syntropic/proto/syn_uds.h</label>
+        <link refid="syn__uds_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__DoIP__Header" prot="public">SYN_DoIP_Header</innerclass>
+    <innerclass refid="structSYN__DoIP__Server" prot="public">SYN_DoIP_Server</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__doip_8h_1aa3cb433cba4636a035d44b7cb187c983" prot="public" static="no">
+        <name>SYN_DOIP_ENABLED</name>
+        <initializer>1</initializer>
+        <briefdescription>
+<para>Non-zero when DoIP and UDS dependencies are enabled. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="16" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="16" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a64e97003513656b121c836b0dcb722f2" prot="public" static="no">
+        <name>SYN_DOIP_PROTOCOL_VERSION</name>
+        <initializer>0x02U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>ISO 13400-2 Protocol Constants ISO 13400-2 protocol version </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="35" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1af6595c711fb60cd5e8458900d6cb49fe" prot="public" static="no">
+        <name>SYN_DOIP_INVERSE_PROTOCOL_VERSION</name>
+        <initializer>0xFDU</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Bitwise inverse of protocol version </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="36" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a0aa7e468fd08fb1dac0facfe65bf52ff" prot="public" static="no">
+        <name>SYN_DOIP_HEADER_SIZE</name>
+        <initializer>8U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Fixed 8-byte DoIP header size </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="37" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a63daf3414ad6b1e57d4704a1568c03b4" prot="public" static="no">
+        <name>SYN_DOIP_DEFAULT_PORT</name>
+        <initializer>13400U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Standard DoIP TCP/UDP port </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="38" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a1faf48649a92fae400b92959d56f000d" prot="public" static="no">
+        <name>SYN_DOIP_TYPE_GENERIC_NACK</name>
+        <initializer>0x0000U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>ISO 13400-2 Payload Types Generic NACK payload type </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="41" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a98e628db5e9807541b838c5e92c757e0" prot="public" static="no">
+        <name>SYN_DOIP_TYPE_VEHICLE_ID_REQ</name>
+        <initializer>0x0001U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Vehicle Identification Request </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="42" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a4b46f727040e5daec4e0a7eb9a00eff8" prot="public" static="no">
+        <name>SYN_DOIP_TYPE_VEHICLE_ID_REQ_EID</name>
+        <initializer>0x0002U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Vehicle ID Request with EID </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="43" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1afa7908e237c70c7d29fe4c048faeae9e" prot="public" static="no">
+        <name>SYN_DOIP_TYPE_VEHICLE_ID_REQ_VIN</name>
+        <initializer>0x0003U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Vehicle ID Request with VIN </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="44" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a2b1c66296b4003f7d86a57d6a5375bba" prot="public" static="no">
+        <name>SYN_DOIP_TYPE_VEHICLE_ANNOUNCEMENT</name>
+        <initializer>0x0004U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Vehicle Announcement Message </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="45" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1aa6ac6e2cdc3ecdf25b848d8b6d353684" prot="public" static="no">
+        <name>SYN_DOIP_TYPE_ROUTING_ACTIVATION_REQ</name>
+        <initializer>0x0005U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Routing Activation Request </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="46" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a86b511337ce3e499945024a0acb9b8c3" prot="public" static="no">
+        <name>SYN_DOIP_TYPE_ROUTING_ACTIVATION_RESP</name>
+        <initializer>0x0006U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Routing Activation Response </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="47" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a6499b1a730b251306358736c2e692576" prot="public" static="no">
+        <name>SYN_DOIP_TYPE_ALIVE_CHECK_REQ</name>
+        <initializer>0x0007U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Alive Check Request </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="48" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1aa4b068801dd5cd1d8ee86325388be1ca" prot="public" static="no">
+        <name>SYN_DOIP_TYPE_ALIVE_CHECK_RESP</name>
+        <initializer>0x0008U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Alive Check Response </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="49" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1ab335f2fe56516e84c41acbec0b7872f9" prot="public" static="no">
+        <name>SYN_DOIP_TYPE_DIAGNOSTIC_MSG</name>
+        <initializer>0x8001U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>UDS Diagnostic Message </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="50" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a4eb1d3c3a7684c46da1a0f1d7baa0855" prot="public" static="no">
+        <name>SYN_DOIP_TYPE_DIAGNOSTIC_MSG_ACK</name>
+        <initializer>0x8002U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Diagnostic Message Positive Ack </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="51" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1acefe19fe0ce5a1a93916506ecaeaacb9" prot="public" static="no">
+        <name>SYN_DOIP_TYPE_DIAGNOSTIC_MSG_NACK</name>
+        <initializer>0x8003U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Diagnostic Message Negative Ack </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="52" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a15bcb6359f150024f91a16bbf3230bf9" prot="public" static="no">
+        <name>SYN_DOIP_NACK_INCORRECT_PATTERN</name>
+        <initializer>0x00U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>ISO 13400-2 Generic NACK Codes Incorrect header pattern </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="55" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a9a1625fddd076a2e630081d9db6912d1" prot="public" static="no">
+        <name>SYN_DOIP_NACK_UNKNOWN_PAYLOAD_TYPE</name>
+        <initializer>0x01U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Unknown payload type </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="56" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1ab6f1c8246d8d7b79cc81c268980bba2b" prot="public" static="no">
+        <name>SYN_DOIP_NACK_MESSAGE_TOO_LARGE</name>
+        <initializer>0x02U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Message payload too large </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="57" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1aed279da45cb28ee6a687a1dcb52cf168" prot="public" static="no">
+        <name>SYN_DOIP_NACK_OUT_OF_MEMORY</name>
+        <initializer>0x03U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Out of memory </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="58" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a6c714774dbdb9b1ab35c5183272c9ff0" prot="public" static="no">
+        <name>SYN_DOIP_NACK_INVALID_PAYLOAD_LENGTH</name>
+        <initializer>0x04U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Invalid payload length </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="59" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a76a25c51c046aa7b4dda72292f3aaa55" prot="public" static="no">
+        <name>SYN_DOIP_ROUTING_SUCCESS</name>
+        <initializer>0x10U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>ISO 13400-2 Routing Activation Response Codes Routing activation successful </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="62" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a7d752312fa7adc4091b62e23f4cff180" prot="public" static="no">
+        <name>SYN_DOIP_ROUTING_DENIED_UNKNOWN_TESTER</name>
+        <initializer>0x02U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Denied: Unknown tester address </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="63" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1a30672f192ca610282fffef2439b1c49e" prot="public" static="no">
+        <name>SYN_DOIP_ROUTING_DENIED_DIFFERENT_PORT</name>
+        <initializer>0x04U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Denied: Invalid socket port </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="64" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1ae44a1a085f428dd6f068db2189a9787a" prot="public" static="no">
+        <name>SYN_DOIP_DIAG_ACK_OK</name>
+        <initializer>0x00U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>ISO 13400-2 Diagnostic Message ACK / NACK Codes Diagnostic message positive ACK </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="67" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1ae898a32a1b842c62df83169e9bcc30dd" prot="public" static="no">
+        <name>SYN_DOIP_DIAG_NACK_INVALID_SA</name>
+        <initializer>0x02U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Invalid source address or unactivated routing </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="68" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__doip_8h_1ade51ed5de3383416591320b2a4722b19" prot="public" static="no">
+        <name>SYN_DOIP_DIAG_NACK_UNKNOWN_TA</name>
+        <initializer>0x03U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Unknown target address </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="69" column="9" bodyfile="src/syntropic/proto/syn_doip.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__doip_8h_1a446f103f762ff0a8be0cb8cd846f4706" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_doip_init</definition>
+        <argsstring>(SYN_DoIP_Server *server, uint16_t logical_address)</argsstring>
+        <name>syn_doip_init</name>
+        <param>
+          <type><ref refid="structSYN__DoIP__Server" kindref="compound">SYN_DoIP_Server</ref> *</type>
+          <declname>server</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>logical_address</declname>
+        </param>
+        <briefdescription>
+<para>Initialize DoIP Server instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>server</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DoIP server instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>logical_address</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ECU logical address (e.g. 0x1001). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false if server is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="99" column="6" bodyfile="src/syntropic/proto/syn_doip.c" bodystart="57" bodyend="66" declfile="src/syntropic/proto/syn_doip.h" declline="99" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__doip_8h_1ab5a809b7df4b1173148f78faa07f56e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_doip_set_identifiers</definition>
+        <argsstring>(SYN_DoIP_Server *server, const uint8_t vin[17], const uint8_t eid[6], const uint8_t gid[6])</argsstring>
+        <name>syn_doip_set_identifiers</name>
+        <param>
+          <type><ref refid="structSYN__DoIP__Server" kindref="compound">SYN_DoIP_Server</ref> *</type>
+          <declname>server</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>vin</declname>
+          <array>[17]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>eid</declname>
+          <array>[6]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>gid</declname>
+          <array>[6]</array>
+        </param>
+        <briefdescription>
+<para>Set VIN, EID, and GID parameters for vehicle identification responses. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>server</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DoIP server. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>17-byte VIN buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>eid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>6-byte EID (MAC) buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>6-byte GID buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false on NULL pointers. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="109" column="6" bodyfile="src/syntropic/proto/syn_doip.c" bodystart="68" bodyend="84" declfile="src/syntropic/proto/syn_doip.h" declline="109" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__doip_8h_1ad1a18df3d3682d9eb8fceb75eaacc76c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_doip_parse_header</definition>
+        <argsstring>(const uint8_t *buf, uint16_t len, SYN_DoIP_Header *hdr)</argsstring>
+        <name>syn_doip_parse_header</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__DoIP__Header" kindref="compound">SYN_DoIP_Header</ref> *</type>
+          <declname>hdr</declname>
+        </param>
+        <briefdescription>
+<para>Parse 8-byte DoIP Header from raw buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input buffer length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output header structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if header is valid, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="119" column="6" bodyfile="src/syntropic/proto/syn_doip.c" bodystart="86" bodyend="101" declfile="src/syntropic/proto/syn_doip.h" declline="119" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__doip_8h_1ad67e07a763a81cebe0aaa2b986737ae6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_doip_encode_header</definition>
+        <argsstring>(const SYN_DoIP_Header *hdr, uint8_t *buf, uint16_t max_len)</argsstring>
+        <name>syn_doip_encode_header</name>
+        <param>
+          <type>const <ref refid="structSYN__DoIP__Header" kindref="compound">SYN_DoIP_Header</ref> *</type>
+          <declname>hdr</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>max_len</declname>
+        </param>
+        <briefdescription>
+<para>Encode 8-byte DoIP Header into target buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input header structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer capacity (must be &gt;= 8). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Length written (8), or 0 on error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="128" column="10" bodyfile="src/syntropic/proto/syn_doip.c" bodystart="103" bodyend="113" declfile="src/syntropic/proto/syn_doip.h" declline="128" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__doip_8h_1adac397bc8293cf3645ddd01bb4c10ad8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_doip_process_msg</definition>
+        <argsstring>(SYN_DoIP_Server *server, SYN_UDS_Server *uds, const uint8_t *rx_buf, uint16_t rx_len, uint8_t *tx_buf, uint16_t max_tx_len, uint16_t *tx_len)</argsstring>
+        <name>syn_doip_process_msg</name>
+        <param>
+          <type><ref refid="structSYN__DoIP__Server" kindref="compound">SYN_DoIP_Server</ref> *</type>
+          <declname>server</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__UDS__Server" kindref="compound">SYN_UDS_Server</ref> *</type>
+          <declname>uds</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>rx_buf</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>rx_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>tx_buf</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>max_tx_len</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>tx_len</declname>
+        </param>
+        <briefdescription>
+<para>Process incoming DoIP message (UDP or TCP) and route UDS requests to syn_uds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>server</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DoIP server instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>uds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to UDS server instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming raw DoIP packet. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming packet length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer for DoIP response frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_tx_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum output buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output pointer for written response length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if message was processed successfully, false on invalid request/null. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_doip.h" line="141" column="6" bodyfile="src/syntropic/proto/syn_doip.c" bodystart="364" bodyend="395" declfile="src/syntropic/proto/syn_doip.h" declline="141" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>SyntropicOS ISO 13400-2 Diagnostic over IP (DoIP) Protocol Stack. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implements lightweight, zero-malloc ISO 13400-2 DoIP header serialization, vehicle identification, routing activation, and UDS (ISO 14229-1) message routing over TCP/UDP. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYNTROPIC_DOIP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYNTROPIC_DOIP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">syntropic/common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(!defined(SYN_USE_DOIP)<sp/>||<sp/>SYN_USE_DOIP)<sp/>&amp;&amp;<sp/>(!defined(SYN_USE_UDS)<sp/>||<sp/>SYN_USE_UDS)</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16" refid="syn__doip_8h_1aa3cb433cba4636a035d44b7cb187c983" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_ENABLED<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_ENABLED<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>SYN_DOIP_ENABLED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__uds_8h" kindref="compound">syntropic/proto/syn_uds.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="syn__doip_8h_1a64e97003513656b121c836b0dcb722f2" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_PROTOCOL_VERSION<sp/>0x02U<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36" refid="syn__doip_8h_1af6595c711fb60cd5e8458900d6cb49fe" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_INVERSE_PROTOCOL_VERSION<sp/>0xFDU<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="syn__doip_8h_1a0aa7e468fd08fb1dac0facfe65bf52ff" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_HEADER_SIZE<sp/>8U<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="syn__doip_8h_1a63daf3414ad6b1e57d4704a1568c03b4" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_DEFAULT_PORT<sp/>13400U<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="syn__doip_8h_1a1faf48649a92fae400b92959d56f000d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_TYPE_GENERIC_NACK<sp/>0x0000U<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="syn__doip_8h_1a98e628db5e9807541b838c5e92c757e0" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_TYPE_VEHICLE_ID_REQ<sp/>0x0001U<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="syn__doip_8h_1a4b46f727040e5daec4e0a7eb9a00eff8" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_TYPE_VEHICLE_ID_REQ_EID<sp/>0x0002U<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="syn__doip_8h_1afa7908e237c70c7d29fe4c048faeae9e" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_TYPE_VEHICLE_ID_REQ_VIN<sp/>0x0003U<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="syn__doip_8h_1a2b1c66296b4003f7d86a57d6a5375bba" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_TYPE_VEHICLE_ANNOUNCEMENT<sp/>0x0004U<sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="syn__doip_8h_1aa6ac6e2cdc3ecdf25b848d8b6d353684" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_TYPE_ROUTING_ACTIVATION_REQ<sp/>0x0005U<sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="syn__doip_8h_1a86b511337ce3e499945024a0acb9b8c3" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_TYPE_ROUTING_ACTIVATION_RESP<sp/>0x0006U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="syn__doip_8h_1a6499b1a730b251306358736c2e692576" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_TYPE_ALIVE_CHECK_REQ<sp/>0x0007U<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="syn__doip_8h_1aa4b068801dd5cd1d8ee86325388be1ca" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_TYPE_ALIVE_CHECK_RESP<sp/>0x0008U<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="syn__doip_8h_1ab335f2fe56516e84c41acbec0b7872f9" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_TYPE_DIAGNOSTIC_MSG<sp/>0x8001U<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="syn__doip_8h_1a4eb1d3c3a7684c46da1a0f1d7baa0855" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_TYPE_DIAGNOSTIC_MSG_ACK<sp/>0x8002U<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="syn__doip_8h_1acefe19fe0ce5a1a93916506ecaeaacb9" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_TYPE_DIAGNOSTIC_MSG_NACK<sp/>0x8003U<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="syn__doip_8h_1a15bcb6359f150024f91a16bbf3230bf9" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_NACK_INCORRECT_PATTERN<sp/>0x00U<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="syn__doip_8h_1a9a1625fddd076a2e630081d9db6912d1" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_NACK_UNKNOWN_PAYLOAD_TYPE<sp/>0x01U<sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="syn__doip_8h_1ab6f1c8246d8d7b79cc81c268980bba2b" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_NACK_MESSAGE_TOO_LARGE<sp/>0x02U<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="syn__doip_8h_1aed279da45cb28ee6a687a1dcb52cf168" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_NACK_OUT_OF_MEMORY<sp/>0x03U<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="syn__doip_8h_1a6c714774dbdb9b1ab35c5183272c9ff0" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_NACK_INVALID_PAYLOAD_LENGTH<sp/>0x04U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="syn__doip_8h_1a76a25c51c046aa7b4dda72292f3aaa55" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_ROUTING_SUCCESS<sp/>0x10U<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="syn__doip_8h_1a7d752312fa7adc4091b62e23f4cff180" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_ROUTING_DENIED_UNKNOWN_TESTER<sp/>0x02U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="syn__doip_8h_1a30672f192ca610282fffef2439b1c49e" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_ROUTING_DENIED_DIFFERENT_PORT<sp/>0x04U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="syn__doip_8h_1ae44a1a085f428dd6f068db2189a9787a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_DIAG_ACK_OK<sp/>0x00U<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="syn__doip_8h_1ae898a32a1b842c62df83169e9bcc30dd" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_DIAG_NACK_INVALID_SA<sp/>0x02U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="syn__doip_8h_1ade51ed5de3383416591320b2a4722b19" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DOIP_DIAG_NACK_UNKNOWN_TA<sp/>0x03U<sp/></highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="structSYN__DoIP__Header" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="75" refid="structSYN__DoIP__Header_1aa4fda5f65a6d018da26bfe6b9bf911ac" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__DoIP__Header_1aa4fda5f65a6d018da26bfe6b9bf911ac" kindref="member">protocol_version</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76" refid="structSYN__DoIP__Header_1a59f1f269c076c5b7be9f6415beb12176" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__DoIP__Header_1a59f1f269c076c5b7be9f6415beb12176" kindref="member">inverse_protocol_version</ref>;<sp/></highlight></codeline>
+<codeline lineno="77" refid="structSYN__DoIP__Header_1a63f8208b5f26fd4801b802ddbec5f3fa" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__DoIP__Header_1a63f8208b5f26fd4801b802ddbec5f3fa" kindref="member">payload_type</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="78" refid="structSYN__DoIP__Header_1ab7d4b32cbb60bea4c2b25bbc1d485902" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__DoIP__Header_1ab7d4b32cbb60bea4c2b25bbc1d485902" kindref="member">payload_length</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="79"><highlight class="normal">}<sp/><ref refid="structSYN__DoIP__Header" kindref="compound">SYN_DoIP_Header</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="structSYN__DoIP__Server" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="85" refid="structSYN__DoIP__Server_1a6d1a12c66aea51f6056a6d3edcf82beb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__DoIP__Server_1a6d1a12c66aea51f6056a6d3edcf82beb" kindref="member">logical_address</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="86" refid="structSYN__DoIP__Server_1a195509cf9fc27298e4aee4bc3d972948" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__DoIP__Server_1a195509cf9fc27298e4aee4bc3d972948" kindref="member">active_tester_address</ref>;<sp/></highlight></codeline>
+<codeline lineno="87" refid="structSYN__DoIP__Server_1a9a96a3db4cacc0ef5ffb1934163c5320" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__DoIP__Server_1a9a96a3db4cacc0ef5ffb1934163c5320" kindref="member">routing_activated</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="88" refid="structSYN__DoIP__Server_1a3309d4e80e369d4f2e8d0b95386a676f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__DoIP__Server_1a3309d4e80e369d4f2e8d0b95386a676f" kindref="member">vin</ref>[17];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="89" refid="structSYN__DoIP__Server_1aafae16165edd3283ae80533daa25a135" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__DoIP__Server_1aafae16165edd3283ae80533daa25a135" kindref="member">eid</ref>[6];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="90" refid="structSYN__DoIP__Server_1a2aa9cb61041aabb898ece25891225e5b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__DoIP__Server_1a2aa9cb61041aabb898ece25891225e5b" kindref="member">gid</ref>[6];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}<sp/><ref refid="structSYN__DoIP__Server" kindref="compound">SYN_DoIP_Server</ref>;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__doip_8h_1a446f103f762ff0a8be0cb8cd846f4706" kindref="member">syn_doip_init</ref>(<ref refid="structSYN__DoIP__Server" kindref="compound">SYN_DoIP_Server</ref><sp/>*server,<sp/>uint16_t<sp/>logical_address);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__doip_8h_1ab5a809b7df4b1173148f78faa07f56e5" kindref="member">syn_doip_set_identifiers</ref>(<ref refid="structSYN__DoIP__Server" kindref="compound">SYN_DoIP_Server</ref><sp/>*server,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>vin[17],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>eid[6],</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>gid[6]);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__doip_8h_1ad1a18df3d3682d9eb8fceb75eaacc76c" kindref="member">syn_doip_parse_header</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/>uint16_t<sp/>len,<sp/><ref refid="structSYN__DoIP__Header" kindref="compound">SYN_DoIP_Header</ref><sp/>*hdr);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal">uint16_t<sp/><ref refid="syn__doip_8h_1ad67e07a763a81cebe0aaa2b986737ae6" kindref="member">syn_doip_encode_header</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DoIP__Header" kindref="compound">SYN_DoIP_Header</ref><sp/>*hdr,<sp/>uint8_t<sp/>*buf,<sp/>uint16_t<sp/>max_len);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__doip_8h_1adac397bc8293cf3645ddd01bb4c10ad8" kindref="member">syn_doip_process_msg</ref>(<ref refid="structSYN__DoIP__Server" kindref="compound">SYN_DoIP_Server</ref><sp/>*server,<sp/><ref refid="structSYN__UDS__Server" kindref="compound">SYN_UDS_Server</ref><sp/>*uds,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*rx_buf,</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>rx_len,<sp/>uint8_t<sp/>*tx_buf,<sp/>uint16_t<sp/>max_tx_len,<sp/>uint16_t<sp/>*tx_len);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_DOIP_ENABLED<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYNTROPIC_DOIP_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_doip.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,919 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.15.0" xml:lang="en-US">
+  <compounddef id="syn__param_8c" kind="file" language="C++">
+    <compoundname>syn_param.c</compoundname>
+    <includes refid="syn__crc_8h" local="yes">../util/syn_crc.h</includes>
+    <includes refid="syn__param_8h" local="yes">syn_param.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../port/syn_port_flash.h</label>
+        <link refid="syn__port__flash_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/storage/syn_param.c</label>
+        <link refid="syn__param_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syn_param.h</label>
+        <link refid="syn__param_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../util/syn_crc.h</label>
+        <link refid="syn__crc_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="9">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__param_8c_1ae22678e214e9980faa894de84027cb8f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t align16_u32</definition>
+        <argsstring>(uint32_t size)</argsstring>
+        <name>align16_u32</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Align 32-bit size up to 16-byte boundary for flash write alignment. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size to align. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Aligned size in bytes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_param.c" line="24" column="17" bodyfile="src/syntropic/storage/syn_param.c" bodystart="24" bodyend="27"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__param_8c_1a79c05984c729fcd40427edff31a07dcc" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t slot_addr</definition>
+        <argsstring>(const SYN_ParamStore *store, uint8_t sector, uint16_t slot)</argsstring>
+        <name>slot_addr</name>
+        <param>
+          <type>const <ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref> *</type>
+          <declname>store</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>sector</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>slot</declname>
+        </param>
+        <briefdescription>
+<para>Compute the flash address of a parameter slot. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>store</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter store. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sector index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>slot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Slot index within sector. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Absolute flash address. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_param.c" line="36" column="17" bodyfile="src/syntropic/storage/syn_param.c" bodystart="36" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__param_8c_1a98851b394d3af7c00289d9ff0432075f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool verify_slot_crc</definition>
+        <argsstring>(const SYN_ParamStore *store, uint8_t sector, uint16_t slot, uint16_t expected_crc)</argsstring>
+        <name>verify_slot_crc</name>
+        <param>
+          <type>const <ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref> *</type>
+          <declname>store</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>sector</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>slot</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>expected_crc</declname>
+        </param>
+        <briefdescription>
+<para>Verify CRC of a stored slot&apos;s data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>store</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter store. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sector index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>slot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Slot index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expected_crc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expected CRC value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if CRC matches. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_param.c" line="50" column="13" bodyfile="src/syntropic/storage/syn_param.c" bodystart="50" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__param_8c_1a4cf0bf2ef49b883e50b669f8d39cf5d9" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool read_slot</definition>
+        <argsstring>(const SYN_ParamStore *store, uint8_t sector, uint16_t slot, SYN_ParamSlotHeader *hdr, void *data)</argsstring>
+        <name>read_slot</name>
+        <param>
+          <type>const <ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref> *</type>
+          <declname>store</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>sector</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>slot</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ParamSlotHeader" kindref="compound">SYN_ParamSlotHeader</ref> *</type>
+          <declname>hdr</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+<para>Read a slot header and optionally its payload from flash. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>store</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter store. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sector index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>slot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Slot index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Slot header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Slot data buffer (or NULL to verify CRC in-place). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_param.c" line="79" column="13" bodyfile="src/syntropic/storage/syn_param.c" bodystart="79" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__param_8c_1aaa1ab3311417862f5189c155076ac0d1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>static SYN_Status is_slot_erased</definition>
+        <argsstring>(const SYN_ParamStore *store, uint8_t sector, uint16_t slot, bool *erased)</argsstring>
+        <name>is_slot_erased</name>
+        <param>
+          <type>const <ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref> *</type>
+          <declname>store</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>sector</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>slot</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref> *</type>
+          <declname>erased</declname>
+        </param>
+        <briefdescription>
+<para>Check whether every byte in a flash parameter slot is erased (0xFF). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>store</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter store instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sector index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>slot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Slot index within <computeroutput>sector</computeroutput>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>erased</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Set to true if all bytes in the slot equal 0xFF. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on successful read, SYN_ERROR on flash read failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_param.c" line="110" column="19" bodyfile="src/syntropic/storage/syn_param.c" bodystart="110" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__param_8c_1a1728a3aba804306b3c3273303fc861ef" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>static SYN_Status prepare_next_slot</definition>
+        <argsstring>(const SYN_ParamStore *store, uint8_t *out_sec, uint16_t *out_slot)</argsstring>
+        <name>prepare_next_slot</name>
+        <param>
+          <type>const <ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref> *</type>
+          <declname>store</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out_sec</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>out_slot</declname>
+        </param>
+        <briefdescription>
+<para>Locate the next erased (0xFF) slot or advance and erase the next sector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>store</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter store instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_sec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Selected target sector index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_slot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Selected target slot index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or flash read/erase error status. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_param.c" line="142" column="19" bodyfile="src/syntropic/storage/syn_param.c" bodystart="142" bodyend="170"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__param_8c_1afdca61f4ccec5a47b1f913c7b7f4fc53" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool scan_best_slot</definition>
+        <argsstring>(SYN_ParamStore *store, uint16_t *best_out)</argsstring>
+        <name>scan_best_slot</name>
+        <param>
+          <type><ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref> *</type>
+          <declname>store</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>best_out</declname>
+        </param>
+        <briefdescription>
+<para>Scan all sectors and slots for the highest valid sequence number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>store</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter store instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>best_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Winning sequence number when found. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if at least one valid slot was found. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_param.c" line="178" column="13" bodyfile="src/syntropic/storage/syn_param.c" bodystart="178" bodyend="200"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__param_8c_1afdb78cfb37fb7abd8bc214578fc2de53" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_param_init</definition>
+        <argsstring>(SYN_ParamStore *store, uint32_t flash_base, uint8_t sector_count, uint16_t data_size)</argsstring>
+        <name>syn_param_init</name>
+        <param>
+          <type><ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref> *</type>
+          <declname>store</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>flash_base</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>sector_count</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>data_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the parameter store. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Scans flash to find the latest valid slot. Must be called before load or save.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>store</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Store instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flash_base</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start address of the flash region for params. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sector_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of flash sectors to use for wear leveling. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of the parameter struct in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK if at least one valid slot was found, SYN_ERROR if flash is blank (use defaults). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_param.c" line="204" column="12" bodyfile="src/syntropic/storage/syn_param.c" bodystart="204" bodyend="241"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__param_8c_1a7517212cf1902fee3b9887367f6c21d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_param_load</definition>
+        <argsstring>(const SYN_ParamStore *store, void *data)</argsstring>
+        <name>syn_param_load</name>
+        <param>
+          <type>const <ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref> *</type>
+          <declname>store</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+<para>Load parameters from the latest valid slot. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>store</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized store. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer to receive the parameter data (must be data_size bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if no valid data found. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_param.c" line="243" column="12" bodyfile="src/syntropic/storage/syn_param.c" bodystart="243" bodyend="255"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__param_8c_1aef66a1a23d4eff45902d26273b143afa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_param_save</definition>
+        <argsstring>(SYN_ParamStore *store, const void *data)</argsstring>
+        <name>syn_param_save</name>
+        <param>
+          <type><ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref> *</type>
+          <declname>store</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+<para>Save parameters to the next slot (wear-leveled). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Writes to the next free slot, rotating across sectors. When a sector fills up, the next sector is erased and writing continues there.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>store</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized store. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter data to save (must be data_size bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR on flash write failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_param.c" line="257" column="12" bodyfile="src/syntropic/storage/syn_param.c" bodystart="257" bodyend="292"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__param_8c_1a814644869cbbf6990c25fb58a81db9df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_param_erase_all</definition>
+        <argsstring>(SYN_ParamStore *store)</argsstring>
+        <name>syn_param_erase_all</name>
+        <param>
+          <type><ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref> *</type>
+          <declname>store</declname>
+        </param>
+        <briefdescription>
+<para>Erase all parameter data (factory reset). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>store</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Store instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_param.c" line="294" column="12" bodyfile="src/syntropic/storage/syn_param.c" bodystart="294" bodyend="314"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Persistent parameter store with wear leveling. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_PARAM)<sp/>||<sp/>SYN_USE_PARAM</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__crc_8h" kindref="compound">../util/syn_crc.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__param_8h" kindref="compound">syn_param.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Helpers<sp/>──────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__param_8c_1ae22678e214e9980faa894de84027cb8f" kindref="member">align16_u32</ref>(uint32_t<sp/>size)</highlight></codeline>
+<codeline lineno="25"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(size<sp/>+<sp/>15U)<sp/>&amp;<sp/>~15U;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__param_8c_1a79c05984c729fcd40427edff31a07dcc" kindref="member">slot_addr</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref><sp/>*store,<sp/>uint8_t<sp/>sector,<sp/>uint16_t<sp/>slot)</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>store-&gt;<ref refid="structSYN__ParamStore_1a77b78d3e188ff3bf08f9e7a2f63820ae" kindref="member">flash_base</ref><sp/>+<sp/>((uint32_t)sector<sp/>*<sp/>store-&gt;<ref refid="structSYN__ParamStore_1a532e0cb267f3ad6968a6fac1ec5af621" kindref="member">sector_size</ref>)<sp/>+</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((uint32_t)slot<sp/>*<sp/>store-&gt;<ref refid="structSYN__ParamStore_1a3967dba2ce7292e2c7285750142306f0" kindref="member">slot_size</ref>);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__param_8c_1a98851b394d3af7c00289d9ff0432075f" kindref="member">verify_slot_crc</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref><sp/>*store,<sp/>uint8_t<sp/>sector,<sp/>uint16_t<sp/>slot,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>expected_crc)</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>addr<sp/>=<sp/><ref refid="syn__param_8c_1a79c05984c729fcd40427edff31a07dcc" kindref="member">slot_addr</ref>(store,<sp/>sector,<sp/>slot)<sp/>+<sp/>(uint32_t)</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__ParamSlotHeader" kindref="compound">SYN_ParamSlotHeader</ref>);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>crc<sp/>=<sp/><ref refid="syn__crc_8h_1a4ae76bf9bddc0e29abe49db2cc308b20" kindref="member">SYN_CRC16_CCITT_INIT</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>remaining<sp/>=<sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae0b0ff061eb6f0f6a7928451187f661a" kindref="member">data_size</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>chunk[32];</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(remaining<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>len<sp/>=<sp/>(remaining<sp/>&gt;<sp/>(uint16_t)</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(chunk))<sp/>?<sp/>(uint16_t)</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(chunk)<sp/>:<sp/>remaining;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__port__flash_8h_1adc72e69daabcea01a91710bbfa51e1b3" kindref="member">syn_port_flash_read</ref>(addr,<sp/>chunk,<sp/>len)<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crc<sp/>=<sp/><ref refid="syn__crc_8c_1a45d16f270e7e4a1dc377bee47388b2f2" kindref="member">syn_crc16_ccitt_update</ref>(crc,<sp/>chunk,<sp/>len);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addr<sp/>+=<sp/>len;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>remaining<sp/>=<sp/>(uint16_t)(remaining<sp/>-<sp/>len);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>crc<sp/>==<sp/>expected_crc;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__param_8c_1a4cf0bf2ef49b883e50b669f8d39cf5d9" kindref="member">read_slot</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref><sp/>*store,<sp/>uint8_t<sp/>sector,<sp/>uint16_t<sp/>slot,</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ParamSlotHeader" kindref="compound">SYN_ParamSlotHeader</ref><sp/>*hdr,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data)</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>addr<sp/>=<sp/><ref refid="syn__param_8c_1a79c05984c729fcd40427edff31a07dcc" kindref="member">slot_addr</ref>(store,<sp/>sector,<sp/>slot);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__port__flash_8h_1adc72e69daabcea01a91710bbfa51e1b3" kindref="member">syn_port_flash_read</ref>(addr,<sp/>hdr,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*hdr))<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((hdr-&gt;<ref refid="structSYN__ParamSlotHeader_1a8a26643279d9767f0d4378f91ef691e9" kindref="member">magic</ref><sp/>!=<sp/><ref refid="syn__param_8h_1a6af6b105201f5352ccd80157c446cdbf" kindref="member">SYN_PARAM_MAGIC</ref>)<sp/>||<sp/>(hdr-&gt;<ref refid="structSYN__ParamSlotHeader_1a267163b7537fc0117537d3ff13425321" kindref="member">data_size</ref><sp/>!=<sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae0b0ff061eb6f0f6a7928451187f661a" kindref="member">data_size</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__port__flash_8h_1adc72e69daabcea01a91710bbfa51e1b3" kindref="member">syn_port_flash_read</ref>(addr<sp/>+<sp/>(uint32_t)</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*hdr),<sp/>data,<sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae0b0ff061eb6f0f6a7928451187f661a" kindref="member">data_size</ref>)<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__crc_8h_1a7f547455d6657471da9cfc954bb7e139" kindref="member">syn_crc16_ccitt</ref>(data,<sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae0b0ff061eb6f0f6a7928451187f661a" kindref="member">data_size</ref>)<sp/>==<sp/>hdr-&gt;<ref refid="structSYN__ParamSlotHeader_1ac5b930fdbed77c0f255fcede2e6d2fd1" kindref="member">crc</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__param_8c_1a98851b394d3af7c00289d9ff0432075f" kindref="member">verify_slot_crc</ref>(store,<sp/>sector,<sp/>slot,<sp/>hdr-&gt;<ref refid="structSYN__ParamSlotHeader_1ac5b930fdbed77c0f255fcede2e6d2fd1" kindref="member">crc</ref>);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__param_8c_1aaa1ab3311417862f5189c155076ac0d1" kindref="member">is_slot_erased</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref><sp/>*store,<sp/>uint8_t<sp/>sector,<sp/>uint16_t<sp/>slot,</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>*erased)</highlight></codeline>
+<codeline lineno="112"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>addr<sp/>=<sp/><ref refid="syn__param_8c_1a79c05984c729fcd40427edff31a07dcc" kindref="member">slot_addr</ref>(store,<sp/>sector,<sp/>slot);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>remaining<sp/>=<sp/>store-&gt;<ref refid="structSYN__ParamStore_1a3967dba2ce7292e2c7285750142306f0" kindref="member">slot_size</ref>;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>chunk[32];</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>*erased<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(remaining<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>len<sp/>=<sp/>(remaining<sp/>&gt;<sp/>(uint16_t)</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(chunk))<sp/>?<sp/>(uint16_t)</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(chunk)<sp/>:<sp/>remaining;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__port__flash_8h_1adc72e69daabcea01a91710bbfa51e1b3" kindref="member">syn_port_flash_read</ref>(addr,<sp/>chunk,<sp/>len)<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>i<sp/>=<sp/>0U;<sp/>i<sp/>&lt;<sp/>len;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(chunk[i]<sp/>!=<sp/>0xFFU)<sp/>{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*erased<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addr<sp/>+=<sp/>len;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>remaining<sp/>=<sp/>(uint16_t)(remaining<sp/>-<sp/>len);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__param_8c_1a1728a3aba804306b3c3273303fc861ef" kindref="member">prepare_next_slot</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref><sp/>*store,<sp/>uint8_t<sp/>*out_sec,</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*out_slot)</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!store-&gt;<ref refid="structSYN__ParamStore_1a9b0785634b1f3ab41d67d2414c293c0c" kindref="member">has_active_slot</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_sec<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_slot<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__flash_8h_1a2b4ec48702be2b4d90a5726954d6b8be" kindref="member">syn_port_flash_erase</ref>(store-&gt;<ref refid="structSYN__ParamStore_1a77b78d3e188ff3bf08f9e7a2f63820ae" kindref="member">flash_base</ref>);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>sec<sp/>=<sp/>store-&gt;<ref refid="structSYN__ParamStore_1ac3e20a8172440d016d748086b02a0cc2" kindref="member">active_sector</ref>;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>sl<sp/>=<sp/>(uint32_t)store-&gt;<ref refid="structSYN__ParamStore_1a28f853f4735bd6652b2aefbf1a65a7f4" kindref="member">active_slot</ref><sp/>+<sp/>1UL;<sp/>sl<sp/>&lt;<sp/>(uint32_t)store-&gt;<ref refid="structSYN__ParamStore_1ac43156b9d9d1bc0f7839e2a076d3be66" kindref="member">slots_per_sector</ref>;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sl++)<sp/>{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>erased<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>st<sp/>=<sp/><ref refid="syn__param_8c_1aaa1ab3311417862f5189c155076ac0d1" kindref="member">is_slot_erased</ref>(store,<sp/>sec,<sp/>(uint16_t)sl,<sp/>&amp;erased);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(st<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>st;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(erased)<sp/>{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_sec<sp/>=<sp/>sec;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_slot<sp/>=<sp/>(uint16_t)sl;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>sec<sp/>=<sp/>(uint8_t)((sec<sp/>+<sp/>1U)<sp/>%<sp/>store-&gt;<ref refid="structSYN__ParamStore_1a3016cd5c52ecfba474f850096dab1e31" kindref="member">sector_count</ref>);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_sec<sp/>=<sp/>sec;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_slot<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__flash_8h_1a2b4ec48702be2b4d90a5726954d6b8be" kindref="member">syn_port_flash_erase</ref>(store-&gt;<ref refid="structSYN__ParamStore_1a77b78d3e188ff3bf08f9e7a2f63820ae" kindref="member">flash_base</ref><sp/>+<sp/>((uint32_t)sec<sp/>*<sp/>store-&gt;<ref refid="structSYN__ParamStore_1a532e0cb267f3ad6968a6fac1ec5af621" kindref="member">sector_size</ref>));</highlight></codeline>
+<codeline lineno="170"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__param_8c_1afdca61f4ccec5a47b1f913c7b7f4fc53" kindref="member">scan_best_slot</ref>(<ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref><sp/>*store,<sp/>uint16_t<sp/>*best_out)</highlight></codeline>
+<codeline lineno="179"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>best_seq<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>found<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__ParamSlotHeader" kindref="compound">SYN_ParamSlotHeader</ref><sp/>hdr;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>total_slots<sp/>=<sp/>(uint32_t)store-&gt;<ref refid="structSYN__ParamStore_1a3016cd5c52ecfba474f850096dab1e31" kindref="member">sector_count</ref><sp/>*<sp/>(uint32_t)store-&gt;<ref refid="structSYN__ParamStore_1ac43156b9d9d1bc0f7839e2a076d3be66" kindref="member">slots_per_sector</ref>;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>idx<sp/>=<sp/>0U;<sp/>idx<sp/>&lt;<sp/>total_slots;<sp/>idx++)<sp/>{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>sec<sp/>=<sp/>(uint8_t)(idx<sp/>/<sp/>(uint32_t)store-&gt;<ref refid="structSYN__ParamStore_1ac43156b9d9d1bc0f7839e2a076d3be66" kindref="member">slots_per_sector</ref>);</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>sl<sp/>=<sp/>(uint16_t)(idx<sp/>%<sp/>(uint32_t)store-&gt;<ref refid="structSYN__ParamStore_1ac43156b9d9d1bc0f7839e2a076d3be66" kindref="member">slots_per_sector</ref>);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__param_8c_1a4cf0bf2ef49b883e50b669f8d39cf5d9" kindref="member">read_slot</ref>(store,<sp/>sec,<sp/>sl,<sp/>&amp;hdr,<sp/>NULL))<sp/>{</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!found<sp/>||<sp/>((int16_t)(hdr.<ref refid="structSYN__ParamSlotHeader_1aa364125b495ba807f33e3d4940693956" kindref="member">seq</ref><sp/>-<sp/>best_seq)<sp/>&gt;<sp/>0))<sp/>{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>best_seq<sp/>=<sp/>hdr.<ref refid="structSYN__ParamSlotHeader_1aa364125b495ba807f33e3d4940693956" kindref="member">seq</ref>;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1ac3e20a8172440d016d748086b02a0cc2" kindref="member">active_sector</ref><sp/>=<sp/>sec;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1a28f853f4735bd6652b2aefbf1a65a7f4" kindref="member">active_slot</ref><sp/>=<sp/>sl;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>found<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/>*best_out<sp/>=<sp/>best_seq;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>found;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__param_8c_1afdb78cfb37fb7abd8bc214578fc2de53" kindref="member">syn_param_init</ref>(<ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref><sp/>*store,<sp/>uint32_t<sp/>flash_base,<sp/>uint8_t<sp/>sector_count,</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>data_size)</highlight></codeline>
+<codeline lineno="206"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((store<sp/>==<sp/>NULL)<sp/>||<sp/>(sector_count<sp/>==<sp/>0U)<sp/>||<sp/>(data_size<sp/>==<sp/>0U))<sp/>{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(store,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*store));</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1a77b78d3e188ff3bf08f9e7a2f63820ae" kindref="member">flash_base</ref><sp/>=<sp/>flash_base;</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1a3016cd5c52ecfba474f850096dab1e31" kindref="member">sector_count</ref><sp/>=<sp/>sector_count;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae0b0ff061eb6f0f6a7928451187f661a" kindref="member">data_size</ref><sp/>=<sp/>data_size;</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1a532e0cb267f3ad6968a6fac1ec5af621" kindref="member">sector_size</ref><sp/>=<sp/><ref refid="syn__port__flash_8h_1aa839e30eabc941d558ef7ac54197f202" kindref="member">syn_port_flash_sector_size</ref>(flash_base);</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>raw_slot<sp/>=<sp/>(uint32_t)</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__ParamSlotHeader" kindref="compound">SYN_ParamSlotHeader</ref>)<sp/>+<sp/>(uint32_t)data_size;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>aligned_slot<sp/>=<sp/><ref refid="syn__param_8c_1ae22678e214e9980faa894de84027cb8f" kindref="member">align16_u32</ref>(raw_slot);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((aligned_slot<sp/>&gt;<sp/>store-&gt;<ref refid="structSYN__ParamStore_1a532e0cb267f3ad6968a6fac1ec5af621" kindref="member">sector_size</ref>)<sp/>||<sp/>(aligned_slot<sp/>&gt;<sp/>0xFFFFU))<sp/>{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>max_slots<sp/>=<sp/>store-&gt;<ref refid="structSYN__ParamStore_1a532e0cb267f3ad6968a6fac1ec5af621" kindref="member">sector_size</ref><sp/>/<sp/>aligned_slot;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1a3967dba2ce7292e2c7285750142306f0" kindref="member">slot_size</ref><sp/>=<sp/>(uint16_t)aligned_slot;</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1ac43156b9d9d1bc0f7839e2a076d3be66" kindref="member">slots_per_sector</ref><sp/>=<sp/>(max_slots<sp/>&gt;<sp/>0xFFFFUL)<sp/>?<sp/>0xFFFFU<sp/>:<sp/>(uint16_t)max_slots;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>best_seq<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__param_8c_1afdca61f4ccec5a47b1f913c7b7f4fc53" kindref="member">scan_best_slot</ref>(store,<sp/>&amp;best_seq))<sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae090d61fd95c438be05966e34e0f3b8d" kindref="member">next_seq</ref><sp/>=<sp/>(uint16_t)(best_seq<sp/>+<sp/>1U);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1a9b0785634b1f3ab41d67d2414c293c0c" kindref="member">has_active_slot</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae0580e64cd0c6580a581367f812e9eae" kindref="member">initialized</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1ac3e20a8172440d016d748086b02a0cc2" kindref="member">active_sector</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1a28f853f4735bd6652b2aefbf1a65a7f4" kindref="member">active_slot</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae090d61fd95c438be05966e34e0f3b8d" kindref="member">next_seq</ref><sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1a9b0785634b1f3ab41d67d2414c293c0c" kindref="member">has_active_slot</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae0580e64cd0c6580a581367f812e9eae" kindref="member">initialized</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__param_8c_1a7517212cf1902fee3b9887367f6c21d8" kindref="member">syn_param_load</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref><sp/>*store,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data)</highlight></codeline>
+<codeline lineno="244"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((store<sp/>==<sp/>NULL)<sp/>||<sp/>!store-&gt;<ref refid="structSYN__ParamStore_1ae0580e64cd0c6580a581367f812e9eae" kindref="member">initialized</ref><sp/>||<sp/>(data<sp/>==<sp/>NULL))<sp/>{</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__ParamSlotHeader" kindref="compound">SYN_ParamSlotHeader</ref><sp/>hdr;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__param_8c_1a4cf0bf2ef49b883e50b669f8d39cf5d9" kindref="member">read_slot</ref>(store,<sp/>store-&gt;<ref refid="structSYN__ParamStore_1ac3e20a8172440d016d748086b02a0cc2" kindref="member">active_sector</ref>,<sp/>store-&gt;<ref refid="structSYN__ParamStore_1a28f853f4735bd6652b2aefbf1a65a7f4" kindref="member">active_slot</ref>,<sp/>&amp;hdr,<sp/>data))<sp/>{</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="255"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__param_8c_1aef66a1a23d4eff45902d26273b143afa" kindref="member">syn_param_save</ref>(<ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref><sp/>*store,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data)</highlight></codeline>
+<codeline lineno="258"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((store<sp/>==<sp/>NULL)<sp/>||<sp/>!store-&gt;<ref refid="structSYN__ParamStore_1ae0580e64cd0c6580a581367f812e9eae" kindref="member">initialized</ref><sp/>||<sp/>(data<sp/>==<sp/>NULL))<sp/>{</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>sec<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>sl<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>err<sp/>=<sp/><ref refid="syn__param_8c_1a1728a3aba804306b3c3273303fc861ef" kindref="member">prepare_next_slot</ref>(store,<sp/>&amp;sec,<sp/>&amp;sl);</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(err<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>err;</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__ParamSlotHeader" kindref="compound">SYN_ParamSlotHeader</ref><sp/>hdr;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(&amp;hdr,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(hdr));</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/>hdr.<ref refid="structSYN__ParamSlotHeader_1a8a26643279d9767f0d4378f91ef691e9" kindref="member">magic</ref><sp/>=<sp/><ref refid="syn__param_8h_1a6af6b105201f5352ccd80157c446cdbf" kindref="member">SYN_PARAM_MAGIC</ref>;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/>hdr.<ref refid="structSYN__ParamSlotHeader_1aa364125b495ba807f33e3d4940693956" kindref="member">seq</ref><sp/>=<sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae090d61fd95c438be05966e34e0f3b8d" kindref="member">next_seq</ref>;</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/>hdr.<ref refid="structSYN__ParamSlotHeader_1a267163b7537fc0117537d3ff13425321" kindref="member">data_size</ref><sp/>=<sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae0b0ff061eb6f0f6a7928451187f661a" kindref="member">data_size</ref>;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/>hdr.<ref refid="structSYN__ParamSlotHeader_1ac5b930fdbed77c0f255fcede2e6d2fd1" kindref="member">crc</ref><sp/>=<sp/><ref refid="syn__crc_8h_1a7f547455d6657471da9cfc954bb7e139" kindref="member">syn_crc16_ccitt</ref>(data,<sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae0b0ff061eb6f0f6a7928451187f661a" kindref="member">data_size</ref>);</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>addr<sp/>=<sp/><ref refid="syn__param_8c_1a79c05984c729fcd40427edff31a07dcc" kindref="member">slot_addr</ref>(store,<sp/>sec,<sp/>sl);</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/>err<sp/>=<sp/><ref refid="syn__port__flash_8h_1ac0bcab8a87b5aa6462e8a548a7554dad" kindref="member">syn_port_flash_write</ref>(addr<sp/>+<sp/>(uint32_t)</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(hdr),<sp/>data,<sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae0b0ff061eb6f0f6a7928451187f661a" kindref="member">data_size</ref>);</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(err<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>err<sp/>=<sp/><ref refid="syn__port__flash_8h_1ac0bcab8a87b5aa6462e8a548a7554dad" kindref="member">syn_port_flash_write</ref>(addr,<sp/>&amp;hdr,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(hdr));</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(err<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>err;</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1ac3e20a8172440d016d748086b02a0cc2" kindref="member">active_sector</ref><sp/>=<sp/>sec;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1a28f853f4735bd6652b2aefbf1a65a7f4" kindref="member">active_slot</ref><sp/>=<sp/>sl;</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae090d61fd95c438be05966e34e0f3b8d" kindref="member">next_seq</ref>++;</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1a9b0785634b1f3ab41d67d2414c293c0c" kindref="member">has_active_slot</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="292"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__param_8c_1a814644869cbbf6990c25fb58a81db9df" kindref="member">syn_param_erase_all</ref>(<ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref><sp/>*store)</highlight></codeline>
+<codeline lineno="295"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((store<sp/>==<sp/>NULL)<sp/>||<sp/>!store-&gt;<ref refid="structSYN__ParamStore_1ae0580e64cd0c6580a581367f812e9eae" kindref="member">initialized</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>sec<sp/>=<sp/>0U;<sp/>sec<sp/>&lt;<sp/>store-&gt;<ref refid="structSYN__ParamStore_1a3016cd5c52ecfba474f850096dab1e31" kindref="member">sector_count</ref>;<sp/>sec++)<sp/>{</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>err<sp/>=</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__flash_8h_1a2b4ec48702be2b4d90a5726954d6b8be" kindref="member">syn_port_flash_erase</ref>(store-&gt;<ref refid="structSYN__ParamStore_1a77b78d3e188ff3bf08f9e7a2f63820ae" kindref="member">flash_base</ref><sp/>+<sp/>((uint32_t)sec<sp/>*<sp/>store-&gt;<ref refid="structSYN__ParamStore_1a532e0cb267f3ad6968a6fac1ec5af621" kindref="member">sector_size</ref>));</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(err<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>err;</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1ac3e20a8172440d016d748086b02a0cc2" kindref="member">active_sector</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1a28f853f4735bd6652b2aefbf1a65a7f4" kindref="member">active_slot</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1ae090d61fd95c438be05966e34e0f3b8d" kindref="member">next_seq</ref><sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/>store-&gt;<ref refid="structSYN__ParamStore_1a9b0785634b1f3ab41d67d2414c293c0c" kindref="member">has_active_slot</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="314"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"></highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_PARAM<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/storage/syn_param.c"/>
+  </compounddef>
+</doxygen>

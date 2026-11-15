@@ -1,0 +1,189 @@
+
+
+# File syn\_autoip.c
+
+[**File List**](files.md) **>** [**net**](dir_1b04293f300841df63a8ab6b5fd3200c.md) **>** [**syn\_autoip.c**](syn__autoip_8c.md)
+
+[Go to the documentation of this file](syn__autoip_8c.md)
+
+
+```C++
+
+
+#include "syntropic/net/syn_autoip.h"
+
+#include <string.h>
+
+#define SYN_AUTOIP_PROBE_NUM 3U    
+#define SYN_AUTOIP_ANNOUNCE_NUM 2U 
+
+SYN_Status syn_autoip_init(SYN_AUTOIP *autoip, const uint8_t mac_addr[6])
+{
+    if (!autoip || !mac_addr) {
+        return SYN_INVALID_PARAM;
+    }
+    memset(autoip, 0, sizeof(*autoip));
+    autoip->state = SYN_AUTOIP_STATE_INIT;
+
+    /* Generate candidate IP in 169.254.1.1 .. 169.254.254.255 seeded by MAC address */
+    uint16_t seed = ((uint16_t)mac_addr[4] << 8) | mac_addr[5];
+    uint8_t octet3 = (uint8_t)(1 + (seed % 254));
+    uint8_t octet4 = (uint8_t)(1 + ((seed >> 4) % 254));
+
+    autoip->ip_addr = 0xA9FE0000UL | ((uint32_t)octet3 << 8) | octet4;
+    return SYN_OK;
+}
+
+SYN_Status syn_autoip_build_probe(SYN_AUTOIP *autoip, const uint8_t mac_addr[6], uint8_t *buf_out,
+                                  size_t *len_out)
+{
+    if (!autoip || !mac_addr || !buf_out || !len_out) {
+        return SYN_INVALID_PARAM;
+    }
+
+    memset(buf_out, 0, 60);
+    memset(&buf_out[0], 0xFF, 6); /* Broadcast Dst */
+    memcpy(&buf_out[6], mac_addr, 6);
+    buf_out[12] = 0x08;
+    buf_out[13] = 0x06; /* EtherType = ARP */
+
+    buf_out[14] = 0;
+    buf_out[15] = 1; /* Ethernet */
+    buf_out[16] = 0x08;
+    buf_out[17] = 0x00; /* IPv4 */
+    buf_out[18] = 6;
+    buf_out[19] = 4;
+    buf_out[20] = 0;
+    buf_out[21] = 1; /* Request */
+
+    memcpy(&buf_out[22], mac_addr, 6);
+    /* Sender IP = 0.0.0.0 for ARP Probe */
+    buf_out[28] = 0;
+    buf_out[29] = 0;
+    buf_out[30] = 0;
+    buf_out[31] = 0;
+
+    memset(&buf_out[32], 0, 6);
+    buf_out[38] = (uint8_t)(autoip->ip_addr >> 24);
+    buf_out[39] = (uint8_t)(autoip->ip_addr >> 16);
+    buf_out[40] = (uint8_t)(autoip->ip_addr >> 8);
+    buf_out[41] = (uint8_t)(autoip->ip_addr);
+
+    autoip->state = SYN_AUTOIP_STATE_PROBE;
+    autoip->probe_count++;
+    *len_out = 60;
+
+    return SYN_OK;
+}
+
+SYN_Status syn_autoip_build_announce(SYN_AUTOIP *autoip, const uint8_t mac_addr[6],
+                                     uint8_t *buf_out, size_t *len_out)
+{
+    if (!autoip || !mac_addr || !buf_out || !len_out) {
+        return SYN_INVALID_PARAM;
+    }
+
+    memset(buf_out, 0, 60);
+    memset(&buf_out[0], 0xFF, 6);
+    memcpy(&buf_out[6], mac_addr, 6);
+    buf_out[12] = 0x08;
+    buf_out[13] = 0x06;
+
+    buf_out[14] = 0;
+    buf_out[15] = 1;
+    buf_out[16] = 0x08;
+    buf_out[17] = 0x00;
+    buf_out[18] = 6;
+    buf_out[19] = 4;
+    buf_out[20] = 0;
+    buf_out[21] = 1;
+
+    memcpy(&buf_out[22], mac_addr, 6);
+    /* Sender IP = candidate IP for ARP Announcement */
+    buf_out[28] = (uint8_t)(autoip->ip_addr >> 24);
+    buf_out[29] = (uint8_t)(autoip->ip_addr >> 16);
+    buf_out[30] = (uint8_t)(autoip->ip_addr >> 8);
+    buf_out[31] = (uint8_t)(autoip->ip_addr);
+
+    memset(&buf_out[32], 0, 6);
+    buf_out[38] = buf_out[28];
+    buf_out[39] = buf_out[29];
+    buf_out[40] = buf_out[30];
+    buf_out[41] = buf_out[31];
+
+    autoip->announce_count++;
+    if (autoip->probe_count >= SYN_AUTOIP_PROBE_NUM &&
+        autoip->announce_count >= SYN_AUTOIP_ANNOUNCE_NUM) {
+        autoip->state = SYN_AUTOIP_STATE_BOUND;
+    } else {
+        autoip->state = SYN_AUTOIP_STATE_ANNOUNCE;
+    }
+    *len_out = 60;
+
+    return SYN_OK;
+}
+
+static bool autoip_handle_conflict(SYN_AUTOIP *autoip, const uint8_t *arp_frame)
+{
+    uint32_t sender_ip = ((uint32_t)arp_frame[28] << 24U) | ((uint32_t)arp_frame[29] << 16U) |
+                         ((uint32_t)arp_frame[30] << 8U) | arp_frame[31];
+    uint32_t target_ip = ((uint32_t)arp_frame[38] << 24U) | ((uint32_t)arp_frame[39] << 16U) |
+                         ((uint32_t)arp_frame[40] << 8U) | arp_frame[41];
+    bool probe_conflict = (autoip->state == SYN_AUTOIP_STATE_PROBE) && (sender_ip == 0U) &&
+                          (target_ip == autoip->ip_addr);
+
+    if (sender_ip != autoip->ip_addr && !probe_conflict) {
+        return false;
+    }
+
+    autoip->collisions++;
+    uint8_t octet4 = (uint8_t)(autoip->ip_addr & 0xFFU) + 1U;
+    if (octet4 == 0U || octet4 == 255U) {
+        octet4 = 1U;
+    }
+    autoip->ip_addr = (autoip->ip_addr & 0xFFFFFF00UL) | octet4;
+    autoip->probe_count = 0U;
+    autoip->announce_count = 0U;
+    autoip->state = SYN_AUTOIP_STATE_INIT;
+    return true;
+}
+
+SYN_Status syn_autoip_process_arp(SYN_AUTOIP *autoip, SYN_ETH *eth, const uint8_t *arp_frame,
+                                  size_t len)
+{
+    if (!autoip || !arp_frame || len < 42U) {
+        return SYN_INVALID_PARAM;
+    }
+
+    uint16_t ethertype = ((uint16_t)arp_frame[12] << 8U) | arp_frame[13];
+    if (ethertype != SYN_ETHTYPE_ARP) {
+        return SYN_OK;
+    }
+
+    if (eth != NULL && memcmp(&arp_frame[22], eth->mac_addr, 6U) == 0) {
+        return SYN_OK;
+    }
+
+    if (autoip_handle_conflict(autoip, arp_frame)) {
+        return SYN_BUSY;
+    }
+
+    /* Do not jump to BOUND while still completing RFC 3927 ARP probes */
+    if (autoip->probe_count < SYN_AUTOIP_PROBE_NUM && autoip->state != SYN_AUTOIP_STATE_ANNOUNCE &&
+        autoip->state != SYN_AUTOIP_STATE_BOUND) {
+        return SYN_OK;
+    }
+
+    /* Probes completed without conflict -> transition to BOUND */
+    autoip->state = SYN_AUTOIP_STATE_BOUND;
+    if (eth) {
+        eth->ip_addr = autoip->ip_addr;
+        eth->netmask = SYN_AUTOIP_NETMASK;
+        eth->gateway = 0U;
+    }
+
+    return SYN_OK;
+}
+```
+
+
